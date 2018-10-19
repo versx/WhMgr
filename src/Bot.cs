@@ -257,20 +257,6 @@
                 return;
             }
 
-            //var guild = await _client.GetGuildAsync(wh.GuildId);
-            //if (guild == null)
-            //{
-            //    _logger.Error($"Failed to parse guild from id {wh.GuildId}.");
-            //    return;
-            //}
-
-            //var channel = guild.GetChannel(wh.ChannelId);
-            //if (channel == null)
-            //{
-            //    _logger.Error($"Failed to parse channel from id {wh.ChannelId}.");
-            //    return;
-            //}
-
             var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId);
             var pkmn = Database.Instance.Pokemon[e.Pokemon.Id];
             var pkmnImage = string.Format(Strings.PokemonImage, e.Pokemon.Id, Convert.ToInt32(string.IsNullOrEmpty(e.Pokemon.FormId) ? "0" : e.Pokemon.FormId));
@@ -294,7 +280,7 @@
                 eb.Description += $"**Details:** CP: {e.Pokemon.CP} IV: {e.Pokemon.IV} LV: {e.Pokemon.Level}\r\n";
             }
             eb.Description += $"**Despawn:** {e.Pokemon.DespawnTime.ToLongTimeString()} ({e.Pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n";
-            if (e.Pokemon.Attack != "?" && e.Pokemon.Defense != "?" && e.Pokemon.Stamina != "?" && e.Pokemon.Level != "?")
+            if (e.Pokemon.Attack != "?" && e.Pokemon.Defense != "?" && e.Pokemon.Stamina != "?" && e.Pokemon.Level != "?" && !string.IsNullOrEmpty(e.Pokemon.Level))
             {
                 eb.Description += $"**IV Stats:** Atk: {e.Pokemon.Attack}/Def: {e.Pokemon.Defense}/Sta: {e.Pokemon.Stamina}\r\n";
             }
@@ -371,20 +357,6 @@
                 _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
                 return;
             }
-
-            //var guild = await _client.GetGuildAsync(wh.GuildId);
-            //if (guild == null)
-            //{
-            //    _logger.Error($"Failed to parse guild from id {wh.GuildId}.");
-            //    return;
-            //}
-
-            //var channel = guild.GetChannel(wh.ChannelId);
-            //if (channel == null)
-            //{
-            //    _logger.Error($"Failed to parse channel from id {wh.ChannelId}.");
-            //    return;
-            //}
 
             var pkmn = Database.Instance.Pokemon.ContainsKey(e.Raid.PokemonId) ? Database.Instance.Pokemon[e.Raid.PokemonId] : new Data.Models.PokemonModel { Name = "Egg" };
             var pkmnImage = string.Format(Strings.PokemonImage, e.Raid.PokemonId, 0);
