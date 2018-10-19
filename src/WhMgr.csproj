@@ -79,11 +79,15 @@
     <Compile Include="Diagnostics\EventLogger.cs" />
     <Compile Include="Strings.cs" />
     <Compile Include="WebHookManager.cs" />
+    <Compile Include="Security\Permissions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Security\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

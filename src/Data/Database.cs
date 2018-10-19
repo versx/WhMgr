@@ -7,11 +7,14 @@
     using Newtonsoft.Json;
 
     using T.Data.Models;
+    using T.Diagnostics;
 
     public class Database
     {
         const string PokemonFileName = "pokemon.json";
         const string MovesetsFileName = "moves.json";
+
+        private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         private static Database _instance;
         public static Database Instance
@@ -39,8 +42,14 @@
             }
 
             var data = File.ReadAllText(PokemonFileName);
-            //TODO: Check if null.
-            Pokemon = JsonConvert.DeserializeObject<Dictionary<int, PokemonModel>>(data);
+            if (data == null)
+            {
+                _logger.Error("Pokemon database is null.");
+            }
+            else
+            {
+                Pokemon = JsonConvert.DeserializeObject<Dictionary<int, PokemonModel>>(data);
+            }
 
             if (!File.Exists(MovesetsFileName))
             {
@@ -48,8 +57,14 @@
             }
 
             data = File.ReadAllText(MovesetsFileName);
-            //TODO: Check if null.
-            Movesets = JsonConvert.DeserializeObject<Dictionary<int, MovesetModel>>(data);
+            if (string.IsNullOrEmpty(data))
+            {
+                _logger.Error("Moveset database is null.");
+            }
+            else
+            {
+                Movesets = JsonConvert.DeserializeObject<Dictionary<int, MovesetModel>>(data);
+            }
         }
     }
 }

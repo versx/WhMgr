@@ -1,6 +1,7 @@
 ﻿namespace T
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Net;
 
@@ -12,7 +13,7 @@
     using T.Diagnostics;
     using T.Geofence;
     using T.Net;
-    using Net.Models;
+    using T.Net.Models;
 
     public class WebHookManager
     {
@@ -27,9 +28,16 @@
 
         private readonly HttpServer _http;
         private readonly GeofenceService _geofenceSvc;
-        private readonly AlarmList _alarms;
-        private readonly Filters _filters;       
+        private AlarmList _alarms;
+        private readonly Filters _filters;
+        private readonly Dictionary<string, WebHookObject> _webhooks;
         private readonly IEventLogger _logger;
+
+        #endregion
+
+        #region Properties
+
+        public IReadOnlyDictionary<string, WebHookObject> WebHooks => _webhooks;
 
         #endregion
 
@@ -65,6 +73,10 @@
             _geofenceSvc = new GeofenceService();
             _filters = new Filters(_logger);
             _alarms = LoadAlarms(AlarmsFilePath);
+            _webhooks = new Dictionary<string, WebHookObject>();
+
+            LoadWebHooks();
+            LoadAlarmsOnChange();
         }
 
         #endregion
@@ -112,6 +124,68 @@
             }
 
             return alarms;
+        }
+
+        private void LoadAlarmsOnChange()
+        {
+            var offset = 0L;
+
+            var fsw = new FileSystemWatcher
+            {
+                Path = Environment.CurrentDirectory,
+                Filter = AlarmsFilePath
+            };
+
+            var file = File.Open(
+                AlarmsFilePath,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.Write);
+
+            var sr = new StreamReader(file);
+            while (true)
+            {
+                fsw.WaitForChanged(WatcherChangeTypes.Changed);
+
+                file.Seek(offset, SeekOrigin.Begin);
+                if (!sr.EndOfStream)
+                {
+                    do
+                    {
+                        Console.WriteLine(sr.ReadLine());
+                    } while (!sr.EndOfStream);
+
+                    offset = file.Position;
+                }
+                else
+                {
+                    _alarms = LoadAlarms(AlarmsFilePath);
+                }
+            }
+        }
+
+        private void LoadWebHooks()
+        {
+            foreach (var alarm in _alarms)
+            {
+                foreach (var item in alarm.Value)
+                {
+                    if (string.IsNullOrEmpty(item.Webhook))
+                        continue;
+
+                    var wh = GetWebHookData(item.Webhook);
+                    if (wh == null)
+                    {
+                        _logger.Error($"Failed to download webhook data from {item.Webhook}.");
+                        continue;
+                    }
+
+                    if (!_webhooks.ContainsKey(item.Name))
+                    {
+                        _webhooks.Add(item.Name, wh);
+                    }
+                }
+            }
         }
 
         private void ProcessPokemon(PokemonData pkmn)
@@ -191,7 +265,7 @@
                 {
                     if (!InGeofence(alarm.Geofence, new Location(raid.Latitude, raid.Longitude)))
                     {
-                        _logger.Info($"[{alarm.Geofence.Name}] Skipping raid Pkmn={raid.PokemonId}, Level={raid.Level} because not in geofence.");
+                        _logger.Info($"[{alarm.Geofence.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level} because not in geofence.");
                         continue;
                     }
 

@@ -13,6 +13,7 @@
 
     using T.Diagnostics;
     using T.Net.Models;
+    using T.Security;
 
     //TODO: Support multiple endpoints, monocle, rm.
 
@@ -34,6 +35,8 @@
         public ushort Port { get; }
 
         public bool IsDebug { get; set; }
+
+        public bool SkipEggs { get; set; }
 
         #endregion
 
@@ -60,15 +63,22 @@
 
             try
             {
-                //TODO: Requires administrative privileges
-                var addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Ethernet);
-                for (var i = 0; i < addresses.Count; i++)
+                var addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Wireless80211);
+                if (addresses.Count == 0)
                 {
-                    var endpoint = PrepareEndPoint(addresses[i], Port);
-                    if (!_server.Prefixes.Contains(endpoint))
-                        _server.Prefixes.Add(endpoint);
+                    addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Ethernet);
+                }
 
-                    _logger.Debug($"[IP ADDRESS] {endpoint}");
+                if (Permissions.IsAdministrator())
+                {
+                    for (var i = 0; i < addresses.Count; i++)
+                    {
+                        var endpoint = PrepareEndPoint(addresses[i], Port);
+                        if (!_server.Prefixes.Contains(endpoint))
+                            _server.Prefixes.Add(endpoint);
+
+                        _logger.Debug($"[IP ADDRESS] {endpoint}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -154,10 +164,10 @@
                         case RaidData.WebHookHeader:
                             ParseRaid(part.Message);
                             break;
-                            //case "tth":
-                            //case "scheduler":
-                            //    ParseTth(message);
-                            //    break;
+                        //case "tth":
+                        //case "scheduler":
+                        //    ParseTth(message);
+                        //    break;
                     }
                 }
             }
@@ -170,150 +180,16 @@
 
         private void ParsePokemon(dynamic message)
         {
-            /*[{
-             *  "message =
-             *  {
-             *      "disappear_time = 1509308578, 
-             *      "form = null, 
-             *      "seconds_until_despawn = 1697, 
-             *      "spawnpoint_id = "80c3347a811", 
-             *      "cp_multiplier = null,
-             *      "move_2 = null, 
-             *      "height = null, 
-             *      "time_until_hidden_ms = -1773360683, 
-             *      "last_modified_time = 1509306881578,
-             *      "cp = null, 
-             *      "encounter_id = "MTQyODEwOTU4MDE4ODI3NDIyMjI=", 
-             *      "spawn_end = 1378, 
-             *      "move_1 = null,
-             *      "individual_defense = null, 
-             *      "verified = true, 
-             *      "weight = null, 
-             *      "pokemon_id = 111, 
-             *      "player_level = 4,
-             *      "individual_stamina = null, 
-             *      "longitude = -117.63445402991555, 
-             *      "spawn_start = 3179,
-             *      "gender = 1, 
-             *      "latitude = 34.06371229679003, 
-             *      "individual_attack = null
-             *  }, 
-             *  "type = "pokemon"
-             *}]
-             */
-
-            /*
-            [{
-[{
-"message": {
-	"great_catch": null, 
-	"boosted_weather": 0, 
-	"disappear_time": 1521468677, 
-	"weight": null, 
-	"seconds_until_despawn": 67, 
-	"def_grade": null, 
-	"spawnpoint_id": 8848490882789,
-	"atk_grade": null, 
-	"cp_multiplier": null,
-	"individual_defense": null,
-	"height": null, 
-	"time_until_hidden_ms": 66363,
-	"rating_attack": null, 
-	"costume": 0, 
-	"last_modified_time": 1521468610681, 
-	"catch_prob_1": null, 
-	"catch_prob_2": null,
-	"catch_prob_3": null,
-	"encounter_id": 3073404211164322811, 
-	"spawn_end": 677,
-	"move_1": null, 
-	"move_2": null, 
-	"cp": null, 
-	"verified": true, 
-	"form": null, 
-	"pokemon_id": 216, 
-	"player_level": 7, 
-	"individual_stamina": null,
-	"weather_boosted_condition": null,
-	"longitude": -117.73234339051918, 
-	"spawn_start": 2478, 
-	"rating_defense": null,
-	"base_catch": null,
-	"weather": 1, 
-	"gender": null,
-	"latitude": 34.03153351968487,
-	"individual_attack": null,
-	"s2_cell_id": -9168428341303181312,
-	"ultra_catch": null
-}, "type": "pokemon"}]
-             */
-
             try
             {
                 var json = Convert.ToString(message);
                 var pokemon = JsonConvert.DeserializeObject<PokemonData>(json);
+                if (pokemon == null)
+                {
+                    _logger.Error($"Failed to parse Pokemon webhook object: {json}");
+                    return;
+                }
 
-                //var pokeId = Convert.ToInt32(Convert.ToString(message["pokemon_id"]));
-                //var secondsUntilDespawn = Convert.ToInt32(Convert.ToString(message["seconds_until_despawn"]));
-                //var disappearTime = Convert.ToInt64(Convert.ToString(message["disappear_time"]));
-                //var cp = Convert.ToString(message["cp"] ?? "?");
-                //var stamina = Convert.ToString(message["individual_stamina"] ?? "?");
-                //var attack = Convert.ToString(message["individual_attack"] ?? "?");
-                //var defense = Convert.ToString(message["individual_defense"] ?? "?");
-                //var gender = Convert.ToString(message["gender"] ?? "?");
-                //var latitude = Convert.ToDouble(Convert.ToString(message["latitude"]));
-                //var longitude = Convert.ToDouble(Convert.ToString(message["longitude"]));
-                //var level = Convert.ToString(message["pokemon_level"] ?? "?");
-                //var move1 = Convert.ToString(message["move_1"] ?? "?");
-                //var move2 = Convert.ToString(message["move_2"] ?? "?");
-                //var height = Convert.ToString(message["height"] ?? "?");
-                //var weight = Convert.ToString(message["weight"] ?? "?");
-                ////var verified = Convert.ToBoolean(Convert.ToString(message["verified"]));
-                //var formId = Convert.ToString(message["form"] ?? "0");
-
-                //var iv = "?";
-                //if (!string.IsNullOrEmpty(stamina) && stamina != "?" &&
-                //    !string.IsNullOrEmpty(attack) && attack != "?" &&
-                //    !string.IsNullOrEmpty(defense) && defense != "?")
-                //{
-                //    int.TryParse(stamina, out int sta);
-                //    int.TryParse(attack, out int atk);
-                //    int.TryParse(defense, out int def);
-                //    iv = Convert.ToString((sta + atk + def) * 100 / 45) + "%";
-                //}
-
-                //if (string.IsNullOrEmpty(cp)) cp = "?";
-                //if (string.IsNullOrEmpty(stamina)) stamina = "?";
-                //if (string.IsNullOrEmpty(attack)) attack = "?";
-                //if (string.IsNullOrEmpty(defense)) defense = "?";
-                //if (string.IsNullOrEmpty(gender)) gender = "0";
-
-                //var pokeGender = (PokemonGender)Convert.ToInt32(gender);
-                //var disappear = FromUnix(disappearTime);
-                //var secondsLeft = disappear.Subtract(DateTime.Now);
-
-                //var pokemon = new PokemonData
-                //(
-                //    pokeId,
-                //    cp,
-                //    iv,
-                //    stamina,
-                //    attack,
-                //    defense,
-                //    pokeGender,
-                //    level,
-                //    latitude,
-                //    longitude,
-                //    move1,
-                //    move2,
-                //    height,
-                //    weight,
-                //    disappear,
-                //    secondsLeft,
-                //    //Utils.FromUnix(disappearTime),
-                //    //TimeSpan.FromSeconds(secondsUntilDespawn),
-                //    formId
-                //);
                 OnPokemonReceived(pokemon);
             }
             catch (Exception ex)
@@ -327,66 +203,22 @@
         {
             try
             {
-                //| Field | Details | Example | | ———— | —————————————————————– | ———— | 
-                //gym_id | The gym’s unique ID | "NGY2ZjBjY2Y3OTUyNGQyZWFlMjc3ODkzODM2YmI1Y2YuMTY=" |
-                //latitude | The gym’s latitude | 43.599321 |
-                //longitude | The gym’s longitude | 5.181415 |
-                //spawn | The time at which the raid spawned | 1500992342 |
-                //start | The time at which the raid starts | 1501005600 |
-                //end | The time at which the raid ends | 1501007400 |
-                //level | The raid’s level | 5 |
-                //pokemon_id | The raid boss’s ID | 249 |
-                //cp | The raid boss’s CP | 42753 |
-                //move_1 | The raid boss’s quick move | 274 |
-                //move_2 | The raid boss’s charge move | 275 |
-
-                //if (message["pokemon_id"] == null)
-                //{
-                //    _logger.Info("Raid Egg found, skipping...");
-                //    return;
-                //}
-                //if (!int.TryParse(message["pokemon_id"], out int pokemonId))
-                //{
-                //    _logger.Info("Raid Egg found, skipping...");
-                //    return;
-                //}
-
                 var json = Convert.ToString(message);
                 var raid = JsonConvert.DeserializeObject<RaidData>(json);
+                if (raid == null)
+                {
+                    _logger.Error($"Failed to parse Pokemon webhook object: {json}");
+                    return;
+                }
 
-                //var gymId = Convert.ToString(message["gym_id"]);
-                //var teamId = Convert.ToInt32(Convert.ToString(message["team_id"] ?? "0"));
-                //var latitude = Convert.ToDouble(Convert.ToString(message["latitude"]));
-                //var longitude = Convert.ToDouble(Convert.ToString(message["longitude"]));
-                //var spawn = Convert.ToInt64(Convert.ToString(message["spawn"]));
-                //var start = Convert.ToInt64(Convert.ToString(message["start"]) ?? Convert.ToString(message["raid_begin"]));
-                //var end = Convert.ToInt64(Convert.ToString(message["end"]) ?? Convert.ToString(message["raid_end"]));
-                //var level = Convert.ToString(message["level"] ?? "?");
-                ////var pokemonId = Convert.ToInt32(Convert.ToString(message["pokemon_id"] ?? 0));
-                //var cp = Convert.ToString(message["cp"] ?? "?");
-                //var move1 = Convert.ToString(message["move_1"] ?? "?");
-                //var move2 = Convert.ToString(message["move_2"] ?? "?");
-
-                if (raid.PokemonId == 0)
+                if (SkipEggs && raid.PokemonId == 0)
                 {
                     _logger.Debug($"Level {raid.Level} Egg, skipping...");
                     return;
                 }
 
-                //var raid = new RaidData
-                //(
-                //    gymId,
-                //    pokemonId,
-                //    (PokemonTeam)teamId,
-                //    level,
-                //    cp,
-                //    move1,
-                //    move2,
-                //    latitude,
-                //    longitude,
-                //    FromUnix(start).Subtract(TimeSpan.FromHours(1)),
-                //    FromUnix(end).Subtract(TimeSpan.FromHours(1))
-                //);
+                raid.SetTimes();
+
                 OnRaidReceived(raid);
             }
             catch (Exception ex)

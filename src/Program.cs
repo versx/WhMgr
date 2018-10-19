@@ -1,9 +1,15 @@
-﻿namespace T
+﻿using System;
+using System.IO;
+
+namespace T
 {
     class Program
     {
         static void Main(string[] args)
         {
+            new System.Threading.Thread(() => ReadFromFile()).Start();
+            while(true){}
+
             var logger = Diagnostics.EventLogger.GetLogger();
             var whConfig = Configuration.WhConfig.Load("config.json");
             if (whConfig == null)
@@ -16,6 +22,7 @@
             bot.Start();
 
             System.Console.Read();
+            while (true) {}
         }
     }
 }

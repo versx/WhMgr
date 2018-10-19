@@ -41,7 +41,8 @@
         public static GeofenceItem FromFile(string filePath)
         {
             var geofence = new GeofenceItem();
-            var lines = File.ReadAllLines(filePath);
+            var path = filePath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+            var lines = File.ReadAllLines(path);
 
             foreach (var line in lines)
             {

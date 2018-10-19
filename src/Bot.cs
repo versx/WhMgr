@@ -78,8 +78,8 @@
             if (e.Author.IsBot)
                 return;
 
-            //if (e.Author.Id == _whConfig.OwnerId)
-            //{
+            if (e.Author.Id == _whConfig.OwnerId)
+            {
             //    if (e.Message.Content == "!stats")
             //    {
             //        var stats = await GetUserStatistics(e.Message);
@@ -92,7 +92,7 @@
             //            }
             //        }
             //    }
-            //}
+            }
 
             await Task.CompletedTask;
         }
@@ -222,20 +222,20 @@
             var members = e.Channel.Guild.Members;
             for (var usrId = 0; usrId < members.Count; usrId++)
             {
-                var roleIds = members[usrId].Roles.Select(x => x.Id).ToList();
-                if (roleIds.Contains(_whConfig.SupporterRoleId))
-                    continue;
+                var member = members[usrId];
+                var roleIds = member.Roles.Select(x => x.Id).ToList();
 
-                var user = await _client.GetUserAsync(members[usrId].Id);
-                if (user == null)
+                // Skip supporters
+                if (roleIds.Contains(_whConfig.SupporterRoleId))
                     continue;
 
                 foreach (var cityRole in roles)
                 {
-                    var roleNames = members[usrId].Roles.Select(x => x.Name).ToList();
+                    var roleNames = member.Roles.Select(x => x.Name).ToList();
                     if (roleNames.Contains(cityRole))
                     {
-                        //TODO: Remove
+                        var role = member.Roles.FirstOrDefault(x => string.Compare(x.Name, cityRole, true) == 0);
+                        await member.RevokeRoleAsync(role, "Roles refreshed.");
                     }
                 }
             }
@@ -250,45 +250,47 @@
 
             _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Pokemon.Id}, Despawn: {e.Pokemon.DespawnTime}");
 
-            var wh = WebHookManager.GetWebHookData(e.Alarm.Webhook);
+            var wh = _whm.WebHooks[e.Alarm.Name];//WebHookManager.GetWebHookData(e.Alarm.Webhook);
             if (wh == null)
             {
                 _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
                 return;
             }
 
-            var guild = await _client.GetGuildAsync(wh.GuildId);
-            if (guild == null)
-            {
-                _logger.Error($"Failed to parse guild from id {wh.GuildId}.");
-                return;
-            }
+            //var guild = await _client.GetGuildAsync(wh.GuildId);
+            //if (guild == null)
+            //{
+            //    _logger.Error($"Failed to parse guild from id {wh.GuildId}.");
+            //    return;
+            //}
 
-            var channel = guild.GetChannel(wh.ChannelId);
-            if (channel == null)
-            {
-                _logger.Error($"Failed to parse channel from id {wh.ChannelId}.");
-                return;
-            }
+            //var channel = guild.GetChannel(wh.ChannelId);
+            //if (channel == null)
+            //{
+            //    _logger.Error($"Failed to parse channel from id {wh.ChannelId}.");
+            //    return;
+            //}
 
             var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId);
+            var pkmn = Database.Instance.Pokemon[e.Pokemon.Id];
+            var pkmnImage = string.Format(Strings.PokemonImage, e.Pokemon.Id, Convert.ToInt32(string.IsNullOrEmpty(e.Pokemon.FormId) ? "0" : e.Pokemon.FormId));
             var eb = new DiscordEmbedBuilder
             {
                 Title = e.Alarm.Geofence.Name == null || string.IsNullOrEmpty(e.Alarm.Geofence.Name) ? "DIRECTIONS" : e.Alarm.Geofence.Name,
                 //Description = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIcon()} {pokemon.CP}CP {pokemon.IV} Despawn: {pokemon.DespawnTime.ToLongTimeString()}",
                 Url = string.Format(Strings.GoogleMaps, e.Pokemon.Latitude, e.Pokemon.Longitude),
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, e.Pokemon.Latitude, e.Pokemon.Longitude),
-                ThumbnailUrl = string.Format(Strings.PokemonImage, e.Pokemon.Id, Convert.ToInt32(string.IsNullOrEmpty(e.Pokemon.FormId) ? "0" : e.Pokemon.FormId)),
+                ThumbnailUrl = pkmnImage,
                 Color = DiscordColor.CornflowerBlue //DiscordHelpers.BuildColor(e.Pokemon.IV)
             };
 
-            if (e.Pokemon.IV == "?" || e.Pokemon.Level == "?")
+            if (e.Pokemon.IV == "?" || e.Pokemon.Level == "?" || string.IsNullOrEmpty(e.Pokemon.Level))
             {
-                eb.Description = $"{Database.Instance.Pokemon[e.Pokemon.Id].Name} {form}{e.Pokemon.Gender.GetPokemonGenderIcon()} Despawn: {e.Pokemon.DespawnTime.ToLongTimeString()}\r\n";
+                eb.Description = $"{pkmn.Name} {form}{e.Pokemon.Gender.GetPokemonGenderIcon()} Despawn: {e.Pokemon.DespawnTime.ToLongTimeString()}\r\n";
             }
             else
             {
-                eb.Description = $"{Database.Instance.Pokemon[e.Pokemon.Id].Name} {form}{e.Pokemon.Gender.GetPokemonGenderIcon()} {e.Pokemon.IV} L{e.Pokemon.Level} Despawn: {e.Pokemon.DespawnTime.ToLongTimeString()}\r\n\r\n";
+                eb.Description = $"{pkmn.Name} {form}{e.Pokemon.Gender.GetPokemonGenderIcon()} {e.Pokemon.IV} L{e.Pokemon.Level} Despawn: {e.Pokemon.DespawnTime.ToLongTimeString()}\r\n\r\n";
                 eb.Description += $"**Details:** CP: {e.Pokemon.CP} IV: {e.Pokemon.IV} LV: {e.Pokemon.Level}\r\n";
             }
             eb.Description += $"**Despawn:** {e.Pokemon.DespawnTime.ToLongTimeString()} ({e.Pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n";
@@ -351,7 +353,9 @@
                 Text = $"versx | {DateTime.Now}"
             };
 
-            await channel.SendMessageAsync(string.Empty, false, eb);
+            //await channel.SendMessageAsync(string.Empty, false, eb);
+            var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
+            await whData.ExecuteAsync(string.Empty, pkmn.Name, pkmnImage, false, new List<DiscordEmbed> { eb });
         }
 
         private async void Whm_RaidAlarmTriggered(object sender, RaidAlarmTriggeredEventArgs e)
@@ -361,39 +365,41 @@
 
             _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Raid.PokemonId}, Level: {e.Raid.Level}, StartTime: {e.Raid.StartTime}]");
 
-            var wh = WebHookManager.GetWebHookData(e.Alarm.Webhook);
+            var wh = _whm.WebHooks[e.Alarm.Name];//WebHookManager.GetWebHookData(e.Alarm.Webhook);
             if (wh == null)
             {
                 _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
                 return;
             }
 
-            var guild = await _client.GetGuildAsync(wh.GuildId);
-            if (guild == null)
-            {
-                _logger.Error($"Failed to parse guild from id {wh.GuildId}.");
-                return;
-            }
+            //var guild = await _client.GetGuildAsync(wh.GuildId);
+            //if (guild == null)
+            //{
+            //    _logger.Error($"Failed to parse guild from id {wh.GuildId}.");
+            //    return;
+            //}
 
-            var channel = guild.GetChannel(wh.ChannelId);
-            if (channel == null)
-            {
-                _logger.Error($"Failed to parse channel from id {wh.ChannelId}.");
-                return;
-            }
+            //var channel = guild.GetChannel(wh.ChannelId);
+            //if (channel == null)
+            //{
+            //    _logger.Error($"Failed to parse channel from id {wh.ChannelId}.");
+            //    return;
+            //}
 
+            var pkmn = Database.Instance.Pokemon[e.Raid.PokemonId] ?? new Data.Models.PokemonModel { Name = "Egg" };
+            var pkmnImage = string.Format(Strings.PokemonImage, e.Raid.PokemonId, 0);
             var eb = new DiscordEmbedBuilder
             {
                 Title = e.Alarm.Geofence.Name == null || string.IsNullOrEmpty(e.Alarm.Geofence.Name) ? "DIRECTIONS" : e.Alarm.Geofence.Name,
                 //Description = $"{pkmn.Name} raid available until {raid.EndTime.ToLongTimeString()}!",
                 Url = string.Format(Strings.GoogleMaps, e.Raid.Latitude, e.Raid.Longitude),
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, e.Raid.Latitude, e.Raid.Longitude),
-                ThumbnailUrl = string.Format(Strings.PokemonImage, e.Raid.PokemonId, 0),
+                ThumbnailUrl = pkmnImage,
                 Color = DiscordColor.Red//DiscordHelpers.BuildRaidColor(Convert.ToInt32(e.Raid.Level))
             };
 
-            eb.Description = $"{e.Raid.GymName}\r\n";
-            eb.Description += $"{Database.Instance.Pokemon[e.Raid.PokemonId].Name} Raid Ends: {e.Raid.EndTime.ToLongTimeString()}\r\n\r\n";
+            eb.Description += $"{pkmn.Name} Raid Ends: {e.Raid.EndTime.ToLongTimeString()}\r\n";
+            eb.Description = $"{e.Raid.GymName}\r\n\r\n";
             eb.Description += $"**Starts:** {e.Raid.StartTime.ToLongTimeString()}\r\n";
             eb.Description += $"**Ends:** {e.Raid.EndTime.ToLongTimeString()} ({e.Raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()} left)\r\n";
 
@@ -466,7 +472,10 @@
                 Text = $"versx | {DateTime.Now}"
             };
 
-            await channel.SendMessageAsync(string.Empty, false, eb);
+            //await channel.SendMessageAsync(string.Empty, false, eb);
+            var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
+            await whData.ExecuteAsync(string.Empty, pkmn.Name, pkmnImage, false, new List<DiscordEmbed> { eb });
+
         }
 
         #endregion

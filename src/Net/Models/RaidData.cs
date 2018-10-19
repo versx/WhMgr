@@ -7,25 +7,26 @@
     using T.Extensions;
 
     /*
+[
     {
-        "type":"raid",
-        "message":
+        "message": 
         {
-            "level":5,
-            "spawn":1539192227,
-            "end":1539198527,
-            "pokemon_id":0,
-            "longitude":-117.750491,
-            "gym_id":"78cff8e3e34b48ddad0d08af322106a2.16",
-            "cp":0,
-            "move_1":0,
-            "gym_name":"Unknown",
-            "team_id":2,
-            "start":1539195827,
-            "move_2":0,
-            "latitude":34.062143
-        }
-     }
+            "gym_name": "Cypress Avenue Park",
+            "latitude": 34.052729,
+            "longitude": -117.663367,
+            "level": 2,
+            "pokemon_id": 0,
+            "raid_end": 1538842380,
+            "raid_begin": 1538839680,
+            "cp": 0, 
+            "move_1": 0,
+            "move_2": 0, 
+            "gym_id": "0aeca5201bda4602a26bd2afba855149.16",
+            "team_id": 0
+        }, 
+        "type": "raid"
+    }
+]
      */
 
     public sealed class RaidData
@@ -87,43 +88,5 @@
             StartTime = Start.FromUnix().Subtract(TimeSpan.FromHours(1));
             EndTime = End.FromUnix().Subtract(TimeSpan.FromHours(1));
         }
-
-        //public RaidData(string gymId, int pokemonId, PokemonTeam team, string level, string cp, string move1, string move2, double lat, double lng, DateTime startTime, DateTime endTime)
-        //{
-        //    GymId = gymId;
-        //    PokemonId = pokemonId;
-        //    Team = team;
-        //    Level = level;
-        //    CP = cp;
-        //    FastMove = move1;
-        //    ChargeMove = move2;
-        //    Latitude = lat;
-        //    Longitude = lng;
-        //    StartTime = startTime;
-        //    EndTime = endTime;
-        //}
     }
-
-    /*
-[
-{
-    "message": 
-    {
-        "gym_name": "First Church of Nazarene Ontario", 
-        "latitude": 34.081156,
-        "longitude": -117.675116, 
-        "level": 4, 
-        "pokemon_id": 0,
-        "raid_end": 1538842500,
-        "raid_begin": 1538839800, 
-        "cp": 0, 
-        "move_1": 0, 
-        "move_2": 0,
-        "gym_id": "bd8b2926f06a4fa3a462017a4af78e38.16",
-        "team_id": 0
-    },
-    "type": "raid"
-}
-]
-     */
 }
