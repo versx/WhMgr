@@ -386,7 +386,7 @@
             //    return;
             //}
 
-            var pkmn = Database.Instance.Pokemon[e.Raid.PokemonId] ?? new Data.Models.PokemonModel { Name = "Egg" };
+            var pkmn = Database.Instance.Pokemon.ContainsKey(e.Raid.PokemonId) ? Database.Instance.Pokemon[e.Raid.PokemonId] : new Data.Models.PokemonModel { Name = "Egg" };
             var pkmnImage = string.Format(Strings.PokemonImage, e.Raid.PokemonId, 0);
             var eb = new DiscordEmbedBuilder
             {
@@ -421,14 +421,14 @@
             //}
 
             //TODO: Moveset information.
-            var fastMove = Database.Instance.Movesets.ContainsKey(Convert.ToInt32(e.Raid.FastMove ?? "0")) ? Database.Instance.Movesets[Convert.ToInt32(e.Raid.FastMove ?? "0")] : null;
+            var fastMove = Database.Instance.Movesets[Convert.ToInt32(e.Raid.FastMove ?? "0")];
             if (fastMove != null)
             {
                 //eb.Description += $"**Fast Move:** {Strings.TypeEmojis[fastMove.Type.ToLower()]} {fastMove.Name}\r\n";
                 eb.Description += $"**Fast Move:** {fastMove.Name}\r\n";
             }
 
-            var chargeMove = Database.Instance.Movesets.ContainsKey(Convert.ToInt32(e.Raid.ChargeMove ?? "0")) ? Database.Instance.Movesets[Convert.ToInt32(e.Raid.ChargeMove ?? "0")] : null;
+            var chargeMove = Database.Instance.Movesets[Convert.ToInt32(e.Raid.ChargeMove ?? "0")];
             if (chargeMove != null)
             {
                 //eb.Description += $"**Charge Move:** {Strings.TypeEmojis[chargeMove.Type.ToLower()]} {chargeMove.Name}\r\n";
