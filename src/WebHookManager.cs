@@ -140,7 +140,7 @@
                 AlarmsFilePath,
                 FileMode.Open,
                 FileAccess.Read,
-                FileShare.Write);
+                FileShare.ReadWrite);
 
             var sr = new StreamReader(file);
             while (true)
@@ -159,6 +159,7 @@
                 }
                 else
                 {
+                    _logger.Info($"Alarms file {AlarmsFilePath} has changed, reloading...");
                     _alarms = LoadAlarms(AlarmsFilePath);
                 }
             }
