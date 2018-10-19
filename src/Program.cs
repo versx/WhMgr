@@ -1,8 +1,7 @@
-﻿using System;
-using System.IO;
-
-namespace T
+﻿namespace T
 {
+    using System;
+
     class Program
     {
         static void Main(string[] args)
@@ -18,7 +17,7 @@ namespace T
             var bot = new Bot(whConfig);
             bot.Start();
 
-            System.Console.Read();
+            Console.Read();
             while (true) {}
         }
     }

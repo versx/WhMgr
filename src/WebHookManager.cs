@@ -76,7 +76,7 @@
             _webhooks = new Dictionary<string, WebHookObject>();
 
             LoadWebHooks();
-            LoadAlarmsOnChange();
+            new System.Threading.Thread(LoadAlarmsOnChange).Start();
         }
 
         #endregion
@@ -128,6 +128,8 @@
 
         private void LoadAlarmsOnChange()
         {
+            _logger.Trace($"WebHookManager::LoadAlarmsOnChange");
+
             var offset = 0L;
 
             var fsw = new FileSystemWatcher
@@ -152,14 +154,14 @@
                 {
                     do
                     {
-                        Console.WriteLine(sr.ReadLine());
+                        _logger.Debug(sr.ReadLine());
                     } while (!sr.EndOfStream);
 
                     offset = file.Position;
                 }
                 else
                 {
-                    _logger.Info($"Alarms file {AlarmsFilePath} has changed, reloading...");
+                    _logger.Debug($"[WebHookManager] Alarms file {AlarmsFilePath} has changed, reloading...");
                     _alarms = LoadAlarms(AlarmsFilePath);
                 }
             }
@@ -167,6 +169,7 @@
 
         private void LoadWebHooks()
         {
+            _logger.Trace($"WebHookManager::LoadWebHooks");
             foreach (var alarm in _alarms)
             {
                 foreach (var item in alarm.Value)
