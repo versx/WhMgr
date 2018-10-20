@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bot.cs" />
+    <Compile Include="CalcIV.cs" />
     <Compile Include="Configuration\WhConfig.cs" />
     <Compile Include="Data\Database.cs" />
     <Compile Include="Data\Models\MovesetModel.cs" />
@@ -59,7 +60,6 @@
     <Compile Include="Extensions\IntegerExtensions.cs" />
     <Compile Include="Extensions\PokemonExtensions.cs" />
     <Compile Include="Extensions\TimeSpanExtensions.cs" />
-    <Compile Include="Net\Models\WebHookData.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Geofence\GeofenceService.cs" />
@@ -86,8 +86,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <Folder Include="Security\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

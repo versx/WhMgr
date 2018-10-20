@@ -431,6 +431,15 @@
         }
 
         #endregion
+
+        private class WebHookData
+        {
+            [JsonProperty("type")]
+            public string Type { get; set; }
+
+            [JsonProperty("message")]
+            public dynamic Message { get; set; }
+        }
     }
 
     public enum PokemonGender

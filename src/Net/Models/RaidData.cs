@@ -85,8 +85,8 @@
 
         public void SetTimes()
         {
-            StartTime = Start.FromUnix().Subtract(TimeSpan.FromHours(1));
-            EndTime = End.FromUnix().Subtract(TimeSpan.FromHours(1));
+            StartTime = Start.FromUnix();
+            EndTime = End.FromUnix();
         }
     }
 }
