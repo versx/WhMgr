@@ -190,7 +190,7 @@
         {
             try
             {
-                var pokemon = JsonConvert.DeserializeObject<PokemonData>(message);
+                var pokemon = JsonConvert.DeserializeObject<PokemonData>(Convert.ToString(message));
                 //switch (MapProvider)
                 //{
                 //    case MapProviderType.Monocle:
@@ -226,7 +226,7 @@
         {
             try
             {
-                var raid = JsonConvert.DeserializeObject<RaidData>(message);
+                var raid = JsonConvert.DeserializeObject<RaidData>(Convert.ToString(message));
                 //switch (MapProvider)
                 //{
                 //    case MapProviderType.Monocle:

@@ -82,9 +82,9 @@
             _logger = EventLogger.GetLogger();
             _logger.Trace($"WebHookManager::WebHookManager [Port={port}]");
 
+            _webhooks = new Dictionary<string, WebHookObject>();
             _geofenceSvc = new GeofenceService();
             _alarms = LoadAlarms(Strings.AlarmsFileName);
-            _webhooks = new Dictionary<string, WebHookObject>();
 
             LoadWebHooks();
 
