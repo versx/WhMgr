@@ -59,9 +59,13 @@
     <Compile Include="Extensions\TimeSpanExtensions.cs" />
     <Compile Include="Net\Models\PokemonGender.cs" />
     <Compile Include="Net\Models\PokemonTeam.cs" />
-    <Compile Include="Net\Models\Providers\IMapProvider.cs" />
-    <Compile Include="Net\Models\Providers\RealDeviceMapProvider.cs" />
-    <Compile Include="Net\Models\Providers\RocketMapProvider.cs" />
+    <Compile Include="Net\Models\Providers\IMapProviderPokemon.cs" />
+    <Compile Include="Net\Models\Providers\IMapProviderRaid.cs" />
+    <Compile Include="Net\Models\Providers\MapProviderFork.cs" />
+    <Compile Include="Net\Models\Providers\MapProviderType.cs" />
+    <Compile Include="Net\Models\Providers\RealDeviceMap\RealDeviceMapPokemon.cs" />
+    <Compile Include="Net\Models\Providers\RealDeviceMap\RealDeviceMapRaid.cs" />
+    <Compile Include="Net\Models\Providers\RocketMap\RocketMapProvider.cs" />
     <Compile Include="Net\Webhooks\PokemonAlarmTriggeredEventArgs.cs" />
     <Compile Include="Net\Webhooks\RaidAlarmTriggeredEventArgs.cs" />
     <Compile Include="Program.cs" />

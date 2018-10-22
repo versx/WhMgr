@@ -10,10 +10,12 @@
     using WhMgr.Alarms;
     using WhMgr.Alarms.Filters;
     using WhMgr.Alarms.Models;
+    using WhMgr.Configuration;
     using WhMgr.Diagnostics;
     using WhMgr.Geofence;
     using WhMgr.Net;
     using WhMgr.Net.Models;
+    using WhMgr.Net.Models.Providers;
 
     public class WebhookManager
     {
@@ -72,7 +74,7 @@
 
         #region Constructor
 
-        public WebhookManager(ushort port)
+        public WebhookManager(ushort port, MapProviderType provider, MapProviderFork fork)
         {
             Filters = new Filters();
             Geofences = new List<GeofenceItem>();
@@ -86,7 +88,7 @@
 
             LoadWebHooks();
 
-            _http = new HttpServer(port);
+            _http = new HttpServer(port, provider, fork);
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
             _http.Start();

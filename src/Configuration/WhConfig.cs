@@ -6,6 +6,7 @@
     using Newtonsoft.Json;
 
     using WhMgr.Diagnostics;
+    using WhMgr.Net.Models.Providers;
 
     public class WhConfig
     {
@@ -38,6 +39,12 @@
         [JsonProperty("mapProviderFork")]
         public MapProviderFork MapProviderFork { get; set; }
 
+        public WhConfig()
+        {
+            MapProvider = MapProviderType.RealDeviceMap;
+            MapProviderFork = MapProviderFork.Default;
+        }
+
         public void Save(string filePath)
         {
             var data = JsonConvert.SerializeObject(this, Formatting.Indented);
@@ -54,18 +61,5 @@
             var data = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<WhConfig>(data);
         }
-    }
-
-    public enum MapProviderType
-    {
-        RocketMap = 0,
-        Monocle,
-        RealDeviceMap
-    }
-
-    public enum MapProviderFork
-    {
-        Default = 0,
-        Sloppy
     }
 }

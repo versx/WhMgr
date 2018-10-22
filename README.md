@@ -34,7 +34,7 @@
 			"ignoreMissing": true //Ignore raids missing information.
 		}
 	},
-	"geofence":"Geofences\\geofence1.txt", //Path to geofence file.
+	"geofence":"geofence1.txt", //Path to geofence file.
 	"webhook":"<DISCORD_WEBHOOK_URL>" //Discord webhook url address.
 }
 ```

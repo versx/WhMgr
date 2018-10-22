@@ -57,12 +57,13 @@
 
         public Database()
         {
-            if (!File.Exists(PokemonFileName))
+            var pokemonPath = Path.Combine(Strings.DataFolder, PokemonFileName);
+            if (!File.Exists(pokemonPath))
             {
-                throw new FileNotFoundException("pokemon.json file not found.", PokemonFileName);
+                throw new FileNotFoundException($"{pokemonPath} file not found.", PokemonFileName);
             }
 
-            var data = File.ReadAllText(PokemonFileName);
+            var data = File.ReadAllText(pokemonPath);
             if (data == null)
             {
                 _logger.Error("Pokemon database is null.");
@@ -72,12 +73,13 @@
                 Pokemon = JsonConvert.DeserializeObject<Dictionary<int, PokemonModel>>(data);
             }
 
-            if (!File.Exists(MovesetsFileName))
+            var movesetPath = Path.Combine(Strings.DataFolder, MovesetsFileName);
+            if (!File.Exists(movesetPath))
             {
-                throw new FileNotFoundException("moves.json file not found.", MovesetsFileName);
+                throw new FileNotFoundException($"{movesetPath} file not found.", MovesetsFileName);
             }
 
-            data = File.ReadAllText(MovesetsFileName);
+            data = File.ReadAllText(movesetPath);
             if (string.IsNullOrEmpty(data))
             {
                 _logger.Error("Moveset database is null.");

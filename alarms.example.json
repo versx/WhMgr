@@ -25,7 +25,7 @@
 				"ignoreMissing": true
 			}
 		},
-		"geofence":"Geofences\\geofence1.txt",
+		"geofence":"geofence1.txt",
 		"webhook":"<DISCORD_WEBHOOK_URL>"
 	},
 	{
@@ -54,7 +54,7 @@
 				"ignoreMissing": true
 			}
 		},
-		"geofence":"Geofences\\geofence2.txt",
+		"geofence":"geofence2.txt",
 		"webhook":"<DISCORD_WEBHOOK_URL>"
 	}
 ]

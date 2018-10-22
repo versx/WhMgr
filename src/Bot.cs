@@ -37,7 +37,9 @@
             _logger = EventLogger.GetLogger(name);
             _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuidId}]");
 
-            _whm = new WebhookManager(whConfig.WebHookPort);
+            _whConfig = whConfig;
+
+            _whm = new WebhookManager(_whConfig.WebHookPort, _whConfig.MapProvider, _whConfig.MapProviderFork);
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
             _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
@@ -45,7 +47,6 @@
 
             _logger.Info("WebHookManager is running...");
             
-            _whConfig = whConfig;
             _client = new DiscordClient(new DiscordConfiguration
             {
                 AutomaticGuildSync = true,
@@ -65,6 +66,7 @@
         {
             _logger.Trace("Bot::Start");
             _logger.Info("Connecting to Discord...");
+
             _client.Ready += Client_Ready;
             _client.MessageCreated += Client_MessageCreated;
             _client.ConnectAsync();
@@ -746,20 +748,25 @@
 
         #endregion
 
-        private void ParseLogs()
-        {
-            var logsFile = "logs.log";
-            var logLines = System.IO.File.ReadAllLines(logsFile);
-            for (var i = 0; i < logLines.Length; i++)
-            {
-                var logLine = logLines[i];
-                var logData = logLine.Split(' ');
-                var dateTime = $"{logData[0]} {logData[1]}";
-                var logType = logData[2];
-                var logMessage = string.Join(" ", logData.Skip(3));
+        //private void ParseLogs()
+        //{
+        //    var logsFile = "logs.log";
+        //    var logLines = System.IO.File.ReadAllLines(logsFile);
+        //    for (var i = 0; i < logLines.Length; i++)
+        //    {
+        //        var logLine = logLines[i];
+        //        var logData = logLine.Split(' ');
+        //        var dateTime = $"{logData[0]} {logData[1]}";
+        //        var logType = logData[2];
+        //        var logMessage = string.Join(" ", logData.Skip(3));
 
-                Console.WriteLine($"{dateTime} {logType} {logMessage}");
-            }
-        }
+        //        Console.WriteLine($"{dateTime} {logType} {logMessage}");
+        //    }
+        //}
+    }
+
+    public class NotificationProcessor
+    {
+
     }
 }

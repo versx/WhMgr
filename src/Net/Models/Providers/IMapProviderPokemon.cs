@@ -1,6 +1,6 @@
 ﻿namespace WhMgr.Net.Models.Providers
 {
-    public class RocketMapProvider : IMapProvider
+    public interface IMapProviderPokemon
     {
     }
 }

@@ -1,12 +1,11 @@
-﻿namespace WhMgr.Net.Models
+﻿namespace WhMgr.Net.Models.Providers
 {
     using System;
 
     using Newtonsoft.Json;
-
     using WhMgr.Extensions;
 
-    public sealed class PokemonData
+    public class RealDeviceMapPokemon : IMapProviderPokemon
     {
         public const string WebHookHeader = "pokemon";
 
@@ -85,7 +84,7 @@
 
         #region Constructor
 
-        public PokemonData()
+        public RealDeviceMapPokemon()
         {
             SetDespawnTime();
         }

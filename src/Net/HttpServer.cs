@@ -14,8 +14,7 @@
 
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
-
-    //TODO: Support multiple endpoints, monocle, rm.
+    using WhMgr.Net.Models.Providers;
 
     public class HttpServer
     {
@@ -35,6 +34,10 @@
 
         public bool SkipEggs { get; set; }
 
+        public MapProviderType MapProvider { get; }
+
+        public MapProviderFork MapProviderFork { get; }
+
         #endregion
 
         #region Events
@@ -51,10 +54,15 @@
 
         #region Constructor
 
-        public HttpServer(ushort port)
+        public HttpServer(ushort port, MapProviderType provider, MapProviderFork fork)
         {
             Port = port;
+            MapProvider = provider;
+            MapProviderFork = fork;
+
             _server = new HttpListener();
+
+            Initialize();
         }
 
         #endregion
@@ -183,6 +191,22 @@
             try
             {
                 var pokemon = JsonConvert.DeserializeObject<PokemonData>(message);
+                //switch (MapProvider)
+                //{
+                //    case MapProviderType.Monocle:
+                //        break;
+                //    case MapProviderType.RealDeviceMap:
+                //    case MapProviderType.RocketMap:
+                //        switch (MapProviderFork)
+                //        {
+                //            //case MapProviderFork.Default:
+                //            default:
+                //                pokemon = JsonConvert.DeserializeObject<RealDeviceMapPokemon>(message);
+                //                break;
+                //        }
+                //        break;
+                //}
+
                 if (pokemon == null)
                 {
                     _logger.Error($"Failed to parse Pokemon webhook object: {message}");
@@ -203,6 +227,22 @@
             try
             {
                 var raid = JsonConvert.DeserializeObject<RaidData>(message);
+                //switch (MapProvider)
+                //{
+                //    case MapProviderType.Monocle:
+                //        break;
+                //    case MapProviderType.RealDeviceMap:
+                //    case MapProviderType.RocketMap:
+                //        switch (MapProviderFork)
+                //        {
+                //            //case MapProviderFork.Default:
+                //            default:
+                //                raid = JsonConvert.DeserializeObject<RaidData>(message);
+                //                break;
+                //        }
+                //        break;
+                //}
+
                 if (raid == null)
                 {
                     _logger.Error($"Failed to parse Pokemon webhook object: {message}");
