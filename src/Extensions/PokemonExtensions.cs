@@ -27,10 +27,13 @@
             if (!db.Pokemon.ContainsKey(pokeId))
                 return null;
 
-            var baseStats = db.Pokemon[pokeId];
-            var baseAtk = baseStats.BaseStats.Attack;
-            var baseDef = baseStats.BaseStats.Defense;
-            var baseSta = baseStats.BaseStats.Stamina;
+            var baseStats = db.Pokemon[pokeId].BaseStats;
+            if (baseStats == null)
+                return null;
+
+            var baseAtk = baseStats.Attack;
+            var baseDef = baseStats.Defense;
+            var baseSta = baseStats.Stamina;
             var cpMulti = CalcIV.CpMultipliers[level - 1];
 
             int minCp = CalcIV.GetCP(baseAtk + 10, baseDef + 10, baseSta + 10, cpMulti);
@@ -41,7 +44,8 @@
 
         public static string GetPokemonForm(this int pokeId, string formId)
         {
-            if (!int.TryParse(formId, out int form)) return null;
+            if (!int.TryParse(formId, out int form))
+                return null;
 
             switch (pokeId)
             {

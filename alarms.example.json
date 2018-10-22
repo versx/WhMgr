@@ -1,0 +1,60 @@
+[
+	{
+		"name":"Alarm1",
+		"filters":
+		{
+			"pokemon":
+			{
+				"enabled": true,
+				"pokemon": [280,337,374],
+				"min_iv": 0,
+				"max_iv": 100,
+				"type": "Include",
+				"ignoreMissing": true
+			},
+			"eggs":
+			{
+				"enabled": true,
+				"min_lvl": 1,
+				"max_lvl": 5
+			},
+			"raids":
+			{
+				"enabled": true,
+				"pokemon": [],
+				"ignoreMissing": true
+			}
+		},
+		"geofence":"Geofences\\geofence1.txt",
+		"webhook":"<DISCORD_WEBHOOK_URL>"
+	},
+	{
+		"name":"Alarm2",
+		"filters":
+		{
+			"pokemon":
+			{
+				"enabled": true,
+				"pokemon": [280,337,374],
+				"min_iv": 0,
+				"max_iv": 100,
+				"type": "Include",
+				"ignoreMissing": true
+			},
+			"eggs":
+			{
+				"enabled": true,
+				"min_lvl": 1,
+				"max_lvl": 5
+			},
+			"raids":
+			{
+				"enabled": true,
+				"pokemon": [],
+				"ignoreMissing": true
+			}
+		},
+		"geofence":"Geofences\\geofence2.txt",
+		"webhook":"<DISCORD_WEBHOOK_URL>"
+	}
+]

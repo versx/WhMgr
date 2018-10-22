@@ -1,19 +1,16 @@
 ﻿namespace T.Alarms.Filters
 {
     using System;
-    using System.Collections.Generic;
 
-    using T.Alarms.Filters.Models;
     using T.Diagnostics;
     using T.Net;
 
     public class Filters
     {
-        public readonly IEventLogger _logger;
+        private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
-        public Filters(IEventLogger logger)
+        public Filters()
         {
-            _logger = logger;
             _logger.Trace($"Filters::Filters");
         }
 
@@ -98,21 +95,28 @@
 
         public bool MatchesLvl(string lvl, int minimumLvl)
         {
-            var matchesLvl = false;
-            if (lvl != "?")
-            {
-                if (!int.TryParse(lvl, out int resultLvl))
-                {
-                    _logger.Error($"Failed to parse pokemon level value '{lvl}', skipping filter check.");
-                    return false;
-                }
+            //var matchesLvl = false;
+            //if (lvl != "?" && !string.IsNullOrEmpty(lvl))
+            //{
+            //    if (!int.TryParse(lvl, out int resultLvl))
+            //    {
+            //        _logger.Error($"Failed to parse pokemon level value '{lvl}', skipping filter check.");
+            //        return false;
+            //    }
 
-                matchesLvl |= resultLvl >= minimumLvl;
+            //    matchesLvl |= resultLvl >= minimumLvl;
+            //}
+
+            //matchesLvl |= ((string.IsNullOrEmpty(lvl) || lvl == "?") && minimumLvl == 0);
+
+            if (!int.TryParse(lvl, out int resultLvl))
+            {
+                return (string.IsNullOrEmpty(lvl) || lvl == "?") && minimumLvl == 0;
             }
 
-            matchesLvl |= (lvl == "?" && minimumLvl == 0);
+            return resultLvl >= minimumLvl;
 
-            return matchesLvl;
+            //return matchesLvl;
         }
 
         public bool MatchesGender(PokemonGender gender, PokemonGender desiredGender)

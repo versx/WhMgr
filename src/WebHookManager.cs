@@ -17,13 +17,6 @@
 
     public class WebHookManager
     {
-        #region Constants
-
-        const string AlarmsFilePath = "alarms.json";
-        const string GeofencesFolder = "Geofences";
-
-        #endregion
-
         #region Variables
 
         private readonly HttpServer _http;
@@ -38,6 +31,8 @@
         #region Properties
 
         public IReadOnlyDictionary<string, WebHookObject> WebHooks => _webhooks;
+
+        public GeofenceService GeofenceService => _geofenceSvc;
 
         #endregion
 
@@ -57,6 +52,19 @@
             RaidAlarmTriggered?.Invoke(this, new RaidAlarmTriggeredEventArgs(raid, alarm));
         }
 
+        public event EventHandler<PokemonData> PokemonSubscriptionTriggered;
+
+        private void OnPokemonSubscriptionTriggered(PokemonData pkmn)
+        {
+            PokemonSubscriptionTriggered?.Invoke(this, pkmn);
+        }
+
+        public event EventHandler<RaidData> RaidSubscriptionTriggered;
+        private void OnRaidSubscriptionTriggered(RaidData raid)
+        {
+            RaidSubscriptionTriggered?.Invoke(this, raid);
+        }
+
         #endregion
 
         #region Constructor
@@ -71,8 +79,8 @@
             _http.RaidReceived += Http_RaidReceived;
 
             _geofenceSvc = new GeofenceService();
-            _filters = new Filters(_logger);
-            _alarms = LoadAlarms(AlarmsFilePath);
+            _filters = new Filters();
+            _alarms = LoadAlarms(Strings.AlarmsFileName);
             _webhooks = new Dictionary<string, WebHookObject>();
 
             LoadWebHooks();
@@ -83,9 +91,17 @@
 
         #region HttpServer Events
 
-        private void Http_PokemonReceived(object sender, PokemonDataEventArgs e) => ProcessPokemon(e.Pokemon);
+        private void Http_PokemonReceived(object sender, PokemonDataEventArgs e)
+        {
+            ProcessPokemon(e.Pokemon);
+            OnPokemonSubscriptionTriggered(e.Pokemon);
+        }
 
-        private void Http_RaidReceived(object sender, RaidDataEventArgs e) => ProcessRaid(e.Raid);
+        private void Http_RaidReceived(object sender, RaidDataEventArgs e)
+        {
+            ProcessRaid(e.Raid);
+            OnRaidSubscriptionTriggered(e.Raid);
+        }
 
         #endregion
 
@@ -117,11 +133,12 @@
 
             _logger.Info($"Alarms file {alarmsFilePath} was loaded successfully.");
 
-            foreach (var item in alarms)
+            alarms.ForEach(x =>
             {
-                item.Value.ForEach(x => x.LoadGeofence());
-                _logger.Debug($"Geofence file loaded for {item.Key}...");
-            }
+                x.LoadGeofence();
+
+                _logger.Debug($"Geofence file loaded for {x.Name}...");
+            });
 
             return alarms;
         }
@@ -130,20 +147,19 @@
         {
             _logger.Trace($"WebHookManager::LoadAlarmsOnChange");
 
-            var offset = 0L;
-
             var fsw = new FileSystemWatcher
             {
                 Path = Environment.CurrentDirectory,
-                Filter = AlarmsFilePath
+                Filter = Strings.AlarmsFileName
             };
 
             var file = File.Open(
-                AlarmsFilePath,
+                Strings.AlarmsFileName,
                 FileMode.Open,
                 FileAccess.Read,
                 FileShare.ReadWrite);
 
+            var offset = 0L;
             var sr = new StreamReader(file);
             while (true)
             {
@@ -161,8 +177,8 @@
                 }
                 else
                 {
-                    _logger.Debug($"[WebHookManager] Alarms file {AlarmsFilePath} has changed, reloading...");
-                    _alarms = LoadAlarms(AlarmsFilePath);
+                    _logger.Debug($"[WebHookManager] Alarms file {Strings.AlarmsFileName} has changed, reloading...");
+                    _alarms = LoadAlarms(Strings.AlarmsFileName);
                 }
             }
         }
@@ -172,22 +188,19 @@
             _logger.Trace($"WebHookManager::LoadWebHooks");
             foreach (var alarm in _alarms)
             {
-                foreach (var item in alarm.Value)
+                if (string.IsNullOrEmpty(alarm.Webhook))
+                    continue;
+
+                var wh = GetWebHookData(alarm.Webhook);
+                if (wh == null)
                 {
-                    if (string.IsNullOrEmpty(item.Webhook))
-                        continue;
+                    _logger.Error($"Failed to download webhook data from {alarm.Webhook}.");
+                    continue;
+                }
 
-                    var wh = GetWebHookData(item.Webhook);
-                    if (wh == null)
-                    {
-                        _logger.Error($"Failed to download webhook data from {item.Webhook}.");
-                        continue;
-                    }
-
-                    if (!_webhooks.ContainsKey(item.Name))
-                    {
-                        _webhooks.Add(item.Name, wh);
-                    }
+                if (!_webhooks.ContainsKey(alarm.Name))
+                {
+                    _webhooks.Add(alarm.Name, wh);
                 }
             }
         }
@@ -204,52 +217,50 @@
 
             pkmn.SetDespawnTime();
 
-            foreach (var item in _alarms)
+            for (var i = 0; i < _alarms.Count; i++)
             {
-                foreach (var alarm in item.Value)
+                var alarm = _alarms[i];
+                if (!InGeofence(alarm.Geofence, new Location(pkmn.Latitude, pkmn.Longitude)))
                 {
-                    if (!InGeofence(alarm.Geofence, new Location(pkmn.Latitude, pkmn.Longitude)))
-                    {
-                        _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because not in geofence.");
-                        continue;
-                    }
+                    _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because not in geofence.");
+                    continue;
+                }
 
-                    if (alarm.Filters.Pokemon == null)
-                        continue;
+                if (alarm.Filters.Pokemon == null)
+                    continue;
 
-                    if (!alarm.Filters.Pokemon.Enabled)
-                    {
-                        _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because Pokemon filter not enabled.");
-                        continue;
-                    }
+                if (!alarm.Filters.Pokemon.Enabled)
+                {
+                    _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because Pokemon filter not enabled.");
+                    continue;
+                }
 
-                    if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
-                    {
-                        _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because of filter {alarm.Filters.Pokemon.FilterType}.");
-                        continue;
-                    }
+                if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
+                {
+                    _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because of filter {alarm.Filters.Pokemon.FilterType}.");
+                    continue;
+                }
 
-                    if (!(alarm.Filters.Pokemon.FilterType == FilterType.Include && (alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id) || alarm.Filters.Pokemon?.Pokemon.Count == 0)))
-                    {
-                        _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because of filter {alarm.Filters.Pokemon.FilterType}.");
-                        continue;
-                    }
+                if (!(alarm.Filters.Pokemon.FilterType == FilterType.Include && (alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id) || alarm.Filters.Pokemon?.Pokemon.Count == 0)))
+                {
+                    _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because of filter {alarm.Filters.Pokemon.FilterType}.");
+                    continue;
+                }
 
-                    if (alarm.Filters.Pokemon.IgnoreMissing && (pkmn.Attack == "?" || pkmn.Defense == "?" || pkmn.Stamina == "?"))
-                    {
-                        _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because IgnoreMissing=true.");
-                        continue;
-                    }
+                if (alarm.Filters.Pokemon.IgnoreMissing && (pkmn.Attack == "?" || pkmn.Defense == "?" || pkmn.Stamina == "?"))
+                {
+                    _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because IgnoreMissing=true.");
+                    continue;
+                }
 
-                    if (!_filters.MatchesIV(pkmn.IV, Convert.ToInt32(alarm.Filters.Pokemon.MinimumIV), Convert.ToInt32(alarm.Filters.Pokemon.MaximumIV)))
-                    {
-                        _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because MinimumIV={alarm.Filters.Pokemon.MinimumIV} and MaximumIV={alarm.Filters.Pokemon.MaximumIV} and IV={pkmn.IV}.");
-                        continue;
-                    }
+                if (!_filters.MatchesIV(pkmn.IV, Convert.ToInt32(alarm.Filters.Pokemon.MinimumIV), Convert.ToInt32(alarm.Filters.Pokemon.MaximumIV)))
+                {
+                    _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because MinimumIV={alarm.Filters.Pokemon.MinimumIV} and MaximumIV={alarm.Filters.Pokemon.MaximumIV} and IV={pkmn.IV}.");
+                    continue;
+                }
 
-                     _logger.Info($"[{alarm.Geofence.Name}] Notification triggered for pokemon {pkmn.Id}.");
-                     OnPokemonAlarmTriggered(pkmn, alarm);
-                 }
+                OnPokemonAlarmTriggered(pkmn, alarm);
+                _logger.Info($"[{alarm.Geofence.Name}] Notification triggered for pokemon {pkmn.Id}.");
             }
         }
 
@@ -263,68 +274,66 @@
             if (_alarms?.Count == 0)
                 return;
 
-            foreach (var item in _alarms)
+            for (var i = 0; i < _alarms.Count; i++)
             {
-                foreach (var alarm in item.Value)
+                var alarm = _alarms[i];
+                if (!InGeofence(alarm.Geofence, new Location(raid.Latitude, raid.Longitude)))
                 {
-                    if (!InGeofence(alarm.Geofence, new Location(raid.Latitude, raid.Longitude)))
+                    _logger.Info($"[{alarm.Geofence.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level} because not in geofence.");
+                    continue;
+                }
+
+                if (raid.IsEgg)
+                {
+                    if (alarm.Filters.Eggs == null)
+                        continue;
+
+                    if (!alarm.Filters.Eggs.Enabled)
                     {
-                        _logger.Info($"[{alarm.Geofence.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level} because not in geofence.");
+                        _logger.Info($"[{alarm.Geofence.Name}] Skipping level {raid.Level} raid egg because raids filter not enabled.");
                         continue;
                     }
 
-                    if (raid.IsEgg)
+                    if (!int.TryParse(raid.Level, out var level))
                     {
-                        if (alarm.Filters.Raids == null)
-                            continue;
-
-                        if (!alarm.Filters.Raids.Enabled)
-                        {
-                            _logger.Info($"[{alarm.Geofence.Name}] Skipping level {raid.Level} raid egg because raids filter not enabled.");
-                            continue;
-                        }
-
-                        if (!int.TryParse(raid.Level, out var level))
-                        {
-                            _logger.Error($"Failed to parse '{raid.Level}' as raid level.");
-                            continue;
-                        }
-
-                        if (!(level >= alarm.Filters.Eggs.MinimumLevel && level <= alarm.Filters.Eggs.MaximumLevel))
-                        {
-                            _logger.Info($"[{alarm.Geofence.Name}] Skipping level {raid.Level} raid egg because '{raid.Level}' does not meet the MinimumLevel={alarm.Filters.Eggs.MinimumLevel} and MaximumLevel={alarm.Filters.Eggs.MaximumLevel} filters.");
-                            continue;
-                        }
-
-                        _logger.Info($"[{alarm.Geofence.Name}] Notification triggered for level {raid.Level} raid egg.");
-                        OnRaidAlarmTriggered(raid, alarm);
+                        _logger.Error($"Failed to parse '{raid.Level}' as raid level.");
+                        continue;
                     }
-                    else
+
+                    if (!(level >= alarm.Filters.Eggs.MinimumLevel && level <= alarm.Filters.Eggs.MaximumLevel))
                     {
-                        if (alarm.Filters.Raids == null)
-                            continue;
-
-                        if (!alarm.Filters.Raids.Enabled)
-                        {
-                            _logger.Info($"[{alarm.Geofence.Name}] Skipping raid boss {raid.PokemonId} because raids filter not enabled.");
-                            continue;
-                        }
-
-                        if (!alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId))
-                        {
-                            _logger.Info($"[{alarm.Geofence.Name}] Skipping raid boss {raid.PokemonId} because raid boss not in include list.");
-                            continue;
-                        }
-
-                        if (alarm.Filters.Raids.IgnoreMissing && (string.IsNullOrEmpty(raid.FastMove) || raid.FastMove == "?"))
-                        {
-                            _logger.Info($"[{alarm.Geofence.Name}] Skipping raid boss {raid.PokemonId} because IgnoreMissing=true.");
-                            continue;
-                        }
-
-                        _logger.Info($"[{alarm.Geofence.Name}] Notification triggered for raid boss {raid.PokemonId}.");
-                        OnRaidAlarmTriggered(raid, alarm);
+                        _logger.Info($"[{alarm.Geofence.Name}] Skipping level {raid.Level} raid egg because '{raid.Level}' does not meet the MinimumLevel={alarm.Filters.Eggs.MinimumLevel} and MaximumLevel={alarm.Filters.Eggs.MaximumLevel} filters.");
+                        continue;
                     }
+
+                    _logger.Info($"[{alarm.Geofence.Name}] Notification triggered for level {raid.Level} raid egg.");
+                    OnRaidAlarmTriggered(raid, alarm);
+                }
+                else
+                {
+                    if (alarm.Filters.Raids == null)
+                        continue;
+
+                    if (!alarm.Filters.Raids.Enabled)
+                    {
+                        _logger.Info($"[{alarm.Geofence.Name}] Skipping raid boss {raid.PokemonId} because raids filter not enabled.");
+                        continue;
+                    }
+
+                    if (!alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId))
+                    {
+                        _logger.Info($"[{alarm.Geofence.Name}] Skipping raid boss {raid.PokemonId} because raid boss not in include list.");
+                        continue;
+                    }
+
+                    if (alarm.Filters.Raids.IgnoreMissing && (string.IsNullOrEmpty(raid.FastMove) || raid.FastMove == "?"))
+                    {
+                        _logger.Info($"[{alarm.Geofence.Name}] Skipping raid boss {raid.PokemonId} because IgnoreMissing=true.");
+                        continue;
+                    }
+
+                    OnRaidAlarmTriggered(raid, alarm);
+                    _logger.Info($"[{alarm.Geofence.Name}] Notification triggered for raid boss {raid.PokemonId}.");
                 }
             }
         }

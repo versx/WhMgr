@@ -25,18 +25,18 @@
             return contains;
         }
 
-        //public GeofenceItem GetGeofence(Location point)
-        //{
-        //    foreach (var geofence in _geofences)
-        //    {
-        //        if (Contains(geofence, point))
-        //        {
-        //            return geofence;
-        //        }
-        //    }
+        public GeofenceItem GetGeofence(List<GeofenceItem> geofences, Location point)
+        {
+            foreach (var geofence in geofences)
+            {
+                if (Contains(geofence, point))
+                {
+                    return geofence;
+                }
+            }
 
-        //    return null;
-        //}
+            return null;
+        }
 
         public static List<GeofenceItem> FromFiles(List<string> filePaths)
         {

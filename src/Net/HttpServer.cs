@@ -91,6 +91,8 @@
                 var endpoint = PrepareEndPoint(LocalEndPoint[i], Port);
                 if (!_server.Prefixes.Contains(endpoint))
                     _server.Prefixes.Add(endpoint);
+
+                _logger.Debug($"[IP ADDRESS] {endpoint}");
             }
 
             _server.Start();
