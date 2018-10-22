@@ -4,5 +4,5 @@
 
     using T.Alarms.Models;
 
-    public class AlarmList : Dictionary<string, List<AlarmObject>> { }
+    public class AlarmList : List<AlarmObject> { }
 }

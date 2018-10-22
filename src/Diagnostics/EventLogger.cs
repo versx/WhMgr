@@ -23,6 +23,7 @@
             if (_instance == null)
             {
                 _instance = new EventLogger();
+                _instance.Info("Logging started...");
             }
 
             return _instance;
