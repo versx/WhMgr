@@ -18,6 +18,9 @@
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
 
+    //TODO: Backup subscriptions database.
+    //TODO: Notification limiter.
+
     public class Bot
     {
         #region Variables
@@ -237,16 +240,16 @@
                     if (!(matchesIV && matchesLvl && matchesGender))
                         continue;
 
-                    //if (user.NotificationLimiter.IsLimited())
-                    //{
-                    //    if (!user.NotifiedOfLimited)
-                    //    {
-                    //        await _client.SendDirectMessage(discordUser, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
-                    //        user.NotifiedOfLimited = true;
-                    //    }
+                    if (user.Limiter.IsLimited())
+                    {
+                        //if (!user.NotifiedOfLimited)
+                        //{
+                        //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
+                        //    user.NotifiedOfLimited = true;
+                        //}
 
-                    //    continue;
-                    //}
+                        continue;
+                    }
 
                     //user.NotifiedOfLimited = false;
 
@@ -347,16 +350,16 @@
                         continue;
                     }
 
-                    //if (user.NotificationLimiter.IsLimited())
-                    //{
-                    //    if (!user.NotifiedOfLimited)
-                    //    {
-                    //        await _client.SendDirectMessage(discordUser, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
-                    //        user.NotifiedOfLimited = true;
-                    //    }
+                    if (user.Limiter.IsLimited())
+                    {
+                        //if (!user.NotifiedOfLimited)
+                        //{
+                        //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
+                        //    user.NotifiedOfLimited = true;
+                        //}
 
-                    //    continue;
-                    //}
+                        continue;
+                    }
 
                     //user.NotifiedOfLimited = false;
 
@@ -768,5 +771,55 @@
     public class NotificationProcessor
     {
 
+    }
+
+    public class NotificationLimiter
+    {
+        public const int MaxNotificationsPerMinute = 60;
+        public const int ThresholdTimeout = 60;
+
+        private readonly DateTime _start;
+        private DateTime _last;
+
+        public int Count { get; private set; }
+
+        public TimeSpan TimeLeft { get; private set; }
+
+        public NotificationLimiter()
+        {
+            _start = DateTime.Now;
+            _last = DateTime.Now;
+
+            Count = 0;
+            TimeLeft = TimeSpan.MinValue;
+        }
+
+        public virtual bool IsLimited()
+        {
+            TimeLeft = DateTime.Now.Subtract(_last);
+
+            var sixtySeconds = TimeSpan.FromSeconds(ThresholdTimeout);
+            var oneMinutePassed = TimeLeft >= sixtySeconds;
+            if (oneMinutePassed)
+            {
+                Reset();
+                _last = DateTime.Now;
+            }
+
+            if (Count >= MaxNotificationsPerMinute)
+            {
+                //Limited
+                return true;
+            }
+
+            Count++;
+
+            return false;
+        }
+
+        public virtual void Reset()
+        {
+            Count = 0;
+        }
     }
 }

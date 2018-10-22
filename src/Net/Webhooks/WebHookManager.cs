@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net;
 
     using Newtonsoft.Json;
@@ -145,6 +146,7 @@
             alarms.ForEach(x =>
             {
                 var geofence = x.LoadGeofence();
+                //TODO: Fix geofence reload issue, find distinct way.
                 if (!Geofences.Contains(geofence))
                 {
                     Geofences.Add(geofence);
@@ -160,36 +162,10 @@
         {
             _logger.Trace($"WebHookManager::LoadAlarmsOnChange");
 
-            var fsw = new FileSystemWatcher
-            {
-                Path = Environment.CurrentDirectory,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
-                Filter = Strings.AlarmsFileName,
-                EnableRaisingEvents = true
-            };
-            fsw.Changed += (sender, e) =>
-            {
-                var file = File.Open(
-                    e.FullPath,
-                    FileMode.Open,
-                    FileAccess.Read,
-                    FileShare.ReadWrite);
-
-                using (var sr = new StreamReader(file))
-                {
-                    file.Seek(0, SeekOrigin.Begin);
-                    if (!sr.EndOfStream)
-                    {
-                        do
-                        {
-                            _logger.Debug(sr.ReadLine());
-                        } while (!sr.EndOfStream);
-
-                        _logger.Debug($"[WebHookManager] Alarms file {Strings.AlarmsFileName} has changed, reloading...");
-                        _alarms = LoadAlarms(Strings.AlarmsFileName);
-                    }
-                }
-            };
+            var path = Path.Combine(Directory.GetCurrentDirectory(), Strings.AlarmsFileName);
+            var fileWatcher = new FileWatcher(path);
+            fileWatcher.FileChanged += (sender, e) => _alarms = LoadAlarms(Strings.AlarmsFileName);
+            fileWatcher.Start();
         }
 
         private void LoadWebHooks()
@@ -380,5 +356,52 @@
         }
 
         #endregion
+    }
+
+    public class FileWatcher
+    {
+        private readonly FileSystemWatcher _fsw;
+
+        public string FilePath { get; }
+
+        public event EventHandler<FileChangeEventArgs> FileChanged;
+
+        private void OnFileChanged(string filePath)
+        {
+            FileChanged?.Invoke(this, new FileChangeEventArgs(filePath));
+        }
+
+        public FileWatcher(string filePath)
+        {
+            FilePath = filePath;
+
+            _fsw = new FileSystemWatcher
+            {
+                Path = Path.GetDirectoryName(FilePath),
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                Filter = Path.GetFileName(FilePath)
+            };
+            _fsw.Changed += (sender, e) => OnFileChanged(e.FullPath);
+        }
+
+        public void Start()
+        {
+            _fsw.EnableRaisingEvents = true;
+        }
+
+        public void Stop()
+        {
+            _fsw.EnableRaisingEvents = false;
+        }
+    }
+
+    public class FileChangeEventArgs
+    {
+        public string FilePath { get; set; }
+
+        public FileChangeEventArgs(string filePath)
+        {
+            FilePath = filePath;
+        }
     }
 }
