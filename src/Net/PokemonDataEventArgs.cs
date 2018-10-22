@@ -1,8 +1,8 @@
-﻿namespace T.Net
+﻿namespace WhMgr.Net
 {
     using System;
 
-    using T.Net.Models;
+    using WhMgr.Net.Models;
 
     public class PokemonDataEventArgs : EventArgs
     {

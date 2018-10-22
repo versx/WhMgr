@@ -1,11 +1,11 @@
-﻿namespace T.Configuration
+﻿namespace WhMgr.Configuration
 {
     using System;
     using System.IO;
 
     using Newtonsoft.Json;
 
-    using T.Diagnostics;
+    using WhMgr.Diagnostics;
 
     public class WhConfig
     {
@@ -32,9 +32,11 @@
         [JsonProperty("gmapsKey")]
         public string GmapsKey { get; set; }
 
-        public WhConfig()
-        {
-        }
+        [JsonProperty("mapProvider")]
+        public MapProviderType MapProvider { get; set; }
+
+        [JsonProperty("mapProviderFork")]
+        public MapProviderFork MapProviderFork { get; set; }
 
         public void Save(string filePath)
         {
@@ -52,5 +54,18 @@
             var data = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<WhConfig>(data);
         }
+    }
+
+    public enum MapProviderType
+    {
+        RocketMap = 0,
+        Monocle,
+        RealDeviceMap
+    }
+
+    public enum MapProviderFork
+    {
+        Default = 0,
+        Sloppy
     }
 }

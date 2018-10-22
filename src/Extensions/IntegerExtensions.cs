@@ -1,4 +1,4 @@
-﻿namespace T.Extensions
+﻿namespace WhMgr.Extensions
 {
     using System;
 

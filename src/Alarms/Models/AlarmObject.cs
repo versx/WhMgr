@@ -1,9 +1,12 @@
-﻿namespace T.Alarms.Models
+﻿namespace WhMgr.Alarms.Models
 {
+    using System;
+    using System.IO;
+
     using Newtonsoft.Json;
 
-    using T.Alarms.Filters.Models;
-    using T.Geofence;
+    using WhMgr.Alarms.Filters.Models;
+    using WhMgr.Geofence;
 
     [JsonObject("alarm")]
     public class AlarmObject
@@ -28,12 +31,16 @@
             LoadGeofence();
         }
 
-        public void LoadGeofence()
+        public GeofenceItem LoadGeofence()
         {
-            if (!string.IsNullOrEmpty(GeofenceFile))
-            {
-                Geofence = GeofenceItem.FromFile(GeofenceFile);
-            }
+            if (string.IsNullOrEmpty(GeofenceFile))
+                return null;
+
+            var path = Path.Combine(Strings.GeofenceFolder, GeofenceFile);
+            if (!File.Exists(path))
+                return null;
+
+            return Geofence = GeofenceItem.FromFile(path);
         }
     }
 }

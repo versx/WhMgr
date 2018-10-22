@@ -1,8 +1,8 @@
-﻿namespace T.Alarms
+﻿namespace WhMgr.Alarms
 {
     using System.Collections.Generic;
 
-    using T.Alarms.Models;
+    using WhMgr.Alarms.Models;
 
     public class AlarmList : List<AlarmObject> { }
 }

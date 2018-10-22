@@ -1,4 +1,4 @@
-﻿namespace T.Data.Models
+﻿namespace WhMgr.Data.Models
 {
     using System;
     using System.Collections.Generic;
@@ -15,5 +15,8 @@
 
         [JsonProperty("raids")]
         public Dictionary<int, RaidSubscription> Raids { get; set; }
+
+        [JsonProperty("notifications_today")]
+        public long NotificationsToday { get; set; }
     }
 }

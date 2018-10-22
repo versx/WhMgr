@@ -1,4 +1,4 @@
-﻿namespace T.Alarms.Filters
+﻿namespace WhMgr.Alarms.Filters
 {
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;

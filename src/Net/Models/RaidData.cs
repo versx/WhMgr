@@ -1,10 +1,10 @@
-﻿namespace T.Net.Models
+﻿namespace WhMgr.Net.Models
 {
     using System;
 
     using Newtonsoft.Json;
 
-    using T.Extensions;
+    using WhMgr.Extensions;
 
     /*
 [

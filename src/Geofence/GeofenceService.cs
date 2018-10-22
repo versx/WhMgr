@@ -1,4 +1,4 @@
-﻿namespace T.Geofence
+﻿namespace WhMgr.Geofence
 {
     using System;
     using System.Collections.Generic;

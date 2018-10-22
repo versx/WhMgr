@@ -1,4 +1,4 @@
-﻿namespace T.Diagnostics
+﻿namespace WhMgr.Diagnostics
 {
     /// <summary>
     /// The log level to use.

@@ -1,4 +1,4 @@
-﻿namespace T.Alarms.Filters.Models
+﻿namespace WhMgr.Alarms.Filters.Models
 {
     using System.Collections.Generic;
 

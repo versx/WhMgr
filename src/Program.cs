@@ -1,4 +1,4 @@
-﻿namespace T
+﻿namespace WhMgr
 {
     using System;
 

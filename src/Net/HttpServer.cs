@@ -1,4 +1,4 @@
-﻿namespace T.Net
+﻿namespace WhMgr.Net
 {
     using System;
     using System.Collections.Generic;
@@ -6,27 +6,24 @@
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
+    using System.Security.Principal;
     using System.Text;
     using System.Threading;
 
     using Newtonsoft.Json;
 
-    using T.Diagnostics;
-    using T.Net.Models;
-    using T.Security;
+    using WhMgr.Diagnostics;
+    using WhMgr.Net.Models;
 
     //TODO: Support multiple endpoints, monocle, rm.
 
     public class HttpServer
     {
-        const string DefaultResponseMessage = "WH Test Running!";
-        static readonly string[] LocalEndPoint = { "localhost", "127.0.0.1" };
-
         #region Variables
 
+        private static readonly IEventLogger _logger = EventLogger.GetLogger();
         private readonly HttpListener _server;
-        private readonly IEventLogger _logger;
-        private readonly Thread _requestThread;
+        private Thread _requestThread;
 
         #endregion
 
@@ -57,50 +54,54 @@
         public HttpServer(ushort port)
         {
             Port = port;
-
-            _logger = EventLogger.GetLogger();
             _server = new HttpListener();
+        }
 
-            try
+        #endregion
+
+        #region Public Methods
+
+        public void Start()
+        {
+            _logger.Trace($"HttpServer::Start");
+
+            if (_server.IsListening)
             {
-                var addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Wireless80211);
-                if (addresses.Count == 0)
-                {
-                    addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Ethernet);
-                }
-
-                if (Permissions.IsAdministrator())
-                {
-                    for (var i = 0; i < addresses.Count; i++)
-                    {
-                        var endpoint = PrepareEndPoint(addresses[i], Port);
-                        if (!_server.Prefixes.Contains(endpoint))
-                            _server.Prefixes.Add(endpoint);
-
-                        _logger.Debug($"[IP ADDRESS] {endpoint}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
+                _logger.Debug($"HttpServer is already listening, failed to start...");
+                return;
             }
 
-            for (var i = 0; i < LocalEndPoint.Length; i++)
-            {
-                var endpoint = PrepareEndPoint(LocalEndPoint[i], Port);
-                if (!_server.Prefixes.Contains(endpoint))
-                    _server.Prefixes.Add(endpoint);
-
-                _logger.Debug($"[IP ADDRESS] {endpoint}");
-            }
-
+            _logger.Info($"HttpServer is starting...");
             _server.Start();
 
-            _logger.Debug($"Listening on port {port}...");
+            if (_server.IsListening)
+            {
+                _logger.Debug($"Listening on port {Port}...");
+            }
 
+            _logger.Info($"Starting HttpServer request handler...");
             _requestThread = new Thread(RequestHandler) { IsBackground = true };
             _requestThread.Start();
+        }
+
+        public void Stop()
+        {
+            _logger.Trace($"HttpServer::Stop");
+
+            if (!_server.IsListening)
+            {
+                _logger.Debug($"HttpServer is not running, failed to stop...");
+                return;
+            }
+
+            _logger.Info($"HttpServer is stopping...");
+            _server.Stop();
+
+            if (_requestThread != null)
+            {
+                _requestThread.Abort();
+                _requestThread = null;
+            }
         }
 
         #endregion
@@ -120,7 +121,7 @@
                     ParseData(data);
                 }
 
-                var buffer = Encoding.UTF8.GetBytes(DefaultResponseMessage);
+                var buffer = Encoding.UTF8.GetBytes(Strings.DefaultResponseMessage);
                 response.ContentLength64 = buffer.Length;
                 response.OutputStream.Write(buffer, 0, buffer.Length);
                 context.Response.Close();
@@ -131,29 +132,26 @@
 
         private void ParseData(string data)
         {
+            if (string.IsNullOrEmpty(data))
+                return;
+
             try
             {
-                if (string.IsNullOrEmpty(data))
-                    return;
-
                 if (IsDebug)
                 {
-                    File.AppendAllText("debug.log", data + Environment.NewLine);
+                    File.AppendAllText(Strings.DebugLogFileName, data + Environment.NewLine);
                 }
 
-                var obj = JsonConvert.DeserializeObject<List<WebHookData>>(data);
-                if (obj == null)
+                var messages = JsonConvert.DeserializeObject<List<WebhookMessage>>(data);
+                if (messages == null)
                     return;
 
-                foreach (var part in obj)
+                foreach (var message in messages)
                 {
-                    //var type = Convert.ToString(part["type"]);
-                    //var message = part["message"];
-
-                    switch (part.Type)
+                    switch (message.Type)
                     {
                         case PokemonData.WebHookHeader:
-                            ParsePokemon(part.Message);
+                            ParsePokemon(message.Message);
                             break;
                         //case "gym":
                         //    ParseGym(message);
@@ -164,7 +162,7 @@
                         //    break;
                         //case "egg":
                         case RaidData.WebHookHeader:
-                            ParseRaid(part.Message);
+                            ParseRaid(message.Message);
                             break;
                         //case "tth":
                         //case "scheduler":
@@ -176,7 +174,7 @@
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                _logger.Info("{0}", Convert.ToString(data));
+                _logger.Debug(data);
             }
         }
 
@@ -184,11 +182,10 @@
         {
             try
             {
-                var json = Convert.ToString(message);
-                var pokemon = JsonConvert.DeserializeObject<PokemonData>(json);
+                var pokemon = JsonConvert.DeserializeObject<PokemonData>(message);
                 if (pokemon == null)
                 {
-                    _logger.Error($"Failed to parse Pokemon webhook object: {json}");
+                    _logger.Error($"Failed to parse Pokemon webhook object: {message}");
                     return;
                 }
 
@@ -197,7 +194,7 @@
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                _logger.Info("{0}", Convert.ToString(message));
+                _logger.Debug(message);
             }
         }
 
@@ -205,11 +202,10 @@
         {
             try
             {
-                var json = Convert.ToString(message);
-                var raid = JsonConvert.DeserializeObject<RaidData>(json);
+                var raid = JsonConvert.DeserializeObject<RaidData>(message);
                 if (raid == null)
                 {
-                    _logger.Error($"Failed to parse Pokemon webhook object: {json}");
+                    _logger.Error($"Failed to parse Pokemon webhook object: {message}");
                     return;
                 }
 
@@ -226,7 +222,7 @@
             catch (Exception ex)
             {
                 _logger.Error(ex.StackTrace);
-                _logger.Info("{0}", Convert.ToString(message));
+                _logger.Debug(message);
             }
         }
 
@@ -400,9 +396,50 @@
 
         #endregion
 
+        #region Private Methods
+
+        private void Initialize()
+        {
+            try
+            {
+                var addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Wireless80211);
+                if (addresses.Count == 0)
+                {
+                    addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Ethernet);
+                }
+
+                if (IsAdministrator())
+                {
+                    for (var i = 0; i < addresses.Count; i++)
+                    {
+                        var endpoint = PrepareEndPoint(addresses[i], Port);
+                        if (!_server.Prefixes.Contains(endpoint))
+                            _server.Prefixes.Add(endpoint);
+
+                        _logger.Debug($"[IP ADDRESS] {endpoint}");
+                    }
+                }
+
+                for (var i = 0; i < Strings.LocalEndPoint.Length; i++)
+                {
+                    var endpoint = PrepareEndPoint(Strings.LocalEndPoint[i], Port);
+                    if (!_server.Prefixes.Contains(endpoint))
+                        _server.Prefixes.Add(endpoint);
+
+                    _logger.Debug($"[IP ADDRESS] {endpoint}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+        }
+
+        #endregion
+
         #region Static Methods
 
-        public static List<string> GetLocalIPv4Addresses(NetworkInterfaceType type)
+        private static List<string> GetLocalIPv4Addresses(NetworkInterfaceType type)
         {
             var list = new List<string>();
             var interfaces = NetworkInterface.GetAllNetworkInterfaces();
@@ -432,9 +469,16 @@
             return $"http://{ip}:{port}/";
         }
 
+        private static bool IsAdministrator()
+        {
+            var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
         #endregion
 
-        private class WebHookData
+        private class WebhookMessage
         {
             [JsonProperty("type")]
             public string Type { get; set; }
@@ -442,21 +486,5 @@
             [JsonProperty("message")]
             public dynamic Message { get; set; }
         }
-    }
-
-    public enum PokemonGender
-    {
-        Unset = 0,
-        Male,
-        Female,
-        Genderless
-    }
-
-    public enum PokemonTeam
-    {
-        Neutral = 0,
-        Mystic,
-        Valor,
-        Instinct
     }
 }

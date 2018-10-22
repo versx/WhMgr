@@ -1,4 +1,4 @@
-﻿namespace T.Data.Models
+﻿namespace WhMgr.Data.Models
 {
     using Newtonsoft.Json;
 

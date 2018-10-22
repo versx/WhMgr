@@ -1,10 +1,10 @@
-﻿namespace T.Extensions
+﻿namespace WhMgr.Extensions
 {
     using System;
     using System.Collections.Generic;
 
-    using T.Data;
-    using T.Net;
+    using WhMgr.Data;
+    using WhMgr.Net.Models;
 
     public class CpRange
     {
@@ -21,6 +21,18 @@
 
     public static class PokemonExtensions
     {
+        public static readonly double[] CpMultipliers =
+        {
+            0.094, 0.16639787, 0.21573247, 0.25572005, 0.29024988,
+            0.3210876, 0.34921268, 0.37523559, 0.39956728, 0.42250001,
+            0.44310755, 0.46279839, 0.48168495, 0.49985844, 0.51739395,
+            0.53435433, 0.55079269, 0.56675452, 0.58227891, 0.59740001,
+            0.61215729, 0.62656713, 0.64065295, 0.65443563, 0.667934,
+            0.68116492, 0.69414365, 0.70688421, 0.71939909, 0.7317,
+            0.73776948, 0.74378943, 0.74976104, 0.75568551, 0.76156384,
+            0.76739717, 0.7731865, 0.77893275, 0.78463697, 0.79030001
+        };
+
         public static CpRange GetPokemonCpRange(this int pokeId, int level)
         {
             var db = Database.Instance;
@@ -34,12 +46,20 @@
             var baseAtk = baseStats.Attack;
             var baseDef = baseStats.Defense;
             var baseSta = baseStats.Stamina;
-            var cpMulti = CalcIV.CpMultipliers[level - 1];
+            var cpMulti = CpMultipliers[level - 1];
 
-            int minCp = CalcIV.GetCP(baseAtk + 10, baseDef + 10, baseSta + 10, cpMulti);
-            int maxCp = CalcIV.GetCP(baseAtk + 15, baseDef + 15, baseSta + 15, cpMulti);
+            var min = 10;
+            var max = 10;
+            var minCp = GetCP(baseAtk + min, baseDef + min, baseSta + min, cpMulti);
+            var maxCp = GetCP(baseAtk + max, baseDef + max, baseSta + max, cpMulti);
 
             return new CpRange(maxCp, minCp);
+        }
+
+        public static int GetCP(int attack, int defense, int stamina, double cpm)
+        {
+            var cp = Math.Floor(attack * Math.Pow(defense, 0.5) * Math.Pow(stamina, 0.5) * Math.Pow(cpm, 2) / 10);
+            return Convert.ToInt32(cp < 10 ? 10 : cp);
         }
 
         public static string GetPokemonForm(this int pokeId, string formId)
@@ -93,7 +113,7 @@
             }
         }
 
-        public static List<string> GetStrengths(string type)
+        public static List<string> GetStrengths(this string type)
         {
             var types = new string[0];
             switch (type.ToLower())
@@ -155,7 +175,7 @@
             return new List<string>(types);
         }
 
-        public static List<string> GetWeaknesses(string type)
+        public static List<string> GetWeaknesses(this string type)
         {
             var types = new string[0];
             switch (type.ToLower())

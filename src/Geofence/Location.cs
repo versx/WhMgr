@@ -1,4 +1,4 @@
-﻿namespace T.Geofence
+﻿namespace WhMgr.Geofence
 {
     public class Location
     {

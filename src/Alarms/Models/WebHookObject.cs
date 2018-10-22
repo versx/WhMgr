@@ -1,4 +1,4 @@
-﻿namespace T.Alarms.Models
+﻿namespace WhMgr.Alarms.Models
 {
     using Newtonsoft.Json;
 

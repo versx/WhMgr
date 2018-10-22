@@ -1,9 +1,9 @@
-﻿namespace T.Alarms.Filters
+﻿namespace WhMgr.Alarms.Filters
 {
     using System;
 
-    using T.Diagnostics;
-    using T.Net;
+    using WhMgr.Diagnostics;
+    using WhMgr.Net.Models;
 
     public class Filters
     {
@@ -13,28 +13,6 @@
         {
             _logger.Trace($"Filters::Filters");
         }
-
-        //public bool AlarmMatchesIV(string iv, List<FilterObject> filters, bool ignoreMissing = true)
-        //{
-        //    var matchesIV = false;
-        //    if (iv != "?")
-        //    {
-        //        if (!double.TryParse(iv.Replace("%", ""), out double resultIV))
-        //        {
-        //            _logger.Error($"Failed to parse pokemon IV value '{iv}', skipping filter check.");
-        //            return false;
-        //        }
-
-        //        foreach (var filter in filters)
-        //        {
-        //            matchesIV |= Math.Round(resultIV) >= filter.MinimumIV && Math.Round(resultIV) <= filter.MaximumIV;
-        //        }
-        //    }
-
-        //    matchesIV |= (iv == "?" && !ignoreMissing);
-
-        //    return matchesIV;
-        //}
 
         public bool MatchesIV(string iv, int minimumIV, int maximumIV)
         {

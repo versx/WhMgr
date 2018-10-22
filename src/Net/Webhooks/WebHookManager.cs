@@ -1,4 +1,4 @@
-﻿namespace T
+﻿namespace WhMgr.Net.Webhooks
 {
     using System;
     using System.Collections.Generic;
@@ -7,22 +7,21 @@
 
     using Newtonsoft.Json;
 
-    using T.Alarms;
-    using T.Alarms.Filters;
-    using T.Alarms.Models;
-    using T.Diagnostics;
-    using T.Geofence;
-    using T.Net;
-    using T.Net.Models;
+    using WhMgr.Alarms;
+    using WhMgr.Alarms.Filters;
+    using WhMgr.Alarms.Models;
+    using WhMgr.Diagnostics;
+    using WhMgr.Geofence;
+    using WhMgr.Net;
+    using WhMgr.Net.Models;
 
-    public class WebHookManager
+    public class WebhookManager
     {
         #region Variables
 
         private readonly HttpServer _http;
         private readonly GeofenceService _geofenceSvc;
         private AlarmList _alarms;
-        private readonly Filters _filters;
         private readonly Dictionary<string, WebHookObject> _webhooks;
         private readonly IEventLogger _logger;
 
@@ -33,6 +32,10 @@
         public IReadOnlyDictionary<string, WebHookObject> WebHooks => _webhooks;
 
         public GeofenceService GeofenceService => _geofenceSvc;
+
+        public List<GeofenceItem> Geofences { get; private set; }
+
+        public Filters Filters { get; }
 
         #endregion
 
@@ -69,21 +72,25 @@
 
         #region Constructor
 
-        public WebHookManager(ushort port)
+        public WebhookManager(ushort port)
         {
+            Filters = new Filters();
+            Geofences = new List<GeofenceItem>();
+
             _logger = EventLogger.GetLogger();
             _logger.Trace($"WebHookManager::WebHookManager [Port={port}]");
 
-            _http = new HttpServer(port);
-            _http.PokemonReceived += Http_PokemonReceived;
-            _http.RaidReceived += Http_RaidReceived;
-
             _geofenceSvc = new GeofenceService();
-            _filters = new Filters();
             _alarms = LoadAlarms(Strings.AlarmsFileName);
             _webhooks = new Dictionary<string, WebHookObject>();
 
             LoadWebHooks();
+
+            _http = new HttpServer(port);
+            _http.PokemonReceived += Http_PokemonReceived;
+            _http.RaidReceived += Http_RaidReceived;
+            _http.Start();
+
             new System.Threading.Thread(LoadAlarmsOnChange).Start();
         }
 
@@ -135,7 +142,11 @@
 
             alarms.ForEach(x =>
             {
-                x.LoadGeofence();
+                var geofence = x.LoadGeofence();
+                if (!Geofences.Contains(geofence))
+                {
+                    Geofences.Add(geofence);
+                }
 
                 _logger.Debug($"Geofence file loaded for {x.Name}...");
             });
@@ -150,42 +161,39 @@
             var fsw = new FileSystemWatcher
             {
                 Path = Environment.CurrentDirectory,
-                Filter = Strings.AlarmsFileName
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                Filter = Strings.AlarmsFileName,
+                EnableRaisingEvents = true
             };
-
-            var file = File.Open(
-                Strings.AlarmsFileName,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.ReadWrite);
-
-            var offset = 0L;
-            var sr = new StreamReader(file);
-            while (true)
+            fsw.Changed += (sender, e) =>
             {
-                fsw.WaitForChanged(WatcherChangeTypes.Changed);
+                var file = File.Open(
+                    e.FullPath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite);
 
-                file.Seek(offset, SeekOrigin.Begin);
-                if (!sr.EndOfStream)
+                using (var sr = new StreamReader(file))
                 {
-                    do
+                    file.Seek(0, SeekOrigin.Begin);
+                    if (!sr.EndOfStream)
                     {
-                        _logger.Debug(sr.ReadLine());
-                    } while (!sr.EndOfStream);
+                        do
+                        {
+                            _logger.Debug(sr.ReadLine());
+                        } while (!sr.EndOfStream);
 
-                    offset = file.Position;
+                        _logger.Debug($"[WebHookManager] Alarms file {Strings.AlarmsFileName} has changed, reloading...");
+                        _alarms = LoadAlarms(Strings.AlarmsFileName);
+                    }
                 }
-                else
-                {
-                    _logger.Debug($"[WebHookManager] Alarms file {Strings.AlarmsFileName} has changed, reloading...");
-                    _alarms = LoadAlarms(Strings.AlarmsFileName);
-                }
-            }
+            };
         }
 
         private void LoadWebHooks()
         {
             _logger.Trace($"WebHookManager::LoadWebHooks");
+
             foreach (var alarm in _alarms)
             {
                 if (string.IsNullOrEmpty(alarm.Webhook))
@@ -253,7 +261,7 @@
                     continue;
                 }
 
-                if (!_filters.MatchesIV(pkmn.IV, Convert.ToInt32(alarm.Filters.Pokemon.MinimumIV), Convert.ToInt32(alarm.Filters.Pokemon.MaximumIV)))
+                if (!Filters.MatchesIV(pkmn.IV, Convert.ToInt32(alarm.Filters.Pokemon.MinimumIV), Convert.ToInt32(alarm.Filters.Pokemon.MaximumIV)))
                 {
                     _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because MinimumIV={alarm.Filters.Pokemon.MinimumIV} and MaximumIV={alarm.Filters.Pokemon.MaximumIV} and IV={pkmn.IV}.");
                     continue;
@@ -345,6 +353,8 @@
 
         #endregion
 
+        #region Static Methods
+
         public static WebHookObject GetWebHookData(string webHook)
         {
             /**Example:
@@ -366,31 +376,7 @@
                 return data;
             }
         }
-    }
 
-    public class PokemonAlarmTriggeredEventArgs : EventArgs
-    {
-        public AlarmObject Alarm { get; }
-
-        public PokemonData Pokemon { get; }
-
-        public PokemonAlarmTriggeredEventArgs(PokemonData pkmn, AlarmObject alarm)
-        {
-            Pokemon = pkmn;
-            Alarm = alarm;
-        }
-    }
-
-    public class RaidAlarmTriggeredEventArgs : EventArgs
-    {
-        public AlarmObject Alarm { get; }
-
-        public RaidData Raid { get; }
-
-        public RaidAlarmTriggeredEventArgs(RaidData raid, AlarmObject alarm)
-        {
-            Raid = raid;
-            Alarm = alarm;
-        }
+        #endregion
     }
 }

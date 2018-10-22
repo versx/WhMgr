@@ -1,18 +1,18 @@
-﻿namespace T
+﻿namespace WhMgr
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
-    using T.Alarms.Filters;
-    using T.Configuration;
-    using T.Data;
-    using T.Data.Models;
-    using T.Diagnostics;
-    using T.Extensions;
-    using T.Geofence;
-    using T.Net.Models;
+    using WhMgr.Configuration;
+    using WhMgr.Data;
+    using WhMgr.Data.Models;
+    using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
+    using WhMgr.Geofence;
+    using WhMgr.Net.Models;
+    using WhMgr.Net.Webhooks;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
@@ -23,9 +23,7 @@
         #region Variables
 
         private readonly DiscordClient _client;
-        private readonly WebHookManager _whm;
-        private readonly Filters _filters;
-        private readonly List<GeofenceItem> _geofences;
+        private readonly WebhookManager _whm;
         private readonly WhConfig _whConfig;
         private readonly IEventLogger _logger;
 
@@ -37,14 +35,13 @@
         {
             var name = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName;
             _logger = EventLogger.GetLogger(name);
+            _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuidId}]");
 
-            _whm = new WebHookManager(whConfig.WebHookPort);
+            _whm = new WebhookManager(whConfig.WebHookPort);
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
             _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
             _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
-            _filters = new Filters();
-            _geofences = GeofenceService.FromFolder(Strings.GeofenceFolder);
 
             _logger.Info("WebHookManager is running...");
             
@@ -66,7 +63,8 @@
 
         public void Start()
         {
-            _logger.Info($"Connecting to Discord...");
+            _logger.Trace("Bot::Start");
+            _logger.Info("Connecting to Discord...");
             _client.Ready += Client_Ready;
             _client.MessageCreated += Client_MessageCreated;
             _client.ConnectAsync();
@@ -88,40 +86,13 @@
             if (e.Author.IsBot)
                 return;
 
-            if (e.Author.Id == _whConfig.OwnerId)
-            {
-                switch (e.Message.Content)
-                {
-                    case "!stats":
-                        //var stats = await GetUserStatistics(e.Message);
-                        //using (var sw = new System.IO.StreamWriter("user_statistics.txt"))
-                        //{
-                        //    foreach (var stat in stats)
-                        //    {
-                        //        sw.WriteLine($"{stat.Value.Username} ({stat.Value.UserId}) {stat.Value.MessagesTotal.ToString()} Messages, Last Message {stat.Value.LastMessagePosted.ToLocalTime().ToString()}{Environment.NewLine}");
-                        //    }
-                        //}
-                        break;
-                    case "!refresh":
-                        await RemoveUserRoles(e.Message);
-                        break;
-                    case "!createdb":
-                        Database.Instance.Subscriptions.Add(0, new SubscriptionObject
-                        {
-                            Enabled = true,
-                            Pokemon = new Dictionary<int, PokemonSubscription>
-                            {
-                                { 0, new PokemonSubscription { } }
-                            },
-                            Raids = new Dictionary<int, RaidSubscription>
-                            {
-                                { 0, new RaidSubscription { } }
-                            }
-                        });
-                        Database.Instance.Save();
-                        break;
-                }
-            }
+            if (e.Author.Id != _whConfig.OwnerId)
+                return;
+
+            if (!e.Message.Content.StartsWith("!", StringComparison.Ordinal))
+                return;
+
+            await HandleCommands(e.Message);
         }
 
         #endregion
@@ -159,129 +130,20 @@
 
             _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Raid.PokemonId}, Level: {e.Raid.Level}, StartTime: {e.Raid.StartTime}]");
 
-            try
+            var wh = _whm.WebHooks[e.Alarm.Name];
+            if (wh == null)
             {
-
-                var wh = _whm.WebHooks[e.Alarm.Name];
-                if (wh == null)
-                {
-                    _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
-                    return;
-                }
-
-                var pkmn = Database.Instance.Pokemon[e.Raid.PokemonId];
-                var pkmnImage = e.Raid.IsEgg ? string.Format(Strings.EggImage, e.Raid.Level) : string.Format(Strings.PokemonImage, e.Raid.PokemonId, 0);
-                //var eb = new DiscordEmbedBuilder
-                //{
-                //    Title = e.Alarm.Geofence.Name == null || string.IsNullOrEmpty(e.Alarm.Geofence.Name) ? "DIRECTIONS" : e.Alarm.Geofence.Name,
-                //    Url = string.Format(Strings.GoogleMaps, e.Raid.Latitude, e.Raid.Longitude),
-                //    ImageUrl = string.Format(Strings.GoogleMapsStaticImage, e.Raid.Latitude, e.Raid.Longitude),
-                //    ThumbnailUrl = pkmnImage,
-                //    Color = BuildRaidColor(Convert.ToInt32(e.Raid.Level))
-                //};
-
-                //eb.Description = e.Raid.IsEgg ? 
-                //    $"Level {e.Raid.Level} {pkmn.Name} Hatches: {e.Raid.StartTime.ToLongTimeString()}\r\n" : 
-                //    $"{pkmn.Name} Raid Ends: {e.Raid.EndTime.ToLongTimeString()}\r\n";
-                //eb.Description += $"{e.Raid.GymName}\r\n\r\n";
-                //eb.Description += $"**Starts:** {e.Raid.StartTime.ToLongTimeString()}\r\n";
-                //if (e.Raid.IsEgg)
-                //{
-                //    eb.Description += $"**Ends:** {e.Raid.EndTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(e.Raid.EndTime)} left)\r\n";
-                //}
-                //else
-                //{
-                //    eb.Description += $"**Ends:** {e.Raid.EndTime.ToLongTimeString()} ({e.Raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()} left)\r\n";
-                //}
-
-                //if (e.Raid.PokemonId != 0)
-                //{
-                //    var perfectRange = e.Raid.PokemonId.GetPokemonCpRange(20);
-                //    var boostedRange = e.Raid.PokemonId.GetPokemonCpRange(25);
-                //    eb.Description += $"**Perfect CP:** {perfectRange.Best} / :white_sun_rain_cloud: {boostedRange.Best}\r\n";
-                //}
-
-                ////if (pkmn.Types.Count > 0)
-                ////{
-                ////    var types = new List<string>();
-                ////    pkmn.Types.ForEach(x =>
-                ////    {
-                ////        if (Strings.TypeEmojis.ContainsKey(x.Type.ToLower()))
-                ////        {
-                ////            types.Add(Strings.TypeEmojis[x.Type.ToLower()] + " " + x.Type);
-                ////        }
-                ////    });
-                ////    eb.Description += $"**Types:** {string.Join("/", types)}\r\n";
-                ////}
-
-                //var fastMoveId = Convert.ToInt32(e.Raid.FastMove ?? "0");
-                //if (Database.Instance.Movesets.ContainsKey(fastMoveId))
-                //{
-                //    var fastMove = Database.Instance.Movesets[fastMoveId];
-                //    //var fastMoveIcon = Strings.TypeEmojis.ContainsKey(fastMove.Type.ToLower()) ? Strings.TypeEmojis[fastMove.Type.ToLower()] : fastMove.Type;
-                //    //eb.Description += $"**Fast Move:** {Strings.TypeEmojis[fastMove.Type.ToLower()]} {fastMove.Name}\r\n";
-                //    eb.Description += $"**Fast Move:** {fastMove.Name}\r\n";
-                //}
-
-                //var chargeMoveId = Convert.ToInt32(e.Raid.ChargeMove ?? "0");
-                //if (Database.Instance.Movesets.ContainsKey(chargeMoveId))
-                //{
-                //    var chargeMove = Database.Instance.Movesets[chargeMoveId];
-                //    //var chargeMoveIcon = Strings.TypeEmojis.ContainsKey(chargeMove.Type.ToLower()) ? Strings.TypeEmojis[chargeMove.Type.ToLower()] : chargeMove.Type;
-                //    //eb.Description += $"**Charge Move:** {Strings.TypeEmojis[chargeMove.Type.ToLower()]} {chargeMove.Name}\r\n";
-                //    eb.Description += $"**Charge Move:** {chargeMove.Name}\r\n";
-                //}
-
-                //if (pkmn.Types != null)
-                //{
-                //    var strengths = new List<string>();
-                //    var weaknesses = new List<string>();
-                //    foreach (var type in pkmn.Types)
-                //    {
-                //        foreach (var strength in PokemonExtensions.GetStrengths(type.Type))
-                //        {
-                //            if (!strengths.Contains(strength))
-                //            {
-                //                strengths.Add(strength);
-                //            }
-                //        }
-                //        foreach (var weakness in PokemonExtensions.GetWeaknesses(type.Type))
-                //        {
-                //            if (!weaknesses.Contains(weakness))
-                //            {
-                //                weaknesses.Add(weakness);
-                //            }
-                //        }
-                //    }
-
-                //    if (strengths.Count > 0)
-                //    {
-                //        eb.Description += $"**Strong Against:** {string.Join(", ", strengths)}\r\n";
-                //    }
-
-                //    if (weaknesses.Count > 0)
-                //    {
-                //        eb.Description += $"**Weaknesses:** {string.Join(", ", weaknesses)}\r\n";
-                //    }
-                //}
-
-                //eb.Description += $"**Location:** {Math.Round(e.Raid.Latitude, 5)},{Math.Round(e.Raid.Longitude, 5)}";
-                //eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, e.Raid.Latitude, e.Raid.Longitude) + $"&key={_whConfig.GmapsKey}";
-                //eb.Footer = new DiscordEmbedBuilder.EmbedFooter
-                //{
-                //    Text = $"versx | {DateTime.Now}"
-                //};
-
-                var eb = BuildRaidMessage(e.Raid, e.Alarm.Name);
-
-                var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-                var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : pkmn.Name;
-                await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
+                _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
+                return;
             }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
+
+            var pkmn = Database.Instance.Pokemon[e.Raid.PokemonId];
+            var pkmnImage = e.Raid.IsEgg ? string.Format(Strings.EggImage, e.Raid.Level) : string.Format(Strings.PokemonImage, e.Raid.PokemonId, 0);
+            var eb = BuildRaidMessage(e.Raid, e.Alarm.Name);
+
+            var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
+            var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : pkmn.Name;
+            await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
         }
 
         #endregion
@@ -308,7 +170,7 @@
             if (!db.Pokemon.ContainsKey(pkmn.Id))
                 return;
 
-            var loc = _whm.GeofenceService.GetGeofence(_geofences, new Location(pkmn.Latitude, pkmn.Longitude));
+            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences, new Location(pkmn.Latitude, pkmn.Longitude));
             if (loc == null)
             {
                 _logger.Error($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
@@ -338,7 +200,7 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await GetMemberById(userId);
+                    var member = await _client.GetMemberById(_whConfig.GuidId, userId);
                     if (member == null)
                     {
                         _logger.Error($"Failed to find member with id {userId}.");
@@ -346,17 +208,7 @@
                     }
 
                     isSupporter = member.Roles.Select(x => x.Id).Contains(_whConfig.SupporterRoleId);
-                    //if (pkmn.Id == 132 && !isSupporter)
-                    //{
-                    //    _logger.Debug($"User {user.UserId} is not a supporter, Ditto has been skipped...");
-                    //    continue;
-                    //}
-
-                    //if (await RemoveUserIfNotExists(userId))
-                    //    return;
-
-                    //var isModOrHigher = userId.IsModeratorOrHigher(_whConfig);
-                    if (!isSupporter)// && !isModOrHigher)
+                    if (!isSupporter)
                     {
                         _logger.Debug($"User {member.Username} is not a supporter, skipping pokemon {pkmn.Id}...");
                         continue;
@@ -375,10 +227,10 @@
                         continue;
                     }
 
-                    matchesIV = _filters.MatchesIV(pkmn.IV, /*_whConfig.OnlySendEventPokemon ? _whConfig.EventPokemonMinimumIV :*/ subscribedPokemon.MinimumIV);
-                    //var matchesCP = _filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
-                    matchesLvl = _filters.MatchesLvl(pkmn.Level, subscribedPokemon.MinimumLevel);
-                    matchesGender = _filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
+                    matchesIV = _whm.Filters.MatchesIV(pkmn.IV, /*_whConfig.OnlySendEventPokemon ? _whConfig.EventPokemonMinimumIV :*/ subscribedPokemon.MinimumIV);
+                    //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
+                    matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, subscribedPokemon.MinimumLevel);
+                    matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
 
                     if (!(matchesIV && matchesLvl && matchesGender))
                         continue;
@@ -403,7 +255,7 @@
 
                     //if (await CheckIfExceededNotificationLimit(user)) return;
 
-                    //user.NotificationsToday++;
+                    user.NotificationsToday++;
 
                     await SendNotification(userId, pokemon.Name, embed);
                 }
@@ -420,7 +272,7 @@
             if (!db.Pokemon.ContainsKey(raid.PokemonId))
                 return;
 
-            var loc = _whm.GeofenceService.GetGeofence(_geofences, new Location(raid.Latitude, raid.Longitude));
+            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences, new Location(raid.Latitude, raid.Longitude));
             if (loc == null)
             {
                 _logger.Error($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
@@ -455,7 +307,7 @@
                     //if (await RemoveUserIfNotExists(userId))
                     //    return;
 
-                    var member = await GetMemberById(userId);
+                    var member = await _client.GetMemberById(_whConfig.GuidId, userId);
                     if (member == null)
                     {
                         _logger.Error($"Failed to find member with id {userId}.");
@@ -463,8 +315,7 @@
                     }
 
                     isSupporter = member.Roles.Select(x => x.Id).Contains(_whConfig.SupporterRoleId);
-                    //var isModOrHigher = user.UserId.IsModeratorOrHigher(_whConfig);
-                    if (!isSupporter)// && !isModOrHigher)
+                    if (!isSupporter)
                     {
                         _logger.Info($"User {userId} is not a supporter, skipping raid boss {raid.PokemonId}...");
                         continue;
@@ -509,12 +360,9 @@
 
                     _logger.Info($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
-                    //embed = await _builder.BuildRaidMessage(raid, user.UserId);
-                    //if (embed == null) continue;
-
                     //if (await CheckIfExceededNotificationLimit(user)) return;
 
-                    //user.NotificationsToday++;
+                    user.NotificationsToday++;
 
                     await SendNotification(userId, pokemon.Name, embed);
                 }
@@ -531,6 +379,8 @@
 
         private DiscordEmbed BuildPokemonMessage(PokemonData pokemon, string city)
         {
+            _logger.Trace($"Bot::BuildPokemonMessage [Pokemon={pokemon.Id}, City={city}]");
+
             var db = Database.Instance;
             var pkmn = db.Pokemon[pokemon.Id];
             if (pkmn == null)
@@ -559,7 +409,6 @@
                 eb.Description += $"**Details:** CP: {pokemon.CP} IV: {pokemon.IV} LV: {pokemon.Level}\r\n";
                 eb.Description += $"**IV Stats:** Atk: {pokemon.Attack}/Def: {pokemon.Defense}/Sta: {pokemon.Stamina}\r\n";
             }
-            //eb.Description += $"**Despawn:** {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n";
 
             if (!string.IsNullOrEmpty(form))
             {
@@ -623,6 +472,8 @@
 
         private DiscordEmbed BuildRaidMessage(RaidData raid, string city)
         {
+            _logger.Trace($"Bot::BuildRaidMessage [Raid={raid.PokemonId}, City={city}]");
+
             var db = Database.Instance;
             var pkmn = db.Pokemon[raid.PokemonId];
             if (pkmn == null)
@@ -641,90 +492,72 @@
                 Color = BuildRaidColor(Convert.ToInt32(raid.Level))
             };
 
-            var remaining = raid.EndTime.GetTimeRemaining();
-
-            eb.Description = raid.IsEgg ?
-                $"Level {raid.Level} {pkmn.Name} Hatches: {raid.StartTime.ToLongTimeString()}\r\n" :
-                $"{pkmn.Name} Raid Ends: {raid.EndTime.ToLongTimeString()}\r\n";
-            eb.Description += $"{raid.GymName}\r\n\r\n";
-            eb.Description += $"**Starts:** {raid.StartTime.ToLongTimeString()}\r\n";
             if (raid.IsEgg)
             {
-                eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(raid.EndTime)} left)\r\n";
+                eb.Description = $"Level {raid.Level} {pkmn.Name} Hatches: {raid.StartTime.ToLongTimeString()}\r\n";
+                eb.Description += $"{raid.GymName}\r\n\r\n";
+                eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(raid.EndTime).ToReadableStringNoSeconds()} left)\r\n";
             }
             else
             {
+                eb.Description = $"{pkmn.Name} Raid Ends: {raid.EndTime.ToLongTimeString()}\r\n";
+                eb.Description += $"{raid.GymName}\r\n\r\n";
+                eb.Description += $"**Started:** {raid.StartTime.ToLongTimeString()}\r\n";
                 eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()} left)\r\n";
-            }
 
-            if (raid.PokemonId != 0)
-            {
                 var perfectRange = raid.PokemonId.GetPokemonCpRange(20);
                 var boostedRange = raid.PokemonId.GetPokemonCpRange(25);
                 eb.Description += $"**Perfect CP:** {perfectRange.Best} / :white_sun_rain_cloud: {boostedRange.Best}\r\n";
-            }
 
-            //if (pkmn.Types.Count > 0)
-            //{
-            //    var types = new List<string>();
-            //    pkmn.Types.ForEach(x =>
-            //    {
-            //        if (Strings.TypeEmojis.ContainsKey(x.Type.ToLower()))
-            //        {
-            //            types.Add(Strings.TypeEmojis[x.Type.ToLower()] + " " + x.Type);
-            //        }
-            //    });
-            //    eb.Description += $"**Types:** {string.Join("/", types)}\r\n";
-            //}
-
-            var fastMoveId = Convert.ToInt32(raid.ChargeMove ?? "0");
-            if (db.Movesets.ContainsKey(fastMoveId))
-            {
-                var fastMove = db.Movesets[fastMoveId];
-                //var fastMoveIcon = Strings.TypeEmojis.ContainsKey(fastMove.Type.ToLower()) ? Strings.TypeEmojis[fastMove.Type.ToLower()] : fastMove.Type;
-                //eb.Description += $"**Fast Move:** {Strings.TypeEmojis[fastMove.Type.ToLower()]} {fastMove.Name}\r\n";
-                eb.Description += $"**Fast Move:** {fastMove.Name} ({fastMove.Type})\r\n";
-            }
-
-            var chargeMoveId = Convert.ToInt32(raid.ChargeMove ?? "0");
-            if (db.Movesets.ContainsKey(chargeMoveId))
-            {
-                var chargeMove = db.Movesets[chargeMoveId];
-                //var chargeMoveIcon = Strings.TypeEmojis.ContainsKey(chargeMove.Type.ToLower()) ? Strings.TypeEmojis[chargeMove.Type.ToLower()] : chargeMove.Type;
-                //eb.Description += $"**Charge Move:** {Strings.TypeEmojis[chargeMove.Type.ToLower()]} {chargeMove.Name}\r\n";
-                eb.Description += $"**Charge Move:** {chargeMove.Name} ({chargeMove.Type})\r\n";
-            }
-
-            if (pkmn.Types != null)
-            {
-                var strengths = new List<string>();
-                var weaknesses = new List<string>();
-                foreach (var type in pkmn.Types)
+                if (pkmn.Types != null)
                 {
-                    foreach (var strength in PokemonExtensions.GetStrengths(type.Type))
-                    {
-                        if (!strengths.Contains(strength))
-                        {
-                            strengths.Add(strength);
-                        }
-                    }
-                    foreach (var weakness in PokemonExtensions.GetWeaknesses(type.Type))
-                    {
-                        if (!weaknesses.Contains(weakness))
-                        {
-                            weaknesses.Add(weakness);
-                        }
-                    }
+                    //var types = new List<string>();
+                    //pkmn.Types.ForEach(x =>
+                    //{
+                    //    if (Strings.TypeEmojis.ContainsKey(x.Type.ToLower()))
+                    //    {
+                    //        types.Add(Strings.TypeEmojis[x.Type.ToLower()] + " " + x.Type);
+                    //    }
+                    //});
+                    //eb.Description += $"**Types:** {string.Join("/", types)}\r\n";
                 }
 
-                if (strengths.Count > 0)
+                var fastMoveId = Convert.ToInt32(raid.ChargeMove ?? "0");
+                if (db.Movesets.ContainsKey(fastMoveId))
                 {
-                    eb.Description += $"**Strong Against:** {string.Join(", ", strengths)}\r\n";
+                    var fastMove = db.Movesets[fastMoveId];
+                    //var fastMoveIcon = Strings.TypeEmojis.ContainsKey(fastMove.Type.ToLower()) ? Strings.TypeEmojis[fastMove.Type.ToLower()] : fastMove.Type;
+                    //eb.Description += $"**Fast Move:** {Strings.TypeEmojis[fastMove.Type.ToLower()]} {fastMove.Name}\r\n";
+                    eb.Description += $"**Fast Move:** {fastMove.Name} ({fastMove.Type})\r\n";
                 }
 
-                if (weaknesses.Count > 0)
+                var chargeMoveId = Convert.ToInt32(raid.ChargeMove ?? "0");
+                if (db.Movesets.ContainsKey(chargeMoveId))
                 {
-                    eb.Description += $"**Weaknesses:** {string.Join(", ", weaknesses)}\r\n";
+                    var chargeMove = db.Movesets[chargeMoveId];
+                    //var chargeMoveIcon = Strings.TypeEmojis.ContainsKey(chargeMove.Type.ToLower()) ? Strings.TypeEmojis[chargeMove.Type.ToLower()] : chargeMove.Type;
+                    //eb.Description += $"**Charge Move:** {Strings.TypeEmojis[chargeMove.Type.ToLower()]} {chargeMove.Name}\r\n";
+                    eb.Description += $"**Charge Move:** {chargeMove.Name} ({chargeMove.Type})\r\n";
+                }
+
+                if (pkmn.Types != null)
+                {
+                    var strengths = new List<string>();
+                    var weaknesses = new List<string>();
+                    for (var i = 0; i < pkmn.Types.Count; i++)
+                    {
+                        strengths.AddRange(pkmn.Types[i].Type.GetStrengths().Distinct());
+                        weaknesses.AddRange(pkmn.Types[i].Type.GetWeaknesses().Distinct());
+                    }
+
+                    if (strengths.Count > 0)
+                    {
+                        eb.Description += $"**Strong Against:** {string.Join(", ", strengths)}\r\n";
+                    }
+                    if (weaknesses.Count > 0)
+                    {
+                        eb.Description += $"**Weaknesses:** {string.Join(", ", weaknesses)}\r\n";
+                    }
                 }
             }
 
@@ -743,26 +576,29 @@
 
         #region Private Methods
 
-        private async Task<DiscordMessage> SendDirectMessage(DiscordUser user, DiscordEmbed embed)
+        private async Task HandleCommands(DiscordMessage e)
         {
-            if (embed == null)
-                return null;
-
-            try
+            switch (e.Content.ToLower())
             {
-                var dm = await _client.CreateDmAsync(user);
-                if (dm != null)
-                {
-                    var msg = await dm.SendMessageAsync(string.Empty, false, embed);
-                    return msg;
-                }
+                case "!refresh":
+                    await RemoveUserRoles(e);
+                    break;
+                case "!createdb":
+                    Database.Instance.Subscriptions.Add(0, new SubscriptionObject
+                    {
+                        Enabled = true,
+                        Pokemon = new Dictionary<int, PokemonSubscription>
+                            {
+                                { 0, new PokemonSubscription { } }
+                            },
+                        Raids = new Dictionary<int, RaidSubscription>
+                            {
+                                { 0, new RaidSubscription { } }
+                            }
+                    });
+                    Database.Instance.Save();
+                    break;
             }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-
-            return null;
         }
 
         private async Task SendNotification(ulong userId, string pokemon, DiscordEmbed embed)
@@ -777,11 +613,13 @@
                 return;
             }
 
-            await SendDirectMessage(user, embed);
+            await _client.SendDirectMessage(user, embed);
         }
 
         private async Task<bool> RemoveUserIfNotExists(ulong userId)
         {
+            _logger.Trace($"Bot::RemoveUserIfNotExists [UserId={userId}]");
+
             var db = Database.Instance;
             var discordUser = await _client.GetUserAsync(userId);
             if (discordUser == null)
@@ -872,25 +710,6 @@
             }
         }
 
-        private async Task<DiscordMember> GetMemberById(ulong id)
-        {
-            var guild = await _client.GetGuildAsync(_whConfig.GuidId);
-            if (guild == null)
-            {
-                _logger.Error($"Failed to get guild from id {_whConfig.GuidId}.");
-                return null;
-            }
-
-            var member = guild?.Members?.FirstOrDefault(x => x.Id == id);
-            if (member == null)
-            {
-                _logger.Error($"Failed to get member from id {id}.");
-                return null;
-            }
-
-            return member;
-        }
-
         private static DiscordColor BuildColor(string iv)
         {
             if (int.TryParse(iv.Substring(0, iv.Length - 1), out int result))
@@ -935,20 +754,12 @@
             {
                 var logLine = logLines[i];
                 var logData = logLine.Split(' ');
-                var dateTime = logData[0];
-                var logType = logData[1];
-                var logMessage = SliceArray(logData, 2);
-            }
-        }
+                var dateTime = $"{logData[0]} {logData[1]}";
+                var logType = logData[2];
+                var logMessage = string.Join(" ", logData.Skip(3));
 
-        private string SliceArray(string[] array, int index)
-        {
-            var text = string.Empty;
-            for (var i = index; i < array.Length - 1; i++)
-            {
-                text += array[i] + " ";
+                Console.WriteLine($"{dateTime} {logType} {logMessage}");
             }
-            return text;
         }
     }
 }

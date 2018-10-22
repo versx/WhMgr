@@ -1,4 +1,4 @@
-﻿namespace T.Data
+﻿namespace WhMgr.Data
 {
     using System;
     using System.Collections.Generic;
@@ -6,8 +6,8 @@
 
     using Newtonsoft.Json;
 
-    using T.Data.Models;
-    using T.Diagnostics;
+    using WhMgr.Data.Models;
+    using WhMgr.Diagnostics;
 
     public class Database
     {

@@ -1,4 +1,4 @@
-﻿namespace T.Geofence
+﻿namespace WhMgr.Geofence
 {
     using System;
     using System.Collections.Generic;
@@ -41,8 +41,7 @@
         public static GeofenceItem FromFile(string filePath)
         {
             var geofence = new GeofenceItem();
-            var path = filePath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
-            var lines = File.ReadAllLines(path);
+            var lines = File.ReadAllLines(filePath);
 
             foreach (var line in lines)
             {
@@ -54,8 +53,11 @@
                 }
 
                 var coordinates = line.Replace(" ", null).Split(',');
-                var lat = double.Parse(coordinates[0]);
-                var lng = double.Parse(coordinates[1]);
+                if (!double.TryParse(coordinates[0], out var lat))
+                    continue;
+
+                if (!double.TryParse(coordinates[1], out var lng))
+                    continue;
 
                 geofence.Polygons.Add(new Location(lat, lng));
             }
