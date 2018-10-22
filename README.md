@@ -3,8 +3,8 @@
 `PokeAlarm alternative.`
 
 1.) Copy `config.example.json` to `config.json`.  
-	a.) Create bot token. https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token  
-	b.) Input your bot token and config options.  
+  a.) Create bot token. https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token  
+  b.) Input your bot token and config options.  
 2.) Copy `alarms.example.json` to `alarms.json`.  
 3.) Fill out the alarms file.  
 ```
@@ -35,7 +35,7 @@
 		}
 	},
 	"geofence":"Geofences\\geofence1.txt", //Path to geofence file.
-	"webhook":"<DISCORD_WEBHOOK_URL>"
+	"webhook":"<DISCORD_WEBHOOK_URL>" //Discord webhook url address.
 }
 ```
 4.) Create directory `Geofences` in root of executable file.  
