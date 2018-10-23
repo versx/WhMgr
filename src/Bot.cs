@@ -218,7 +218,7 @@
                         continue;
                     }
 
-                    if (!user.Pokemon.ContainsKey(pkmn.Id))
+                    if (user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id) == null)
                         continue;
 
                     subscribedPokemon = user.Pokemon[pkmn.Id];
@@ -325,7 +325,7 @@
                         continue;
                     }
 
-                    if (!user.Raids.ContainsKey(raid.PokemonId))
+                    if (user.Raids.FirstOrDefault(x => x.PokemonId == raid.PokemonId) == null)
                         continue;
 
                     subscribedRaid = user.Raids[raid.PokemonId];
@@ -339,10 +339,10 @@
                         continue;
                     }
 
-                    var exists = user.Raids.FirstOrDefault(x => x.Value.PokemonId == raid.PokemonId &&
+                    var exists = user.Raids.FirstOrDefault(x => x.PokemonId == raid.PokemonId &&
                     (
-                        string.IsNullOrEmpty(x.Value.City) || (!string.IsNullOrEmpty(x.Value.City) && string.Compare(loc.Name, x.Value.City, true) == 0)
-                    )).Value != null;
+                        string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
+                    )) != null;
                     if (!exists)
                     {
                         _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name} because the raid is in city '{loc.Name}'.");
@@ -582,19 +582,19 @@
                     await RemoveUserRoles(e);
                     break;
                 case "!createdb":
-                    Database.Instance.Subscriptions.Add(0, new SubscriptionObject
-                    {
-                        Enabled = true,
-                        Pokemon = new Dictionary<int, PokemonSubscription>
-                            {
-                                { 0, new PokemonSubscription { } }
-                            },
-                        Raids = new Dictionary<int, RaidSubscription>
-                            {
-                                { 0, new RaidSubscription { } }
-                            }
-                    });
-                    Database.Instance.Save();
+                    //Database.Instance.Subscriptions.Add(0, new SubscriptionObject
+                    //{
+                    //    Enabled = true,
+                    //    Pokemon = new Dictionary<int, PokemonSubscription>
+                    //        {
+                    //            { 0, new PokemonSubscription { } }
+                    //        },
+                    //    Raids = new Dictionary<int, RaidSubscription>
+                    //        {
+                    //            { 0, new RaidSubscription { } }
+                    //        }
+                    //});
+                    //Database.Instance.Save();
                     break;
             }
         }

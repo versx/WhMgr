@@ -11,10 +11,10 @@
         public bool Enabled { get; set; }
 
         [JsonProperty("pokemon")]
-        public Dictionary<int, PokemonSubscription> Pokemon { get; set; }
+        public List<PokemonSubscription> Pokemon { get; set; }
 
         [JsonProperty("raids")]
-        public Dictionary<int, RaidSubscription> Raids { get; set; }
+        public List<RaidSubscription> Raids { get; set; }
 
         [JsonProperty("notifications_today")]
         public long NotificationsToday { get; set; }
@@ -24,8 +24,8 @@
 
         public SubscriptionObject()
         {
-            Pokemon = new Dictionary<int, PokemonSubscription>();
-            Raids = new Dictionary<int, RaidSubscription>();
+            Pokemon = new List<PokemonSubscription>();
+            Raids = new List<RaidSubscription>();
             Limiter = new NotificationLimiter();
         }
     }
