@@ -18,6 +18,7 @@
         [JsonProperty("cp")]
         public string CP { get; set; }
 
+        [JsonIgnore]
         public string IV
         {
             get
@@ -80,6 +81,19 @@
 
         [JsonProperty("form")]
         public string FormId { get; set; }
+
+        [JsonIgnore]
+        public bool IsMissingStats
+        {
+            get
+            {
+                return Attack == "?" ||
+                       Defense == "?" ||
+                       Stamina == "?" ||
+                       Level == "?" ||
+                       string.IsNullOrEmpty(Level);
+            }
+        }
 
         #endregion
 

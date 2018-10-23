@@ -1,4 +1,4 @@
-# WebHook Manager
+# Webhook Manager
 
 ### PokeAlarm alternative.
 
@@ -38,7 +38,7 @@
 	"webhook":"<DISCORD_WEBHOOK_URL>" //Discord webhook url address.
 }
 ```
-4.) Create directory `Geofences` in root of executable file.  
+4.) Create directory `Geofences` in root directory of executable file.  
 5.) Create/copy geofence files to `Geofences` folder.  
 
 *Note:* Geofence file format is the following:  

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Net;
 
     using Newtonsoft.Json;
@@ -11,7 +10,6 @@
     using WhMgr.Alarms;
     using WhMgr.Alarms.Filters;
     using WhMgr.Alarms.Models;
-    using WhMgr.Configuration;
     using WhMgr.Diagnostics;
     using WhMgr.Geofence;
     using WhMgr.Net;
@@ -36,7 +34,7 @@
 
         public GeofenceService GeofenceService => _geofenceSvc;
 
-        public List<GeofenceItem> Geofences { get; private set; }
+        public Dictionary<string, GeofenceItem> Geofences { get; private set; }
 
         public Filters Filters { get; }
 
@@ -78,10 +76,10 @@
         public WebhookManager(ushort port, MapProviderType provider, MapProviderFork fork)
         {
             Filters = new Filters();
-            Geofences = new List<GeofenceItem>();
+            Geofences = new Dictionary<string, GeofenceItem>();
 
             _logger = EventLogger.GetLogger();
-            _logger.Trace($"WebHookManager::WebHookManager [Port={port}]");
+            _logger.Trace($"WebHookManager::WebHookManager [Port={port}, MapProviderType={provider}, MapProviderFork={fork}]");
 
             _webhooks = new Dictionary<string, WebHookObject>();
             _geofenceSvc = new GeofenceService();
@@ -146,13 +144,11 @@
             alarms.ForEach(x =>
             {
                 var geofence = x.LoadGeofence();
-                //TODO: Fix geofence reload issue, find distinct way.
-                if (!Geofences.Contains(geofence))
+                if (!Geofences.ContainsKey(geofence.Name))
                 {
-                    Geofences.Add(geofence);
+                    Geofences.Add(geofence.Name, geofence);
+                    _logger.Debug($"Geofence file loaded for {x.Name}...");
                 }
-
-                _logger.Debug($"Geofence file loaded for {x.Name}...");
             });
 
             return alarms;
@@ -233,7 +229,7 @@
                     continue;
                 }
 
-                if (alarm.Filters.Pokemon.IgnoreMissing && (pkmn.Attack == "?" || pkmn.Defense == "?" || pkmn.Stamina == "?"))
+                if (alarm.Filters.Pokemon.IgnoreMissing && pkmn.IsMissingStats)
                 {
                     _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because IgnoreMissing=true.");
                     continue;
@@ -306,9 +302,15 @@
                         continue;
                     }
 
-                    if (!alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId))
+                    if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId))
                     {
-                        _logger.Info($"[{alarm.Geofence.Name}] Skipping raid boss {raid.PokemonId} because raid boss not in include list.");
+                        _logger.Info($"[{alarm.Geofence.Name}] Skipping pokemon {raid.PokemonId} because of filter {alarm.Filters.Pokemon.FilterType}.");
+                        continue;
+                    }
+
+                    if (!(alarm.Filters.Raids.FilterType == FilterType.Include && (alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId) || alarm.Filters.Raids?.Pokemon.Count == 0)))
+                    {
+                        _logger.Info($"[{alarm.Geofence.Name}] Skipping raid boss {raid.PokemonId} because of filter {alarm.Filters.Pokemon.FilterType}.");
                         continue;
                     }
 
@@ -337,12 +339,12 @@
         {
             /**Example:
              * {
-             *   "name": "Pogo", 
-             *   "channel_id": "352137087182416026", 
-             *   "token": "fCdHsCZWeGB_vTkdPRqnB4_7fXil5tutXDLAZQYDurkXWQOqzSptiSQHbiCOBGlsg8J8", 
+             *   "name": "", 
+             *   "channel_id": "", 
+             *   "token": "", 
              *   "avatar": null, 
-             *   "guild_id": "322025055510854680", 
-             *   "id": "352156775101032439"
+             *   "guild_id": "", 
+             *   "id": ""
              * }
              */
 

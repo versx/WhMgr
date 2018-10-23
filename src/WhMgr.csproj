@@ -42,6 +42,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Alarms\Filters\Models\FilterEggObject.cs" />
+    <Compile Include="Alarms\Filters\Models\FilterPokemonObject.cs" />
+    <Compile Include="Alarms\Filters\Models\FilterRaidObject.cs" />
     <Compile Include="Bot.cs" />
     <Compile Include="Configuration\WhConfig.cs" />
     <Compile Include="Data\Database.cs" />

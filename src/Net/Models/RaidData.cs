@@ -78,6 +78,20 @@
         [JsonIgnore]
         public bool IsEgg => PokemonId == 0;
 
+        [JsonIgnore]
+        public bool IsMissingStats
+        {
+            get
+            {
+                return string.IsNullOrEmpty(FastMove) ||
+                       FastMove == "?" ||
+                       string.IsNullOrEmpty(ChargeMove) ||
+                       ChargeMove == "?" ||
+                       string.IsNullOrEmpty(Level) ||
+                       Level == "?";
+            }
+        }
+
         public RaidData()
         {
             SetTimes();

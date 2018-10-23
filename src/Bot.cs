@@ -19,7 +19,6 @@
     using DSharpPlus.EventArgs;
 
     //TODO: Backup subscriptions database.
-    //TODO: Notification limiter.
 
     public class Bot
     {
@@ -175,7 +174,7 @@
             if (!db.Pokemon.ContainsKey(pkmn.Id))
                 return;
 
-            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences, new Location(pkmn.Latitude, pkmn.Longitude));
+            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(pkmn.Latitude, pkmn.Longitude));
             if (loc == null)
             {
                 _logger.Error($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
@@ -277,7 +276,7 @@
             if (!db.Pokemon.ContainsKey(raid.PokemonId))
                 return;
 
-            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences, new Location(raid.Latitude, raid.Longitude));
+            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(raid.Latitude, raid.Longitude));
             if (loc == null)
             {
                 _logger.Error($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
@@ -404,7 +403,7 @@
                 Color = BuildColor(pokemon.IV)
             };
 
-            if (pokemon.IV == "?" || pokemon.Level == "?" || string.IsNullOrEmpty(pokemon.Level))
+            if (pokemon.IsMissingStats)
             {
                 eb.Description = $"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n";
             }
@@ -533,7 +532,7 @@
                     var fastMove = db.Movesets[fastMoveId];
                     //var fastMoveIcon = Strings.TypeEmojis.ContainsKey(fastMove.Type.ToLower()) ? Strings.TypeEmojis[fastMove.Type.ToLower()] : fastMove.Type;
                     //eb.Description += $"**Fast Move:** {Strings.TypeEmojis[fastMove.Type.ToLower()]} {fastMove.Name}\r\n";
-                    eb.Description += $"**Fast Move:** {fastMove.Name} ({fastMove.Type})\r\n";
+                    eb.Description += $"**Fast Move:** {fastMove.Name}\r\n";
                 }
 
                 var chargeMoveId = Convert.ToInt32(raid.ChargeMove ?? "0");
@@ -542,23 +541,17 @@
                     var chargeMove = db.Movesets[chargeMoveId];
                     //var chargeMoveIcon = Strings.TypeEmojis.ContainsKey(chargeMove.Type.ToLower()) ? Strings.TypeEmojis[chargeMove.Type.ToLower()] : chargeMove.Type;
                     //eb.Description += $"**Charge Move:** {Strings.TypeEmojis[chargeMove.Type.ToLower()]} {chargeMove.Name}\r\n";
-                    eb.Description += $"**Charge Move:** {chargeMove.Name} ({chargeMove.Type})\r\n";
+                    eb.Description += $"**Charge Move:** {chargeMove.Name}\r\n";
                 }
 
                 if (pkmn.Types != null)
                 {
-                    var strengths = new List<string>();
                     var weaknesses = new List<string>();
                     for (var i = 0; i < pkmn.Types.Count; i++)
                     {
-                        strengths.AddRange(pkmn.Types[i].Type.GetStrengths().Distinct());
                         weaknesses.AddRange(pkmn.Types[i].Type.GetWeaknesses().Distinct());
                     }
 
-                    if (strengths.Count > 0)
-                    {
-                        eb.Description += $"**Strong Against:** {string.Join(", ", strengths)}\r\n";
-                    }
                     if (weaknesses.Count > 0)
                     {
                         eb.Description += $"**Weaknesses:** {string.Join(", ", weaknesses)}\r\n";
@@ -768,10 +761,241 @@
         //}
     }
 
-    public class NotificationProcessor
-    {
+    //public class NotificationProcessor
+    //{
+    //    private static readonly IEventLogger _logger = EventLogger.GetLogger();
+    //    private readonly WebhookManager _whm;
+    //    private readonly DiscordClient _client;
+    //    private readonly WhConfig _whConfig;
 
-    }
+    //    public NotificationProcessor(WebhookManager whm, DiscordClient client, WhConfig whConfig)
+    //    {
+    //        _whm = whm;
+    //        _client = client;
+    //        _whConfig = whConfig;
+    //    }
+
+    //    private async Task ProcessPokemonSubscription(PokemonData pkmn)
+    //    {
+    //        var db = Database.Instance;
+    //        if (!db.Pokemon.ContainsKey(pkmn.Id))
+    //            return;
+
+    //        var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(pkmn.Latitude, pkmn.Longitude));
+    //        if (loc == null)
+    //        {
+    //            _logger.Error($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+    //            return;
+    //        }
+
+    //        SubscriptionObject user;
+    //        bool isSupporter;
+    //        PokemonSubscription subscribedPokemon;
+    //        var pokemon = db.Pokemon[pkmn.Id];
+    //        bool matchesIV;
+    //        bool matchesLvl;
+    //        bool matchesGender;
+    //        var embed = BuildPokemonMessage(pkmn, loc.Name);
+
+    //        var keys = db.Subscriptions.Keys.ToList();
+    //        for (var i = 0; i < keys.Count; i++)
+    //        {
+    //            try
+    //            {
+    //                var userId = keys[i];
+    //                user = db.Subscriptions[userId];
+
+    //                if (user == null)
+    //                    continue;
+
+    //                if (!user.Enabled)
+    //                    continue;
+
+    //                var member = await _client.GetMemberById(_whConfig.GuidId, userId);
+    //                if (member == null)
+    //                {
+    //                    _logger.Error($"Failed to find member with id {userId}.");
+    //                    continue;
+    //                }
+
+    //                isSupporter = member.Roles.Select(x => x.Id).Contains(_whConfig.SupporterRoleId);
+    //                if (!isSupporter)
+    //                {
+    //                    _logger.Debug($"User {member.Username} is not a supporter, skipping pokemon {pkmn.Id}...");
+    //                    continue;
+    //                }
+
+    //                if (!user.Pokemon.ContainsKey(pkmn.Id))
+    //                    continue;
+
+    //                subscribedPokemon = user.Pokemon[pkmn.Id];
+    //                if (subscribedPokemon == null)
+    //                    continue;
+
+    //                if (!member.Roles.Select(x => x.Name).Contains(loc.Name))
+    //                {
+    //                    _logger.Debug($"Skipping user {member.DisplayName} ({member.Id}) for {pokemon.Name} {pkmn.IV}, no city role '{loc.Name}'.");
+    //                    continue;
+    //                }
+
+    //                matchesIV = _whm.Filters.MatchesIV(pkmn.IV, /*_whConfig.OnlySendEventPokemon ? _whConfig.EventPokemonMinimumIV :*/ subscribedPokemon.MinimumIV);
+    //                //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
+    //                matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, subscribedPokemon.MinimumLevel);
+    //                matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
+
+    //                if (!(matchesIV && matchesLvl && matchesGender))
+    //                    continue;
+
+    //                if (user.Limiter.IsLimited())
+    //                {
+    //                    //if (!user.NotifiedOfLimited)
+    //                    //{
+    //                    //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
+    //                    //    user.NotifiedOfLimited = true;
+    //                    //}
+
+    //                    continue;
+    //                }
+
+    //                //user.NotifiedOfLimited = false;
+
+    //                _logger.Info($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
+
+    //                //if (await CheckIfExceededNotificationLimit(user)) return;
+
+    //                user.NotificationsToday++;
+
+    //                await SendNotification(userId, pokemon.Name, embed);
+    //            }
+    //            catch (Exception ex)
+    //            {
+    //                _logger.Error(ex);
+    //            }
+    //        }
+    //    }
+
+    //    private async Task ProcessRaidSubscription(RaidData raid)
+    //    {
+    //        var db = Database.Instance;
+    //        if (!db.Pokemon.ContainsKey(raid.PokemonId))
+    //            return;
+
+    //        var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(raid.Latitude, raid.Longitude));
+    //        if (loc == null)
+    //        {
+    //            _logger.Error($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
+    //            return;
+    //        }
+
+    //        bool isSupporter;
+    //        SubscriptionObject user;
+    //        RaidSubscription subscribedRaid;
+    //        var embed = BuildRaidMessage(raid, loc.Name);
+
+    //        if (DateTime.Now > raid.EndTime)
+    //        {
+    //            _logger.Info($"Raid {raid.PokemonId} already expired, skipping...");
+    //            return;
+    //        }
+
+    //        var keys = db.Subscriptions.Keys.ToList();
+    //        for (int i = 0; i < keys.Count; i++)
+    //        {
+    //            try
+    //            {
+    //                var userId = keys[i];
+    //                user = db.Subscriptions[userId];
+
+    //                if (user == null)
+    //                    continue;
+
+    //                if (!user.Enabled)
+    //                    continue;
+
+    //                //if (await RemoveUserIfNotExists(userId))
+    //                //    return;
+
+    //                var member = await _client.GetMemberById(_whConfig.GuidId, userId);
+    //                if (member == null)
+    //                {
+    //                    _logger.Error($"Failed to find member with id {userId}.");
+    //                    continue;
+    //                }
+
+    //                isSupporter = member.Roles.Select(x => x.Id).Contains(_whConfig.SupporterRoleId);
+    //                if (!isSupporter)
+    //                {
+    //                    _logger.Info($"User {userId} is not a supporter, skipping raid boss {raid.PokemonId}...");
+    //                    continue;
+    //                }
+
+    //                if (!user.Raids.ContainsKey(raid.PokemonId))
+    //                    continue;
+
+    //                subscribedRaid = user.Raids[raid.PokemonId];
+    //                if (subscribedRaid == null)
+    //                    continue;
+
+    //                var pokemon = db.Pokemon[raid.PokemonId];
+    //                if (!member.Roles.Select(x => x.Name).Contains(loc.Name))
+    //                {
+    //                    _logger.Debug($"[{loc.Name}] Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name} because they do not have the city role '{loc.Name}'.");
+    //                    continue;
+    //                }
+
+    //                var exists = user.Raids.FirstOrDefault(x => x.Value.PokemonId == raid.PokemonId &&
+    //                (
+    //                    string.IsNullOrEmpty(x.Value.City) || (!string.IsNullOrEmpty(x.Value.City) && string.Compare(loc.Name, x.Value.City, true) == 0)
+    //                )).Value != null;
+    //                if (!exists)
+    //                {
+    //                    _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name} because the raid is in city '{loc.Name}'.");
+    //                    continue;
+    //                }
+
+    //                if (user.Limiter.IsLimited())
+    //                {
+    //                    //if (!user.NotifiedOfLimited)
+    //                    //{
+    //                    //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
+    //                    //    user.NotifiedOfLimited = true;
+    //                    //}
+
+    //                    continue;
+    //                }
+
+    //                //user.NotifiedOfLimited = false;
+
+    //                _logger.Info($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
+
+    //                //if (await CheckIfExceededNotificationLimit(user)) return;
+
+    //                user.NotificationsToday++;
+
+    //                await SendNotification(userId, pokemon.Name, embed);
+    //            }
+    //            catch (Exception ex)
+    //            {
+    //                _logger.Error(ex);
+    //            }
+    //        }
+    //    }
+
+    //    private async Task SendNotification(ulong userId, string pokemon, DiscordEmbed embed)
+    //    {
+    //        _logger.Trace($"NotificationProcessor::SendNotification [UserId={userId}, Pokemon={pokemon}, Embed={embed.Title}]");
+    //        _logger.Info($"Notifying using {userId} of {pokemon} spawn.");
+
+    //        var user = await _client.GetUserAsync(userId);
+    //        if (user == null)
+    //        {
+    //            _logger.Error($"Failed to find user from id {userId}.");
+    //            return;
+    //        }
+
+    //        await _client.SendDirectMessage(user, embed);
+    //    }
+    //}
 
     public class NotificationLimiter
     {
