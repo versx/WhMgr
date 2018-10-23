@@ -364,11 +364,11 @@
 
         public string FilePath { get; }
 
-        public event EventHandler<FileChangeEventArgs> FileChanged;
+        public event EventHandler<FileChangedEventArgs> FileChanged;
 
         private void OnFileChanged(string filePath)
         {
-            FileChanged?.Invoke(this, new FileChangeEventArgs(filePath));
+            FileChanged?.Invoke(this, new FileChangedEventArgs(filePath));
         }
 
         public FileWatcher(string filePath)
@@ -395,11 +395,11 @@
         }
     }
 
-    public class FileChangeEventArgs
+    public class FileChangedEventArgs
     {
         public string FilePath { get; set; }
 
-        public FileChangeEventArgs(string filePath)
+        public FileChangedEventArgs(string filePath)
         {
             FilePath = filePath;
         }
