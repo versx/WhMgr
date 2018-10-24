@@ -3,23 +3,30 @@
     using System;
     using System.Collections.Generic;
 
-    using Newtonsoft.Json;
+    using ServiceStack.DataAnnotations;
 
+    [Alias("subscription")]
     public class SubscriptionObject
     {
-        [JsonProperty("enabled")]
+        [Alias("id"), AutoIncrement]
+        public int Id { get; set; }
+
+        [Alias("userId"), PrimaryKey]
+        public ulong UserId { get; set; }
+
+        [Alias("enabled"), Default(1)]
         public bool Enabled { get; set; }
 
-        [JsonProperty("pokemon")]
+        [Alias("pokemon"), Reference]
         public List<PokemonSubscription> Pokemon { get; set; }
 
-        [JsonProperty("raids")]
+        [Alias("raids"), Reference]
         public List<RaidSubscription> Raids { get; set; }
 
-        [JsonProperty("notifications_today")]
+        [Alias("notifications_today")]
         public long NotificationsToday { get; set; }
 
-        [JsonIgnore]
+        [Ignore]
         public NotificationLimiter Limiter { get; set; }
 
         public SubscriptionObject()
@@ -27,6 +34,32 @@
             Pokemon = new List<PokemonSubscription>();
             Raids = new List<RaidSubscription>();
             Limiter = new NotificationLimiter();
+
         }
     }
+
+    //public class SubscriptionObject
+    //{
+    //    [JsonProperty("enabled")]
+    //    public bool Enabled { get; set; }
+
+    //    [JsonProperty("pokemon")]
+    //    public List<PokemonSubscription> Pokemon { get; set; }
+
+    //    [JsonProperty("raids")]
+    //    public List<RaidSubscription> Raids { get; set; }
+
+    //    [JsonProperty("notifications_today")]
+    //    public long NotificationsToday { get; set; }
+
+    //    [JsonIgnore]
+    //    public NotificationLimiter Limiter { get; set; }
+
+    //    public SubscriptionObject()
+    //    {
+    //        Pokemon = new List<PokemonSubscription>();
+    //        Raids = new List<RaidSubscription>();
+    //        Limiter = new NotificationLimiter();
+    //    }
+    //}
 }

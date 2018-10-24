@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
 
     using Newtonsoft.Json;
@@ -24,8 +25,11 @@
         [JsonProperty("supporterRoleId")]
         public ulong SupporterRoleId { get; set; }
 
-        [JsonProperty("guidId")]
-        public ulong GuidId { get; set; }
+        [JsonProperty("guildId")]
+        public ulong GuildId { get; set; }
+
+        [JsonProperty("moderators")]
+        public List<ulong> Moderators { get; set; }
 
         [JsonProperty("webhookPort")]
         public ushort WebHookPort { get; set; }
@@ -39,10 +43,20 @@
         [JsonProperty("mapProviderFork")]
         public MapProviderFork MapProviderFork { get; set; }
 
+        [JsonProperty("connectionString")]
+        public string ConnectionString { get; set; }
+
+        [JsonProperty("commandPrefix")]
+        public string CommandPrefix { get; set; }
+
+        public List<string> CityRoles { get; set; }
+
         public WhConfig()
         {
+            CityRoles = new List<string>();
             MapProvider = MapProviderType.RealDeviceMap;
             MapProviderFork = MapProviderFork.Default;
+            Moderators = new List<ulong>();
         }
 
         public void Save(string filePath)

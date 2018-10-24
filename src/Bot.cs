@@ -17,16 +17,35 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using DSharpPlus.CommandsNext;
+
+    using ServiceStack.OrmLite;
 
     //TODO: Backup subscriptions database.
+
+    public class Dependencies
+    {
+        public SubscriptionManager SubscriptionManager { get; }
+
+        public WhConfig WhConfig { get; }
+
+        public Dependencies(SubscriptionManager subMgr, WhConfig whConfig)
+        {
+            SubscriptionManager = subMgr;
+            WhConfig = whConfig;
+        }
+    }
 
     public class Bot
     {
         #region Variables
 
         private readonly DiscordClient _client;
+        private readonly CommandsNextModule _commands;
+        private readonly Dependencies _dep;
         private readonly WebhookManager _whm;
         private readonly WhConfig _whConfig;
+        private readonly SubscriptionManager _subMgr;
         private readonly IEventLogger _logger;
 
         #endregion
@@ -37,7 +56,7 @@
         {
             var name = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName;
             _logger = EventLogger.GetLogger(name);
-            _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuidId}]");
+            _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}]");
 
             _whConfig = whConfig;
 
@@ -58,6 +77,43 @@
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = true
             });
+
+            DependencyCollection dep;
+            using (var d = new DependencyCollectionBuilder())
+            {
+                d.AddInstance
+                (
+                    _dep = new Dependencies(_subMgr = new SubscriptionManager(), _whConfig)
+                    //{
+                        //Interactivity = _interactivity,
+                        //CommandsModule = _commands,
+                        //VoiceNext = _voiceNext,
+                        //Cts = _cts = new CancellationTokenSource(),
+                        //Config = _config,
+                        //LobbyManager = new RaidLobbyManager(_client, _config, _logger, notificationProcessor.GeofenceSvc),
+                        //ReminderSvc = new ReminderService(_client, _db, _logger),
+                        //ImageSvc = new ImageService(ImageFolder),
+                        //PoGoVersionMonitor = new PokemonGoVersionMonitor(),
+                        //Language = _lang,
+                        //Logger = _logger
+                    //}
+                );
+                dep = d.Build();
+            }
+
+            _commands = _client.UseCommandsNext
+            (
+                new CommandsNextConfiguration
+                {
+                    StringPrefix = _whConfig.CommandPrefix.ToString(),
+                    EnableDms = true,
+                    EnableMentionPrefix = string.IsNullOrEmpty(_whConfig.CommandPrefix),
+                    EnableDefaultHelp = false,
+                    CaseSensitive = false,
+                    IgnoreExtraArguments = true,
+                    //Dependencies = dep
+                }
+            );
         }
 
         #endregion
@@ -71,6 +127,10 @@
 
             _client.Ready += Client_Ready;
             _client.MessageCreated += Client_MessageCreated;
+            _commands.CommandExecuted += Commands_CommandExecuted;
+            _commands.CommandErrored += Commands_CommandErrored;
+            //_commands.RegisterCommands<Owner>();
+
             _client.ConnectAsync();
         }
 
@@ -97,6 +157,62 @@
                 return;
 
             await HandleCommands(e.Message);
+        }
+
+        private async Task Commands_CommandExecuted(CommandExecutionEventArgs e)
+        {
+            // let's log the name of the command and user
+            e.Context.Client.DebugLogger.LogMessage(LogLevel.Info, Strings.BotName, $"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
+
+            // since this method is not async, let's return
+            // a completed task, so that no additional work
+            // is done
+            await Task.CompletedTask;
+        }
+
+        private async Task Commands_CommandErrored(CommandErrorEventArgs e)
+        {
+            e.Context.Client.DebugLogger.LogMessage(LogLevel.Error, Strings.BotName, $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? "<unknown command>"}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
+
+            // let's check if the error is a result of lack of required permissions
+            if (e.Exception is DSharpPlus.CommandsNext.Exceptions.ChecksFailedException)
+            {
+                // The user lacks required permissions, 
+                var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
+
+                // let's wrap the response into an embed
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Access denied",
+                    Description = $"{emoji} You do not have the permissions required to execute this command.",
+                    Color = new DiscordColor(0xFF0000) // red
+                };
+                await e.Context.RespondAsync("", embed: embed);
+            }
+            else if (e.Exception is DSharpPlus.CommandsNext.Exceptions.CommandNotFoundException)
+            {
+                //TODO: Custom commands.
+                //if (_whConfig.CustomCommands.ContainsKey(e.Command.QualifiedName))
+                //    return;
+
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Command not found",
+                    Description = $"Specified command '{e.Context.Message.Content}' not found.",
+                    Color = new DiscordColor(0xFF0000) // red
+                };
+                await e.Context.RespondAsync("", embed: embed);
+            }
+            else
+            {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Unknown error",
+                    Description = $"Unknown error occurred.\r\nMessage: {e.Exception.Message}",
+                    Color = new DiscordColor(0xFF0000) // red
+                };
+                await e.Context.RespondAsync("", embed: embed);
+            }
         }
 
         #endregion
@@ -190,24 +306,33 @@
             bool matchesGender;
             var embed = BuildPokemonMessage(pkmn, loc.Name);
 
-            var keys = db.Subscriptions.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            var subscriptions = new List<SubscriptionObject>();
+            using (var dbFactory = DataAccessLayer.CreateFactory())
+            {
+                subscriptions = dbFactory.LoadSelect<SubscriptionObject>();
+            }
+
+            if (subscriptions == null)
+            {
+                _logger.Warn($"Subscriptions table is empty.");
+                return;
+            }
+
+            for (var i = 0; i < subscriptions.Count; i++)
             {
                 try
                 {
-                    var userId = keys[i];
-                    user = db.Subscriptions[userId];
-
+                    user = subscriptions[i];
                     if (user == null)
                         continue;
 
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.GuidId, userId);
+                    var member = await _client.GetMemberById(_whConfig.GuildId, user.UserId);
                     if (member == null)
                     {
-                        _logger.Error($"Failed to find member with id {userId}.");
+                        _logger.Error($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
@@ -261,7 +386,7 @@
 
                     user.NotificationsToday++;
 
-                    await SendNotification(userId, pokemon.Name, embed);
+                    await SendNotification(user.UserId, pokemon.Name, embed);
                 }
                 catch (Exception ex)
                 {
@@ -294,34 +419,40 @@
                 return;
             }
 
-            var keys = db.Subscriptions.Keys.ToList();
-            for (int i = 0; i < keys.Count; i++)
+            var subscriptions = new List<SubscriptionObject>();
+            using (var dbFactory = DataAccessLayer.CreateFactory())
+            {
+                subscriptions = dbFactory.LoadSelect<SubscriptionObject>();
+            }
+
+            if (subscriptions == null)
+            {
+                _logger.Warn($"Subscriptions table is empty.");
+                return;
+            }
+
+            for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
                 {
-                    var userId = keys[i];
-                    user = db.Subscriptions[userId];
-
+                    user = subscriptions[i];
                     if (user == null)
                         continue;
 
                     if (!user.Enabled)
                         continue;
 
-                    //if (await RemoveUserIfNotExists(userId))
-                    //    return;
-
-                    var member = await _client.GetMemberById(_whConfig.GuidId, userId);
+                    var member = await _client.GetMemberById(_whConfig.GuildId, user.UserId);
                     if (member == null)
                     {
-                        _logger.Error($"Failed to find member with id {userId}.");
+                        _logger.Error($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
                     isSupporter = member.Roles.Select(x => x.Id).Contains(_whConfig.SupporterRoleId);
                     if (!isSupporter)
                     {
-                        _logger.Info($"User {userId} is not a supporter, skipping raid boss {raid.PokemonId}...");
+                        _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {raid.PokemonId}...");
                         continue;
                     }
 
@@ -368,7 +499,7 @@
 
                     user.NotificationsToday++;
 
-                    await SendNotification(userId, pokemon.Name, embed);
+                    await SendNotification(user.UserId, pokemon.Name, embed);
                 }
                 catch (Exception ex)
                 {
@@ -614,26 +745,26 @@
             await _client.SendDirectMessage(user, embed);
         }
 
-        private async Task<bool> RemoveUserIfNotExists(ulong userId)
-        {
-            _logger.Trace($"Bot::RemoveUserIfNotExists [UserId={userId}]");
+        //private async Task<bool> RemoveUserIfNotExists(ulong userId)
+        //{
+        //    _logger.Trace($"Bot::RemoveUserIfNotExists [UserId={userId}]");
 
-            var db = Database.Instance;
-            var discordUser = await _client.GetUserAsync(userId);
-            if (discordUser == null)
-            {
-                if (!db.Subscriptions.Remove(userId))
-                {
-                    _logger.Error($"Failed to remove non-existing user {userId} from subscriptions database.");
-                }
+        //    var db = Database.Instance;
+        //    var discordUser = await _client.GetUserAsync(userId);
+        //    if (discordUser == null)
+        //    {
+        //        if (!db.Subscriptions.Remove(userId))
+        //        {
+        //            _logger.Error($"Failed to remove non-existing user {userId} from subscriptions database.");
+        //        }
 
-                _logger.Info($"User {userId} removed from subscriptions database.");
+        //        _logger.Info($"User {userId} removed from subscriptions database.");
 
-                db.Save();
-            }
+        //        db.Save();
+        //    }
 
-            return discordUser == null;
-        }
+        //    return discordUser == null;
+        //}
 
         private async Task RemoveUserRoles(DiscordMessage e)
         {

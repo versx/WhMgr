@@ -3,7 +3,7 @@
   "enabled": true,
   "ownerId": 000000000000,
   "supporterRoleId": 000000000000,
-  "guidId": 000000000000,
+  "guildId": 000000000000,
   "webhookPort": 8002,
   "gmapsKey": "<GOOGLE_MAPS_KEY>"
 }

@@ -2,6 +2,8 @@
 {
     internal static class Strings
     {
+        public const string BotName = "Brock";
+
         public const string GoogleMaps = "http://maps.google.com/maps?q={0},{1}";
         public const string GoogleMapsStaticImage = "https://maps.googleapis.com/maps/api/staticmap?center={0},{1}&markers=color:red%7C{0},{1}&maptype=roadmap&size=300x175&zoom=14";
 

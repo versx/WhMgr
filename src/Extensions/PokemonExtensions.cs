@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-
+    using System.Linq;
     using WhMgr.Data;
     using WhMgr.Net.Models;
 
@@ -236,6 +236,25 @@
                     break;
             }
             return new List<string>(types);
+        }
+
+        public static int PokemonIdFromName(this string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return 0;
+
+            var db = Database.Instance;
+            var pkmn = db.Pokemon.Where(x => string.Compare(x.Value.Name, name, true) == 0).ToList();
+            if (pkmn.Count > 0)
+                return Convert.ToInt32(pkmn[0].Key);
+
+            if (!int.TryParse(name, out var pokeId))
+                return 0;
+
+            if (db.Pokemon.ContainsKey(pokeId))
+                return pokeId;
+
+            return 0;
         }
     }
 }
