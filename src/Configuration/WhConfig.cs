@@ -49,6 +49,7 @@
         [JsonProperty("commandPrefix")]
         public string CommandPrefix { get; set; }
 
+        [JsonProperty("cityRoles")]
         public List<string> CityRoles { get; set; }
 
         public WhConfig()

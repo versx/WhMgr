@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
+    using WhMgr.Commands;
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Data.Models;
@@ -22,19 +23,6 @@
     using ServiceStack.OrmLite;
 
     //TODO: Backup subscriptions database.
-
-    public class Dependencies
-    {
-        public SubscriptionManager SubscriptionManager { get; }
-
-        public WhConfig WhConfig { get; }
-
-        public Dependencies(SubscriptionManager subMgr, WhConfig whConfig)
-        {
-            SubscriptionManager = subMgr;
-            WhConfig = whConfig;
-        }
-    }
 
     public class Bot
     {
@@ -59,6 +47,7 @@
             _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}]");
 
             _whConfig = whConfig;
+            DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
 
             _whm = new WebhookManager(_whConfig.WebHookPort, _whConfig.MapProvider, _whConfig.MapProviderFork);
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
@@ -84,19 +73,15 @@
                 d.AddInstance
                 (
                     _dep = new Dependencies(_subMgr = new SubscriptionManager(), _whConfig)
-                    //{
                         //Interactivity = _interactivity,
                         //CommandsModule = _commands,
                         //VoiceNext = _voiceNext,
                         //Cts = _cts = new CancellationTokenSource(),
-                        //Config = _config,
                         //LobbyManager = new RaidLobbyManager(_client, _config, _logger, notificationProcessor.GeofenceSvc),
                         //ReminderSvc = new ReminderService(_client, _db, _logger),
                         //ImageSvc = new ImageService(ImageFolder),
                         //PoGoVersionMonitor = new PokemonGoVersionMonitor(),
-                        //Language = _lang,
-                        //Logger = _logger
-                    //}
+                        //Language = _lang
                 );
                 dep = d.Build();
             }
@@ -105,13 +90,13 @@
             (
                 new CommandsNextConfiguration
                 {
-                    StringPrefix = _whConfig.CommandPrefix.ToString(),
+                    StringPrefix = _whConfig.CommandPrefix?.ToString(),
                     EnableDms = true,
                     EnableMentionPrefix = string.IsNullOrEmpty(_whConfig.CommandPrefix),
                     EnableDefaultHelp = false,
                     CaseSensitive = false,
                     IgnoreExtraArguments = true,
-                    //Dependencies = dep
+                    Dependencies = dep
                 }
             );
         }
@@ -129,7 +114,7 @@
             _client.MessageCreated += Client_MessageCreated;
             _commands.CommandExecuted += Commands_CommandExecuted;
             _commands.CommandErrored += Commands_CommandErrored;
-            //_commands.RegisterCommands<Owner>();
+            _commands.RegisterCommands<Notifications>();
 
             _client.ConnectAsync();
         }
@@ -346,7 +331,7 @@
                     if (user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id) == null)
                         continue;
 
-                    subscribedPokemon = user.Pokemon[pkmn.Id];
+                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id);
                     if (subscribedPokemon == null)
                         continue;
 
@@ -371,7 +356,7 @@
                         //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
                         //    user.NotifiedOfLimited = true;
                         //}
-
+                        _logger.Debug($"Discord user {member.Username}'s ({member.Id}) notifications are being limited...");
                         continue;
                     }
 
@@ -459,7 +444,7 @@
                     if (user.Raids.FirstOrDefault(x => x.PokemonId == raid.PokemonId) == null)
                         continue;
 
-                    subscribedRaid = user.Raids[raid.PokemonId];
+                    subscribedRaid = user.Raids.FirstOrDefault(x => x.PokemonId == raid.PokemonId);
                     if (subscribedRaid == null)
                         continue;
 

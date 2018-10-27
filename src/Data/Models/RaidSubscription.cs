@@ -17,13 +17,4 @@
         [Alias("city"), Required]
         public string City { get; set; }
     }
-
-    //public class RaidSubscription
-    //{
-    //    [JsonProperty("pokemon_id")]
-    //    public int PokemonId { get; set; }
-
-    //    [JsonProperty("city")]
-    //    public string City { get; set; }
-    //}
 }

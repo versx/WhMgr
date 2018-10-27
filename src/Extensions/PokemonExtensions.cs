@@ -244,9 +244,14 @@
                 return 0;
 
             var db = Database.Instance;
-            var pkmn = db.Pokemon.Where(x => string.Compare(x.Value.Name, name, true) == 0).ToList();
-            if (pkmn.Count > 0)
-                return Convert.ToInt32(pkmn[0].Key);
+            var pkmn = db.Pokemon.FirstOrDefault(x => string.Compare(x.Value.Name, name, true) == 0);
+
+            if (pkmn.Key > 0)
+                return pkmn.Key;
+
+            foreach (var p in db.Pokemon)
+                if (p.Value.Name.ToLower().Contains(name.ToLower()))
+                    return p.Key;
 
             if (!int.TryParse(name, out var pokeId))
                 return 0;

@@ -1,7 +1,5 @@
 ﻿namespace WhMgr
 {
-    using System;
-
     class Program
     {
         static void Main(string[] args)
@@ -17,7 +15,6 @@
             var bot = new Bot(whConfig);
             bot.Start();
 
-            Console.Read();
             while (true) {}
         }
     }

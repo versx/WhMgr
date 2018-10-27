@@ -96,6 +96,7 @@
     <Compile Include="Alarms\Filters\Models\FilterPokemonObject.cs" />
     <Compile Include="Alarms\Filters\Models\FilterRaidObject.cs" />
     <Compile Include="Bot.cs" />
+    <Compile Include="Commands\Dependencies.cs" />
     <Compile Include="Commands\Notifications.cs" />
     <Compile Include="Configuration\WhConfig.cs" />
     <Compile Include="Data\DataAccessLayer.cs" />
@@ -151,4 +152,8 @@
   <ItemGroup />
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>move /Y $(TargetDir)*.xml $(TargetDir)Libs
+move /Y $(TargetDir)*.dll $(TargetDir)Libs</PostBuildEvent>
+  </PropertyGroup>
 </Project>

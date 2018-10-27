@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
     using DSharpPlus;
@@ -342,6 +341,8 @@
                 return;
             }
 
+            var db = Database.Instance;
+
             var notSubscribed = new List<string>();
             var unsubscribed = new List<string>();
             foreach (var arg in poke.Replace(" ", "").Split(','))
@@ -357,18 +358,18 @@
                     }
                 }
 
-                if (!Database.Instance.Pokemon.ContainsKey(pokeId))
+                if (!db.Pokemon.ContainsKey(pokeId))
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondAsync($"{ctx.User.Mention}, pokedex number {pokeId} is not a valid Pokemon id.");
                     continue;
                 }
 
-                var pokemon = Database.Instance.Pokemon[pokeId];
+                var pokemon = db.Pokemon[pokeId];
                 var unsubscribePokemon = subscription.Pokemon.Find(x => x.PokemonId == pokeId);
                 if (unsubscribePokemon != null)
                 {
-                    if (subscription.Pokemon.Remove(unsubscribePokemon))
+                    if (_dep.SubscriptionManager.RemovePokemon(ctx.User.Id, pokeId))
                     {
                         unsubscribed.Add(pokemon.Name);
                     }
@@ -379,7 +380,7 @@
                 }
             }
 
-            _dep.SubscriptionManager.Save(subscription);
+            //_dep.SubscriptionManager.Save(subscription);
 
             await ctx.TriggerTypingAsync();
             await ctx.RespondAsync
@@ -636,7 +637,7 @@
                 }
             }
 
-            _dep.SubscriptionManager.Save(subscription);
+            //_dep.SubscriptionManager.Save(subscription);
 
             await ctx.TriggerTypingAsync();
             await ctx.RespondAsync
