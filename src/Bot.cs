@@ -127,6 +127,11 @@
         {
             _logger.Info($"Connected.");
 
+            if (e.Client.Guilds.ContainsKey(_whConfig.SupporterRoleId))
+            {
+                Strings.GuildIconUrl = e.Client.Guilds[_whConfig.GuildId].IconUrl;
+            }
+
             await Task.CompletedTask;
         }
 
@@ -697,21 +702,6 @@
                 case "!refresh":
                     await RemoveUserRoles(e);
                     break;
-                case "!createdb":
-                    //Database.Instance.Subscriptions.Add(0, new SubscriptionObject
-                    //{
-                    //    Enabled = true,
-                    //    Pokemon = new Dictionary<int, PokemonSubscription>
-                    //        {
-                    //            { 0, new PokemonSubscription { } }
-                    //        },
-                    //    Raids = new Dictionary<int, RaidSubscription>
-                    //        {
-                    //            { 0, new RaidSubscription { } }
-                    //        }
-                    //});
-                    //Database.Instance.Save();
-                    break;
             }
         }
 
@@ -729,27 +719,6 @@
 
             await _client.SendDirectMessage(user, embed);
         }
-
-        //private async Task<bool> RemoveUserIfNotExists(ulong userId)
-        //{
-        //    _logger.Trace($"Bot::RemoveUserIfNotExists [UserId={userId}]");
-
-        //    var db = Database.Instance;
-        //    var discordUser = await _client.GetUserAsync(userId);
-        //    if (discordUser == null)
-        //    {
-        //        if (!db.Subscriptions.Remove(userId))
-        //        {
-        //            _logger.Error($"Failed to remove non-existing user {userId} from subscriptions database.");
-        //        }
-
-        //        _logger.Info($"User {userId} removed from subscriptions database.");
-
-        //        db.Save();
-        //    }
-
-        //    return discordUser == null;
-        //}
 
         private async Task RemoveUserRoles(DiscordMessage e)
         {

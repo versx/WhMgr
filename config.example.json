@@ -3,7 +3,16 @@
   "enabled": true,
   "ownerId": 000000000000,
   "supporterRoleId": 000000000000,
+  "moderators": [
+	000000000000
+  ],
   "guildId": 000000000000,
   "webhookPort": 8002,
-  "gmapsKey": "<GOOGLE_MAPS_KEY>"
+  "gmapsKey": "<GOOGLE_MAPS_KEY>",
+  "connectionString": "",
+  "cityRoles": [
+	"City1",
+	"City2"
+  ],
+  "commandPrefix": null
 }

@@ -1,6 +1,7 @@
 # Webhook Manager
 
 ### PokeAlarm alternative.
+Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
 
 1.) Copy `config.example.json` to `config.json`.  
   a.) Create bot token. https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token  

@@ -17,13 +17,6 @@
 
     public class Notifications
     {
-        public const int MaxPokemonDisplayed = 70;
-        public const int MaxPokemonSubscriptions = 25;
-        public const int MaxRaidSubscriptions = 5;
-        public const int CommonTypeMinimumIV = 97;
-
-        private const string All = "All";
-
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         private readonly Dependencies _dep;
@@ -70,8 +63,6 @@
         ]
         public async Task EnableDisableAsync(CommandContext ctx)
         {
-            await ctx.Message.IsDirectMessageSupported();
-
             if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
@@ -80,7 +71,8 @@
             }
 
             var cmd = ctx.Message.Content.TrimStart('.', ' ');
-            if (_dep.SubscriptionManager.Set(ctx.User.Id, cmd.ToLower().Contains("enable")))
+            var enabled = cmd.ToLower().Contains("enable");
+            if (_dep.SubscriptionManager.Set(ctx.User.Id, enabled))
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondAsync($"{ctx.User.Mention} has **{cmd}d** Pokemon and Raid notifications.");
@@ -97,26 +89,22 @@
             [Description("Minimum level to receive notifications for, use 0 to disregard level.")] int lvl = 0,
             [Description("Specific gender the Pokemon must be, use * to disregard gender.")] string gender = "*")
         {
-            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
-            var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig);
-            if (!isSupporter && !isModOrHigher)
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
             }
 
-            //if (command.Args.Count >= 3)
             if (lvl > 0 || gender != "*")
             {
-                if (!await ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig))
+                if (!ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig))
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondAsync($"{ctx.User.Mention} The minimum level and gender type parameters are only available to Supporter members, please consider donating to unlock this feature.");
                     return;
                 }
             }
-
-            //await message.IsDirectMessageSupported();
 
             //if (!int.TryParse(cpArg, out int cp))
             //{
@@ -151,12 +139,12 @@
                 return;
             }
 
-            if (string.Compare(poke, All, true) == 0)
+            if (string.Compare(poke, Strings.All, true) == 0)
             {
                 if (!isSupporter)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} non-supporter members have a limited Pokemon notification amount of {MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.");
+                    await ctx.RespondAsync($"{ctx.User.Mention} non-supporter members have a limited Pokemon notification amount of {Strings.MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.");
                     return;
                 }
 
@@ -214,6 +202,7 @@
 
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
+            var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig);
             foreach (var arg in poke.Replace(" ", "").Split(','))
             {
                 if (!int.TryParse(arg, out int pokeId))
@@ -235,10 +224,10 @@
                 }
 
                 //TODO: Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
-                if (IsCommonPokemon(pokeId) && iv < CommonTypeMinimumIV && !isModOrHigher)
+                if (IsCommonPokemon(pokeId) && iv < Strings.CommonTypeMinimumIV && !isModOrHigher)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} {Database.Instance.Pokemon[pokeId].Name} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {CommonTypeMinimumIV}% or higher.");
+                    await ctx.RespondAsync($"{ctx.User.Mention} {Database.Instance.Pokemon[pokeId].Name} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {Strings.CommonTypeMinimumIV}% or higher.");
                     continue;
                 }
 
@@ -263,10 +252,10 @@
                 //User has already subscribed before, check if their new requested sub already exists.
                 if (!subscription.Pokemon.Exists(x => x.PokemonId == pokeId))
                 {
-                    if (!isSupporter && subscription.Pokemon.Count >= MaxPokemonSubscriptions)
+                    if (!isSupporter && subscription.Pokemon.Count >= Strings.MaxPokemonSubscriptions)
                     {
                         await ctx.TriggerTypingAsync();
-                        await ctx.RespondAsync($"{ctx.User.Mention} non-supporter members have a limited notification amount of {MaxPokemonSubscriptions} different Pokemon, please consider donating to lift this to every Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new Pokemon.");
+                        await ctx.RespondAsync($"{ctx.User.Mention} non-supporter members have a limited notification amount of {Strings.MaxPokemonSubscriptions} different Pokemon, please consider donating to lift this to every Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new Pokemon.");
                         return;
                     }
 
@@ -324,9 +313,9 @@
 
             var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
 
-            if (string.Compare(poke, All, true) == 0)
+            if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var confirm = await Confirm(ctx, $"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? If so, please reply back with `{_dep.WhConfig.CommandPrefix}{ctx.Command.QualifiedName} all yes` to confirm.");
+                var confirm = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? If so, please reply back with `{_dep.WhConfig.CommandPrefix}{ctx.Command.QualifiedName} all yes` to confirm.");
                 if (!confirm) return;
 
                 if (!_dep.SubscriptionManager.RemoveAllPokemon(ctx.User.Id))
@@ -402,15 +391,14 @@
             [Description("Pokemon name or id to subscribe to raid notifications.")] string poke,
             [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
         {
-            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
-            var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig);
-            if (!isSupporter && !isModOrHigher)
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
             }
 
-            if (string.Compare(city, All, true) != 0 && !string.IsNullOrEmpty(city))
+            if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
@@ -424,13 +412,13 @@
                 city = string.Empty;
             }
 
-            if (string.Compare(poke, All, true) == 0)
+            if (string.Compare(poke, Strings.All, true) == 0)
             {
                 //var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.Config);
                 if (!isSupporter)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} Non-supporter members have a limited raid boss notification amount of {MaxRaidSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your raid boss notification subscriptions to be more specific and try again.");
+                    await ctx.RespondAsync($"{ctx.User.Mention} Non-supporter members have a limited raid boss notification amount of {Strings.MaxRaidSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your raid boss notification subscriptions to be more specific and try again.");
                     return;
                 }
 
@@ -480,10 +468,10 @@
 
             foreach (var arg in poke.Replace(" ", "").Split(','))
             {
-                if (!isSupporter && subscription.Raids.Count >= MaxRaidSubscriptions)
+                if (!isSupporter && subscription.Raids.Count >= Strings.MaxRaidSubscriptions)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} Non-supporter members have a limited notification amount of {MaxRaidSubscriptions} different raid bosses, please consider donating to lift this to every raid Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new raid Pokemon.");
+                    await ctx.RespondAsync($"{ctx.User.Mention} Non-supporter members have a limited notification amount of {Strings.MaxRaidSubscriptions} different raid bosses, please consider donating to lift this to every raid Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new raid Pokemon.");
                     return;
                 }
 
@@ -560,7 +548,7 @@
             [Description("Pokemon name or id to unsubscribe from raid notifications.")] string poke,
             [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
         {
-            if (string.Compare(city, All, true) != 0 && !string.IsNullOrEmpty(city))
+            if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
@@ -586,9 +574,9 @@
 
             var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
 
-            if (string.Compare(poke, All, true) == 0)
+            if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var result = await Confirm(ctx, $"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.");
+                var result = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.");
                 if (!result) return;
 
                 if (!_dep.SubscriptionManager.RemoveAllRaids(ctx.User.Id))
@@ -663,10 +651,22 @@
             }
 
             var userSettings = await BuildUserSubscriptionSettings(client, discordUser);
-            if (userSettings.Length > 2000)
-                await client.SendDirectMessage(receiver, $"**{discordUser.Mention}**'s subscription list is longer than the allowed Discord message character count, here is a partial list:\r\n{userSettings.Substring(0, Math.Min(userSettings.Length, 1500))}```", null);
-            else
-                await client.SendDirectMessage(receiver, userSettings, null);
+            userSettings = userSettings.Length > 2000 ? userSettings.Substring(0, Math.Min(userSettings.Length, 1500)) : userSettings;
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = $"**{receiver.Username} Notification Settings:**\r\n",
+                Description = userSettings,
+                Color = DiscordColor.CornflowerBlue,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"versx | {DateTime.Now}"
+                }
+            };
+            await client.SendDirectMessage(receiver, eb.Build());
+            //if (userSettings.Length > 2000)
+            //    await client.SendDirectMessage(receiver, $"**{discordUser.Mention}**'s subscription list is longer than the allowed Discord message character count, here is a partial list:\r\n{userSettings.Substring(0, Math.Min(userSettings.Length, 1500))}```", null);
+            //else
+            //    await client.SendDirectMessage(receiver, userSettings, null);
         }
 
         private async Task<string> BuildUserSubscriptionSettings(DiscordClient client, DiscordUser user)
@@ -677,7 +677,7 @@
             var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
             var hasRaids = isSubbed && subscription?.Raids.Count > 0;
             var msg = string.Empty;
-            var isSupporter = await client.IsSupporterOrHigher(author, _dep.WhConfig);
+            var isSupporter = client.IsSupporterOrHigher(author, _dep.WhConfig);
 
             if (hasPokemon)
             {
@@ -695,11 +695,12 @@
                         feeds.Add(role.Name);
                     }
                 }
+                feeds.Sort();
 
                 var pokemon = subscription.Pokemon;
                 pokemon.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
 
-                var exceedsLimits = pokemon.Count > MaxPokemonDisplayed;
+                var exceedsLimits = pokemon.Count > Strings.MaxPokemonDisplayed;
                 var defaultIV = 0;
                 var defaultCount = 0;
                 var results = pokemon.GroupBy(p => p.MinimumIV, (key, g) => new { IV = key, Pokes = g.ToList() });
@@ -712,10 +713,10 @@
                     }
                 }
 
-                msg = $"**{user.Mention} Notification Settings:**\r\n";
+                //msg = $"**{user.Mention} Notification Settings:**\r\n";
                 msg += $"Enabled: **{(subscription.Enabled ? "Yes" : "No")}**\r\n";
                 msg += $"Feed Zones: **{string.Join("**, **", feeds)}**\r\n";
-                msg += $"Pokemon Subscriptions: ({pokemon.Count}/{(isSupporter ? "∞" : MaxPokemonSubscriptions.ToString())} used)\r\n";
+                msg += $"Pokemon Subscriptions: ({pokemon.Count}/{(isSupporter ? "∞" : Strings.MaxPokemonSubscriptions.ToString())} used)\r\n";
                 msg += "```";
 
                 if (exceedsLimits)
@@ -738,7 +739,7 @@
 
             if (hasRaids)
             {
-                msg += $"Raid Subscriptions: ({subscription.Raids.Count.ToString("N0")}/{(isSupporter ? "∞" : MaxRaidSubscriptions.ToString())} used)\r\n";
+                msg += $"Raid Subscriptions: ({subscription.Raids.Count.ToString("N0")}/{(isSupporter ? "∞" : Strings.MaxRaidSubscriptions.ToString())} used)\r\n";
                 msg += "```";
                 msg += string.Join(Environment.NewLine, GetRaidSubscriptionNames(author));
                 msg += "```";
@@ -877,28 +878,6 @@
             mention = mention.Replace("!", null);
 
             return ulong.TryParse(mention, out ulong result) ? result : 0;
-        }
-
-        private const string ConfirmRegex = "\\b[Yy][Ee]?[Ss]?\\b|\\b[Nn][Oo]?\\b";
-        private const string YesRegex = "[Yy][Ee]?[Ss]?";
-        private const string NoRegex = "[Nn][Oo]?";
-
-        private static async Task<bool> Confirm(CommandContext ctx, string message)
-        {
-            //await ctx.RespondAsync(message);
-            //var interactivity = ctx.Client.GetModule<InteractivityModule>();
-            //var m = await interactivity.WaitForMessageAsync(
-            //    x => x.Channel.Id == ctx.Channel.Id
-            //    && x.Author.Id == ctx.Member.Id
-            //    && Regex.IsMatch(x.Content, ConfirmRegex));
-
-            //return Regex.IsMatch(m.Message.Content, YesRegex);
-            ////if (Regex.IsMatch(m.Message.Content, YesRegex))
-            ////    await ctx.RespondAsync("Confirmation Received");
-            ////else
-            ////    await ctx.RespondAsync("Confirmation Denied");
-            //TODO: InteractivityModule
-            return await Task.FromResult(true);
         }
     }
 }

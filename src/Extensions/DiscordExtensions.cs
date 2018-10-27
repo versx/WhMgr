@@ -2,17 +2,23 @@
 {
     using System;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
     using DSharpPlus;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Entities;
+    using DSharpPlus.Interactivity;
 
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
 
     public static class DiscordExtensions
     {
+        private const string ConfirmRegex = "\\b[Yy][Ee]?[Ss]?\\b|\\b[Nn][Oo]?\\b";
+        private const string YesRegex = "[Yy][Ee]?[Ss]?";
+        private const string NoRegex = "[Nn][Oo]?";
+
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         public static async Task<DiscordMessage> SendDirectMessage(this DiscordClient client, DiscordUser user, DiscordEmbed embed)
@@ -81,7 +87,7 @@
             return true;
         }
 
-        public static async Task<bool> IsSupporterOrHigher(this DiscordClient client, ulong userId, WhConfig config)
+        public static bool IsSupporterOrHigher(this DiscordClient client, ulong userId, WhConfig config)
         {
             try
             {
@@ -93,7 +99,7 @@
                 if (isModerator)
                     return true;
 
-                var isSupporter = await client.HasSupporterRole(userId, config.GuildId, config.SupporterRoleId);
+                var isSupporter = client.HasSupporterRole(config.GuildId, userId, config.SupporterRoleId);
                 if (isSupporter)
                     return true;
 
@@ -133,9 +139,13 @@
             return userId == ownerId;
         }
 
-        public static async Task<bool> HasSupporterRole(this DiscordClient client, ulong guildId, ulong userId, ulong supporterRoleId)
+        public static bool HasSupporterRole(this DiscordClient client, ulong guildId, ulong userId, ulong supporterRoleId)
         {
-            var member = await client.GetMemberById(guildId, userId);
+            if (!client.Guilds.ContainsKey(guildId))
+                return false;
+
+            var guild = client.Guilds[guildId];
+            var member = guild.Members.FirstOrDefault(x => x.Id == userId);
             if (member == null)
             {
                 _logger.Error($"Failed to get user with id {userId}.");
@@ -191,6 +201,19 @@
             }
 
             return null;
+        }
+
+        public static async Task<bool> Confirm(this CommandContext ctx, string message)
+        {
+            await ctx.RespondAsync(message);
+            var interactivity = ctx.Client.GetModule<InteractivityModule>();
+            var m = await interactivity.WaitForMessageAsync(
+                x => x.Channel.Id == ctx.Channel.Id
+                && x.Author.Id == ctx.Member.Id
+                && Regex.IsMatch(x.Content, ConfirmRegex));
+
+            return Regex.IsMatch(m.Message.Content, YesRegex);
+            //TODO: InteractivityModule
         }
     }
 }

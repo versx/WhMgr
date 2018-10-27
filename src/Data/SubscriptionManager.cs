@@ -70,8 +70,13 @@
             using (var db = DataAccessLayer.CreateFactory())
             {
                 var subscription = db.LoadSelect<SubscriptionObject>(x => x.UserId == userId).FirstOrDefault();
-                return subscription;
+                if (subscription != null)
+                {
+                    return subscription;
+                }
             }
+
+            return new SubscriptionObject { UserId = userId };
         }
 
         #region Add
@@ -153,18 +158,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSelect<SubscriptionObject>(x => x.UserId == userId).FirstOrDefault();
-                if (subscription == null)
-                {
-                    //Create new subscription object.
-                    subscription = new SubscriptionObject
-                    {
-                        UserId = userId,
-                        Enabled = true,
-                        Pokemon = new List<PokemonSubscription>(),
-                        Raids = new List<RaidSubscription>()
-                    };
-                }
+                var subscription = GetUserSubscriptions(userId);
 
                 //Subscription exists.
                 var raidSub = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && x.City == city);
