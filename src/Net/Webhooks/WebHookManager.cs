@@ -223,7 +223,7 @@
                     continue;
                 }
 
-                if (!(alarm.Filters.Pokemon.FilterType == FilterType.Include && (alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id) || alarm.Filters.Pokemon?.Pokemon.Count == 0)))
+                if (!(alarm.Filters.Pokemon.FilterType == FilterType.Include && (alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id) || alarm.Filters.Pokemon.Pokemon.Count == 0)))
                 {
                     _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because of filter {alarm.Filters.Pokemon.FilterType}.");
                     continue;
@@ -304,13 +304,13 @@
 
                     if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId))
                     {
-                        _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping pokemon {raid.PokemonId} because of filter {alarm.Filters.Pokemon.FilterType}.");
+                        _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping pokemon {raid.PokemonId} because of filter {alarm.Filters.Raids.FilterType}.");
                         continue;
                     }
 
                     if (!(alarm.Filters.Raids.FilterType == FilterType.Include && (alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId) || alarm.Filters.Raids?.Pokemon.Count == 0)))
                     {
-                        _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping raid boss {raid.PokemonId} because of filter {alarm.Filters.Pokemon.FilterType}.");
+                        _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping raid boss {raid.PokemonId} because of filter {alarm.Filters.Raids.FilterType}.");
                         continue;
                     }
 

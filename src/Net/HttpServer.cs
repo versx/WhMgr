@@ -190,7 +190,7 @@
         {
             try
             {
-                var pokemon = JsonConvert.DeserializeObject<PokemonData>(Convert.ToString(message));
+                PokemonData pokemon = JsonConvert.DeserializeObject<PokemonData>(Convert.ToString(message));
                 //switch (MapProvider)
                 //{
                 //    case MapProviderType.Monocle:
@@ -218,7 +218,7 @@
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                _logger.Debug(message);
+                _logger.Debug(Convert.ToString(message));
             }
         }
 
@@ -226,7 +226,7 @@
         {
             try
             {
-                var raid = JsonConvert.DeserializeObject<RaidData>(Convert.ToString(message));
+                RaidData raid = JsonConvert.DeserializeObject<RaidData>(Convert.ToString(message));
                 //switch (MapProvider)
                 //{
                 //    case MapProviderType.Monocle:
@@ -262,7 +262,7 @@
             catch (Exception ex)
             {
                 _logger.Error(ex.StackTrace);
-                _logger.Debug(message);
+                _logger.Debug(Convert.ToString(message));
             }
         }
 
