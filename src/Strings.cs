@@ -13,11 +13,13 @@
         public const string DataFolder = "Data";
         public const string GeofenceFolder = "Geofences";
         public const string LibrariesFolder = "Libs";
+        public const string LogsFolder = "Logs";
 
         public const string DefaultResponseMessage = "WH Test Running!";
         public static readonly string[] LocalEndPoint = { "localhost", "127.0.0.1" };
 
         public const string AlarmsFileName = "alarms.json";
+        public const string ConfigFileName = "config.json";
         public const string DebugLogFileName = "debug.log";
 
         public const string All = "All";

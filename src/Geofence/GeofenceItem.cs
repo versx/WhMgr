@@ -48,7 +48,6 @@
                 if (line.StartsWith("[", StringComparison.Ordinal))
                 {
                     geofence.Name = line.TrimStart('[').TrimEnd(']');
-                    //Console.WriteLine($"{line}: {geofence.Name}");
                     continue;
                 }
 

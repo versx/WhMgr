@@ -5,8 +5,6 @@
 
     public class EventLogger : IEventLogger
     {
-        const string LogFile = "logs.log";
-
         #region Static Variables
 
         private static EventLogger _instance;
@@ -22,6 +20,8 @@
         {
             if (_instance == null)
             {
+                CreateLogsDirectory();
+
                 _instance = new EventLogger();
                 _instance.Info("Logging started...");
             }
@@ -36,11 +36,13 @@
         public EventLogger()
         {
             LogHandler = new Action<LogType, string>(DefaultLogHandler);
+            CreateLogsDirectory();
         }
 
         public EventLogger(Action<LogType, string> logHandler)
         {
             LogHandler = logHandler;
+            CreateLogsDirectory();
         }
 
         #endregion
@@ -49,27 +51,27 @@
 
         public void Trace(string format, params object[] args)
         {
-            LogHandler(LogType.Trace, args.Length > 0 ? string.Format(format, args) : format);
+            LogHandler(LogType.Trace, string.Format(format, args));
         }
 
         public void Debug(string format, params object[] args)
         {
-            LogHandler(LogType.Debug, args.Length > 0 ? string.Format(format, args) : format);
+            LogHandler(LogType.Debug, string.Format(format, args));
         }
 
         public void Info(string format, params object[] args)
         {
-            LogHandler(LogType.Info, args.Length > 0 ? string.Format(format, args) : format);
+            LogHandler(LogType.Info, string.Format(format, args));
         }
 
         public void Warn(string format, params object[] args)
         {
-            LogHandler(LogType.Warning, args.Length > 0 ? string.Format(format, args) : format);
+            LogHandler(LogType.Warning, string.Format(format, args));
         }
 
         public void Error(string format, params object[] args)
         {
-            LogHandler(LogType.Error, args.Length > 0 ? string.Format(format, args) : format);
+            LogHandler(LogType.Error, string.Format(format, args));
         }
 
         public void Error(Exception ex)
@@ -107,7 +109,15 @@
 
             lock (_lock)
             {
-                File.AppendAllText(LogFile, msg + Environment.NewLine);
+                File.AppendAllText(Path.Combine(Strings.LogsFolder, DateTime.Now.ToString("yyyy-MM-dd") + ".log"), msg + Environment.NewLine);
+            }
+        }
+
+        private static void CreateLogsDirectory()
+        {
+            if (!Directory.Exists(Strings.LogsFolder))
+            {
+                Directory.CreateDirectory(Strings.LogsFolder);
             }
         }
 

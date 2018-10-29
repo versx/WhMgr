@@ -21,9 +21,7 @@
     using DSharpPlus.CommandsNext;
 
     using ServiceStack.OrmLite;
-
-    //TODO: Backup subscriptions database.
-
+    
     public class Bot
     {
         #region Variables
@@ -66,6 +64,10 @@
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = true
             });
+            _client.Ready += Client_Ready;
+            _client.MessageCreated += Client_MessageCreated;
+            _client.ClientErrored += Client_ClientErrored;
+            _client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
 
             DependencyCollection dep;
             using (var d = new DependencyCollectionBuilder())
@@ -73,15 +75,9 @@
                 d.AddInstance
                 (
                     _dep = new Dependencies(_subMgr = new SubscriptionManager(), _whConfig)
-                        //Interactivity = _interactivity,
-                        //CommandsModule = _commands,
-                        //VoiceNext = _voiceNext,
-                        //Cts = _cts = new CancellationTokenSource(),
-                        //LobbyManager = new RaidLobbyManager(_client, _config, _logger, notificationProcessor.GeofenceSvc),
-                        //ReminderSvc = new ReminderService(_client, _db, _logger),
-                        //ImageSvc = new ImageService(ImageFolder),
-                        //PoGoVersionMonitor = new PokemonGoVersionMonitor(),
-                        //Language = _lang
+                    //LobbyManager = new RaidLobbyManager(_client, _config, _logger, notificationProcessor.GeofenceSvc),
+                    //ReminderSvc = new ReminderService(_client, _db, _logger),
+                    //PoGoVersionMonitor = new PokemonGoVersionMonitor(),
                 );
                 dep = d.Build();
             }
@@ -99,6 +95,9 @@
                     Dependencies = dep
                 }
             );
+            _commands.CommandExecuted += Commands_CommandExecuted;
+            _commands.CommandErrored += Commands_CommandErrored;
+            _commands.RegisterCommands<Notifications>();
         }
 
         #endregion
@@ -109,12 +108,6 @@
         {
             _logger.Trace("Bot::Start");
             _logger.Info("Connecting to Discord...");
-
-            _client.Ready += Client_Ready;
-            _client.MessageCreated += Client_MessageCreated;
-            _commands.CommandExecuted += Commands_CommandExecuted;
-            _commands.CommandErrored += Commands_CommandErrored;
-            _commands.RegisterCommands<Notifications>();
 
             _client.ConnectAsync();
         }
@@ -149,6 +142,13 @@
             await HandleCommands(e.Message);
         }
 
+        private async Task Client_ClientErrored(ClientErrorEventArgs e)
+        {
+            _logger.Error(e.Exception);
+
+            await Task.CompletedTask;
+        }
+
         private async Task Commands_CommandExecuted(CommandExecutionEventArgs e)
         {
             // let's log the name of the command and user
@@ -181,28 +181,60 @@
             }
             else if (e.Exception is DSharpPlus.CommandsNext.Exceptions.CommandNotFoundException)
             {
-                //TODO: Custom commands.
-                //if (_whConfig.CustomCommands.ContainsKey(e.Command.QualifiedName))
-                //    return;
-
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = "Command not found",
-                    Description = $"Specified command '{e.Context.Message.Content}' not found.",
-                    Color = new DiscordColor(0xFF0000) // red
-                };
-                await e.Context.RespondAsync("", embed: embed);
+                _logger.Warn($"User {e.Context.User.Username} tried executing command {e.Context.Message.Content} but command does not exist.");
             }
             else
             {
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = "Unknown error",
-                    Description = $"Unknown error occurred.\r\nMessage: {e.Exception.Message}",
-                    Color = new DiscordColor(0xFF0000) // red
-                };
-                await e.Context.RespondAsync("", embed: embed);
+                _logger.Error($"User {e.Context.User.Username} tried executing command {e.Command?.Name} and unknown error occurred.\r\n: {e.Exception.ToString()}");
             }
+        }
+
+        private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
+        {
+            //Color
+            ConsoleColor color;
+            switch (e.Level)
+            {
+                case LogLevel.Error: color = ConsoleColor.DarkRed; break;
+                case LogLevel.Warning: color = ConsoleColor.Yellow; break;
+                case LogLevel.Info: color = ConsoleColor.White; break;
+                case LogLevel.Critical: color = ConsoleColor.Red; break;
+                case LogLevel.Debug: default: color = ConsoleColor.DarkGray; break;
+            }
+
+            //Source
+            var sourceName = e.Application;
+
+            //Text
+            var text = e.Message;
+
+            //Build message
+            var builder = new System.Text.StringBuilder(text.Length + (sourceName?.Length ?? 0) + 5);
+            if (sourceName != null)
+            {
+                builder.Append('[');
+                builder.Append(sourceName);
+                builder.Append("] ");
+            }
+
+            for (var i = 0; i < text.Length; i++)
+            {
+                //Strip control chars
+                var c = text[i];
+                if (!char.IsControl(c))
+                    builder.Append(c);
+            }
+
+            if (text != null)
+            {
+                builder.Append(": ");
+                builder.Append(text);
+            }
+
+            text = builder.ToString();
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
         }
 
         #endregion
@@ -319,7 +351,7 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.GuildId, user.UserId);
+                    var member = _client.GetMemberById(_whConfig.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Error($"Failed to find member with id {user.UserId}.");
@@ -409,15 +441,10 @@
                 return;
             }
 
-            var subscriptions = new List<SubscriptionObject>();
-            using (var dbFactory = DataAccessLayer.CreateFactory())
-            {
-                subscriptions = dbFactory.LoadSelect<SubscriptionObject>();
-            }
-
+            var subscriptions = _subMgr.GetUserSubscriptions();
             if (subscriptions == null)
             {
-                _logger.Warn($"Subscriptions table is empty.");
+                _logger.Warn($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -432,7 +459,7 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.GuildId, user.UserId);
+                    var member = _client.GetMemberById(_whConfig.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Error($"Failed to find member with id {user.UserId}.");
@@ -547,6 +574,7 @@
 
             //var maxCp = db.MaxCpAtLevel(pokemon.Id, 40);
             //var maxWildCp = db.MaxCpAtLevel(pokemon.Id, 35);
+
             //eb.Description += $"**Max Wild CP:** {maxWildCp}, **Max CP:** {maxCp} \r\n";
 
             //if (pkmn.Types.Count > 0)
@@ -584,7 +612,8 @@
                 eb.Description += $"**Charge Move:** {chargeMove.Name} ({chargeMove.Type})\r\n";
             }
 
-            eb.Description += $"**Location:** {Math.Round(pokemon.Latitude, 5)},{Math.Round(pokemon.Longitude, 5)}";
+            eb.Description += $"**Location:** {Math.Round(pokemon.Latitude, 5)},{Math.Round(pokemon.Longitude, 5)}\r\n";
+            eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)})**";
             eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
@@ -672,6 +701,7 @@
                     {
                         weaknesses.AddRange(pkmn.Types[i].Type.GetWeaknesses().Distinct());
                     }
+                    weaknesses = weaknesses.Distinct().ToList();
 
                     if (weaknesses.Count > 0)
                     {
@@ -680,7 +710,8 @@
                 }
             }
 
-            eb.Description += $"**Location:** {Math.Round(raid.Latitude, 5)},{Math.Round(raid.Longitude, 5)}";
+            eb.Description += $"**Location:** {Math.Round(raid.Latitude, 5)},{Math.Round(raid.Longitude, 5)}\r\n";
+            eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude)})**";
             eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude) + $"&key={_whConfig.GmapsKey}";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
@@ -845,242 +876,6 @@
         //    }
         //}
     }
-
-    //public class NotificationProcessor
-    //{
-    //    private static readonly IEventLogger _logger = EventLogger.GetLogger();
-    //    private readonly WebhookManager _whm;
-    //    private readonly DiscordClient _client;
-    //    private readonly WhConfig _whConfig;
-
-    //    public NotificationProcessor(WebhookManager whm, DiscordClient client, WhConfig whConfig)
-    //    {
-    //        _whm = whm;
-    //        _client = client;
-    //        _whConfig = whConfig;
-    //    }
-
-    //    private async Task ProcessPokemonSubscription(PokemonData pkmn)
-    //    {
-    //        var db = Database.Instance;
-    //        if (!db.Pokemon.ContainsKey(pkmn.Id))
-    //            return;
-
-    //        var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(pkmn.Latitude, pkmn.Longitude));
-    //        if (loc == null)
-    //        {
-    //            _logger.Error($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-    //            return;
-    //        }
-
-    //        SubscriptionObject user;
-    //        bool isSupporter;
-    //        PokemonSubscription subscribedPokemon;
-    //        var pokemon = db.Pokemon[pkmn.Id];
-    //        bool matchesIV;
-    //        bool matchesLvl;
-    //        bool matchesGender;
-    //        var embed = BuildPokemonMessage(pkmn, loc.Name);
-
-    //        var keys = db.Subscriptions.Keys.ToList();
-    //        for (var i = 0; i < keys.Count; i++)
-    //        {
-    //            try
-    //            {
-    //                var userId = keys[i];
-    //                user = db.Subscriptions[userId];
-
-    //                if (user == null)
-    //                    continue;
-
-    //                if (!user.Enabled)
-    //                    continue;
-
-    //                var member = await _client.GetMemberById(_whConfig.GuidId, userId);
-    //                if (member == null)
-    //                {
-    //                    _logger.Error($"Failed to find member with id {userId}.");
-    //                    continue;
-    //                }
-
-    //                isSupporter = member.Roles.Select(x => x.Id).Contains(_whConfig.SupporterRoleId);
-    //                if (!isSupporter)
-    //                {
-    //                    _logger.Debug($"User {member.Username} is not a supporter, skipping pokemon {pkmn.Id}...");
-    //                    continue;
-    //                }
-
-    //                if (!user.Pokemon.ContainsKey(pkmn.Id))
-    //                    continue;
-
-    //                subscribedPokemon = user.Pokemon[pkmn.Id];
-    //                if (subscribedPokemon == null)
-    //                    continue;
-
-    //                if (!member.Roles.Select(x => x.Name).Contains(loc.Name))
-    //                {
-    //                    _logger.Debug($"Skipping user {member.DisplayName} ({member.Id}) for {pokemon.Name} {pkmn.IV}, no city role '{loc.Name}'.");
-    //                    continue;
-    //                }
-
-    //                matchesIV = _whm.Filters.MatchesIV(pkmn.IV, /*_whConfig.OnlySendEventPokemon ? _whConfig.EventPokemonMinimumIV :*/ subscribedPokemon.MinimumIV);
-    //                //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
-    //                matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, subscribedPokemon.MinimumLevel);
-    //                matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
-
-    //                if (!(matchesIV && matchesLvl && matchesGender))
-    //                    continue;
-
-    //                if (user.Limiter.IsLimited())
-    //                {
-    //                    //if (!user.NotifiedOfLimited)
-    //                    //{
-    //                    //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
-    //                    //    user.NotifiedOfLimited = true;
-    //                    //}
-
-    //                    continue;
-    //                }
-
-    //                //user.NotifiedOfLimited = false;
-
-    //                _logger.Info($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
-
-    //                //if (await CheckIfExceededNotificationLimit(user)) return;
-
-    //                user.NotificationsToday++;
-
-    //                await SendNotification(userId, pokemon.Name, embed);
-    //            }
-    //            catch (Exception ex)
-    //            {
-    //                _logger.Error(ex);
-    //            }
-    //        }
-    //    }
-
-    //    private async Task ProcessRaidSubscription(RaidData raid)
-    //    {
-    //        var db = Database.Instance;
-    //        if (!db.Pokemon.ContainsKey(raid.PokemonId))
-    //            return;
-
-    //        var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(raid.Latitude, raid.Longitude));
-    //        if (loc == null)
-    //        {
-    //            _logger.Error($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
-    //            return;
-    //        }
-
-    //        bool isSupporter;
-    //        SubscriptionObject user;
-    //        RaidSubscription subscribedRaid;
-    //        var embed = BuildRaidMessage(raid, loc.Name);
-
-    //        if (DateTime.Now > raid.EndTime)
-    //        {
-    //            _logger.Info($"Raid {raid.PokemonId} already expired, skipping...");
-    //            return;
-    //        }
-
-    //        var keys = db.Subscriptions.Keys.ToList();
-    //        for (int i = 0; i < keys.Count; i++)
-    //        {
-    //            try
-    //            {
-    //                var userId = keys[i];
-    //                user = db.Subscriptions[userId];
-
-    //                if (user == null)
-    //                    continue;
-
-    //                if (!user.Enabled)
-    //                    continue;
-
-    //                //if (await RemoveUserIfNotExists(userId))
-    //                //    return;
-
-    //                var member = await _client.GetMemberById(_whConfig.GuidId, userId);
-    //                if (member == null)
-    //                {
-    //                    _logger.Error($"Failed to find member with id {userId}.");
-    //                    continue;
-    //                }
-
-    //                isSupporter = member.Roles.Select(x => x.Id).Contains(_whConfig.SupporterRoleId);
-    //                if (!isSupporter)
-    //                {
-    //                    _logger.Info($"User {userId} is not a supporter, skipping raid boss {raid.PokemonId}...");
-    //                    continue;
-    //                }
-
-    //                if (!user.Raids.ContainsKey(raid.PokemonId))
-    //                    continue;
-
-    //                subscribedRaid = user.Raids[raid.PokemonId];
-    //                if (subscribedRaid == null)
-    //                    continue;
-
-    //                var pokemon = db.Pokemon[raid.PokemonId];
-    //                if (!member.Roles.Select(x => x.Name).Contains(loc.Name))
-    //                {
-    //                    _logger.Debug($"[{loc.Name}] Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name} because they do not have the city role '{loc.Name}'.");
-    //                    continue;
-    //                }
-
-    //                var exists = user.Raids.FirstOrDefault(x => x.Value.PokemonId == raid.PokemonId &&
-    //                (
-    //                    string.IsNullOrEmpty(x.Value.City) || (!string.IsNullOrEmpty(x.Value.City) && string.Compare(loc.Name, x.Value.City, true) == 0)
-    //                )).Value != null;
-    //                if (!exists)
-    //                {
-    //                    _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name} because the raid is in city '{loc.Name}'.");
-    //                    continue;
-    //                }
-
-    //                if (user.Limiter.IsLimited())
-    //                {
-    //                    //if (!user.NotifiedOfLimited)
-    //                    //{
-    //                    //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
-    //                    //    user.NotifiedOfLimited = true;
-    //                    //}
-
-    //                    continue;
-    //                }
-
-    //                //user.NotifiedOfLimited = false;
-
-    //                _logger.Info($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
-
-    //                //if (await CheckIfExceededNotificationLimit(user)) return;
-
-    //                user.NotificationsToday++;
-
-    //                await SendNotification(userId, pokemon.Name, embed);
-    //            }
-    //            catch (Exception ex)
-    //            {
-    //                _logger.Error(ex);
-    //            }
-    //        }
-    //    }
-
-    //    private async Task SendNotification(ulong userId, string pokemon, DiscordEmbed embed)
-    //    {
-    //        _logger.Trace($"NotificationProcessor::SendNotification [UserId={userId}, Pokemon={pokemon}, Embed={embed.Title}]");
-    //        _logger.Info($"Notifying using {userId} of {pokemon} spawn.");
-
-    //        var user = await _client.GetUserAsync(userId);
-    //        if (user == null)
-    //        {
-    //            _logger.Error($"Failed to find user from id {userId}.");
-    //            return;
-    //        }
-
-    //        await _client.SendDirectMessage(user, embed);
-    //    }
-    //}
 
     public class NotificationLimiter
     {

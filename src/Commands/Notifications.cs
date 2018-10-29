@@ -223,7 +223,7 @@
                     continue;
                 }
 
-                //TODO: Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
+                //Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
                 if (IsCommonPokemon(pokeId) && iv < Strings.CommonTypeMinimumIV && !isModOrHigher)
                 {
                     await ctx.TriggerTypingAsync();
@@ -650,7 +650,7 @@
                 return;
             }
 
-            var userSettings = await BuildUserSubscriptionSettings(client, discordUser);
+            var userSettings = BuildUserSubscriptionSettings(client, discordUser);
             userSettings = userSettings.Length > 2000 ? userSettings.Substring(0, Math.Min(userSettings.Length, 1500)) : userSettings;
             var eb = new DiscordEmbedBuilder
             {
@@ -669,7 +669,7 @@
             //    await client.SendDirectMessage(receiver, userSettings, null);
         }
 
-        private async Task<string> BuildUserSubscriptionSettings(DiscordClient client, DiscordUser user)
+        private string BuildUserSubscriptionSettings(DiscordClient client, DiscordUser user)
         {
             var author = user.Id;
             var isSubbed = _dep.SubscriptionManager.UserExists(author);
@@ -681,7 +681,7 @@
 
             if (hasPokemon)
             {
-                var member = await client.GetMemberById(_dep.WhConfig.GuildId, author);
+                var member = client.GetMemberById(_dep.WhConfig.GuildId, author);
                 if (member == null)
                 {
                     return $"Failed to get discord member from id {author}.";

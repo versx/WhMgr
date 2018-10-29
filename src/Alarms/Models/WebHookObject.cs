@@ -4,12 +4,12 @@
 
     /*
      * {
-     *  "name": "POGO",
-     *  "channel_id": "497225469121396736",
-     *  "token": "0xa6rGEwP5TYrFEDGMTUWBFdKALn2LAaJ0XP8ntlAipfPUjwke_fxeruaigsDy8YFwEU",
+     *  "name": "",
+     *  "channel_id": "",
+     *  "token": "",
      *  "avatar": null,
-     *  "guild_id": "342025055510855680",
-     *  "id": "497227426607267854"
+     *  "guild_id": "",
+     *  "id": ""
      * }
      */
     public class WebHookObject

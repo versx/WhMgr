@@ -79,6 +79,16 @@
             return new SubscriptionObject { UserId = userId };
         }
 
+        public List<SubscriptionObject> GetUserSubscriptions()
+        {
+            _logger.Trace($"SubscriptionManager::GetUserSubscriptions");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                return db.LoadSelect<SubscriptionObject>();
+            }
+        }
+
         #region Add
 
         public bool AddPokemon(ulong userId, int pokemonId, int iv = 0, int lvl = 0, string gender = "*")
@@ -133,20 +143,20 @@
                     var result = db.Save(subscription, true);
                     if (result)
                     {
-                        Console.WriteLine($"Pokemon Added!");
+                        _logger.Debug($"Pokemon Added!");
                     }
                     else
                     {
-                        Console.WriteLine("Pokemon Updated!");
+                        _logger.Debug("Pokemon Updated!");
                     }
 
-                    Console.WriteLine(db.LastInsertId());
+                    _logger.Debug($"LastInsertId: {db.LastInsertId()}");
 
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"ERROR: {ex}");
+                    _logger.Error(ex);
                     return false;
                 }
             }
@@ -184,17 +194,17 @@
                     var result = db.Save(subscription, true);
                     if (result)
                     {
-                        Console.WriteLine($"Raid Added!");
+                        _logger.Debug($"Raid Added!");
                     }
                     else
                     {
-                        Console.WriteLine("Raid Updated!");
+                        _logger.Debug("Raid Updated!");
                     }
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"ERROR: {ex}");
+                    _logger.Error(ex);
                     return false;
                 }
             }
@@ -276,9 +286,6 @@
                 else
                 {
                     //Subscription exists.
-                    //var result = subscription.Pokemon.Remove(pkmnSub);
-                    //db.Save(subscription, true);
-                    //return true;
                     var result = db.Delete(pkmnSub);
                     return result > 0;
                 }
@@ -306,9 +313,6 @@
                 }
                 else
                 {
-                    //Subscription exists.
-                    //var result = subscription.Raids.Remove(raidSub);//All(x => x.PokemonId == pokemonId && string.Compare(x.City, city, true) == 0);
-                    //db.Save(subscription, true);
                     var result = db.Delete(raidSub);
                     return result > 0;
                 }
@@ -398,6 +402,8 @@
                 db.CreateTable<SubscriptionObject>();
                 db.CreateTable<PokemonSubscription>();
                 db.CreateTable<RaidSubscription>();
+
+                _logger.Info($"Database tables created.");
             }
         }
 

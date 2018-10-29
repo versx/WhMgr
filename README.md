@@ -1,4 +1,4 @@
-# Webhook Manager
+# Brock Webhook Manager
 
 ### PokeAlarm alternative.
 Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
@@ -6,6 +6,17 @@ Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
 1.) Copy `config.example.json` to `config.json`.  
   a.) Create bot token. https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token  
   b.) Input your bot token and config options.  
+  c.) Set enabled to true to enable alarms.
+  d.) Set owner id to server owner's Discord id.
+  e.) Set supporter/donator role id.
+  f.) Set list of moderator role ids.
+  g.) Set Discord server's guild id,
+  h.) Set webhook listener port or leave default as 8002.
+  i.) Gmaps key
+  j.) ConnectionString
+  k.) City roles
+  l.) Command prefix
+
 2.) Copy `alarms.example.json` to `alarms.json`.  
 3.) Fill out the alarms file.  
 ```
@@ -32,6 +43,7 @@ Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
 		{
 			"enabled": true, //Determines if raid alarms will be enabled.
 			"pokemon": [], //Pokemon to filter, if empty all will be reported.
+			"type": "Include", //Raid filter type, either Include or Exclude.
 			"ignoreMissing": true //Ignore raids missing information.
 		}
 	},

@@ -48,21 +48,18 @@
             return null;
         }
 
-        public static async Task<DiscordMember> GetMemberById(this DiscordClient client, ulong guildId, ulong id)
+        public static DiscordMember GetMemberById(this DiscordClient client, ulong guildId, ulong id)
         {
-            var guild = await client.GetGuildAsync(guildId);
-            if (guild == null)
-            {
-                _logger.Error($"Failed to get guild from id {guildId}.");
+            if (!client.Guilds.ContainsKey(guildId))
                 return null;
-            }
+
+            var guild = client.Guilds[guildId];
+            if (guild == null)
+                return null;
 
             var member = guild?.Members?.FirstOrDefault(x => x.Id == id);
             if (member == null)
-            {
-                _logger.Error($"Failed to get member from id {id}.");
                 return null;
-            }
 
             return member;
         }
@@ -160,12 +157,12 @@
             return HasRole(member, supporterRoleId);
         }
 
-        public static async Task<bool> HasModeratorRole(this DiscordClient client, ulong guildId, ulong userId, ulong moderatorRoleId)
+        public static bool HasModeratorRole(this DiscordClient client, ulong guildId, ulong userId, ulong moderatorRoleId)
         {
-            var member = await client.GetMemberById(guildId, userId);
+            var member = client.GetMemberById(guildId, userId);
             if (member == null)
             {
-                _logger.Error($"Failed to get user with id {userId}.");
+                _logger.Error($"Failed to get moderator user with id {userId}.");
                 return false;
             }
 
@@ -213,7 +210,6 @@
                 && Regex.IsMatch(x.Content, ConfirmRegex));
 
             return Regex.IsMatch(m.Message.Content, YesRegex);
-            //TODO: InteractivityModule
         }
     }
 }

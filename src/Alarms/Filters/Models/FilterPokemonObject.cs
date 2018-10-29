@@ -10,6 +10,7 @@
         [JsonProperty("enabled")]
         public bool Enabled { get; set; }
 
+        //TODO: Allow pokemon names and ids for pokemon filter.
         [JsonProperty("pokemon")]
         public List<int> Pokemon { get; set; }
 

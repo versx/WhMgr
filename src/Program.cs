@@ -5,7 +5,7 @@
         static void Main(string[] args)
         {
             var logger = Diagnostics.EventLogger.GetLogger();
-            var whConfig = Configuration.WhConfig.Load("config.json");
+            var whConfig = Configuration.WhConfig.Load(Strings.ConfigFileName);
             if (whConfig == null)
             {
                 logger.Error("Failed to load config.");

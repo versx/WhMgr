@@ -5,8 +5,12 @@
     using System.IO;
     using System.Linq;
 
+    using WhMgr.Diagnostics;
+
     public class GeofenceService
     {
+        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+
         public bool Contains(GeofenceItem geofence, Location point)
         {
             //Credits: https://stackoverflow.com/a/7739297/2313836
@@ -46,7 +50,7 @@
             {
                 if (!File.Exists(filePath))
                 {
-                    Console.WriteLine($"Geofence file {filePath} does not exist.");
+                    _logger.Warn($"Geofence file {filePath} does not exist.");
                     continue;
                 }
 
@@ -69,7 +73,7 @@
                 var filePath = Path.Combine(geofenceFolder, city + ".txt");
                 if (!File.Exists(filePath))
                 {
-                    Console.WriteLine($"Geofence file {filePath} does not exist.");
+                    _logger.Warn($"Geofence file {filePath} does not exist.");
                     continue;
                 }
 
