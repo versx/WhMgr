@@ -21,8 +21,14 @@
             RequireOwner
         ]
         public async Task ResetChannelAsync(CommandContext ctx,
-            [Description("Discord channel to reset.")] DiscordChannel channel)
+            [Description("Discord channel to reset.")] DiscordChannel channel = null)
         {
+            if (channel == null)
+            {
+                //TODO: Delete from all quest channels.
+                return;
+            }
+
             var messages = await channel.GetMessagesAsync();
             for (var i = 0; i < messages.Count; i++)
             {

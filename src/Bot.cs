@@ -811,6 +811,11 @@
                     break;
             }
             eb.Description += $"\r\n**Location:** {quest.Latitude},{quest.Longitude}\r\n**[Google Maps Link]({gmapsUrl})**\r\n";
+            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
+            {
+                Text = $"versx | {DateTime.Now}",
+                IconUrl = string.Empty
+            };
 
             return eb.Build();
         }
@@ -866,9 +871,9 @@
                 case QuestType.TransferPokemon:
                     return $"Transfer {quest.Target} Pokemon";
                 case QuestType.UpgradePokemon:
-                    break;
+                    return $"Power up a Pokemon {quest.Target} times";
                 case QuestType.UseBerryInEncounter:
-                    break;
+                    return $"Use {quest.Target} berries on Pokemon";
                 case QuestType.Unknown:
                     break;
             }
