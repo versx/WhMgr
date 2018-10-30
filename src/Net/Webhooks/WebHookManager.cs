@@ -216,18 +216,18 @@
             for (var i = 0; i < _alarms.Count; i++)
             {
                 var alarm = _alarms[i];
-                if (!InGeofence(alarm.Geofence, new Location(pkmn.Latitude, pkmn.Longitude)))
-                {
-                    _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because not in geofence.");
-                    continue;
-                }
-
                 if (alarm.Filters.Pokemon == null)
                     continue;
 
                 if (!alarm.Filters.Pokemon.Enabled)
                 {
                     _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because Pokemon filter not enabled.");
+                    continue;
+                }
+
+                if (!InGeofence(alarm.Geofence, new Location(pkmn.Latitude, pkmn.Longitude)))
+                {
+                    _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping pokemon {pkmn.Id} because not in geofence.");
                     continue;
                 }
 
@@ -353,12 +353,6 @@
             for (var i = 0; i < _alarms.Count; i++)
             {
                 var alarm = _alarms[i];
-                if (!InGeofence(alarm.Geofence, new Location(quest.Latitude, quest.Longitude)))
-                {
-                    _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type} because not in geofence.");
-                    continue;
-                }
-
                 if (alarm.Filters.Quests == null)
                     continue;
 
@@ -368,8 +362,14 @@
                     continue;
                 }
 
+                if (!InGeofence(alarm.Geofence, new Location(quest.Latitude, quest.Longitude)))
+                {
+                    _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type} because not in geofence.");
+                    continue;
+                }
 
                 _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Notification triggered for PokestopId={quest.PokestopId}, Type={quest.Type}.");
+                OnQuestAlarmTriggered(quest, alarm);
             }
         }
 

@@ -303,11 +303,13 @@
                 return;
             }
 
-            var packageImageUrl = "https://raw.githubusercontent.com/FoglyOgly/Meowth/discordpy-v1/images/misc/field-research.png";
+            var questIconUrl = Database.Instance.Pokemon.ContainsKey(e.Quest.Rewards[0].Info?.PokemonId ?? 0)
+                ? string.Format(Strings.PokemonImage, e.Quest.Rewards[0].Info.PokemonId, 0)
+                : GetQuestIconUrl(e.Quest);
             var eb = BuildQuestMessage(e.Quest, e.Alarm.Name);
 
             var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-            await whData.ExecuteAsync(string.Empty, e.Quest.PokestopName, packageImageUrl, false, new List<DiscordEmbed> { eb }); 
+            await whData.ExecuteAsync(string.Empty, e.Quest.PokestopName, questIconUrl, false, new List<DiscordEmbed> { eb }); 
         }
 
         #endregion
@@ -749,18 +751,211 @@
             _logger.Trace($"Bot::BuildQuestMessage [Quest={quest.PokestopId}, City={city}]");
 
             var db = Database.Instance;
-            var isPokemon = db.Pokemon.ContainsKey(quest.Rewards[0].Info.PokemonId);
+            var rewards = quest.Rewards;
+            var isPokemon = db.Pokemon.ContainsKey(rewards[0].Info.PokemonId);
+            var gmapsUrl = string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude);
             var eb = new DiscordEmbedBuilder
             {
-                Title = quest.PokestopName,
-                Description = $"**Reward:** {(isPokemon ? db.Pokemon[quest.Rewards[0].Info.PokemonId].Name : quest.Template)}",
-                Url = string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude),
+                Title = string.IsNullOrEmpty(quest.PokestopName) ? "Unknown Pokestop" : quest.PokestopName,
+                Url = gmapsUrl,
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude),
-                ThumbnailUrl = "https://raw.githubusercontent.com/FoglyOgly/Meowth/discordpy-v1/images/misc/field-research.png",
+                ThumbnailUrl = isPokemon ? string.Format(Strings.PokemonImage, rewards[0].Info.PokemonId, 0) : GetQuestIconUrl(quest),
                 Color = DiscordColor.Orange
             };
 
+            if (quest.Conditions != null && quest.Conditions.Count > 0)
+            {
+                var condition = quest.Conditions[0];
+                eb.Description = $"**Quest:** {GetMessageFromQuest(quest)}\r\n";
+                eb.Description += $"**Condition:** {GetQuestConditionName(quest)}\r\n";
+            }
+            else
+            {
+                eb.Description = $"**Quest:** {GetMessageFromQuest(quest)}\r\n";
+            }
+            eb.Description += $"**Reward:** ";
+            switch (quest.Rewards[0].Type)
+            {
+                case QuestRewardType.AvatarClothing:
+                    eb.Description += "Avatar Clothing";
+                    break;
+                case QuestRewardType.Candy:
+                    eb.Description += $"{rewards[0].Info.Amount.ToString("N0")} Rare Candy";
+                    break;
+                case QuestRewardType.Experience:
+                    eb.Description += $"{rewards[0].Info.Amount.ToString("N0")} XP";
+                    break;
+                case QuestRewardType.Item:
+                    eb.Description += $"{rewards[0].Info.Amount.ToString("N0")} Items"; //TODO: Get item name.
+                    break;
+                case QuestRewardType.PokemonEncounter:
+                    eb.ThumbnailUrl = string.Format(Strings.PokemonImage, rewards[0].Info.PokemonId, 0);
+                    eb.Description += db.Pokemon[rewards[0].Info.PokemonId].Name;
+                    break;
+                case QuestRewardType.Quest:
+                    eb.Description += "Quest";
+                    break;
+                case QuestRewardType.Stardust:
+                    eb.Description += $"{rewards[0].Info.Amount.ToString("N0")} Stardust";
+                    break;
+                case QuestRewardType.Unset:
+                default:
+                    eb.Description += "Unknown";
+                    break;
+            }
+            eb.Description += $"\r\n**Location:** {quest.Latitude},{quest.Longitude}\r\n**[Google Maps Link]({gmapsUrl})**\r\n";
+
             return eb.Build();
+        }
+
+        private string GetMessageFromQuest(QuestData quest)
+        {
+            switch (quest.Type)
+            {
+                case QuestType.AddFriend:
+                    return $"Add {quest.Target} new friends";
+                case QuestType.AutoComplete:
+                    break;
+                case QuestType.BadgeRank:
+                    break;
+                case QuestType.CatchPokemon:
+                    return $"Catch {quest.Target} Pokemon";
+                case QuestType.CompleteBattle:
+                    break;
+                case QuestType.CompleteGymBattle:
+                    return $"Complete {quest.Target} gym battles";
+                case QuestType.CompleteQuest:
+                    return $"Complete {quest.Target} quests";
+                case QuestType.CompleteRaidBattle:
+                    return $"Complete {quest.Target} raid battles";
+                case QuestType.EvolveIntoPokemon:
+                    break;
+                case QuestType.EvolvePokemon:
+                    return $"Evolve {quest.Target} Pokemon";
+                case QuestType.FavoritePokemon:
+                    return $"Favorite {quest.Target} Pokemon";
+                case QuestType.FirstCatchOfTheDay:
+                    return $"Catch first Pokemon of the day";
+                case QuestType.FirstPokestopOfTheDay:
+                    return $"Spin first pokestop of the day";
+                case QuestType.GetBuddyCandy:
+                    return $"Earn {quest.Target} candy walking with your buddy";
+                case QuestType.HatchEgg:
+                    return $"Hatch {quest.Target} eggs";
+                case QuestType.JoinRaid:
+                    break;
+                case QuestType.LandThrow:
+                    return $"Land {quest.Target} throws";
+                case QuestType.MultiPart:
+                    break;
+                case QuestType.PlayerLevel:
+                    return $"Reach level {quest.Target}"; ;
+                case QuestType.SendGift:
+                    return $"Send {quest.Target} gifts to friends";
+                case QuestType.SpinPokestop:
+                    return $"Spin {quest.Target} Pokestops";
+                case QuestType.TradePokemon:
+                    return $"Trade {quest.Target} Pokemon";
+                case QuestType.TransferPokemon:
+                    return $"Transfer {quest.Target} Pokemon";
+                case QuestType.UpgradePokemon:
+                    break;
+                case QuestType.UseBerryInEncounter:
+                    break;
+                case QuestType.Unknown:
+                    break;
+            }
+
+            return quest.Type.ToString();
+        }
+
+        private string GetQuestIconUrl(QuestData quest)
+        {
+            var iconIndex = 0;
+            switch (quest.Rewards[0].Type)
+            {
+                case QuestRewardType.AvatarClothing:
+                    break;
+                case QuestRewardType.Candy:
+                    iconIndex = 4;
+                    break;
+                case QuestRewardType.Experience:
+                    iconIndex = 1;
+                    break;
+                case QuestRewardType.Item:
+                    iconIndex = 2;
+                    break;
+                case QuestRewardType.PokemonEncounter:
+                    break;
+                case QuestRewardType.Quest:
+                    break;
+                case QuestRewardType.Stardust:
+                    iconIndex = 3;
+                    break;
+                case QuestRewardType.Unset:
+                    break;
+            }
+
+            return string.Format(Strings.QuestImage, iconIndex);
+        }
+
+        private string GetQuestConditionName(QuestData quest)
+        {
+            var condition = quest.Conditions[0];
+            try
+            {
+                switch (condition.Type)
+                {
+                    case QuestConditionType.BadgeType:
+                        break;
+                    case QuestConditionType.CurveBall:
+                        break;
+                    case QuestConditionType.DailyCaptureBonus:
+                        break;
+                    case QuestConditionType.DailySpinBonus:
+                        break;
+                    case QuestConditionType.DaysInARow:
+                        break;
+                    case QuestConditionType.Item:
+                        break;
+                    case QuestConditionType.NewFriend:
+                        break;
+                    case QuestConditionType.PlayerLevel:
+                        break;
+                    case QuestConditionType.PokemonCategory:
+                        return string.Join(", ", condition.Info.PokemonIds?.Select(x => Database.Instance.Pokemon[x].Name).ToList());
+                    case QuestConditionType.PokemonType:
+                        return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((Net.Models.PokemonType)x))) + "-type";
+                    case QuestConditionType.QuestContext:
+                        break;
+                    case QuestConditionType.RaidLevel:
+                        break;
+                    case QuestConditionType.SuperEffectiveCharge:
+                        break;
+                    case QuestConditionType.ThrowType:
+                        break;
+                    case QuestConditionType.ThrowTypeInARow:
+                        break;
+                    case QuestConditionType.UniquePokestop:
+                        break;
+                    case QuestConditionType.WeatherBoost:
+                        break;
+                    case QuestConditionType.WinBattleStatus:
+                        break;
+                    case QuestConditionType.WinGynBattleStatus:
+                        break;
+                    case QuestConditionType.WinRaidStatus:
+                        break;
+                    case QuestConditionType.Unset:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return condition?.Type.ToString();
         }
 
         #endregion

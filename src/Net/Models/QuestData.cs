@@ -38,6 +38,24 @@
 		}
 	}
 ]
+
+"conditions":
+[{
+    "info":
+    {
+        "pokemon_type_ids":[8]
+    },
+    "type":1
+}],
+{
+"conditions":
+[{
+    "info":
+    {
+        "pokemon_ids":[355,353]
+    },
+    "type":2
+}]
      */
 
     public sealed class QuestData
@@ -60,7 +78,10 @@
         public string PokestopUrl { get; set; }
 
         [JsonProperty("type")]
-        public int Type { get; set; }
+        public QuestType Type { get; set; }
+
+        [JsonProperty("target")]
+        public int Target { get; set; }
 
         [JsonProperty("template")]
         public string Template { get; set; }
@@ -71,22 +92,137 @@
         [JsonProperty("rewards")]
         public List<QuestRewardMessage> Rewards { get; set; }
 
+        [JsonProperty("conditions")]
+        public List<QuestConditionMessage> Conditions { get; set; }
+
         public QuestData()
         {
             Rewards = new List<QuestRewardMessage>();
+            Conditions = new List<QuestConditionMessage>();
         }
+    }
+
+    public enum QuestType
+    {
+        Unknown = 0,
+        FirstCatchOfTheDay,
+        FirstPokestopOfTheDay,
+        MultiPart,
+        CatchPokemon,
+        SpinPokestop,
+        HatchEgg,
+        CompleteGymBattle,
+        CompleteRaidBattle,
+        CompleteQuest,
+        TransferPokemon,
+        FavoritePokemon,
+        AutoComplete,
+        UseBerryInEncounter,
+        UpgradePokemon,
+        EvolvePokemon,
+        LandThrow,
+        GetBuddyCandy,
+        BadgeRank,
+        PlayerLevel,
+        JoinRaid,
+        CompleteBattle,
+        AddFriend,
+        TradePokemon,
+        SendGift,
+        EvolveIntoPokemon
+    }
+
+    public enum QuestRewardType
+    {
+        Unset = 0,
+        Experience,
+        Item,
+        Stardust,
+        Candy,
+        AvatarClothing,
+        Quest,
+        PokemonEncounter
+    }
+
+    public enum QuestConditionType
+    {
+        Unset = 0,
+        PokemonType,
+        PokemonCategory,
+        WeatherBoost,
+        DailyCaptureBonus,
+        DailySpinBonus,
+        WinRaidStatus,
+        RaidLevel,
+        ThrowType,
+        WinGynBattleStatus,
+        SuperEffectiveCharge,
+        Item,
+        UniquePokestop,
+        QuestContext,
+        ThrowTypeInARow,
+        CurveBall,
+        BadgeType,
+        PlayerLevel,
+        WinBattleStatus,
+        NewFriend,
+        DaysInARow
+    }
+
+    public enum PokemonType
+    {
+        None = 0,
+        Normal,
+        Fighting,
+        Flying,
+        Poison,
+        Ground,
+        Rock,
+        Bug,
+        Ghost,
+        Steel,
+        Fire,
+        Water,
+        Grass,
+        Electric,
+        Psychic,
+        Ice,
+        Dragon,
+        Dark,
+        Fairy
+    }
+
+    public sealed class QuestConditionMessage
+    {
+        [JsonProperty("type")]
+        public QuestConditionType Type { get; set; }
+
+        [JsonProperty("info")]
+        public QuestCondition Info { get; set; }
+    }
+
+    public sealed class QuestCondition
+    {
+        [JsonProperty("pokemon_ids")]
+        public List<int> PokemonIds { get; set; }
+
+        [JsonProperty("category_name")]
+        public string CategoryName { get; set; }
+
+        [JsonProperty("pokemon_type_ids")]
+        public List<int> PokemonTypeIds { get; set; }
     }
 
     public sealed class QuestRewardMessage
     {
         [JsonProperty("type")]
-        public string Type { get; set; }
+        public QuestRewardType Type { get; set; }
 
         [JsonProperty("info")]
-        public QuestRewardPokemon Info { get; set; }
+        public QuestReward Info { get; set; }
     }
 
-    public sealed class QuestRewardPokemon
+    public sealed class QuestReward
     {
         [JsonProperty("pokemon_id")]
         public int PokemonId { get; set; }
@@ -105,5 +241,8 @@
 
         [JsonProperty("shiny")]
         public bool Shiny { get; set; }
+
+        [JsonProperty("amount")]
+        public int Amount { get; set; }
     }
 }
