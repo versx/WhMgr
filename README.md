@@ -45,6 +45,10 @@ Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
 			"pokemon": [], //Pokemon to filter, if empty all will be reported.
 			"type": "Include", //Raid filter type, either Include or Exclude.
 			"ignoreMissing": true //Ignore raids missing information.
+		},
+		"quests":
+		{
+			"enabled": true //Determines if quest alarms will be enabled.
 		}
 	},
 	"geofence":"geofence1.txt", //Path to geofence file.

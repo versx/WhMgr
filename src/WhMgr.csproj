@@ -102,6 +102,7 @@
     <Compile Include="Bot.cs" />
     <Compile Include="Commands\Dependencies.cs" />
     <Compile Include="Commands\Notifications.cs" />
+    <Compile Include="Commands\Quests.cs" />
     <Compile Include="Configuration\WhConfig.cs" />
     <Compile Include="Data\DataAccessLayer.cs" />
     <Compile Include="Data\Database.cs" />

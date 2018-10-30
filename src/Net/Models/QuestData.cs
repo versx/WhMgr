@@ -155,7 +155,7 @@
         WinRaidStatus,
         RaidLevel,
         ThrowType,
-        WinGynBattleStatus,
+        WinGymBattleStatus,
         SuperEffectiveCharge,
         Item,
         UniquePokestop,
@@ -244,6 +244,55 @@
         FriendGiftBox = 1405
     }
 
+    public enum ActivityType
+    {
+        Unknown = 0,
+        CatchPokemon,
+        CatchLegendPokemon,
+        FleePokemon,
+        DefeatFort,
+        EvolvePokemon,
+        HatchEgg,
+        WalkKm,
+        PokedexEntryNew,
+        CatchFirstThrow,
+        CatchNiceThrow,
+        CatchGreatThrow,
+        CatchExcellentThrow,
+        CatchCurveThrow,
+        CatchFirstCatchOfDay,
+        CatchMilestone,
+        TrainPokemon,
+        SearchFort,
+        ReleasePokemon,
+        HatchEggSmallBonus,
+        HatchEggMediumBonus,
+        HatchEggLargeBonus,
+        DEFEAT_GYM_DEFENDER,
+        DEFEAT_GYM_LEADER,
+        CatchFirstCatchStreakBonus,
+        SearchFortFirstOfTheDay,
+        SearchFortStreakBonus,
+        DefeatRaidPokemon,
+        FeedBerry,
+        SearchGym,
+        NewPokestop,
+        GymBattleLoss,
+        CatchARPlusBonus,
+        CatchQuestPokemonEncounter,
+        FriendshipLevelUp0,
+        FriendshipLevelUp1,
+        FriendshipLevelUp2,
+        FriendshipLevelUp3,
+        FriendshipLevelUp4,
+        SendGift,
+        ShareExRaidPass,
+        RraidLevel1AdditionalXP,
+        RraidLevel2AdditionalXP,
+        RraidLevel3AdditionalXP,
+        RraidLevel4AdditionalXP,
+        RraidLevel5AdditionalXP
+    }
 
     public sealed class QuestConditionMessage
     {
@@ -264,6 +313,15 @@
 
         [JsonProperty("pokemon_type_ids")]
         public List<int> PokemonTypeIds { get; set; }
+
+        [JsonProperty("throw_type_id")]
+        public ActivityType ThrowTypeId { get; set; }
+
+        [JsonProperty("hit")]
+        public bool Hit { get; set; }
+
+        [JsonProperty("raid_levels")]
+        public List<int> RaidLevels { get; set; }
     }
 
     public sealed class QuestRewardMessage

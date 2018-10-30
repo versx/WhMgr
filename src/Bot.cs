@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Timers;
 
     using WhMgr.Commands;
     using WhMgr.Configuration;
@@ -21,7 +22,7 @@
     using DSharpPlus.CommandsNext;
 
     using ServiceStack.OrmLite;
-    
+
     public class Bot
     {
         #region Variables
@@ -33,6 +34,7 @@
         private readonly WhConfig _whConfig;
         private readonly SubscriptionManager _subMgr;
         private readonly IEventLogger _logger;
+        private readonly Timer _timer;
 
         #endregion
 
@@ -55,6 +57,12 @@
             _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
 
             _logger.Info("WebHookManager is running...");
+
+            _timer = new Timer(60000 * 60);
+#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
+            _timer.Elapsed += async (sender, e) => await ResetQuests();
+#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+            _timer.Start();
             
             _client = new DiscordClient(new DiscordConfiguration
             {
@@ -99,6 +107,7 @@
             _commands.CommandExecuted += Commands_CommandExecuted;
             _commands.CommandErrored += Commands_CommandErrored;
             _commands.RegisterCommands<Notifications>();
+            _commands.RegisterCommands<Quests>();
         }
 
         #endregion
@@ -933,16 +942,16 @@
                     case QuestConditionType.SuperEffectiveCharge:
                         break;
                     case QuestConditionType.ThrowType:
-                        break;
+                        return condition.Info.ThrowTypeId.ToString();
                     case QuestConditionType.ThrowTypeInARow:
-                        break;
+                        return condition.Info.ThrowTypeId.ToString();
                     case QuestConditionType.UniquePokestop:
                         break;
                     case QuestConditionType.WeatherBoost:
                         break;
                     case QuestConditionType.WinBattleStatus:
                         break;
-                    case QuestConditionType.WinGynBattleStatus:
+                    case QuestConditionType.WinGymBattleStatus:
                         break;
                     case QuestConditionType.WinRaidStatus:
                         break;
@@ -985,6 +994,19 @@
             }
 
             await _client.SendDirectMessage(user, embed);
+        }
+
+        private async Task ResetQuests()
+        {
+            //TODO: Loop channels.
+            //var messages = await channel.GetMessagesAsync();
+            //for (var i = 0; i < messages.Count; i++)
+            //{
+            //    var message = messages[i];
+            //    await message.DeleteAsync("Channel reset.");
+            //}
+            //await ctx.RespondAsync($"{ctx.User.Mention} Channel {channel.Mention}'s messages have been deleted.");
+            await Task.CompletedTask;
         }
 
         private async Task RemoveUserRoles(DiscordMessage e)
