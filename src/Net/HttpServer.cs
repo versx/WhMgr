@@ -16,6 +16,8 @@
     using WhMgr.Net.Models;
     using WhMgr.Net.Models.Providers;
 
+    //TODO: Change events to on single event for data received with enum.
+
     public class HttpServer
     {
         #region Variables
@@ -49,6 +51,10 @@
         public event EventHandler<RaidDataEventArgs> RaidReceived;
 
         private void OnRaidReceived(RaidData raid) => RaidReceived?.Invoke(this, new RaidDataEventArgs(raid));
+
+        public event EventHandler<QuestDataEventArgs> QuestReceived;
+
+        private void OnQuestReceived(QuestData quest) => QuestReceived?.Invoke(this, new QuestDataEventArgs(quest));
 
         #endregion
 
@@ -176,6 +182,9 @@
                         //case "scheduler":
                         //    ParseTth(message);
                         //    break;
+                        case QuestData.WebHookHeader:
+                            ParseQuest(message.Message);
+                            break;
                     }
                 }
             }
@@ -262,6 +271,26 @@
             catch (Exception ex)
             {
                 _logger.Error(ex.StackTrace);
+                _logger.Debug(Convert.ToString(message));
+            }
+        }
+
+        private void ParseQuest(dynamic message)
+        {
+            try
+            {
+                QuestData quest = JsonConvert.DeserializeObject<QuestData>(Convert.ToString(message));
+                if (quest == null)
+                {
+                    _logger.Error($"Failed to parse Quest webhook object: {message}");
+                    return;
+                }
+
+                OnQuestReceived(quest);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
                 _logger.Debug(Convert.ToString(message));
             }
         }

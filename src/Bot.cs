@@ -50,6 +50,7 @@
             _whm = new WebhookManager(_whConfig.WebHookPort, _whConfig.MapProvider, _whConfig.MapProviderFork);
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
+            _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
             _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
             _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
 
@@ -286,6 +287,27 @@
             var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
             var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : pkmn.Name;
             await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
+        }
+
+        private async void OnQuestAlarmTriggered(object sender, QuestAlarmTriggeredEventArgs e)
+        {
+            //if (!_whConfig.Enabled)
+            //    return;
+
+            _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Quest.PokestopId}, Type={e.Quest.Type}]");
+
+            var wh = _whm.WebHooks[e.Alarm.Name];
+            if (wh == null)
+            {
+                _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
+                return;
+            }
+
+            var packageImageUrl = "https://raw.githubusercontent.com/FoglyOgly/Meowth/discordpy-v1/images/misc/field-research.png";
+            var eb = BuildQuestMessage(e.Quest, e.Alarm.Name);
+
+            var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
+            await whData.ExecuteAsync(string.Empty, e.Quest.PokestopName, packageImageUrl, false, new List<DiscordEmbed> { eb }); 
         }
 
         #endregion
@@ -720,6 +742,25 @@
             var embed = eb.Build();
 
             return embed;
+        }
+
+        private DiscordEmbed BuildQuestMessage(QuestData quest, string city)
+        {
+            _logger.Trace($"Bot::BuildQuestMessage [Quest={quest.PokestopId}, City={city}]");
+
+            var db = Database.Instance;
+            var isPokemon = db.Pokemon.ContainsKey(quest.Rewards[0].Info.PokemonId);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = quest.PokestopName,
+                Description = $"**Reward:** {(isPokemon ? db.Pokemon[quest.Rewards[0].Info.PokemonId].Name : quest.Template)}",
+                Url = string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude),
+                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude),
+                ThumbnailUrl = "https://raw.githubusercontent.com/FoglyOgly/Meowth/discordpy-v1/images/misc/field-research.png",
+                Color = DiscordColor.Orange
+            };
+
+            return eb.Build();
         }
 
         #endregion

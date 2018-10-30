@@ -13,5 +13,8 @@
 
         [JsonProperty("eggs")]
         public FilterEggObject Eggs { get; set; }
+
+        [JsonProperty("quests")]
+        public FilterQuestObject Quests { get; set; }
     }
 }

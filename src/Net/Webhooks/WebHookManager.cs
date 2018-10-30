@@ -56,6 +56,13 @@
             RaidAlarmTriggered?.Invoke(this, new RaidAlarmTriggeredEventArgs(raid, alarm));
         }
 
+        public event EventHandler<QuestAlarmTriggeredEventArgs> QuestAlarmTriggered;
+
+        private void OnQuestAlarmTriggered(QuestData quest, AlarmObject alarm)
+        {
+            QuestAlarmTriggered?.Invoke(this, new QuestAlarmTriggeredEventArgs(quest, alarm));
+        }
+
         public event EventHandler<PokemonData> PokemonSubscriptionTriggered;
 
         private void OnPokemonSubscriptionTriggered(PokemonData pkmn)
@@ -90,6 +97,8 @@
             _http = new HttpServer(port, provider, fork);
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
+            _http.QuestReceived += Http_QuestReceived;
+            _http.IsDebug = true;
             _http.Start();
 
             new System.Threading.Thread(LoadAlarmsOnChange).Start();
@@ -109,6 +118,11 @@
         {
             ProcessRaid(e.Raid);
             OnRaidSubscriptionTriggered(e.Raid);
+        }
+
+        private void Http_QuestReceived(object sender, QuestDataEventArgs e)
+        {
+            ProcessQuest(e.Quest);
         }
 
         #endregion
@@ -323,6 +337,39 @@
                     OnRaidAlarmTriggered(raid, alarm);
                     _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Notification triggered for raid boss {raid.PokemonId}.");
                 }
+            }
+        }
+
+        private void ProcessQuest(QuestData quest)
+        {
+            _logger.Trace($"WebhookManager::ProcessQuest [Quest={quest.PokestopId}]");
+
+            if (quest == null)
+                return;
+
+            if (_alarms?.Count == 0)
+                return;
+
+            for (var i = 0; i < _alarms.Count; i++)
+            {
+                var alarm = _alarms[i];
+                if (!InGeofence(alarm.Geofence, new Location(quest.Latitude, quest.Longitude)))
+                {
+                    _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type} because not in geofence.");
+                    continue;
+                }
+
+                if (alarm.Filters.Quests == null)
+                    continue;
+
+                if (!alarm.Filters.Quests.Enabled)
+                {
+                    _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type} because quests filter not enabled.");
+                    continue;
+                }
+
+
+                _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Notification triggered for PokestopId={quest.PokestopId}, Type={quest.Type}.");
             }
         }
 

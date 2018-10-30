@@ -97,6 +97,7 @@
   <ItemGroup>
     <Compile Include="Alarms\Filters\Models\FilterEggObject.cs" />
     <Compile Include="Alarms\Filters\Models\FilterPokemonObject.cs" />
+    <Compile Include="Alarms\Filters\Models\FilterQuestObject.cs" />
     <Compile Include="Alarms\Filters\Models\FilterRaidObject.cs" />
     <Compile Include="Bot.cs" />
     <Compile Include="Commands\Dependencies.cs" />
@@ -126,7 +127,10 @@
     <Compile Include="Net\Models\Providers\RealDeviceMap\RealDeviceMapPokemon.cs" />
     <Compile Include="Net\Models\Providers\RealDeviceMap\RealDeviceMapRaid.cs" />
     <Compile Include="Net\Models\Providers\RocketMap\RocketMapProvider.cs" />
+    <Compile Include="Net\Models\QuestData.cs" />
+    <Compile Include="Net\QuestDataEventArgs.cs" />
     <Compile Include="Net\Webhooks\PokemonAlarmTriggeredEventArgs.cs" />
+    <Compile Include="Net\Webhooks\QuestAlarmTriggeredEventArgs.cs" />
     <Compile Include="Net\Webhooks\RaidAlarmTriggeredEventArgs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

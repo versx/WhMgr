@@ -11,7 +11,7 @@
         [Alias("userId"), ForeignKey(typeof(SubscriptionObject))]
         public ulong UserId { get; set; }
 
-        [Alias("pokemon_id"), Unique]
+        [Alias("pokemon_id"), Required]
         public int PokemonId { get; set; }
 
         [Alias("min_cp")]
