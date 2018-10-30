@@ -192,6 +192,59 @@
         Fairy
     }
 
+    public enum ItemId
+    {
+        UNKNOWN = 0,
+        PokeBall = 1,
+        GreatBall = 2,
+        UltraBall = 3,
+        MasterBall = 4,
+        PremierBall = 5,
+        Potion = 101,
+        SuperPotion = 102,
+        HyperPotion = 103,
+        MaxPotion = 104,
+        Revive = 201,
+        MaxRevive = 202,
+        LuckyEgg = 301,
+        IncenseOrdinary= 401,
+        IncenseSpicy = 402,
+        IncenseCool = 403,
+        IncenseFloral = 404,
+        TroyDisk = 501,
+        XAttack = 602,
+        XDefense = 603,
+        XMiracle = 604,
+        RazzBerry = 701,
+        BlukBerry = 702,
+        NanabBerry = 703,
+        WeparBerry = 704,
+        PinapBerry = 705,
+        GoldenRazzBerry = 706,
+        GoldenNanabBerry = 707,
+        GoldenPinapBerry = 708,
+        SpecialCamera = 801,
+        IncubatorBasicUlimited = 901,
+        IncubatorBasic = 902,
+        IncubatorSuper = 903,
+        PokemonStorageUpgrade = 1001,
+        ItemStorageUpgrade = 1002,
+        SunStone = 1101,
+        KingsRock = 1102,
+        MetalCoat = 1103,
+        DragonScale = 1104,
+        Upgrade = 1105,
+        MoveRerollFastAttack = 1201,
+        MoveRerollSpecialAttack = 1202,
+        RareCandy = 1301,
+        FreeRaidTicket = 1401,
+        PaidRaidTicket = 1402,
+        LegendaryRaidTicket = 1403,
+        StarPiece = 1404,
+        FriendGiftBox = 1405
+    }
+
+
     public sealed class QuestConditionMessage
     {
         [JsonProperty("type")]
@@ -244,5 +297,8 @@
 
         [JsonProperty("amount")]
         public int Amount { get; set; }
+
+        [JsonProperty("item_id")]
+        public ItemId Item { get; set; }
     }
 }

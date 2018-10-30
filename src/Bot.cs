@@ -303,13 +303,16 @@
                 return;
             }
 
-            var questIconUrl = Database.Instance.Pokemon.ContainsKey(e.Quest.Rewards[0].Info?.PokemonId ?? 0)
-                ? string.Format(Strings.PokemonImage, e.Quest.Rewards[0].Info.PokemonId, 0)
-                : GetQuestIconUrl(e.Quest);
-            var eb = BuildQuestMessage(e.Quest, e.Alarm.Name);
-
-            var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-            await whData.ExecuteAsync(string.Empty, e.Quest.PokestopName, questIconUrl, false, new List<DiscordEmbed> { eb }); 
+            try
+            {
+                var eb = BuildQuestMessage(e.Quest, e.Alarm.Name);
+                var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
+                await whData.ExecuteAsync(string.Empty, GetMessageFromQuest(e.Quest), GetQuestIconUrl(e.Quest), false, new List<DiscordEmbed> { eb });
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
         }
 
         #endregion
@@ -751,27 +754,22 @@
             _logger.Trace($"Bot::BuildQuestMessage [Quest={quest.PokestopId}, City={city}]");
 
             var db = Database.Instance;
-            var rewards = quest.Rewards;
-            var isPokemon = db.Pokemon.ContainsKey(rewards[0].Info.PokemonId);
+            var reward = quest.Rewards[0];
             var gmapsUrl = string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude);
             var eb = new DiscordEmbedBuilder
             {
                 Title = string.IsNullOrEmpty(quest.PokestopName) ? "Unknown Pokestop" : quest.PokestopName,
                 Url = gmapsUrl,
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude),
-                ThumbnailUrl = isPokemon ? string.Format(Strings.PokemonImage, rewards[0].Info.PokemonId, 0) : GetQuestIconUrl(quest),
+                ThumbnailUrl = GetQuestIconUrl(quest),
                 Color = DiscordColor.Orange
             };
 
+            eb.Description = $"**Quest:** {GetMessageFromQuest(quest)}\r\n";
             if (quest.Conditions != null && quest.Conditions.Count > 0)
             {
                 var condition = quest.Conditions[0];
-                eb.Description = $"**Quest:** {GetMessageFromQuest(quest)}\r\n";
                 eb.Description += $"**Condition:** {GetQuestConditionName(quest)}\r\n";
-            }
-            else
-            {
-                eb.Description = $"**Quest:** {GetMessageFromQuest(quest)}\r\n";
             }
             eb.Description += $"**Reward:** ";
             switch (quest.Rewards[0].Type)
@@ -780,23 +778,23 @@
                     eb.Description += "Avatar Clothing";
                     break;
                 case QuestRewardType.Candy:
-                    eb.Description += $"{rewards[0].Info.Amount.ToString("N0")} Rare Candy";
+                    eb.Description += $"{reward.Info.Amount.ToString("N0")} Rare Candy";
                     break;
                 case QuestRewardType.Experience:
-                    eb.Description += $"{rewards[0].Info.Amount.ToString("N0")} XP";
+                    eb.Description += $"{reward.Info.Amount.ToString("N0")} XP";
                     break;
                 case QuestRewardType.Item:
-                    eb.Description += $"{rewards[0].Info.Amount.ToString("N0")} Items"; //TODO: Get item name.
+                    eb.Description += $"{reward.Info.Amount.ToString("N0")} {reward.Info.Item}";
                     break;
                 case QuestRewardType.PokemonEncounter:
-                    eb.ThumbnailUrl = string.Format(Strings.PokemonImage, rewards[0].Info.PokemonId, 0);
-                    eb.Description += db.Pokemon[rewards[0].Info.PokemonId].Name;
+                    eb.ThumbnailUrl = string.Format(Strings.PokemonImage, reward.Info.PokemonId, 0);
+                    eb.Description += db.Pokemon[reward.Info.PokemonId].Name;
                     break;
                 case QuestRewardType.Quest:
                     eb.Description += "Quest";
                     break;
                 case QuestRewardType.Stardust:
-                    eb.Description += $"{rewards[0].Info.Amount.ToString("N0")} Stardust";
+                    eb.Description += $"{reward.Info.Amount.ToString("N0")} Stardust";
                     break;
                 case QuestRewardType.Unset:
                 default:
@@ -877,20 +875,19 @@
                 case QuestRewardType.AvatarClothing:
                     break;
                 case QuestRewardType.Candy:
-                    iconIndex = 4;
+                    iconIndex = 1301;
                     break;
                 case QuestRewardType.Experience:
-                    iconIndex = 1;
+                    iconIndex = -2;
                     break;
                 case QuestRewardType.Item:
-                    iconIndex = 2;
-                    break;
+                    return string.Format(Strings.QuestImage, (int)quest.Rewards[0].Info.Item);
                 case QuestRewardType.PokemonEncounter:
-                    break;
+                    return string.Format(Strings.PokemonImage, quest.Rewards[0].Info.PokemonId, 0);
                 case QuestRewardType.Quest:
                     break;
                 case QuestRewardType.Stardust:
-                    iconIndex = 3;
+                    iconIndex = -1;
                     break;
                 case QuestRewardType.Unset:
                     break;
@@ -901,6 +898,9 @@
 
         private string GetQuestConditionName(QuestData quest)
         {
+            if (quest == null || quest.Conditions == null)
+                return null;
+
             var condition = quest.Conditions[0];
             try
             {
