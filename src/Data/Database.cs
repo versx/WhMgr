@@ -54,39 +54,27 @@
 
         public Database()
         {
-            var pokemonPath = Path.Combine(Strings.DataFolder, PokemonFileName);
-            if (!File.Exists(pokemonPath))
-            {
-                throw new FileNotFoundException($"{pokemonPath} file not found.", PokemonFileName);
-            }
-
-            var data = File.ReadAllText(pokemonPath);
-            if (data == null)
-            {
-                _logger.Error("Pokemon database is null.");
-            }
-            else
-            {
-                Pokemon = JsonConvert.DeserializeObject<Dictionary<int, PokemonModel>>(data);
-            }
-
-            var movesetPath = Path.Combine(Strings.DataFolder, MovesetsFileName);
-            if (!File.Exists(movesetPath))
-            {
-                throw new FileNotFoundException($"{movesetPath} file not found.", MovesetsFileName);
-            }
-
-            data = File.ReadAllText(movesetPath);
-            if (string.IsNullOrEmpty(data))
-            {
-                _logger.Error("Moveset database is null.");
-            }
-            else
-            {
-                Movesets = JsonConvert.DeserializeObject<Dictionary<int, MovesetModel>>(data);
-            }
+            Pokemon = LoadInit<Dictionary<int, PokemonModel>>(Path.Combine(Strings.DataFolder, PokemonFileName), typeof(Dictionary<int, PokemonModel>));
+            Movesets = LoadInit<Dictionary<int, MovesetModel>>(Path.Combine(Strings.DataFolder, MovesetsFileName), typeof(Dictionary<int, MovesetModel>));
         }
 
         #endregion
+
+        public static T LoadInit<T>(string filePath, Type type)
+        {
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"{filePath} file not found.", filePath);
+            }
+
+            var data = File.ReadAllText(filePath);
+            if (string.IsNullOrEmpty(data))
+            {
+                _logger.Error($"{filePath} database is null.");
+                return default(T);
+            }
+
+            return (T)JsonConvert.DeserializeObject(data, type);
+        }
     }
 }

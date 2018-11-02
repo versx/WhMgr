@@ -222,6 +222,8 @@
                     return;
                 }
 
+                pokemon.SetDespawnTime();
+
                 OnPokemonReceived(pokemon);
             }
             catch (Exception ex)

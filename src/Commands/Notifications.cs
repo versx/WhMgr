@@ -810,7 +810,7 @@
                 1, //Bulbasaur
                 4, //Charmander
                 //7, //Squirtle
-                10, //Caterpie
+                //10, //Caterpie
                 13, //Weedle
                 16, //Pidgey
                 17, //Pidgeotto
@@ -832,7 +832,7 @@
                 152, //Chikorita
                 155, //Cyndaquil
                 161, //Sentret
-                163, //Noothoot
+                163, //Hoothoot
                 165, //Ledyba
                 167, //Spinarak
                 177, //Natu

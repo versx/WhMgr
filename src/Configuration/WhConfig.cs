@@ -6,6 +6,7 @@
 
     using Newtonsoft.Json;
 
+    using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models.Providers;
 
@@ -52,12 +53,16 @@
         [JsonProperty("cityRoles")]
         public List<string> CityRoles { get; set; }
 
+        [JsonProperty("questChannelIds")]
+        public List<ulong> QuestChannelIds { get; set; }
+
         public WhConfig()
         {
             CityRoles = new List<string>();
             MapProvider = MapProviderType.RealDeviceMap;
             MapProviderFork = MapProviderFork.Default;
             Moderators = new List<ulong>();
+            QuestChannelIds = new List<ulong>();
         }
 
         public void Save(string filePath)
@@ -68,13 +73,14 @@
 
         public static WhConfig Load(string filePath)
         {
-            if (!File.Exists(filePath))
-            {
-                throw new FileNotFoundException("Config not loaded because file not found.", filePath);
-            }
+            //if (!File.Exists(filePath))
+            //{
+            //    throw new FileNotFoundException("Config not loaded because file not found.", filePath);
+            //}
 
-            var data = File.ReadAllText(filePath);
-            return JsonConvert.DeserializeObject<WhConfig>(data);
+            //var data = File.ReadAllText(filePath);
+            //return JsonConvert.DeserializeObject<WhConfig>(data);
+            return Data.Database.LoadInit<WhConfig>(filePath, typeof(WhConfig));
         }
     }
 }

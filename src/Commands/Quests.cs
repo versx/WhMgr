@@ -25,10 +25,24 @@
         {
             if (channel == null)
             {
-                //TODO: Delete from all quest channels.
+                for (var i = 0; i < _dep.WhConfig.QuestChannelIds.Count; i++)
+                {
+                    var qChannel = await ctx.Client.GetChannelAsync(_dep.WhConfig.QuestChannelIds[i]);
+                    if (qChannel == null)
+                    {
+                        continue; //TODO: Log warning.
+                    }
+
+                    await DeleteChannelMessages(ctx, qChannel);
+                }
                 return;
             }
 
+            await DeleteChannelMessages(ctx, channel);
+        }
+
+        private async Task DeleteChannelMessages(CommandContext ctx, DiscordChannel channel)
+        {
             var messages = await channel.GetMessagesAsync();
             for (var i = 0; i < messages.Count; i++)
             {

@@ -108,10 +108,9 @@
 
         public void SetDespawnTime()
         {
-            var disappear = DisappearTime.FromUnix();
-            var secondsLeft = disappear.Subtract(DateTime.Now);
-            DespawnTime = disappear;
-            SecondsLeft = secondsLeft;
+            DespawnTime = DisappearTime.FromUnix();
+            DespawnTime = DespawnTime.AddHours(1); //DST
+            SecondsLeft = DespawnTime.Subtract(DateTime.Now);
         }
     }
 }

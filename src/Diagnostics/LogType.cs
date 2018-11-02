@@ -26,6 +26,11 @@
         Error,
 
         /// <summary>
+        /// Fatal log level.
+        /// </summary>
+        Fatal,
+
+        /// <summary>
         /// Debug log level.
         /// </summary>
         Debug,

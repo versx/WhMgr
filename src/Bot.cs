@@ -23,6 +23,9 @@
 
     using ServiceStack.OrmLite;
 
+    //TODO: Quest subscription notifications.
+    //TODO: Filter quests by rewards.
+
     public class Bot
     {
         #region Variables
@@ -74,7 +77,7 @@
                 UseInternalLogHandler = true
             });
             _client.Ready += Client_Ready;
-            _client.MessageCreated += Client_MessageCreated;
+            //_client.MessageCreated += Client_MessageCreated;
             _client.ClientErrored += Client_ClientErrored;
             _client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
 
@@ -106,6 +109,7 @@
             );
             _commands.CommandExecuted += Commands_CommandExecuted;
             _commands.CommandErrored += Commands_CommandErrored;
+            _commands.RegisterCommands<General>();
             _commands.RegisterCommands<Notifications>();
             _commands.RegisterCommands<Quests>();
         }
@@ -138,19 +142,21 @@
             await Task.CompletedTask;
         }
 
-        private async Task Client_MessageCreated(MessageCreateEventArgs e)
-        {
-            if (e.Author.IsBot)
-                return;
+        //private async Task Client_MessageCreated(MessageCreateEventArgs e)
+        //{
+        //    if (e.Author.IsBot)
+        //        return;
 
-            if (e.Author.Id != _whConfig.OwnerId)
-                return;
+        //    if (e.Author.Id != _whConfig.OwnerId)
+        //        return;
 
-            if (!e.Message.Content.StartsWith("!", StringComparison.Ordinal))
-                return;
+        //    if (!e.Message.Content.StartsWith("!", StringComparison.Ordinal))
+        //        return;
 
-            await HandleCommands(e.Message);
-        }
+        //    //await HandleCommands(e.Message);
+
+        //    await Task.CompletedTask;
+        //}
 
         private async Task Client_ClientErrored(ClientErrorEventArgs e)
         {
@@ -316,7 +322,7 @@
             {
                 var eb = BuildQuestMessage(e.Quest, e.Alarm.Name);
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-                await whData.ExecuteAsync(string.Empty, GetMessageFromQuest(e.Quest), GetQuestIconUrl(e.Quest), false, new List<DiscordEmbed> { eb });
+                await whData.ExecuteAsync(string.Empty, e.Quest.GetMessageFromQuest(), e.Quest.GetQuestIconUrl(), false, new List<DiscordEmbed> { eb });
             }
             catch (Exception ex)
             {
@@ -364,12 +370,7 @@
             bool matchesGender;
             var embed = BuildPokemonMessage(pkmn, loc.Name);
 
-            var subscriptions = new List<SubscriptionObject>();
-            using (var dbFactory = DataAccessLayer.CreateFactory())
-            {
-                subscriptions = dbFactory.LoadSelect<SubscriptionObject>();
-            }
-
+            var subscriptions = _subMgr.GetUserSubscriptions();
             if (subscriptions == null)
             {
                 _logger.Warn($"Subscriptions table is empty.");
@@ -470,13 +471,6 @@
             SubscriptionObject user;
             RaidSubscription subscribedRaid;
             var embed = BuildRaidMessage(raid, loc.Name);
-
-            if (DateTime.Now > raid.EndTime)
-            {
-                _logger.Info($"Raid {raid.PokemonId} already expired, skipping...");
-                return;
-            }
-
             var subscriptions = _subMgr.GetUserSubscriptions();
             if (subscriptions == null)
             {
@@ -770,15 +764,15 @@
                 Title = string.IsNullOrEmpty(quest.PokestopName) ? "Unknown Pokestop" : quest.PokestopName,
                 Url = gmapsUrl,
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude),
-                ThumbnailUrl = GetQuestIconUrl(quest),
+                ThumbnailUrl = quest.GetQuestIconUrl(),
                 Color = DiscordColor.Orange
             };
 
-            eb.Description = $"**Quest:** {GetMessageFromQuest(quest)}\r\n";
+            eb.Description = $"**Quest:** {quest.GetMessageFromQuest()}\r\n";
             if (quest.Conditions != null && quest.Conditions.Count > 0)
             {
                 var condition = quest.Conditions[0];
-                eb.Description += $"**Condition:** {GetQuestConditionName(quest)}\r\n";
+                eb.Description += $"**Condition:** {quest.GetQuestConditionName()}\r\n";
             }
             eb.Description += $"**Reward:** ";
             switch (quest.Rewards[0].Type)
@@ -820,171 +814,9 @@
             return eb.Build();
         }
 
-        private string GetMessageFromQuest(QuestData quest)
-        {
-            switch (quest.Type)
-            {
-                case QuestType.AddFriend:
-                    return $"Add {quest.Target} new friends";
-                case QuestType.AutoComplete:
-                    break;
-                case QuestType.BadgeRank:
-                    break;
-                case QuestType.CatchPokemon:
-                    return $"Catch {quest.Target} Pokemon";
-                case QuestType.CompleteBattle:
-                    break;
-                case QuestType.CompleteGymBattle:
-                    return $"Complete {quest.Target} gym battles";
-                case QuestType.CompleteQuest:
-                    return $"Complete {quest.Target} quests";
-                case QuestType.CompleteRaidBattle:
-                    return $"Complete {quest.Target} raid battles";
-                case QuestType.EvolveIntoPokemon:
-                    break;
-                case QuestType.EvolvePokemon:
-                    return $"Evolve {quest.Target} Pokemon";
-                case QuestType.FavoritePokemon:
-                    return $"Favorite {quest.Target} Pokemon";
-                case QuestType.FirstCatchOfTheDay:
-                    return $"Catch first Pokemon of the day";
-                case QuestType.FirstPokestopOfTheDay:
-                    return $"Spin first pokestop of the day";
-                case QuestType.GetBuddyCandy:
-                    return $"Earn {quest.Target} candy walking with your buddy";
-                case QuestType.HatchEgg:
-                    return $"Hatch {quest.Target} eggs";
-                case QuestType.JoinRaid:
-                    break;
-                case QuestType.LandThrow:
-                    return $"Land {quest.Target} throws";
-                case QuestType.MultiPart:
-                    break;
-                case QuestType.PlayerLevel:
-                    return $"Reach level {quest.Target}"; ;
-                case QuestType.SendGift:
-                    return $"Send {quest.Target} gifts to friends";
-                case QuestType.SpinPokestop:
-                    return $"Spin {quest.Target} Pokestops";
-                case QuestType.TradePokemon:
-                    return $"Trade {quest.Target} Pokemon";
-                case QuestType.TransferPokemon:
-                    return $"Transfer {quest.Target} Pokemon";
-                case QuestType.UpgradePokemon:
-                    return $"Power up a Pokemon {quest.Target} times";
-                case QuestType.UseBerryInEncounter:
-                    return $"Use {quest.Target} berries on Pokemon";
-                case QuestType.Unknown:
-                    break;
-            }
-
-            return quest.Type.ToString();
-        }
-
-        private string GetQuestIconUrl(QuestData quest)
-        {
-            var iconIndex = 0;
-            switch (quest.Rewards[0].Type)
-            {
-                case QuestRewardType.AvatarClothing:
-                    break;
-                case QuestRewardType.Candy:
-                    iconIndex = 1301;
-                    break;
-                case QuestRewardType.Experience:
-                    iconIndex = -2;
-                    break;
-                case QuestRewardType.Item:
-                    return string.Format(Strings.QuestImage, (int)quest.Rewards[0].Info.Item);
-                case QuestRewardType.PokemonEncounter:
-                    return string.Format(Strings.PokemonImage, quest.Rewards[0].Info.PokemonId, 0);
-                case QuestRewardType.Quest:
-                    break;
-                case QuestRewardType.Stardust:
-                    iconIndex = -1;
-                    break;
-                case QuestRewardType.Unset:
-                    break;
-            }
-
-            return string.Format(Strings.QuestImage, iconIndex);
-        }
-
-        private string GetQuestConditionName(QuestData quest)
-        {
-            if (quest == null || quest.Conditions == null)
-                return null;
-
-            var condition = quest.Conditions[0];
-            try
-            {
-                switch (condition.Type)
-                {
-                    case QuestConditionType.BadgeType:
-                        break;
-                    case QuestConditionType.CurveBall:
-                        break;
-                    case QuestConditionType.DailyCaptureBonus:
-                        break;
-                    case QuestConditionType.DailySpinBonus:
-                        break;
-                    case QuestConditionType.DaysInARow:
-                        break;
-                    case QuestConditionType.Item:
-                        break;
-                    case QuestConditionType.NewFriend:
-                        break;
-                    case QuestConditionType.PlayerLevel:
-                        break;
-                    case QuestConditionType.PokemonCategory:
-                        return string.Join(", ", condition.Info.PokemonIds?.Select(x => Database.Instance.Pokemon[x].Name).ToList());
-                    case QuestConditionType.PokemonType:
-                        return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((Net.Models.PokemonType)x))) + "-type";
-                    case QuestConditionType.QuestContext:
-                        break;
-                    case QuestConditionType.RaidLevel:
-                        break;
-                    case QuestConditionType.SuperEffectiveCharge:
-                        break;
-                    case QuestConditionType.ThrowType:
-                        return condition.Info.ThrowTypeId.ToString();
-                    case QuestConditionType.ThrowTypeInARow:
-                        return condition.Info.ThrowTypeId.ToString();
-                    case QuestConditionType.UniquePokestop:
-                        break;
-                    case QuestConditionType.WeatherBoost:
-                        break;
-                    case QuestConditionType.WinBattleStatus:
-                        break;
-                    case QuestConditionType.WinGymBattleStatus:
-                        break;
-                    case QuestConditionType.WinRaidStatus:
-                        break;
-                    case QuestConditionType.Unset:
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-
-            return condition?.Type.ToString();
-        }
-
         #endregion
 
         #region Private Methods
-
-        private async Task HandleCommands(DiscordMessage e)
-        {
-            switch (e.Content.ToLower())
-            {
-                case "!refresh":
-                    await RemoveUserRoles(e);
-                    break;
-            }
-        }
 
         private async Task SendNotification(ulong userId, string pokemon, DiscordEmbed embed)
         {
@@ -1012,79 +844,6 @@
             //}
             //await ctx.RespondAsync($"{ctx.User.Mention} Channel {channel.Mention}'s messages have been deleted.");
             await Task.CompletedTask;
-        }
-
-        private async Task RemoveUserRoles(DiscordMessage e)
-        {
-            var cityRoles = new string[]
-            {
-                "RanchoRaids",
-                "UplandRaids",
-                "OntarioRaids",
-                "ChinoRaids",
-                "ClaremontRaids",
-                "PomonaRaids",
-                "MontclairRaids",
-                "EastLARaids",
-                "WhittierRaids",
-                "Rancho",
-                "Upland",
-                "Ontario",
-                "Chino",
-                "Claremont",
-                "Pomona",
-                "Montclair",
-                "EastLA",
-                "Whittier",
-                "100iv",
-                "90iv",
-                "lunatone",
-                "Nests",
-                "Raids",
-                "Families",
-                "Quests",
-                "RaidTrain"
-            };
-
-            var success = 0;
-            var failed = 0;
-            //var members = new List<DiscordMember> { await GetMemeberById(_whConfig.OwnerId) };
-            var members = e.Channel.Guild.Members;
-            for (var usrId = 0; usrId < members.Count; usrId++)
-            {
-                var member = members[usrId];
-                var roleIds = member.Roles.Select(x => x.Id).ToList();
-                var roleNames = member.Roles.Select(x => x.Name).ToList();
-
-                await e.RespondAsync($"Starting role refresh for user {member.Username} ({member.Id}).");
-
-                //// Skip supporters and members that already have a team role set.
-                if (roleIds.Contains(_whConfig.SupporterRoleId) || roleNames.Contains("Valor") || roleNames.Contains("Mystic") || roleNames.Contains("Instinct"))
-                    continue;
-
-                _logger.Debug($"Checking user {member.Username} ({member.Id}) roles...");
-                var list = new List<string>();
-                foreach (var cityRole in cityRoles)
-                {
-                    if (!roleNames.Contains(cityRole))
-                        continue;
-
-                    try
-                    {
-                        var role = member.Roles.FirstOrDefault(x => string.Compare(x.Name, cityRole, true) == 0);
-                        await member.RevokeRoleAsync(role, "Roles refreshed.");
-                        _logger.Debug($"Removed role {role.Name} ({role.Id}) from user {member.Username} ({member.Id}).");
-                        success++;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error(ex);
-                        failed++;
-                    }
-                }
-
-                await e.RespondAsync($"Role fresh for user {member.Username} ({member.Id}) finished.");
-            }
         }
 
         private static DiscordColor BuildColor(string iv)

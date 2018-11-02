@@ -110,12 +110,24 @@
 
         private void Http_PokemonReceived(object sender, PokemonDataEventArgs e)
         {
+            if (DateTime.Now > e.Pokemon.DespawnTime)
+            {
+                _logger.Debug($"Pokemon {e.Pokemon.Id} already despawned at {e.Pokemon.DespawnTime}");
+                return;
+            }
+
             ProcessPokemon(e.Pokemon);
             OnPokemonSubscriptionTriggered(e.Pokemon);
         }
 
         private void Http_RaidReceived(object sender, RaidDataEventArgs e)
         {
+            if (DateTime.Now > e.Raid.EndTime)
+            {
+                _logger.Debug($"Raid boss {e.Raid.PokemonId} already despawned at {e.Raid.EndTime}");
+                return;
+            }
+
             ProcessRaid(e.Raid);
             OnRaidSubscriptionTriggered(e.Raid);
         }
@@ -210,8 +222,6 @@
 
             if (_alarms?.Count == 0)
                 return;
-
-            pkmn.SetDespawnTime();
 
             for (var i = 0; i < _alarms.Count; i++)
             {

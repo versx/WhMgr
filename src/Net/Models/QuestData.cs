@@ -1,8 +1,13 @@
 ﻿namespace WhMgr.Net.Models
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using Newtonsoft.Json;
+
+    using WhMgr.Data;
+    using WhMgr.Diagnostics;
 
     /*
 [
@@ -58,9 +63,21 @@
 }]
      */
 
+    /** Quest Filtering
+     * QuestFilterType
+     *  - By Reward
+     *    - Reward type
+     *  - By Quest
+     *  - Pokemon reward list to include or exclude
+     *  - Item type
+     *  
+     */
+
     public sealed class QuestData
     {
         public const string WebHookHeader = "quest";
+
+        private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         [JsonProperty("pokestop_id")]
         public string PokestopId { get; set; }
@@ -100,6 +117,224 @@
             Rewards = new List<QuestRewardMessage>();
             Conditions = new List<QuestConditionMessage>();
         }
+
+        public string GetMessageFromQuest()
+        {
+            switch (Type)
+            {
+                case QuestType.AddFriend:
+                    return $"Add {Target} new friends";
+                case QuestType.AutoComplete:
+                    break;
+                case QuestType.BadgeRank:
+                    break;
+                case QuestType.CatchPokemon:
+                    return $"Catch {Target} Pokemon";
+                case QuestType.CompleteBattle:
+                    break;
+                case QuestType.CompleteGymBattle:
+                    return $"Complete {Target} gym battles";
+                case QuestType.CompleteQuest:
+                    return $"Complete {Target} quests";
+                case QuestType.CompleteRaidBattle:
+                    return $"Complete {Target} raid battles";
+                case QuestType.EvolveIntoPokemon:
+                    break;
+                case QuestType.EvolvePokemon:
+                    return $"Evolve {Target} Pokemon";
+                case QuestType.FavoritePokemon:
+                    return $"Favorite {Target} Pokemon";
+                case QuestType.FirstCatchOfTheDay:
+                    return $"Catch first Pokemon of the day";
+                case QuestType.FirstPokestopOfTheDay:
+                    return $"Spin first pokestop of the day";
+                case QuestType.GetBuddyCandy:
+                    return $"Earn {Target} candy walking with your buddy";
+                case QuestType.HatchEgg:
+                    return $"Hatch {Target} eggs";
+                case QuestType.JoinRaid:
+                    return $"Participate in {Target} raid battles";
+                case QuestType.LandThrow:
+                    return $"Land {Target} throws";
+                case QuestType.MultiPart:
+                    break;
+                case QuestType.PlayerLevel:
+                    return $"Reach level {Target}"; ;
+                case QuestType.SendGift:
+                    return $"Send {Target} gifts to friends";
+                case QuestType.SpinPokestop:
+                    return $"Spin {Target} Pokestops";
+                case QuestType.TradePokemon:
+                    return $"Trade {Target} Pokemon";
+                case QuestType.TransferPokemon:
+                    return $"Transfer {Target} Pokemon";
+                case QuestType.UpgradePokemon:
+                    return $"Power up a Pokemon {Target} times";
+                case QuestType.UseBerryInEncounter:
+                    return $"Use {Target} berries on Pokemon";
+                case QuestType.Unknown:
+                    break;
+            }
+
+            return Type.ToString();
+        }
+
+        public string GetQuestIconUrl()
+        {
+            var iconIndex = 0;
+            switch (Rewards[0].Type)
+            {
+                case QuestRewardType.AvatarClothing:
+                    break;
+                case QuestRewardType.Candy:
+                    iconIndex = 1301;
+                    break;
+                case QuestRewardType.Experience:
+                    iconIndex = -2;
+                    break;
+                case QuestRewardType.Item:
+                    return string.Format(Strings.QuestImage, (int)Rewards[0].Info.Item);
+                case QuestRewardType.PokemonEncounter:
+                    return string.Format(Strings.PokemonImage, Rewards[0].Info.PokemonId, 0);
+                case QuestRewardType.Quest:
+                    break;
+                case QuestRewardType.Stardust:
+                    iconIndex = -1;
+                    break;
+                case QuestRewardType.Unset:
+                    break;
+            }
+
+            return string.Format(Strings.QuestImage, iconIndex);
+        }
+
+        public string GetQuestConditionName()
+        {
+            if (Conditions == null)
+                return null;
+
+            var condition = Conditions[0];
+            try
+            {
+                switch (condition.Type)
+                {
+                    case QuestConditionType.BadgeType:
+                        break;
+                    case QuestConditionType.CurveBall:
+                        break;
+                    case QuestConditionType.DailyCaptureBonus:
+                        break;
+                    case QuestConditionType.DailySpinBonus:
+                        break;
+                    case QuestConditionType.DaysInARow:
+                        break;
+                    case QuestConditionType.Item:
+                        break;
+                    case QuestConditionType.NewFriend:
+                        break;
+                    case QuestConditionType.PlayerLevel:
+                        break;
+                    case QuestConditionType.PokemonCategory:
+                        return string.Join(", ", condition.Info.PokemonIds?.Select(x => Database.Instance.Pokemon[x].Name).ToList());
+                    case QuestConditionType.PokemonType:
+                        return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((Net.Models.PokemonType)x))) + "-type";
+                    case QuestConditionType.QuestContext:
+                        break;
+                    case QuestConditionType.RaidLevel:
+                        break;
+                    case QuestConditionType.SuperEffectiveCharge:
+                        break;
+                    case QuestConditionType.ThrowType:
+                        return condition.Info.ThrowTypeId.ToString();
+                    case QuestConditionType.ThrowTypeInARow:
+                        return condition.Info.ThrowTypeId.ToString();
+                    case QuestConditionType.UniquePokestop:
+                        break;
+                    case QuestConditionType.WeatherBoost:
+                        break;
+                    case QuestConditionType.WinBattleStatus:
+                        break;
+                    case QuestConditionType.WinGymBattleStatus:
+                        break;
+                    case QuestConditionType.WinRaidStatus:
+                        break;
+                    case QuestConditionType.Unset:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return condition?.Type.ToString();
+        }
+    }
+
+    public sealed class QuestConditionMessage
+    {
+        [JsonProperty("type")]
+        public QuestConditionType Type { get; set; }
+
+        [JsonProperty("info")]
+        public QuestCondition Info { get; set; }
+    }
+
+    public sealed class QuestCondition
+    {
+        [JsonProperty("pokemon_ids")]
+        public List<int> PokemonIds { get; set; }
+
+        [JsonProperty("category_name")]
+        public string CategoryName { get; set; }
+
+        [JsonProperty("pokemon_type_ids")]
+        public List<int> PokemonTypeIds { get; set; }
+
+        [JsonProperty("throw_type_id")]
+        public ActivityType ThrowTypeId { get; set; }
+
+        [JsonProperty("hit")]
+        public bool Hit { get; set; }
+
+        [JsonProperty("raid_levels")]
+        public List<int> RaidLevels { get; set; }
+    }
+
+    public sealed class QuestRewardMessage
+    {
+        [JsonProperty("type")]
+        public QuestRewardType Type { get; set; }
+
+        [JsonProperty("info")]
+        public QuestReward Info { get; set; }
+    }
+
+    public sealed class QuestReward
+    {
+        [JsonProperty("pokemon_id")]
+        public int PokemonId { get; set; }
+
+        [JsonProperty("costume_id")]
+        public int CostumeId { get; set; }
+
+        [JsonProperty("form_id")]
+        public int FormId { get; set; }
+
+        [JsonProperty("gender_id")]
+        public int GenderId { get; set; }
+
+        [JsonProperty("ditto")]
+        public bool Ditto { get; set; }
+
+        [JsonProperty("shiny")]
+        public bool Shiny { get; set; }
+
+        [JsonProperty("amount")]
+        public int Amount { get; set; }
+
+        [JsonProperty("item_id")]
+        public ItemId Item { get; set; }
     }
 
     public enum QuestType
@@ -194,7 +429,7 @@
 
     public enum ItemId
     {
-        UNKNOWN = 0,
+        Unknown = 0,
         PokeBall = 1,
         GreatBall = 2,
         UltraBall = 3,
@@ -207,7 +442,7 @@
         Revive = 201,
         MaxRevive = 202,
         LuckyEgg = 301,
-        IncenseOrdinary= 401,
+        IncenseOrdinary = 401,
         IncenseSpicy = 402,
         IncenseCool = 403,
         IncenseFloral = 404,
@@ -292,71 +527,5 @@
         RraidLevel3AdditionalXP,
         RraidLevel4AdditionalXP,
         RraidLevel5AdditionalXP
-    }
-
-    public sealed class QuestConditionMessage
-    {
-        [JsonProperty("type")]
-        public QuestConditionType Type { get; set; }
-
-        [JsonProperty("info")]
-        public QuestCondition Info { get; set; }
-    }
-
-    public sealed class QuestCondition
-    {
-        [JsonProperty("pokemon_ids")]
-        public List<int> PokemonIds { get; set; }
-
-        [JsonProperty("category_name")]
-        public string CategoryName { get; set; }
-
-        [JsonProperty("pokemon_type_ids")]
-        public List<int> PokemonTypeIds { get; set; }
-
-        [JsonProperty("throw_type_id")]
-        public ActivityType ThrowTypeId { get; set; }
-
-        [JsonProperty("hit")]
-        public bool Hit { get; set; }
-
-        [JsonProperty("raid_levels")]
-        public List<int> RaidLevels { get; set; }
-    }
-
-    public sealed class QuestRewardMessage
-    {
-        [JsonProperty("type")]
-        public QuestRewardType Type { get; set; }
-
-        [JsonProperty("info")]
-        public QuestReward Info { get; set; }
-    }
-
-    public sealed class QuestReward
-    {
-        [JsonProperty("pokemon_id")]
-        public int PokemonId { get; set; }
-
-        [JsonProperty("costume_id")]
-        public int CostumeId { get; set; }
-
-        [JsonProperty("form_id")]
-        public int FormId { get; set; }
-
-        [JsonProperty("gender_id")]
-        public int GenderId { get; set; }
-
-        [JsonProperty("ditto")]
-        public bool Ditto { get; set; }
-
-        [JsonProperty("shiny")]
-        public bool Shiny { get; set; }
-
-        [JsonProperty("amount")]
-        public int Amount { get; set; }
-
-        [JsonProperty("item_id")]
-        public ItemId Item { get; set; }
     }
 }

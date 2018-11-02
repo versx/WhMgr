@@ -58,7 +58,7 @@
         {
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSelect<SubscriptionObject>(x => x.UserId == userId).FirstOrDefault();
+                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
                 return subscription != null;
             }
         }
@@ -69,7 +69,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSelect<SubscriptionObject>(x => x.UserId == userId).FirstOrDefault();
+                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
                 if (subscription != null)
                 {
                     return subscription;
