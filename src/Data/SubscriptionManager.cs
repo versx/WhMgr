@@ -483,6 +483,7 @@
                 db.CreateTable<SubscriptionObject>();
                 db.CreateTable<PokemonSubscription>();
                 db.CreateTable<RaidSubscription>();
+                db.CreateTable<QuestSubscription>();
 
                 _logger.Info($"Database tables created.");
             }
