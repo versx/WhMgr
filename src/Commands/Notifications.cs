@@ -369,8 +369,6 @@
                 }
             }
 
-            //_dep.SubscriptionManager.Save(subscription);
-
             await ctx.TriggerTypingAsync();
             await ctx.RespondAsync
             (
@@ -505,28 +503,7 @@
                 {
                     alreadySubscribed.Add(pokemon.Name);
                 }
-
-                //if (_dep.Db.Exists(ctx.User.Id))
-                //{
-                //    //User has already subscribed before, check if their new requested sub already exists.
-                //    if (_dep.Db[ctx.User.Id].Raids.Exists(x => x.PokemonId == pokeId && (string.IsNullOrEmpty(city) || string.Compare(city, x.City, true) == 0)))
-                //    {
-                //        alreadySubscribed.Add(pokemon.Name);
-                //    }
-                //    else
-                //    {
-                //        _dep.Db[ctx.User.Id].Raids.Add(new Pokemon { PokemonId = pokeId, City = city });
-                //        subscribed.Add(pokemon.Name);
-                //    }
-                //}
-                //else
-                //{
-                //    _dep.Db.Subscriptions.Add(new Subscription<Pokemon>(ctx.User.Id, new List<Pokemon>(), new List<Pokemon> { new Pokemon { PokemonId = pokeId, City = city } }));
-                //    subscribed.Add(pokemon.Name);
-                //}
             }
-
-            _dep.SubscriptionManager.Save(subscription);
 
             await ctx.TriggerTypingAsync();
             await ctx.RespondAsync
@@ -546,7 +523,7 @@
         ]
         public async Task RaidMeNotAsync(CommandContext ctx,
             [Description("Pokemon name or id to unsubscribe from raid notifications.")] string poke,
-            [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
+            [Description("City to remove the quest notifications from otherwise if null all will be sent.")] string city = null)
         {
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
@@ -625,8 +602,6 @@
                 }
             }
 
-            //_dep.SubscriptionManager.Save(subscription);
-
             await ctx.TriggerTypingAsync();
             await ctx.RespondAsync
             (
@@ -637,6 +612,144 @@
                     ? $" {ctx.User.Mention} is not subscribed to {string.Join(",", notSubscribed)} raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}."
                     : string.Empty)
             );
+        }
+
+        [
+            Command("questme"),
+            Description("Subscribe to quest notifications based on the reward keyword.")
+        ]
+        public async Task QuestMeAsync(CommandContext ctx,
+            [Description("Reward keyword to use to find field research. Example: Spinda, 1200 stardust, candy")] string rewardKeyword,
+            [Description("City to send the notification if the quest appears in otherwise if null all will be sent.")] string city = null)
+        {
+            if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
+            {
+                if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
+                {
+                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to find city role {city}. To see a list of valid city roles type the command `.cities` or `.feeds`.");
+                    return;
+                }
+            }
+            else
+            {
+                //Assign to all cities.
+                city = string.Empty;
+            }
+
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return;
+            }
+
+            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
+            if (!isSupporter && subscription.Raids.Count >= Strings.MaxRaidSubscriptions)
+            {
+                await ctx.TriggerTypingAsync();
+                await ctx.RespondAsync($"{ctx.User.Mention} Non-supporter members have a limited notification amount of {Strings.MaxQuestSubscriptions} different field research quests, please consider donating to lift this to every field research quest. Otherwise you will need to remove some subscriptions in order to subscribe to new field research quests.");
+                return;
+            }
+
+            var result = false;
+            if (string.IsNullOrEmpty(city))
+            {
+                for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
+                {
+                    result |= _dep.SubscriptionManager.AddQuest(ctx.User.Id, rewardKeyword, _dep.WhConfig.CityRoles[cty]);
+                }
+            }
+            else
+            {
+                result |= _dep.SubscriptionManager.AddQuest(ctx.User.Id, rewardKeyword, city);
+            }
+
+            _dep.SubscriptionManager.Save(subscription);
+
+            await ctx.TriggerTypingAsync();
+            if (result)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} has subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+            }
+            else
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} is already subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+            }
+        }
+
+        [
+            Command("questmenot"),
+            Description("Unsubscribe from one or all subscribed field research quest notifications by reward keyword.")
+        ]
+        public async Task QuestMeNotAsync(CommandContext ctx,
+            [Description("Reward keyword to remove from field research quest subscriptions. Example: Spinda, 1200 stardust, candy")] string rewardKeyword,
+            [Description("City to remove the quest notifications from otherwise if null all will be sent.")] string city = null)
+        {
+            if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
+            {
+                if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
+                {
+                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to find city role {city}. To see a list of valid city roles type the command `.cities` or `.feeds`.");
+                    return;
+                }
+            }
+            else
+            {
+                //Assign to all cities.
+                city = string.Empty;
+            }
+
+            if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
+            {
+                await ctx.TriggerTypingAsync();
+                await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                return;
+            }
+
+            var notSubscribed = new List<string>();
+            var unsubscribed = new List<string>();
+
+            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
+
+            if (string.Compare(rewardKeyword, Strings.All, true) == 0)
+            {
+                var removeAllResult = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Quests.Count.ToString("N0")} of your field research quest subscriptions? Please reply back with `y` or `yes` to confirm.");
+                if (!removeAllResult) return;
+
+                if (!_dep.SubscriptionManager.RemoveAllQuests(ctx.User.Id))
+                {
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to remove all quest subscriptions.");
+                    return;
+                }
+
+                await ctx.TriggerTypingAsync();
+                await ctx.RespondAsync($"{ctx.User.Mention} has unsubscribed from **all** quest notifications!");
+                return;
+            }
+
+            var result = false;
+            if (string.IsNullOrEmpty(city))
+            {
+                for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
+                {
+                    result |= _dep.SubscriptionManager.RemoveQuest(ctx.User.Id, rewardKeyword, _dep.WhConfig.CityRoles[cty]);
+                }
+            }
+            else
+            {
+                result |= _dep.SubscriptionManager.RemoveQuest(ctx.User.Id, rewardKeyword, city);
+            }
+
+            await ctx.TriggerTypingAsync();
+            if (result)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} has unsubscribed from **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+            }
+            else
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+            }
         }
 
         #region Private Methods
@@ -676,6 +789,7 @@
             var subscription = _dep.SubscriptionManager.GetUserSubscriptions(user.Id);
             var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
             var hasRaids = isSubbed && subscription?.Raids.Count > 0;
+            var hasQuests = isSubbed && subscription?.Quests.Count > 0;
             var msg = string.Empty;
             var isSupporter = client.IsSupporterOrHigher(author, _dep.WhConfig);
 
@@ -745,6 +859,14 @@
                 msg += "```";
             }
 
+            if (hasQuests)
+            {
+                msg += $"Quest Subscriptions: ({subscription.Quests.Count.ToString("N0")}/{(isSupporter ? "∞" : Strings.MaxQuestSubscriptions.ToString())} used)\r\n";
+                msg += "```";
+                msg += string.Join(Environment.NewLine, GetQuestSubscriptionNames(author));
+                msg += "```";
+            }
+
             if (string.IsNullOrEmpty(msg))
             {
                 msg = $"**{user.Mention}** is not subscribed to any Pokemon or Raid notifications.";
@@ -798,6 +920,24 @@
                     continue;
 
                 list.Add($"{pokemon.Name} (From: {(string.IsNullOrEmpty(poke.City) ? "All Areas" : poke.City)})");
+            }
+
+            return list;
+        }
+
+        private List<string> GetQuestSubscriptionNames(ulong userId)
+        {
+            var list = new List<string>();
+            if (!_dep.SubscriptionManager.UserExists(userId))
+                return list;
+
+            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(userId);
+            var subscribedQuests = subscription.Quests;
+            subscribedQuests.Sort((x, y) => string.Compare(x.RewardKeyword.ToLower(), y.RewardKeyword.ToLower(), StringComparison.Ordinal));
+
+            foreach (var quest in subscribedQuests)
+            {
+                list.Add($"{quest.RewardKeyword} (From: {(string.IsNullOrEmpty(quest.City) ? "All Areas" : quest.City)})");
             }
 
             return list;

@@ -118,7 +118,7 @@
             Conditions = new List<QuestConditionMessage>();
         }
 
-        public string GetMessageFromQuest()
+        public string GetMessage()
         {
             switch (Type)
             {
@@ -179,7 +179,7 @@
             return Type.ToString();
         }
 
-        public string GetQuestIconUrl()
+        public string GetIconUrl()
         {
             var iconIndex = 0;
             switch (Rewards[0].Type)
@@ -208,7 +208,7 @@
             return string.Format(Strings.QuestImage, iconIndex);
         }
 
-        public string GetQuestConditionName()
+        public string GetConditionName()
         {
             if (Conditions == null)
                 return null;
@@ -268,6 +268,29 @@
             }
 
             return condition?.Type.ToString();
+        }
+
+        public string GetRewardString()
+        {
+            switch (Rewards[0].Type)
+            {
+                case QuestRewardType.AvatarClothing:
+                    return "Avatar Clothing";
+                case QuestRewardType.Candy:
+                    return $"{Rewards[0]?.Info.Amount.ToString("N0")} Rare Candy";
+                case QuestRewardType.Experience:
+                    return $"{Rewards[0].Info.Amount.ToString("N0")} XP";
+                case QuestRewardType.Item:
+                    return $"{Rewards[0].Info.Amount.ToString("N0")} {Rewards[0].Info.Item}";
+                case QuestRewardType.PokemonEncounter:
+                    return Database.Instance.Pokemon[Rewards[0].Info.PokemonId].Name;
+                case QuestRewardType.Quest:
+                    return "Quest";
+                case QuestRewardType.Stardust:
+                    return $"{Rewards[0].Info.Amount.ToString("N0")} Stardust";
+            }
+
+            return "Unknown";
         }
     }
 

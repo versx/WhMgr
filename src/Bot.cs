@@ -58,6 +58,7 @@
             _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
             _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
             _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
+            _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
 
             _logger.Info("WebHookManager is running...");
 
@@ -322,7 +323,7 @@
             {
                 var eb = BuildQuestMessage(e.Quest, e.Alarm.Name);
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-                await whData.ExecuteAsync(string.Empty, e.Quest.GetMessageFromQuest(), e.Quest.GetQuestIconUrl(), false, new List<DiscordEmbed> { eb });
+                await whData.ExecuteAsync(string.Empty, e.Quest.GetMessage(), e.Quest.GetIconUrl(), false, new List<DiscordEmbed> { eb });
             }
             catch (Exception ex)
             {
@@ -342,6 +343,11 @@
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
         {
             ProcessRaidSubscription(e).GetAwaiter().GetResult();
+        }
+
+        private void OnQuestSubscriptionTriggered(object sender, QuestData e)
+        {
+            ProcessQuestSubscription(e).GetAwaiter().GetResult();
         }
 
         #endregion
@@ -401,9 +407,6 @@
                         _logger.Debug($"User {member.Username} is not a supporter, skipping pokemon {pkmn.Id}...");
                         continue;
                     }
-
-                    if (user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id) == null)
-                        continue;
 
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id);
                     if (subscribedPokemon == null)
@@ -503,9 +506,6 @@
                         continue;
                     }
 
-                    if (user.Raids.FirstOrDefault(x => x.PokemonId == raid.PokemonId) == null)
-                        continue;
-
                     subscribedRaid = user.Raids.FirstOrDefault(x => x.PokemonId == raid.PokemonId);
                     if (subscribedRaid == null)
                         continue;
@@ -547,6 +547,105 @@
                     user.NotificationsToday++;
 
                     await SendNotification(user.UserId, pokemon.Name, embed);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                }
+            }
+        }
+
+        private async Task ProcessQuestSubscription(QuestData quest)
+        {
+            var db = Database.Instance;
+            var reward = quest.Rewards[0].Info;
+            var rewardKeyword = quest.GetRewardString();
+            var questName = quest.GetMessage();
+
+            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(quest.Latitude, quest.Longitude));
+            if (loc == null)
+            {
+                _logger.Error($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
+                return;
+            }
+
+            bool isSupporter;
+            SubscriptionObject user;
+            QuestSubscription subscribedQuest;
+            var embed = BuildQuestMessage(quest, loc.Name);
+            var subscriptions = _subMgr.GetUserSubscriptions();
+            if (subscriptions == null)
+            {
+                _logger.Warn($"Failed to get subscriptions from database table.");
+                return;
+            }
+
+            for (int i = 0; i < subscriptions.Count; i++)
+            {
+                try
+                {
+                    user = subscriptions[i];
+                    if (user == null)
+                        continue;
+
+                    if (!user.Enabled)
+                        continue;
+
+                    var member = _client.GetMemberById(_whConfig.GuildId, user.UserId);
+                    if (member == null)
+                    {
+                        _logger.Error($"Failed to find member with id {user.UserId}.");
+                        continue;
+                    }
+
+                    isSupporter = member.Roles.Select(x => x.Id).Contains(_whConfig.SupporterRoleId);
+                    if (!isSupporter)
+                    {
+                        _logger.Info($"User {user.UserId} is not a supporter, skipping quest {questName}...");
+                        continue;
+                    }
+
+                    subscribedQuest = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
+                    if (subscribedQuest == null)
+                        continue;
+
+                    //var pokemon = db.Pokemon[reward.PokemonId];
+                    if (!member.Roles.Select(x => x.Name).Contains(loc.Name))
+                    {
+                        _logger.Debug($"[{loc.Name}] Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because they do not have the city role '{loc.Name}'.");
+                        continue;
+                    }
+
+                    var exists = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) &&
+                    (
+                        string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
+                    )) != null;
+                    if (!exists)
+                    {
+                        _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
+                        continue;
+                    }
+
+                    if (user.Limiter.IsLimited())
+                    {
+                        //if (!user.NotifiedOfLimited)
+                        //{
+                        //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
+                        //    user.NotifiedOfLimited = true;
+                        //}
+
+                        continue;
+                    }
+
+                    //user.NotifiedOfLimited = false;
+
+                    _logger.Info($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
+
+                    //if (await CheckIfExceededNotificationLimit(user)) return;
+
+                    user.NotificationsToday++;
+
+                    await SendNotification(user.UserId, questName, embed);
                 }
                 catch (Exception ex)
                 {
@@ -689,9 +788,9 @@
                 eb.Description += $"**Started:** {raid.StartTime.ToLongTimeString()}\r\n";
                 eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()} left)\r\n";
 
-                var perfectRange = raid.PokemonId.GetPokemonCpRange(20);
-                var boostedRange = raid.PokemonId.GetPokemonCpRange(25);
-                eb.Description += $"**Perfect CP:** {perfectRange.Best} / :white_sun_rain_cloud: {boostedRange.Best}\r\n";
+                var perfectRange = raid.PokemonId.MaxCpAtLevel(20);
+                var boostedRange = raid.PokemonId.MaxCpAtLevel(25);
+                eb.Description += $"**Perfect CP:** {perfectRange} / :white_sun_rain_cloud: {boostedRange}\r\n";
 
                 if (pkmn.Types != null)
                 {
@@ -756,55 +855,24 @@
         {
             _logger.Trace($"Bot::BuildQuestMessage [Quest={quest.PokestopId}, City={city}]");
 
-            var db = Database.Instance;
-            var reward = quest.Rewards[0];
             var gmapsUrl = string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude);
             var eb = new DiscordEmbedBuilder
             {
                 Title = string.IsNullOrEmpty(quest.PokestopName) ? "Unknown Pokestop" : quest.PokestopName,
                 Url = gmapsUrl,
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude),
-                ThumbnailUrl = quest.GetQuestIconUrl(),
+                ThumbnailUrl = quest.GetIconUrl(),
                 Color = DiscordColor.Orange
             };
 
-            eb.Description = $"**Quest:** {quest.GetMessageFromQuest()}\r\n";
+            eb.Description = $"**Quest:** {quest.GetMessage()}\r\n";
             if (quest.Conditions != null && quest.Conditions.Count > 0)
             {
                 var condition = quest.Conditions[0];
-                eb.Description += $"**Condition:** {quest.GetQuestConditionName()}\r\n";
+                eb.Description += $"**Condition:** {quest.GetConditionName()}\r\n";
             }
-            eb.Description += $"**Reward:** ";
-            switch (quest.Rewards[0].Type)
-            {
-                case QuestRewardType.AvatarClothing:
-                    eb.Description += "Avatar Clothing";
-                    break;
-                case QuestRewardType.Candy:
-                    eb.Description += $"{reward.Info.Amount.ToString("N0")} Rare Candy";
-                    break;
-                case QuestRewardType.Experience:
-                    eb.Description += $"{reward.Info.Amount.ToString("N0")} XP";
-                    break;
-                case QuestRewardType.Item:
-                    eb.Description += $"{reward.Info.Amount.ToString("N0")} {reward.Info.Item}";
-                    break;
-                case QuestRewardType.PokemonEncounter:
-                    eb.ThumbnailUrl = string.Format(Strings.PokemonImage, reward.Info.PokemonId, 0);
-                    eb.Description += db.Pokemon[reward.Info.PokemonId].Name;
-                    break;
-                case QuestRewardType.Quest:
-                    eb.Description += "Quest";
-                    break;
-                case QuestRewardType.Stardust:
-                    eb.Description += $"{reward.Info.Amount.ToString("N0")} Stardust";
-                    break;
-                case QuestRewardType.Unset:
-                default:
-                    eb.Description += "Unknown";
-                    break;
-            }
-            eb.Description += $"\r\n**Location:** {quest.Latitude},{quest.Longitude}\r\n**[Google Maps Link]({gmapsUrl})**\r\n";
+            eb.Description += $"**Reward:** {quest.GetRewardString()}\r\n";
+            eb.Description += $"**Location:** {quest.Latitude},{quest.Longitude}\r\n**[Google Maps Link]({gmapsUrl})**\r\n";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
                 Text = $"versx | {DateTime.Now}",

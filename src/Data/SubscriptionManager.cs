@@ -97,18 +97,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSelect<SubscriptionObject>(x => x.UserId == userId).FirstOrDefault();
-                if (subscription == null)
-                {
-                    //Create new subscription object.
-                    subscription = new SubscriptionObject
-                    {
-                        UserId = userId,
-                        Enabled = true,
-                        Pokemon = new List<PokemonSubscription>(),
-                        Raids = new List<RaidSubscription>()
-                    };
-                }
+                var subscription = GetUserSubscriptions(userId);
 
                 //Subscription exists.
                 var pkmnSub = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId);
@@ -210,6 +199,54 @@
             }
         }
 
+        public bool AddQuest(ulong userId, string rewardKeyword, string city)
+        {
+            _logger.Trace($"SubscriptionManager::AddQuest [UserId={userId}, RewardKeyword={rewardKeyword}, City={city}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = GetUserSubscriptions(userId);
+
+                //Subscription exists.
+                var questSub = subscription.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) && x.City == city);
+                if (questSub == null)
+                {
+                    //Create new raid subscription object.
+                    questSub = new QuestSubscription
+                    {
+                        UserId = userId,
+                        RewardKeyword = rewardKeyword,
+                        City = city
+                    };
+                    subscription.Quests.Add(questSub);
+                }
+                else
+                {
+                    //Already exists.
+                    return true;
+                }
+
+                try
+                {
+                    var result = db.Save(subscription, true);
+                    if (result)
+                    {
+                        _logger.Debug($"Quest Added!");
+                    }
+                    else
+                    {
+                        _logger.Debug("Quest Updated!");
+                    }
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                    return false;
+                }
+            }
+        }
+
         public bool AddPokemon(ulong userId, List<int> pokemonIds, int iv = 0, int lvl = 0, string gender = "*")
         {
             _logger.Trace($"SubscriptionManager::AddPokemon [UserId={userId}, PokemonIds={string.Join(", ", pokemonIds)}, IV={iv}, Level={lvl}, Gender={gender}]");
@@ -246,19 +283,19 @@
 
         #region Add All
 
-        public bool AddAllPokemon(ulong userId, int iv = 0, int lvl = 0, string gender = "*")
-        {
-            _logger.Trace($"SubscriptionManager::AddPokemonAll [UserId={userId}, IV={iv}, Level={lvl}, Gender={gender}]");
+        //public bool AddAllPokemon(ulong userId, int iv = 0, int lvl = 0, string gender = "*")
+        //{
+        //    _logger.Trace($"SubscriptionManager::AddPokemonAll [UserId={userId}, IV={iv}, Level={lvl}, Gender={gender}]");
 
-            return true;
-        }
+        //    return true;
+        //}
 
-        public bool AddAllRaids(ulong userId)
-        {
-            _logger.Trace($"SubscriptionManager::AddRaidsAll [UserId={userId}]");
+        //public bool AddAllRaids(ulong userId)
+        //{
+        //    _logger.Trace($"SubscriptionManager::AddRaidsAll [UserId={userId}]");
 
-            return true;
-        }
+        //    return true;
+        //}
 
         #endregion
 
@@ -270,7 +307,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSelect<SubscriptionObject>(x => x.UserId == userId).FirstOrDefault();
+                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
                 if (subscription == null)
                 {
                     //Not subscribed.
@@ -298,7 +335,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSelect<SubscriptionObject>(x => x.UserId == userId).FirstOrDefault();
+                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
                 if (subscription == null)
                 {
                     //Not subscribed.
@@ -314,6 +351,33 @@
                 else
                 {
                     var result = db.Delete(raidSub);
+                    return result > 0;
+                }
+            }
+        }
+
+        public bool RemoveQuest(ulong userId, string rewardKeyword, string city)
+        {
+            _logger.Trace($"SubscriptionManager::RemoveQuest [UserId={userId}, RewardKeyword={rewardKeyword}, City={city}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
+                if (subscription == null)
+                {
+                    //Not subscribed.
+                    return false;
+                }
+
+                var questSub = subscription.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
+                if (questSub == null)
+                {
+                    //Not subscribed.
+                    return true;
+                }
+                else
+                {
+                    var result = db.Delete(questSub);
                     return result > 0;
                 }
             }
@@ -361,7 +425,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSelect<SubscriptionObject>(x => x.UserId == userId).FirstOrDefault();
+                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
                 if (subscription == null)
                 {
                     //Not subscribed.
@@ -378,7 +442,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSelect<SubscriptionObject>(x => x.UserId == userId).FirstOrDefault();
+                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
                 if (subscription == null)
                 {
                     //Not subscribed.
@@ -386,6 +450,23 @@
                 }
 
                 return db.DeleteAll(subscription.Raids) > 0;
+            }
+        }
+
+        public bool RemoveAllQuests(ulong userId)
+        {
+            _logger.Info($"SubscriptionManager::RemoveAllQuests [UserId={userId}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
+                if (subscription == null)
+                {
+                    //Not subscribed.
+                    return false;
+                }
+
+                return db.DeleteAll(subscription.Quests) > 0;
             }
         }
 

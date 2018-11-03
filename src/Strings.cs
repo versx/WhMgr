@@ -28,6 +28,7 @@
         public const int MaxPokemonDisplayed = 70;
         public const int MaxPokemonSubscriptions = 25;
         public const int MaxRaidSubscriptions = 5;
+        public const int MaxQuestSubscriptions = 2;
         public const int CommonTypeMinimumIV = 97;
 
         public static string GuildIconUrl { get; set; }

@@ -23,6 +23,9 @@
         [Alias("raids"), Reference]
         public List<RaidSubscription> Raids { get; set; }
 
+        [Alias("quests"), Reference]
+        public List<QuestSubscription> Quests { get; set; }
+
         [Alias("notifications_today")]
         public long NotificationsToday { get; set; }
 
@@ -34,6 +37,7 @@
             Enabled = true;
             Pokemon = new List<PokemonSubscription>();
             Raids = new List<RaidSubscription>();
+            Quests = new List<QuestSubscription>();
             Limiter = new NotificationLimiter();
         }
     }

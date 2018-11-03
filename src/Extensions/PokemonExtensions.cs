@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+
     using WhMgr.Data;
     using WhMgr.Net.Models;
 
@@ -33,27 +34,42 @@
             0.76739717, 0.7731865, 0.77893275, 0.78463697, 0.79030001
         };
 
-        public static CpRange GetPokemonCpRange(this int pokeId, int level)
+        //public static CpRange GetPokemonCpRange(this int pokeId, int level)
+        //{
+        //    var db = Database.Instance;
+        //    if (!db.Pokemon.ContainsKey(pokeId))
+        //        return null;
+
+        //    var baseStats = db.Pokemon[pokeId].BaseStats;
+        //    if (baseStats == null)
+        //        return null;
+
+        //    var baseAtk = baseStats.Attack;
+        //    var baseDef = baseStats.Defense;
+        //    var baseSta = baseStats.Stamina;
+        //    var cpMulti = CpMultipliers[level - 1];
+
+        //    var min = 10;
+        //    var max = 10;
+        //    var minCp = GetCP(baseAtk + min, baseDef + min, baseSta + min, cpMulti);
+        //    var maxCp = GetCP(baseAtk + max, baseDef + max, baseSta + max, cpMulti);
+
+        //    return new CpRange(maxCp, minCp);
+        //}
+
+        public static int MaxCpAtLevel(this int id, int level)
         {
-            var db = Database.Instance;
-            if (!db.Pokemon.ContainsKey(pokeId))
-                return null;
+            if (!Database.Instance.Pokemon.ContainsKey(id))
+                return 0;
 
-            var baseStats = db.Pokemon[pokeId].BaseStats;
-            if (baseStats == null)
-                return null;
+            var pkmn = Database.Instance.Pokemon[id];
 
-            var baseAtk = baseStats.Attack;
-            var baseDef = baseStats.Defense;
-            var baseSta = baseStats.Stamina;
-            var cpMulti = CpMultipliers[level - 1];
+            var multiplier = CpMultipliers[level - 1];
+            var maxAtk = (pkmn.BaseStats.Attack + 15) * multiplier;
+            var maxDef = (pkmn.BaseStats.Defense + 15) * multiplier;
+            var maxSta = (pkmn.BaseStats.Stamina + 15) * multiplier;
 
-            var min = 10;
-            var max = 10;
-            var minCp = GetCP(baseAtk + min, baseDef + min, baseSta + min, cpMulti);
-            var maxCp = GetCP(baseAtk + max, baseDef + max, baseSta + max, cpMulti);
-
-            return new CpRange(maxCp, minCp);
+            return (int)Math.Max(10, Math.Floor(Math.Sqrt(maxAtk * maxAtk * maxDef * maxSta) / 10));
         }
 
         public static int GetCP(int attack, int defense, int stamina, double cpm)

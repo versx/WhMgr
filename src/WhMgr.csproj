@@ -110,6 +110,7 @@
     <Compile Include="Data\Models\MovesetModel.cs" />
     <Compile Include="Data\Models\PokemonModel.cs" />
     <Compile Include="Data\Models\PokemonSubscription.cs" />
+    <Compile Include="Data\Models\QuestSubscription.cs" />
     <Compile Include="Data\Models\RaidSubscription.cs" />
     <Compile Include="Data\Models\SubscriptionObject.cs" />
     <Compile Include="Data\SubscriptionManager.cs" />

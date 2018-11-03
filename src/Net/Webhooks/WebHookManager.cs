@@ -76,6 +76,12 @@
             RaidSubscriptionTriggered?.Invoke(this, raid);
         }
 
+        public event EventHandler<QuestData> QuestSubscriptionTriggered;
+        private void OnQuestSubscriptionTriggered(QuestData quest)
+        {
+            QuestSubscriptionTriggered?.Invoke(this, quest);
+        }
+
         #endregion
 
         #region Constructor
@@ -135,6 +141,7 @@
         private void Http_QuestReceived(object sender, QuestDataEventArgs e)
         {
             ProcessQuest(e.Quest);
+            OnQuestSubscriptionTriggered(e.Quest);
         }
 
         #endregion
