@@ -856,7 +856,7 @@
                 msg += $"Raid Subscriptions: ({subscription.Raids.Count.ToString("N0")}/{(isSupporter ? "∞" : Strings.MaxRaidSubscriptions.ToString())} used)\r\n";
                 msg += "```";
                 msg += string.Join(Environment.NewLine, GetRaidSubscriptionNames(author));
-                msg += "```";
+                msg += "```" + Environment.NewLine + Environment.NewLine;
             }
 
             if (hasQuests)

@@ -858,7 +858,7 @@
             var gmapsUrl = string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude);
             var eb = new DiscordEmbedBuilder
             {
-                Title = string.IsNullOrEmpty(quest.PokestopName) ? "Unknown Pokestop" : quest.PokestopName,
+                Title = $"{city}: {(string.IsNullOrEmpty(quest.PokestopName) ? "Unknown Pokestop" : quest.PokestopName)}",
                 Url = gmapsUrl,
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude),
                 ThumbnailUrl = quest.GetIconUrl(),
