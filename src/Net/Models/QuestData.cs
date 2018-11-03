@@ -245,13 +245,13 @@
                     case QuestConditionType.SuperEffectiveCharge:
                         return "Super effective charge move";
                     case QuestConditionType.ThrowType:
-                        return condition.Info.ThrowTypeId.ToString();
+                        return GetThrowName(condition.Info.ThrowTypeId);
                     case QuestConditionType.ThrowTypeInARow:
-                        return condition.Info.ThrowTypeId.ToString();
+                        return GetThrowName(condition.Info.ThrowTypeId) + " in a row";
                     case QuestConditionType.UniquePokestop:
                         return "Unique";
                     case QuestConditionType.WeatherBoost:
-                        return "Weather bosted";
+                        return "Weather boosted";
                     case QuestConditionType.WinBattleStatus:
                         break;
                     case QuestConditionType.WinGymBattleStatus:
@@ -289,6 +289,25 @@
             }
 
             return "Unknown";
+        }
+
+        private string GetThrowName(ActivityType throwTypeId)
+        {
+            switch (throwTypeId)
+            {
+                case ActivityType.CatchCurveThrow:
+                    return "Curve throw";
+                case ActivityType.CatchExcellentThrow:
+                    return "Excellent throw";
+                case ActivityType.CatchFirstThrow:
+                    return "First throw";
+                case ActivityType.CatchGreatThrow:
+                    return "Great throw";
+                case ActivityType.CatchNiceThrow:
+                    return "Nice throw";
+            }
+
+            return throwTypeId.ToString();
         }
     }
 

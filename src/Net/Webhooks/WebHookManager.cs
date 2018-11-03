@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net;
 
     using Newtonsoft.Json;
@@ -367,6 +368,8 @@
             if (_alarms?.Count == 0)
                 return;
 
+            var rewardKeyword = quest.GetRewardString();
+
             for (var i = 0; i < _alarms.Count; i++)
             {
                 var alarm = _alarms[i];
@@ -382,6 +385,25 @@
                 if (!InGeofence(alarm.Geofence, new Location(quest.Latitude, quest.Longitude)))
                 {
                     _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type} because not in geofence.");
+                    continue;
+                }
+
+                var contains = alarm.Filters.Quests.RewardKeywords.Select(x => x.ToLower()).Contains(rewardKeyword.ToLower());
+                if (alarm.Filters.Quests.FilterType == FilterType.Exclude && contains)
+                {
+                    _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type} because of filter {alarm.Filters.Quests.FilterType}.");
+                    continue;
+                }
+
+                if (!(alarm.Filters.Quests.FilterType == FilterType.Include && (contains || alarm.Filters.Quests?.RewardKeywords.Count == 0)))
+                {
+                    _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping quest PokestopId={quest.PokestopId} because of filter {alarm.Filters.Quests.FilterType}.");
+                    continue;
+                }
+
+                if (!contains && alarm.Filters?.Quests?.RewardKeywords?.Count > 0)
+                {
+                    _logger.Info($"[{alarm.Name}] [{alarm.Geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type} because rewards does not match reward keywords.");
                     continue;
                 }
 

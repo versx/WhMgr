@@ -26,7 +26,8 @@
 			},
 			"quests":
 			{
-				"enabled": true
+				"enabled": true,
+				"rewards": ["spinda", "nincada"]
 			}
 		},
 		"geofence":"geofence1.txt",

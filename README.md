@@ -48,7 +48,8 @@ Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
 		},
 		"quests":
 		{
-			"enabled": true //Determines if quest alarms will be enabled.
+			"enabled": true, //Determines if quest alarms will be enabled.
+			"rewards": ["spinda", "stardust"] //Filter quest rewards by keyword.
 		}
 	},
 	"geofence":"geofence1.txt", //Path to geofence file.
