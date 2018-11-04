@@ -121,6 +121,7 @@
     <Compile Include="Extensions\IntegerExtensions.cs" />
     <Compile Include="Extensions\PokemonExtensions.cs" />
     <Compile Include="Extensions\TimeSpanExtensions.cs" />
+    <Compile Include="MidnightTimer.cs" />
     <Compile Include="Net\Models\PokemonGender.cs" />
     <Compile Include="Net\Models\PokemonTeam.cs" />
     <Compile Include="Net\Models\Providers\IMapProviderPokemon.cs" />

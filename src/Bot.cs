@@ -62,11 +62,11 @@
 
             _logger.Info("WebHookManager is running...");
 
-            _timer = new Timer(60000 * 60);
+            var midnight = new DandTSoftware.Timers.MidnightTimer();
 #pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
-            _timer.Elapsed += async (sender, e) => await ResetQuests();
+            midnight.TimeReached += async (e) => await ResetQuests();
 #pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
-            _timer.Start();
+            midnight.Start();
             
             _client = new DiscordClient(new DiscordConfiguration
             {
@@ -904,15 +904,35 @@
 
         private async Task ResetQuests()
         {
-            //TODO: Loop channels.
-            //var messages = await channel.GetMessagesAsync();
-            //for (var i = 0; i < messages.Count; i++)
-            //{
-            //    var message = messages[i];
-            //    await message.DeleteAsync("Channel reset.");
-            //}
-            //await ctx.RespondAsync($"{ctx.User.Mention} Channel {channel.Mention}'s messages have been deleted.");
-            await Task.CompletedTask;
+            _logger.Debug($"MIDNIGHT {DateTime.Now}");
+            _logger.Debug($"Starting automatic quest messages cleanup...");
+
+            for (var i = 0; i < _dep.WhConfig.QuestChannelIds.Count; i++)
+            {
+                var channel = await _client.GetChannelAsync(_dep.WhConfig.QuestChannelIds[i]);
+                if (channel == null)
+                {
+                    _logger.Warn($"Failed to find channel by id {_dep.WhConfig.QuestChannelIds[i]}, skipping...");
+                    continue;
+                }
+
+                var messages = await channel.GetMessagesAsync();
+                for (var j = 0; j < messages.Count; j++)
+                {
+                    var message = messages[j];
+                    if (message == null)
+                    {
+                        //Message already deleted.
+                        continue;
+                    }
+
+                    await message.DeleteAsync("Channel reset.");
+                }
+
+                _logger.Debug($"Deleted all {messages.Count.ToString("N0")} quest messages from channel {channel.Name}.");
+            }
+
+            _logger.Debug($"Finished automatic quest messages cleanup...");
         }
 
         private static DiscordColor BuildColor(string iv)

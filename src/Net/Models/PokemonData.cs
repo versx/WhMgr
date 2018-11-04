@@ -111,7 +111,7 @@
             DespawnTime = DisappearTime.FromUnix();
             if (TimeZoneInfo.Local.IsDaylightSavingTime(DespawnTime))
             {
-                DespawnTime = DespawnTime; //DST
+                DespawnTime = DespawnTime.AddHours(1); //DST
             }
             SecondsLeft = DespawnTime.Subtract(DateTime.Now);
         }
