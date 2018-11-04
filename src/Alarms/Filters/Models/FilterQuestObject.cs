@@ -18,6 +18,7 @@
         public FilterQuestObject()
         {
             RewardKeywords = new List<string>();
+            FilterType = FilterType.Include;
         }
     }
 }

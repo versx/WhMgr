@@ -100,9 +100,16 @@
         public void SetTimes()
         {
             StartTime = Start.FromUnix();
-            StartTime = StartTime.AddHours(1); //DST
+            if (TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
+            {
+                StartTime = StartTime.AddHours(1); //DST
+            }
+
             EndTime = End.FromUnix();
-            EndTime = EndTime.AddHours(1); //DST
+            if (TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
+            {
+                EndTime = EndTime.AddHours(1); //DST
+            }
         }
     }
 }

@@ -44,6 +44,51 @@
 	}
 ]
 
+{
+    "message":
+    {
+        "rewards":
+        [
+            {
+                "info":
+                {
+                    "costume_id":0,
+                    "form_id":0,
+                    "gender_id":0,
+                    "shiny":false,
+                    "pokemon_id":327,
+                    "ditto":false
+                },
+                "type":7
+            }
+        ],
+        "pokestop_id":"73d7a307b0264316b104470fd37cb4f5.16",
+        "updated":1541350000,
+        "longitude":-117.667454,
+        "pokestop_url":"",
+        "type":16,
+        "pokestop_name":"Unknown",
+        "latitude":34.103494,
+        "template":"challenge_november_land_nice_curveball_plural",
+        "conditions":
+        [
+            {
+                "info":
+                {
+                    "throw_type_id":10,
+                    "hit":false
+                },
+                "type":8
+            },
+            {
+                "type":15
+            }
+        ],
+        "target":3
+    },
+    "type":"quest"
+}
+
 "conditions":
 [{
     "info":
@@ -61,16 +106,6 @@
     },
     "type":2
 }]
-     */
-
-    /** Quest Filtering
-     * QuestFilterType
-     *  - By Reward
-     *    - Reward type
-     *  - By Quest
-     *  - Pokemon reward list to include or exclude
-     *  - Item type
-     *  
      */
 
     public sealed class QuestData
@@ -111,6 +146,9 @@
 
         [JsonProperty("conditions")]
         public List<QuestConditionMessage> Conditions { get; set; }
+
+        [JsonIgnore]
+        public TimeSpan TimeLeft => DateTime.Today.AddDays(1) - DateTime.Now;
 
         public QuestData()
         {
@@ -213,59 +251,79 @@
             if (Conditions == null)
                 return null;
 
-            var condition = Conditions[0];
-            try
+            var list = new List<string>();
+            for (var i = 0; i < Conditions.Count; i++)
             {
-                switch (condition.Type)
+                var condition = Conditions[i];
+                try
                 {
-                    case QuestConditionType.BadgeType:
-                        break;
-                    case QuestConditionType.CurveBall:
-                        return "Curve ball";
-                    case QuestConditionType.DailyCaptureBonus:
-                        return "Daily catch";
-                    case QuestConditionType.DailySpinBonus:
-                        return "Daily spin";
-                    case QuestConditionType.DaysInARow:
-                        break;
-                    case QuestConditionType.Item:
-                        return "Use item";
-                    case QuestConditionType.NewFriend:
-                        return "Make new friend";
-                    case QuestConditionType.PlayerLevel:
-                        return "Reach level";
-                    case QuestConditionType.PokemonCategory:
-                        return string.Join(", ", condition.Info.PokemonIds?.Select(x => Database.Instance.Pokemon[x].Name).ToList());
-                    case QuestConditionType.PokemonType:
-                        return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((PokemonType)x))) + "-type";
-                    case QuestConditionType.QuestContext:
-                        break;
-                    case QuestConditionType.RaidLevel:
-                        return "Level " + string.Join(", ", condition.Info.RaidLevels);
-                    case QuestConditionType.SuperEffectiveCharge:
-                        return "Super effective charge move";
-                    case QuestConditionType.ThrowType:
-                        return GetThrowName(condition.Info.ThrowTypeId);
-                    case QuestConditionType.ThrowTypeInARow:
-                        return GetThrowName(condition.Info.ThrowTypeId) + " in a row";
-                    case QuestConditionType.UniquePokestop:
-                        return "Unique";
-                    case QuestConditionType.WeatherBoost:
-                        return "Weather boosted";
-                    case QuestConditionType.WinBattleStatus:
-                        break;
-                    case QuestConditionType.WinGymBattleStatus:
-                        return "Win gym battle";
-                    case QuestConditionType.WinRaidStatus:
-                        return "Win raid";
+                    switch (condition.Type)
+                    {
+                        case QuestConditionType.BadgeType:
+                            break;
+                        case QuestConditionType.CurveBall:
+                            list.Add("Curve ball");
+                            break;
+                        case QuestConditionType.DailyCaptureBonus:
+                            list.Add("Daily catch");
+                            break;
+                        case QuestConditionType.DailySpinBonus:
+                            list.Add("Daily spin");
+                            break;
+                        case QuestConditionType.DaysInARow:
+                            break;
+                        case QuestConditionType.Item:
+                            return "Use item";
+                        case QuestConditionType.NewFriend:
+                            list.Add("Make new friend");
+                            break;
+                        case QuestConditionType.PlayerLevel:
+                            list.Add("Reach level");
+                                break;
+                        case QuestConditionType.PokemonCategory:
+                            list.Add(string.Join(", ", condition.Info.PokemonIds?.Select(x => Database.Instance.Pokemon[x].Name).ToList()));
+                            break;
+                        case QuestConditionType.PokemonType:
+                            list.Add(string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((PokemonType)x))) + "-type");
+                            break;
+                        case QuestConditionType.QuestContext:
+                            break;
+                        case QuestConditionType.RaidLevel:
+                            list.Add("Level " + string.Join(", ", condition.Info.RaidLevels));
+                            break;
+                        case QuestConditionType.SuperEffectiveCharge:
+                            list.Add("Super effective charge move");
+                            break;
+                        case QuestConditionType.ThrowType:
+                            list.Add(GetThrowName(condition.Info.ThrowTypeId));
+                            break;
+                        case QuestConditionType.ThrowTypeInARow:
+                            list.Add(GetThrowName(condition.Info.ThrowTypeId) + " in a row");
+                            break;
+                        case QuestConditionType.UniquePokestop:
+                            list.Add("Unique");
+                            break;
+                        case QuestConditionType.WeatherBoost:
+                            list.Add("Weather boosted");
+                            break;
+                        case QuestConditionType.WinBattleStatus:
+                            break;
+                        case QuestConditionType.WinGymBattleStatus:
+                            list.Add("Win gym battle");
+                            break;
+                        case QuestConditionType.WinRaidStatus:
+                            list.Add("Win raid");
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                    list.Add(condition?.Type.ToString());
                 }
             }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
 
-            return condition?.Type.ToString();
+            return string.Join(", ", list);
         }
 
         public string GetRewardString()

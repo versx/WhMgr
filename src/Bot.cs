@@ -872,6 +872,7 @@
                 eb.Description += $"**Condition:** {quest.GetConditionName()}\r\n";
             }
             eb.Description += $"**Reward:** {quest.GetRewardString()}\r\n";
+            eb.Description += $"**Time Remaining:** {quest.TimeLeft.ToReadableStringNoSeconds()}\r\n";
             eb.Description += $"**Location:** {quest.Latitude},{quest.Longitude}\r\n**[Google Maps Link]({gmapsUrl})**\r\n";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {

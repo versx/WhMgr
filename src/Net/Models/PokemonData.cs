@@ -109,7 +109,10 @@
         public void SetDespawnTime()
         {
             DespawnTime = DisappearTime.FromUnix();
-            DespawnTime = DespawnTime.AddHours(1); //DST
+            if (TimeZoneInfo.Local.IsDaylightSavingTime(DespawnTime))
+            {
+                DespawnTime = DespawnTime; //DST
+            }
             SecondsLeft = DespawnTime.Subtract(DateTime.Now);
         }
     }
