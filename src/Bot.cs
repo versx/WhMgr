@@ -37,7 +37,6 @@
         private readonly WhConfig _whConfig;
         private readonly SubscriptionManager _subMgr;
         private readonly IEventLogger _logger;
-        private readonly Timer _timer;
 
         #endregion
 
@@ -858,7 +857,7 @@
             var gmapsUrl = string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude);
             var eb = new DiscordEmbedBuilder
             {
-                Title = $"{city.Replace("Quests", null)}: {(string.IsNullOrEmpty(quest.PokestopName) ? "Unknown Pokestop" : quest.PokestopName)}",
+                Title = $"{city.Replace("Quests", null).Replace("Spinda", null).Replace("Nincada", null)}: {(string.IsNullOrEmpty(quest.PokestopName) ? "Unknown Pokestop" : quest.PokestopName)}",
                 Url = gmapsUrl,
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude),
                 ThumbnailUrl = quest.GetIconUrl(),

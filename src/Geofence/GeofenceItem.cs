@@ -38,16 +38,18 @@
 
         #region Static Methods
 
-        public static GeofenceItem FromFile(string filePath)
+        public static List<GeofenceItem> FromFile(string filePath)
         {
-            var geofence = new GeofenceItem();
+            var list = new List<GeofenceItem>();
             var lines = File.ReadAllLines(filePath);
+            var geofence = new GeofenceItem();
 
-            foreach (var line in lines)
+            for (var i = 0; i < lines.Length; i++)
             {
+                var line = lines[i];
                 if (line.StartsWith("[", StringComparison.Ordinal))
                 {
-                    geofence.Name = line.TrimStart('[').TrimEnd(']');
+                    geofence = new GeofenceItem(line.TrimStart('[').TrimEnd(']'));
                     continue;
                 }
 
@@ -59,9 +61,15 @@
                     continue;
 
                 geofence.Polygons.Add(new Location(lat, lng));
+
+                var isEnd = i == lines.Length - 1 || lines[i + 1].StartsWith("[", StringComparison.Ordinal);
+                if (isEnd)
+                {
+                    list.Add(geofence);
+                }
             }
 
-            return geofence;
+            return list;
         }
 
         #endregion

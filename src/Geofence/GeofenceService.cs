@@ -42,44 +42,44 @@
             return null;
         }
 
-        public static List<GeofenceItem> FromFiles(List<string> filePaths)
-        {
-            var list = new List<GeofenceItem>();
+        //public static List<GeofenceItem> FromFiles(List<string> filePaths)
+        //{
+        //    var list = new List<GeofenceItem>();
 
-            foreach (var filePath in filePaths)
-            {
-                if (!File.Exists(filePath))
-                {
-                    _logger.Warn($"Geofence file {filePath} does not exist.");
-                    continue;
-                }
+        //    foreach (var filePath in filePaths)
+        //    {
+        //        if (!File.Exists(filePath))
+        //        {
+        //            _logger.Warn($"Geofence file {filePath} does not exist.");
+        //            continue;
+        //        }
 
-                list.Add(GeofenceItem.FromFile(filePath));
-            }
+        //        list.Add(GeofenceItem.FromFile(filePath));
+        //    }
 
-            return list;
-        }
+        //    return list;
+        //}
 
-        public static List<GeofenceItem> FromFolder(string geofenceFolder)
-        {
-            return FromFiles(Directory.GetFiles(geofenceFolder, "*.txt").ToList());
-        }
+        //public static List<GeofenceItem> FromFolder(string geofenceFolder)
+        //{
+        //    return FromFiles(Directory.GetFiles(geofenceFolder, "*.txt").ToList());
+        //}
 
-        public static List<GeofenceItem> FromFolder(string geofenceFolder, List<string> cities)
-        {
-            var list = new List<GeofenceItem>();
-            foreach (var city in cities)
-            {
-                var filePath = Path.Combine(geofenceFolder, city + ".txt");
-                if (!File.Exists(filePath))
-                {
-                    _logger.Warn($"Geofence file {filePath} does not exist.");
-                    continue;
-                }
+        //public static List<GeofenceItem> FromFolder(string geofenceFolder, List<string> cities)
+        //{
+        //    var list = new List<GeofenceItem>();
+        //    foreach (var city in cities)
+        //    {
+        //        var filePath = Path.Combine(geofenceFolder, city + ".txt");
+        //        if (!File.Exists(filePath))
+        //        {
+        //            _logger.Warn($"Geofence file {filePath} does not exist.");
+        //            continue;
+        //        }
 
-                list.Add(GeofenceItem.FromFile(filePath));
-            }
-            return list;
-        }
+        //        list.Add(GeofenceItem.FromFile(filePath));
+        //    }
+        //    return list;
+        //}
     }
 }

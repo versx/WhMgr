@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Alarms.Models
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
 
     using Newtonsoft.Json;
@@ -12,7 +13,7 @@
     public class AlarmObject
     {
         [JsonIgnore]
-        public GeofenceItem Geofence { get; private set; }
+        public List<GeofenceItem> Geofences { get; private set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -31,7 +32,7 @@
             LoadGeofence();
         }
 
-        public GeofenceItem LoadGeofence()
+        public List<GeofenceItem> LoadGeofence()
         {
             if (string.IsNullOrEmpty(GeofenceFile))
                 return null;
@@ -40,7 +41,7 @@
             if (!File.Exists(path))
                 return null;
 
-            return Geofence = GeofenceItem.FromFile(path);
+            return Geofences = GeofenceItem.FromFile(path);
         }
     }
 }

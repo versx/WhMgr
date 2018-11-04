@@ -6,16 +6,34 @@ Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
 1.) Copy `config.example.json` to `config.json`.  
   a.) Create bot token. https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token  
   b.) Input your bot token and config options.  
-  c.) Set enabled to true to enable alarms.
-  d.) Set owner id to server owner's Discord id.
-  e.) Set supporter/donator role id.
-  f.) Set list of moderator role ids.
-  g.) Set Discord server's guild id,
-  h.) Set webhook listener port or leave default as 8002.
-  i.) Gmaps key
-  j.) ConnectionString
-  k.) City roles
-  l.) Command prefix
+```
+{
+  "token": "<DISCORD_BOT_TOKEN>", //Discord bot token with user.
+  "enabled": true, //Controls whether alarm filtering is enabled.
+  "ownerId": 000000000000, //Discord server's owner id.
+  "supporterRoleId": 000000000000, //Discord server's donator role id.
+  "moderators": [000000000000], //List of Discord server's moderator role ids.
+  "guildId": 000000000000, //Discord server's guild id.
+  "webhookPort": 8002,
+  "gmapsKey": "<GOOGLE_MAPS_KEY>", //Google maps key.
+  "connectionString": "", //RealDeviceMap database connection string.
+  "cityRoles": [
+	"City1",
+	"City2"
+  ],
+  "commandPrefix": null //Bot command prefix, if empty/null the bot's mention prefix is set as default.
+}
+```
+  c.) Set enabled to true to enable alarms.  
+  d.) Set owner id to server owner's Discord id.  
+  e.) Set supporter/donator role id.  
+  f.) Set list of moderator role ids.  
+  g.) Set Discord server's guild id,  
+  h.) Set webhook listener port or leave default as 8002.  
+  i.) Gmaps key  
+  j.) ConnectionString  
+  k.) City roles  
+  l.) Command prefix  
 
 2.) Copy `alarms.example.json` to `alarms.json`.  
 3.) Fill out the alarms file.  
@@ -49,7 +67,8 @@ Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
 		"quests":
 		{
 			"enabled": true, //Determines if quest alarms will be enabled.
-			"rewards": ["spinda", "stardust"] //Filter quest rewards by keyword.
+			"rewards": ["spinda", "stardust"], //Filter quest rewards by keyword.
+			"type": "Include" //Quest filter type, either Include or Exclude.
 		}
 	},
 	"geofence":"geofence1.txt", //Path to geofence file.
