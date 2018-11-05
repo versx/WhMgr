@@ -1,69 +1,75 @@
-[
-	{
-		"name":"Alarm1",
-		"filters":
+{
+	"enablePokemon": true,
+	"enableRaids": true,
+	"enableQuests": true,
+	"alarms": 
+	[
 		{
-			"pokemon":
+			"name":"Alarm1",
+			"filters":
 			{
-				"enabled": true,
-				"pokemon": [280,337,374],
-				"min_iv": 0,
-				"max_iv": 100,
-				"type": "Include",
-				"ignoreMissing": true
+				"pokemon":
+				{
+					"enabled": true,
+					"pokemon": [280,337,374],
+					"min_iv": 0,
+					"max_iv": 100,
+					"type": "Include",
+					"ignoreMissing": true
+				},
+				"eggs":
+				{
+					"enabled": true,
+					"min_lvl": 1,
+					"max_lvl": 5
+				},
+				"raids":
+				{
+					"enabled": true,
+					"pokemon": [],
+					"ignoreMissing": true
+				},
+				"quests":
+				{
+					"enabled": true,
+					"rewards": ["spinda", "nincada"]
+				}
 			},
-			"eggs":
-			{
-				"enabled": true,
-				"min_lvl": 1,
-				"max_lvl": 5
-			},
-			"raids":
-			{
-				"enabled": true,
-				"pokemon": [],
-				"ignoreMissing": true
-			},
-			"quests":
-			{
-				"enabled": true,
-				"rewards": ["spinda", "nincada"]
-			}
+			"geofence":"geofence1.txt",
+			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
-		"geofence":"geofence1.txt",
-		"webhook":"<DISCORD_WEBHOOK_URL>"
-	},
-	{
-		"name":"Alarm2",
-		"filters":
 		{
-			"pokemon":
+			"name":"Alarm2",
+			"filters":
 			{
-				"enabled": true,
-				"pokemon": [280,337,374],
-				"min_iv": 0,
-				"max_iv": 100,
-				"type": "Include",
-				"ignoreMissing": true
+				"pokemon":
+				{
+					"enabled": true,
+					"pokemon": [280,337,374],
+					"min_iv": 0,
+					"max_iv": 100,
+					"type": "Include",
+					"ignoreMissing": true
+				},
+				"eggs":
+				{
+					"enabled": true,
+					"min_lvl": 1,
+					"max_lvl": 5
+				},
+				"raids":
+				{
+					"enabled": true,
+					"pokemon": [],
+					"ignoreMissing": true
+				},
+				"quests":
+				{
+					"enabled": true
+				}
 			},
-			"eggs":
-			{
-				"enabled": true,
-				"min_lvl": 1,
-				"max_lvl": 5
-			},
-			"raids":
-			{
-				"enabled": true,
-				"pokemon": [],
-				"ignoreMissing": true
-			},
-			"quests":
-			{
-				"enabled": true
-			}
-		},
-		"geofence":"geofence2.txt",
-		"webhook":"<DISCORD_WEBHOOK_URL>"
-	}
-]
+			"geofence":"geofence2.txt",
+			"webhook":"<DISCORD_WEBHOOK_URL>"
+		}
+	]
+}

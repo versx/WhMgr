@@ -24,17 +24,6 @@ Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
   "commandPrefix": null //Bot command prefix, if empty/null the bot's mention prefix is set as default.
 }
 ```
-  c.) Set enabled to true to enable alarms.  
-  d.) Set owner id to server owner's Discord id.  
-  e.) Set supporter/donator role id.  
-  f.) Set list of moderator role ids.  
-  g.) Set Discord server's guild id,  
-  h.) Set webhook listener port or leave default as 8002.  
-  i.) Gmaps key  
-  j.) ConnectionString  
-  k.) City roles  
-  l.) Command prefix  
-
 2.) Copy `alarms.example.json` to `alarms.json`.  
 3.) Fill out the alarms file.  
 ```
