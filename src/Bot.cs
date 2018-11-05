@@ -259,9 +259,6 @@
 
         private async void OnPokemonAlarmTriggered(object sender, PokemonAlarmTriggeredEventArgs e)
         {
-            if (!_whConfig.Enabled)
-                return;
-
             _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Pokemon.Id}, Despawn: {e.Pokemon.DespawnTime}");
 
             var wh = _whm.WebHooks[e.Alarm.Name];
@@ -283,9 +280,6 @@
 
         private async void OnRaidAlarmTriggered(object sender, RaidAlarmTriggeredEventArgs e)
         {
-            if (!_whConfig.Enabled)
-                return;
-
             _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Raid.PokemonId}, Level: {e.Raid.Level}, StartTime: {e.Raid.StartTime}]");
 
             var wh = _whm.WebHooks[e.Alarm.Name];
@@ -306,9 +300,6 @@
 
         private async void OnQuestAlarmTriggered(object sender, QuestAlarmTriggeredEventArgs e)
         {
-            //if (!_whConfig.Enabled)
-            //    return;
-
             _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Quest.PokestopId}, Type={e.Quest.Type}]");
 
             var wh = _whm.WebHooks[e.Alarm.Name];
@@ -320,7 +311,8 @@
 
             try
             {
-                var eb = BuildQuestMessage(e.Quest, e.Alarm.Name);
+                var geofence = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(e.Quest.Latitude, e.Quest.Longitude));
+                var eb = BuildQuestMessage(e.Quest, geofence?.Name ?? e.Alarm.Name);
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 await whData.ExecuteAsync(string.Empty, e.Quest.GetMessage(), e.Quest.GetIconUrl(), false, new List<DiscordEmbed> { eb });
             }
@@ -362,7 +354,7 @@
             var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(pkmn.Latitude, pkmn.Longitude));
             if (loc == null)
             {
-                _logger.Error($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                _logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
                 return;
             }
 
@@ -396,7 +388,7 @@
                     var member = _client.GetMemberById(_whConfig.GuildId, user.UserId);
                     if (member == null)
                     {
-                        _logger.Error($"Failed to find member with id {user.UserId}.");
+                        _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
@@ -465,7 +457,7 @@
             var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(raid.Latitude, raid.Longitude));
             if (loc == null)
             {
-                _logger.Error($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
+                _logger.Warn($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
                 return;
             }
 
@@ -494,7 +486,7 @@
                     var member = _client.GetMemberById(_whConfig.GuildId, user.UserId);
                     if (member == null)
                     {
-                        _logger.Error($"Failed to find member with id {user.UserId}.");
+                        _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
@@ -564,7 +556,7 @@
             var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(quest.Latitude, quest.Longitude));
             if (loc == null)
             {
-                _logger.Error($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
+                _logger.Warn($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
                 return;
             }
 
@@ -593,7 +585,7 @@
                     var member = _client.GetMemberById(_whConfig.GuildId, user.UserId);
                     if (member == null)
                     {
-                        _logger.Error($"Failed to find member with id {user.UserId}.");
+                        _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 

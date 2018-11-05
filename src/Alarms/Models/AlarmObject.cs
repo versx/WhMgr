@@ -39,7 +39,7 @@
 
             var path = Path.Combine(Strings.GeofenceFolder, GeofenceFile);
             if (!File.Exists(path))
-                return null;
+                throw new FileNotFoundException("Geofence file not found.", path);
 
             return Geofences = GeofenceItem.FromFile(path);
         }

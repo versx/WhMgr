@@ -17,9 +17,6 @@
         [JsonProperty("token")]
         public string Token { get; set; }
 
-        [JsonProperty("enabled")]
-        public bool Enabled { get; set; }
-
         [JsonProperty("ownerId")]
         public ulong OwnerId { get; set; }
 
@@ -73,14 +70,12 @@
 
         public static WhConfig Load(string filePath)
         {
-            //if (!File.Exists(filePath))
-            //{
-            //    throw new FileNotFoundException("Config not loaded because file not found.", filePath);
-            //}
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("Config not loaded because file not found.", filePath);
+            }
 
-            //var data = File.ReadAllText(filePath);
-            //return JsonConvert.DeserializeObject<WhConfig>(data);
-            return Data.Database.LoadInit<WhConfig>(filePath, typeof(WhConfig));
+            return Database.LoadInit<WhConfig>(filePath, typeof(WhConfig));
         }
     }
 }

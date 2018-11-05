@@ -175,7 +175,7 @@
 
             _logger.Info($"Alarms file {alarmsFilePath} was loaded successfully.");
 
-            alarms.ForEach(x =>
+            alarms.Alarms.ForEach(x =>
             {
                 var geofences = x.LoadGeofence();
                 for (var i = 0; i < geofences.Count; i++)
@@ -206,7 +206,7 @@
         {
             _logger.Trace($"WebHookManager::LoadWebHooks");
 
-            foreach (var alarm in _alarms)
+            foreach (var alarm in _alarms.Alarms)
             {
                 if (string.IsNullOrEmpty(alarm.Webhook))
                     continue;
@@ -229,15 +229,18 @@
         {
             _logger.Trace($"WebHookManager::ProcessPokemon [Pkmn={pkmn.Id}]");
 
+            if (!_alarms.EnablePokemon)
+                return;
+
             if (pkmn == null)
                 return;
 
-            if (_alarms?.Count == 0)
+            if (_alarms.Alarms?.Count == 0)
                 return;
 
-            for (var i = 0; i < _alarms.Count; i++)
+            for (var i = 0; i < _alarms.Alarms.Count; i++)
             {
-                var alarm = _alarms[i];
+                var alarm = _alarms.Alarms[i];
                 if (alarm.Filters.Pokemon == null)
                     continue;
 
@@ -287,15 +290,18 @@
         {
             _logger.Trace($"WebHookManager::ProcessRaid [Raid={raid.PokemonId}]");
 
+            if (!_alarms.EnableRaids)
+                return;
+
             if (raid == null)
                 return;
 
-            if (_alarms?.Count == 0)
+            if (_alarms.Alarms?.Count == 0)
                 return;
 
-            for (var i = 0; i < _alarms.Count; i++)
+            for (var i = 0; i < _alarms.Alarms.Count; i++)
             {
-                var alarm = _alarms[i];
+                var alarm = _alarms.Alarms[i];
                 var geofence = InGeofence(alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
                 if (geofence == null)
                 {
@@ -368,17 +374,20 @@
         {
             _logger.Trace($"WebhookManager::ProcessQuest [Quest={quest.PokestopId}]");
 
+            if (!_alarms.EnableQuests)
+                return;
+
             if (quest == null)
                 return;
 
-            if (_alarms?.Count == 0)
+            if (_alarms.Alarms?.Count == 0)
                 return;
 
             var rewardKeyword = quest.GetRewardString();
 
-            for (var i = 0; i < _alarms.Count; i++)
+            for (var i = 0; i < _alarms.Alarms.Count; i++)
             {
-                var alarm = _alarms[i];
+                var alarm = _alarms.Alarms[i];
                 if (alarm.Filters.Quests == null)
                     continue;
 
