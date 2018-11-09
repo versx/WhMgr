@@ -49,7 +49,7 @@
                 var message = messages[i];
                 await message.DeleteAsync("Channel reset.");
             }
-            await ctx.RespondAsync($"{ctx.User.Mention} Channel {channel.Mention}'s messages have been deleted.");
+            await ctx.RespondAsync($"{ctx.User.Mention} Channel {channel.Mention} messages have been deleted.");
         }
     }
 }

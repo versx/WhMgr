@@ -157,7 +157,7 @@
 
                 var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
 
-                for (int i = 1; i < 386; i++)
+                for (int i = 1; i < 493; i++)
                 {
                     if (i == 132 && !isSupporter)
                     {
@@ -420,7 +420,7 @@
                     return;
                 }
 
-                for (var i = 1; i < 386; i++)
+                for (var i = 1; i < 493; i++)
                 {
                     //if (!i.IsValidRaidBoss(_dep.Config.RaidBosses)) continue;
                     //if (!_dep.Db.IsValidRaidBoss(i))

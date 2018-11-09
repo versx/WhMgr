@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Timers;
 
     using WhMgr.Commands;
     using WhMgr.Configuration;
@@ -268,10 +267,17 @@
                 return;
             }
 
-            var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId);
             var pkmn = Database.Instance.Pokemon[e.Pokemon.Id];
+            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(e.Pokemon.Latitude, e.Pokemon.Longitude));
+            if (loc == null)
+            {
+                _logger.Warn($"Failed to lookup city from coordinates {e.Pokemon.Latitude},{e.Pokemon.Longitude} {pkmn.Name} {e.Pokemon.IV}, skipping...");
+                return;
+            }
+
+            var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId);
             var pkmnImage = string.Format(Strings.PokemonImage, e.Pokemon.Id, Convert.ToInt32(string.IsNullOrEmpty(e.Pokemon.FormId) ? "0" : e.Pokemon.FormId));
-            var eb = BuildPokemonMessage(e.Pokemon, e.Alarm.Name);
+            var eb = BuildPokemonMessage(e.Pokemon, loc.Name);
 
             var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
             var name = $"{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
@@ -290,11 +296,18 @@
             }
 
             var pkmn = Database.Instance.Pokemon[e.Raid.PokemonId];
+            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(e.Raid.Latitude, e.Raid.Longitude));
+            if (loc == null)
+            {
+                _logger.Warn($"Failed to lookup city from coordinates {e.Raid.Latitude},{e.Raid.Longitude} {pkmn.Name} {e.Raid.Level}, skipping...");
+                return;
+            }
+
             var pkmnImage = e.Raid.IsEgg ? string.Format(Strings.EggImage, e.Raid.Level) : string.Format(Strings.PokemonImage, e.Raid.PokemonId, 0);
-            var eb = BuildRaidMessage(e.Raid, e.Alarm.Name);
+            var eb = BuildRaidMessage(e.Raid, loc.Name);
 
             var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-            var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : pkmn.Name;
+            var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : $"{pkmn.Name} Raid";
             await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
         }
 
@@ -311,8 +324,14 @@
 
             try
             {
-                var geofence = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(e.Quest.Latitude, e.Quest.Longitude));
-                var eb = BuildQuestMessage(e.Quest, geofence?.Name ?? e.Alarm.Name);
+                var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(e.Quest.Latitude, e.Quest.Longitude));
+                if (loc == null)
+                {
+                    _logger.Warn($"Failed to lookup city for coordinates {e.Quest.Latitude},{e.Quest.Longitude}, skipping...");
+                    return;
+                }
+
+                var eb = BuildQuestMessage(e.Quest, loc?.Name ?? e.Alarm.Name);
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 await whData.ExecuteAsync(string.Empty, e.Quest.GetMessage(), e.Quest.GetIconUrl(), false, new List<DiscordEmbed> { eb });
             }
@@ -404,10 +423,7 @@
                         continue;
 
                     if (!member.Roles.Select(x => x.Name).Contains(loc.Name))
-                    {
-                        _logger.Debug($"Skipping user {member.DisplayName} ({member.Id}) for {pokemon.Name} {pkmn.IV}, no city role '{loc.Name}'.");
                         continue;
-                    }
 
                     matchesIV = _whm.Filters.MatchesIV(pkmn.IV, /*_whConfig.OnlySendEventPokemon ? _whConfig.EventPokemonMinimumIV :*/ subscribedPokemon.MinimumIV);
                     //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
@@ -671,16 +687,16 @@
                 Color = BuildColor(pokemon.IV)
             };
 
-            if (pokemon.IsMissingStats)
-            {
-                eb.Description = $"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n";
-            }
-            else
-            {
+            //if (pokemon.IsMissingStats)
+            //{
+            //    eb.Description = $"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n";
+            //}
+            //else
+            //{
                 eb.Description = $"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} {pokemon.IV} L{pokemon.Level} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
                 eb.Description += $"**Details:** CP: {pokemon.CP} IV: {pokemon.IV} LV: {pokemon.Level}\r\n";
                 eb.Description += $"**IV Stats:** Atk: {pokemon.Attack}/Def: {pokemon.Defense}/Sta: {pokemon.Stamina}\r\n";
-            }
+            //}
 
             if (!string.IsNullOrEmpty(form))
             {
@@ -737,7 +753,8 @@
             eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
-                Text = $"versx | {DateTime.Now}"
+                Text = $"versx | {DateTime.Now}",
+                IconUrl = _client.Guilds[_whConfig.GuildId]?.IconUrl
             };
             var embed = eb.Build();
 
@@ -759,7 +776,7 @@
             var pkmnImage = raid.IsEgg ? string.Format(Strings.EggImage, raid.Level) : string.Format(Strings.PokemonImage, raid.PokemonId, 0);
             var eb = new DiscordEmbedBuilder
             {
-                Title = string.IsNullOrEmpty(city) ? "DIRECTIONS" : city,
+                Title = string.IsNullOrEmpty(city) ? "DIRECTIONS" : raid.IsEgg ? $"Level {raid.Level} Egg" : $"{city}: {raid.GymName}",
                 Url = string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude),
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude),
                 ThumbnailUrl = pkmnImage,
@@ -769,13 +786,13 @@
             if (raid.IsEgg)
             {
                 eb.Description = $"Level {raid.Level} {pkmn.Name} Hatches: {raid.StartTime.ToLongTimeString()}\r\n";
-                eb.Description += $"{raid.GymName}\r\n\r\n";
+                //eb.Description += $"{raid.GymName}\r\n\r\n";
                 eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(raid.EndTime).ToReadableStringNoSeconds()} left)\r\n";
             }
             else
             {
                 eb.Description = $"{pkmn.Name} Raid Ends: {raid.EndTime.ToLongTimeString()}\r\n";
-                eb.Description += $"{raid.GymName}\r\n\r\n";
+                //eb.Description += $"{raid.GymName}\r\n\r\n";
                 eb.Description += $"**Started:** {raid.StartTime.ToLongTimeString()}\r\n";
                 eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()} left)\r\n";
 
@@ -835,7 +852,8 @@
             eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude) + $"&key={_whConfig.GmapsKey}";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
-                Text = $"versx | {DateTime.Now}"
+                Text = $"versx | {DateTime.Now}",
+                IconUrl = _client.Guilds[_whConfig.GuildId]?.IconUrl
             };
             var embed = eb.Build();
 
@@ -851,7 +869,7 @@
             {
                 Title = $"{city.Replace("Quests", null).Replace("Spinda", null).Replace("Nincada", null)}: {(string.IsNullOrEmpty(quest.PokestopName) ? "Unknown Pokestop" : quest.PokestopName)}",
                 Url = gmapsUrl,
-                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude),
+                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude) + $"&key={_whConfig.GmapsKey}",
                 ThumbnailUrl = quest.GetIconUrl(),
                 Color = DiscordColor.Orange
             };
@@ -868,7 +886,7 @@
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
                 Text = $"versx | {DateTime.Now}",
-                IconUrl = string.Empty
+                IconUrl = _client.Guilds[_whConfig.GuildId]?.IconUrl
             };
 
             return eb.Build();
