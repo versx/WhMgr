@@ -791,7 +791,7 @@
             }
             else
             {
-                eb.Description = $"{pkmn.Name} Raid Ends: {raid.EndTime.ToLongTimeString()}\r\n";
+                eb.Description = $"{pkmn.Name} Raid Ends: {raid.EndTime.ToLongTimeString()}\r\n\r\n";
                 //eb.Description += $"{raid.GymName}\r\n\r\n";
                 eb.Description += $"**Started:** {raid.StartTime.ToLongTimeString()}\r\n";
                 eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()} left)\r\n";
@@ -847,6 +847,11 @@
                 }
             }
 
+            if (raid.IsExclusive)
+            {
+                eb.Description += $"**Ex-Eligible Gym!**\r\n";
+            }
+            eb.Description += $"**Team Control:** {raid.Team.ToString()}\r\n";
             eb.Description += $"**Location:** {Math.Round(raid.Latitude, 5)},{Math.Round(raid.Longitude, 5)}\r\n";
             eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude)})**";
             eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude) + $"&key={_whConfig.GmapsKey}";

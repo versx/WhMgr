@@ -9,22 +9,26 @@
     /*
 [
     {
-        "message": 
+        "type":"raid",
+        "message":
         {
-            "gym_name": "Cypress Avenue Park",
-            "latitude": 34.052729,
-            "longitude": -117.663367,
-            "level": 2,
-            "pokemon_id": 0,
-            "raid_end": 1538842380,
-            "raid_begin": 1538839680,
-            "cp": 0, 
-            "move_1": 0,
-            "move_2": 0, 
-            "gym_id": "0aeca5201bda4602a26bd2afba855149.16",
-            "team_id": 0
-        }, 
-        "type": "raid"
+            "end":1541647095,
+            "latitude":34.070584,
+            "level":3,
+            "pokemon_id":210,
+            "move_2":279,
+            "is_exclusive":false,
+            "sponsor_id":false,
+            "cp":15328,
+            "form":0,
+            "move_1":202,
+            "spawn":1541640795,
+            "start":1541644395,
+            "gym_id":"efa2c34f8679419fb508545a504735e1.16",
+            "team_id":3,
+            "gym_name":"Unknown",
+            "longitude":-117.566666
+        }
     }
 ]
      */
@@ -68,6 +72,15 @@
 
         [JsonProperty("end")]
         public long End { get; set; }
+
+        [JsonProperty("is_exclusive")]
+        public bool IsExclusive { get; set; }
+
+        [JsonProperty("sponsor_id")]
+        public bool SponsorId { get; set; }
+
+        [JsonProperty("form")]
+        public int Form { get; set; }
 
         [JsonIgnore]
         public DateTime StartTime { get; private set; }
