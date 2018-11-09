@@ -670,6 +670,9 @@
             _logger.Trace($"Bot::BuildPokemonMessage [Pokemon={pokemon.Id}, City={city}]");
 
             var db = Database.Instance;
+            if (!db.Pokemon.ContainsKey(pokemon.Id))
+                return null;
+
             var pkmn = db.Pokemon[pokemon.Id];
             if (pkmn == null)
             {
@@ -849,9 +852,9 @@
 
             if (raid.IsExclusive)
             {
-                eb.Description += $"**Ex-Eligible Gym!**\r\n";
+                eb.Description += $"<:ex:510532024293916683> **Gym!**\r\n";
             }
-            eb.Description += $"**Team Control:** {raid.Team.ToString()}\r\n";
+            eb.Description += $"**Team:** {raid.Team.ToString()}\r\n";
             eb.Description += $"**Location:** {Math.Round(raid.Latitude, 5)},{Math.Round(raid.Longitude, 5)}\r\n";
             eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude)})**";
             eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude) + $"&key={_whConfig.GmapsKey}";
