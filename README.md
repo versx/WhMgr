@@ -8,60 +8,122 @@ Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
   b.) Input your bot token and config options.  
 ```
 {
-  "token": "<DISCORD_BOT_TOKEN>", //Discord bot token with user.
-  "enabled": true, //Controls whether alarm filtering is enabled.
-  "ownerId": 000000000000, //Discord server's owner id.
-  "supporterRoleId": 000000000000, //Discord server's donator role id.
-  "moderators": [000000000000], //List of Discord server's moderator role ids.
-  "guildId": 000000000000, //Discord server's guild id.
+  //Discord bot token with user.
+  "token": "<DISCORD_BOT_TOKEN>",
+  //Discord server's owner id.
+  "ownerId": 000000000000,
+  
+  //Discord server's donator role id.
+  "supporterRoleId": 000000000000,
+  
+  //List of Discord server's moderator role ids.
+  "moderators": [000000000000],
+  
+  //Discord server's guild id.
+  "guildId": 000000000000,
+  
+  //Listening port to accept webhook data.
   "webhookPort": 8002,
-  "gmapsKey": "<GOOGLE_MAPS_KEY>", //Google maps key.
-  "connectionString": "", //RealDeviceMap database connection string.
+  
+  //Google maps key.
+  "gmapsKey": "<GOOGLE_MAPS_KEY>",
+  
+  //RealDeviceMap database connection string.
+  "connectionString": "Uid=user;Password=password;Server=127.0.0.1;Port=3306;Database=brockdb",
+  
+  //City roles to filter by geofence.
   "cityRoles": [
 	"City1",
 	"City2"
   ],
-  "commandPrefix": null //Bot command prefix, if empty/null the bot's mention prefix is set as default.
+  
+  //Bot command prefix, if empty/null the bot's mention prefix is set as default.
+  "commandPrefix": null
 }
 ```
 2.) Copy `alarms.example.json` to `alarms.json`.  
 3.) Fill out the alarms file.  
 ```
 {
-	"name":"Alarm1", //Alarm name.
-	"filters":
-	{
-		"pokemon":
+	//Global switch for Pokemon notifications.
+	"enablePokemon": false,
+	
+	//Global switch for Raid/Egg notifications.
+	"enableRaids": false,
+	
+	//Global switch for Quest notifications.
+	"enableQuests": false,
+	"alarms": 
+	[
 		{
-			"enabled": true, //Determines if pokemon alarms will be enabled.
-			"pokemon": [280,337,374],
-			"min_iv": 0, //Minimum IV pokemon to report.
-			"max_iv": 100, //Maximum IV pokemon to report.
-			"type": "Include", //Pokemon filter type, either Include or Exclude.
-			"ignoreMissing": true //Ignore pokemon missing information.
-		},
-		"eggs":
-		{
-			"enabled": true, //Determines if raid egg alarms will be enabled.
-			"min_lvl": 1, //Minimum egg level to report.
-			"max_lvl": 5 //Maximum egg level to report.
-		},
-		"raids":
-		{
-			"enabled": true, //Determines if raid alarms will be enabled.
-			"pokemon": [], //Pokemon to filter, if empty all will be reported.
-			"type": "Include", //Raid filter type, either Include or Exclude.
-			"ignoreMissing": true //Ignore raids missing information.
-		},
-		"quests":
-		{
-			"enabled": true, //Determines if quest alarms will be enabled.
-			"rewards": ["spinda", "stardust"], //Filter quest rewards by keyword.
-			"type": "Include" //Quest filter type, either Include or Exclude.
+			//Alarm name.
+			"name":"Alarm1",
+			"filters":
+			{
+				"pokemon":
+				{
+					//Determines if pokemon alarms will be enabled.
+					"enabled": true,
+					
+					//Pokemon to filter, if empty all will be reported.
+					"pokemon": [280,337,374],
+					
+					//Minimum IV pokemon to report.
+					"min_iv": 0,
+					
+					//Maximum IV pokemon to report.
+					"max_iv": 100,
+					
+					//Pokemon filter type, either Include or Exclude.
+					"type": "Include",
+					
+					//Ignore pokemon missing information.
+					"ignoreMissing": true
+				},
+				"eggs":
+				{
+					//Determines if raid egg alarms will be enabled.
+					"enabled": true,
+					
+					//Minimum egg level to report.
+					"min_lvl": 1,
+					
+					//Maximum egg level to report.
+					"max_lvl": 5
+				},
+				"raids":
+				{
+					//Determines if raid alarms will be enabled.
+					"enabled": true,
+					
+					//Pokemon to filter, if empty all will be reported.
+					"pokemon": [],
+					
+					//Raid filter type, either Include or Exclude.
+					"type": "Include",
+					
+					//Ignore raids missing information.
+					"ignoreMissing": true
+				},
+				"quests":
+				{
+					//Determines if quest alarms will be enabled.
+					"enabled": true,
+					
+					//Filter quest rewards by keyword.
+					"rewards": ["spinda", "stardust"],
+					
+					//Quest filter type, either Include or Exclude.
+					"type": "Include"
+				}
+			},
+			//Path to geofence file.
+			"geofence":"geofence1.txt",
+			
+			//Discord webhook url address.
+			"webhook":"<DISCORD_WEBHOOK_URL>"
 		}
-	},
-	"geofence":"geofence1.txt", //Path to geofence file.
-	"webhook":"<DISCORD_WEBHOOK_URL>" //Discord webhook url address.
+	]
 }
 ```
 4.) Create directory `Geofences` in root directory of executable file.  
