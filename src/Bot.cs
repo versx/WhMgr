@@ -788,7 +788,7 @@
 
             if (raid.IsEgg)
             {
-                eb.Description = $"Level {raid.Level} {pkmn.Name} Hatches: {raid.StartTime.ToLongTimeString()}\r\n";
+                eb.Description = $"Level {raid.Level} {pkmn.Name} Hatches: {raid.StartTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(raid.StartTime).ToReadableStringNoSeconds()})\r\n";
                 //eb.Description += $"{raid.GymName}\r\n\r\n";
                 eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(raid.EndTime).ToReadableStringNoSeconds()} left)\r\n";
             }
