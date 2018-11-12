@@ -135,11 +135,16 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 
 *Note:* Geofence file format is the following:  
 ```
-[GeofenceName]
+[Geofence1]
 34.00,-117.00
 34.01,-117.01
 34.02,-117.02
 34.03,-117.03
+[Geofence2]
+33.00,-118.00
+33.01,-118.01
+33.02,-118.02
+33.03,-118.03
 ```
 
 
