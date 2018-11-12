@@ -42,6 +42,12 @@
 
         [JsonProperty("generation")]
         public int Generation { get; set; }
+
+        [JsonProperty("height")]
+        public double Height { get; set; }
+
+        [JsonProperty("weight")]
+        public double Weight { get; set; }
     }
 
     public class PokemonType

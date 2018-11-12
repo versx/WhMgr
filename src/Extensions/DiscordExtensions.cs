@@ -200,6 +200,11 @@
             return null;
         }
 
+        public static ulong? GetEmojiId(this DiscordGuild guild, string emojiName)
+        {
+            return guild.Emojis.FirstOrDefault(x => string.Compare(x.Name, emojiName, true) == 0)?.Id;
+        }
+
         public static async Task<bool> Confirm(this CommandContext ctx, string message)
         {
             await ctx.RespondAsync(message);

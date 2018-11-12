@@ -1,25 +1,26 @@
 # Brock Webhook Manager
 
 ### PokeAlarm alternative.
-Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
+Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
 
 1.) Copy `config.example.json` to `config.json`.  
-  a.) Create bot token. https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token  
-  b.) Input your bot token and config options.  
+  a.) Create bot token. 
+  b.) Input your bot token and config options. [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
 ```
 {
   //Discord bot token with user.
   "token": "<DISCORD_BOT_TOKEN>",
-  //Discord server's owner id.
+  
+  //Discord server owner id.
   "ownerId": 000000000000,
   
-  //Discord server's donator role id.
+  //Discord server donator role id.
   "supporterRoleId": 000000000000,
   
-  //List of Discord server's moderator role ids.
+  //List of Discord server moderator role ids.
   "moderators": [000000000000],
   
-  //Discord server's guild id.
+  //Discord server guild id.
   "guildId": 000000000000,
   
   //Listening port to accept webhook data.
@@ -28,7 +29,7 @@ Works with RealDeviceMap https://github.com/123FLO321/RealDeviceMap
   //Google maps key.
   "gmapsKey": "<GOOGLE_MAPS_KEY>",
   
-  //RealDeviceMap database connection string.
+  //MySQL database connection string.
   "connectionString": "Uid=user;Password=password;Server=127.0.0.1;Port=3306;Database=brockdb",
   
   //City roles to filter by geofence.

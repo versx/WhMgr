@@ -46,6 +46,9 @@
         [JsonProperty("gender")]
         public PokemonGender Gender { get; set; }
 
+        [JsonProperty("costume")]
+        public int Costume { get; set; }
+
         [JsonProperty("pokemon_level")]
         public string Level { get; set; }
 
@@ -67,17 +70,41 @@
         [JsonProperty("weight")]
         public string Weight { get; set; }
 
+        [JsonProperty("encounter_id")]
+        public string EncounterId { get; set; }
+
+        [JsonProperty("spawnpoint_id")]
+        public string SpawnpointId { get; set; }
+
         [JsonProperty("disappear_time")]
         public long DisappearTime { get; set; }
 
         [JsonProperty("seconds_until_despawn")]
         public int SecondsUntilDespawn { get; set; }
 
+        [JsonProperty("first_seen")]
+        public long FirstSeen { get; set; }
+
+        [JsonProperty("last_modified_time")]
+        public long LastModified { get; set; }
+
+        [JsonProperty("pokestop_id")]
+        public string PokestopId { get; set; }
+
+        [JsonProperty("weather")]
+        public WeatherType Weather { get; set; }
+
         [JsonIgnore]
         public DateTime DespawnTime { get; private set; }
 
         [JsonIgnore]
         public TimeSpan SecondsLeft { get; private set; }
+
+        [JsonIgnore]
+        public DateTime FirstSeenTime { get; set; }
+
+        [JsonIgnore]
+        public DateTime LastModifiedTime { get; set; }
 
         [JsonProperty("form")]
         public string FormId { get; set; }
@@ -114,6 +141,18 @@
                 DespawnTime = DespawnTime.AddHours(1); //DST
             }
             SecondsLeft = DespawnTime.Subtract(DateTime.Now);
+
+            FirstSeenTime = FirstSeen.FromUnix();
+            if (TimeZoneInfo.Local.IsDaylightSavingTime(FirstSeenTime))
+            {
+                FirstSeenTime = FirstSeenTime.AddHours(1); //DST
+            }
+
+            LastModifiedTime = LastModified.FromUnix();
+            if (TimeZoneInfo.Local.IsDaylightSavingTime(LastModifiedTime))
+            {
+                LastModifiedTime = LastModifiedTime.AddHours(1);
+            }
         }
     }
 }

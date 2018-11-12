@@ -1,5 +1,9 @@
 ﻿namespace WhMgr
 {
+    using System.Collections.Generic;
+
+    using WhMgr.Net.Models;
+
     internal static class Strings
     {
         public const string BotName = "Brock";
@@ -29,8 +33,19 @@
         public const int MaxPokemonSubscriptions = 25;
         public const int MaxRaidSubscriptions = 5;
         public const int MaxQuestSubscriptions = 2;
-        public const int CommonTypeMinimumIV = 97;
+        public const int CommonTypeMinimumIV = 95;
 
         public static string GuildIconUrl { get; set; }
+
+        public static IReadOnlyDictionary<WeatherType, string> WeatherEmojis => new Dictionary<WeatherType, string>
+        {
+            { WeatherType.Clear, "☀️" },
+            { WeatherType.Rainy, "☔️" },
+            { WeatherType.PartlyCloudy, "⛅" },
+            { WeatherType.Cloudy, "☁️" },
+            { WeatherType.Windy, "💨" },
+            { WeatherType.Snowy, "⛄️" },
+            { WeatherType.Foggy, "🌁" }
+        };
     }
 }

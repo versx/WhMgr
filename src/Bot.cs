@@ -14,6 +14,7 @@
     using WhMgr.Geofence;
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
+    using WhMgr.Utilities;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
@@ -713,51 +714,43 @@
 
             //var maxCp = db.MaxCpAtLevel(pokemon.Id, 40);
             //var maxWildCp = db.MaxCpAtLevel(pokemon.Id, 35);
-
             //eb.Description += $"**Max Wild CP:** {maxWildCp}, **Max CP:** {maxCp} \r\n";
 
-            //if (pkmn.Types.Count > 0)
-            //{
-            //    var types = new List<string>();
-            //    pkmn.Types.ForEach(x =>
-            //    {
-            //        if (Strings.TypeEmojis.ContainsKey(x.Type.ToLower()))
-            //        {
-            //            types.Add($"{Strings.TypeEmojis[x.Type.ToLower()]} {x.Type}");
-            //        }
-            //    });
-            //    eb.Description += $"**Types:** {string.Join("/", types)}\r\n";
-            //}
+            eb.Description += $"**Weather:** {Strings.WeatherEmojis[pokemon.Weather]}\r\n";
 
-            //if (float.TryParse(pokemon.Height, out float height) && float.TryParse(pokemon.Weight, out float weight))
-            //{
-            //    var size = db.GetSize(pokemon.Id, height, weight);
-            //    eb.Description += $"**Size:** {size}\r\n";
-            //}
+            if (pkmn.Types != null)
+            {
+                eb.Description += $"**Types:** {GetTypeEmojiIcons(pkmn.Types)}\r\n";
+            }
+
+            if (float.TryParse(pokemon.Height, out var height) && float.TryParse(pokemon.Weight, out var weight))
+            {
+                var size = pokemon.Id.GetSize(height, weight);
+                eb.Description += $"**Size:** {size}\r\n";
+            }
 
             var fastMoveId = Convert.ToInt32(pokemon.FastMove ?? "0");
-            if (Database.Instance.Movesets.ContainsKey(fastMoveId))
+            if (db.Movesets.ContainsKey(fastMoveId))
             {
-                var fastMove = Database.Instance.Movesets[fastMoveId];
-                //var fastMoveIcon = Strings.TypeEmojis.ContainsKey(fastMove.Type.ToLower()) ? Strings.TypeEmojis[fastMove.Type.ToLower()] : fastMove.Type;
+                var fastMove = db.Movesets[fastMoveId];
                 eb.Description += $"**Fast Move:** {fastMove.Name}\r\n";
             }
 
             var chargeMoveId = Convert.ToInt32(pokemon.ChargeMove ?? "0");
             if (db.Movesets.ContainsKey(chargeMoveId))
             {
-                var chargeMove = Database.Instance.Movesets[chargeMoveId];
-                //var chargeMoveIcon = Strings.TypeEmojis.ContainsKey(chargeMove.Type.ToLower()) ? Strings.TypeEmojis[chargeMove.Type.ToLower()] : chargeMove.Type;
-                eb.Description += $"**Charge Move:** {chargeMove.Name} ({chargeMove.Type})\r\n";
+                var chargeMove = db.Movesets[chargeMoveId];
+                eb.Description += $"**Charge Move:** {chargeMove.Name}\r\n";
             }
 
             eb.Description += $"**Location:** {Math.Round(pokemon.Latitude, 5)},{Math.Round(pokemon.Longitude, 5)}\r\n";
+            eb.Description += $"**Address:** {Utils.GetGoogleAddress(pokemon.Latitude, pokemon.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
             eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)})**";
             eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
                 Text = $"versx | {DateTime.Now}",
-                IconUrl = _client.Guilds[_whConfig.GuildId]?.IconUrl
+                IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
             };
             var embed = eb.Build();
 
@@ -779,23 +772,21 @@
             var pkmnImage = raid.IsEgg ? string.Format(Strings.EggImage, raid.Level) : string.Format(Strings.PokemonImage, raid.PokemonId, 0);
             var eb = new DiscordEmbedBuilder
             {
-                Title = string.IsNullOrEmpty(city) ? "DIRECTIONS" : raid.IsEgg ? $"Level {raid.Level} Egg" : $"{city}: {raid.GymName}",
+                Title = string.IsNullOrEmpty(city) ? "DIRECTIONS" : $"{city}: {raid.GymName}",
                 Url = string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude),
-                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude),
+                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude) + $"&key={_whConfig.GmapsKey}",
                 ThumbnailUrl = pkmnImage,
                 Color = BuildRaidColor(Convert.ToInt32(raid.Level))
             };
 
             if (raid.IsEgg)
             {
-                eb.Description = $"Level {raid.Level} {pkmn.Name} Hatches: {raid.StartTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(raid.StartTime).ToReadableStringNoSeconds()})\r\n";
-                //eb.Description += $"{raid.GymName}\r\n\r\n";
+                eb.Description = $"Level {raid.Level} {pkmn.Name} Hatches: {raid.StartTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(raid.StartTime).ToReadableStringNoSeconds()} left)\r\n";
                 eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(raid.EndTime).ToReadableStringNoSeconds()} left)\r\n";
             }
             else
             {
                 eb.Description = $"{pkmn.Name} Raid Ends: {raid.EndTime.ToLongTimeString()}\r\n\r\n";
-                //eb.Description += $"{raid.GymName}\r\n\r\n";
                 eb.Description += $"**Started:** {raid.StartTime.ToLongTimeString()}\r\n";
                 eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()} left)\r\n";
 
@@ -805,23 +796,13 @@
 
                 if (pkmn.Types != null)
                 {
-                    //var types = new List<string>();
-                    //pkmn.Types.ForEach(x =>
-                    //{
-                    //    if (Strings.TypeEmojis.ContainsKey(x.Type.ToLower()))
-                    //    {
-                    //        types.Add(Strings.TypeEmojis[x.Type.ToLower()] + " " + x.Type);
-                    //    }
-                    //});
-                    //eb.Description += $"**Types:** {string.Join("/", types)}\r\n";
+                    eb.Description += $"**Types:** {GetTypeEmojiIcons(pkmn.Types)}\r\n";
                 }
 
-                var fastMoveId = Convert.ToInt32(raid.ChargeMove ?? "0");
+                var fastMoveId = Convert.ToInt32(raid.FastMove ?? "0");
                 if (db.Movesets.ContainsKey(fastMoveId))
                 {
                     var fastMove = db.Movesets[fastMoveId];
-                    //var fastMoveIcon = Strings.TypeEmojis.ContainsKey(fastMove.Type.ToLower()) ? Strings.TypeEmojis[fastMove.Type.ToLower()] : fastMove.Type;
-                    //eb.Description += $"**Fast Move:** {Strings.TypeEmojis[fastMove.Type.ToLower()]} {fastMove.Name}\r\n";
                     eb.Description += $"**Fast Move:** {fastMove.Name}\r\n";
                 }
 
@@ -829,39 +810,32 @@
                 if (db.Movesets.ContainsKey(chargeMoveId))
                 {
                     var chargeMove = db.Movesets[chargeMoveId];
-                    //var chargeMoveIcon = Strings.TypeEmojis.ContainsKey(chargeMove.Type.ToLower()) ? Strings.TypeEmojis[chargeMove.Type.ToLower()] : chargeMove.Type;
-                    //eb.Description += $"**Charge Move:** {Strings.TypeEmojis[chargeMove.Type.ToLower()]} {chargeMove.Name}\r\n";
                     eb.Description += $"**Charge Move:** {chargeMove.Name}\r\n";
                 }
 
-                if (pkmn.Types != null)
+                var weaknessesEmojis = GetWeaknessEmojiIcons(pkmn.Types);
+                if (!string.IsNullOrEmpty(weaknessesEmojis))
                 {
-                    var weaknesses = new List<string>();
-                    for (var i = 0; i < pkmn.Types.Count; i++)
-                    {
-                        weaknesses.AddRange(pkmn.Types[i].Type.GetWeaknesses().Distinct());
-                    }
-                    weaknesses = weaknesses.Distinct().ToList();
-
-                    if (weaknesses.Count > 0)
-                    {
-                        eb.Description += $"**Weaknesses:** {string.Join(", ", weaknesses)}\r\n";
-                    }
+                    eb.Description += $"**Weaknesses:** {weaknessesEmojis}\r\n";
                 }
             }
 
-            if (raid.IsExclusive)
+            if (raid.IsExclusive || raid.SponsorId)
             {
-                eb.Description += $"<:ex:510532024293916683> **Gym!**\r\n";
+                var exEmojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId("ex");
+                var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
+                eb.Description += $"{exEmoji} **Gym!**\r\n";
             }
-            eb.Description += $"**Team:** {raid.Team.ToString()}\r\n";
+            var teamEmojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId(raid.Team.ToString().ToLower());
+            var teamEmoji = teamEmojiId > 0 ? $"<:{raid.Team.ToString().ToLower()}:{teamEmojiId}>" : raid.Team.ToString();
+            eb.Description += $"**Team:** {teamEmoji}\r\n";
             eb.Description += $"**Location:** {Math.Round(raid.Latitude, 5)},{Math.Round(raid.Longitude, 5)}\r\n";
+            eb.Description += $"**Address:** {Utils.GetGoogleAddress(raid.Latitude, raid.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
             eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude)})**";
-            eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude) + $"&key={_whConfig.GmapsKey}";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
                 Text = $"versx | {DateTime.Now}",
-                IconUrl = _client.Guilds[_whConfig.GuildId]?.IconUrl
+                IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
             };
             var embed = eb.Build();
 
@@ -890,11 +864,13 @@
             }
             eb.Description += $"**Reward:** {quest.GetRewardString()}\r\n";
             eb.Description += $"**Time Remaining:** {quest.TimeLeft.ToReadableStringNoSeconds()}\r\n";
-            eb.Description += $"**Location:** {quest.Latitude},{quest.Longitude}\r\n**[Google Maps Link]({gmapsUrl})**\r\n";
+            eb.Description += $"**Location:** {quest.Latitude},{quest.Longitude}\r\n";
+            eb.Description += $"**Address:** {Utils.GetGoogleAddress(quest.Latitude, quest.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
+            eb.Description += $"**[Google Maps Link]({gmapsUrl})**\r\n";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
                 Text = $"versx | {DateTime.Now}",
-                IconUrl = _client.Guilds[_whConfig.GuildId]?.IconUrl
+                IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
             };
 
             return eb.Build();
@@ -950,6 +926,47 @@
             }
 
             _logger.Debug($"Finished automatic quest messages cleanup...");
+        }
+
+        private string GetTypeEmojiIcons(List<Data.Models.PokemonType> pokemonTypes)
+        {
+            var types = new List<string>();
+            pokemonTypes.ForEach(x =>
+            {
+                if (_client.Guilds.ContainsKey(_whConfig.GuildId))
+                {
+                    var emojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId($"types_{x.Type.ToLower()}");
+                    var emojiName = emojiId > 0 ? $"<:types_{x.Type.ToLower()}:{emojiId}>" : x.Type;
+                    if (!types.Contains(emojiName))
+                    {
+                        types.Add(emojiName);
+                    }
+                }
+            });
+            return string.Join("/", types);
+        }
+
+        private string GetWeaknessEmojiIcons(List<Data.Models.PokemonType> pokemonTypes)
+        {
+            var weaknesses = new List<string>();
+            foreach (var type in pokemonTypes)
+            {
+                var weaknessLst = type.Type.StringToObject<Net.Models.PokemonType>().GetWeaknesses().Distinct();
+                foreach (var weakness in weaknessLst)
+                {
+                    if (!_client.Guilds.ContainsKey(_whConfig.GuildId))
+                        continue;
+
+                    var emojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId($"types_{weakness.ToString().ToLower()}");
+                    var emojiName = emojiId > 0 ? $"<:{weakness.ToString().ToLower()}:{emojiId}>" : weakness.ToString();
+                    if (!weaknesses.Contains(emojiName))
+                    {
+                        weaknesses.Add(emojiName);
+                    }
+                }
+            }
+
+            return string.Join(" ", weaknesses);
         }
 
         private static DiscordColor BuildColor(string iv)
