@@ -29,6 +29,9 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
   //Google maps key.
   "gmapsKey": "<GOOGLE_MAPS_KEY>",
   
+  //Enable discord user subscriptions for custom notifications to Quests/Raids/Pokemon, if enabled database information is required below.
+  "enableSubscriptions": false,
+  
   //MySQL database connection string.
   "connectionString": "Uid=user;Password=password;Server=127.0.0.1;Port=3306;Database=brockdb",
   
@@ -138,3 +141,9 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 34.02,-117.02
 34.03,-117.03
 ```
+
+
+## TODO:  
+- Allow Pokemon id and name in Pokemon filter lists.
+- Localization
+- Wiki

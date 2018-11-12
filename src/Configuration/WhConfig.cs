@@ -41,6 +41,9 @@
         [JsonProperty("mapProviderFork")]
         public MapProviderFork MapProviderFork { get; set; }
 
+        [JsonProperty("enableSubscriptions")]
+        public bool EnableSubscriptions { get; set; }
+
         [JsonProperty("connectionString")]
         public string ConnectionString { get; set; }
 

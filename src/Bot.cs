@@ -23,9 +23,6 @@
 
     using ServiceStack.OrmLite;
 
-    //TODO: Quest subscription notifications.
-    //TODO: Filter quests by rewards.
-
     public class Bot
     {
         #region Variables
@@ -56,8 +53,11 @@
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
             _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
             _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
-            _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
-            _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
+            if (_whConfig.EnableSubscriptions)
+            {
+                _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
+                _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
+            }
 
             _logger.Info("WebHookManager is running...");
 
@@ -81,12 +81,17 @@
             _client.ClientErrored += Client_ClientErrored;
             _client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
 
+            if (_whConfig.EnableSubscriptions)
+            {
+                _subMgr = new SubscriptionManager();
+            }
+
             DependencyCollection dep;
             using (var d = new DependencyCollectionBuilder())
             {
                 d.AddInstance
                 (
-                    _dep = new Dependencies(_subMgr = new SubscriptionManager(), _whConfig)
+                    _dep = new Dependencies(_subMgr, _whConfig)
                     //LobbyManager = new RaidLobbyManager(_client, _config, _logger, notificationProcessor.GeofenceSvc),
                     //ReminderSvc = new ReminderService(_client, _db, _logger),
                     //PoGoVersionMonitor = new PokemonGoVersionMonitor(),
@@ -367,6 +372,9 @@
 
         private async Task ProcessPokemonSubscription(PokemonData pkmn)
         {
+            if (!_whConfig.EnableSubscriptions)
+                return;
+
             var db = Database.Instance;
             if (!db.Pokemon.ContainsKey(pkmn.Id))
                 return;
@@ -467,6 +475,9 @@
 
         private async Task ProcessRaidSubscription(RaidData raid)
         {
+            if (!_whConfig.EnableSubscriptions)
+                return;
+
             var db = Database.Instance;
             if (!db.Pokemon.ContainsKey(raid.PokemonId))
                 return;
@@ -565,6 +576,9 @@
 
         private async Task ProcessQuestSubscription(QuestData quest)
         {
+            if (!_whConfig.EnableSubscriptions)
+                return;
+
             var db = Database.Instance;
             var reward = quest.Rewards[0].Info;
             var rewardKeyword = quest.GetRewardString();

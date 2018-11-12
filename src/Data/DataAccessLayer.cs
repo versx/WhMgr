@@ -10,6 +10,9 @@
 
         public static IDbConnection CreateFactory()
         {
+            if (string.IsNullOrEmpty(ConnectionString))
+                return null;
+
             var factory = new OrmLiteConnectionFactory(ConnectionString, MySqlDialect.Provider);
             return factory.Open();
         }

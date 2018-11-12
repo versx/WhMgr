@@ -480,6 +480,9 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
+                if (db == null)
+                    return;
+
                 db.CreateTable<SubscriptionObject>();
                 db.CreateTable<PokemonSubscription>();
                 db.CreateTable<RaidSubscription>();

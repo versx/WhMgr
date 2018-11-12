@@ -33,6 +33,12 @@
         public async Task InfoAsync(CommandContext ctx,
             [Description("Discord user mention string.")] string mention = "")
         {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                return;
+            }
+
             if (string.IsNullOrEmpty(mention))
             {
                 await SendUserSubscriptionSettings(ctx.Client, ctx.User, ctx.User.Id);
@@ -63,6 +69,12 @@
         ]
         public async Task EnableDisableAsync(CommandContext ctx)
         {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                return;
+            }
+
             if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
@@ -89,6 +101,12 @@
             [Description("Minimum level to receive notifications for, use 0 to disregard level.")] int lvl = 0,
             [Description("Specific gender the Pokemon must be, use * to disregard gender.")] string gender = "*")
         {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                return;
+            }
+
             var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
             if (!isSupporter)
             {
@@ -304,6 +322,12 @@
         public async Task PokeMeNotAsync(CommandContext ctx,
             [Description("Pokemon name or id to unsubscribe from Pokemon spawn notifications.")] string poke)
         {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                return;
+            }
+
             if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
@@ -389,6 +413,12 @@
             [Description("Pokemon name or id to subscribe to raid notifications.")] string poke,
             [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
         {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                return;
+            }
+
             var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
             if (!isSupporter)
             {
@@ -525,6 +555,12 @@
             [Description("Pokemon name or id to unsubscribe from raid notifications.")] string poke,
             [Description("City to remove the quest notifications from otherwise if null all will be sent.")] string city = null)
         {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                return;
+            }
+
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
@@ -622,6 +658,12 @@
             [Description("Reward keyword to use to find field research. Example: Spinda, 1200 stardust, candy")] string rewardKeyword,
             [Description("City to send the notification if the quest appears in otherwise if null all will be sent.")] string city = null)
         {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                return;
+            }
+
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
@@ -685,6 +727,12 @@
             [Description("Reward keyword to remove from field research quest subscriptions. Example: Spinda, 1200 stardust, candy")] string rewardKeyword,
             [Description("City to remove the quest notifications from otherwise if null all will be sent.")] string city = null)
         {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                return;
+            }
+
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
