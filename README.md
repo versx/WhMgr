@@ -146,9 +146,12 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 33.02,-118.02
 33.03,-118.03
 ```
-
+6.)
+Upload Discord emojis that are in the emojis folder.
+7.) Start WhMgr.exe as Administrator.
 
 ## TODO:  
-- Allow Pokemon id and name in Pokemon filter lists.
-- Localization
-- Wiki
+- Allow Pokemon id and name in Pokemon filter lists.  
+- Localization  
+- Wiki  
+- Support for dynamic text replacement for alarm text.  

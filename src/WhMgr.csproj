@@ -92,7 +92,6 @@
     <Compile Include="Alarms\Filters\Models\FilterRaidObject.cs" />
     <Compile Include="Bot.cs" />
     <Compile Include="Commands\Dependencies.cs" />
-    <Compile Include="Commands\General.cs" />
     <Compile Include="Commands\Notifications.cs" />
     <Compile Include="Commands\Quests.cs" />
     <Compile Include="Configuration\WhConfig.cs" />
