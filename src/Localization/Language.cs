@@ -8,6 +8,17 @@
     using System.IO;
     using System.Xml;
 
+    public class Translator : Language<string, string, Dictionary<string, string>>
+    {
+        public override string Translate(string value)
+        {
+            return base.Translate(value);
+            //.Replace("\r\n", Environment.NewLine)
+            //.Replace("\r", Environment.NewLine)
+            //.Replace("\n", Environment.NewLine);
+        }
+    }
+
     public class Language<TFrom, TTo, TDictionary> : IEnumerable<KeyValuePair<TFrom, TTo>>
         where TDictionary : IDictionary<TFrom, TTo>, new()
     {
@@ -104,7 +115,7 @@
         /// </summary>
         /// <returns>The translate.</returns>
         /// <param name="value">Value.</param>
-        public TTo Translate(TFrom value)
+        public virtual TTo Translate(TFrom value)
         {
             // loop through table looking for result
 #pragma warning disable RECS0017 // Possible compare of value type with 'null'

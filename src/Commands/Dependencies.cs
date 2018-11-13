@@ -12,9 +12,9 @@
 
         public WhConfig WhConfig { get; }
 
-        public Language<string, string, Dictionary<string, string>> Language { get; }
+        public Translator Language { get; }
 
-        public Dependencies(SubscriptionManager subMgr, WhConfig whConfig, Language<string, string, Dictionary<string, string>> language)
+        public Dependencies(SubscriptionManager subMgr, WhConfig whConfig, Translator language)
         {
             SubscriptionManager = subMgr;
             WhConfig = whConfig;
