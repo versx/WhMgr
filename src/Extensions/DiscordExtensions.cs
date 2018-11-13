@@ -21,6 +21,17 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
+        public static async Task<DiscordMessage> RespondEmbed(this CommandContext ctx, string message)
+        {
+            var eb = new DiscordEmbedBuilder
+            {
+                Description = message
+            };
+
+            await ctx.TriggerTypingAsync();
+            return await ctx.RespondAsync(string.Empty, false, eb);
+        }
+
         public static async Task<DiscordMessage> SendDirectMessage(this DiscordClient client, DiscordUser user, DiscordEmbed embed)
         {
             if (embed == null)

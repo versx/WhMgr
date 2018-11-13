@@ -35,7 +35,8 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
                 return;
             }
 
@@ -44,18 +45,17 @@
                 await SendUserSubscriptionSettings(ctx.Client, ctx.User, ctx.User.Id);
                 return;
             }
+
             if (!ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig))
             {
-                await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} is not a moderator or higher thus you may not see other's subscription settings.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_NOT_MODERATOR_OR_HIGHER"), ctx.User.Mention)); //$"{ctx.User.Mention} is not a moderator or higher thus you may not see other's subscription settings.");
                 return;
             }
 
             var userId = ConvertMentionToUserId(mention);
             if (userId <= 0)
             {
-                await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} Failed to retrieve user with mention tag {mention}.");
+                await ctx.RespondAsync(string.Format(_dep.Language.Translate("MSG_INVALID_USER_MENTION"), ctx.User.Mention, mention)); //$"{ctx.User.Mention} Failed to retrieve user with mention tag {mention}.");
                 return;
             }
 
@@ -71,14 +71,16 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
                 return;
             }
 
             if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
             {
-                await ctx.TriggerTypingAsync();
+                //await ctx.TriggerTypingAsync();
                 await ctx.RespondAsync($"{ctx.User.Mention} is not currently subscribed to any Pokemon or Raid notifications.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED")));
                 return;
             }
 
@@ -103,7 +105,8 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
                 return;
             }
 
@@ -324,7 +327,8 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
                 return;
             }
 
@@ -415,7 +419,8 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
                 return;
             }
 
@@ -557,7 +562,8 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
                 return;
             }
 
@@ -660,7 +666,8 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
                 return;
             }
 
@@ -729,7 +736,8 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
                 return;
             }
 
