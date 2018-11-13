@@ -152,6 +152,6 @@ Upload Discord emojis that are in the emojis folder.
 
 ## TODO:  
 - Allow Pokemon id and name in Pokemon filter lists.  
-- Localization  
+- Finish Localization  
 - Wiki  
 - Support for dynamic text replacement for alarm text.  
