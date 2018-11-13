@@ -23,6 +23,7 @@
         #region Variables
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly object _lock = new object();
         private readonly HttpListener _server;
         private Thread _requestThread;
 
@@ -153,7 +154,10 @@
             {
                 if (IsDebug)
                 {
-                    File.AppendAllText(Strings.DebugLogFileName, data + Environment.NewLine);
+                    lock (_lock)
+                    {
+                        File.AppendAllText(Strings.DebugLogFileName, data + Environment.NewLine);
+                    }
                 }
 
                 var messages = JsonConvert.DeserializeObject<List<WebhookMessage>>(data);

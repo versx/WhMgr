@@ -34,6 +34,7 @@
         private readonly WhConfig _whConfig;
         private readonly SubscriptionManager _subMgr;
         private readonly Translator _lang;
+        private readonly Queue<Tuple<ulong, string, DiscordEmbed>> _queue;
         private readonly IEventLogger _logger;
 
         #endregion
@@ -47,6 +48,7 @@
             _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}]");
 
             _lang = new Translator();
+            _queue = new Queue<Tuple<ulong, string, DiscordEmbed>>();
 
             _whConfig = whConfig;
             DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
@@ -118,6 +120,8 @@
             _commands.CommandErrored += Commands_CommandErrored;
             _commands.RegisterCommands<Notifications>();
             _commands.RegisterCommands<Quests>();
+
+            ProcessQueue();
         }
 
         #endregion
@@ -354,30 +358,24 @@
 
         private void OnPokemonSubscriptionTriggered(object sender, PokemonData e)
         {
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
-            new System.Threading.Thread(async () => await ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+            new System.Threading.Thread(() => ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
         {
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
-            new System.Threading.Thread(async () => await ProcessRaidSubscription(e)) { IsBackground = true }.Start();
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+            new System.Threading.Thread(() => ProcessRaidSubscription(e)) { IsBackground = true }.Start();
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
         {
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
-            new System.Threading.Thread(async () => await ProcessQuestSubscription(e)) { IsBackground = true }.Start();
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+            new System.Threading.Thread(() => ProcessQuestSubscription(e)) { IsBackground = true }.Start();
         }
 
         #endregion
 
         #region Subscription Processor
 
-        private async Task ProcessPokemonSubscription(PokemonData pkmn)
+        private void ProcessPokemonSubscription(PokemonData pkmn)
         {
             if (!_whConfig.EnableSubscriptions)
                 return;
@@ -463,14 +461,13 @@
 
                     _logger.Info($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
-                    if (embed == null)
-                        continue;
-
                     //if (await CheckIfExceededNotificationLimit(user)) return;
 
                     user.NotificationsToday++;
 
-                    await SendNotification(user.UserId, pokemon.Name, embed);
+                    _queue.Enqueue(new Tuple<ulong, string, DiscordEmbed>(user.UserId, pokemon.Name, embed));
+                    //await SendNotification(user.UserId, pokemon.Name, embed);
+                    //await Task.Delay(10);
                 }
                 catch (Exception ex)
                 {
@@ -479,7 +476,7 @@
             }
         }
 
-        private async Task ProcessRaidSubscription(RaidData raid)
+        private void ProcessRaidSubscription(RaidData raid)
         {
             if (!_whConfig.EnableSubscriptions)
                 return;
@@ -571,7 +568,9 @@
 
                     user.NotificationsToday++;
 
-                    await SendNotification(user.UserId, pokemon.Name, embed);
+                    //await SendNotification(user.UserId, pokemon.Name, embed);
+                    //await Task.Delay(10);
+                    _queue.Enqueue(new Tuple<ulong, string, DiscordEmbed>(user.UserId, pokemon.Name, embed));
                 }
                 catch (Exception ex)
                 {
@@ -580,7 +579,7 @@
             }
         }
 
-        private async Task ProcessQuestSubscription(QuestData quest)
+        private void ProcessQuestSubscription(QuestData quest)
         {
             if (!_whConfig.EnableSubscriptions)
                 return;
@@ -672,13 +671,36 @@
 
                     user.NotificationsToday++;
 
-                    await SendNotification(user.UserId, questName, embed);
+                    //await SendNotification(user.UserId, questName, embed);
+                    //await Task.Delay(10);
+                    _queue.Enqueue(new Tuple<ulong, string, DiscordEmbed>(user.UserId, questName, embed));
                 }
                 catch (Exception ex)
                 {
                     _logger.Error(ex);
                 }
             }
+        }
+
+        private void ProcessQueue()
+        {
+            _logger.Trace($"Bot::ProcessQueue");
+
+#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
+            new System.Threading.Thread(async () =>
+#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+            {
+                while (true)
+                {
+                    if (_queue.Count == 0)
+                        continue;
+
+                    var item = _queue.Dequeue();
+                    await SendNotification(item.Item1, item.Item2, item.Item3);
+                    await Task.Delay(10);
+                }
+            })
+            { IsBackground = true }.Start();
         }
 
         #endregion

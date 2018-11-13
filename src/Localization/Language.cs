@@ -13,9 +13,6 @@
         public override string Translate(string value)
         {
             return base.Translate(value);
-            //.Replace("\r\n", Environment.NewLine)
-            //.Replace("\r", Environment.NewLine)
-            //.Replace("\n", Environment.NewLine);
         }
     }
 
