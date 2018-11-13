@@ -27,7 +27,7 @@
 	<string name="EMBED_QUEST_REWARD">**Reward:** {0}\r\n</string>
 	
 	<string name="EMBED_TYPES">**Types:** {0}\r\n</string>
-	<string name="EMBED_MOVE_FAST">**Fast Move:** {1}\r\n</string>
+	<string name="EMBED_MOVE_FAST">**Fast Move:** {0}\r\n</string>
 	<string name="EMBED_MOVE_CHARGE">**Charge Move:** {0}\r\n</string>
 	<string name="EMBED_TEAM">**Team:** {0}\r\n</string>
 	<string name="EMBED_TIME_REMAINING">**Time Remaining:** {0}\r\n</string>
