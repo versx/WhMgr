@@ -87,13 +87,13 @@
 
         #region Constructor
 
-        public WebhookManager(ushort port, MapProviderType provider, MapProviderFork fork)
+        public WebhookManager(ushort port)
         {
             Filters = new Filters();
             Geofences = new Dictionary<string, GeofenceItem>();
 
             _logger = EventLogger.GetLogger();
-            _logger.Trace($"WebHookManager::WebHookManager [Port={port}, MapProviderType={provider}, MapProviderFork={fork}]");
+            _logger.Trace($"WebHookManager::WebHookManager [Port={port}]");
 
             _webhooks = new Dictionary<string, WebHookObject>();
             _geofenceSvc = new GeofenceService();
@@ -101,7 +101,7 @@
 
             LoadWebHooks();
 
-            _http = new HttpServer(port, provider, fork);
+            _http = new HttpServer(port);
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
             _http.QuestReceived += Http_QuestReceived;

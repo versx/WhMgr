@@ -53,7 +53,7 @@
             _whConfig = whConfig;
             DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
 
-            _whm = new WebhookManager(_whConfig.WebHookPort, _whConfig.MapProvider, _whConfig.MapProviderFork);
+            _whm = new WebhookManager(_whConfig.WebHookPort);
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
             _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
@@ -729,7 +729,7 @@
                 Url = string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude),
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude),
                 ThumbnailUrl = string.Format(Strings.PokemonImage, pokemon.Id, Convert.ToInt32(string.IsNullOrEmpty(pokemon.FormId) ? "0" : pokemon.FormId)),
-                Color = BuildColor(pokemon.IV)
+                Color = pokemon.IV.BuildColor()
             };
 
             //if (pokemon.IsMissingStats)
@@ -830,7 +830,7 @@
                 Url = string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude),
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude) + $"&key={_whConfig.GmapsKey}",
                 ThumbnailUrl = pkmnImage,
-                Color = BuildRaidColor(Convert.ToInt32(raid.Level))
+                Color = Convert.ToInt32(raid.Level).BuildRaidColor()
             };
 
             if (raid.IsEgg)
@@ -1049,40 +1049,6 @@
             }
 
             return string.Join(" ", list);
-        }
-
-        private static DiscordColor BuildColor(string iv)
-        {
-            if (int.TryParse(iv.Substring(0, iv.Length - 1), out int result))
-            {
-                if (result == 100)
-                    return DiscordColor.Green;
-                else if (result >= 90 && result < 100)
-                    return DiscordColor.Orange;
-                else if (result < 90)
-                    return DiscordColor.Yellow;
-            }
-
-            return DiscordColor.White;
-        }
-
-        private static DiscordColor BuildRaidColor(int level)
-        {
-            switch (level)
-            {
-                case 1:
-                    return DiscordColor.HotPink;
-                case 2:
-                    return DiscordColor.HotPink;
-                case 3:
-                    return DiscordColor.Yellow;
-                case 4:
-                    return DiscordColor.Yellow;
-                case 5:
-                    return DiscordColor.Purple;
-            }
-
-            return DiscordColor.White;
         }
 
         #endregion

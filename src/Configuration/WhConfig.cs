@@ -35,12 +35,6 @@
         [JsonProperty("gmapsKey")]
         public string GmapsKey { get; set; }
 
-        [JsonProperty("mapProvider")]
-        public MapProviderType MapProvider { get; set; }
-
-        [JsonProperty("mapProviderFork")]
-        public MapProviderFork MapProviderFork { get; set; }
-
         [JsonProperty("enableSubscriptions")]
         public bool EnableSubscriptions { get; set; }
 
@@ -59,8 +53,6 @@
         public WhConfig()
         {
             CityRoles = new List<string>();
-            MapProvider = MapProviderType.RealDeviceMap;
-            MapProviderFork = MapProviderFork.Default;
             Moderators = new List<ulong>();
             QuestChannelIds = new List<ulong>();
         }

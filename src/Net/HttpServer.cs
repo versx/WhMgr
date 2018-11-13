@@ -14,9 +14,6 @@
 
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
-    using WhMgr.Net.Models.Providers;
-
-    //TODO: Change events to on single event for data received with enum.
 
     public class HttpServer
     {
@@ -36,10 +33,6 @@
         public bool IsDebug { get; set; }
 
         public bool SkipEggs { get; set; }
-
-        public MapProviderType MapProvider { get; }
-
-        public MapProviderFork MapProviderFork { get; }
 
         #endregion
 
@@ -61,11 +54,9 @@
 
         #region Constructor
 
-        public HttpServer(ushort port, MapProviderType provider, MapProviderFork fork)
+        public HttpServer(ushort port)
         {
             Port = port;
-            MapProvider = provider;
-            MapProviderFork = fork;
 
             _server = new HttpListener();
 
@@ -182,13 +173,13 @@
                         case RaidData.WebHookHeader:
                             ParseRaid(message.Message);
                             break;
+                        case QuestData.WebHookHeader:
+                            ParseQuest(message.Message);
+                            break;
                         //case "tth":
                         //case "scheduler":
                         //    ParseTth(message);
                         //    break;
-                        case QuestData.WebHookHeader:
-                            ParseQuest(message.Message);
-                            break;
                     }
                 }
             }
