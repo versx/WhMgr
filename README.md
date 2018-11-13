@@ -4,7 +4,7 @@
 Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
 
 1.) Copy `config.example.json` to `config.json`.  
-  a.) Create bot token. 
+  a.) Create bot token.  
   b.) Input your bot token and config options. [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
 ```
 {
