@@ -44,10 +44,18 @@
         private async Task DeleteChannelMessages(CommandContext ctx, DiscordChannel channel)
         {
             var messages = await channel.GetMessagesAsync();
-            for (var i = 0; i < messages.Count; i++)
+            while (messages.Count > 0)
             {
-                var message = messages[i];
-                await message.DeleteAsync("Channel reset.");
+                for (var j = 0; j < messages.Count; j++)
+                {
+                    var message = messages[j];
+                    if (message == null)
+                        continue;
+
+                    await message.DeleteAsync("Channel reset.");
+                }
+
+                messages = await channel.GetMessagesAsync();
             }
             await ctx.RespondAsync($"{ctx.User.Mention} Channel {channel.Mention} messages have been deleted.");
         }

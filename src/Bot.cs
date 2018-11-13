@@ -354,17 +354,23 @@
 
         private void OnPokemonSubscriptionTriggered(object sender, PokemonData e)
         {
-            ProcessPokemonSubscription(e).GetAwaiter().GetResult();
+#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
+            new System.Threading.Thread(async () => await ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
+#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
         {
-            ProcessRaidSubscription(e).GetAwaiter().GetResult();
+#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
+            new System.Threading.Thread(async () => await ProcessRaidSubscription(e)) { IsBackground = true }.Start();
+#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
         {
-            ProcessQuestSubscription(e).GetAwaiter().GetResult();
+#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
+            new System.Threading.Thread(async () => await ProcessQuestSubscription(e)) { IsBackground = true }.Start();
+#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
         }
 
         #endregion
@@ -380,10 +386,17 @@
             if (!db.Pokemon.ContainsKey(pkmn.Id))
                 return;
 
-            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(pkmn.Latitude, pkmn.Longitude));
+            var loc = GetGeofence(pkmn.Latitude, pkmn.Longitude);
             if (loc == null)
             {
                 _logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                return;
+            }
+
+            var subscriptions = _subMgr.GetUserSubscriptions();
+            if (subscriptions == null)
+            {
+                _logger.Warn($"Subscriptions table is empty.");
                 return;
             }
 
@@ -395,14 +408,6 @@
             bool matchesLvl;
             bool matchesGender;
             var embed = BuildPokemonMessage(pkmn, loc.Name);
-
-            var subscriptions = _subMgr.GetUserSubscriptions();
-            if (subscriptions == null)
-            {
-                _logger.Warn($"Subscriptions table is empty.");
-                return;
-            }
-
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -483,17 +488,13 @@
             if (!db.Pokemon.ContainsKey(raid.PokemonId))
                 return;
 
-            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(raid.Latitude, raid.Longitude));
+            var loc = GetGeofence(raid.Latitude, raid.Longitude);
             if (loc == null)
             {
                 _logger.Warn($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
                 return;
             }
 
-            bool isSupporter;
-            SubscriptionObject user;
-            RaidSubscription subscribedRaid;
-            var embed = BuildRaidMessage(raid, loc.Name);
             var subscriptions = _subMgr.GetUserSubscriptions();
             if (subscriptions == null)
             {
@@ -501,6 +502,10 @@
                 return;
             }
 
+            bool isSupporter;
+            SubscriptionObject user;
+            RaidSubscription subscribedRaid;
+            var embed = BuildRaidMessage(raid, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -585,17 +590,13 @@
             var rewardKeyword = quest.GetRewardString();
             var questName = quest.GetMessage();
 
-            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(quest.Latitude, quest.Longitude));
+            var loc = GetGeofence(quest.Latitude, quest.Longitude);
             if (loc == null)
             {
                 _logger.Warn($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
                 return;
             }
 
-            bool isSupporter;
-            SubscriptionObject user;
-            QuestSubscription subscribedQuest;
-            var embed = BuildQuestMessage(quest, loc.Name);
             var subscriptions = _subMgr.GetUserSubscriptions();
             if (subscriptions == null)
             {
@@ -603,6 +604,10 @@
                 return;
             }
 
+            bool isSupporter;
+            SubscriptionObject user;
+            QuestSubscription subscribedQuest;
+            var embed = BuildQuestMessage(quest, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -632,7 +637,6 @@
                     if (subscribedQuest == null)
                         continue;
 
-                    //var pokemon = db.Pokemon[reward.PokemonId];
                     if (!member.Roles.Select(x => x.Name).Contains(loc.Name))
                     {
                         _logger.Debug($"[{loc.Name}] Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because they do not have the city role '{loc.Name}'.");
@@ -958,22 +962,30 @@
                 }
 
                 var messages = await channel.GetMessagesAsync();
-                for (var j = 0; j < messages.Count; j++)
+                while (messages.Count > 0)
                 {
-                    var message = messages[j];
-                    if (message == null)
+                    for (var j = 0; j < messages.Count; j++)
                     {
-                        //Message already deleted.
-                        continue;
+                        var message = messages[j];
+                        if (message == null)
+                            continue;
+
+                        await message.DeleteAsync("Channel reset.");
                     }
 
-                    await message.DeleteAsync("Channel reset.");
+                    messages = await channel.GetMessagesAsync();
                 }
 
                 _logger.Debug($"Deleted all {messages.Count.ToString("N0")} quest messages from channel {channel.Name}.");
             }
 
             _logger.Debug($"Finished automatic quest messages cleanup...");
+        }
+
+        private GeofenceItem GetGeofence(double latitude, double longitude)
+        {
+            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(latitude, longitude));
+            return loc;
         }
 
         private string GetTypeEmojiIcons(List<Data.Models.PokemonType> pokemonTypes)
