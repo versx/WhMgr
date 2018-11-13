@@ -155,3 +155,17 @@ Upload Discord emojis that are in the emojis folder.
 - Finish Localization  
 - Wiki  
 - Support for dynamic text replacement for alarm text.  
+
+## Examples:
+
+Discord Pokemon Notifications:
+![Pokemon Notifications](images/pkmn.png "Pokemon Notifications")
+
+Discord Raid Notifications:
+![Raid Notifications](images/raid.png "Raid Notifications")
+
+Discord Raid Egg Notifications:
+![Egg Notifications](images/egg.png "Egg Notifications")
+
+Discord Quest Notifications:
+![Quest Notifications](images/quests.png "Quest Notifications")
