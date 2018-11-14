@@ -476,6 +476,7 @@
 
                     var embed = BuildPokemonMessage(pkmn, loc.Name);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
+                    System.Threading.Thread.Sleep(20);
                     //await SendNotification(user.UserId, pokemon.Name, embed);
                     //await Task.Delay(10);
                 }
@@ -580,6 +581,7 @@
                     //await SendNotification(user.UserId, pokemon.Name, embed);
                     //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
+                    System.Threading.Thread.Sleep(20);
                 }
                 catch (Exception ex)
                 {
@@ -683,6 +685,7 @@
                     //await SendNotification(user.UserId, questName, embed);
                     //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
+                    System.Threading.Thread.Sleep(20);
                 }
                 catch (Exception ex)
                 {
