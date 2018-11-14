@@ -1,13 +1,17 @@
 ﻿namespace WhMgr.Commands
 {
+    using System;
     using System.Threading.Tasks;
 
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
+    using WhMgr.Diagnostics;
+
     public class Quests
     {
+        private static readonly IEventLogger _logger = EventLogger.GetLogger();
         private readonly Dependencies _dep;
 
         public Quests(Dependencies dep)

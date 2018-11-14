@@ -74,6 +74,25 @@
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(maxAtk * maxAtk * maxDef * maxSta) / 10));
         }
 
+        public static int GetLevel(this int pokeId, int cp)
+        {
+            if (!Database.Instance.Pokemon.ContainsKey(pokeId))
+                return 0;
+
+            var pkmn = Database.Instance.Pokemon[pokeId];
+            for (var i = 0; i < CpMultipliers.Length; i++)
+            {
+                var spawnCP = GetCP(pkmn.BaseStats.Attack + 15, pkmn.BaseStats.Defense + 15, pkmn.BaseStats.Stamina + 15, CpMultipliers[i]);
+                if (cp == spawnCP)
+                {
+                    var level = i + 1;
+                    return level;
+                }
+            }
+
+            return 0;
+        }
+
         public static int GetCP(int attack, int defense, int stamina, double cpm)
         {
             var cp = Math.Floor(attack * Math.Pow(defense, 0.5) * Math.Pow(stamina, 0.5) * Math.Pow(cpm, 2) / 10);

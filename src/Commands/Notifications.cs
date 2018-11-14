@@ -42,7 +42,7 @@
 
             if (string.IsNullOrEmpty(mention))
             {
-                await SendUserSubscriptionSettings(ctx.Client, ctx.User, ctx.User.Id);
+                await SendUserSubscriptionSettings(ctx.Client, ctx.User, ctx.User);
                 return;
             }
 
@@ -59,7 +59,14 @@
                 return;
             }
 
-            await SendUserSubscriptionSettings(ctx.Client, ctx.User, userId);
+            var user = await ctx.Client.GetUserAsync(userId);
+            if (user == null)
+            {
+                _logger.Warn($"Failed to get Discord user with id {userId}.");
+                return;
+            }
+
+            await SendUserSubscriptionSettings(ctx.Client, ctx.User, user);
         }
 
         [
@@ -810,16 +817,9 @@
 
         #region Private Methods
 
-        private async Task SendUserSubscriptionSettings(DiscordClient client, DiscordUser receiver, ulong userId)
+        private async Task SendUserSubscriptionSettings(DiscordClient client, DiscordUser receiver, DiscordUser user)
         {
-            var discordUser = await client.GetUserAsync(userId);
-            if (discordUser == null)
-            {
-                _logger.Error($"Failed to retreive user with id {userId}.");
-                return;
-            }
-
-            var userSettings = BuildUserSubscriptionSettings(client, discordUser);
+            var userSettings = BuildUserSubscriptionSettings(client, user);
             userSettings = userSettings.Length > 2000 ? userSettings.Substring(0, Math.Min(userSettings.Length, 1500)) : userSettings;
             var eb = new DiscordEmbedBuilder
             {
@@ -854,17 +854,12 @@
                 var member = client.GetMemberById(_dep.WhConfig.GuildId, author);
                 if (member == null)
                 {
-                    return $"Failed to get discord member from id {author}.";
+                    var error = $"Failed to get discord member from id {author}.";
+                    _logger.Error(error);
+                    return error;
                 }
 
-                var feeds = new List<string>();
-                foreach (var role in member.Roles)
-                {
-                    if (_dep.WhConfig.CityRoles.Contains(role.Name))
-                    {
-                        feeds.Add(role.Name);
-                    }
-                }
+                var feeds = member.Roles.Where(x => _dep.WhConfig.CityRoles.Contains(x.Name)).ToList();
                 feeds.Sort();
 
                 var pokemon = subscription.Pokemon;

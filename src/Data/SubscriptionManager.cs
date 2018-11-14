@@ -79,6 +79,38 @@
             return new SubscriptionObject { UserId = userId };
         }
 
+        public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(int pokeId)
+        {
+            _logger.Trace($"SubscriptionManager::GetUserSubscriptionsByPokemonId [PokemonId={pokeId}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscriptions = db.LoadSelect<SubscriptionObject>();
+                if (subscriptions != null)
+                {
+                    return subscriptions.Where(x => x.Pokemon.Exists(y => y.PokemonId == pokeId)).ToList();
+                }
+            }
+
+            return null;
+        }
+
+        public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
+        {
+            _logger.Trace($"SubscriptionManager::GetUserSubscriptionsByRaidBossId [PokemonId={pokeId}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscriptions = db.LoadSelect<SubscriptionObject>();
+                if (subscriptions != null)
+                {
+                    return subscriptions.Where(x => x.Raids.Exists(y => y.PokemonId == pokeId)).ToList();
+                }
+            }
+
+            return null;
+        }
+
         public List<SubscriptionObject> GetUserSubscriptions()
         {
             _logger.Trace($"SubscriptionManager::GetUserSubscriptions");
