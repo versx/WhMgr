@@ -34,7 +34,7 @@
         private readonly WhConfig _whConfig;
         private readonly SubscriptionManager _subMgr;
         private readonly Translator _lang;
-        private readonly Queue<Tuple<ulong, string, DiscordEmbed>> _queue;
+        private readonly Queue<Tuple<DiscordUser, string, DiscordEmbed>> _queue;
         private readonly IEventLogger _logger;
 
         #endregion
@@ -48,7 +48,7 @@
             _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}]");
 
             _lang = new Translator();
-            _queue = new Queue<Tuple<ulong, string, DiscordEmbed>>();
+            _queue = new Queue<Tuple<DiscordUser, string, DiscordEmbed>>();
 
             _whConfig = whConfig;
             DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
@@ -481,7 +481,7 @@
                     user.NotificationsToday++;
 
                     var embed = BuildPokemonMessage(pkmn, loc.Name);
-                    _queue.Enqueue(new Tuple<ulong, string, DiscordEmbed>(user.UserId, pokemon.Name, embed));
+                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
                     //await SendNotification(user.UserId, pokemon.Name, embed);
                     //await Task.Delay(10);
                 }
@@ -585,7 +585,7 @@
 
                     //await SendNotification(user.UserId, pokemon.Name, embed);
                     //await Task.Delay(10);
-                    _queue.Enqueue(new Tuple<ulong, string, DiscordEmbed>(user.UserId, pokemon.Name, embed));
+                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
                 }
                 catch (Exception ex)
                 {
@@ -688,7 +688,7 @@
 
                     //await SendNotification(user.UserId, questName, embed);
                     //await Task.Delay(10);
-                    _queue.Enqueue(new Tuple<ulong, string, DiscordEmbed>(user.UserId, questName, embed));
+                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
                 }
                 catch (Exception ex)
                 {
@@ -711,7 +711,9 @@
                         continue;
 
                     var item = _queue.Dequeue();
-                    await SendNotification(item.Item1, item.Item2, item.Item3);
+                    await _client.SendDirectMessage(item.Item1, item.Item3);
+
+                    _logger.Debug($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
                     await Task.Delay(10);
                 }
             })
@@ -969,20 +971,6 @@
         #endregion
 
         #region Private Methods
-
-        private async Task SendNotification(ulong userId, string pokemon, DiscordEmbed embed)
-        {
-            _logger.Trace($"Bot::SendNotification [UserId={userId}, Pokemon={pokemon}, Embed={embed.Title}]");
-
-            var user = await _client.GetUserAsync(userId);
-            if (user == null)
-            {
-                _logger.Error($"Failed to find Discord user from id {userId}.");
-                return;
-            }
-
-            await _client.SendDirectMessage(user, embed);
-        }
 
         private async Task ResetQuests()
         {
