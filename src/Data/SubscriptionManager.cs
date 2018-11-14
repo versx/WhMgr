@@ -83,13 +83,10 @@
         {
             _logger.Trace($"SubscriptionManager::GetUserSubscriptionsByPokemonId [PokemonId={pokeId}]");
 
-            using (var db = DataAccessLayer.CreateFactory())
+            var subscriptions = GetUserSubscriptions();
+            if (subscriptions != null)
             {
-                var subscriptions = db.LoadSelect<SubscriptionObject>();
-                if (subscriptions != null)
-                {
-                    return subscriptions.Where(x => x.Pokemon.Exists(y => y.PokemonId == pokeId)).ToList();
-                }
+                return subscriptions.Where(x => x.Pokemon.Exists(y => y.PokemonId == pokeId)).ToList();
             }
 
             return null;
@@ -99,13 +96,10 @@
         {
             _logger.Trace($"SubscriptionManager::GetUserSubscriptionsByRaidBossId [PokemonId={pokeId}]");
 
-            using (var db = DataAccessLayer.CreateFactory())
+            var subscriptions = GetUserSubscriptions();
+            if (subscriptions != null)
             {
-                var subscriptions = db.LoadSelect<SubscriptionObject>();
-                if (subscriptions != null)
-                {
-                    return subscriptions.Where(x => x.Raids.Exists(y => y.PokemonId == pokeId)).ToList();
-                }
+                return subscriptions.Where(x => x.Raids.Exists(y => y.PokemonId == pokeId)).ToList();
             }
 
             return null;
@@ -115,10 +109,19 @@
         {
             _logger.Trace($"SubscriptionManager::GetUserSubscriptions");
 
-            using (var db = DataAccessLayer.CreateFactory())
+            try
             {
-                return db.LoadSelect<SubscriptionObject>();
+                using (var db = DataAccessLayer.CreateFactory())
+                {
+                    return db.LoadSelect<SubscriptionObject>();
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return null;
         }
 
         #region Add
@@ -310,24 +313,6 @@
 
             return errors == 0;
         }
-
-        #endregion
-
-        #region Add All
-
-        //public bool AddAllPokemon(ulong userId, int iv = 0, int lvl = 0, string gender = "*")
-        //{
-        //    _logger.Trace($"SubscriptionManager::AddPokemonAll [UserId={userId}, IV={iv}, Level={lvl}, Gender={gender}]");
-
-        //    return true;
-        //}
-
-        //public bool AddAllRaids(ulong userId)
-        //{
-        //    _logger.Trace($"SubscriptionManager::AddRaidsAll [UserId={userId}]");
-
-        //    return true;
-        //}
 
         #endregion
 

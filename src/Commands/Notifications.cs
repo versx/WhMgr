@@ -859,7 +859,7 @@
                     return error;
                 }
 
-                var feeds = member.Roles.Where(x => _dep.WhConfig.CityRoles.Contains(x.Name)).ToList();
+                var feeds = member.Roles.Select(x => x.Name).Where(x => _dep.WhConfig.CityRoles.Contains(x)).ToList();
                 feeds.Sort();
 
                 var pokemon = subscription.Pokemon;

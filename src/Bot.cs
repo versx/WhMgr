@@ -34,7 +34,7 @@
         private readonly WhConfig _whConfig;
         private readonly SubscriptionManager _subMgr;
         private readonly Translator _lang;
-        private readonly Queue<Tuple<DiscordUser, string, DiscordEmbed>> _queue;
+        private readonly NotificationQueue _queue;
         private readonly IEventLogger _logger;
 
         #endregion
@@ -48,7 +48,7 @@
             _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}]");
 
             _lang = new Translator();
-            _queue = new Queue<Tuple<DiscordUser, string, DiscordEmbed>>();
+            _queue = new NotificationQueue();
 
             _whConfig = whConfig;
             DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
@@ -71,7 +71,7 @@
             midnight.TimeReached += async (e) => await ResetQuests();
 #pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
             midnight.Start();
-            
+
             _client = new DiscordClient(new DiscordConfiguration
             {
                 AutomaticGuildSync = true,
@@ -93,13 +93,7 @@
             DependencyCollection dep;
             using (var d = new DependencyCollectionBuilder())
             {
-                d.AddInstance
-                (
-                    _dep = new Dependencies(_subMgr, _whConfig, _lang)
-                    //LobbyManager = new RaidLobbyManager(_client, _config, _logger, notificationProcessor.GeofenceSvc),
-                    //ReminderSvc = new ReminderService(_client, _db, _logger),
-                    //PoGoVersionMonitor = new PokemonGoVersionMonitor(),
-                );
+                d.AddInstance(_dep = new Dependencies(_subMgr, _whConfig, _lang));
                 dep = d.Build();
             }
 
@@ -492,7 +486,7 @@
             }
         }
 
-        private void ProcessRaidSubscription(RaidData raid) 
+        private void ProcessRaidSubscription(RaidData raid)
         {
             if (!_whConfig.EnableSubscriptions)
                 return;
@@ -564,16 +558,16 @@
                         continue;
                     }
 
-                    if (user.Limiter.IsLimited())
-                    {
-                        //if (!user.NotifiedOfLimited)
-                        //{
-                        //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
-                        //    user.NotifiedOfLimited = true;
-                        //}
+                    //if (user.Limiter.IsLimited())
+                    //{
+                    //    //if (!user.NotifiedOfLimited)
+                    //    //{
+                    //    //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
+                    //    //    user.NotifiedOfLimited = true;
+                    //    //}
 
-                        continue;
-                    }
+                    //    continue;
+                    //}
 
                     //user.NotifiedOfLimited = false;
 
@@ -667,16 +661,16 @@
                         continue;
                     }
 
-                    if (user.Limiter.IsLimited())
-                    {
-                        //if (!user.NotifiedOfLimited)
-                        //{
-                        //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
-                        //    user.NotifiedOfLimited = true;
-                        //}
+                    //if (user.Limiter.IsLimited())
+                    //{
+                    //    //if (!user.NotifiedOfLimited)
+                    //    //{
+                    //    //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
+                    //    //    user.NotifiedOfLimited = true;
+                    //    //}
 
-                        continue;
-                    }
+                    //    continue;
+                    //}
 
                     //user.NotifiedOfLimited = false;
 
@@ -1071,6 +1065,10 @@
         //        Console.WriteLine($"{dateTime} {logType} {logMessage}");
         //    }
         //}
+    }
+
+    public class NotificationQueue : Queue<Tuple<DiscordUser, string, DiscordEmbed>>
+    {
     }
 
     public class NotificationLimiter
