@@ -44,7 +44,9 @@
 
         #region Properties
 
-        public Dictionary<int, PokemonModel> Pokemon { get; }
+        //public Dictionary<int, PokemonModel> Pokemon { get; }
+
+        public Dictionary<int, PokemonInfo> Pokemon { get; set; }
 
         public Dictionary<int, MovesetModel> Movesets { get; }
 
@@ -54,7 +56,8 @@
 
         public Database()
         {
-            Pokemon = LoadInit<Dictionary<int, PokemonModel>>(Path.Combine(Strings.DataFolder, PokemonFileName), typeof(Dictionary<int, PokemonModel>));
+            //Pokemon = LoadInit<Dictionary<int, PokemonModel>>(Path.Combine(Strings.DataFolder, PokemonFileName), typeof(Dictionary<int, PokemonModel>));
+            Pokemon = LoadInit<Dictionary<int, PokemonInfo>>(Path.Combine(Strings.DataFolder, PokemonFileName), typeof(Dictionary<int, PokemonInfo>));
             Movesets = LoadInit<Dictionary<int, MovesetModel>>(Path.Combine(Strings.DataFolder, MovesetsFileName), typeof(Dictionary<int, MovesetModel>));
         }
 
@@ -70,7 +73,7 @@
             var data = File.ReadAllText(filePath);
             if (string.IsNullOrEmpty(data))
             {
-                _logger.Error($"{filePath} database is null.");
+                _logger.Error($"{filePath} database is empty.");
                 return default(T);
             }
 

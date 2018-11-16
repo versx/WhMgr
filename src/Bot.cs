@@ -1010,15 +1010,15 @@
             return loc;
         }
 
-        private string GetTypeEmojiIcons(List<Data.Models.PokemonType> pokemonTypes)
+        private string GetTypeEmojiIcons(List<PokemonType> pokemonTypes)
         {
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
                 if (_client.Guilds.ContainsKey(_whConfig.GuildId))
                 {
-                    var emojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId($"types_{type.Type.ToLower()}");
-                    var emojiName = emojiId > 0 ? $"<:types_{type.Type.ToLower()}:{emojiId}>" : type.Type;
+                    var emojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId($"types_{type.ToString().ToLower()}");
+                    var emojiName = emojiId > 0 ? $"<:types_{type.ToString().ToLower()}:{emojiId}>" : type.ToString().ToLower();
                     if (!list.Contains(emojiName))
                     {
                         list.Add(emojiName);
@@ -1028,12 +1028,12 @@
             return string.Join("/", list);
         }
 
-        private string GetWeaknessEmojiIcons(List<Data.Models.PokemonType> pokemonTypes)
+        private string GetWeaknessEmojiIcons(List<PokemonType> pokemonTypes)
         {
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
-                var weaknessLst = type.Type.StringToObject<Net.Models.PokemonType>().GetWeaknesses().Distinct();
+                var weaknessLst = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
                 foreach (var weakness in weaknessLst)
                 {
                     if (!_client.Guilds.ContainsKey(_whConfig.GuildId))
