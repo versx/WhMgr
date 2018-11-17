@@ -832,10 +832,6 @@
                 }
             };
             await client.SendDirectMessage(receiver, eb.Build());
-            //if (userSettings.Length > 2000)
-            //    await client.SendDirectMessage(receiver, $"**{discordUser.Mention}**'s subscription list is longer than the allowed Discord message character count, here is a partial list:\r\n{userSettings.Substring(0, Math.Min(userSettings.Length, 1500))}```", null);
-            //else
-            //    await client.SendDirectMessage(receiver, userSettings, null);
         }
 
         private string BuildUserSubscriptionSettings(DiscordClient client, DiscordUser user)
@@ -878,7 +874,6 @@
                     }
                 }
 
-                //msg = $"**{user.Mention} Notification Settings:**\r\n";
                 msg += $"Enabled: **{(subscription.Enabled ? "Yes" : "No")}**\r\n";
                 msg += $"Feed Zones: **{string.Join("**, **", feeds)}**\r\n";
                 msg += $"Pokemon Subscriptions: ({pokemon.Count}/{(isSupporter ? "∞" : Strings.MaxPokemonSubscriptions.ToString())} used)\r\n";

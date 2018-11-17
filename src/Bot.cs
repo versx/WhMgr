@@ -476,7 +476,7 @@
 
                     var embed = BuildPokemonMessage(pkmn, loc.Name);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-                    System.Threading.Thread.Sleep(20);
+                    //System.Threading.Thread.Sleep(20);
                     //await SendNotification(user.UserId, pokemon.Name, embed);
                     //await Task.Delay(10);
                 }
@@ -581,7 +581,7 @@
                     //await SendNotification(user.UserId, pokemon.Name, embed);
                     //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-                    System.Threading.Thread.Sleep(20);
+                    //System.Threading.Thread.Sleep(20);
                 }
                 catch (Exception ex)
                 {
@@ -685,7 +685,7 @@
                     //await SendNotification(user.UserId, questName, embed);
                     //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
-                    System.Threading.Thread.Sleep(20);
+                    //System.Threading.Thread.Sleep(20);
                 }
                 catch (Exception ex)
                 {
@@ -705,13 +705,18 @@
                 while (true)
                 {
                     if (_queue.Count == 0)
+                    {
+                        System.Threading.Thread.Sleep(10);
                         continue;
+                    }
 
                     var item = _queue.Dequeue();
                     await _client.SendDirectMessage(item.Item1, item.Item3);
 
                     _logger.Debug($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
-                    await Task.Delay(10);
+                    //await Task.Delay(10);
+
+                    System.Threading.Thread.Sleep(10);
                 }
             })
             { IsBackground = true }.Start();
@@ -752,9 +757,9 @@
             //}
             //else
             //{
-            var level = string.IsNullOrEmpty(pokemon.Level) ? 0 : pokemon.Id.GetLevel(int.Parse(pokemon.CP));
-            eb.Description = _lang.Translate("EMBED_POKEMON_TITLE").FormatText(pkmn.Name, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.IV, level, pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n";
-            eb.Description += _lang.Translate("EMBED_POKEMON_DETAILS").FormatText(pokemon.CP, pokemon.IV, level) + "\r\n";
+            //var level = string.IsNullOrEmpty(pokemon.Level) ? 0 : pokemon.Id.GetLevel(int.Parse(pokemon.CP));
+            eb.Description = _lang.Translate("EMBED_POKEMON_TITLE").FormatText(pkmn.Name, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.IV, pokemon.Level, pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n";
+            eb.Description += _lang.Translate("EMBED_POKEMON_DETAILS").FormatText(pokemon.CP, pokemon.IV, pokemon.Level) + "\r\n";
             eb.Description += _lang.Translate("EMBED_POKEMON_STATS").FormatText(pokemon.Attack, pokemon.Defense, pokemon.Stamina) + "\r\n";
             //eb.Description = $"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} {pokemon.IV} L{pokemon.Level} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
             //eb.Description += $"**Details:** CP: {pokemon.CP} IV: {pokemon.IV} LV: {pokemon.Level}\r\n";
@@ -767,7 +772,7 @@
                 //eb.Description += $"**Form:** {form}\r\n";
             }
 
-            if (level >= 30)
+            if (int.TryParse(pokemon.Level, out var lvl) && lvl >= 30)
             {
                 eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER_BOOSTED") + "\r\n";
                 //eb.Description += $":white_sun_rain_cloud: Boosted\r\n";
