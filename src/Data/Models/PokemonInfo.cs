@@ -18,7 +18,7 @@
         [JsonProperty("types")]
         public List<PokemonType> Types { get; set; }
 
-        [JsonProperty("base_stats")]
+        [JsonProperty("baseStats")]
         public BaseStats BaseStats { get; set; }
 
         [JsonProperty("quickMoves")]

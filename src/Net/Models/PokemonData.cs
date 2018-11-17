@@ -49,7 +49,7 @@
         [JsonProperty("costume")]
         public int Costume { get; set; }
 
-        [JsonProperty("pokemon_level")]
+        [JsonProperty("level")]
         public string Level { get; set; }
 
         [JsonProperty("latitude")]

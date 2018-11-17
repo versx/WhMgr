@@ -903,7 +903,7 @@
             {
                 var exEmojiId = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId].GetEmojiId(_lang.Translate("EMOJI_EX")) : 0;
                 var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-                eb.Description += _lang.Translate("EMBED_RAID_EX").FormatText(exEmoji) + "\r\n";
+                eb.Description += _lang.Translate("EMBED_RAID_EX_GYM").FormatText(exEmoji) + "\r\n";
                 //eb.Description += $"{exEmoji} **Gym!**\r\n";
             }
             var teamEmojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId(raid.Team.ToString().ToLower());
