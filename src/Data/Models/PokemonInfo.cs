@@ -41,12 +41,6 @@
 
         [JsonProperty("evolutionBranch")]
         public List<EvolutionBranch> EvolutionBranch { get; set; }
-
-        [JsonProperty("isTransferable")]
-        public bool IsTransferable { get; set; }
-
-        [JsonProperty("isDeployable")]
-        public bool IsDeployable { get; set; }
     }
 
     public class BaseStats
@@ -84,7 +78,7 @@
         [JsonProperty("evolution")]
         public string Evolution { get; set; }
 
-        [JsonProperty("candyCost")]
+        [JsonProperty("candy_cost")]
         public int CandyCost { get; set; }
     }
 }

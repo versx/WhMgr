@@ -35,6 +35,8 @@
         public const int MaxQuestSubscriptions = 2;
         public const int CommonTypeMinimumIV = 95;
 
+        public const string TypeEmojiSchema = "<:types_{0}:{1}>";
+
         public static string GuildIconUrl { get; set; }
 
         public static IReadOnlyDictionary<WeatherType, string> WeatherEmojis => new Dictionary<WeatherType, string>

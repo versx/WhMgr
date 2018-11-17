@@ -476,7 +476,7 @@
 
                     var embed = BuildPokemonMessage(pkmn, loc.Name);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-                    //System.Threading.Thread.Sleep(20);
+                    System.Threading.Thread.Sleep(5);
                     //await SendNotification(user.UserId, pokemon.Name, embed);
                     //await Task.Delay(10);
                 }
@@ -581,7 +581,7 @@
                     //await SendNotification(user.UserId, pokemon.Name, embed);
                     //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-                    //System.Threading.Thread.Sleep(20);
+                    System.Threading.Thread.Sleep(5);
                 }
                 catch (Exception ex)
                 {
@@ -685,7 +685,7 @@
                     //await SendNotification(user.UserId, questName, embed);
                     //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
-                    //System.Threading.Thread.Sleep(20);
+                    System.Threading.Thread.Sleep(5);
                 }
                 catch (Exception ex)
                 {
@@ -757,7 +757,6 @@
             //}
             //else
             //{
-            //var level = string.IsNullOrEmpty(pokemon.Level) ? 0 : pokemon.Id.GetLevel(int.Parse(pokemon.CP));
             eb.Description = _lang.Translate("EMBED_POKEMON_TITLE").FormatText(pkmn.Name, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.IV, pokemon.Level, pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n";
             eb.Description += _lang.Translate("EMBED_POKEMON_DETAILS").FormatText(pokemon.CP, pokemon.IV, pokemon.Level) + "\r\n";
             eb.Description += _lang.Translate("EMBED_POKEMON_STATS").FormatText(pokemon.Attack, pokemon.Defense, pokemon.Stamina) + "\r\n";
@@ -1020,16 +1019,17 @@
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
-                if (_client.Guilds.ContainsKey(_whConfig.GuildId))
+                if (!_client.Guilds.ContainsKey(_whConfig.GuildId))
+                    continue;
+
+                var emojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId($"types_{type.ToString().ToLower()}");
+                var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId) : type.ToString().ToLower();
+                if (!list.Contains(emojiName))
                 {
-                    var emojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId($"types_{type.ToString().ToLower()}");
-                    var emojiName = emojiId > 0 ? $"<:types_{type.ToString().ToLower()}:{emojiId}>" : type.ToString().ToLower();
-                    if (!list.Contains(emojiName))
-                    {
-                        list.Add(emojiName);
-                    }
+                    list.Add(emojiName);
                 }
             }
+
             return string.Join("/", list);
         }
 
@@ -1045,7 +1045,7 @@
                         continue;
 
                     var emojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId($"types_{weakness.ToString().ToLower()}");
-                    var emojiName = emojiId > 0 ? $"<:types_{weakness.ToString().ToLower()}:{emojiId}>" : weakness.ToString();
+                    var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId) : weakness.ToString();
                     if (!list.Contains(emojiName))
                     {
                         list.Add(emojiName);
