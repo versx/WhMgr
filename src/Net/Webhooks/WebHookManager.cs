@@ -22,7 +22,6 @@
         #region Variables
 
         private readonly HttpServer _http;
-        private readonly GeofenceService _geofenceSvc;
         private AlarmList _alarms;
         private readonly Dictionary<string, WebHookObject> _webhooks;
         private readonly IEventLogger _logger;
@@ -33,7 +32,7 @@
 
         public IReadOnlyDictionary<string, WebHookObject> WebHooks => _webhooks;
 
-        public GeofenceService GeofenceService => _geofenceSvc;
+        public GeofenceService GeofenceService { get; }
 
         public Dictionary<string, GeofenceItem> Geofences { get; private set; }
 
@@ -96,7 +95,7 @@
             _logger.Trace($"WebHookManager::WebHookManager [Port={port}]");
 
             _webhooks = new Dictionary<string, WebHookObject>();
-            _geofenceSvc = new GeofenceService();
+            GeofenceService = new GeofenceService();
             _alarms = LoadAlarms(Strings.AlarmsFileName);
 
             LoadWebHooks();
@@ -439,7 +438,7 @@
             for (var i = 0; i < geofences.Count; i++)
             {
                 var geofence = geofences[i];
-                if (!_geofenceSvc.Contains(geofence, location))
+                if (!GeofenceService.Contains(geofence, location))
                     continue;
 
                 return geofence;
