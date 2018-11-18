@@ -5,7 +5,7 @@
     using WhMgr.Alarms.Models;
     using WhMgr.Net.Models;
 
-    public class RaidAlarmTriggeredEventArgs : EventArgs
+    public sealed class RaidAlarmTriggeredEventArgs : EventArgs
     {
         public AlarmObject Alarm { get; }
 

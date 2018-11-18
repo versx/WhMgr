@@ -4,7 +4,7 @@
 
     using WhMgr.Net.Models;
 
-    public class QuestDataEventArgs : EventArgs
+    public sealed class QuestDataEventArgs : EventArgs
     {
         public QuestData Quest { get; }
 

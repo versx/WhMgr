@@ -5,7 +5,7 @@
     using WhMgr.Alarms.Models;
     using WhMgr.Net.Models;
 
-    public class QuestAlarmTriggeredEventArgs
+    public sealed class QuestAlarmTriggeredEventArgs
     {
         public QuestData Quest { get; }
 

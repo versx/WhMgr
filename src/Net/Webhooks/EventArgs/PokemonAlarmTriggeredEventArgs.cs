@@ -5,7 +5,7 @@
     using WhMgr.Alarms.Models;
     using WhMgr.Net.Models;
 
-    public class PokemonAlarmTriggeredEventArgs : EventArgs
+    public sealed class PokemonAlarmTriggeredEventArgs : EventArgs
     {
         public AlarmObject Alarm { get; }
 

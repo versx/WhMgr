@@ -8,7 +8,6 @@
 
     using WhMgr.Data;
     using WhMgr.Diagnostics;
-    using WhMgr.Net.Models.Providers;
 
     public class WhConfig
     {

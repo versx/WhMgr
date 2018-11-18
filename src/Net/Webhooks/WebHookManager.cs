@@ -15,7 +15,6 @@
     using WhMgr.Geofence;
     using WhMgr.Net;
     using WhMgr.Net.Models;
-    using WhMgr.Net.Models.Providers;
 
     public class WebhookManager
     {

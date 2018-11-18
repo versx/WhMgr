@@ -4,7 +4,7 @@
 
     using WhMgr.Net.Models;
 
-    public class RaidDataEventArgs : EventArgs
+    public sealed class RaidDataEventArgs : EventArgs
     {
         public RaidData Raid { get; }
 

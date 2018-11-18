@@ -4,7 +4,7 @@
 
     using WhMgr.Net.Models;
 
-    public class PokemonDataEventArgs : EventArgs
+    public sealed class PokemonDataEventArgs : EventArgs
     {
         public PokemonData Pokemon { get; }
 
