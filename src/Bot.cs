@@ -388,7 +388,7 @@
             var subscriptions = _subMgr.GetUserSubscriptionsByPokemonId(pkmn.Id);
             if (subscriptions == null)
             {
-                _logger.Warn($"Subscriptions table is empty.");
+                _logger.Warn($"Failed to get subscriptions from database table.");
                 return;
             }
 

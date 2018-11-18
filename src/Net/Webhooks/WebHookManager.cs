@@ -42,26 +42,47 @@
 
         #region Events
 
-        public event EventHandler<PokemonAlarmTriggeredEventArgs> PokemonAlarmTriggered;
+        #region Alarms
 
+        public event EventHandler<PokemonAlarmTriggeredEventArgs> PokemonAlarmTriggered;
         private void OnPokemonAlarmTriggered(PokemonData pkmn, AlarmObject alarm)
         {
             PokemonAlarmTriggered?.Invoke(this, new PokemonAlarmTriggeredEventArgs(pkmn, alarm));
         }
 
         public event EventHandler<RaidAlarmTriggeredEventArgs> RaidAlarmTriggered;
-
         private void OnRaidAlarmTriggered(RaidData raid, AlarmObject alarm)
         {
             RaidAlarmTriggered?.Invoke(this, new RaidAlarmTriggeredEventArgs(raid, alarm));
         }
 
         public event EventHandler<QuestAlarmTriggeredEventArgs> QuestAlarmTriggered;
-
         private void OnQuestAlarmTriggered(QuestData quest, AlarmObject alarm)
         {
             QuestAlarmTriggered?.Invoke(this, new QuestAlarmTriggeredEventArgs(quest, alarm));
         }
+
+        public event EventHandler<GymAlarmTriggeredEventArgs> GymAlarmTriggered;
+        private void OnGymAlarmTriggered(GymData gym, AlarmObject alarm)
+        {
+            GymAlarmTriggered?.Invoke(this, new GymAlarmTriggeredEventArgs(gym, alarm));
+        }
+
+        public event EventHandler<GymDetailsAlarmTriggeredEventArgs> GymDetailsAlarmTriggered;
+        private void OnGymDetailsAlarmTriggered(GymDetailsData gymDetails, AlarmObject alarm)
+        {
+            GymDetailsAlarmTriggered?.Invoke(this, new GymDetailsAlarmTriggeredEventArgs(gymDetails, alarm));
+        }
+
+        public event EventHandler<PokestopAlarmTriggeredEventArgs> PokestopAlarmTriggered;
+        private void OnPokestopAlarmTriggered(PokestopData pokestop, AlarmObject alarm)
+        {
+            PokestopAlarmTriggered?.Invoke(this, new PokestopAlarmTriggeredEventArgs(pokestop, alarm));
+        }
+
+        #endregion
+
+        #region Subscriptions
 
         public event EventHandler<PokemonData> PokemonSubscriptionTriggered;
 
@@ -81,6 +102,8 @@
         {
             QuestSubscriptionTriggered?.Invoke(this, quest);
         }
+
+        #endregion
 
         #endregion
 
@@ -104,6 +127,9 @@
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
             _http.QuestReceived += Http_QuestReceived;
+            _http.PokestopReceived += Http_PokestopReceived;
+            _http.GymReceived += Http_GymReceived;
+            _http.GymDetailsReceived += Http_GymDetailsReceived;
             _http.IsDebug = true;
             _http.Start();
 
@@ -142,6 +168,18 @@
         {
             ProcessQuest(e.Quest);
             OnQuestSubscriptionTriggered(e.Quest);
+        }
+
+        private void Http_PokestopReceived(object sender, PokestopDataEventArgs e)
+        {
+        }
+
+        private void Http_GymReceived(object sender, GymDataEventArgs e)
+        {
+        }
+
+        private void Http_GymDetailsReceived(object sender, GymDetailsDataEventArgs e)
+        {
         }
 
         #endregion
@@ -445,7 +483,6 @@
             }
 
             return null;
-            //return _geofenceSvc.Contains(geofence, location);
         }
 
         #endregion
