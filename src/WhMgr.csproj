@@ -153,6 +153,7 @@
     <Compile Include="NotificationQueue.cs" />
     <Compile Include="Strings.cs" />
     <Compile Include="Net\Webhooks\WebhookManager.cs" />
+    <Compile Include="Utilities\FileWatcher.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -15,6 +15,7 @@
     using WhMgr.Geofence;
     using WhMgr.Net;
     using WhMgr.Net.Models;
+    using WhMgr.Utilities;
 
     public class WebhookManager
     {
@@ -197,7 +198,7 @@
 
             var path = Path.Combine(Directory.GetCurrentDirectory(), Strings.AlarmsFileName);
             var fileWatcher = new FileWatcher(path);
-            fileWatcher.FileChanged += (sender, e) => _alarms = LoadAlarms(Strings.AlarmsFileName);
+            fileWatcher.FileChanged += (sender, e) => _alarms = LoadAlarms(path);
             fileWatcher.Start();
         }
 
@@ -475,52 +476,5 @@
         }
 
         #endregion
-    }
-
-    public class FileWatcher
-    {
-        private readonly FileSystemWatcher _fsw;
-
-        public string FilePath { get; }
-
-        public event EventHandler<FileChangedEventArgs> FileChanged;
-
-        private void OnFileChanged(string filePath)
-        {
-            FileChanged?.Invoke(this, new FileChangedEventArgs(filePath));
-        }
-
-        public FileWatcher(string filePath)
-        {
-            FilePath = filePath;
-
-            _fsw = new FileSystemWatcher
-            {
-                Path = Path.GetDirectoryName(FilePath),
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
-                Filter = Path.GetFileName(FilePath)
-            };
-            _fsw.Changed += (sender, e) => OnFileChanged(e.FullPath);
-        }
-
-        public void Start()
-        {
-            _fsw.EnableRaisingEvents = true;
-        }
-
-        public void Stop()
-        {
-            _fsw.EnableRaisingEvents = false;
-        }
-    }
-
-    public class FileChangedEventArgs
-    {
-        public string FilePath { get; set; }
-
-        public FileChangedEventArgs(string filePath)
-        {
-            FilePath = filePath;
-        }
     }
 }
