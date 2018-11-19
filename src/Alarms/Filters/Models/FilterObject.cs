@@ -16,5 +16,11 @@
 
         [JsonProperty("quests")]
         public FilterQuestObject Quests { get; set; }
+
+        [JsonProperty("pokestops")]
+        public FilterPokestopObject Pokestops { get; set; }
+
+        [JsonProperty("gyms")]
+        public FilterGymObject Gyms { get; set; }
     }
 }

@@ -350,8 +350,9 @@
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var confirm = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? If so, please reply back with `{_dep.WhConfig.CommandPrefix}{ctx.Command.QualifiedName} all yes` to confirm.");
-                if (!confirm) return;
+                var confirm = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? If so, please reply back with `[Yy]es or [Nn]o` to confirm.");
+                if (!confirm)
+                    return;
 
                 if (!_dep.SubscriptionManager.RemoveAllPokemon(ctx.User.Id))
                 {

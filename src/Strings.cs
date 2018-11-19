@@ -18,6 +18,8 @@
         public const string DataFolder = "Data";
         public const string GeofenceFolder = "Geofences";
         public const string LibrariesFolder = "Libs";
+        public const string LocaleFolder = "static\\locale";
+        public const string EmojisFolder = "static\\emojis";
         public const string LogsFolder = "Logs";
 
         public const string DefaultResponseMessage = "WH Test Running!";
@@ -37,7 +39,36 @@
 
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";
 
-        public static string GuildIconUrl { get; set; }
+        public static readonly string[] EmojiList =
+        {
+            //Team emojis
+            "valor",
+            "mystic",
+            "instinct",
+
+            //Ex gym emoji
+            "ex",
+
+            //Type emojis
+            "types_fire",
+            "types_grass",
+            "types_ground",
+            "types_rock",
+            "types_water",
+            "types_ghost",
+            "types_ice",
+            "types_dragon",
+            "types_fairy",
+            "types_fighting",
+            "types_bug",
+            "types_psychic",
+            "types_electric",
+            "types_steel",
+            "types_dark",
+            "types_normal",
+            "types_flying",
+            "types_poison"
+        };
 
         public static IReadOnlyDictionary<WeatherType, string> WeatherEmojis => new Dictionary<WeatherType, string>
         {

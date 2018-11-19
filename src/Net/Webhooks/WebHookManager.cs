@@ -172,14 +172,17 @@
 
         private void Http_PokestopReceived(object sender, PokestopDataEventArgs e)
         {
+            ProcessPokestop(e.Pokestop);
         }
 
         private void Http_GymReceived(object sender, GymDataEventArgs e)
         {
+            ProcessGym(e.Gym);
         }
 
         private void Http_GymDetailsReceived(object sender, GymDetailsDataEventArgs e)
         {
+            ProcessGymDetails(e.GymDetails);
         }
 
         #endregion
@@ -468,6 +471,105 @@
 
                 _logger.Info($"[{alarm.Name}] [{geofence.Name}] Notification triggered for PokestopId={quest.PokestopId}, Type={quest.Type}.");
                 OnQuestAlarmTriggered(quest, alarm);
+            }
+        }
+
+        private void ProcessPokestop(PokestopData pokestop)
+        {
+            _logger.Trace($"WebhookManager::ProcessPokestop [PokestopId={pokestop.PokestopId}]");
+
+            if (!_alarms.EnablePokestops)
+                return;
+
+            if (pokestop == null)
+                return;
+
+            if (_alarms.Alarms?.Count == 0)
+                return;
+
+            for (var i = 0; i < _alarms.Alarms.Count; i++)
+            {
+                var alarm = _alarms.Alarms[i];
+                if (alarm.Filters.Pokestops == null)
+                    continue;
+
+                if (!alarm.Filters.Pokestops.Enabled)
+                {
+                    _logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
+                    continue;
+                }
+
+                var geofence = InGeofence(alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
+                if (geofence == null)
+                {
+                    _logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
+                    continue;
+                }
+
+                _logger.Info($"[{alarm.Name}] [{geofence.Name}] Notification triggered for PokestopId={pokestop.PokestopId}, Name={pokestop.Name}.");
+                OnPokestopAlarmTriggered(pokestop, alarm);
+            }
+        }
+
+        private void ProcessGym(GymData gym)
+        {
+            _logger.Trace($"WebhookManager::ProcessGym [GymId={gym.GymId}]");
+
+            if (!_alarms.EnableGyms)
+                return;
+
+            if (gym == null)
+                return;
+
+            if (_alarms.Alarms?.Count == 0)
+                return;
+
+            for (var i = 0; i < _alarms.Alarms.Count; i++)
+            {
+                var alarm = _alarms.Alarms[i];
+                if (alarm.Filters.Pokestops == null)
+                    continue;
+
+                if (!alarm.Filters.Gyms.Enabled)
+                {
+                    _logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName}: gym filter not enabled.");
+                    continue;
+                }
+
+                var geofence = InGeofence(alarm.Geofences, new Location(gym.Latitude, gym.Longitude));
+                if (geofence == null)
+                {
+                    _logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName} because not in geofence.");
+                    continue;
+                }
+
+                _logger.Info($"[{alarm.Name}] [{geofence.Name}] Notification triggered for GymId={gym.GymId}, GymName={gym.GymName}.");
+                OnGymAlarmTriggered(gym, alarm);
+            }
+        }
+
+        private void ProcessGymDetails(GymDetailsData gymDetails)
+        {
+            _logger.Trace($"WebhookManager::ProcessGymDetails [GymId={gymDetails.GymId}]");
+
+            if (!_alarms.EnableGyms) //GymDetails
+                return;
+
+            if (gymDetails == null)
+                return;
+
+            if (_alarms.Alarms?.Count == 0)
+                return;
+
+            for (var i = 0; i < _alarms.Alarms.Count; i++)
+            {
+                var alarm = _alarms.Alarms[i];
+                var geofence = InGeofence(alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
+                if (geofence == null)
+                {
+                    _logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName} because not in geofence.");
+                    continue;
+                }
             }
         }
 

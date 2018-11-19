@@ -87,7 +87,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alarms\Filters\Models\FilterEggObject.cs" />
+    <Compile Include="Alarms\Filters\Models\FilterGymObject.cs" />
     <Compile Include="Alarms\Filters\Models\FilterPokemonObject.cs" />
+    <Compile Include="Alarms\Filters\Models\FilterPokestopObject.cs" />
     <Compile Include="Alarms\Filters\Models\FilterQuestObject.cs" />
     <Compile Include="Alarms\Filters\Models\FilterRaidObject.cs" />
     <Compile Include="Bot.cs" />

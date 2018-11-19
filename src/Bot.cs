@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -57,9 +58,11 @@
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
             _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
-            _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
+            _whm.PokestopAlarmTriggered += OnPokestopAlarmTriggered;
+            _whm.GymAlarmTriggered += OnGymAlarmTriggered;
             if (_whConfig.EnableSubscriptions)
             {
+                _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
             }
@@ -138,29 +141,8 @@
         {
             _logger.Info($"Connected.");
 
-            if (e.Client.Guilds.ContainsKey(_whConfig.SupporterRoleId))
-            {
-                Strings.GuildIconUrl = e.Client.Guilds[_whConfig.GuildId].IconUrl;
-            }
-
-            await Task.CompletedTask;
+            await CreateEmojis();
         }
-
-        //private async Task Client_MessageCreated(MessageCreateEventArgs e)
-        //{
-        //    if (e.Author.IsBot)
-        //        return;
-
-        //    if (e.Author.Id != _whConfig.OwnerId)
-        //        return;
-
-        //    if (!e.Message.Content.StartsWith("!", StringComparison.Ordinal))
-        //        return;
-
-        //    //await HandleCommands(e.Message);
-
-        //    await Task.CompletedTask;
-        //}
 
         private async Task Client_ClientErrored(ClientErrorEventArgs e)
         {
@@ -344,6 +326,14 @@
             {
                 _logger.Error(ex);
             }
+        }
+
+        private void OnPokestopAlarmTriggered(object sender, PokestopAlarmTriggeredEventArgs e)
+        {
+        }
+
+        private void OnGymAlarmTriggered(object sender, GymAlarmTriggeredEventArgs e)
+        {
         }
 
         #endregion
@@ -969,9 +959,48 @@
             return eb.Build();
         }
 
+        private DiscordEmbed BuildPokestopMessage(PokestopData pokestop, string city)
+        {
+            return null;
+        }
+
+        private DiscordEmbed BuildGymMessage(GymData gym, string city)
+        {
+            return null;
+        }
+
         #endregion
 
         #region Private Methods
+
+        private async Task CreateEmojis()
+        {
+            _logger.Trace($"Bot::CreateEmojis");
+
+            var guild = _client.Guilds[_whConfig.GuildId];
+            for (var i = 0; i < Strings.EmojiList.Length; i++)
+            {
+                var emoji = Strings.EmojiList[i];
+                var emojis = await guild.GetEmojisAsync();
+                var emojiExists = emojis.FirstOrDefault(x => string.Compare(x.Name, emoji, true) == 0);
+                if (emojiExists == null)
+                {
+                    _logger.Debug($"Emoji {emoji} doesn't exist, creating...");
+
+                    var emojiPath = Path.Combine(Strings.EmojisFolder, emoji + ".png");
+                    if (!File.Exists(emojiPath))
+                    {
+                        _logger.Error($"Failed to file emoji file at {emojiPath}, skipping...");
+                        continue;
+                    }
+
+                    var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
+                    await guild.CreateEmojiAsync(emoji, fs, null, "Missing Valor emoji.");
+
+                    _logger.Info($"Emoji {emoji} created successfully.");
+                }
+            }
+        }
 
         private async Task ResetQuests()
         {

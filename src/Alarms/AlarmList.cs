@@ -17,6 +17,12 @@
         [JsonProperty("enableQuests")]
         public bool EnableQuests { get; set; }
 
+        [JsonProperty("enablePokestops")]
+        public bool EnablePokestops { get; set; }
+
+        [JsonProperty("enableGyms")]
+        public bool EnableGyms { get; set; }
+
         [JsonProperty("alarms")]
         public List<AlarmObject> Alarms { get; set; }
 

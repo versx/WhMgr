@@ -19,6 +19,8 @@
     public class Language<TFrom, TTo, TDictionary> : IEnumerable<KeyValuePair<TFrom, TTo>>
         where TDictionary : IDictionary<TFrom, TTo>, new()
     {
+        private const string DefaultLanguage = "en";
+
         // The translation table
         private IDictionary<TFrom, TTo> _map;
 
@@ -33,7 +35,7 @@
         /// Gets the two letter ISO country code.
         /// </summary>
         /// <value>The two letter ISO country code.</value>
-        public string CountryCode => CurrentCulture?.TwoLetterISOLanguageName ?? "en";
+        public string CountryCode => CurrentCulture?.TwoLetterISOLanguageName ?? DefaultLanguage;
 
         /// <summary>
         /// Gets or sets the locale directory.
@@ -75,8 +77,8 @@
         public Language()
             : this(default(TTo))
         {
-            CurrentCulture = new CultureInfo("en");
-            LocaleDirectory = "Locale";
+            CurrentCulture = new CultureInfo(DefaultLanguage);
+            LocaleDirectory = Strings.LocaleFolder;
 
             _map = LoadCountry(CurrentCulture.TwoLetterISOLanguageName);
         }
@@ -198,7 +200,7 @@
         public void SwitchLanguage(string localeCode)
         {
             CurrentCulture = new CultureInfo(localeCode);
-            Console.WriteLine("[INFO] Switching current UI language to {0}...", CurrentCulture.DisplayName);
+            Console.WriteLine($"[INFO] Switching current UI language to {CurrentCulture.DisplayName}...");
 
             string path = Path.Combine(LocaleDirectory, CountryCode + ".xml");
             if (!File.Exists(path))
