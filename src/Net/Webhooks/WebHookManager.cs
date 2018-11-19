@@ -265,6 +265,10 @@
             }
         }
 
+        #endregion
+
+        #region Data Processing
+
         private void ProcessPokemon(PokemonData pkmn)
         {
             _logger.Trace($"WebHookManager::ProcessPokemon [Pkmn={pkmn.Id}]");

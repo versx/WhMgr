@@ -46,7 +46,7 @@
         {
             var name = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName;
             _logger = EventLogger.GetLogger(name);
-            _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}]");
+            _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, SupporterRoleId={whConfig.SupporterRoleId}, WebhookPort={whConfig.WebHookPort}]");
 
             _lang = new Translator();
             _queue = new NotificationQueue();
@@ -67,7 +67,7 @@
                 _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
             }
 
-            _logger.Info("WebHookManager is running...");
+            _logger.Info("WebhookManager is running...");
 
             var midnight = new DandTSoftware.Timers.MidnightTimer();
 #pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
