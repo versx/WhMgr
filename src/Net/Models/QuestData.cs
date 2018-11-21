@@ -161,23 +161,23 @@
             switch (Type)
             {
                 case QuestType.AddFriend:
-                    return $"Add {Target} new friends";
+                    return $"Add {Target} Friends";
                 case QuestType.AutoComplete:
-                    break;
+                    return $"Autocomplete";
                 case QuestType.BadgeRank:
-                    break;
+                    return $"Get {Target} Badge(s)";
                 case QuestType.CatchPokemon:
                     return $"Catch {Target} Pokemon";
                 case QuestType.CompleteBattle:
-                    break;
+                    return $"Complete {Target} Battles";
                 case QuestType.CompleteGymBattle:
-                    return $"Complete {Target} gym battles";
+                    return $"Complete {Target} Gym Battles";
                 case QuestType.CompleteQuest:
-                    return $"Complete {Target} quests";
+                    return $"Complete {Target} Quests";
                 case QuestType.CompleteRaidBattle:
-                    return $"Complete {Target} raid battles";
+                    return $"Complete {Target} Raid Battles";
                 case QuestType.EvolveIntoPokemon:
-                    break;
+                    return $"Evolve {Target} Into Specific Pokemon";
                 case QuestType.EvolvePokemon:
                     return $"Evolve {Target} Pokemon";
                 case QuestType.FavoritePokemon:
@@ -189,17 +189,17 @@
                 case QuestType.GetBuddyCandy:
                     return $"Earn {Target} candy walking with your buddy";
                 case QuestType.HatchEgg:
-                    return $"Hatch {Target} eggs";
+                    return $"Hatch {Target} Eggs";
                 case QuestType.JoinRaid:
-                    return $"Participate in {Target} raid battles";
+                    return $"Join {Target} Raid Battles";
                 case QuestType.LandThrow:
-                    return $"Land {Target} throws";
+                    return $"Land {Target} Throws";
                 case QuestType.MultiPart:
-                    break;
+                    return "Multi Part Quest";
                 case QuestType.PlayerLevel:
                     return $"Reach level {Target}"; ;
                 case QuestType.SendGift:
-                    return $"Send {Target} gifts to friends";
+                    return $"Send {Target} Gifts";
                 case QuestType.SpinPokestop:
                     return $"Spin {Target} Pokestops";
                 case QuestType.TradePokemon:
@@ -207,11 +207,11 @@
                 case QuestType.TransferPokemon:
                     return $"Transfer {Target} Pokemon";
                 case QuestType.UpgradePokemon:
-                    return $"Power up a Pokemon {Target} times";
+                    return $"Power up {Target} Pokemon";
                 case QuestType.UseBerryInEncounter:
-                    return $"Use {Target} berries on Pokemon";
+                    return $"Use {Target} Berries on Pokemon";
                 case QuestType.Unknown:
-                    break;
+                    return $"Unknown";
             }
 
             return Type.ToString();
