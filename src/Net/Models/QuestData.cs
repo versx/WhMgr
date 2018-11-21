@@ -233,7 +233,7 @@
                 case QuestRewardType.Item:
                     return string.Format(Strings.QuestImage, (int)Rewards[0].Info.Item);
                 case QuestRewardType.PokemonEncounter:
-                    return string.Format(Strings.PokemonImage, Rewards[0].Info.PokemonId, 0);
+                    return string.Format(Strings.PokemonImage, Rewards[0].Info.Ditto ? 132 : Rewards[0].Info.PokemonId, 0);
                 case QuestRewardType.Quest:
                     break;
                 case QuestRewardType.Stardust:
@@ -339,7 +339,7 @@
                 case QuestRewardType.Item:
                     return $"{Rewards[0].Info.Amount.ToString("N0")} {Rewards[0].Info.Item}";
                 case QuestRewardType.PokemonEncounter:
-                    return Database.Instance.Pokemon[Rewards[0].Info.PokemonId].Name;
+                    return Database.Instance.Pokemon[Rewards[0].Info.Ditto ? 132 : Rewards[0].Info.PokemonId].Name;
                 case QuestRewardType.Quest:
                     return "Quest";
                 case QuestRewardType.Stardust:
