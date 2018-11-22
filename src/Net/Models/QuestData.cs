@@ -150,6 +150,12 @@
         [JsonIgnore]
         public TimeSpan TimeLeft => DateTime.Today.AddDays(1) - DateTime.Now;
 
+        [JsonIgnore]
+        public bool IsDitto => Rewards?[0]?.Info?.Ditto ?? false;
+
+        [JsonIgnore]
+        public bool IsShiny => Rewards?[0]?.Info?.Shiny ?? false;
+
         public QuestData()
         {
             Rewards = new List<QuestRewardMessage>();
@@ -339,7 +345,7 @@
                 case QuestRewardType.Item:
                     return $"{Rewards[0].Info.Amount.ToString("N0")} {Rewards[0].Info.Item}";
                 case QuestRewardType.PokemonEncounter:
-                    return Database.Instance.Pokemon[Rewards[0].Info.Ditto ? 132 : Rewards[0].Info.PokemonId].Name;
+                    return IsShiny ? $"**SHINY** " : Database.Instance.Pokemon[IsDitto ? 132 : Rewards[0].Info.PokemonId].Name;
                 case QuestRewardType.Quest:
                     return "Quest";
                 case QuestRewardType.Stardust:
@@ -376,6 +382,11 @@
 
         [JsonProperty("info")]
         public QuestCondition Info { get; set; }
+
+        public QuestConditionMessage()
+        {
+            Type = QuestConditionType.Unset;
+        }
     }
 
     public sealed class QuestCondition
@@ -397,6 +408,11 @@
 
         [JsonProperty("raid_levels")]
         public List<int> RaidLevels { get; set; }
+
+        public QuestCondition()
+        {
+            ThrowTypeId = ActivityType.Unknown;
+        }
     }
 
     public sealed class QuestRewardMessage
@@ -406,6 +422,11 @@
 
         [JsonProperty("info")]
         public QuestReward Info { get; set; }
+
+        public QuestRewardMessage()
+        {
+            Type = QuestRewardType.Unset;
+        }
     }
 
     public sealed class QuestReward
