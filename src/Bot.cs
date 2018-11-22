@@ -737,7 +737,7 @@
                 Title = string.IsNullOrEmpty(city) ? _lang.Translate("EMBED_DIRECTIONS") /*"DIRECTIONS"*/ : city,
                 Url = string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude),
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}",
-                ThumbnailUrl = string.Format(Strings.PokemonImage, pokemon.Id, Convert.ToInt32(string.IsNullOrEmpty(pokemon.FormId) ? "0" : pokemon.FormId)),
+                ThumbnailUrl = string.Format(Strings.PokemonImage, pokemon.Id, Convert.ToInt32(pokemon.Gender)),//Convert.ToInt32(string.IsNullOrEmpty(pokemon.FormId) ? "0" : pokemon.FormId)),
                 Color = pokemon.IV.BuildColor()
             };
 
