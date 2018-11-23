@@ -59,10 +59,10 @@
         public double Longitude { get; set; }
 
         [JsonProperty("move_1")]
-        public string FastMove { get; set; }
+        public int FastMove { get; set; }
 
         [JsonProperty("move_2")]
-        public string ChargeMove { get; set; }
+        public int ChargeMove { get; set; }
 
         [JsonProperty("height")]
         public string Height { get; set; }
@@ -110,17 +110,7 @@
         public string FormId { get; set; }
 
         [JsonIgnore]
-        public bool IsMissingStats
-        {
-            get
-            {
-                return Attack == "?" ||
-                       Defense == "?" ||
-                       Stamina == "?" ||
-                       Level == "?" ||
-                       string.IsNullOrEmpty(Level);
-            }
-        }
+        public bool IsMissingStats => FastMove == 0;
 
         #endregion
 

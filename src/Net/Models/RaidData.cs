@@ -56,10 +56,10 @@
         public string CP { get; set; }
 
         [JsonProperty("move_1")]
-        public string FastMove { get; set; }
+        public int FastMove { get; set; }
 
         [JsonProperty("move_2")]
-        public string ChargeMove { get; set; }
+        public int ChargeMove { get; set; }
 
         [JsonProperty("latitude")]
         public double Latitude { get; set; }
@@ -92,18 +92,7 @@
         public bool IsEgg => PokemonId == 0;
 
         [JsonIgnore]
-        public bool IsMissingStats
-        {
-            get
-            {
-                return string.IsNullOrEmpty(FastMove) ||
-                       FastMove == "?" ||
-                       string.IsNullOrEmpty(ChargeMove) ||
-                       ChargeMove == "?" ||
-                       string.IsNullOrEmpty(Level) ||
-                       Level == "?";
-            }
-        }
+        public bool IsMissingStats => FastMove == 0;
 
         public RaidData()
         {

@@ -347,42 +347,42 @@
                 case 493: //Arceus
                     switch (form)
                     {
-                        case 11: //100 Bug
-                            break;
-                        case 12: //101 Dark
-                            break;
-                        case 13: //102 Dragon
-                            break;
-                        case 14: //103 Electric
-                            break;
-                        case 15: //104 Fairy
-                            break;
-                        case 16: //105 Fighting
-                            break;
-                        case 17: //106 Fire
-                            break;
-                        case 18: //107 Flying
-                            break;
-                        case 19: //108 Ghost
-                            break;
-                        case 20: //109 Grass
-                            break;
-                        case 21: //110 Ground
-                            break;
-                        case 22: //111 Ice
-                            break;
-                        case 23: //112 Normal
-                            break;
-                        case 24: //113 Poison
-                            break;
-                        case 25: //114 Psychic
-                            break;
-                        case 26: //115 Rock
-                            break;
-                        case 27: //116 Steel
-                            break;
-                        case 28: //117 Water
-                            break;
+                        case 11:
+                            return "Normal";
+                        case 12:
+                            return "Fighting";
+                        case 13:
+                            return "Flying";
+                        case 14:
+                            return "Poison";
+                        case 15:
+                            return "Ground";
+                        case 16:
+                            return "Rock";
+                        case 17:
+                            return "Bug";
+                        case 18:
+                            return "Ghost";
+                        case 19:
+                            return "Steel";
+                        case 20:
+                            return "Fire";
+                        case 21:
+                            return "Water";
+                        case 22:
+                            return "Grass";
+                        case 23:
+                            return "Electric";
+                        case 24:
+                            return "Psychic";
+                        case 25:
+                            return "Ice";
+                        case 26:
+                            return "Dragon";
+                        case 27:
+                            return "Dark";
+                        case 28:
+                            return "Fairy";
                     }
                     break;
             }

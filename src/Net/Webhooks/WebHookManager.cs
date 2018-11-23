@@ -408,7 +408,7 @@
                         continue;
                     }
 
-                    if (alarm.Filters.Raids.IgnoreMissing && (string.IsNullOrEmpty(raid.FastMove) || raid.FastMove == "?"))
+                    if (alarm.Filters.Raids.IgnoreMissing && raid.IsMissingStats)
                     {
                         _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: IgnoreMissing=true.");
                         continue;

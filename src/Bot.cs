@@ -787,19 +787,16 @@
                 //eb.Description += $"**Size:** {size}\r\n";
             }
 
-            var fastMoveId = Convert.ToInt32(pokemon.FastMove ?? "0");
-            if (db.Movesets.ContainsKey(fastMoveId))
+            if (db.Movesets.ContainsKey(pokemon.FastMove))
             {
-                var fastMove = db.Movesets[fastMoveId];
+                var fastMove = db.Movesets[pokemon.FastMove];
                 eb.Description += _lang.Translate("EMBED_MOVE_FAST").FormatText(fastMove.Name) + "\r\n";
                 //eb.Description += $"**Fast Move:** {fastMove.Name}\r\n";
-
             }
 
-            var chargeMoveId = Convert.ToInt32(pokemon.ChargeMove ?? "0");
-            if (db.Movesets.ContainsKey(chargeMoveId))
+            if (db.Movesets.ContainsKey(pokemon.ChargeMove))
             {
-                var chargeMove = db.Movesets[chargeMoveId];
+                var chargeMove = db.Movesets[pokemon.ChargeMove];
                 eb.Description += _lang.Translate("EMBED_MOVE_CHARGE").FormatText(chargeMove.Name) + "\r\n";
                 //eb.Description += $"**Charge Move:** {chargeMove.Name}\r\n";
             }
@@ -851,9 +848,15 @@
             }
             else
             {
-                eb.Description = _lang.Translate("EMBED_RAID_ENDS").FormatText(pkmn.Name, raid.EndTime.ToLongTimeString()) + "\r\n";
+                eb.Description += _lang.Translate("EMBED_RAID_ENDS").FormatText(pkmn.Name, raid.EndTime.ToLongTimeString()) + "\r\n";
                 eb.Description += _lang.Translate("EMBED_RAID_STARTED").FormatText(raid.StartTime.ToLongTimeString()) + "\r\n";
                 eb.Description += _lang.Translate("EMBED_RAID_ENDS_WITH_TIME_LEFT").FormatText(raid.EndTime.ToLongTimeString(), raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()) + "\r\n";
+
+                if (raid.Form > 0)
+                {
+                    var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
+                    eb.Description += _lang.Translate("EMBED_POKEMON_FORM").FormatText(form) + "\r\n";
+                }
                 //eb.Description += $"{pkmn.Name} Raid Ends: {raid.EndTime.ToLongTimeString()}\r\n\r\n";
                 //eb.Description += $"**Started:** {raid.StartTime.ToLongTimeString()}\r\n";
                 //eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()} left)\r\n";
@@ -869,18 +872,16 @@
                     //eb.Description += $"**Types:** {GetTypeEmojiIcons(pkmn.Types)}\r\n";
                 }
 
-                var fastMoveId = Convert.ToInt32(raid.FastMove ?? "0");
-                if (db.Movesets.ContainsKey(fastMoveId))
+                if (db.Movesets.ContainsKey(raid.FastMove))
                 {
-                    var fastMove = db.Movesets[fastMoveId];
+                    var fastMove = db.Movesets[raid.FastMove];
                     eb.Description += _lang.Translate("EMBED_MOVE_FAST").FormatText(fastMove.Name) + "\r\n";
                     //eb.Description += $"**Fast Move:** {fastMove.Name}\r\n";
                 }
 
-                var chargeMoveId = Convert.ToInt32(raid.ChargeMove ?? "0");
-                if (db.Movesets.ContainsKey(chargeMoveId))
+                if (db.Movesets.ContainsKey(raid.ChargeMove))
                 {
-                    var chargeMove = db.Movesets[chargeMoveId];
+                    var chargeMove = db.Movesets[raid.ChargeMove];
                     eb.Description += _lang.Translate("EMBED_MOVE_CHARGE").FormatText(chargeMove.Name) + "\r\n";
                     //eb.Description += $"**Charge Move:** {chargeMove.Name}\r\n";
                 }
