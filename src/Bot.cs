@@ -48,6 +48,12 @@
             _logger = EventLogger.GetLogger(name);
             _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, SupporterRoleId={whConfig.SupporterRoleId}, WebhookPort={whConfig.WebHookPort}]");
 
+            _lang = new Translator();
+            _queue = new NotificationQueue();
+
+            _whConfig = whConfig;
+            DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
+
 #pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
             AppDomain.CurrentDomain.UnhandledException += async (sender, e) =>
 #pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
@@ -70,12 +76,6 @@
                     }
                 }
             };
-
-            _lang = new Translator();
-            _queue = new NotificationQueue();
-
-            _whConfig = whConfig;
-            DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
 
             _whm = new WebhookManager(_whConfig.WebHookPort);
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
@@ -719,7 +719,7 @@
                 {
                     if (_queue.Count == 0)
                     {
-                        System.Threading.Thread.Sleep(10);
+                        System.Threading.Thread.Sleep(50);
                         continue;
                     }
 
@@ -729,7 +729,7 @@
                     _logger.Debug($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
                     //await Task.Delay(10);
 
-                    System.Threading.Thread.Sleep(10);
+                    System.Threading.Thread.Sleep(50);
                 }
             })
             { IsBackground = true }.Start();
@@ -794,8 +794,11 @@
             //var maxWildCp = db.MaxCpAtLevel(pokemon.Id, 35);
             //eb.Description += $"**Max Wild CP:** {maxWildCp}, **Max CP:** {maxCp} \r\n";
 
-            eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER").FormatText(Strings.WeatherEmojis[pokemon.Weather]) + "\r\n";
-            //eb.Description += $"**Weather:** {Strings.WeatherEmojis[pokemon.Weather]}\r\n";
+            if (Strings.WeatherEmojis.ContainsKey(pokemon.Weather))
+            {
+                eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER").FormatText(Strings.WeatherEmojis[pokemon.Weather]) + "\r\n";
+                //eb.Description += $"**Weather:** {Strings.WeatherEmojis[pokemon.Weather]}\r\n";
+            }
 
             if (pkmn.Types != null)
             {

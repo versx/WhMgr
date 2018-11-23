@@ -41,7 +41,7 @@
 
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";
 
-        public const string CrashMessage = "WH JUST CRASHED!";
+        public const string CrashMessage = "WHM JUST CRASHED!";
 
         public static readonly string[] EmojiList =
         {
