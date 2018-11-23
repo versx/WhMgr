@@ -397,7 +397,8 @@
                 return string.Format(Strings.PokemonImage, pokemonId, formId);
             }
 
-            return string.Format(Strings.PokemonImage, pokemonId, (int)gender);
+            var genderId = gender == PokemonGender.Female ? 1 : 0;
+            return string.Format(Strings.PokemonImage, pokemonId, genderId);
         }
 
         //public static string GetPokemonImage(this int pokemonId, PokemonGender gender, string form, bool shiny)
