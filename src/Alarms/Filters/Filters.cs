@@ -73,28 +73,21 @@
 
         public bool MatchesLvl(string lvl, int minimumLvl)
         {
-            //var matchesLvl = false;
-            //if (lvl != "?" && !string.IsNullOrEmpty(lvl))
-            //{
-            //    if (!int.TryParse(lvl, out int resultLvl))
-            //    {
-            //        _logger.Error($"Failed to parse pokemon level value '{lvl}', skipping filter check.");
-            //        return false;
-            //    }
-
-            //    matchesLvl |= resultLvl >= minimumLvl;
-            //}
-
-            //matchesLvl |= ((string.IsNullOrEmpty(lvl) || lvl == "?") && minimumLvl == 0);
-
-            if (!int.TryParse(lvl, out int resultLvl))
+            var matchesLvl = false;
+            if (lvl != "?" && !string.IsNullOrEmpty(lvl))
             {
-                return (string.IsNullOrEmpty(lvl) || lvl == "?") && minimumLvl == 0;
+                if (!int.TryParse(lvl, out int resultLvl))
+                {
+                    _logger.Error($"Failed to parse pokemon level value '{lvl}', skipping filter check.");
+                    return false;
+                }
+
+                matchesLvl |= resultLvl >= minimumLvl;
             }
 
-            return resultLvl >= minimumLvl;
+            matchesLvl |= ((string.IsNullOrEmpty(lvl) || lvl == "?") && minimumLvl == 0);
 
-            //return matchesLvl;
+            return matchesLvl;
         }
 
         public bool MatchesGender(PokemonGender gender, PokemonGender desiredGender)

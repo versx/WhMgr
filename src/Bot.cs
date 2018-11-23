@@ -462,7 +462,7 @@
 
                     matchesIV = _whm.Filters.MatchesIV(pkmn.IV, subscribedPokemon.MinimumIV);
                     //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
-                    matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level.ToString(), subscribedPokemon.MinimumLevel);
+                    matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, subscribedPokemon.MinimumLevel);
                     matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
 
                     if (!(matchesIV && matchesLvl && matchesGender))
@@ -784,7 +784,7 @@
                 //eb.Description += $"**Form:** {form}\r\n";
             }
 
-            if (pokemon.Level >= 30)
+            if (int.TryParse(pokemon.Level, out var lvl) && lvl >= 30)
             {
                 eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER_BOOSTED") + "\r\n";
                 //eb.Description += $":white_sun_rain_cloud: Boosted\r\n";
@@ -813,16 +813,18 @@
                 //eb.Description += $"**Size:** {size}\r\n";
             }
 
-            if (db.Movesets.ContainsKey(pokemon.FastMove))
+            int.TryParse(pokemon.FastMove, out var fastMoveId);
+            if (db.Movesets.ContainsKey(fastMoveId))
             {
-                var fastMove = db.Movesets[pokemon.FastMove];
+                var fastMove = db.Movesets[fastMoveId];
                 eb.Description += _lang.Translate("EMBED_MOVE_FAST").FormatText(fastMove.Name) + "\r\n";
                 //eb.Description += $"**Fast Move:** {fastMove.Name}\r\n";
             }
 
-            if (db.Movesets.ContainsKey(pokemon.ChargeMove))
+            int.TryParse(pokemon.ChargeMove, out var chargeMoveId);
+            if (db.Movesets.ContainsKey(chargeMoveId))
             {
-                var chargeMove = db.Movesets[pokemon.ChargeMove];
+                var chargeMove = db.Movesets[chargeMoveId];
                 eb.Description += _lang.Translate("EMBED_MOVE_CHARGE").FormatText(chargeMove.Name) + "\r\n";
                 //eb.Description += $"**Charge Move:** {chargeMove.Name}\r\n";
             }
@@ -927,9 +929,14 @@
                 eb.Description += _lang.Translate("EMBED_RAID_EX_GYM").FormatText(exEmoji) + "\r\n";
                 //eb.Description += $"{exEmoji} **Gym!**\r\n";
             }
-            var teamEmojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId(raid.Team.ToString().ToLower());
-            var teamEmoji = teamEmojiId > 0 ? $"<:{raid.Team.ToString().ToLower()}:{teamEmojiId}>" : raid.Team.ToString();
-            eb.Description += _lang.Translate("EMBED_TEAM").FormatText(teamEmoji) + "\r\n";
+
+            if (_client.Guilds.ContainsKey(_whConfig.GuildId))
+            {
+                var teamEmojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId(raid.Team.ToString().ToLower());
+                var teamEmoji = teamEmojiId > 0 ? $"<:{raid.Team.ToString().ToLower()}:{teamEmojiId}>" : raid.Team.ToString();
+                eb.Description += _lang.Translate("EMBED_TEAM").FormatText(teamEmoji) + "\r\n";
+            }
+
             eb.Description += _lang.Translate("EMBED_LOCATION").FormatText(Math.Round(raid.Latitude, 5), Math.Round(raid.Longitude, 5)) + "\r\n";
             //eb.Description += $"**Team:** {teamEmoji}\r\n";
             //eb.Description += $"**Location:** {Math.Round(raid.Latitude, 5)},{Math.Round(raid.Longitude, 5)}\r\n";

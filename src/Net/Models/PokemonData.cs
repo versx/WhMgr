@@ -49,8 +49,8 @@
         [JsonProperty("costume")]
         public int Costume { get; set; }
 
-        [JsonProperty("level")]
-        public int Level { get; set; }
+        [JsonProperty("pokemon_level")]
+        public string Level { get; set; }
 
         [JsonProperty("latitude")]
         public double Latitude { get; set; }
@@ -59,10 +59,10 @@
         public double Longitude { get; set; }
 
         [JsonProperty("move_1")]
-        public int FastMove { get; set; }
+        public string FastMove { get; set; }
 
         [JsonProperty("move_2")]
-        public int ChargeMove { get; set; }
+        public string ChargeMove { get; set; }
 
         [JsonProperty("height")]
         public string Height { get; set; }
@@ -110,7 +110,7 @@
         public string FormId { get; set; }
 
         [JsonIgnore]
-        public bool IsMissingStats => Level == 0;
+        public bool IsMissingStats => string.IsNullOrEmpty(Level);
 
         #endregion
 
