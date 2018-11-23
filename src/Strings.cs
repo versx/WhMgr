@@ -41,6 +41,8 @@
 
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";
 
+        public const string CrashMessage = "WH JUST CRASHED!";
+
         public static readonly string[] EmojiList =
         {
             //Team emojis

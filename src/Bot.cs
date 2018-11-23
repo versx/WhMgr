@@ -48,6 +48,29 @@
             _logger = EventLogger.GetLogger(name);
             _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, SupporterRoleId={whConfig.SupporterRoleId}, WebhookPort={whConfig.WebHookPort}]");
 
+#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
+            AppDomain.CurrentDomain.UnhandledException += async (sender, e) =>
+#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+            {
+                _logger.Debug("Unhandled exception caught.");
+                _logger.Error((Exception)e.ExceptionObject);
+
+                if (e.IsTerminating)
+                {
+                    if (_client != null)
+                    {
+                        var owner = await _client.GetUserAsync(_whConfig.OwnerId);
+                        if (owner == null)
+                        {
+                            _logger.Warn($"Failed to get owner from id {_whConfig.OwnerId}.");
+                            return;
+                        }
+
+                        await _client.SendDirectMessage(owner, Strings.CrashMessage, null);
+                    }
+                }
+            };
+
             _lang = new Translator();
             _queue = new NotificationQueue();
 
