@@ -731,13 +731,12 @@
                 return null;
             }
 
-            var form = pokemon.Id.GetPokemonForm(pokemon.FormId);
             var eb = new DiscordEmbedBuilder
             {
                 Title = string.IsNullOrEmpty(city) ? _lang.Translate("EMBED_DIRECTIONS") /*"DIRECTIONS"*/ : city,
                 Url = string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude),
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}",
-                ThumbnailUrl = string.Format(Strings.PokemonImage, pokemon.Id, Convert.ToInt32(pokemon.Gender)),//Convert.ToInt32(string.IsNullOrEmpty(pokemon.FormId) ? "0" : pokemon.FormId)),
+                ThumbnailUrl = pokemon.Id.GetPokemonImage(pokemon.Gender, pokemon.FormId),//string.Format(Strings.PokemonImage, pokemon.Id, Convert.ToInt32(pokemon.Gender)),//Convert.ToInt32(string.IsNullOrEmpty(pokemon.FormId) ? "0" : pokemon.FormId)),
                 Color = pokemon.IV.BuildColor()
             };
 
@@ -747,6 +746,7 @@
             //}
             //else
             //{
+            var form = pokemon.Id.GetPokemonForm(pokemon.FormId);
             eb.Description = _lang.Translate("EMBED_POKEMON_TITLE").FormatText(pkmn.Name, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.IV, pokemon.Level, pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n";
             eb.Description += _lang.Translate("EMBED_POKEMON_DETAILS").FormatText(pokemon.CP, pokemon.IV, pokemon.Level) + "\r\n";
             eb.Description += _lang.Translate("EMBED_POKEMON_STATS").FormatText(pokemon.Attack, pokemon.Defense, pokemon.Stamina) + "\r\n";
@@ -832,7 +832,7 @@
                 return null;
             }
 
-            var pkmnImage = raid.IsEgg ? string.Format(Strings.EggImage, raid.Level) : string.Format(Strings.PokemonImage, raid.PokemonId, 0);
+            var pkmnImage = raid.IsEgg ? string.Format(Strings.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(PokemonGender.Unset, raid.Form.ToString()); //string.Format(Strings.PokemonImage, raid.PokemonId, 0);
             var eb = new DiscordEmbedBuilder
             {
                 Title = string.IsNullOrEmpty(city) ? _lang.Translate("EMBED_DIRECTIONS") /*"DIRECTIONS"*/ : $"{city}: {raid.GymName}",

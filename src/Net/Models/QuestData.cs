@@ -8,6 +8,7 @@
 
     using WhMgr.Data;
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
 
     /*
 [
@@ -239,7 +240,8 @@
                 case QuestRewardType.Item:
                     return string.Format(Strings.QuestImage, (int)Rewards[0].Info.Item);
                 case QuestRewardType.PokemonEncounter:
-                    return string.Format(Strings.PokemonImage, Rewards[0].Info.Ditto ? 132 : Rewards[0].Info.PokemonId, 0);
+                    return (IsDitto ? 132 : Rewards[0].Info.PokemonId).GetPokemonImage((PokemonGender)Rewards?[0].Info.GenderId, Rewards?[0].Info.FormId.ToString());
+                //string.Format(Strings.PokemonImage, Rewards[0].Info.Ditto ? 132 : Rewards[0].Info.PokemonId, 0);
                 case QuestRewardType.Quest:
                     break;
                 case QuestRewardType.Stardust:
@@ -285,7 +287,7 @@
                             break;
                         case QuestConditionType.PlayerLevel:
                             list.Add("Reach level");
-                                break;
+                            break;
                         case QuestConditionType.PokemonCategory:
                             list.Add(string.Join(", ", condition.Info.PokemonIds?.Select(x => Database.Instance.Pokemon[x].Name).ToList()));
                             break;
@@ -313,6 +315,7 @@
                             list.Add("Weather boosted");
                             break;
                         case QuestConditionType.WinBattleStatus:
+                            list.Add("Win battle status");
                             break;
                         case QuestConditionType.WinGymBattleStatus:
                             list.Add("Win gym battle");
@@ -341,15 +344,15 @@
                 case QuestRewardType.Candy:
                     return $"{Rewards[0]?.Info.Amount.ToString("N0")} Rare Candy";
                 case QuestRewardType.Experience:
-                    return $"{Rewards[0].Info.Amount.ToString("N0")} XP";
+                    return $"{Rewards[0]?.Info.Amount.ToString("N0")} XP";
                 case QuestRewardType.Item:
-                    return $"{Rewards[0].Info.Amount.ToString("N0")} {Rewards[0].Info.Item}";
+                    return $"{Rewards[0]?.Info.Amount.ToString("N0")} {Rewards[0]?.Info.Item.ToString().Replace("_", " ")}";
                 case QuestRewardType.PokemonEncounter:
                     return IsShiny ? $"**SHINY** " : Database.Instance.Pokemon[IsDitto ? 132 : Rewards[0].Info.PokemonId].Name;
                 case QuestRewardType.Quest:
                     return "Quest";
                 case QuestRewardType.Stardust:
-                    return $"{Rewards[0].Info.Amount.ToString("N0")} Stardust";
+                    return $"{Rewards[0]?.Info.Amount.ToString("N0")} Stardust";
             }
 
             return "Unknown";
@@ -552,53 +555,53 @@
     public enum ItemId
     {
         Unknown = 0,
-        PokeBall = 1,
-        GreatBall = 2,
-        UltraBall = 3,
-        MasterBall = 4,
-        PremierBall = 5,
+        Poke_Ball = 1,
+        Great_Ball = 2,
+        Ultra_Ball = 3,
+        Master_Ball = 4,
+        Premier_Ball = 5,
         Potion = 101,
-        SuperPotion = 102,
-        HyperPotion = 103,
-        MaxPotion = 104,
+        Super_Potion = 102,
+        Hyper_Potion = 103,
+        Max_Potion = 104,
         Revive = 201,
-        MaxRevive = 202,
-        LuckyEgg = 301,
-        IncenseOrdinary = 401,
-        IncenseSpicy = 402,
-        IncenseCool = 403,
-        IncenseFloral = 404,
-        TroyDisk = 501,
-        XAttack = 602,
-        XDefense = 603,
-        XMiracle = 604,
-        RazzBerry = 701,
-        BlukBerry = 702,
-        NanabBerry = 703,
-        WeparBerry = 704,
-        PinapBerry = 705,
-        GoldenRazzBerry = 706,
-        GoldenNanabBerry = 707,
-        GoldenPinapBerry = 708,
-        SpecialCamera = 801,
-        IncubatorBasicUlimited = 901,
-        IncubatorBasic = 902,
-        IncubatorSuper = 903,
-        PokemonStorageUpgrade = 1001,
-        ItemStorageUpgrade = 1002,
-        SunStone = 1101,
-        KingsRock = 1102,
-        MetalCoat = 1103,
-        DragonScale = 1104,
+        Max_Revive = 202,
+        Lucky_Egg = 301,
+        Incense_Ordinary = 401,
+        Incense_Spicy = 402,
+        Incense_Cool = 403,
+        Incense_Floral = 404,
+        Troy_Disk = 501,
+        X_Attack = 602,
+        X_Defense = 603,
+        X_Miracle = 604,
+        Razz_Berry = 701,
+        Bluk_Berry = 702,
+        Nanab_Berry = 703,
+        Wepar_Berry = 704,
+        Pinap_Berry = 705,
+        Golden_Razz_Berry = 706,
+        Golden_Nanab_Berry = 707,
+        Golden_Pinap_Berry = 708,
+        Special_Camera = 801,
+        Incubator_Basic_Unlimited = 901,
+        Incubator_Basic = 902,
+        Incubator_Super = 903,
+        Pokemon_Storage_Upgrade = 1001,
+        Item_Storage_Upgrade = 1002,
+        Sun_Stone = 1101,
+        Kings_Rock = 1102,
+        Metal_Coat = 1103,
+        Dragon_Scale = 1104,
         Upgrade = 1105,
-        MoveRerollFastAttack = 1201,
-        MoveRerollSpecialAttack = 1202,
-        RareCandy = 1301,
-        FreeRaidTicket = 1401,
-        PaidRaidTicket = 1402,
-        LegendaryRaidTicket = 1403,
-        StarPiece = 1404,
-        FriendGiftBox = 1405
+        Move_Reroll_Fast_Attack = 1201,
+        Move_Reroll_Special_Attack = 1202,
+        Rare_Candy = 1301,
+        Free_Raid_Ticket = 1401,
+        Paid_Raid_Ticket = 1402,
+        Legendary_Raid_Ticket = 1403,
+        Star_Piece = 1404,
+        Friend_Gift_Box = 1405
     }
 
     public enum ActivityType

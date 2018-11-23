@@ -3,11 +3,11 @@
     public enum WeatherType
     {
         Clear = 0,
-        Rainy,
+        Rain,
         PartlyCloudy,
         Cloudy,
         Windy,
-        Snowy,
-        Foggy
+        Snow,
+        Fog
     }
 }

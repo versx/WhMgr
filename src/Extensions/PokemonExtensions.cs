@@ -3,12 +3,16 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
 
     using WhMgr.Data;
+    using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
     public static class PokemonExtensions
     {
+        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+
         public static readonly double[] CpMultipliers =
         {
             0.094, 0.16639787, 0.21573247, 0.25572005, 0.29024988,
@@ -127,12 +131,95 @@
 
             switch (pokeId)
             {
+                case 7: //Squirtle
+                    switch (form)
+                    {
+                        case 5: //Glasses
+                            return "Glasses";
+                    }
+                    break;
+                case 19: //Rattata
+                case 20: //Raticate
+                case 27: //Sandshrew
+                case 28: //Sandslash
+                case 37: //Vulpix
+                case 38: //Ninetales
+                case 50: //Diglett
+                case 51: //Dugtrio
+                case 52: //Meowth
+                case 53: //Persian
+                case 74: //Geodude
+                case 75: //Graveler
+                case 76: //Golem
+                case 88: //Grimer
+                case 89: //Muk
+                case 103: //Exeggutor
+                case 105: //Marowak
+                    switch (form)
+                    {
+                        case 61:
+                            return "Alola";
+                    }
+                    break;
+                case 25: //Pikachu
+                    switch (form)
+                    {
+                        case 1: //X-Mas Hat/Christmas
+                            return "Christmas";
+                        case 2: //Party Hat/Birthday
+                            return "Birthday";
+                        case 3: //Ash Hat
+                            return "Ash Hat";
+                        case 4: //Witch Hat/Halloween
+                            return "Halloween";
+                        case 5: //Straw Hat/Sun Glasses
+                            return "Straw Hat";
+                        case 6: //FM/
+                            return "FM";
+                    }
+                    break;
+                case 26: //Raichu
+                    switch (form)
+                    {
+                        case 1: //X-Mas Hat/Christmas
+                            return "Christmas";
+                        case 2: //Party Hat/Birthday
+                            return "Birthday";
+                        case 3: //Ash Hat
+                            return "Ash Hat";
+                        case 4: //Witch Hat/Halloween
+                            return "Halloween";
+                        case 5: //Straw Hat/Sun Glasses
+                            return "Straw Hat";
+                        case 6: //FM/
+                            return "FM";
+                        case 61:
+                            return "Alola";
+                    }
+                    break;
+                case 172: //Pichu
+                    switch (form)
+                    {
+                        case 1: //X-Mas Hat/Christmas
+                            return "Christmas";
+                        case 2: //Party Hat/Birthday
+                            return "Birthday";
+                        case 3: //Ash Hat
+                            return "Ash Hat";
+                        case 4: //Witch Hat/Halloween
+                            return "Halloween";
+                        case 5: //Straw Hat/Sun Glasses
+                            return "Straw Hat";
+                        case 6: //FM/
+                            return "FM Hat";
+                    }
+                    break;
                 case 201: //Unown
                     switch (form)
                     {
-                        case 27:
+                        case 27: //37
                             return "!";
-                        case 28:
+                        case 28: //38
                             return "?";
                         default:
                             return form.NumberToAlphabet(true).ToString();
@@ -140,23 +227,204 @@
                 case 351: //Castform
                     switch (form)
                     {
-                        case 29: //Normal
+                        case 11: //Normal //29
                             break;
-                        case 30: //Sunny
+                        case 12: //Sunny //30
                             return "Sunny";
-                        case 31: //Water
-                            return "Rain";
-                        case 32: //Snow
-                            return "Snow";
+                        case 13: //Water //31
+                            return "Rainy";
+                        case 14: //Snow //32
+                            return "Snowy";
                     }
                     break;
                 case 327: //Spinda
+                    switch (form)
+                    {
+                        case 11:
+                            return "00";
+                        case 12:
+                            return "01";
+                        case 13:
+                            return "02";
+                        case 14:
+                            return "03";
+                        case 15:
+                            return "04";
+                        case 16:
+                            return "05";
+                        case 17:
+                            return "06";
+                        case 18:
+                            return "07";
+                    }
+                    break;
                 case 386: //Deoxys
-                    return "N/A";
+                    switch (form)
+                    {
+                        case 11: //Normal
+                            break;
+                        case 12: //Attack
+                            return "Attack";
+                        case 13: //Defense
+                            return "Defense";
+                        case 14: //Speed
+                            return "Speed";
+                    }
+                    break;
+                case 413: //Wormadam
+                    switch (form)
+                    {
+                        case 11: //87
+                            break;
+                        case 12: //88
+                            break;
+                        case 13: //89
+                            break;
+                    }
+                    break;
+                case 421: //Cherrim
+                    switch (form)
+                    {
+                        case 11: //94
+                            break;
+                        case 12: //95
+                            break;
+                    }
+                    break;
+                case 422: //Shellos
+                    switch (form)
+                    {
+                        case 11: //96
+                            break;
+                        case 12: //97
+                            break;
+                    }
+                    break;
+                case 423: //Gastrodon
+                    switch (form)
+                    {
+                        case 11: //98
+                            break;
+                        case 12: //99
+                            break;
+                    }
+                    break;
+                case 479: //Rotom
+                    switch (form)
+                    {
+                        case 11: //81
+                            break;
+                        case 12: //82
+                            break;
+                        case 13: //83
+                            break;
+                        case 14: //84
+                            break;
+                        case 15: //85
+                            break;
+                        case 16: //86
+                            break;
+                    }
+                    break;
+                case 487: //Giratina
+                    switch (form)
+                    {
+                        case 11:
+                            return "Altered";
+                        case 12:
+                            return "Origin";
+                    }
+                    break;
+                case 492: //Shaymin
+                    switch (form)
+                    {
+                        case 11: //93
+                            break;
+                        case 12: //92
+                            break;
+                    }
+                    break;
+                case 493: //Arceus
+                    switch (form)
+                    {
+                        case 11: //100 Bug
+                            break;
+                        case 12: //101 Dark
+                            break;
+                        case 13: //102 Dragon
+                            break;
+                        case 14: //103 Electric
+                            break;
+                        case 15: //104 Fairy
+                            break;
+                        case 16: //105 Fighting
+                            break;
+                        case 17: //106 Fire
+                            break;
+                        case 18: //107 Flying
+                            break;
+                        case 19: //108 Ghost
+                            break;
+                        case 20: //109 Grass
+                            break;
+                        case 21: //110 Ground
+                            break;
+                        case 22: //111 Ice
+                            break;
+                        case 23: //112 Normal
+                            break;
+                        case 24: //113 Poison
+                            break;
+                        case 25: //114 Psychic
+                            break;
+                        case 26: //115 Rock
+                            break;
+                        case 27: //116 Steel
+                            break;
+                        case 28: //117 Water
+                            break;
+                    }
+                    break;
             }
 
             return null;
         }
+
+        public static string GetPokemonImage(this int pokemonId, PokemonGender gender, string form)
+        {
+            if (int.TryParse(form, out var formId))
+            {
+                return string.Format(Strings.PokemonImage, pokemonId, formId);
+            }
+
+            return string.Format(Strings.PokemonImage, pokemonId, (int)gender);
+        }
+
+        //public static string GetPokemonImage(this int pokemonId, PokemonGender gender, string form, bool shiny)
+        //{
+        //    var isShiny = shiny ? "_shiny" : null;
+        //    var formTag = int.TryParse(form, out var formId) && formId > 0 ? "_" + string.Format("{0:D2}", formId) : null;
+        //    var genderId = (int)gender > 1 ? 0 : (int)gender;
+        //    var url = string.Format(Strings.PokemonImage, pokemonId, genderId, formTag, isShiny);
+        //    if (IsUrlExist(url))
+        //    {
+        //        return url;
+        //    }
+
+        //    url = string.Format(Strings.PokemonImage, pokemonId, 0, int.TryParse(form, out formId) ? "_" + string.Format("{0:D2}", formId) : null, isShiny);
+        //    if (IsUrlExist(url))
+        //    {
+        //        return url;
+        //    }
+
+        //    url = string.Format(Strings.PokemonImage, pokemonId, form, isShiny, string.Empty);
+        //    if (int.TryParse(form, out formId))
+        //    {
+        //        return url;
+        //    }
+
+        //    return string.Format(Strings.PokemonImage, pokemonId, genderId, isShiny, string.Empty);
+        //}
 
         public static string GetPokemonGenderIcon(this PokemonGender gender)
         {
@@ -318,6 +586,32 @@
                 return pokeId;
 
             return 0;
+        }
+
+        private static bool IsUrlExist(string url)
+        {
+            try
+            {
+                //Creating the HttpWebRequest
+                var request = WebRequest.Create(url) as HttpWebRequest;
+
+                //Setting the Request method HEAD, you can also use GET too.
+                request.Method = "HEAD";
+
+                //Getting the Web Response.
+                using (var response = request.GetResponse() as HttpWebResponse)
+                {
+                    //Returns TRUE if the Status code == 200
+                    response.Close();
+
+                    return response.StatusCode == HttpStatusCode.OK;
+                }
+            }
+            catch
+            {
+                //Any exception will returns false.
+                return false;
+            }
         }
     }
 }
