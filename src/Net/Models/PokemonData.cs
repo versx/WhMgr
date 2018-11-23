@@ -50,7 +50,7 @@
         public int Costume { get; set; }
 
         [JsonProperty("level")]
-        public string Level { get; set; }
+        public int Level { get; set; }
 
         [JsonProperty("latitude")]
         public double Latitude { get; set; }
@@ -110,7 +110,7 @@
         public string FormId { get; set; }
 
         [JsonIgnore]
-        public bool IsMissingStats => FastMove == 0;
+        public bool IsMissingStats => Level == 0;
 
         #endregion
 

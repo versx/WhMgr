@@ -179,7 +179,7 @@
                             ParseGym(message.Message);
                             break;
                         case GymDetailsData.WebhookHeader:
-                             ParseGymDetails(message);
+                             ParseGymDetails(message.Message);
                             break;
                         case RaidData.WebHookHeader:
                             ParseRaid(message.Message);
