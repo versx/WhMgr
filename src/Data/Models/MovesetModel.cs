@@ -10,7 +10,7 @@
         public string Name { get; set; }
 
         [JsonProperty("type")]
-        public PokemonType Type { get; set; }
+        public string Type { get; set; }
 
         [JsonProperty("damage")]
         public int Damage { get; set; }
@@ -23,10 +23,5 @@
 
         [JsonProperty("dps")]
         public double Dps { get; set; }
-
-        public MovesetModel()
-        {
-            Type = PokemonType.None;
-        }
     }
 }
