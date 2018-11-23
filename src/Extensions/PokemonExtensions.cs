@@ -217,12 +217,12 @@
                 case 201: //Unown
                     switch (form)
                     {
-                        case 27: //37
+                        case 37:
                             return "!";
-                        case 28: //38
+                        case 38:
                             return "?";
                         default:
-                            return form.NumberToAlphabet(true).ToString();
+                            return form.NumberToAlphabet().ToString();
                     }
                 case 351: //Castform
                     switch (form)

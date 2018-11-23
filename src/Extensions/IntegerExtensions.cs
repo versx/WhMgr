@@ -4,9 +4,9 @@
 
     public static class IntegerExtensions
     {
-        public static char NumberToAlphabet(this int num, bool caps = false)
+        public static char NumberToAlphabet(this int num)
         {
-            return Convert.ToChar(num + (caps ? 64 : 96));
+            return Convert.ToChar(num + 54);
         }
 
         public static DateTime FromUnix(this long unixSeconds)
