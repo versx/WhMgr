@@ -298,11 +298,11 @@
             }
 
             var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId);
-            var pkmnImage = string.Format(Strings.PokemonImage, e.Pokemon.Id, Convert.ToInt32(string.IsNullOrEmpty(e.Pokemon.FormId) ? "0" : e.Pokemon.FormId));
+            var pkmnImage = e.Pokemon.Id.GetPokemonImage(e.Pokemon.Gender, form);//string.Format(Strings.PokemonImage, e.Pokemon.Id, Convert.ToInt32(string.IsNullOrEmpty(e.Pokemon.FormId) ? "0" : e.Pokemon.FormId));
             var eb = BuildPokemonMessage(e.Pokemon, loc.Name);
 
             var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-            var name = $"{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
+            var name = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
             await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
             PokemonSent++;
         }
@@ -326,11 +326,12 @@
                 return;
             }
 
-            var pkmnImage = e.Raid.IsEgg ? string.Format(Strings.EggImage, e.Raid.Level) : string.Format(Strings.PokemonImage, e.Raid.PokemonId, 0);
+            var form = e.Raid.PokemonId.GetPokemonForm(e.Raid.Form.ToString());
+            var pkmnImage = e.Raid.IsEgg ? string.Format(Strings.EggImage, e.Raid.Level) : e.Raid.PokemonId.GetPokemonImage(PokemonGender.Unset, e.Raid.Form.ToString());//string.Format(Strings.PokemonImage, e.Raid.PokemonId, 0);
             var eb = BuildRaidMessage(e.Raid, loc.Name);
 
             var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-            var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : $"{pkmn.Name} Raid";
+            var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
             await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
             RaidsSent++;
         }
@@ -780,13 +781,14 @@
             };
 
             var form = pokemon.Id.GetPokemonForm(pokemon.FormId);
+            var pkmnName = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}";
             if (pokemon.IsMissingStats)
             {
-                eb.Description = _lang.Translate("EMBED_POKEMON_TITLE_WITHOUT_DETAILS").FormatText(pkmn.Name, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n"; //$"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
+                eb.Description = _lang.Translate("EMBED_POKEMON_TITLE_WITHOUT_DETAILS").FormatText(pkmnName, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n"; //$"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
             }
             else
             {
-                eb.Description = _lang.Translate("EMBED_POKEMON_TITLE").FormatText(pkmn.Name, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.IV, pokemon.Level, pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n";
+                eb.Description = _lang.Translate("EMBED_POKEMON_TITLE").FormatText(pkmnName, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.IV, pokemon.Level, pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n";
                 eb.Description += _lang.Translate("EMBED_POKEMON_DETAILS").FormatText(pokemon.CP, pokemon.IV, pokemon.Level) + "\r\n";
                 eb.Description += _lang.Translate("EMBED_POKEMON_STATS").FormatText(pokemon.Attack, pokemon.Defense, pokemon.Stamina) + "\r\n";
                 //eb.Description = $"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} {pokemon.IV} L{pokemon.Level} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
@@ -892,13 +894,15 @@
             }
             else
             {
-                eb.Description += _lang.Translate("EMBED_RAID_ENDS").FormatText(pkmn.Name, raid.EndTime.ToLongTimeString()) + "\r\n";
+                var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
+                var pkmnName = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}";
+                eb.Description += _lang.Translate("EMBED_RAID_ENDS").FormatText(pkmnName, raid.EndTime.ToLongTimeString()) + "\r\n";
                 eb.Description += _lang.Translate("EMBED_RAID_STARTED").FormatText(raid.StartTime.ToLongTimeString()) + "\r\n";
                 eb.Description += _lang.Translate("EMBED_RAID_ENDS_WITH_TIME_LEFT").FormatText(raid.EndTime.ToLongTimeString(), raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()) + "\r\n";
 
                 if (raid.Form > 0)
                 {
-                    var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
+                    //var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                     eb.Description += _lang.Translate("EMBED_POKEMON_FORM").FormatText(form) + "\r\n";
                 }
                 //eb.Description += $"{pkmn.Name} Raid Ends: {raid.EndTime.ToLongTimeString()}\r\n\r\n";

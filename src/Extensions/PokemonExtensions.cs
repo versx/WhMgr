@@ -157,7 +157,10 @@
                 case 105: //Marowak
                     switch (form)
                     {
+                        case 50:
                         case 61:
+                        case 78:
+                        case 80:
                             return "Alola";
                     }
                     break;
@@ -193,7 +196,10 @@
                             return "Straw Hat";
                         case 6: //FM/
                             return "FM";
+                        case 50:
                         case 61:
+                        case 78:
+                        case 80:
                             return "Alola";
                     }
                     break;
@@ -224,6 +230,7 @@
                         default:
                             return form.NumberToAlphabet().ToString();
                     }
+                    break;
                 case 351: //Castform
                     switch (form)
                     {
