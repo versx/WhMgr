@@ -297,8 +297,8 @@
                 return;
             }
 
-            var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId);
-            var pkmnImage = e.Pokemon.Id.GetPokemonImage(e.Pokemon.Gender, form);//string.Format(Strings.PokemonImage, e.Pokemon.Id, Convert.ToInt32(string.IsNullOrEmpty(e.Pokemon.FormId) ? "0" : e.Pokemon.FormId));
+            var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId.ToString());
+            var pkmnImage = e.Pokemon.Id.GetPokemonImage(e.Pokemon.Gender, e.Pokemon.FormId.ToString());//string.Format(Strings.PokemonImage, e.Pokemon.Id, Convert.ToInt32(string.IsNullOrEmpty(e.Pokemon.FormId) ? "0" : e.Pokemon.FormId));
             var eb = BuildPokemonMessage(e.Pokemon, loc.Name);
 
             var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
@@ -776,12 +776,12 @@
                 Title = string.IsNullOrEmpty(city) ? _lang.Translate("EMBED_DIRECTIONS") /*"DIRECTIONS"*/ : city,
                 Url = string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude),
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}",
-                ThumbnailUrl = pokemon.Id.GetPokemonImage(pokemon.Gender, pokemon.FormId),//string.Format(Strings.PokemonImage, pokemon.Id, Convert.ToInt32(pokemon.Gender)),//Convert.ToInt32(string.IsNullOrEmpty(pokemon.FormId) ? "0" : pokemon.FormId)),
+                ThumbnailUrl = pokemon.Id.GetPokemonImage(pokemon.Gender, pokemon.FormId.ToString()),//string.Format(Strings.PokemonImage, pokemon.Id, Convert.ToInt32(pokemon.Gender)),//Convert.ToInt32(string.IsNullOrEmpty(pokemon.FormId) ? "0" : pokemon.FormId)),
                 Color = pokemon.IV.BuildColor()
             };
 
-            var form = pokemon.Id.GetPokemonForm(pokemon.FormId);
-            var pkmnName = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}";
+            var form = pokemon.Id.GetPokemonForm(pokemon.FormId.ToString());
+            var pkmnName = pkmn.Name;//$"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}";
             if (pokemon.IsMissingStats)
             {
                 eb.Description = _lang.Translate("EMBED_POKEMON_TITLE_WITHOUT_DETAILS").FormatText(pkmnName, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n"; //$"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
@@ -895,7 +895,7 @@
             else
             {
                 var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
-                var pkmnName = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}";
+                var pkmnName = $"{(string.IsNullOrEmpty(form) ? null : $"{form}-")}{pkmn.Name}";//$"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}";
                 eb.Description += _lang.Translate("EMBED_RAID_ENDS").FormatText(pkmnName, raid.EndTime.ToLongTimeString()) + "\r\n";
                 eb.Description += _lang.Translate("EMBED_RAID_STARTED").FormatText(raid.StartTime.ToLongTimeString()) + "\r\n";
                 eb.Description += _lang.Translate("EMBED_RAID_ENDS_WITH_TIME_LEFT").FormatText(raid.EndTime.ToLongTimeString(), raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()) + "\r\n";

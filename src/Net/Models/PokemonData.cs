@@ -107,7 +107,7 @@
         public DateTime LastModifiedTime { get; set; }
 
         [JsonProperty("form")]
-        public string FormId { get; set; }
+        public int FormId { get; set; }
 
         [JsonIgnore]
         public bool IsMissingStats => string.IsNullOrEmpty(Level);

@@ -129,6 +129,9 @@
             if (!int.TryParse(formId, out int form))
                 return null;
 
+            if (form == 0)
+                return null;
+
             switch (pokeId)
             {
                 case 7: //Squirtle
@@ -141,6 +144,12 @@
                 case 19: //Rattata
                 case 20: //Raticate
                 case 27: //Sandshrew
+                    //switch (form)
+                    //{
+                    //    case 51:
+                    //        return "Alola";
+                    //}
+                    //break;
                 case 28: //Sandslash
                 case 37: //Vulpix
                 case 38: //Ninetales
@@ -148,19 +157,30 @@
                 case 51: //Dugtrio
                 case 52: //Meowth
                 case 53: //Persian
-                case 74: //Geodude
-                case 75: //Graveler
-                case 76: //Golem
                 case 88: //Grimer
                 case 89: //Muk
                 case 103: //Exeggutor
                 case 105: //Marowak
                     switch (form)
                     {
+                        case 49:
                         case 50:
+                        case 51:
+                        case 55:
                         case 61:
+                        case 63:
+                        case 67:
                         case 78:
                         case 80:
+                            return "Alola";
+                    }
+                    break;
+                case 74: //Geodude
+                case 75: //Graveler
+                case 76: //Golem
+                    switch (form)
+                    {
+                        case 67:
                             return "Alola";
                     }
                     break;
@@ -230,7 +250,6 @@
                         default:
                             return form.NumberToAlphabet().ToString();
                     }
-                    break;
                 case 351: //Castform
                     switch (form)
                     {
