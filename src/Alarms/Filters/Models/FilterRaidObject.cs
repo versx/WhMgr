@@ -17,6 +17,9 @@
         [JsonProperty("type")]
         public FilterType FilterType { get; set; }
 
+        [JsonProperty("onlyEx")]
+        public bool OnlyEx { get; set; }
+
         [JsonProperty("ignoreMissing")]
         public bool IgnoreMissing { get; set; }
     }

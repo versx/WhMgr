@@ -376,6 +376,12 @@
                         continue;
                     }
 
+                    if (alarm.Filters.Eggs.OnlyEx && !(raid.IsExclusive || raid.SponsorId))
+                    {
+                        _logger.Info($"[{alarm.Name}[{geofence.Name}] Skipping level {raid.Level} raid egg: only ex {alarm.Filters.Eggs.OnlyEx}.");
+                        continue;
+                    }
+
                     _logger.Info($"[{alarm.Name}] [{geofence.Name}] Notification triggered for level {raid.Level} raid egg.");
                     OnRaidAlarmTriggered(raid, alarm);
                 }
@@ -405,6 +411,12 @@
                     if (alarm.Filters.Raids.FilterType == FilterType.Include && (!alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId) && alarm.Filters.Raids.Pokemon?.Count > 0))
                     {
                         _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: filter {alarm.Filters.Raids.FilterType}.");
+                        continue;
+                    }
+
+                    if (alarm.Filters.Raids.OnlyEx && !(raid.IsExclusive || raid.SponsorId))
+                    {
+                        _logger.Info($"[{alarm.Name}[{geofence.Name}] Skipping raid boss {raid.PokemonId}: only ex {alarm.Filters.Raids.OnlyEx}.");
                         continue;
                     }
 

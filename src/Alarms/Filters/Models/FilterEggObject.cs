@@ -13,6 +13,9 @@
         [JsonProperty("max_lvl")]
         public uint MaximumLevel { get; set; }
 
+        [JsonProperty("onlyEx")]
+        public bool OnlyEx { get; set; }
+
         public FilterEggObject()
         {
             MinimumLevel = 1;
