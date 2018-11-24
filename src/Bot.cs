@@ -40,6 +40,18 @@
 
         #endregion
 
+        public static long PokemonSent { get; set; }
+
+        public static long RaidsSent { get; set; }
+
+        public static long QuestsSent { get; set; }
+
+        public static long SubscriptionPokemonSent { get; set; }
+
+        public static long SubscriptionRaidsSent { get; set; }
+
+        public static long SubscriptionQuestsSent { get; set; }
+
         #region Constructor
 
         public Bot(WhConfig whConfig)
@@ -292,6 +304,7 @@
             var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
             var name = $"{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
             await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
+            PokemonSent++;
         }
 
         private async void OnRaidAlarmTriggered(object sender, RaidAlarmTriggeredEventArgs e)
@@ -319,6 +332,7 @@
             var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
             var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : $"{pkmn.Name} Raid";
             await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
+            RaidsSent++;
         }
 
         private async void OnQuestAlarmTriggered(object sender, QuestAlarmTriggeredEventArgs e)
@@ -344,6 +358,7 @@
                 var eb = BuildQuestMessage(e.Quest, loc?.Name ?? e.Alarm.Name);
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 await whData.ExecuteAsync(string.Empty, e.Quest.GetMessage(), e.Quest.GetIconUrl(), false, new List<DiscordEmbed> { eb });
+                QuestsSent++;
             }
             catch (Exception ex)
             {
@@ -489,9 +504,8 @@
 
                     var embed = BuildPokemonMessage(pkmn, loc.Name);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
+                    SubscriptionPokemonSent++;
                     System.Threading.Thread.Sleep(5);
-                    //await SendNotification(user.UserId, pokemon.Name, embed);
-                    //await Task.Delay(10);
                 }
                 catch (Exception ex)
                 {
@@ -594,6 +608,7 @@
                     //await SendNotification(user.UserId, pokemon.Name, embed);
                     //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
+                    SubscriptionRaidsSent++;
                     System.Threading.Thread.Sleep(5);
                 }
                 catch (Exception ex)
@@ -698,6 +713,7 @@
                     //await SendNotification(user.UserId, questName, embed);
                     //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
+                    SubscriptionQuestsSent++;
                     System.Threading.Thread.Sleep(5);
                 }
                 catch (Exception ex)

@@ -816,6 +816,46 @@
             }
         }
 
+        [
+            Command("set-distance"),
+            Description("Set the distance and location you'd like to receive raid notifications.")
+        ]
+        public async Task SetDistanceAsync(CommandContext ctx,
+            [Description("Maximum distance in meters between the set coordinates.")] double distance,
+            [Description("")] string coordinates)
+        {
+            _logger.Info($"Distance: {distance}");
+            _logger.Info($"Coordinates: {coordinates}");
+
+            await Task.CompletedTask;
+        }
+
+        [
+            Command("stats"),
+            Description("Notification statistics for alarms and subscriptions of Pokemon, Raids, and Quests.")
+        ]
+        public async Task StatsAsync(CommandContext ctx)
+        {
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = "Notification Statistics",
+                Color = DiscordColor.Blurple,
+                ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
+            };
+            eb.AddField("Pokemon", Bot.PokemonSent.ToString("N0"), true);
+            eb.AddField("Pokemon Subscriptions", Bot.SubscriptionPokemonSent.ToString("N0"), true);
+            eb.AddField("Raids", Bot.RaidsSent.ToString("N0"), true);
+            eb.AddField("Raid Subscriptions", Bot.SubscriptionRaidsSent.ToString("N0"), true);
+            eb.AddField("Quests", Bot.QuestsSent.ToString("N0"), true);
+            eb.AddField("Quest Subscriptions", Bot.SubscriptionQuestsSent.ToString("N0"), true);
+            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
+            {
+                Text = $"versx | {DateTime.Now}",
+                IconUrl = ctx.Guild?.IconUrl
+            };
+            await ctx.RespondAsync(ctx.User.Mention, false, eb);
+        }
+
         #region Private Methods
 
         private async Task SendUserSubscriptionSettings(DiscordClient client, DiscordUser receiver, DiscordUser user)
