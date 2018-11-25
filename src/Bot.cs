@@ -296,6 +296,7 @@
                 var name = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
                 await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
                 Statistics.Instance.PokemonSent++;
+                Statistics.Instance.IncrementPokemonStats(e.Pokemon.Id);
             }
             catch (Exception ex)
             {
@@ -332,6 +333,10 @@
                 var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
                 await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
                 Statistics.Instance.RaidsSent++;
+                if (e.Raid.PokemonId > 0)
+                {
+                    Statistics.Instance.IncrementRaidStats(e.Raid.PokemonId);
+                }
             }
             catch (Exception ex)
             {

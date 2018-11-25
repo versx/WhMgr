@@ -5,10 +5,8 @@
     using System.IO;
     using System.Linq;
 
-    using ServiceStack.OrmLite;
-
     using WhMgr.Data;
-    using WhMgr.Data.Models;
+    using WhMgr.Extensions;
 
     public class Statistics
     {
@@ -44,15 +42,51 @@
 
         public long SubscriptionQuestsSent { get; set; }
 
-        public List<PokemonStats> Top25Pokemon => GetPokemonStats(DateTime.Now)?.Take(25).ToList();
+        public Dictionary<int, int> PokemonStats { get; set; }
 
-        public List<RaidStats> Top25Raids => GetRaidStats(DateTime.Now)?.Take(25).ToList();
+        public Dictionary<int, int> RaidStats { get; set; }
 
-        public List<QuestStats> Top25Quests => GetQuestStats(DateTime.Now)?.Take(25).ToList();
+        public IEnumerable<KeyValuePair<int, int>> Top25Pokemon => PokemonStats.GroupWithCount(25);
+
+        public IEnumerable<KeyValuePair<int, int>> Top25Raids => RaidStats.GroupWithCount(25);
+
+        #endregion
+
+        #region Constructor
+
+        public Statistics()
+        {
+            PokemonStats = new Dictionary<int, int>();
+            RaidStats = new Dictionary<int, int>();
+        }
 
         #endregion
 
         #region Public Methods
+
+        public void IncrementPokemonStats(int pokemonId)
+        {
+            if (PokemonStats.ContainsKey(pokemonId))
+            {
+                PokemonStats[pokemonId]++;
+            }
+            else
+            {
+                PokemonStats.Add(pokemonId, 1);
+            }
+        }
+
+        public void IncrementRaidStats(int pokemonId)
+        {
+            if (RaidStats.ContainsKey(pokemonId))
+            {
+                RaidStats[pokemonId]++;
+            }
+            else
+            {
+                RaidStats.Add(pokemonId, 1);
+            }
+        }
 
         public void WriteOut()
         {
@@ -78,67 +112,23 @@
             sb.Append(",");
             sb.Append(stats.SubscriptionQuestsSent);
             sb.Append(",");
-            sb.Append(string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{Database.Instance.Pokemon[x.PokemonId].Name}: {x.Count.ToString("N0")}")));
+            sb.Append(string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}")));
             sb.Append(",");
-            sb.Append(string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{Database.Instance.Pokemon[x.PokemonId].Name}: {x.Count.ToString("N0")}")));
+            sb.Append(string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}")));
 
             File.WriteAllText(Path.Combine(Strings.StatsFolder, string.Format(Strings.StatsFileName, DateTime.Now.ToString("yyyy-MM-dd_hhmmss"))), sb.ToString());
         }
 
         public void Reset()
         {
+            PokemonStats.Clear();
+            RaidStats.Clear();
             PokemonSent = 0;
             RaidsSent = 0;
             QuestsSent = 0;
             SubscriptionPokemonSent = 0;
             SubscriptionRaidsSent = 0;
             SubscriptionQuestsSent = 0;
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private static List<PokemonStats> GetPokemonStats(DateTime dateTime)
-        {
-            using (var db = DataAccessLayer.CreateFactory())
-            {
-                var stats = db.LoadSelect<PokemonStats>()
-                    .Where(x =>
-                        x.Date.Year == dateTime.Year &&
-                        x.Date.Month == dateTime.Month &&
-                        x.Date.Day == dateTime.Day)
-                    .OrderByDescending(x => x.Count).ToList();
-                return stats;
-            }
-        }
-
-        private static List<RaidStats> GetRaidStats(DateTime dateTime)
-        {
-            using (var db = DataAccessLayer.CreateFactory())
-            {
-                var stats = db.LoadSelect<RaidStats>()
-                    .Where(x =>
-                        x.Date.Year == dateTime.Year &&
-                        x.Date.Month == dateTime.Month &&
-                        x.Date.Day == dateTime.Day)
-                    .OrderByDescending(x => x.Count).ToList();
-                return stats;
-            }
-        }
-
-        private static List<QuestStats> GetQuestStats(DateTime dateTime)
-        {
-            using (var db = DataAccessLayer.CreateFactory())
-            {
-                var stats = db.LoadSelect<QuestStats>()
-                    .Where(x =>
-                        x.Date.Year == dateTime.Year &&
-                        x.Date.Month == dateTime.Month &&
-                        x.Date.Day == dateTime.Day)
-                    .OrderByDescending(x => x.Count).ToList();
-                return stats;
-            }
         }
 
         #endregion
