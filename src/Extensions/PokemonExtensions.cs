@@ -244,9 +244,9 @@
                 case 201: //Unown
                     switch (form)
                     {
-                        case 37:
+                        case 27:
                             return "!";
-                        case 38:
+                        case 28:
                             return "?";
                         default:
                             return form.NumberToAlphabet().ToString();
@@ -254,13 +254,13 @@
                 case 351: //Castform
                     switch (form)
                     {
-                        case 11: //Normal //29
+                        case 29: //Normal //29 GM is 11
                             break;
-                        case 12: //Sunny //30
+                        case 30: //Sunny //30 GM is 12
                             return "Sunny";
-                        case 13: //Water //31
+                        case 31: //Water //31 GM is 13
                             return "Rainy";
-                        case 14: //Snow //32
+                        case 32: //Snow //32 GM is 14
                             return "Snowy";
                     }
                     break;

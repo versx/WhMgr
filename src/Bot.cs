@@ -24,7 +24,9 @@
 
     using ServiceStack.OrmLite;
 
-    //TODO: User statistics, or even just alarm stats by day. date/pokemonId/count
+    //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
+    //TODO: Optimize webhook and subscription processing.
+    //TODO: Raid lobby manager
 
     public class Bot
     {
