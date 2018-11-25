@@ -838,7 +838,7 @@
         {
             var eb = new DiscordEmbedBuilder
             {
-                Title = "Notification Statistics",
+                Title = $"{DateTime.Now.ToLongDateString()} Notification Statistics",
                 Color = DiscordColor.Blurple,
                 ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
             };

@@ -1051,6 +1051,8 @@
             _logger.Debug($"MIDNIGHT {DateTime.Now}");
             _logger.Debug($"Starting automatic quest messages cleanup...");
 
+            Statistics.Reset();
+
             for (var i = 0; i < _dep.WhConfig.QuestChannelIds.Count; i++)
             {
                 var channel = await _client.GetChannelAsync(_dep.WhConfig.QuestChannelIds[i]);
@@ -1194,6 +1196,19 @@
             {
                 RaidStats.Add(pokemonId, 1);
             }
+        }
+
+        public static void Reset()
+        {
+            PokemonStats.Clear();
+            RaidStats.Clear();
+
+            PokemonSent = 0;
+            RaidsSent = 0;
+            QuestsSent = 0;
+            SubscriptionPokemonSent = 0;
+            SubscriptionRaidsSent = 0;
+            SubscriptionQuestsSent = 0;
         }
     }
 }
