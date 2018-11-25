@@ -3,12 +3,12 @@
 ### PokeAlarm alternative.  
 Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
 
+
 ## Description:  
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, and field research quests. Also supports Discord user's subscribing to Pokemon, raid, or quest notifications via DM.
 
 
 ## Getting Started:  
-
-
 
 1.) Copy `config.example.json` to `config.json`.  
   a.) Create bot token.  
@@ -183,14 +183,17 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 ```
 6.)
 Upload Discord emojis that are in the emojis folder.  
-7.) Start WhMgr.exe as Administrator.  
+7.) Start WhMgr.exe as Administrator privileges.  
+
+*Note: Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.*
 
 
 ## TODO:  
 - Allow Pokemon id and name in Pokemon filter lists.  
-- Finish Localization  
-- Wiki  
+- Finish Localization.  
+- Wiki.  
 - Support for dynamic text replacement for alarm text.  
+- Raid lobby manager.
 
 
 ## Examples:
