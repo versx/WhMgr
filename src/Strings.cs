@@ -22,6 +22,7 @@
         public const string LibrariesFolder = "Libs";
         public const string LocaleFolder = "static\\locale";
         public const string EmojisFolder = "static\\emojis";
+        public const string StatsFolder = "Stats";
         public const string LogsFolder = "Logs";
 
         public const string DefaultResponseMessage = "WH Test Running!";
@@ -30,6 +31,7 @@
         public const string AlarmsFileName = "alarms.json";
         public const string ConfigFileName = "config.json";
         public const string DebugLogFileName = "debug.log";
+        public const string StatsFileName = "notifications_{0}.csv";
 
         public const string All = "All";
 

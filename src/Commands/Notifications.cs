@@ -837,31 +837,22 @@
         ]
         public async Task StatsAsync(CommandContext ctx)
         {
+            var stats = Statistics.Instance;
             var eb = new DiscordEmbedBuilder
             {
                 Title = $"{DateTime.Now.ToLongDateString()} Notification Statistics",
                 Color = DiscordColor.Blurple,
                 ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
             };
-            eb.AddField("Pokemon", Statistics.PokemonSent.ToString("N0"), true);
-            eb.AddField("Pokemon Subscriptions", Statistics.SubscriptionPokemonSent.ToString("N0"), true);
-            eb.AddField("Raids", Statistics.RaidsSent.ToString("N0"), true);
-            eb.AddField("Raid Subscriptions", Statistics.SubscriptionRaidsSent.ToString("N0"), true);
-            eb.AddField("Quests", Statistics.QuestsSent.ToString("N0"), true);
-            eb.AddField("Quest Subscriptions", Statistics.SubscriptionQuestsSent.ToString("N0"), true);
+            eb.AddField("Pokemon", stats.PokemonSent.ToString("N0"), true);
+            eb.AddField("Pokemon Subscriptions", stats.SubscriptionPokemonSent.ToString("N0"), true);
+            eb.AddField("Raids", stats.RaidsSent.ToString("N0"), true);
+            eb.AddField("Raid Subscriptions", stats.SubscriptionRaidsSent.ToString("N0"), true);
+            eb.AddField("Quests", stats.QuestsSent.ToString("N0"), true);
+            eb.AddField("Quest Subscriptions", stats.SubscriptionQuestsSent.ToString("N0"), true);
 
-            var pkmnMsg = string.Empty;
-            var pkmnDict = from entry in Statistics.PokemonStats orderby entry.Value descending select entry;
-            foreach (var item in pkmnDict.Take(25))
-            {
-                pkmnMsg += $"{Database.Instance.Pokemon[item.Key].Name}: {item.Value.ToString("N0")}\r\n";
-            }
-            var raidMsg = string.Empty;
-            var raidDict = from entry in Statistics.RaidStats orderby entry.Value descending select entry;
-            foreach (var item in raidDict.Take(25))
-            {
-                raidMsg += $"{Database.Instance.Pokemon[item.Key].Name}: {item.Value.ToString("N0")}\r\n"; 
-            }
+            var pkmnMsg = string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}"));
+            var raidMsg = string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}"));
 
             eb.AddField("Top 25 Pokemon Stats", pkmnMsg.Substring(0, Math.Min(pkmnMsg.Length, 1500)) + "\r\n...", true);
             eb.AddField("Top 25 Raid Stats", raidMsg.Substring(0, Math.Min(raidMsg.Length, 1500)) + "\r\n...", true);

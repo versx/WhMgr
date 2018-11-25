@@ -109,6 +109,7 @@
     <Compile Include="Diagnostics\IEventLogger.cs" />
     <Compile Include="Diagnostics\LogType.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DiscordExtensions.cs" />
     <Compile Include="Extensions\GenericsExtensions.cs" />
     <Compile Include="Extensions\IntegerExtensions.cs" />

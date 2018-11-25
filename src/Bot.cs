@@ -24,6 +24,8 @@
 
     using ServiceStack.OrmLite;
 
+    //TODO: User statistics, or even just alarm stats by day. date/pokemonId/count
+
     public class Bot
     {
         #region Variables
@@ -294,8 +296,8 @@
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 var name = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
                 await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
-                Statistics.PokemonSent++;
-                Statistics.IncreasePokemonStats(e.Pokemon.Id);
+                Statistics.Instance.PokemonSent++;
+                Statistics.Instance.IncrementPokemonStats(e.Pokemon.Id);
             }
             catch (Exception ex)
             {
@@ -331,10 +333,10 @@
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
                 await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
-                Statistics.RaidsSent++;
+                Statistics.Instance.RaidsSent++;
                 if (e.Raid.PokemonId > 0)
                 {
-                    Statistics.IncreaseRaidStats(e.Raid.PokemonId);
+                    Statistics.Instance.IncrementRaidStats(e.Raid.PokemonId);
                 }
             }
             catch (Exception ex)
@@ -366,7 +368,7 @@
                 var eb = BuildQuestMessage(e.Quest, loc?.Name ?? e.Alarm.Name);
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 await whData.ExecuteAsync(string.Empty, e.Quest.GetMessage(), e.Quest.GetIconUrl(), false, new List<DiscordEmbed> { eb });
-                Statistics.QuestsSent++;
+                Statistics.Instance.QuestsSent++;
             }
             catch (Exception ex)
             {
@@ -512,7 +514,7 @@
 
                     var embed = BuildPokemonMessage(pkmn, loc.Name);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-                    Statistics.SubscriptionPokemonSent++;
+                    Statistics.Instance.SubscriptionPokemonSent++;
                     System.Threading.Thread.Sleep(5);
                 }
                 catch (Exception ex)
@@ -616,7 +618,7 @@
                     //await SendNotification(user.UserId, pokemon.Name, embed);
                     //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-                    Statistics.SubscriptionRaidsSent++;
+                    Statistics.Instance.SubscriptionRaidsSent++;
                     System.Threading.Thread.Sleep(5);
                 }
                 catch (Exception ex)
@@ -721,7 +723,7 @@
                     //await SendNotification(user.UserId, questName, embed);
                     //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
-                    Statistics.SubscriptionQuestsSent++;
+                    Statistics.Instance.SubscriptionQuestsSent++;
                     System.Threading.Thread.Sleep(5);
                 }
                 catch (Exception ex)
@@ -1072,7 +1074,8 @@
             _logger.Debug($"MIDNIGHT {DateTime.Now}");
             _logger.Debug($"Starting automatic quest messages cleanup...");
 
-            Statistics.Reset();
+            Statistics.Instance.WriteOut();
+            Statistics.Instance.Reset();
 
             for (var i = 0; i < _dep.WhConfig.QuestChannelIds.Count; i++)
             {
@@ -1171,31 +1174,57 @@
         //}
     }
 
-    public static class Statistics
+    public class Statistics
     {
-        public static long PokemonSent { get; set; }
+        #region Singleton
 
-        public static long RaidsSent { get; set; }
+        private static Statistics _instance;
+        public static Statistics Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new Statistics();
+                }
 
-        public static long QuestsSent { get; set; }
+                return _instance;
+            }
+        }
 
-        public static long SubscriptionPokemonSent { get; set; }
+        #endregion
 
-        public static long SubscriptionRaidsSent { get; set; }
+        #region Properties
 
-        public static long SubscriptionQuestsSent { get; set; }
+        public long PokemonSent { get; set; }
 
-        public static Dictionary<int, int> PokemonStats { get; set; }
+        public long RaidsSent { get; set; }
 
-        public static Dictionary<int, int> RaidStats { get; set; }
+        public long QuestsSent { get; set; }
 
-        static Statistics()
+        public long SubscriptionPokemonSent { get; set; }
+
+        public long SubscriptionRaidsSent { get; set; }
+
+        public long SubscriptionQuestsSent { get; set; }
+
+        public Dictionary<int, int> PokemonStats { get; set; }
+
+        public Dictionary<int, int> RaidStats { get; set; }
+
+        public IEnumerable<KeyValuePair<int, int>> Top25Pokemon => PokemonStats?.GroupWithCount(25);
+
+        public IEnumerable<KeyValuePair<int, int>> Top25Raids => RaidStats?.GroupWithCount(25);
+
+        #endregion
+
+        public Statistics()
         {
             PokemonStats = new Dictionary<int, int>();
             RaidStats = new Dictionary<int, int>();
         }
 
-        public static void IncreasePokemonStats(int pokemonId)
+        public void IncrementPokemonStats(int pokemonId)
         {
             if (PokemonStats.ContainsKey(pokemonId))
             {
@@ -1207,7 +1236,7 @@
             }
         }
 
-        public static void IncreaseRaidStats(int pokemonId)
+        public void IncrementRaidStats(int pokemonId)
         {
             if (RaidStats.ContainsKey(pokemonId))
             {
@@ -1219,7 +1248,38 @@
             }
         }
 
-        public static void Reset()
+        public void WriteOut()
+        {
+            if (!Directory.Exists(Strings.StatsFolder))
+            {
+                Directory.CreateDirectory(Strings.StatsFolder);
+            }
+
+            var stats = Statistics.Instance;
+            var sb = new System.Text.StringBuilder();
+            var header = "Pokemon Alarms,Raid Alarms,Quest Alarms,Pokemon Subscriptions,Raid Subscriptions,Quest Subscriptions,Top 25 Pokemon,Top 25 Raids";
+            sb.AppendLine(header);
+
+            sb.Append(stats.PokemonSent);
+            sb.Append(",");
+            sb.Append(stats.RaidsSent);
+            sb.Append(",");
+            sb.Append(stats.QuestsSent);
+            sb.Append(",");
+            sb.Append(stats.SubscriptionPokemonSent);
+            sb.Append(",");
+            sb.Append(stats.SubscriptionRaidsSent);
+            sb.Append(",");
+            sb.Append(stats.SubscriptionQuestsSent);
+            sb.Append(",");
+            sb.Append(string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}")));
+            sb.Append(",");
+            sb.Append(string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}")));
+
+            File.WriteAllText(Path.Combine(Strings.StatsFolder, string.Format(Strings.StatsFileName, DateTime.Now.ToString("yyyy-MM-dd_hhmmss"))), sb.ToString());
+        }
+
+        public void Reset()
         {
             PokemonStats.Clear();
             RaidStats.Clear();
