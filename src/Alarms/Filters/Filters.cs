@@ -14,10 +14,11 @@
             _logger.Trace($"Filters::Filters");
         }
 
-        public bool MatchesIV(string iv, int minimumIV, int maximumIV)
+        public bool MatchesIV(string iv, uint minimumIV, uint maximumIV)
         {
             var matchesIV = false;
-            if (iv != "?")
+            var missing = iv == "?" || string.IsNullOrEmpty(iv);
+            if (!missing)
             {
                 if (!double.TryParse(iv.Replace("%", ""), out double resultIV))
                 {
@@ -28,15 +29,56 @@
                 matchesIV |= Math.Round(resultIV) >= minimumIV && Math.Round(resultIV) <= maximumIV;
             }
 
-            matchesIV |= (iv == "?" && minimumIV == 0);
+            matchesIV |= (missing && minimumIV == 0);
 
             return matchesIV;
+        }
+
+        public bool MatchesCP(string cp, uint minimumCP, uint maximumCP)
+        {
+            var matchesCP = false;
+            var missing = cp == "?" || string.IsNullOrEmpty(cp);
+            if (!missing)
+            {
+                if (!int.TryParse(cp, out int resultCP))
+                {
+                    _logger.Error($"Failed to parse pokemon CP value '{cp}', skipping filter check.");
+                    return false;
+                }
+
+                matchesCP |= resultCP >= minimumCP && resultCP <= maximumCP;
+            }
+
+            matchesCP |= (missing && minimumCP == 0);
+
+            return matchesCP;
+        }
+
+        public bool MatchesLvl(string lvl, uint minimumLvl, uint maximumLvl)
+        {
+            var matchesLvl = false;
+            var missing = lvl == "?" || string.IsNullOrEmpty(lvl);
+            if (!missing)
+            {
+                if (!int.TryParse(lvl, out int resultLvl))
+                {
+                    _logger.Error($"Failed to parse pokemon level value '{lvl}', skipping filter check.");
+                    return false;
+                }
+
+                matchesLvl |= resultLvl >= minimumLvl && resultLvl <= maximumLvl;
+            }
+
+            matchesLvl |= (missing && minimumLvl == 0);
+
+            return matchesLvl;
         }
 
         public bool MatchesIV(string iv, int minimumIV)
         {
             var matchesIV = false;
-            if (iv != "?")
+            var missing = iv == "?" || string.IsNullOrEmpty(iv);
+            if (!missing)
             {
                 if (!double.TryParse(iv.Replace("%", ""), out double resultIV))
                 {
@@ -47,7 +89,7 @@
                 matchesIV |= Math.Round(resultIV) >= minimumIV;
             }
 
-            matchesIV |= (iv == "?" && minimumIV == 0);
+            matchesIV |= (missing && minimumIV == 0);
 
             return matchesIV;
         }
@@ -55,7 +97,8 @@
         public bool MatchesCP(string cp, int minimumCP)
         {
             var matchesCP = false;
-            if (cp != "?")
+            var missing = cp == "?" || string.IsNullOrEmpty(cp);
+            if (!missing)
             {
                 if (!int.TryParse(cp, out int resultCP))
                 {
@@ -66,7 +109,7 @@
                 matchesCP |= resultCP >= minimumCP;
             }
 
-            matchesCP |= (cp == "?" && minimumCP == 0);
+            matchesCP |= (missing && minimumCP == 0);
 
             return matchesCP;
         }
@@ -74,7 +117,8 @@
         public bool MatchesLvl(string lvl, int minimumLvl)
         {
             var matchesLvl = false;
-            if (lvl != "?" && !string.IsNullOrEmpty(lvl))
+            var missing = lvl == "?" || string.IsNullOrEmpty(lvl);
+            if (!missing)
             {
                 if (!int.TryParse(lvl, out int resultLvl))
                 {
@@ -85,7 +129,7 @@
                 matchesLvl |= resultLvl >= minimumLvl;
             }
 
-            matchesLvl |= ((string.IsNullOrEmpty(lvl) || lvl == "?") && minimumLvl == 0);
+            matchesLvl |= (missing && minimumLvl == 0);
 
             return matchesLvl;
         }
@@ -113,7 +157,8 @@
         public bool MatchesAttack(string atk, int minimumAtk)
         {
             var matchesAtk = false;
-            if (atk != "?")
+            var missing = atk == "?" || string.IsNullOrEmpty(atk);
+            if (!missing)
             {
                 if (!int.TryParse(atk, out int resultAtk))
                 {
@@ -124,7 +169,7 @@
                 matchesAtk |= resultAtk >= minimumAtk;
             }
 
-            matchesAtk |= (atk == "?" && minimumAtk == 0);
+            matchesAtk |= (missing && minimumAtk == 0);
 
             return matchesAtk;
         }
@@ -132,7 +177,8 @@
         public bool MatchesDefense(string def, int minimumDef)
         {
             var matchesDef = false;
-            if (def != "?")
+            var missing = def == "?" || string.IsNullOrEmpty(def);
+            if (!missing)
             {
                 if (!int.TryParse(def, out int resultAtk))
                 {
@@ -143,7 +189,7 @@
                 matchesDef |= resultAtk >= minimumDef;
             }
 
-            matchesDef |= (def == "?" && minimumDef == 0);
+            matchesDef |= (missing && minimumDef == 0);
 
             return matchesDef;
         }
@@ -151,7 +197,8 @@
         public bool MatchesStamina(string sta, int minimumSta)
         {
             var matchesSta = false;
-            if (sta != "?")
+            var missing = sta == "?" || string.IsNullOrEmpty(sta);
+            if (!missing)
             {
                 if (!int.TryParse(sta, out int resultAtk))
                 {
@@ -162,7 +209,7 @@
                 matchesSta |= resultAtk >= minimumSta;
             }
 
-            matchesSta |= (sta == "?" && minimumSta == 0);
+            matchesSta |= (missing && minimumSta == 0);
 
             return matchesSta;
         }

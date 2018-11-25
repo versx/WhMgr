@@ -440,6 +440,7 @@
             bool matchesLvl;
             bool matchesGender;
             DiscordMember member = null;
+            var embed = BuildPokemonMessage(pkmn, loc.Name);
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -495,26 +496,10 @@
                     if (!(matchesIV && matchesLvl && matchesGender))
                         continue;
 
-                    //if (user.Limiter.IsLimited())
-                    //{
-                    //    //if (!user.NotifiedOfLimited)
-                    //    //{
-                    //    //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
-                    //    //    user.NotifiedOfLimited = true;
-                    //    //}
-                    //    _logger.Debug($"Discord user {member.Username}'s ({member.Id}) notifications are being limited...");
-                    //    continue;
-                    //}
-
-                    //user.NotifiedOfLimited = false;
-
                     _logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
-
-                    //if (await CheckIfExceededNotificationLimit(user)) return;
 
                     user.NotificationsToday++;
 
-                    var embed = BuildPokemonMessage(pkmn, loc.Name);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
                     Statistics.Instance.SubscriptionPokemonSent++;
                     System.Threading.Thread.Sleep(5);
@@ -598,27 +583,10 @@
                         continue;
                     }
 
-                    //if (user.Limiter.IsLimited())
-                    //{
-                    //    //if (!user.NotifiedOfLimited)
-                    //    //{
-                    //    //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
-                    //    //    user.NotifiedOfLimited = true;
-                    //    //}
-
-                    //    continue;
-                    //}
-
-                    //user.NotifiedOfLimited = false;
-
                     _logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
-
-                    //if (await CheckIfExceededNotificationLimit(user)) return;
 
                     user.NotificationsToday++;
 
-                    //await SendNotification(user.UserId, pokemon.Name, embed);
-                    //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
                     Statistics.Instance.SubscriptionRaidsSent++;
                     System.Threading.Thread.Sleep(5);
@@ -703,27 +671,10 @@
                         continue;
                     }
 
-                    //if (user.Limiter.IsLimited())
-                    //{
-                    //    //if (!user.NotifiedOfLimited)
-                    //    //{
-                    //    //    await _client.SendDirectMessage(member, string.Format(NotificationsLimitedMessage, NotificationLimiter.MaxNotificationsPerMinute), null);
-                    //    //    user.NotifiedOfLimited = true;
-                    //    //}
-
-                    //    continue;
-                    //}
-
-                    //user.NotifiedOfLimited = false;
-
                     _logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
-
-                    //if (await CheckIfExceededNotificationLimit(user)) return;
 
                     user.NotificationsToday++;
 
-                    //await SendNotification(user.UserId, questName, embed);
-                    //await Task.Delay(10);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
                     Statistics.Instance.SubscriptionQuestsSent++;
                     System.Threading.Thread.Sleep(5);
@@ -755,8 +706,6 @@
                     await _client.SendDirectMessage(item.Item1, item.Item3);
 
                     _logger.Debug($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
-                    //await Task.Delay(10);
-
                     System.Threading.Thread.Sleep(50);
                 }
             })

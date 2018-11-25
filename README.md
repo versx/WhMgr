@@ -1,7 +1,14 @@
 # Brock Webhook Manager
 
-### PokeAlarm alternative.
+### PokeAlarm alternative.  
 Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
+
+## Description:  
+
+
+## Getting Started:  
+
+
 
 1.) Copy `config.example.json` to `config.json`.  
   a.) Create bot token.  
@@ -37,8 +44,8 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
   
   //City roles to filter by geofence.
   "cityRoles": [
-  "City1",
-  "City2"
+    "City1",
+    "City2"
   ],
   
   //Bot command prefix, if empty/null the bot's mention prefix is set as default.
@@ -57,11 +64,15 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
   
   //Global switch for Quest notifications.
   "enableQuests": false,
+  
+  //List of alarms
   "alarms": 
   [
     {
       //Alarm name.
       "name":"Alarm1",
+	  
+	  //Alarm filters.
       "filters":
       {
         "pokemon":
@@ -77,7 +88,19 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
           
           //Maximum IV pokemon to report.
           "max_iv": 100,
+
+          //Minimum CP pokemon to report.
+          "min_cp": 0,
           
+          //Maximum CP pokemon to report.
+          "max_cp": 999999,
+		  
+          //Minimum level pokemon to report.
+          "min_lvl": 0,
+          
+          //Maximum level pokemon to report.
+          "max_lvl": 100,
+		  
           //Pokemon filter type, either Include or Exclude.
           "type": "Include",
           
@@ -93,7 +116,13 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
           "min_lvl": 1,
           
           //Maximum egg level to report.
-          "max_lvl": 5
+          "max_lvl": 5,
+		  
+          //Only ex-eligible raids
+          "onlyEx": false,
+		  
+          //Filter by team control. Valor, Mystic, Instinct, Neutral, or All
+          "team": "All"
         },
         "raids":
         {
@@ -105,7 +134,13 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
           
           //Raid filter type, either Include or Exclude.
           "type": "Include",
-          
+
+          //Only ex-eligible raids
+          "onlyEx": false,
+		  
+          //Filter by team control. Valor, Mystic, Instinct, Neutral, or All
+          "team": "All",
+		  
           //Ignore raids missing information.
           "ignoreMissing": true
         },
@@ -150,14 +185,15 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 Upload Discord emojis that are in the emojis folder.  
 7.) Start WhMgr.exe as Administrator.  
 
+
 ## TODO:  
 - Allow Pokemon id and name in Pokemon filter lists.  
 - Finish Localization  
 - Wiki  
 - Support for dynamic text replacement for alarm text.  
 
-## Examples:
 
+## Examples:
 Discord Pokemon Notifications:  
 ![Pokemon Notifications](images/pkmn.png "Pokemon Notifications")  
 

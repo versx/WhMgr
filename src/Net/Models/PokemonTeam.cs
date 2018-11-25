@@ -5,6 +5,7 @@
         Neutral = 0,
         Mystic,
         Valor,
-        Instinct
+        Instinct,
+        All = ushort.MaxValue
     }
 }

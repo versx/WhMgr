@@ -254,13 +254,13 @@
                 case 351: //Castform
                     switch (form)
                     {
-                        case 29: //Normal //29 GM is 11
+                        case 29: //Normal //GM is 11
                             break;
-                        case 30: //Sunny //30 GM is 12
+                        case 30: //Sunny //GM is 12
                             return "Sunny";
-                        case 31: //Water //31 GM is 13
+                        case 31: //Water //GM is 13
                             return "Rainy";
-                        case 32: //Snow //32 GM is 14
+                        case 32: //Snow //GM is 14
                             return "Snowy";
                     }
                     break;

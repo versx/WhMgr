@@ -5,6 +5,8 @@
 
     using Newtonsoft.Json;
 
+    using WhMgr.Net.Models;
+
     public class FilterRaidObject
     {
         [JsonProperty("enabled")]
@@ -20,7 +22,15 @@
         [JsonProperty("onlyEx")]
         public bool OnlyEx { get; set; }
 
+        [JsonProperty("team")]
+        public PokemonTeam Team { get; set; }
+
         [JsonProperty("ignoreMissing")]
         public bool IgnoreMissing { get; set; }
+
+        public FilterRaidObject()
+        {
+            Team = PokemonTeam.All;
+        }
     }
 }

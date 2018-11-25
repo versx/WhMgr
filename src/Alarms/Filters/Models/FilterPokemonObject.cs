@@ -20,6 +20,21 @@
         [JsonProperty("max_iv")]
         public uint MaximumIV { get; set; }
 
+        [JsonProperty("min_cp")]
+        public uint MinimumCP { get; set; }
+
+        [JsonProperty("max_cp")]
+        public uint MaximumCP { get; set; }
+
+        [JsonProperty("min_lvl")]
+        public uint MinimumLevel { get; set; }
+
+        [JsonProperty("max_lvl")]
+        public uint MaximumLevel { get; set; }
+
+        //TODO: Filter by gender.
+        //TODO: Filter by move?
+
         [JsonProperty("type")]
         public FilterType FilterType { get; set; }
 
@@ -30,6 +45,10 @@
         {
             MinimumIV = 0;
             MaximumIV = 100;
+            MinimumCP = 0;
+            MaximumCP = 999999;
+            MinimumLevel = 0;
+            MaximumLevel = 100; //Support for when they increase level cap. :wink:
         }
     }
 }

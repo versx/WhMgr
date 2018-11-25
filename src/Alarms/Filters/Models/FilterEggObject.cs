@@ -2,6 +2,8 @@
 {
     using Newtonsoft.Json;
 
+    using WhMgr.Net.Models;
+
     public class FilterEggObject
     {
         [JsonProperty("enabled")]
@@ -16,10 +18,15 @@
         [JsonProperty("onlyEx")]
         public bool OnlyEx { get; set; }
 
+        [JsonProperty("team")]
+        public PokemonTeam Team { get; set; }
+
         public FilterEggObject()
         {
             MinimumLevel = 1;
             MaximumLevel = 5;
+
+            Team = PokemonTeam.All;
         }
     }
 }
