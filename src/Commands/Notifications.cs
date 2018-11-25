@@ -842,12 +842,29 @@
                 Color = DiscordColor.Blurple,
                 ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
             };
-            eb.AddField("Pokemon", Bot.PokemonSent.ToString("N0"), true);
-            eb.AddField("Pokemon Subscriptions", Bot.SubscriptionPokemonSent.ToString("N0"), true);
-            eb.AddField("Raids", Bot.RaidsSent.ToString("N0"), true);
-            eb.AddField("Raid Subscriptions", Bot.SubscriptionRaidsSent.ToString("N0"), true);
-            eb.AddField("Quests", Bot.QuestsSent.ToString("N0"), true);
-            eb.AddField("Quest Subscriptions", Bot.SubscriptionQuestsSent.ToString("N0"), true);
+            eb.AddField("Pokemon", Statistics.PokemonSent.ToString("N0"), true);
+            eb.AddField("Pokemon Subscriptions", Statistics.SubscriptionPokemonSent.ToString("N0"), true);
+            eb.AddField("Raids", Statistics.RaidsSent.ToString("N0"), true);
+            eb.AddField("Raid Subscriptions", Statistics.SubscriptionRaidsSent.ToString("N0"), true);
+            eb.AddField("Quests", Statistics.QuestsSent.ToString("N0"), true);
+            eb.AddField("Quest Subscriptions", Statistics.SubscriptionQuestsSent.ToString("N0"), true);
+
+            var pkmnMsg = string.Empty;
+            var pkmnDict = from entry in Statistics.PokemonStats orderby entry.Value descending select entry;
+            foreach (var item in pkmnDict)
+            {
+                pkmnMsg += $"{Database.Instance.Pokemon[item.Key].Name}: {item.Value.ToString("N0")}\r\n";
+            }
+            var raidMsg = string.Empty;
+            var raidDict = from entry in Statistics.RaidStats orderby entry.Value descending select entry;
+            foreach (var item in raidDict)
+            {
+                raidMsg += $"{Database.Instance.Pokemon[item.Key].Name}: {item.Value.ToString("N0")}\r\n"; 
+            }
+
+            eb.AddField("Pokemon Stats", pkmnMsg.Substring(0, Math.Min(pkmnMsg.Length, 1500)) + "\r\n...", true);
+            eb.AddField("Raid Stats", raidMsg.Substring(0, Math.Min(raidMsg.Length, 1500)) + "\r\n...", true);
+
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
                 Text = $"versx | {DateTime.Now}",

@@ -166,6 +166,7 @@
                         case 49:
                         case 50:
                         case 51:
+                            //53 sandslash normal?
                         case 55:
                         case 61:
                         case 63:

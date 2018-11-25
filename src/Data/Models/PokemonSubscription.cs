@@ -26,6 +26,7 @@
         [Alias("gender")]
         public string Gender { get; set; }
 
+        //[Alias("city")]
         //public string City { get; set; }
 
         public PokemonSubscription()
