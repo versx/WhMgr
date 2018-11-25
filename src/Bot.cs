@@ -285,15 +285,22 @@
                 return;
             }
 
-            var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId.ToString());
-            var pkmnImage = e.Pokemon.Id.GetPokemonImage(e.Pokemon.Gender, e.Pokemon.FormId.ToString());
-            var eb = BuildPokemonMessage(e.Pokemon, loc.Name);
+            try
+            {
+                var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId.ToString());
+                var pkmnImage = e.Pokemon.Id.GetPokemonImage(e.Pokemon.Gender, e.Pokemon.FormId.ToString());
+                var eb = BuildPokemonMessage(e.Pokemon, loc.Name);
 
-            var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-            var name = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
-            await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
-            Statistics.PokemonSent++;
-            Statistics.IncreasePokemonStats(e.Pokemon.Id);
+                var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
+                var name = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
+                await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
+                Statistics.PokemonSent++;
+                Statistics.IncreasePokemonStats(e.Pokemon.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
         }
 
         private async void OnRaidAlarmTriggered(object sender, RaidAlarmTriggeredEventArgs e)
@@ -315,17 +322,24 @@
                 return;
             }
 
-            var form = e.Raid.PokemonId.GetPokemonForm(e.Raid.Form.ToString());
-            var pkmnImage = e.Raid.IsEgg ? string.Format(Strings.EggImage, e.Raid.Level) : e.Raid.PokemonId.GetPokemonImage(PokemonGender.Unset, e.Raid.Form.ToString());
-            var eb = BuildRaidMessage(e.Raid, loc.Name);
-
-            var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-            var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
-            await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
-            Statistics.RaidsSent++;
-            if (e.Raid.PokemonId > 0)
+            try
             {
-                Statistics.IncreaseRaidStats(e.Raid.PokemonId);
+                var form = e.Raid.PokemonId.GetPokemonForm(e.Raid.Form.ToString());
+                var pkmnImage = e.Raid.IsEgg ? string.Format(Strings.EggImage, e.Raid.Level) : e.Raid.PokemonId.GetPokemonImage(PokemonGender.Unset, e.Raid.Form.ToString());
+                var eb = BuildRaidMessage(e.Raid, loc.Name);
+
+                var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
+                var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
+                await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
+                Statistics.RaidsSent++;
+                if (e.Raid.PokemonId > 0)
+                {
+                    Statistics.IncreaseRaidStats(e.Raid.PokemonId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
             }
         }
 
@@ -347,10 +361,17 @@
                 return;
             }
 
-            var eb = BuildQuestMessage(e.Quest, loc?.Name ?? e.Alarm.Name);
-            var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-            await whData.ExecuteAsync(string.Empty, e.Quest.GetMessage(), e.Quest.GetIconUrl(), false, new List<DiscordEmbed> { eb });
-            Statistics.QuestsSent++;
+            try
+            {
+                var eb = BuildQuestMessage(e.Quest, loc?.Name ?? e.Alarm.Name);
+                var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
+                await whData.ExecuteAsync(string.Empty, e.Quest.GetMessage(), e.Quest.GetIconUrl(), false, new List<DiscordEmbed> { eb });
+                Statistics.QuestsSent++;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
         }
 
         private void OnPokestopAlarmTriggered(object sender, PokestopAlarmTriggeredEventArgs e)

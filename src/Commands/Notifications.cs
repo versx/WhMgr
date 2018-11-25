@@ -827,6 +827,7 @@
             _logger.Info($"Distance: {distance}");
             _logger.Info($"Coordinates: {coordinates}");
 
+            //TODO: SetDistance
             await Task.CompletedTask;
         }
 
