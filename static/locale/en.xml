@@ -32,7 +32,8 @@
 	<string name="EMBED_TEAM">**Team:** {0}</string>
 	<string name="EMBED_TIME_REMAINING">**Time Remaining:** {0}</string>
 	<string name="EMBED_LOCATION">**Location:** {0},{1}</string>
-	<string name="EMBED_GMAPS">**[Google Maps Link]({0})**</string>
+	<string name="EMBED_GMAPS">**[[Google Maps]({0})]**</string>
+	<string name="EMBED_APPLEMAPS">**[[Apple Maps]({0})]**</string>
 	
 	<string name="MSG_SUBSCRIPTIONS_NOT_ENABLED">{0} Subscriptions are not enabled in the config.</string>
 	<string name="MSG_NOT_MODERATOR_OR_HIGHER">{0} is not a moderator or higher thus you may not see other's subscription settings.</string>

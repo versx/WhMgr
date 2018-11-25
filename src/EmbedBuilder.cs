@@ -133,7 +133,7 @@
             eb.Description += _lang.Translate("EMBED_LOCATION").FormatText(Math.Round(pokemon.Latitude, 5), Math.Round(pokemon.Longitude, 5)) + "\r\n";
             //eb.Description += $"**Location:** {Math.Round(pokemon.Latitude, 5)},{Math.Round(pokemon.Longitude, 5)}\r\n";
             //eb.Description += $"**Address:** {Utils.GetGoogleAddress(pokemon.Latitude, pokemon.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
-            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)) + "\r\n";
+            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, pokemon.Latitude, pokemon.Longitude)) + "\r\n";
             //eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)})**";
             eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -244,7 +244,7 @@
             //eb.Description += $"**Team:** {teamEmoji}\r\n";
             //eb.Description += $"**Location:** {Math.Round(raid.Latitude, 5)},{Math.Round(raid.Longitude, 5)}\r\n";
             //eb.Description += $"**Address:** {Utils.GetGoogleAddress(raid.Latitude, raid.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
-            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude)) + "\r\n";
+            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, raid.Latitude, raid.Longitude)) + "\r\n";
             //eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude)})**";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
@@ -285,7 +285,7 @@
             //eb.Description += $"**Time Remaining:** {quest.TimeLeft.ToReadableStringNoSeconds()}\r\n";
             //eb.Description += $"**Location:** {quest.Latitude},{quest.Longitude}\r\n";
             //eb.Description += $"**Address:** {Utils.GetGoogleAddress(quest.Latitude, quest.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
-            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(gmapsUrl) + "\r\n";
+            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, quest.Latitude, quest.Longitude)) + "\r\n";
             //eb.Description += $"**[Google Maps Link]({gmapsUrl})**\r\n";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
