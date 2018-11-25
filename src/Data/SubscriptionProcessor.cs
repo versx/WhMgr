@@ -1,7 +1,6 @@
 ﻿namespace WhMgr.Data
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
 
@@ -26,7 +25,7 @@
         private readonly WhConfig _whConfig;
         private readonly WebhookManager _whm;
         private readonly EmbedBuilder _embedBuilder;
-        private readonly Queue<Tuple<DiscordUser, string, DiscordEmbed>> _queue;
+        private readonly NotificationQueue _queue;
 
         #endregion
 
@@ -40,11 +39,13 @@
 
         public SubscriptionProcessor(DiscordClient client, WhConfig config, WebhookManager whm, EmbedBuilder embedBuilder)
         {
+            _logger.Trace($"SubscriptionProcessor::SubscriptionProcessor");
+
             _client = client;
             _whConfig = config;
             _whm = whm;
             _embedBuilder = embedBuilder;
-            _queue = new Queue<Tuple<DiscordUser, string, DiscordEmbed>>();
+            _queue = new NotificationQueue();
 
             Manager = new SubscriptionManager();
 

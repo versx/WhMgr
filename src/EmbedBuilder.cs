@@ -28,6 +28,8 @@
 
         public EmbedBuilder(DiscordClient client, WhConfig config, Translator lang)
         {
+            _logger.Trace($"EmbedBuilder::EmbedBuilder");
+
             _client = client;
             _whConfig = config;
             _lang = lang;

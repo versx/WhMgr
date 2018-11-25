@@ -52,8 +52,6 @@
             _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, SupporterRoleId={whConfig.SupporterRoleId}, WebhookPort={whConfig.WebHookPort}]");
 
             _lang = new Translator();
-            //_queue = new NotificationQueue();
-
             _whConfig = whConfig;
             DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
 
