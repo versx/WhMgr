@@ -83,7 +83,7 @@
                 return;
             }
 
-            if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 //await ctx.TriggerTypingAsync();
                 await ctx.RespondAsync($"{ctx.User.Mention} is not currently subscribed to any Pokemon or Raid notifications.");
@@ -93,7 +93,7 @@
 
             var cmd = ctx.Message.Content.TrimStart('.', ' ');
             var enabled = cmd.ToLower().Contains("enable");
-            if (_dep.SubscriptionManager.Set(ctx.User.Id, enabled))
+            if (_dep.SubscriptionProcessor.Manager.Set(ctx.User.Id, enabled))
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondAsync($"{ctx.User.Mention} has **{cmd}d** Pokemon and Raid notifications.");
@@ -113,7 +113,7 @@
             if (!_dep.WhConfig.EnableSubscriptions)
             {
                 //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));
                 return;
             }
 
@@ -183,7 +183,7 @@
                     return;
                 }
 
-                var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
+                var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
 
                 for (int i = 1; i < 493; i++)
                 {
@@ -194,10 +194,9 @@
                         continue;
                     }
 
-                    //var pokemon = Database.Instance.Pokemon[i];
-                    if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
+                    if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
                     {
-                        _dep.SubscriptionManager.AddPokemon(ctx.User.Id, i, (i == 201 ? 0 : iv), lvl, gender);
+                        _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, i, (i == 201 ? 0 : iv), lvl, gender);
                         continue;
                     }
 
@@ -221,7 +220,7 @@
                     }
                 }
 
-                _dep.SubscriptionManager.Save(subscription);
+                _dep.SubscriptionProcessor.Manager.Save(subscription);
 
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondAsync($"{ctx.User.Mention} subscribed to **all** Pokemon notifications with a minimum IV of {iv}%.");
@@ -268,14 +267,14 @@
 
                 var pokemon = Database.Instance.Pokemon[pokeId];
 
-                if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
+                if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
                 {
-                    _dep.SubscriptionManager.AddPokemon(ctx.User.Id, pokeId, (pokeId == 201 ? 0 : iv), lvl, gender);
+                    _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokeId, (pokeId == 201 ? 0 : iv), lvl, gender);
                     subscribed.Add(pokemon.Name);
                     continue;
                 }
 
-                var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
+                var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
 
                 //User has already subscribed before, check if their new requested sub already exists.
                 if (!subscription.Pokemon.Exists(x => x.PokemonId == pokeId))
@@ -287,7 +286,7 @@
                         return;
                     }
 
-                    _dep.SubscriptionManager.AddPokemon(ctx.User.Id, pokeId, (pokeId == 201 ? 0 : iv), lvl, gender);
+                    _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokeId, (pokeId == 201 ? 0 : iv), lvl, gender);
                     subscribed.Add(pokemon.Name);
                     continue;
                 }
@@ -304,7 +303,7 @@
                         subscribedPokemon.Gender = gender;
                         subscribed.Add(pokemon.Name);
 
-                        _dep.SubscriptionManager.Save(subscription);
+                        _dep.SubscriptionProcessor.Manager.Save(subscription);
                     }
                     else
                     {
@@ -339,14 +338,14 @@
                 return;
             }
 
-            if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to any Pokemon notifications.");
                 return;
             }
 
-            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
@@ -354,7 +353,7 @@
                 if (!confirm)
                     return;
 
-                if (!_dep.SubscriptionManager.RemoveAllPokemon(ctx.User.Id))
+                if (!_dep.SubscriptionProcessor.Manager.RemoveAllPokemon(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondAsync($"Failed to remove all Pokemon subscriptions for {ctx.User.Mention}.");
@@ -394,7 +393,7 @@
                 var unsubscribePokemon = subscription.Pokemon.Find(x => x.PokemonId == pokeId);
                 if (unsubscribePokemon != null)
                 {
-                    if (_dep.SubscriptionManager.RemovePokemon(ctx.User.Id, pokeId))
+                    if (_dep.SubscriptionProcessor.Manager.RemovePokemon(ctx.User.Id, pokeId))
                     {
                         unsubscribed.Add(pokemon.Name);
                     }
@@ -474,7 +473,7 @@
                     {
                         for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
                         {
-                            if (!_dep.SubscriptionManager.AddRaid(ctx.User.Id, i, _dep.WhConfig.CityRoles[cty]))
+                            if (!_dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, i, _dep.WhConfig.CityRoles[cty]))
                             {
                                 _logger.Error($"Failed to add raid boss {i} in city {_dep.WhConfig.CityRoles[cty]} added to {ctx.User.Id} subscription list.");
                                 continue;
@@ -487,7 +486,7 @@
                     else
                     {
                         //AddRaidBoss(ctx.User.Id, i, city);
-                        if (!_dep.SubscriptionManager.AddRaid(ctx.User.Id, i, city))
+                        if (!_dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, i, city))
                         {
                             _logger.Error($"Failed to add raid boss {i} in city {city} added to {ctx.User.Id} subscription list.");
                             continue;
@@ -505,7 +504,7 @@
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
 
-            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
 
             foreach (var arg in poke.Replace(" ", "").Split(','))
             {
@@ -530,12 +529,12 @@
                 {
                     for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
                     {
-                        result |= _dep.SubscriptionManager.AddRaid(ctx.User.Id, pokeId, _dep.WhConfig.CityRoles[cty]);
+                        result |= _dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, pokeId, _dep.WhConfig.CityRoles[cty]);
                     }
                 }
                 else
                 {
-                    result |= _dep.SubscriptionManager.AddRaid(ctx.User.Id, pokeId, city);
+                    result |= _dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, pokeId, city);
                 }
 
                 if (result)
@@ -589,7 +588,7 @@
                 city = string.Empty;
             }
 
-            if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
@@ -599,14 +598,14 @@
             var notSubscribed = new List<string>();
             var unsubscribed = new List<string>();
 
-            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
                 var result = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.");
                 if (!result) return;
 
-                if (!_dep.SubscriptionManager.RemoveAllRaids(ctx.User.Id))
+                if (!_dep.SubscriptionProcessor.Manager.RemoveAllRaids(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondAsync($"{ctx.User.Mention} Failed to remove all raid boss subscriptions.");
@@ -634,12 +633,12 @@
                 {
                     for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
                     {
-                        result |= _dep.SubscriptionManager.RemoveRaid(ctx.User.Id, pokeId, _dep.WhConfig.CityRoles[cty]);
+                        result |= _dep.SubscriptionProcessor.Manager.RemoveRaid(ctx.User.Id, pokeId, _dep.WhConfig.CityRoles[cty]);
                     }
                 }
                 else
                 {
-                    result |= _dep.SubscriptionManager.RemoveRaid(ctx.User.Id, pokeId, city);
+                    result |= _dep.SubscriptionProcessor.Manager.RemoveRaid(ctx.User.Id, pokeId, city);
                 }
 
                 if (result)
@@ -700,7 +699,7 @@
                 return;
             }
 
-            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
             if (!isSupporter && subscription.Raids.Count >= Strings.MaxRaidSubscriptions)
             {
                 await ctx.TriggerTypingAsync();
@@ -713,15 +712,15 @@
             {
                 for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
                 {
-                    result |= _dep.SubscriptionManager.AddQuest(ctx.User.Id, rewardKeyword, _dep.WhConfig.CityRoles[cty]);
+                    result |= _dep.SubscriptionProcessor.Manager.AddQuest(ctx.User.Id, rewardKeyword, _dep.WhConfig.CityRoles[cty]);
                 }
             }
             else
             {
-                result |= _dep.SubscriptionManager.AddQuest(ctx.User.Id, rewardKeyword, city);
+                result |= _dep.SubscriptionProcessor.Manager.AddQuest(ctx.User.Id, rewardKeyword, city);
             }
 
-            _dep.SubscriptionManager.Save(subscription);
+            _dep.SubscriptionProcessor.Manager.Save(subscription);
 
             await ctx.TriggerTypingAsync();
             if (result)
@@ -763,7 +762,7 @@
                 city = string.Empty;
             }
 
-            if (!_dep.SubscriptionManager.UserExists(ctx.User.Id))
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
@@ -773,14 +772,14 @@
             var notSubscribed = new List<string>();
             var unsubscribed = new List<string>();
 
-            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(ctx.User.Id);
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
 
             if (string.Compare(rewardKeyword, Strings.All, true) == 0)
             {
                 var removeAllResult = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Quests.Count.ToString("N0")} of your field research quest subscriptions? Please reply back with `y` or `yes` to confirm.");
                 if (!removeAllResult) return;
 
-                if (!_dep.SubscriptionManager.RemoveAllQuests(ctx.User.Id))
+                if (!_dep.SubscriptionProcessor.Manager.RemoveAllQuests(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondAsync($"{ctx.User.Mention} Failed to remove all quest subscriptions.");
@@ -797,12 +796,12 @@
             {
                 for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
                 {
-                    result |= _dep.SubscriptionManager.RemoveQuest(ctx.User.Id, rewardKeyword, _dep.WhConfig.CityRoles[cty]);
+                    result |= _dep.SubscriptionProcessor.Manager.RemoveQuest(ctx.User.Id, rewardKeyword, _dep.WhConfig.CityRoles[cty]);
                 }
             }
             else
             {
-                result |= _dep.SubscriptionManager.RemoveQuest(ctx.User.Id, rewardKeyword, city);
+                result |= _dep.SubscriptionProcessor.Manager.RemoveQuest(ctx.User.Id, rewardKeyword, city);
             }
 
             await ctx.TriggerTypingAsync();
@@ -887,8 +886,8 @@
         private string BuildUserSubscriptionSettings(DiscordClient client, DiscordUser user)
         {
             var author = user.Id;
-            var isSubbed = _dep.SubscriptionManager.UserExists(author);
-            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(user.Id);
+            var isSubbed = _dep.SubscriptionProcessor.Manager.UserExists(author);
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(user.Id);
             var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
             var hasRaids = isSubbed && subscription?.Raids.Count > 0;
             var hasQuests = isSubbed && subscription?.Quests.Count > 0;
@@ -974,10 +973,10 @@
         private List<string> GetPokemonSubscriptionNames(ulong userId)
         {
             var list = new List<string>();
-            if (!_dep.SubscriptionManager.UserExists(userId))
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(userId))
                 return list;
 
-            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(userId);
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
             var subscribedPokemon = subscription.Pokemon;
             subscribedPokemon.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
 
@@ -999,10 +998,10 @@
         private List<string> GetRaidSubscriptionNames(ulong userId)
         {
             var list = new List<string>();
-            if (!_dep.SubscriptionManager.UserExists(userId))
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(userId))
                 return list;
 
-            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(userId);
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
             var subscribedRaids = subscription.Raids;
             subscribedRaids.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
 
@@ -1024,10 +1023,10 @@
         private List<string> GetQuestSubscriptionNames(ulong userId)
         {
             var list = new List<string>();
-            if (!_dep.SubscriptionManager.UserExists(userId))
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(userId))
                 return list;
 
-            var subscription = _dep.SubscriptionManager.GetUserSubscriptions(userId);
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
             var subscribedQuests = subscription.Quests;
             subscribedQuests.Sort((x, y) => string.Compare(x.RewardKeyword.ToLower(), y.RewardKeyword.ToLower(), StringComparison.Ordinal));
 

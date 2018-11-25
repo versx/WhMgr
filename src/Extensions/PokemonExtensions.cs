@@ -5,6 +5,8 @@
     using System.Linq;
     using System.Net;
 
+    using DSharpPlus;
+
     using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
@@ -590,6 +592,48 @@
                     break;
             }
             return types.ToList();
+        }
+
+        public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes, DiscordClient client, ulong guildId)
+        {
+            var list = new List<string>();
+            foreach (var type in pokemonTypes)
+            {
+                if (!client.Guilds.ContainsKey(guildId))
+                    continue;
+
+                var emojiId = client.Guilds[guildId].GetEmojiId($"types_{type.ToString().ToLower()}");
+                var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId) : type.ToString().ToLower();
+                if (!list.Contains(emojiName))
+                {
+                    list.Add(emojiName);
+                }
+            }
+
+            return string.Join("/", list);
+        }
+
+        public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes, DiscordClient client, ulong guildId)
+        {
+            var list = new List<string>();
+            foreach (var type in pokemonTypes)
+            {
+                var weaknessLst = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
+                foreach (var weakness in weaknessLst)
+                {
+                    if (!client.Guilds.ContainsKey(guildId))
+                        continue;
+
+                    var emojiId = client.Guilds[guildId].GetEmojiId($"types_{weakness.ToString().ToLower()}");
+                    var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId) : weakness.ToString();
+                    if (!list.Contains(emojiName))
+                    {
+                        list.Add(emojiName);
+                    }
+                }
+            }
+
+            return string.Join(" ", list);
         }
 
         public static int PokemonIdFromName(this string name)

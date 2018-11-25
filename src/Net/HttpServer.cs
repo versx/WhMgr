@@ -205,22 +205,6 @@
             try
             {
                 PokemonData pokemon = JsonConvert.DeserializeObject<PokemonData>(Convert.ToString(message));
-                //switch (MapProvider)
-                //{
-                //    case MapProviderType.Monocle:
-                //        break;
-                //    case MapProviderType.RealDeviceMap:
-                //    case MapProviderType.RocketMap:
-                //        switch (MapProviderFork)
-                //        {
-                //            //case MapProviderFork.Default:
-                //            default:
-                //                pokemon = JsonConvert.DeserializeObject<RealDeviceMapPokemon>(message);
-                //                break;
-                //        }
-                //        break;
-                //}
-
                 if (pokemon == null)
                 {
                     _logger.Error($"Failed to parse Pokemon webhook object: {message}");
@@ -248,22 +232,6 @@
             try
             {
                 RaidData raid = JsonConvert.DeserializeObject<RaidData>(Convert.ToString(message));
-                //switch (MapProvider)
-                //{
-                //    case MapProviderType.Monocle:
-                //        break;
-                //    case MapProviderType.RealDeviceMap:
-                //    case MapProviderType.RocketMap:
-                //        switch (MapProviderFork)
-                //        {
-                //            //case MapProviderFork.Default:
-                //            default:
-                //                raid = JsonConvert.DeserializeObject<RaidData>(message);
-                //                break;
-                //        }
-                //        break;
-                //}
-
                 if (raid == null)
                 {
                     _logger.Error($"Failed to parse Pokemon webhook object: {message}");

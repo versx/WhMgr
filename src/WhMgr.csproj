@@ -109,8 +109,10 @@
     <Compile Include="Data\Models\RaidSubscription.cs" />
     <Compile Include="Data\Models\SubscriptionObject.cs" />
     <Compile Include="Data\SubscriptionManager.cs" />
+    <Compile Include="Data\SubscriptionProcessor.cs" />
     <Compile Include="Diagnostics\IEventLogger.cs" />
     <Compile Include="Diagnostics\LogType.cs" />
+    <Compile Include="EmbedBuilder.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\DiscordExtensions.cs" />
@@ -157,6 +159,7 @@
     <Compile Include="Alarms\Filters\Models\FilterObject.cs" />
     <Compile Include="Diagnostics\EventLogger.cs" />
     <Compile Include="NotificationQueue.cs" />
+    <Compile Include="Statistics.cs" />
     <Compile Include="Strings.cs" />
     <Compile Include="Net\Webhooks\WebhookManager.cs" />
     <Compile Include="Utilities\FileWatcher.cs" />

@@ -9,7 +9,6 @@
     using WhMgr.Commands;
     using WhMgr.Configuration;
     using WhMgr.Data;
-    using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
@@ -21,8 +20,6 @@
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
     using DSharpPlus.CommandsNext;
-
-    using ServiceStack.OrmLite;
 
     //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
     //TODO: Optimize webhook and subscription processing.
@@ -37,9 +34,11 @@
         private readonly Dependencies _dep;
         private readonly WebhookManager _whm;
         private readonly WhConfig _whConfig;
-        private readonly SubscriptionManager _subMgr;
+        //private readonly SubscriptionManager _subMgr;
+        private readonly SubscriptionProcessor _subProcessor;
+        private readonly EmbedBuilder _embedBuilder;
         private readonly Translator _lang;
-        private readonly NotificationQueue _queue;
+        //private readonly NotificationQueue _queue;
         private readonly IEventLogger _logger;
 
         #endregion
@@ -53,7 +52,7 @@
             _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, SupporterRoleId={whConfig.SupporterRoleId}, WebhookPort={whConfig.WebHookPort}]");
 
             _lang = new Translator();
-            _queue = new NotificationQueue();
+            //_queue = new NotificationQueue();
 
             _whConfig = whConfig;
             DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
@@ -87,6 +86,7 @@
             _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
             _whm.PokestopAlarmTriggered += OnPokestopAlarmTriggered;
             _whm.GymAlarmTriggered += OnGymAlarmTriggered;
+            _whm.GymDetailsAlarmTriggered += OnGymDetailsAlarmTriggered;
             if (_whConfig.EnableSubscriptions)
             {
                 _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
@@ -115,15 +115,16 @@
             _client.ClientErrored += Client_ClientErrored;
             _client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
 
+            _embedBuilder = new EmbedBuilder(_client, _whConfig, _lang);
             if (_whConfig.EnableSubscriptions)
             {
-                _subMgr = new SubscriptionManager();
+                _subProcessor = new SubscriptionProcessor(_client, _whConfig, _whm, _embedBuilder);
             }
 
             DependencyCollection dep;
             using (var d = new DependencyCollectionBuilder())
             {
-                d.AddInstance(_dep = new Dependencies(_subMgr, _whConfig, _lang));
+                d.AddInstance(_dep = new Dependencies(_subProcessor, _whConfig, _lang));
                 dep = d.Build();
             }
 
@@ -144,8 +145,6 @@
             _commands.CommandErrored += Commands_CommandErrored;
             _commands.RegisterCommands<Notifications>();
             _commands.RegisterCommands<Quests>();
-
-            ProcessQueue();
         }
 
         #endregion
@@ -293,7 +292,7 @@
             {
                 var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId.ToString());
                 var pkmnImage = e.Pokemon.Id.GetPokemonImage(e.Pokemon.Gender, e.Pokemon.FormId.ToString());
-                var eb = BuildPokemonMessage(e.Pokemon, loc.Name);
+                var eb = _embedBuilder.BuildPokemonMessage(e.Pokemon, loc.Name);
 
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 var name = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
@@ -329,7 +328,7 @@
             {
                 var form = e.Raid.PokemonId.GetPokemonForm(e.Raid.Form.ToString());
                 var pkmnImage = e.Raid.IsEgg ? string.Format(Strings.EggImage, e.Raid.Level) : e.Raid.PokemonId.GetPokemonImage(PokemonGender.Unset, e.Raid.Form.ToString());
-                var eb = BuildRaidMessage(e.Raid, loc.Name);
+                var eb = _embedBuilder.BuildRaidMessage(e.Raid, loc.Name);
 
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
@@ -362,7 +361,7 @@
 
             try
             {
-                var eb = BuildQuestMessage(e.Quest, loc?.Name ?? e.Alarm.Name);
+                var eb = _embedBuilder.BuildQuestMessage(e.Quest, loc?.Name ?? e.Alarm.Name);
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 await whData.ExecuteAsync(string.Empty, e.Quest.GetMessage(), e.Quest.GetIconUrl(), false, new List<DiscordEmbed> { eb });
                 Statistics.Instance.QuestsSent++;
@@ -375,10 +374,26 @@
 
         private void OnPokestopAlarmTriggered(object sender, PokestopAlarmTriggeredEventArgs e)
         {
+            _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Pokestop.PokestopId}, LureExpire={e.Pokestop.LureExpire}]");
+
+            //TODO: Implement pokestop alarms.
         }
 
         private void OnGymAlarmTriggered(object sender, GymAlarmTriggeredEventArgs e)
         {
+            _logger.Info($"Gym Found [Alarm: {e.Alarm.Name}, GymId: {e.Gym.GymId}, Team={e.Gym.Team}, SlotsAvailable={e.Gym.SlotsAvailable}, GuardPokemonId={e.Gym.GuardPokemonId}]");
+
+            //TODO: Implement gym alarms.
+        }
+
+        private void OnGymDetailsAlarmTriggered(object sender, GymDetailsAlarmTriggeredEventArgs e)
+        {
+            _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.GymDetails.GymId}, InBattle={e.GymDetails.InBattle}, Team={e.GymDetails.Team}]");
+
+            if (e.GymDetails.InBattle)
+            {
+                //TODO: Send gym battle alarms.
+            }
         }
 
         #endregion
@@ -387,599 +402,26 @@
 
         private void OnPokemonSubscriptionTriggered(object sender, PokemonData e)
         {
-            new System.Threading.Thread(() => ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
+            if (!_whConfig.EnableSubscriptions)
+                return;
+
+            new System.Threading.Thread(() => _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
         {
-            new System.Threading.Thread(() => ProcessRaidSubscription(e)) { IsBackground = true }.Start();
+            if (!_whConfig.EnableSubscriptions)
+                return;
+
+            new System.Threading.Thread(() => _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
         {
-            new System.Threading.Thread(() => ProcessQuestSubscription(e)) { IsBackground = true }.Start();
-        }
-
-        #endregion
-
-        #region Subscription Processor
-
-        private void ProcessPokemonSubscription(PokemonData pkmn)
-        {
             if (!_whConfig.EnableSubscriptions)
                 return;
 
-            var db = Database.Instance;
-            if (!db.Pokemon.ContainsKey(pkmn.Id))
-                return;
-
-            var loc = GetGeofence(pkmn.Latitude, pkmn.Longitude);
-            if (loc == null)
-            {
-                _logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                return;
-            }
-
-            var subscriptions = _subMgr.GetUserSubscriptionsByPokemonId(pkmn.Id);
-            if (subscriptions == null)
-            {
-                _logger.Warn($"Failed to get subscriptions from database table.");
-                return;
-            }
-
-            SubscriptionObject user;
-            bool isSupporter;
-            PokemonSubscription subscribedPokemon;
-            var pokemon = db.Pokemon[pkmn.Id];
-            bool matchesIV;
-            bool matchesLvl;
-            bool matchesGender;
-            DiscordMember member = null;
-            var embed = BuildPokemonMessage(pkmn, loc.Name);
-            for (var i = 0; i < subscriptions.Count; i++)
-            {
-                try
-                {
-                    user = subscriptions[i];
-                    if (user == null)
-                        continue;
-
-                    if (!user.Enabled)
-                        continue;
-
-                    try
-                    {
-                        member = _client.GetMemberById(_whConfig.GuildId, user.UserId);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Debug($"FAILED TO GET MEMBER BY ID {user.UserId}");
-                        _logger.Error(ex);
-                    }
-
-                    if (member == null)
-                    {
-                        _logger.Warn($"Failed to find Discord member with id {user.UserId}.");
-                        continue;
-                    }
-
-                    isSupporter = member.HasSupporterRole(_whConfig.SupporterRoleId);
-                    if (!isSupporter)
-                    {
-                        _logger.Debug($"User {member.Username} is not a supporter, skipping pokemon {pokemon.Name}...");
-                        continue;
-                    }
-
-                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id);
-                    if (subscribedPokemon == null)
-                    {
-                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name}.");
-                        continue;
-                    }
-
-                    if (!member.Roles.Select(x => x.Name.ToLower()).Contains(loc.Name.ToLower()))
-                    {
-                        _logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
-                        continue;
-                    }
-
-                    matchesIV = _whm.Filters.MatchesIV(pkmn.IV, subscribedPokemon.MinimumIV);
-                    //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
-                    matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, subscribedPokemon.MinimumLevel);
-                    matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
-
-                    if (!(matchesIV && matchesLvl && matchesGender))
-                        continue;
-
-                    _logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
-
-                    user.NotificationsToday++;
-
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-                    Statistics.Instance.SubscriptionPokemonSent++;
-                    System.Threading.Thread.Sleep(5);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex);
-                }
-            }
-        }
-
-        private void ProcessRaidSubscription(RaidData raid)
-        {
-            if (!_whConfig.EnableSubscriptions)
-                return;
-
-            var db = Database.Instance;
-            if (!db.Pokemon.ContainsKey(raid.PokemonId))
-                return;
-
-            var loc = GetGeofence(raid.Latitude, raid.Longitude);
-            if (loc == null)
-            {
-                _logger.Warn($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
-                return;
-            }
-
-            var subscriptions = _subMgr.GetUserSubscriptionsByRaidBossId(raid.PokemonId);
-            if (subscriptions == null)
-            {
-                _logger.Warn($"Failed to get subscriptions from database table.");
-                return;
-            }
-
-            bool isSupporter;
-            SubscriptionObject user;
-            RaidSubscription subscribedRaid;
-            var pokemon = db.Pokemon[raid.PokemonId];
-            var embed = BuildRaidMessage(raid, loc.Name);
-            for (int i = 0; i < subscriptions.Count; i++)
-            {
-                try
-                {
-                    user = subscriptions[i];
-                    if (user == null)
-                        continue;
-
-                    if (!user.Enabled)
-                        continue;
-
-                    var member = _client.GetMemberById(_whConfig.GuildId, user.UserId);
-                    if (member == null)
-                    {
-                        _logger.Warn($"Failed to find member with id {user.UserId}.");
-                        continue;
-                    }
-
-                    isSupporter = member.HasSupporterRole(_whConfig.SupporterRoleId);
-                    if (!isSupporter)
-                    {
-                        _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
-                        continue;
-                    }
-
-                    subscribedRaid = user.Raids.FirstOrDefault(x => x.PokemonId == raid.PokemonId);
-                    if (subscribedRaid == null)
-                        continue;
-
-                    if (!member.Roles.Select(x => x.Name.ToLower()).Contains(loc.Name.ToLower()))
-                    {
-                        _logger.Debug($"[{loc.Name}] Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name} because they do not have the city role '{loc.Name}'.");
-                        continue;
-                    }
-
-                    var exists = user.Raids.FirstOrDefault(x => x.PokemonId == raid.PokemonId
-                        && (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
-                    ) != null;
-                    if (!exists)
-                    {
-                        _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name} because the raid is in city '{loc.Name}'.");
-                        continue;
-                    }
-
-                    _logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
-
-                    user.NotificationsToday++;
-
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-                    Statistics.Instance.SubscriptionRaidsSent++;
-                    System.Threading.Thread.Sleep(5);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex);
-                }
-            }
-        }
-
-        private void ProcessQuestSubscription(QuestData quest)
-        {
-            if (!_whConfig.EnableSubscriptions)
-                return;
-
-            var db = Database.Instance;
-            var reward = quest.Rewards[0].Info;
-            var rewardKeyword = quest.GetRewardString();
-            var questName = quest.GetMessage();
-
-            var loc = GetGeofence(quest.Latitude, quest.Longitude);
-            if (loc == null)
-            {
-                _logger.Warn($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
-                return;
-            }
-
-            var subscriptions = _subMgr.GetUserSubscriptions();
-            if (subscriptions == null)
-            {
-                _logger.Warn($"Failed to get subscriptions from database table.");
-                return;
-            }
-
-            bool isSupporter;
-            SubscriptionObject user;
-            QuestSubscription subscribedQuest;
-            var embed = BuildQuestMessage(quest, loc.Name);
-            for (int i = 0; i < subscriptions.Count; i++)
-            {
-                try
-                {
-                    user = subscriptions[i];
-                    if (user == null)
-                        continue;
-
-                    if (!user.Enabled)
-                        continue;
-
-                    var member = _client.GetMemberById(_whConfig.GuildId, user.UserId);
-                    if (member == null)
-                    {
-                        _logger.Warn($"Failed to find member with id {user.UserId}.");
-                        continue;
-                    }
-
-                    isSupporter = member.HasSupporterRole(_whConfig.SupporterRoleId);
-                    if (!isSupporter)
-                    {
-                        _logger.Info($"User {user.UserId} is not a supporter, skipping quest {questName}...");
-                        continue;
-                    }
-
-                    subscribedQuest = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
-                    if (subscribedQuest == null)
-                        continue;
-
-                    if (!member.Roles.Select(x => x.Name).Contains(loc.Name))
-                    {
-                        _logger.Debug($"[{loc.Name}] Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because they do not have the city role '{loc.Name}'.");
-                        continue;
-                    }
-
-                    var exists = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) &&
-                    (
-                        string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
-                    )) != null;
-                    if (!exists)
-                    {
-                        _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
-                        continue;
-                    }
-
-                    _logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
-
-                    user.NotificationsToday++;
-
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
-                    Statistics.Instance.SubscriptionQuestsSent++;
-                    System.Threading.Thread.Sleep(5);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex);
-                }
-            }
-        }
-
-        private void ProcessQueue()
-        {
-            _logger.Trace($"Bot::ProcessQueue");
-
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
-            new System.Threading.Thread(async () =>
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
-            {
-                while (true)
-                {
-                    if (_queue.Count == 0)
-                    {
-                        System.Threading.Thread.Sleep(50);
-                        continue;
-                    }
-
-                    var item = _queue.Dequeue();
-                    await _client.SendDirectMessage(item.Item1, item.Item3);
-
-                    _logger.Debug($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
-                    System.Threading.Thread.Sleep(50);
-                }
-            })
-            { IsBackground = true }.Start();
-        }
-
-        #endregion
-
-        #region Embed Builder
-
-        private DiscordEmbed BuildPokemonMessage(PokemonData pokemon, string city)
-        {
-            _logger.Trace($"Bot::BuildPokemonMessage [Pokemon={pokemon.Id}, City={city}]");
-
-            var db = Database.Instance;
-            if (!db.Pokemon.ContainsKey(pokemon.Id))
-                return null;
-
-            var pkmn = db.Pokemon[pokemon.Id];
-            if (pkmn == null)
-            {
-                _logger.Error($"Failed to lookup Pokemon '{pokemon.Id}' in database.");
-                return null;
-            }
-
-            var eb = new DiscordEmbedBuilder
-            {
-                Title = string.IsNullOrEmpty(city) ? _lang.Translate("EMBED_DIRECTIONS") /*"DIRECTIONS"*/ : city,
-                Url = string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude),
-                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}",
-                ThumbnailUrl = pokemon.Id.GetPokemonImage(pokemon.Gender, pokemon.FormId.ToString()),//string.Format(Strings.PokemonImage, pokemon.Id, Convert.ToInt32(pokemon.Gender)),//Convert.ToInt32(string.IsNullOrEmpty(pokemon.FormId) ? "0" : pokemon.FormId)),
-                Color = pokemon.IV.BuildColor()
-            };
-
-            var form = pokemon.Id.GetPokemonForm(pokemon.FormId.ToString());
-            var pkmnName = pkmn.Name;//$"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}";
-            if (pokemon.IsMissingStats)
-            {
-                eb.Description = _lang.Translate("EMBED_POKEMON_TITLE_WITHOUT_DETAILS").FormatText(pkmnName, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n"; //$"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
-            }
-            else
-            {
-                eb.Description = _lang.Translate("EMBED_POKEMON_TITLE").FormatText(pkmnName, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.IV, pokemon.Level, pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n";
-                eb.Description += _lang.Translate("EMBED_POKEMON_DETAILS").FormatText(pokemon.CP, pokemon.IV, pokemon.Level) + "\r\n";
-                eb.Description += _lang.Translate("EMBED_POKEMON_STATS").FormatText(pokemon.Attack, pokemon.Defense, pokemon.Stamina) + "\r\n";
-                //eb.Description = $"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} {pokemon.IV} L{pokemon.Level} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
-                //eb.Description += $"**Details:** CP: {pokemon.CP} IV: {pokemon.IV} LV: {pokemon.Level}\r\n";
-                //eb.Description += $"**IV Stats:** Atk: {pokemon.Attack}/Def: {pokemon.Defense}/Sta: {pokemon.Stamina}\r\n";
-            }
-
-            if (!string.IsNullOrEmpty(form))
-            {
-                eb.Description += _lang.Translate("EMBED_POKEMON_FORM").FormatText(form) + "\r\n";
-                //eb.Description += $"**Form:** {form}\r\n";
-            }
-
-            if (int.TryParse(pokemon.Level, out var lvl) && lvl >= 30)
-            {
-                eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER_BOOSTED") + "\r\n";
-                //eb.Description += $":white_sun_rain_cloud: Boosted\r\n";
-            }
-
-            //var maxCp = db.MaxCpAtLevel(pokemon.Id, 40);
-            //var maxWildCp = db.MaxCpAtLevel(pokemon.Id, 35);
-            //eb.Description += $"**Max Wild CP:** {maxWildCp}, **Max CP:** {maxCp} \r\n";
-
-            if (Strings.WeatherEmojis.ContainsKey(pokemon.Weather))
-            {
-                eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER").FormatText(Strings.WeatherEmojis[pokemon.Weather]) + "\r\n";
-                //eb.Description += $"**Weather:** {Strings.WeatherEmojis[pokemon.Weather]}\r\n";
-            }
-
-            if (pkmn.Types != null)
-            {
-                eb.Description += _lang.Translate("EMBED_TYPES").FormatText(GetTypeEmojiIcons(pkmn.Types)) + "\r\n";
-                //eb.Description += $"**Types:** {GetTypeEmojiIcons(pkmn.Types)}\r\n";
-            }
-
-            if (float.TryParse(pokemon.Height, out var height) && float.TryParse(pokemon.Weight, out var weight))
-            {
-                var size = pokemon.Id.GetSize(height, weight);
-                eb.Description += _lang.Translate("EMBED_POKEMON_SIZE").FormatText(size) + "\r\n";
-                //eb.Description += $"**Size:** {size}\r\n";
-            }
-
-            int.TryParse(pokemon.FastMove, out var fastMoveId);
-            if (db.Movesets.ContainsKey(fastMoveId))
-            {
-                var fastMove = db.Movesets[fastMoveId];
-                eb.Description += _lang.Translate("EMBED_MOVE_FAST").FormatText(fastMove.Name) + "\r\n";
-                //eb.Description += $"**Fast Move:** {fastMove.Name}\r\n";
-            }
-
-            int.TryParse(pokemon.ChargeMove, out var chargeMoveId);
-            if (db.Movesets.ContainsKey(chargeMoveId))
-            {
-                var chargeMove = db.Movesets[chargeMoveId];
-                eb.Description += _lang.Translate("EMBED_MOVE_CHARGE").FormatText(chargeMove.Name) + "\r\n";
-                //eb.Description += $"**Charge Move:** {chargeMove.Name}\r\n";
-            }
-
-            eb.Description += _lang.Translate("EMBED_LOCATION").FormatText(Math.Round(pokemon.Latitude, 5), Math.Round(pokemon.Longitude, 5)) + "\r\n";
-            //eb.Description += $"**Location:** {Math.Round(pokemon.Latitude, 5)},{Math.Round(pokemon.Longitude, 5)}\r\n";
-            //eb.Description += $"**Address:** {Utils.GetGoogleAddress(pokemon.Latitude, pokemon.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
-            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)) + "\r\n";
-            //eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)})**";
-            eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}";
-            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
-            {
-                Text = $"versx | {DateTime.Now}",
-                IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
-            };
-            var embed = eb.Build();
-
-            return embed;
-        }
-
-        private DiscordEmbed BuildRaidMessage(RaidData raid, string city)
-        {
-            _logger.Trace($"Bot::BuildRaidMessage [Raid={raid.PokemonId}, City={city}]");
-
-            var db = Database.Instance;
-            var pkmn = db.Pokemon[raid.PokemonId];
-            if (pkmn == null)
-            {
-                _logger.Error($"Failed to lookup Raid Pokemon '{raid.PokemonId}' in database.");
-                return null;
-            }
-
-            var pkmnImage = raid.IsEgg ? string.Format(Strings.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(PokemonGender.Unset, raid.Form.ToString()); //string.Format(Strings.PokemonImage, raid.PokemonId, 0);
-            var eb = new DiscordEmbedBuilder
-            {
-                Title = string.IsNullOrEmpty(city) ? _lang.Translate("EMBED_DIRECTIONS") /*"DIRECTIONS"*/ : $"{city}: {raid.GymName}",
-                Url = string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude),
-                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude) + $"&key={_whConfig.GmapsKey}",
-                ThumbnailUrl = pkmnImage,
-                Color = Convert.ToInt32(raid.Level).BuildRaidColor()
-            };
-
-            if (raid.IsEgg)
-            {
-                eb.Description = _lang.Translate("EMBED_EGG_HATCHES").FormatText(raid.StartTime.ToLongTimeString(), DateTime.Now.GetTimeRemaining(raid.StartTime).ToReadableStringNoSeconds()) + "\r\n";
-                eb.Description += _lang.Translate("EMBED_EGG_ENDS").FormatText(raid.EndTime.ToLongTimeString(), DateTime.Now.GetTimeRemaining(raid.EndTime).ToReadableStringNoSeconds()) + "\r\n";
-                //eb.Description += $"Hatches: {raid.StartTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(raid.StartTime).ToReadableStringNoSeconds()} left)\r\n";
-                //eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({DateTime.Now.GetTimeRemaining(raid.EndTime).ToReadableStringNoSeconds()} left)\r\n";
-            }
-            else
-            {
-                var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
-                var pkmnName = $"{(string.IsNullOrEmpty(form) ? null : $"{form}-")}{pkmn.Name}";//$"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}";
-                eb.Description += _lang.Translate("EMBED_RAID_ENDS").FormatText(pkmnName, raid.EndTime.ToLongTimeString()) + "\r\n";
-                eb.Description += _lang.Translate("EMBED_RAID_STARTED").FormatText(raid.StartTime.ToLongTimeString()) + "\r\n";
-                eb.Description += _lang.Translate("EMBED_RAID_ENDS_WITH_TIME_LEFT").FormatText(raid.EndTime.ToLongTimeString(), raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()) + "\r\n";
-
-                if (raid.Form > 0)
-                {
-                    //var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
-                    eb.Description += _lang.Translate("EMBED_POKEMON_FORM").FormatText(form) + "\r\n";
-                }
-                //eb.Description += $"{pkmn.Name} Raid Ends: {raid.EndTime.ToLongTimeString()}\r\n\r\n";
-                //eb.Description += $"**Started:** {raid.StartTime.ToLongTimeString()}\r\n";
-                //eb.Description += $"**Ends:** {raid.EndTime.ToLongTimeString()} ({raid.EndTime.GetTimeRemaining().ToReadableStringNoSeconds()} left)\r\n";
-
-                var perfectRange = raid.PokemonId.MaxCpAtLevel(20);
-                var boostedRange = raid.PokemonId.MaxCpAtLevel(25);
-                eb.Description += _lang.Translate("EMBED_RAID_PERFECT_CP").FormatText(perfectRange, boostedRange) + "\r\n";
-                //eb.Description += $"**Perfect CP:** {perfectRange} / :white_sun_rain_cloud: {boostedRange}\r\n";
-
-                if (pkmn.Types != null)
-                {
-                    eb.Description += _lang.Translate("EMBED_TYPES").FormatText(GetTypeEmojiIcons(pkmn.Types)) + "\r\n";
-                    //eb.Description += $"**Types:** {GetTypeEmojiIcons(pkmn.Types)}\r\n";
-                }
-
-                if (db.Movesets.ContainsKey(raid.FastMove))
-                {
-                    var fastMove = db.Movesets[raid.FastMove];
-                    eb.Description += _lang.Translate("EMBED_MOVE_FAST").FormatText(fastMove.Name) + "\r\n";
-                    //eb.Description += $"**Fast Move:** {fastMove.Name}\r\n";
-                }
-
-                if (db.Movesets.ContainsKey(raid.ChargeMove))
-                {
-                    var chargeMove = db.Movesets[raid.ChargeMove];
-                    eb.Description += _lang.Translate("EMBED_MOVE_CHARGE").FormatText(chargeMove.Name) + "\r\n";
-                    //eb.Description += $"**Charge Move:** {chargeMove.Name}\r\n";
-                }
-
-                var weaknessesEmojis = GetWeaknessEmojiIcons(pkmn.Types);
-                if (!string.IsNullOrEmpty(weaknessesEmojis))
-                {
-                    eb.Description += _lang.Translate("EMBED_RAID_WEAKNESSES").FormatText(weaknessesEmojis) + "\r\n";
-                    //eb.Description += $"**Weaknesses:** {weaknessesEmojis}\r\n";
-                }
-            }
-
-            if (raid.IsExclusive || raid.SponsorId)
-            {
-                var exEmojiId = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId].GetEmojiId(_lang.Translate("EMOJI_EX")) : 0;
-                var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-                eb.Description += _lang.Translate("EMBED_RAID_EX_GYM").FormatText(exEmoji) + "\r\n";
-                //eb.Description += $"{exEmoji} **Gym!**\r\n";
-            }
-
-            if (_client.Guilds.ContainsKey(_whConfig.GuildId))
-            {
-                var teamEmojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId(raid.Team.ToString().ToLower());
-                var teamEmoji = teamEmojiId > 0 ? $"<:{raid.Team.ToString().ToLower()}:{teamEmojiId}>" : raid.Team.ToString();
-                eb.Description += _lang.Translate("EMBED_TEAM").FormatText(teamEmoji) + "\r\n";
-            }
-
-            eb.Description += _lang.Translate("EMBED_LOCATION").FormatText(Math.Round(raid.Latitude, 5), Math.Round(raid.Longitude, 5)) + "\r\n";
-            //eb.Description += $"**Team:** {teamEmoji}\r\n";
-            //eb.Description += $"**Location:** {Math.Round(raid.Latitude, 5)},{Math.Round(raid.Longitude, 5)}\r\n";
-            //eb.Description += $"**Address:** {Utils.GetGoogleAddress(raid.Latitude, raid.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
-            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude)) + "\r\n";
-            //eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude)})**";
-            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
-            {
-                Text = $"versx | {DateTime.Now}",
-                IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
-            };
-            var embed = eb.Build();
-
-            return embed;
-        }
-
-        private DiscordEmbed BuildQuestMessage(QuestData quest, string city)
-        {
-            _logger.Trace($"Bot::BuildQuestMessage [Quest={quest.PokestopId}, City={city}]");
-
-            var gmapsUrl = string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude);
-            var eb = new DiscordEmbedBuilder
-            {
-                Title = $"{city.Replace("Quests", null).Replace("Spinda", null).Replace("Nincada", null)}: {(string.IsNullOrEmpty(quest.PokestopName) ? _lang.Translate("UNKNOWN_POKESTOP") : quest.PokestopName)}",
-                Url = gmapsUrl,
-                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude) + $"&key={_whConfig.GmapsKey}",
-                ThumbnailUrl = quest.GetIconUrl(),
-                Color = DiscordColor.Orange
-            };
-
-            eb.Description = _lang.Translate("EMBED_QUEST_QUEST").FormatText(quest.GetMessage()) + "\r\n";
-            //eb.Description += $"**Quest:** {quest.GetMessage()}\r\n";
-            if (quest.Conditions != null && quest.Conditions.Count > 0)
-            {
-                var condition = quest.Conditions[0];
-                eb.Description += _lang.Translate("EMBED_QUEST_CONDITION").FormatText(quest.GetConditionName()) + "\r\n";
-                //eb.Description += $"**Condition:** {quest.GetConditionName()}\r\n";
-            }
-            eb.Description += _lang.Translate("EMBED_QUEST_REWARD").FormatText(quest.GetRewardString()) + "\r\n";
-            eb.Description += _lang.Translate("EMBED_TIME_REMAINING").FormatText(quest.TimeLeft.ToReadableStringNoSeconds()) + "\r\n";
-            eb.Description += _lang.Translate("EMBED_LOCATION").FormatText(Math.Round(quest.Latitude, 5), Math.Round(quest.Longitude, 5)) + "\r\n";
-            //eb.Description += $"**Reward:** {quest.GetRewardString()}\r\n";
-            //eb.Description += $"**Time Remaining:** {quest.TimeLeft.ToReadableStringNoSeconds()}\r\n";
-            //eb.Description += $"**Location:** {quest.Latitude},{quest.Longitude}\r\n";
-            //eb.Description += $"**Address:** {Utils.GetGoogleAddress(quest.Latitude, quest.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
-            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(gmapsUrl) + "\r\n";
-            //eb.Description += $"**[Google Maps Link]({gmapsUrl})**\r\n";
-            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
-            {
-                Text = $"versx | {DateTime.Now}",
-                IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
-            };
-
-            return eb.Build();
-        }
-
-        private DiscordEmbed BuildPokestopMessage(PokestopData pokestop, string city)
-        {
-            _logger.Trace($"Bot::BuildPokestopMessage [Pokestop={pokestop.PokestopId}, City={city}]");
-
-            return null;
-        }
-
-        private DiscordEmbed BuildGymMessage(GymData gym, string city)
-        {
-            _logger.Trace($"Bot::BuildGymMessage [Gym={gym.GymId}, City={city}]");
-
-            return null;
+            new System.Threading.Thread(() => _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
         }
 
         #endregion
@@ -1053,54 +495,6 @@
             _logger.Debug($"Finished automatic quest messages cleanup...");
         }
 
-        private GeofenceItem GetGeofence(double latitude, double longitude)
-        {
-            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(latitude, longitude));
-            return loc;
-        }
-
-        private string GetTypeEmojiIcons(List<PokemonType> pokemonTypes)
-        {
-            var list = new List<string>();
-            foreach (var type in pokemonTypes)
-            {
-                if (!_client.Guilds.ContainsKey(_whConfig.GuildId))
-                    continue;
-
-                var emojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId($"types_{type.ToString().ToLower()}");
-                var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId) : type.ToString().ToLower();
-                if (!list.Contains(emojiName))
-                {
-                    list.Add(emojiName);
-                }
-            }
-
-            return string.Join("/", list);
-        }
-
-        private string GetWeaknessEmojiIcons(List<PokemonType> pokemonTypes)
-        {
-            var list = new List<string>();
-            foreach (var type in pokemonTypes)
-            {
-                var weaknessLst = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
-                foreach (var weakness in weaknessLst)
-                {
-                    if (!_client.Guilds.ContainsKey(_whConfig.GuildId))
-                        continue;
-
-                    var emojiId = _client.Guilds[_whConfig.GuildId].GetEmojiId($"types_{weakness.ToString().ToLower()}");
-                    var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId) : weakness.ToString();
-                    if (!list.Contains(emojiName))
-                    {
-                        list.Add(emojiName);
-                    }
-                }
-            }
-
-            return string.Join(" ", list);
-        }
-
         #endregion
 
         //private void ParseLogs()
@@ -1118,139 +512,5 @@
         //        Console.WriteLine($"{dateTime} {logType} {logMessage}");
         //    }
         //}
-    }
-
-    public class Statistics
-    {
-        #region Singleton
-
-        private static Statistics _instance;
-        public static Statistics Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new Statistics();
-                }
-
-                return _instance;
-            }
-        }
-
-        #endregion
-
-        #region Properties
-
-        public long PokemonSent { get; set; }
-
-        public long RaidsSent { get; set; }
-
-        public long QuestsSent { get; set; }
-
-        public long SubscriptionPokemonSent { get; set; }
-
-        public long SubscriptionRaidsSent { get; set; }
-
-        public long SubscriptionQuestsSent { get; set; }
-
-        public List<PokemonStats> Top25Pokemon => GetPokemonStats(DateTime.Now)?.Take(25).ToList();
-
-        public List<RaidStats> Top25Raids => GetRaidStats(DateTime.Now)?.Take(25).ToList();
-
-        public List<QuestStats> Top25Quests => GetQuestStats(DateTime.Now)?.Take(25).ToList();
-
-        #endregion
-
-        #region Public Methods
-
-        public void WriteOut()
-        {
-            if (!Directory.Exists(Strings.StatsFolder))
-            {
-                Directory.CreateDirectory(Strings.StatsFolder);
-            }
-
-            var stats = Statistics.Instance;
-            var sb = new System.Text.StringBuilder();
-            var header = "Pokemon Alarms,Raid Alarms,Quest Alarms,Pokemon Subscriptions,Raid Subscriptions,Quest Subscriptions,Top 25 Pokemon,Top 25 Raids";
-            sb.AppendLine(header);
-
-            sb.Append(stats.PokemonSent);
-            sb.Append(",");
-            sb.Append(stats.RaidsSent);
-            sb.Append(",");
-            sb.Append(stats.QuestsSent);
-            sb.Append(",");
-            sb.Append(stats.SubscriptionPokemonSent);
-            sb.Append(",");
-            sb.Append(stats.SubscriptionRaidsSent);
-            sb.Append(",");
-            sb.Append(stats.SubscriptionQuestsSent);
-            sb.Append(",");
-            sb.Append(string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{Database.Instance.Pokemon[x.PokemonId].Name}: {x.Count.ToString("N0")}")));
-            sb.Append(",");
-            sb.Append(string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{Database.Instance.Pokemon[x.PokemonId].Name}: {x.Count.ToString("N0")}")));
-
-            File.WriteAllText(Path.Combine(Strings.StatsFolder, string.Format(Strings.StatsFileName, DateTime.Now.ToString("yyyy-MM-dd_hhmmss"))), sb.ToString());
-        }
-
-        public void Reset()
-        {
-            PokemonSent = 0;
-            RaidsSent = 0;
-            QuestsSent = 0;
-            SubscriptionPokemonSent = 0;
-            SubscriptionRaidsSent = 0;
-            SubscriptionQuestsSent = 0;
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private static List<PokemonStats> GetPokemonStats(DateTime dateTime)
-        {
-            using (var db = DataAccessLayer.CreateFactory())
-            {
-                var stats = db.LoadSelect<PokemonStats>()
-                    .Where(x =>
-                        x.Date.Year == dateTime.Year && 
-                        x.Date.Month == dateTime.Month && 
-                        x.Date.Day == dateTime.Day)
-                    .OrderByDescending(x => x.Count).ToList();
-                return stats;
-            }
-        }
-
-        private static List<RaidStats> GetRaidStats(DateTime dateTime)
-        {
-            using (var db = DataAccessLayer.CreateFactory())
-            {
-                var stats = db.LoadSelect<RaidStats>()
-                    .Where(x =>
-                        x.Date.Year == dateTime.Year &&
-                        x.Date.Month == dateTime.Month &&
-                        x.Date.Day == dateTime.Day)
-                    .OrderByDescending(x => x.Count).ToList();
-                return stats;
-            }
-        }
-
-        private static List<QuestStats> GetQuestStats(DateTime dateTime)
-        {
-            using (var db = DataAccessLayer.CreateFactory())
-            {
-                var stats = db.LoadSelect<QuestStats>()
-                    .Where(x =>
-                        x.Date.Year == dateTime.Year &&
-                        x.Date.Month == dateTime.Month &&
-                        x.Date.Day == dateTime.Day)
-                    .OrderByDescending(x => x.Count).ToList();
-                return stats;
-            }
-        }
-
-        #endregion
     }
 }
