@@ -851,19 +851,19 @@
 
             var pkmnMsg = string.Empty;
             var pkmnDict = from entry in Statistics.PokemonStats orderby entry.Value descending select entry;
-            foreach (var item in pkmnDict)
+            foreach (var item in pkmnDict.Take(25))
             {
                 pkmnMsg += $"{Database.Instance.Pokemon[item.Key].Name}: {item.Value.ToString("N0")}\r\n";
             }
             var raidMsg = string.Empty;
             var raidDict = from entry in Statistics.RaidStats orderby entry.Value descending select entry;
-            foreach (var item in raidDict)
+            foreach (var item in raidDict.Take(25))
             {
                 raidMsg += $"{Database.Instance.Pokemon[item.Key].Name}: {item.Value.ToString("N0")}\r\n"; 
             }
 
-            eb.AddField("Pokemon Stats", pkmnMsg.Substring(0, Math.Min(pkmnMsg.Length, 1500)) + "\r\n...", true);
-            eb.AddField("Raid Stats", raidMsg.Substring(0, Math.Min(raidMsg.Length, 1500)) + "\r\n...", true);
+            eb.AddField("Top 25 Pokemon Stats", pkmnMsg.Substring(0, Math.Min(pkmnMsg.Length, 1500)) + "\r\n...", true);
+            eb.AddField("Top 25 Raid Stats", raidMsg.Substring(0, Math.Min(raidMsg.Length, 1500)) + "\r\n...", true);
 
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
