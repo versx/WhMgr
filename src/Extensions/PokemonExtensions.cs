@@ -13,6 +13,8 @@
 
     public static class PokemonExtensions
     {
+        private const string Alolan = "Alolan";
+
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         public static readonly double[] CpMultipliers =
@@ -144,47 +146,21 @@
                     }
                     break;
                 case 19: //Rattata
-                case 20: //Raticate
-                case 27: //Sandshrew
-                    //switch (form)
-                    //{
-                    //    case 51:
-                    //        return "Alola";
-                    //}
-                    //break;
-                case 28: //Sandslash
-                case 37: //Vulpix
-                case 38: //Ninetales
-                case 50: //Diglett
-                case 51: //Dugtrio
-                case 52: //Meowth
-                case 53: //Persian
-                case 88: //Grimer
-                case 89: //Muk
-                case 103: //Exeggutor
-                case 105: //Marowak
                     switch (form)
                     {
-                        case 49:
-                        case 50:
-                        case 51:
-                            //53 sandslash normal?
-                        case 55:
-                        case 61:
-                        case 63:
-                        case 67:
-                        case 78:
-                        case 80:
-                            return "Alola";
+                        case 45: //Normal
+                            break;
+                        case 46: //Alolan
+                            return Alolan;
                     }
                     break;
-                case 74: //Geodude
-                case 75: //Graveler
-                case 76: //Golem
+                case 20: //Raticate
                     switch (form)
                     {
-                        case 67:
-                            return "Alola";
+                        case 47: //Normal
+                            break;
+                        case 48: //Alolan
+                            return Alolan;
                     }
                     break;
                 case 25: //Pikachu
@@ -219,11 +195,145 @@
                             return "Straw Hat";
                         case 6: //FM/
                             return "FM";
+                        case 49: //Normal
+                            break;
                         case 50:
-                        case 61:
-                        case 78:
-                        case 80:
-                            return "Alola";
+                            return Alolan;
+                    }
+                    break;
+                case 27: //Sandshrew
+                    switch (form)
+                    {
+                        case 51: //Normal
+                            break;
+                        case 52: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 28: //Sandslash
+                    switch (form)
+                    {
+                        case 53: //Normal
+                            break;
+                        case 54: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 37: //Vulpix
+                    switch (form)
+                    {
+                        case 55: //Normal
+                            break;
+                        case 56: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 38: //Ninetales
+                    switch (form)
+                    {
+                        case 57: //Normal
+                            break;
+                        case 58: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 50: //Diglett
+                    switch (form)
+                    {
+                        case 59: //Normal
+                            break;
+                        case 60: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 51: //Dugtrio
+                    switch (form)
+                    {
+                        case 61: //Normal
+                            break;
+                        case 62: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 52: //Meowth
+                    switch (form)
+                    {
+                        case 63: //Normal
+                            break;
+                        case 64:
+                            return Alolan;
+                    }
+                    break;
+                case 53: //Persian
+                    switch (form)
+                    {
+                        case 65: //Normal
+                            break;
+                        case 66: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 74: //Geodude
+                    switch (form)
+                    {
+                        case 67: //Normal
+                            break;
+                        case 68: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 75: //Graveler
+                    switch (form)
+                    {
+                        case 69: //Normal
+                            break;
+                        case 70: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 76: //Golem
+                    switch (form)
+                    {
+                        case 71: //Normal
+                            break;
+                        case 72: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 88: //Grimer
+                    switch (form)
+                    {
+                        case 73: //Normal
+                            break;
+                        case 74: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 89: //Muk
+                    switch (form)
+                    {
+                        case 75: //Normal
+                            break;
+                        case 76: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 103: //Exeggutor
+                    switch (form)
+                    {
+                        case 77: //Normal
+                            break;
+                        case 78: //Alolan
+                            return Alolan;
+                    }
+                    break;
+                case 105: //Marowak
+                    switch (form)
+                    {
+                        case 79: //Normal
+                            break;
+                        case 80: //Alolan
+                            return Alolan;
                     }
                     break;
                 case 172: //Pichu
@@ -253,164 +363,164 @@
                         default:
                             return form.NumberToAlphabet().ToString();
                     }
-                case 351: //Castform
-                    switch (form)
-                    {
-                        case 29: //Normal //GM is 11
-                            break;
-                        case 30: //Sunny //GM is 12
-                            return "Sunny";
-                        case 31: //Water //GM is 13
-                            return "Rainy";
-                        case 32: //Snow //GM is 14
-                            return "Snowy";
-                    }
-                    break;
                 case 327: //Spinda
                     switch (form)
                     {
-                        case 11:
-                            return "00";
-                        case 12:
+                        case 37:
                             return "01";
-                        case 13:
+                        case 38:
                             return "02";
-                        case 14:
+                        case 39:
                             return "03";
-                        case 15:
+                        case 40:
                             return "04";
-                        case 16:
+                        case 41:
                             return "05";
-                        case 17:
+                        case 42:
                             return "06";
-                        case 18:
+                        case 43:
                             return "07";
+                        case 44:
+                            return "08";
+                    }
+                    break;
+                case 351: //Castform
+                    switch (form)
+                    {
+                        case 29: //Normal
+                            break;
+                        case 30: //Sunny
+                            return "Sunny";
+                        case 31: //Water
+                            return "Rainy";
+                        case 32: //Snow
+                            return "Snowy";
                     }
                     break;
                 case 386: //Deoxys
                     switch (form)
                     {
-                        case 11: //Normal
+                        case 33: //Normal
                             break;
-                        case 12: //Attack
+                        case 34: //Attack
                             return "Attack";
-                        case 13: //Defense
+                        case 35: //Defense
                             return "Defense";
-                        case 14: //Speed
+                        case 36: //Speed
                             return "Speed";
                     }
                     break;
                 case 413: //Wormadam
                     switch (form)
                     {
-                        case 11: //87
-                            break;
-                        case 12: //88
-                            break;
-                        case 13: //89
-                            break;
+                        case 87: //Plant
+                            return "Plant";
+                        case 88: //Sandy
+                            return "Sandy";
+                        case 89: //Trash
+                            return "Trash";
                     }
                     break;
                 case 421: //Cherrim
                     switch (form)
                     {
-                        case 11: //94
-                            break;
-                        case 12: //95
-                            break;
+                        case 94: //Overcast
+                            return "Overcast";
+                        case 95: //Sunny
+                            return "Sunny";
                     }
                     break;
                 case 422: //Shellos
                     switch (form)
                     {
-                        case 11: //96
-                            break;
-                        case 12: //97
-                            break;
+                        case 96:
+                            return "West Sea";
+                        case 97:
+                            return "East Sea";
                     }
                     break;
                 case 423: //Gastrodon
                     switch (form)
                     {
-                        case 11: //98
-                            break;
-                        case 12: //99
-                            break;
+                        case 98:
+                            return "West Sea";
+                        case 99:
+                            return "East Sea";
                     }
                     break;
                 case 479: //Rotom
                     switch (form)
                     {
-                        case 11: //81
+                        case 82: //Normal
                             break;
-                        case 12: //82
-                            break;
-                        case 13: //83
-                            break;
-                        case 14: //84
-                            break;
-                        case 15: //85
-                            break;
-                        case 16: //86
-                            break;
+                        case 83: //Frost
+                            return "Frost";
+                        case 84: //Fan
+                            return "Fan";
+                        case 85: //Mow
+                            return "Mow";
+                        case 86: //Wash
+                            return "Wash";
+                        case 87: //Heat
+                            return "Heat";
                     }
                     break;
                 case 487: //Giratina
                     switch (form)
                     {
-                        case 11:
+                        case 90: //Altered
                             return "Altered";
-                        case 12:
+                        case 91: //Origin
                             return "Origin";
                     }
                     break;
                 case 492: //Shaymin
                     switch (form)
                     {
-                        case 11: //93
-                            break;
-                        case 12: //92
-                            break;
+                        case 92: //Sky
+                            return "Sky";
+                        case 93: //Land
+                            return "Land";
                     }
                     break;
                 case 493: //Arceus
                     switch (form)
                     {
-                        case 11:
-                            return "Normal";
-                        case 12:
+                        case 100: //Normal
+                            break;
+                        case 101: //Fighting
                             return "Fighting";
-                        case 13:
+                        case 102: //Flying
                             return "Flying";
-                        case 14:
+                        case 103: //Poison
                             return "Poison";
-                        case 15:
+                        case 104: //Ground
                             return "Ground";
-                        case 16:
+                        case 105: //Rock
                             return "Rock";
-                        case 17:
+                        case 106: //Bug
                             return "Bug";
-                        case 18:
+                        case 107: //Ghost
                             return "Ghost";
-                        case 19:
+                        case 108: //Steel
                             return "Steel";
-                        case 20:
+                        case 109: //Fire
                             return "Fire";
-                        case 21:
+                        case 110: //Water
                             return "Water";
-                        case 22:
+                        case 111: //Grass
                             return "Grass";
-                        case 23:
+                        case 112: //Electric
                             return "Electric";
-                        case 24:
+                        case 113: //Psychic
                             return "Psychic";
-                        case 25:
+                        case 114: //Ice
                             return "Ice";
-                        case 26:
+                        case 115: //Dragon
                             return "Dragon";
-                        case 27:
+                        case 116: //Dark
                             return "Dark";
-                        case 28:
+                        case 117: //Fairy
                             return "Fairy";
                     }
                     break;
