@@ -29,7 +29,7 @@
         public List<ulong> Moderators { get; set; }
 
         [JsonProperty("webhookPort")]
-        public ushort WebHookPort { get; set; }
+        public ushort WebhookPort { get; set; }
 
         [JsonProperty("gmapsKey")]
         public string GmapsKey { get; set; }

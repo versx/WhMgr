@@ -47,7 +47,7 @@
         {
             var name = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName;
             _logger = EventLogger.GetLogger(name);
-            _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, SupporterRoleId={whConfig.SupporterRoleId}, WebhookPort={whConfig.WebHookPort}]");
+            _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, SupporterRoleId={whConfig.SupporterRoleId}, WebhookPort={whConfig.WebhookPort}]");
 
             _lang = new Translator();
             _whConfig = whConfig;
@@ -76,7 +76,7 @@
                 }
             };
 
-            _whm = new WebhookManager(_whConfig.WebHookPort);
+            _whm = new WebhookManager(_whConfig.WebhookPort);
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
             _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
