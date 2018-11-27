@@ -831,6 +831,32 @@
         }
 
         [
+            Command("gymme"),
+            Description("")
+        ]
+        public async Task GymMeAsync(CommandContext ctx,
+            [Description(""), RemainingText] string gymName)
+        {
+            _logger.Info($"GymName: {gymName}");
+
+            //TODO: AddGymSubscription
+            await Task.CompletedTask;
+        }
+
+        [
+            Command("gymmenot"),
+            Description("")
+        ]
+        public async Task GymMeNotAsync(CommandContext ctx,
+            [Description(""), RemainingText] string gymName)
+        {
+            _logger.Info($"GymName: {gymName}");
+
+            //TODO: RemoveGymSubscription
+            await Task.CompletedTask;
+        }
+
+        [
             Command("stats"),
             Description("Notification statistics for alarms and subscriptions of Pokemon, Raids, and Quests.")
         ]
