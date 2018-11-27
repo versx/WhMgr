@@ -211,11 +211,6 @@
                     return;
                 }
 
-                if (pokemon.FormId > 0)
-                {
-                    File.AppendAllText("forms_pokemon.txt", $"Pokemon={pokemon.Id}, Form={pokemon.FormId}\r\n");
-                }
-
                 pokemon.SetDespawnTime();
 
                 OnPokemonReceived(pokemon);
@@ -242,11 +237,6 @@
                 {
                     _logger.Debug($"Level {raid.Level} Egg, skipping...");
                     return;
-                }
-
-                if (raid.Form > 0)
-                {
-                    File.AppendAllText("forms_raids.txt", $"Pokemon={raid.PokemonId}, Form={raid.Form}\r\n");
                 }
 
                 raid.SetTimes();
