@@ -99,6 +99,7 @@
     <Compile Include="Configuration\WhConfig.cs" />
     <Compile Include="Data\DataAccessLayer.cs" />
     <Compile Include="Data\Database.cs" />
+    <Compile Include="Data\Models\GymSubscription.cs" />
     <Compile Include="Data\Models\MovesetModel.cs" />
     <Compile Include="Data\Models\PokemonInfo.cs" />
     <Compile Include="Data\Models\PokemonSubscription.cs" />

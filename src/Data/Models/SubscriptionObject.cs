@@ -5,7 +5,7 @@
 
     using ServiceStack.DataAnnotations;
 
-    [Alias("subscription")]
+    [Alias("subscriptions")]
     public class SubscriptionObject
     {
         [Alias("id"), AutoIncrement]
@@ -23,11 +23,20 @@
         [Alias("raids"), Reference]
         public List<RaidSubscription> Raids { get; set; }
 
+        //[Alias("gyms"), Reference]
+        public List<GymSubscription> Gyms { get; set; }
+
         [Alias("quests"), Reference]
         public List<QuestSubscription> Quests { get; set; }
 
-        [Alias("notifications_today")]
-        public long NotificationsToday { get; set; }
+        [Alias("distance"), Default(0)]
+        public int DistanceM { get; set; }
+
+        [Alias("latitude"), Default(0)]
+        public double Latitude { get; set; }
+
+        [Alias("longitude"), Default(0)]
+        public double Longitude { get; set; }
 
         [Ignore]
         public NotificationLimiter Limiter { get; set; }
@@ -37,6 +46,7 @@
             Enabled = true;
             Pokemon = new List<PokemonSubscription>();
             Raids = new List<RaidSubscription>();
+            Gyms = new List<GymSubscription>();
             Quests = new List<QuestSubscription>();
             Limiter = new NotificationLimiter();
         }

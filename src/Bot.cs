@@ -34,11 +34,9 @@
         private readonly Dependencies _dep;
         private readonly WebhookManager _whm;
         private readonly WhConfig _whConfig;
-        //private readonly SubscriptionManager _subMgr;
         private readonly SubscriptionProcessor _subProcessor;
         private readonly EmbedBuilder _embedBuilder;
         private readonly Translator _lang;
-        //private readonly NotificationQueue _queue;
         private readonly IEventLogger _logger;
 
         #endregion

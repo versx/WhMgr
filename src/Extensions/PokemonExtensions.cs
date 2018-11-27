@@ -260,7 +260,7 @@
                     {
                         case 63: //Normal
                             break;
-                        case 64:
+                        case 64: //Alolan
                             return Alolan;
                     }
                     break;

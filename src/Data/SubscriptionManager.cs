@@ -34,19 +34,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSelect<SubscriptionObject>(x => x.UserId == userId).FirstOrDefault();
-                if (subscription == null)
-                {
-                    //Create new subscription object.
-                    subscription = new SubscriptionObject
-                    {
-                        UserId = userId,
-                        Enabled = enabled,
-                        Pokemon = new List<PokemonSubscription>(),
-                        Raids = new List<RaidSubscription>()
-                    };
-                }
-
+                var subscription = GetUserSubscriptions(userId);
                 subscription.Enabled = enabled;
                 db.Save(subscription, true);
 
