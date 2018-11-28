@@ -23,7 +23,7 @@
         [Alias("raids"), Reference]
         public List<RaidSubscription> Raids { get; set; }
 
-        //[Alias("gyms"), Reference]
+        [Alias("gyms"), Reference]
         public List<GymSubscription> Gyms { get; set; }
 
         [Alias("quests"), Reference]

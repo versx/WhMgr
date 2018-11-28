@@ -42,6 +42,24 @@
             }
         }
 
+        public bool SetDistance(ulong userId, int distance, double latitude, double longitude)
+        {
+            _logger.Trace($"SubscriptionManager::SetDistance [UserId={userId}, Distance={distance}, Latitude={latitude}, Longitude={longitude}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = GetUserSubscriptions(userId);
+                subscription.DistanceM = distance;
+                subscription.Latitude = latitude;
+                subscription.Longitude = longitude;
+                db.Save(subscription, true);
+
+                return subscription.DistanceM == distance &&
+                       subscription.Latitude == latitude &&
+                       subscription.Longitude == longitude;
+            }
+        }
+
         public bool UserExists(ulong userId)
         {
             using (var db = DataAccessLayer.CreateFactory())
@@ -270,6 +288,53 @@
             }
         }
 
+        public bool AddGym(ulong userId, string gymName)
+        {
+            _logger.Trace($"SubscriptionManager::AddGym [UserId={userId}, GymName={gymName}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = GetUserSubscriptions(userId);
+
+                //Gym exists
+                var gymSub = subscription.Gyms.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
+                if (gymSub == null)
+                {
+                    //Create new gym subscription object.
+                    gymSub = new GymSubscription
+                    {
+                        UserId = userId,
+                        Name = gymName
+                    };
+                    subscription.Gyms.Add(gymSub);
+                }
+                else
+                {
+                    //Already exists.
+                    return true;
+                }
+
+                try
+                {
+                    var result = db.Save(subscription, true);
+                    if (result)
+                    {
+                        _logger.Debug($"Gym Added!");
+                    }
+                    else
+                    {
+                        _logger.Debug("Gym Updated!");
+                    }
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                    return false;
+                }
+            }
+        }
+
         public bool AddPokemon(ulong userId, List<int> pokemonIds, int iv = 0, int lvl = 0, string gender = "*")
         {
             _logger.Trace($"SubscriptionManager::AddPokemon [UserId={userId}, PokemonIds={string.Join(", ", pokemonIds)}, IV={iv}, Level={lvl}, Gender={gender}]");
@@ -325,12 +390,10 @@
                     //Not subscribed.
                     return true;
                 }
-                else
-                {
-                    //Subscription exists.
-                    var result = db.Delete(pkmnSub);
-                    return result > 0;
-                }
+
+                //Subscription exists.
+                var result = db.Delete(pkmnSub);
+                return result > 0;
             }
         }
 
@@ -353,11 +416,34 @@
                     //Not subscribed.
                     return true;
                 }
-                else
+
+                var result = db.Delete(raidSub);
+                return result > 0;
+            }
+        }
+
+        public bool RemoveGym(ulong userId, string gymName)
+        {
+            _logger.Trace($"SubscriptionManager::RemoveGym [UserId={userId}, GymName={gymName}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
+                if (subscription == null)
                 {
-                    var result = db.Delete(raidSub);
-                    return result > 0;
+                    //Not subscribed.
+                    return false;
                 }
+
+                var gymSub = subscription.Gyms.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
+                if (gymSub == null)
+                {
+                    //Not subscribed.
+                    return true;
+                }
+
+                var result = db.Delete(gymSub);
+                return result > 0;
             }
         }
 
@@ -380,11 +466,9 @@
                     //Not subscribed.
                     return true;
                 }
-                else
-                {
-                    var result = db.Delete(questSub);
-                    return result > 0;
-                }
+
+                var result = db.Delete(questSub);
+                return result > 0;
             }
         }
 
@@ -475,6 +559,23 @@
             }
         }
 
+        public bool RemoveAllGyms(ulong userId)
+        {
+            _logger.Info($"SubscriptionManager::RemoveAllGyms [UserId={userId}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
+                if (subscription == null)
+                {
+                    //Not subscribed.
+                    return false;
+                }
+
+                return db.DeleteAll(subscription.Gyms) > 0;
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -491,6 +592,7 @@
                 db.CreateTable<SubscriptionObject>();
                 db.CreateTable<PokemonSubscription>();
                 db.CreateTable<RaidSubscription>();
+                db.CreateTable<GymSubscription>();
                 db.CreateTable<QuestSubscription>();
 
                 _logger.Info($"Database tables created.");

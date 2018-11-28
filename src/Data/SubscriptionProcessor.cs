@@ -221,20 +221,20 @@
                     //    continue;
                     //}
 
-                    //var distance = Geolocation.GetDistance(raid.Latitude, raid.Longitude, user.Latitude, user.Longitude, 'M');
-                    //if (user.DistanceM > 0 && user.DistanceM < distance)
-                    //{
+                    var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
+                    if (user.DistanceM > 0 && user.DistanceM < distance)
+                    {
                     //    //Skip if distance is set and is not met.
                     //    _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM} meters.");
                     //    continue;
-                    //}
+                    }
 
-                    //if (user.Gyms.Count > 0 && user.Gyms.FirstOrDefault(x => raid.GymName.ToLower().Contains(x.Name.ToLower())) == null)
-                    //{
+                    if (user.Gyms.Count > 0 && user.Gyms.FirstOrDefault(x => raid.GymName.ToLower().Contains(x.Name.ToLower())) == null)
+                    {
                     //    //Skip if list is not empty and gym is not in list.
                     //    _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");
                     //    continue;
-                    //}
+                    }
 
                     var exists = user.Raids.FirstOrDefault(x => 
                         x.PokemonId == raid.PokemonId && 
@@ -386,77 +386,5 @@
         }
 
         #endregion
-    }
-
-    public static class Geolocation
-    {
-        //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-        //:::                                                                         :::
-        //:::  This routine calculates the distance between two points (given the     :::
-        //:::  latitude/longitude of those points). It is being used to calculate     :::
-        //:::  the distance between two locations using GeoDataSource(TM) products    :::
-        //:::                                                                         :::
-        //:::  Definitions:                                                           :::
-        //:::    South latitudes are negative, east longitudes are positive           :::
-        //:::                                                                         :::
-        //:::  Passed to function:                                                    :::
-        //:::    lat1, lon1 = Latitude and Longitude of point 1 (in decimal degrees)  :::
-        //:::    lat2, lon2 = Latitude and Longitude of point 2 (in decimal degrees)  :::
-        //:::    unit = the unit you desire for results                               :::
-        //:::           where: 'M' is statute miles (default)                         :::
-        //:::                  'K' is kilometers                                      :::
-        //:::                  'N' is nautical miles                                  :::
-        //:::                                                                         :::
-        //:::  Worldwide cities and other features databases with latitude longitude  :::
-        //:::  are available at https://www.geodatasource.com                         :::
-        //:::                                                                         :::
-        //:::  For enquiries, please contact sales@geodatasource.com                  :::
-        //:::                                                                         :::
-        //:::  Official Web site: https://www.geodatasource.com                       :::
-        //:::                                                                         :::
-        //:::           GeoDataSource.com (C) All Rights Reserved 2018                :::
-        //:::                                                                         :::
-        //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-        public static double GetDistance(double lat1, double lon1, double lat2, double lon2, char unit)
-        {
-            if (lat1.Equals(lat2) && lon1.Equals(lon2))
-                return 0;
-
-            var theta = lon1 - lon2;
-            var dist = Math.Sin(Degree2Radian(lat1)) * Math.Sin(Degree2Radian(lat2)) + Math.Cos(Degree2Radian(lat1)) * Math.Cos(Degree2Radian(lat2)) * Math.Cos(Degree2Radian(theta));
-            dist = Math.Acos(dist);
-            dist = Radian2Degee(dist);
-            dist = dist * 60 * 1.1515;
-            switch (unit)
-            {
-                case 'K':
-                    dist = dist * 1.609344;
-                    break;
-                case 'N':
-                    dist = dist * 0.8684;
-                    break;
-            }
-            return (dist);
-        }
-
-        /// <summary>
-        /// Converts decimal degrees to radians
-        /// </summary>
-        /// <param name="deg"></param>
-        /// <returns></returns>
-        public static double Degree2Radian(double deg)
-        {
-            return (deg * Math.PI / 180.0);
-        }
-
-        /// <summary>
-        /// Converts radians to decimal degrees
-        /// </summary>
-        /// <param name="rad"></param>
-        /// <returns></returns>
-        public static double Radian2Degee(double rad)
-        {
-            return (rad / Math.PI * 180.0);
-        }
     }
 }

@@ -120,7 +120,7 @@
             DependencyCollection dep;
             using (var d = new DependencyCollectionBuilder())
             {
-                d.AddInstance(_dep = new Dependencies(_subProcessor, _whConfig, _lang));
+                d.AddInstance(_dep = new Dependencies(_whm, _subProcessor, _whConfig, _lang));
                 dep = d.Build();
             }
 
@@ -139,7 +139,10 @@
             );
             _commands.CommandExecuted += Commands_CommandExecuted;
             _commands.CommandErrored += Commands_CommandErrored;
-            _commands.RegisterCommands<Notifications>();
+            if (_whConfig.EnableSubscriptions)
+            {
+                _commands.RegisterCommands<Notifications>();
+            }
             _commands.RegisterCommands<Quests>();
         }
 
@@ -291,7 +294,7 @@
                 var eb = _embedBuilder.BuildPokemonMessage(e.Pokemon, loc.Name);
 
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-                var name = $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
+                var name = $"{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
                 await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
                 Statistics.Instance.PokemonSent++;
                 Statistics.Instance.IncrementPokemonStats(e.Pokemon.Id);

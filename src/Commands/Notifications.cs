@@ -86,7 +86,7 @@
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 //await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} is not currently subscribed to any Pokemon or Raid notifications.");
+                //await ctx.RespondAsync($"{ctx.User.Mention} is not currently subscribed to any Pokemon or Raid notifications.");
                 await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED")));
                 return;
             }
@@ -96,7 +96,7 @@
             if (_dep.SubscriptionProcessor.Manager.Set(ctx.User.Id, enabled))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} has **{cmd}d** Pokemon and Raid notifications.");
+                await ctx.RespondEmbed($"{ctx.User.Mention} has **{cmd}d** Pokemon and Raid notifications.");
             }
         }
 
@@ -820,40 +820,94 @@
             Description("Set the distance and location you'd like to receive raid notifications.")
         ]
         public async Task SetDistanceAsync(CommandContext ctx,
-            [Description("Maximum distance in meters between the set coordinates.")] double distance,
-            [Description("")] string coordinates)
+            [Description("Maximum distance in meters between the set coordinates.")] int distance,
+            [Description("Coordinates in `34.00,-117.00` format."), RemainingText] string coordinates)
         {
-            _logger.Info($"Distance: {distance}");
-            _logger.Info($"Coordinates: {coordinates}");
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                return;
+            }
 
-            //TODO: SetDistance
-            await Task.CompletedTask;
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
+            {
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED")));
+                return;
+            }
+
+            var parts = coordinates.Replace(" ", null).Split(',');
+            if (!double.TryParse(parts[0], out var lat) || !double.TryParse(parts[1], out var lng))
+            {
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not parse {coordinates} as valid coordinates.");
+                return;
+            }
+
+            if (!_dep.SubscriptionProcessor.Manager.SetDistance(ctx.User.Id, distance, lat, lng))
+            {
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not update database, please try again later.");
+                return;
+            }
+
+            await ctx.RespondEmbed($"{ctx.User.Mention} Raid notifications within a {distance} meter radius of location {lat},{lng}.");
         }
 
         [
             Command("gymme"),
-            Description("")
+            Description("Add raid notifications for specific gyms.")
         ]
         public async Task GymMeAsync(CommandContext ctx,
-            [Description(""), RemainingText] string gymName)
+            [Description("Gym name to subscribed to."), RemainingText] string gymName)
         {
-            _logger.Info($"GymName: {gymName}");
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                return;
+            }
 
-            //TODO: AddGymSubscription
-            await Task.CompletedTask;
+            if (!_dep.SubscriptionProcessor.Manager.AddGym(ctx.User.Id, gymName))
+            {
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not add gym subscription '{gymName}' to database.");
+                return;
+            }
+
+            await ctx.RespondEmbed($"{ctx.User.Mention} Added gym subscription '{gymName}' to database.");
         }
 
         [
             Command("gymmenot"),
-            Description("")
+            Description("Remove raid notifications for specific gyms.")
         ]
         public async Task GymMeNotAsync(CommandContext ctx,
-            [Description(""), RemainingText] string gymName)
+            [Description("Gym name to unsubscribed from."), RemainingText] string gymName)
         {
-            _logger.Info($"GymName: {gymName}");
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                return;
+            }
 
-            //TODO: RemoveGymSubscription
-            await Task.CompletedTask;
+            if (string.Compare(Strings.All, gymName, true) == 0)
+            {
+                if (!_dep.SubscriptionProcessor.Manager.RemoveAllGyms(ctx.User.Id))
+                {
+                    await ctx.RespondEmbed($"{ctx.User.Mention} Could not remove all gym subscriptions from database.");
+                    return;
+                }
+
+                await ctx.RespondEmbed($"{ctx.User.Mention} Removed all gym subscriptions from database.");
+                return;
+            }
+
+            if (!_dep.SubscriptionProcessor.Manager.RemoveGym(ctx.User.Id, gymName))
+            {
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not remove gym subscription '{gymName}' from database.");
+                return;
+            }
+
+            await ctx.RespondEmbed($"{ctx.User.Mention} Removed gym subscription '{gymName}' from database.");
         }
 
         [
