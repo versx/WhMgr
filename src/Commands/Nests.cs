@@ -131,7 +131,7 @@
                 { "lat2", "33.987064" },
                 { "lng2", "-117.523522" },
                 { "zoom", "1" },
-                { "mapTypes", "1" },
+                { "mapTypes", "1" }, // 1 = NestsH 2 = Historical sightings 3 = Habitats
                 { "nestVerificationLevels", "1" }, // 1 = Verified 2 = 1 + Unverified 3 = 1 + 2 + Revoked 4 = Get all nests
                 { "nestTypes", "-1" },
                 { "center_lat", "34.067859" },
@@ -185,6 +185,6 @@
         [JsonProperty("is_nest")]
         public bool IsNest { get; set; }
 
-        public bool IsVerified => IsNest && VerificationLevel == 1;
+        public bool IsVerified => !IsNest || VerificationLevel == 1;
     }
 }
