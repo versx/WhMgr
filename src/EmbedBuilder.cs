@@ -197,6 +197,8 @@
                 eb.Description += _lang.Translate("EMBED_RAID_PERFECT_CP").FormatText(perfectRange, boostedRange) + "\r\n";
                 //eb.Description += $"**Perfect CP:** {perfectRange} / :white_sun_rain_cloud: {boostedRange}\r\n";
 
+                eb.Description += $"**Level:** {raid.Level}\r\n";
+
                 if (pkmn.Types != null)
                 {
                     eb.Description += _lang.Translate("EMBED_TYPES").FormatText(pkmn.Types.GetTypeEmojiIcons(_client, _whConfig.GuildId)) + "\r\n";
