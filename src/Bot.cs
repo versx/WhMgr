@@ -409,6 +409,9 @@
             if (!_whConfig.EnableSubscriptions)
                 return;
 
+            if (_subProcessor == null)
+                return;
+
             new System.Threading.Thread(() => _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
         }
 
@@ -417,12 +420,18 @@
             if (!_whConfig.EnableSubscriptions)
                 return;
 
+            if (_subProcessor == null)
+                return;
+
             new System.Threading.Thread(() => _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
         {
             if (!_whConfig.EnableSubscriptions)
+                return;
+
+            if (_subProcessor == null)
                 return;
 
             new System.Threading.Thread(() => _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
