@@ -15,7 +15,7 @@
             var bot = new Bot(whConfig);
             bot.Start();
 
-            while (true) {}
+            System.Diagnostics.Process.GetCurrentProcess().WaitForExit();
         }
     }
 }

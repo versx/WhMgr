@@ -32,6 +32,7 @@
         public const string AlarmsFileName = "alarms.json";
         public const string ConfigFileName = "config.json";
         public const string DebugLogFileName = "debug.log";
+        public const string ErrorLogFileName = "error.log";
         public const string StatsFileName = "notifications_{0}.csv";
 
         public const string All = "All";

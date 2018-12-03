@@ -381,11 +381,18 @@
             _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Pokestop.PokestopId}, LureExpire={e.Pokestop.LureExpire}]");
 
             //TODO: Implement pokestop alarms.
+            if (e.Pokestop.LureExpire > 0)
+            {
+                //TODO: Send pokestop lure alarm.
+            }
         }
 
         private void OnGymAlarmTriggered(object sender, GymAlarmTriggeredEventArgs e)
         {
             _logger.Info($"Gym Found [Alarm: {e.Alarm.Name}, GymId: {e.Gym.GymId}, Team={e.Gym.Team}, SlotsAvailable={e.Gym.SlotsAvailable}, GuardPokemonId={e.Gym.GuardPokemonId}]");
+
+            if (!e.Alarm.Filters.Gyms.Enabled)
+                return;
 
             //TODO: Implement gym alarms.
         }
@@ -393,6 +400,9 @@
         private void OnGymDetailsAlarmTriggered(object sender, GymDetailsAlarmTriggeredEventArgs e)
         {
             _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.GymDetails.GymId}, InBattle={e.GymDetails.InBattle}, Team={e.GymDetails.Team}]");
+
+            if (!e.Alarm.Filters.Gyms.Enabled)
+                return;
 
             if (e.GymDetails.InBattle)
             {

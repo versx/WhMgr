@@ -349,7 +349,7 @@
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var confirm = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? If so, please reply back with `[Yy]es or [Nn]o` to confirm.");
+                var confirm = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.");
                 if (!confirm)
                     return;
 
@@ -603,7 +603,8 @@
             if (string.Compare(poke, Strings.All, true) == 0)
             {
                 var result = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.");
-                if (!result) return;
+                if (!result)
+                    return;
 
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllRaids(ctx.User.Id))
                 {
