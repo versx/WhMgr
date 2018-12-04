@@ -185,6 +185,7 @@
 
                 var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
 
+                await ctx.TriggerTypingAsync();
                 for (int i = 1; i < 493; i++)
                 {
                     if (i == 132 && !isSupporter)
@@ -353,6 +354,7 @@
                 if (!confirm)
                     return;
 
+                await ctx.TriggerTypingAsync();
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllPokemon(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
@@ -462,6 +464,7 @@
                     return;
                 }
 
+                await ctx.TriggerTypingAsync();
                 for (var i = 1; i < 493; i++)
                 {
                     //if (!i.IsValidRaidBoss(_dep.Config.RaidBosses)) continue;
@@ -606,6 +609,7 @@
                 if (!result)
                     return;
 
+                await ctx.TriggerTypingAsync();
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllRaids(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
@@ -709,6 +713,7 @@
             }
 
             var result = false;
+            await ctx.TriggerTypingAsync();
             if (string.IsNullOrEmpty(city))
             {
                 for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
@@ -774,6 +779,7 @@
             var unsubscribed = new List<string>();
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
+            await ctx.TriggerTypingAsync();
 
             if (string.Compare(rewardKeyword, Strings.All, true) == 0)
             {
