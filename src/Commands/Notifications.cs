@@ -87,7 +87,7 @@
             {
                 //await ctx.TriggerTypingAsync();
                 //await ctx.RespondAsync($"{ctx.User.Mention} is not currently subscribed to any Pokemon or Raid notifications.");
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED")));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username));
                 return;
             }
 
