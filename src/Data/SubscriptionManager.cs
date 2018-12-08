@@ -399,7 +399,7 @@
 
         public bool RemoveRaid(ulong userId, List<int> pokemonIds, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::RemoveRaid [UserId={userId}, PokemonId={pokemonIds}, City={cities}]");
+            _logger.Trace($"SubscriptionManager::RemoveRaid [UserId={userId}, PokemonId={pokemonIds}, Cities={cities}]");
 
             using (var db = DataAccessLayer.CreateFactory())
             {
@@ -410,6 +410,7 @@
                     return true;
                 }
 
+                //TODO: Foreach raid subscription instead of Forloop
                 for (var i = 0; i < pokemonIds.Count; i++)
                 {
                     var raidSub = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonIds[i] && cities.Contains(x.City));
@@ -454,9 +455,9 @@
             }
         }
 
-        public bool RemoveQuest(ulong userId, string rewardKeyword, string city)
+        public bool RemoveQuest(ulong userId, string rewardKeyword, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::RemoveQuest [UserId={userId}, RewardKeyword={rewardKeyword}, City={city}]");
+            _logger.Trace($"SubscriptionManager::RemoveQuest [UserId={userId}, RewardKeyword={rewardKeyword}, Cities={cities}]");
 
             using (var db = DataAccessLayer.CreateFactory())
             {
@@ -464,18 +465,25 @@
                 if (subscription == null)
                 {
                     //Not subscribed.
-                    return false;
-                }
-
-                var questSub = subscription.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
-                if (questSub == null)
-                {
-                    //Not subscribed.
                     return true;
                 }
 
-                var result = db.Delete(questSub);
-                return result > 0;
+                for (var i = 0; i < cities.Count; i++)
+                {
+                    var questSub = subscription.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) && cities.Contains(x.City));
+                    if (questSub == null)
+                    {
+                        //Not subscribed.
+                        return true;
+                    }
+
+                    if (db.Delete(questSub) == 0)
+                    {
+                        _logger.Warn($"Could not delete quest subscription for user {userId} quest {rewardKeyword} city {cities[i]}");
+                    }
+                }
+
+                return true;
             }
         }
 
