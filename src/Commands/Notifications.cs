@@ -1022,7 +1022,8 @@
 
                 foreach (var sub in results)
                 {
-                    if (sub.IV == defaultIV && exceedsLimits) continue;
+                    if (sub.IV == defaultIV && exceedsLimits) 
+                        continue;
 
                     foreach (var poke in sub.Pokes)
                     {
@@ -1092,16 +1093,18 @@
             var subscribedRaids = subscription.Raids;
             subscribedRaids.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
 
-            foreach (var poke in subscribedRaids)
+            var results = subscribedRaids.GroupBy(x => x.PokemonId, (key, g) => new { PokemonId = key, Cities = g.ToList() });
+            foreach (var raid in results)
             {
-                if (!Database.Instance.Pokemon.ContainsKey(poke.PokemonId))
+                if (!Database.Instance.Pokemon.ContainsKey(raid.PokemonId))
                     continue;
 
-                var pokemon = Database.Instance.Pokemon[poke.PokemonId];
+                var pokemon = Database.Instance.Pokemon[raid.PokemonId];
                 if (pokemon == null)
                     continue;
 
-                list.Add($"{pokemon.Name} (From: {(string.IsNullOrEmpty(poke.City) ? "All Areas" : poke.City)})");
+                var isAllCities = _dep.WhConfig.CityRoles.UnorderedEquals(raid.Cities.Select(x => x.City).ToList());
+                list.Add($"{pokemon.Name} (From: {(isAllCities ? "All Areas" : string.Join(", ", raid.Cities.Select(x => x.City)))})");
             }
 
             return list;
@@ -1117,9 +1120,11 @@
             var subscribedQuests = subscription.Quests;
             subscribedQuests.Sort((x, y) => string.Compare(x.RewardKeyword.ToLower(), y.RewardKeyword.ToLower(), StringComparison.Ordinal));
 
-            foreach (var quest in subscribedQuests)
+            var results = subscribedQuests.GroupBy(p => p.RewardKeyword, (key, g) => new { Reward = key, Cities = g.ToList() });
+            foreach (var quest in results)
             {
-                list.Add($"{quest.RewardKeyword} (From: {(string.IsNullOrEmpty(quest.City) ? "All Areas" : quest.City)})");
+                var isAllCities = _dep.WhConfig.CityRoles.UnorderedEquals(quest.Cities.Select(x => x.City).ToList());
+                list.Add($"{quest.Reward} (From: {(isAllCities ? "All Areas" : string.Join(", ", quest.Cities.Select(x => x.City)))})");
             }
 
             return list;
