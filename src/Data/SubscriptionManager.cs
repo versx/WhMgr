@@ -518,7 +518,7 @@
                 if (subscription == null)
                 {
                     //Not subscribed.
-                    return false;
+                    return true;
                 }
 
                 return db.DeleteAll(subscription.Pokemon) > 0;
@@ -535,7 +535,7 @@
                 if (subscription == null)
                 {
                     //Not subscribed.
-                    return false;
+                    return true;
                 }
 
                 return db.DeleteAll(subscription.Raids) > 0;
@@ -552,7 +552,7 @@
                 if (subscription == null)
                 {
                     //Not subscribed.
-                    return false;
+                    return true;
                 }
 
                 return db.DeleteAll(subscription.Quests) > 0;
@@ -569,7 +569,7 @@
                 if (subscription == null)
                 {
                     //Not subscribed.
-                    return false;
+                    return true;
                 }
 
                 return db.DeleteAll(subscription.Gyms) > 0;
