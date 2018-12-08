@@ -24,6 +24,7 @@
     //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
     //TODO: Optimize webhook and subscription processing.
     //TODO: Raid lobby manager
+    //TODO: Optimize database queries
 
     public class Bot
     {

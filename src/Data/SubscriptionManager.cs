@@ -397,9 +397,9 @@
             }
         }
 
-        public bool RemoveRaid(ulong userId, int pokemonId, string city)
+        public bool RemoveRaid(ulong userId, List<int> pokemonIds, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::RemoveRaid [UserId={userId}, PokemonId={pokemonId}, City={city}]");
+            _logger.Trace($"SubscriptionManager::RemoveRaid [UserId={userId}, PokemonId={pokemonIds}, City={cities}]");
 
             using (var db = DataAccessLayer.CreateFactory())
             {
@@ -407,18 +407,25 @@
                 if (subscription == null)
                 {
                     //Not subscribed.
-                    return false;
-                }
-
-                var raidSub = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.City, city, true) == 0);
-                if (raidSub == null)
-                {
-                    //Not subscribed.
                     return true;
                 }
 
-                var result = db.Delete(raidSub);
-                return result > 0;
+                for (var i = 0; i < pokemonIds.Count; i++)
+                {
+                    var raidSub = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonIds[i] && cities.Contains(x.City));
+                    if (raidSub == null)
+                    {
+                        //Not subscribed.
+                        continue;
+                    }
+
+                    if (db.Delete(raidSub) == 0)
+                    {
+                        _logger.Warn($"Could not delete raid subscription for user {userId} raid {pokemonIds[i]} city {cities}");
+                    }
+                }
+
+                return true;
             }
         }
 
@@ -432,7 +439,7 @@
                 if (subscription == null)
                 {
                     //Not subscribed.
-                    return false;
+                    return true;
                 }
 
                 var gymSub = subscription.Gyms.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
@@ -480,22 +487,6 @@
             for (var i = 0; i < pokemonIds.Count; i++)
             {
                 if (!RemovePokemon(userId, pokemonIds[i]))
-                {
-                    errors++;
-                }
-            }
-
-            return errors == 0;
-        }
-
-        public bool RemoveRaid(ulong userId, List<int> pokemonIds, string city)
-        {
-            _logger.Trace($"SubscriptionManager::RemoveRaid [UserId={userId}, PokemonIds={string.Join(", ", pokemonIds)}, City={city}]");
-
-            var errors = 0;
-            for (var i = 0; i < pokemonIds.Count; i++)
-            {
-                if (!RemoveRaid(userId, pokemonIds[i], city))
                 {
                     errors++;
                 }

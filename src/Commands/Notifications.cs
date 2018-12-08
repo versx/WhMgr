@@ -581,14 +581,9 @@
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
-                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to find city role {city}. To see a list of valid city roles type the command `.cities` or `.feeds`.");
+                    await ctx.RespondAsync($"{ctx.User.Mention} Could not find city role {city}. To see a list of valid city roles type the command `.cities` or `.feeds`.");
                     return;
                 }
-            }
-            else
-            {
-                //Assign to all cities.
-                city = string.Empty;
             }
 
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
@@ -613,7 +608,7 @@
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllRaids(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to remove all raid boss subscriptions.");
+                    await ctx.RespondAsync($"{ctx.User.Mention} Could not remove all raid boss subscriptions.");
                     return;
                 }
 
@@ -622,50 +617,111 @@
                 return;
             }
 
-            foreach (var arg in poke.Replace(" ", "").Split(','))
+            var validation = ValidatePokemon(poke.Replace(" ", "").Split(','));
+            if (validation.Valid != null && validation.Valid.Count > 0)
             {
-                var pokeId = arg.PokemonIdFromName();
+                var result = _dep.SubscriptionProcessor.Manager.RemoveRaid(
+                    ctx.User.Id, 
+                    validation.Valid, 
+                    string.IsNullOrEmpty(city) 
+                        ? _dep.WhConfig.CityRoles 
+                        : new List<string> { city });
+            }
+
+            var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x]);
+            var msg = $"{ctx.User.Mention} has unsubscribed from **{string.Join("**, **", pokemonNames)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}.";
+            if (validation.Invalid != null && validation.Invalid.Count > 0)
+            {
+                msg += $"\r\n{string.Join(", ", validation.Invalid)} are not valid raid boss Pokemon.";
+            }
+
+
+            await ctx.RespondAsync($"{ctx.User.Mention}");
+
+            //foreach (var arg in poke.Replace(" ", "").Split(','))
+            //{
+            //    var pokeId = arg.PokemonIdFromName();
+            //    if (pokeId == 0)
+            //    {
+            //        await ctx.TriggerTypingAsync();
+            //        await ctx.RespondAsync($"{ctx.User.Mention} Failed to find raid boss Pokemon {arg}.");
+            //        continue;
+            //    }
+
+            //    var pokemon = Database.Instance.Pokemon[pokeId];
+            //    var result = false;
+            //    _dep.SubscriptionProcessor.Manager.RemoveRaid(ctx.User.Id, poke.Replace(" ", "").Split(','), string.IsNullOrEmpty(city) ? _dep.WhConfig.CityRoles : city);
+            //    if (string.IsNullOrEmpty(city))
+            //    {
+            //        for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
+            //        {
+            //            result |= _dep.SubscriptionProcessor.Manager.RemoveRaid(ctx.User.Id, pokeId, _dep.WhConfig.CityRoles[cty]);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        result |= _dep.SubscriptionProcessor.Manager.RemoveRaid(ctx.User.Id, pokeId, city);
+            //    }
+
+            //    if (result)
+            //    {
+            //        unsubscribed.Add(pokemon.Name);
+            //    }
+            //    else
+            //    {
+            //        notSubscribed.Add(pokemon.Name);
+            //    }
+            //}
+
+            //await ctx.TriggerTypingAsync();
+            //await ctx.RespondAsync
+            //(
+            //    (unsubscribed.Count > 0
+            //        ? $"{ctx.User.Mention} has unsubscribed from **{string.Join("**, **", unsubscribed)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}."
+            //        : string.Empty) +
+            //    (notSubscribed.Count > 0
+            //        ? $" {ctx.User.Mention} is not subscribed to {string.Join(",", notSubscribed)} raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}."
+            //        : string.Empty)
+            //);
+        }
+
+        private PokemonValidation ValidatePokemon(IEnumerable<string> pokemon)
+        {
+            var valid = new List<int>();
+            var invalid = new List<string>();
+            //for (var i = 0; i < pokemon.Count; i++)
+            foreach (var poke in pokemon)
+            {
+                var pokeId = poke.PokemonIdFromName();
                 if (pokeId == 0)
                 {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to find raid boss Pokemon {arg}.");
+                    //await ctx.RespondAsync($"{ctx.User.Mention} Failed to find raid boss Pokemon {arg}.");
+                    invalid.Add(poke);
                     continue;
                 }
 
-                var pokemon = Database.Instance.Pokemon[pokeId];
-                var result = false;
-                if (string.IsNullOrEmpty(city))
+                if (!Database.Instance.Pokemon.ContainsKey(pokeId))
                 {
-                    for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
-                    {
-                        result |= _dep.SubscriptionProcessor.Manager.RemoveRaid(ctx.User.Id, pokeId, _dep.WhConfig.CityRoles[cty]);
-                    }
-                }
-                else
-                {
-                    result |= _dep.SubscriptionProcessor.Manager.RemoveRaid(ctx.User.Id, pokeId, city);
+                    continue;
                 }
 
-                if (result)
-                {
-                    unsubscribed.Add(pokemon.Name);
-                }
-                else
-                {
-                    notSubscribed.Add(pokemon.Name);
-                }
+                valid.Add(pokeId);
             }
 
-            await ctx.TriggerTypingAsync();
-            await ctx.RespondAsync
-            (
-                (unsubscribed.Count > 0
-                    ? $"{ctx.User.Mention} has unsubscribed from **{string.Join("**, **", unsubscribed)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}."
-                    : string.Empty) +
-                (notSubscribed.Count > 0
-                    ? $" {ctx.User.Mention} is not subscribed to {string.Join(",", notSubscribed)} raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}."
-                    : string.Empty)
-            );
+            return new PokemonValidation { Valid = valid, Invalid = invalid };
+        }
+
+        public class PokemonValidation
+        {
+            public List<int> Valid { get; set; }
+
+            public List<string> Invalid { get; set; }
+
+            public PokemonValidation()
+            {
+                Valid = new List<int>();
+                Invalid = new List<string>();
+            }
         }
 
         [
