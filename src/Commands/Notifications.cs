@@ -224,7 +224,7 @@
                 _dep.SubscriptionProcessor.Manager.Save(subscription);
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} subscribed to **all** Pokemon notifications with a minimum IV of {iv}%.");
+                await ctx.RespondAsync($"{ctx.User.Mention} subscribed to **all** Pokemon notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}..");
                 return;
             }
 
