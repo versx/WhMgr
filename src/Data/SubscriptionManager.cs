@@ -71,7 +71,7 @@
 
         public SubscriptionObject GetUserSubscriptions(ulong userId)
         {
-            _logger.Trace($"SubscriptionManager::GetUserSubscriptions [UserId={userId}]");
+            //_logger.Trace($"SubscriptionManager::GetUserSubscriptions [UserId={userId}]");
 
             using (var db = DataAccessLayer.CreateFactory())
             {
@@ -87,7 +87,7 @@
 
         public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(int pokeId)
         {
-            _logger.Trace($"SubscriptionManager::GetUserSubscriptionsByPokemonId [PokemonId={pokeId}]");
+            //_logger.Trace($"SubscriptionManager::GetUserSubscriptionsByPokemonId [PokemonId={pokeId}]");
 
             var subscriptions = GetUserSubscriptions();
             if (subscriptions != null)
@@ -100,7 +100,7 @@
 
         public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
-            _logger.Trace($"SubscriptionManager::GetUserSubscriptionsByRaidBossId [PokemonId={pokeId}]");
+            //_logger.Trace($"SubscriptionManager::GetUserSubscriptionsByRaidBossId [PokemonId={pokeId}]");
 
             var subscriptions = GetUserSubscriptions();
             if (subscriptions != null)
@@ -113,7 +113,7 @@
 
         public List<SubscriptionObject> GetUserSubscriptions()
         {
-            _logger.Trace($"SubscriptionManager::GetUserSubscriptions");
+            //_logger.Trace($"SubscriptionManager::GetUserSubscriptions");
 
             try
             {

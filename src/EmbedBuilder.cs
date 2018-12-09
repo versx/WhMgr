@@ -41,7 +41,7 @@
 
         public DiscordEmbed BuildPokemonMessage(PokemonData pokemon, string city)
         {
-            _logger.Trace($"EmbedBuilder::BuildPokemonMessage [Pokemon={pokemon.Id}, City={city}]");
+            //_logger.Trace($"EmbedBuilder::BuildPokemonMessage [Pokemon={pokemon.Id}, City={city}]");
 
             var db = Database.Instance;
             if (!db.Pokemon.ContainsKey(pokemon.Id))
@@ -148,7 +148,7 @@
 
         public DiscordEmbed BuildRaidMessage(RaidData raid, string city)
         {
-            _logger.Trace($"EmbedBuilder::BuildRaidMessage [Raid={raid.PokemonId}, City={city}]");
+            //_logger.Trace($"EmbedBuilder::BuildRaidMessage [Raid={raid.PokemonId}, City={city}]");
 
             var db = Database.Instance;
             var pkmn = db.Pokemon[raid.PokemonId];
@@ -260,7 +260,7 @@
 
         public DiscordEmbed BuildQuestMessage(QuestData quest, string city)
         {
-            _logger.Trace($"EmbedBuilder::BuildQuestMessage [Quest={quest.PokestopId}, City={city}]");
+            //_logger.Trace($"EmbedBuilder::BuildQuestMessage [Quest={quest.PokestopId}, City={city}]");
 
             var gmapsUrl = string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude);
             var eb = new DiscordEmbedBuilder

@@ -271,7 +271,7 @@
 
         private void ProcessPokemon(PokemonData pkmn)
         {
-            _logger.Trace($"WebHookManager::ProcessPokemon [Pkmn={pkmn.Id}]");
+            //_logger.Trace($"WebHookManager::ProcessPokemon [Pkmn={pkmn.Id}]");
 
             if (!_alarms.EnablePokemon)
                 return;
@@ -344,7 +344,7 @@
 
         private void ProcessRaid(RaidData raid)
         {
-            _logger.Trace($"WebHookManager::ProcessRaid [Raid={raid.PokemonId}]");
+            //_logger.Trace($"WebHookManager::ProcessRaid [Raid={raid.PokemonId}]");
 
             if (!_alarms.EnableRaids)
                 return;
@@ -458,7 +458,7 @@
 
         private void ProcessQuest(QuestData quest)
         {
-            _logger.Trace($"WebhookManager::ProcessQuest [Quest={quest.PokestopId}]");
+            //_logger.Trace($"WebhookManager::ProcessQuest [Quest={quest.PokestopId}]");
 
             if (!_alarms.EnableQuests)
                 return;
@@ -516,7 +516,7 @@
 
         private void ProcessPokestop(PokestopData pokestop)
         {
-            _logger.Trace($"WebhookManager::ProcessPokestop [PokestopId={pokestop.PokestopId}]");
+            //_logger.Trace($"WebhookManager::ProcessPokestop [PokestopId={pokestop.PokestopId}]");
 
             if (!_alarms.EnablePokestops)
                 return;
@@ -553,7 +553,7 @@
 
         private void ProcessGym(GymData gym)
         {
-            _logger.Trace($"WebhookManager::ProcessGym [GymId={gym.GymId}]");
+            //_logger.Trace($"WebhookManager::ProcessGym [GymId={gym.GymId}]");
 
             if (!_alarms.EnableGyms)
                 return;
@@ -590,7 +590,7 @@
 
         private void ProcessGymDetails(GymDetailsData gymDetails)
         {
-            _logger.Trace($"WebhookManager::ProcessGymDetails [GymId={gymDetails.GymId}]");
+            //_logger.Trace($"WebhookManager::ProcessGymDetails [GymId={gymDetails.GymId}]");
 
             if (!_alarms.EnableGyms) //GymDetails
                 return;
