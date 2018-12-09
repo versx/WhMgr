@@ -131,7 +131,7 @@
 
                     if (!member.Roles.Select(x => x.Name.ToLower()).Contains(loc.Name.ToLower()))
                     {
-                        _logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
+                        //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
                         continue;
                     }
 
@@ -242,7 +242,7 @@
                     ) != null;
                     if (!exists)
                     {
-                        _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
+                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
                         continue;
                     }
 
@@ -330,7 +330,7 @@
                     )) != null;
                     if (!exists)
                     {
-                        _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
+                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
                         continue;
                     }
 

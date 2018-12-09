@@ -470,7 +470,7 @@
 
                 for (var i = 0; i < cities.Count; i++)
                 {
-                    var questSub = subscription.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) && cities.Contains(x.City));
+                    var questSub = subscription.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) && cities.Select(y => y.ToLower()).Contains(x.City.ToLower()));
                     if (questSub == null)
                     {
                         //Not subscribed.

@@ -173,7 +173,7 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mv $(TargetDir)*.xml $(TargetDir)Libs
-mv $(TargetDir)*.dll $(TargetDir)Libs</PostBuildEvent>
+    <PostBuildEvent>move /Y $(TargetDir)*.xml $(TargetDir)Libs
+move /Y $(TargetDir)*.dll $(TargetDir)Libs</PostBuildEvent>
   </PropertyGroup>
 </Project>

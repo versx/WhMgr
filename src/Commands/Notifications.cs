@@ -627,7 +627,7 @@
                         ? _dep.WhConfig.CityRoles 
                         : new List<string> { city });
 
-                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x]);
+                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x].Name);
                 var msg = $"{ctx.User.Mention} has unsubscribed from **{string.Join("**, **", pokemonNames)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}.";
                 if (validation.Invalid != null && validation.Invalid.Count > 0)
                 {
