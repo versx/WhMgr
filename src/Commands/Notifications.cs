@@ -854,30 +854,14 @@
                         ? _dep.WhConfig.CityRoles
                         : new List<string> { city });
 
-            await ctx.RespondAsync($"{ctx.User.Mention} has unsubscribed from **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
-
-            //var result = false;
-            //if (string.IsNullOrEmpty(city))
-            //{
-            //    for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
-            //    {
-            //        result |= _dep.SubscriptionProcessor.Manager.RemoveQuest(ctx.User.Id, rewardKeyword, _dep.WhConfig.CityRoles[cty]);
-            //    }
-            //}
-            //else
-            //{
-            //    result |= _dep.SubscriptionProcessor.Manager.RemoveQuest(ctx.User.Id, rewardKeyword, city);
-            //}
-
-            //await ctx.TriggerTypingAsync();
-            //if (result)
-            //{
-            //    await ctx.RespondAsync($"{ctx.User.Mention} has unsubscribed from **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
-            //}
-            //else
-            //{
-            //    await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
-            //}
+            if (result)
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} has unsubscribed from **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+            }
+            else
+            {
+                await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+            }
         }
 
         [

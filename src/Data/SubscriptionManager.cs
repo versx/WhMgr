@@ -377,7 +377,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var result = db.Delete<PokemonSubscription>(x => x.PokemonId == pokemonId);
+                var result = db.Delete<PokemonSubscription>(x => x.UserId == userId && x.PokemonId == pokemonId);
                 return result > 0;
             }
         }
@@ -391,7 +391,7 @@
                 //TODO: Foreach raid subscription instead of Forloop
                 for (var i = 0; i < pokemonIds.Count; i++)
                 {
-                    if (db.Delete<RaidSubscription>(x=>x.PokemonId == pokemonIds[i] && cities.Contains(x.City)) == 0)
+                    if (db.Delete<RaidSubscription>(x => x.UserId == userId && x.PokemonId == pokemonIds[i] && cities.Contains(x.City)) == 0)
                     {
                         _logger.Warn($"Could not delete raid subscription for user {userId} raid {pokemonIds[i]} city {cities}");
                     }
@@ -407,7 +407,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var result = db.Delete<GymSubscription>(x => string.Compare(gymName, x.Name, true) == 0);
+                var result = db.Delete<GymSubscription>(x => x.UserId == userId && string.Compare(gymName, x.Name, true) == 0);
                 return result > 0;
             }
         }
@@ -420,7 +420,7 @@
             {
                 for (var i = 0; i < cities.Count; i++)
                 {
-                    if (db.Delete<QuestSubscription>(x => string.Compare(rewardKeyword.ToLower(), x.RewardKeyword.ToLower(), true) == 0 && string.Compare(cities[i], x.City, true) == 0) == 0)
+                    if (db.Delete<QuestSubscription>(x => x.UserId == userId && string.Compare(rewardKeyword.ToLower(), x.RewardKeyword.ToLower(), true) == 0 && string.Compare(cities[i], x.City, true) == 0) == 0)
                     {
                         _logger.Warn($"Could not delete quest subscription for user {userId} quest {rewardKeyword} city {cities[i]}");
                     }
