@@ -517,6 +517,28 @@
             }
 
             _logger.Debug($"Finished automatic quest messages cleanup...");
+
+            CleanupDepartedMembers();
+        }
+
+        private void CleanupDepartedMembers()
+        {
+            _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
+
+            var users = _subProcessor.Manager.GetUserSubscriptions();
+            for (var i = 0; i < users.Count; i++)
+            {
+                var user = users[i];
+                var discordUser = _client.GetMemberById(_whConfig.GuildId, user.UserId);
+                if (discordUser == null)
+                {
+                    _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
+                    if (!_subProcessor.Manager.RemoveAllUserSubscriptions(user.UserId))
+                    {
+                        _logger.Warn($"Could not remove user {user.UserId} subscription settings from the database.");
+                    }
+                }
+            }
         }
 
         #endregion

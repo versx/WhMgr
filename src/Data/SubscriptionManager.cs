@@ -450,6 +450,30 @@
 
         #region Remove All
 
+        public bool RemoveAllUserSubscriptions(ulong userId)
+        {
+            _logger.Trace($"SubscriptionManager::RemoveAllUserSubscription [UserId={userId}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                try
+                {
+                    db.Delete<PokemonSubscription>(x => x.UserId == userId);
+                    db.Delete<RaidSubscription>(x => x.UserId == userId);
+                    db.Delete<QuestSubscription>(x => x.UserId == userId);
+                    db.Delete<GymSubscription>(x => x.UserId == userId);
+                    db.Delete<SubscriptionObject>(x => x.UserId == userId);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                }
+
+                return true;
+            }
+        }
+
         public bool RemoveAllPokemon(ulong userId)
         {
             _logger.Trace($"SubscriptionManager::RemoveAllPokemon [UserId={userId}]");
