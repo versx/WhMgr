@@ -377,22 +377,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
-                if (subscription == null)
-                {
-                    //Not subscribed.
-                    return false;
-                }
-
-                var pkmnSub = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId);
-                if (pkmnSub == null)
-                {
-                    //Not subscribed.
-                    return true;
-                }
-
-                //Subscription exists.
-                var result = db.Delete(pkmnSub);
+                var result = db.Delete<PokemonSubscription>(x => x.PokemonId == pokemonId);
                 return result > 0;
             }
         }
@@ -403,24 +388,10 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
-                if (subscription == null)
-                {
-                    //Not subscribed.
-                    return true;
-                }
-
                 //TODO: Foreach raid subscription instead of Forloop
                 for (var i = 0; i < pokemonIds.Count; i++)
                 {
-                    var raidSub = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonIds[i] && cities.Contains(x.City));
-                    if (raidSub == null)
-                    {
-                        //Not subscribed.
-                        continue;
-                    }
-
-                    if (db.Delete(raidSub) == 0)
+                    if (db.Delete<RaidSubscription>(x=>x.PokemonId == pokemonIds[i] && cities.Contains(x.City)) == 0)
                     {
                         _logger.Warn($"Could not delete raid subscription for user {userId} raid {pokemonIds[i]} city {cities}");
                     }
@@ -436,21 +407,7 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
-                if (subscription == null)
-                {
-                    //Not subscribed.
-                    return true;
-                }
-
-                var gymSub = subscription.Gyms.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
-                if (gymSub == null)
-                {
-                    //Not subscribed.
-                    return true;
-                }
-
-                var result = db.Delete(gymSub);
+                var result = db.Delete<GymSubscription>(x => string.Compare(gymName, x.Name, true) == 0);
                 return result > 0;
             }
         }
@@ -461,23 +418,9 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                var subscription = db.LoadSingleById<SubscriptionObject>(userId);
-                if (subscription == null)
-                {
-                    //Not subscribed.
-                    return true;
-                }
-
                 for (var i = 0; i < cities.Count; i++)
                 {
-                    var questSub = subscription.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) && cities.Select(y => y.ToLower()).Contains(x.City.ToLower()));
-                    if (questSub == null)
-                    {
-                        //Not subscribed.
-                        return true;
-                    }
-
-                    if (db.Delete(questSub) == 0)
+                    if (db.Delete<QuestSubscription>(x => string.Compare(rewardKeyword.ToLower(), x.RewardKeyword.ToLower(), true) == 0 && string.Compare(cities[i], x.City, true) == 0) == 0)
                     {
                         _logger.Warn($"Could not delete quest subscription for user {userId} quest {rewardKeyword} city {cities[i]}");
                     }

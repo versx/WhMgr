@@ -750,11 +750,6 @@
                     return;
                 }
             }
-            else
-            {
-                //Assign to all cities.
-                city = string.Empty;
-            }
 
             var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
             if (!isSupporter)
