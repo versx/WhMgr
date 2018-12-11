@@ -487,7 +487,7 @@
                     continue;
                 }
 
-                var contains = alarm.Filters.Quests.RewardKeywords.Select(x => x.ToLower()).Contains(rewardKeyword.ToLower());
+                var contains = alarm.Filters.Quests.RewardKeywords.Select(x => x.ToLower()).FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.ToLower())) != null;
                 if (alarm.Filters.Quests.FilterType == FilterType.Exclude && contains)
                 {
                     //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter {alarm.Filters.Quests.FilterType}.");
