@@ -145,11 +145,14 @@
         {
             desiredGender = desiredGender.ToLower();
 
-            if (desiredGender == "*" || gender == PokemonGender.Genderless || gender == PokemonGender.Unset) return true;
+            if (desiredGender == "*" || gender == PokemonGender.Genderless || gender == PokemonGender.Unset)
+                return true;
 
-            if (desiredGender == "m" && gender == PokemonGender.Male) return true;
+            if (desiredGender == "m" && gender == PokemonGender.Male)
+                return true;
 
-            if (desiredGender == "f" && gender == PokemonGender.Female) return true;
+            if (desiredGender == "f" && gender == PokemonGender.Female)
+                return true;
 
             return false;
         }

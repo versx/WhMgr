@@ -337,11 +337,11 @@
                     continue;
                 }
 
-                if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
-                {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
-                    continue;
-                }
+                //if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
+                //{
+                //    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
+                //    continue;
+                //}
 
                 OnPokemonAlarmTriggered(pkmn, alarm);
             }
@@ -512,14 +512,15 @@
 
         private void ProcessPokestop(PokestopData pokestop)
         {
-            //_logger.Trace($"WebhookManager::ProcessPokestop [PokestopId={pokestop.PokestopId}]");
-
+            //Skip if EnablePokestops is disabled in the config.
             if (!_alarms.EnablePokestops)
                 return;
 
+            //Skip if Pokestop filter is not defined.
             if (pokestop == null)
                 return;
 
+            //Skip if alarms list is null or empty.
             if (_alarms.Alarms?.Count == 0)
                 return;
 
@@ -548,8 +549,6 @@
 
         private void ProcessGym(GymData gym)
         {
-            //_logger.Trace($"WebhookManager::ProcessGym [GymId={gym.GymId}]");
-
             if (!_alarms.EnableGyms)
                 return;
 
