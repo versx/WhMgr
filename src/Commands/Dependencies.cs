@@ -1,7 +1,7 @@
 ﻿namespace WhMgr.Commands
 {
     using WhMgr.Configuration;
-    using WhMgr.Data;
+    using WhMgr.Data.Subscriptions;
     using WhMgr.Localization;
     using WhMgr.Net.Webhooks;
 

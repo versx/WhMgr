@@ -41,7 +41,7 @@
             var pokeId = pokemon.PokemonIdFromName();
             if (pokeId == 0)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} {pokemon} is not a valid Pokemon id or name.");
+                await ctx.RespondEmbed($"{ctx.User.Username} {pokemon} is not a valid Pokemon id or name.");
                 return;
             }
 
@@ -59,7 +59,7 @@
             var nests = GetNests()?.Where(x => x.Value.PokemonId == pokeId);
             if (nests == null)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} Could not get list of nests from SilphRoad atlas.");
+                await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from SilphRoad atlas.");
                 return;
             }
 
@@ -79,7 +79,7 @@
 
             if (eb.Fields.Count == 0)
             {
-                eb.Description = $"{ctx.User.Mention} Could not find any nests for {pkmn.Name}.";
+                eb.Description = $"{ctx.User.Username} Could not find any nests for {pkmn.Name}.";
             }
 
             await ctx.RespondAsync(ctx.User.Mention, false, eb);

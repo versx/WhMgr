@@ -1,4 +1,4 @@
-﻿namespace WhMgr.Data.Models
+﻿namespace WhMgr.Data.Subscriptions.Models
 {
     using ServiceStack.DataAnnotations;
 

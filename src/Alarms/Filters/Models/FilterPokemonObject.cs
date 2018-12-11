@@ -32,7 +32,9 @@
         [JsonProperty("max_lvl")]
         public uint MaximumLevel { get; set; }
 
-        //TODO: Filter by gender.
+        [JsonProperty("gender")]
+        public char Gender { get; set; }
+
         //TODO: Filter by move?
 
         [JsonProperty("type")]
@@ -49,6 +51,7 @@
             MaximumCP = 999999;
             MinimumLevel = 0;
             MaximumLevel = 100; //Support for when they increase level cap. :wink:
+            Gender = '*';
         }
     }
 }

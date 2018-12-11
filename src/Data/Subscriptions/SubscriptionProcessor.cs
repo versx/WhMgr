@@ -1,4 +1,4 @@
-﻿namespace WhMgr.Data
+﻿namespace WhMgr.Data.Subscriptions
 {
     using System;
     using System.Linq;
@@ -8,7 +8,7 @@
     using DSharpPlus.Entities;
 
     using WhMgr.Configuration;
-    using WhMgr.Data.Models;
+    using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
@@ -145,8 +145,6 @@
 
                     _logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
-                    //user.NotificationsToday++;
-
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
                     Statistics.Instance.SubscriptionPokemonSent++;
                     Thread.Sleep(5);
@@ -183,7 +181,6 @@
 
             bool isSupporter;
             SubscriptionObject user;
-            RaidSubscription subscribedRaid;
             var pokemon = db.Pokemon[raid.PokemonId];
             var embed = _embedBuilder.BuildRaidMessage(raid, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
@@ -211,10 +208,6 @@
                         continue;
                     }
 
-                    subscribedRaid = user.Raids.FirstOrDefault(x => x.PokemonId == raid.PokemonId);
-                    if (subscribedRaid == null)
-                        continue;
-
                     //if (!member.Roles.Select(x => x.Name.ToLower()).Contains(loc.Name.ToLower()))
                     //{
                     //    _logger.Debug($"[{loc.Name}] Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name} because they do not have the city role '{loc.Name}'.");
@@ -224,16 +217,16 @@
                     var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
                     if (user.DistanceM > 0 && user.DistanceM < distance)
                     {
-                    //    //Skip if distance is set and is not met.
-                    //    _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM} meters.");
-                    //    continue;
+                        //Skip if distance is set and is not met.
+                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM} meters.");
+                        //continue;
                     }
 
                     if (user.Gyms.Count > 0 && user.Gyms.FirstOrDefault(x => raid.GymName.ToLower().Contains(x.Name.ToLower())) == null)
                     {
-                    //    //Skip if list is not empty and gym is not in list.
-                    //    _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");
-                    //    continue;
+                        //Skip if list is not empty and gym is not in list.
+                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");
+                        //continue;
                     }
 
                     var exists = user.Raids.FirstOrDefault(x => 
@@ -247,8 +240,6 @@
                     }
 
                     _logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
-
-                    //user.NotificationsToday++;
 
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
                     Statistics.Instance.SubscriptionRaidsSent++;
@@ -287,7 +278,6 @@
 
             bool isSupporter;
             SubscriptionObject user;
-            QuestSubscription subscribedQuest;
             var embed = _embedBuilder.BuildQuestMessage(quest, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
@@ -314,16 +304,6 @@
                         continue;
                     }
 
-                    subscribedQuest = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
-                    if (subscribedQuest == null)
-                        continue;
-
-                    //if (!member.Roles.Select(x => x.Name).Contains(loc.Name))
-                    //{
-                    //    _logger.Debug($"[{loc.Name}] Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because they do not have the city role '{loc.Name}'.");
-                    //    continue;
-                    //}
-
                     var exists = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) &&
                     (
                         string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
@@ -335,8 +315,6 @@
                     }
 
                     _logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
-
-                    //user.NotificationsToday++;
 
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
                     Statistics.Instance.SubscriptionQuestsSent++;

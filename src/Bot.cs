@@ -9,6 +9,7 @@
     using WhMgr.Commands;
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Data.Subscriptions;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
@@ -25,6 +26,7 @@
     //TODO: Optimize webhook and subscription processing.
     //TODO: Raid lobby manager
     //TODO: Optimize database queries
+    //TODO: Reload config on change
 
     public class Bot
     {
@@ -205,7 +207,7 @@
                     Description = $"{emoji} You do not have the permissions required to execute this command.",
                     Color = new DiscordColor(0xFF0000) // red
                 };
-                await e.Context.RespondAsync("", embed: embed);
+                await e.Context.RespondAsync(string.Empty, embed: embed);
             }
             else if (e.Exception is DSharpPlus.CommandsNext.Exceptions.CommandNotFoundException)
             {

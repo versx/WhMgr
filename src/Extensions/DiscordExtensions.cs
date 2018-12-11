@@ -81,14 +81,14 @@
             {
                 await ctx.TriggerTypingAsync();
             }
-            return await ctx.RespondAsync($"{ctx.User.Mention} This feature is only available to supporters, please donate to unlock this feature and more. Donation information can be found by typing the `.donate` command.");
+            return await ctx.RespondEmbed($"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more. Donation information can be found by typing the `.donate` command.");
         }
 
         internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message)
         {
             if (message.Channel.Guild == null)
             {
-                await message.RespondAsync("DM is not supported for this command yet.");
+                await message.RespondAsync($"{message.Author.Mention} DM is not supported for this command yet.");
                 return false;
             }
 
@@ -218,7 +218,7 @@
 
         public static async Task<bool> Confirm(this CommandContext ctx, string message)
         {
-            await ctx.RespondAsync(message);
+            await ctx.RespondEmbed(message);
             var interactivity = ctx.Client.GetModule<InteractivityModule>();
             var m = await interactivity.WaitForMessageAsync(
                 x => x.Channel.Id == ctx.Channel.Id

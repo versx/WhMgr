@@ -8,6 +8,7 @@
     using DSharpPlus.Entities;
 
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
 
     public class Quests
     {
@@ -34,7 +35,8 @@
                     var qChannel = await ctx.Client.GetChannelAsync(_dep.WhConfig.QuestChannelIds[i]);
                     if (qChannel == null)
                     {
-                        continue; //TODO: Log warning.
+                        _logger.Warn($"Could not get quest channel from id '{_dep.WhConfig.QuestChannelIds[i]}'.");
+                        continue;
                     }
 
                     await DeleteChannelMessages(ctx, qChannel);
@@ -61,7 +63,7 @@
 
                 messages = await channel.GetMessagesAsync();
             }
-            await ctx.RespondAsync($"{ctx.User.Mention} Channel {channel.Mention} messages have been deleted.");
+            await ctx.RespondEmbed($"{ctx.User.Username} Channel {channel.Mention} messages have been deleted.");
         }
     }
 }

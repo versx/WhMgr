@@ -337,8 +337,13 @@
                     continue;
                 }
 
+                if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
+                {
+                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
+                    continue;
+                }
+
                 OnPokemonAlarmTriggered(pkmn, alarm);
-                _logger.Info($"[{alarm.Name}] [{geofence.Name}] Notification triggered for pokemon {pkmn.Id}.");
             }
         }
 
@@ -400,7 +405,6 @@
                         continue;
                     }
 
-                    _logger.Info($"[{alarm.Name}] [{geofence.Name}] Notification triggered for level {raid.Level} raid egg.");
                     OnRaidAlarmTriggered(raid, alarm);
                 }
                 else
@@ -419,12 +423,6 @@
                         _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: filter {alarm.Filters.Raids.FilterType}.");
                         continue;
                     }
-
-                    //if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId) && alarm.Filters.Raids.Pokemon?.Count > 0)
-                    //{
-                    //    _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: filter {alarm.Filters.Raids.FilterType}.");
-                    //    continue;
-                    //}
 
                     if (alarm.Filters.Raids.FilterType == FilterType.Include && (!alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId) && alarm.Filters.Raids.Pokemon?.Count > 0))
                     {
@@ -451,7 +449,6 @@
                     }
 
                     OnRaidAlarmTriggered(raid, alarm);
-                    _logger.Info($"[{alarm.Name}] [{geofence.Name}] Notification triggered for raid boss {raid.PokemonId}.");
                 }
             }
         }
@@ -509,7 +506,6 @@
                     continue;
                 }
 
-                _logger.Info($"[{alarm.Name}] [{geofence.Name}] Notification triggered for PokestopId={quest.PokestopId}, Type={quest.Type}.");
                 OnQuestAlarmTriggered(quest, alarm);
             }
         }
@@ -546,7 +542,6 @@
                     continue;
                 }
 
-                _logger.Info($"[{alarm.Name}] [{geofence.Name}] Notification triggered for PokestopId={pokestop.PokestopId}, Name={pokestop.Name}.");
                 OnPokestopAlarmTriggered(pokestop, alarm);
             }
         }
@@ -583,7 +578,6 @@
                     continue;
                 }
 
-                _logger.Info($"[{alarm.Name}] [{geofence.Name}] Notification triggered for GymId={gym.GymId}, GymName={gym.GymName}.");
                 OnGymAlarmTriggered(gym, alarm);
             }
         }

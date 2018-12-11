@@ -11,7 +11,7 @@
     using DSharpPlus.Entities;
 
     using WhMgr.Data;
-    using WhMgr.Data.Models;
+    using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
 
@@ -35,8 +35,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
                 return;
             }
 
@@ -48,14 +47,14 @@
 
             if (!ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig))
             {
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_NOT_MODERATOR_OR_HIGHER"), ctx.User.Mention)); //$"{ctx.User.Mention} is not a moderator or higher thus you may not see other's subscription settings.");
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(ctx.User.Mention));
                 return;
             }
 
             var userId = ConvertMentionToUserId(mention);
             if (userId <= 0)
             {
-                await ctx.RespondAsync(string.Format(_dep.Language.Translate("MSG_INVALID_USER_MENTION"), ctx.User.Mention, mention)); //$"{ctx.User.Mention} Failed to retrieve user with mention tag {mention}.");
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_INVALID_USER_MENTION").FormatText(ctx.User.Mention, mention));
                 return;
             }
 
@@ -78,15 +77,13 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
                 return;
             }
 
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
-                //await ctx.TriggerTypingAsync();
-                //await ctx.RespondAsync($"{ctx.User.Mention} is not currently subscribed to any Pokemon or Raid notifications.");
+                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username));
                 return;
             }
@@ -96,7 +93,7 @@
             if (_dep.SubscriptionProcessor.Manager.Set(ctx.User.Id, enabled))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Mention} has **{cmd}d** Pokemon and Raid notifications.");
+                await ctx.RespondEmbed($"{ctx.User.Username} has **{cmd}d** Pokemon, Raid, and Quest notifications.");
             }
         }
 
@@ -112,8 +109,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
                 return;
             }
 
@@ -129,7 +125,7 @@
                 if (!ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} The minimum level and gender type parameters are only available to Supporter members, please consider donating to unlock this feature.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} The minimum level and gender type parameters are only available to Supporter members, please consider donating to unlock this feature.");
                     return;
                 }
             }
@@ -140,50 +136,44 @@
             //    return;
             //}
 
-            if (iv == 0)
-            {
-                //await message.RespondAsync($"{message.Author.Mention} you entered 0% for a minimum IV, are you s you want to do this?");
-                //return;
-            }
-
             if (iv < 0 || iv > 100)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} {iv} must be within the range of 0-100.");
+                await ctx.RespondEmbed($"{ctx.User.Username} {iv} must be within the range of `0-100`.");
                 return;
             }
 
             if (gender != "*" && gender != "m" && gender != "f")
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} {gender} is not a valid gender.");
+                await ctx.RespondEmbed($"{ctx.User.Username} {gender} is not a valid gender.");
                 return;
             }
 
             if (lvl < 0 || lvl > 35)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} {lvl} must be within the range of 0-35.");
+                await ctx.RespondEmbed($"{ctx.User.Username} {lvl} must be within the range of `0-35`.");
                 return;
             }
+
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
                 if (!isSupporter)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} non-supporter members have a limited Pokemon notification amount of {Strings.MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited Pokemon notification amount of {Strings.MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.");
                     return;
                 }
 
                 if (iv < 80)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} may not subscribe to **all** Pokemon with a minimum IV less than 80, please set something higher.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} may not subscribe to **all** Pokemon with a minimum IV less than 80, please set something higher.");
                     return;
                 }
-
-                var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
 
                 await ctx.TriggerTypingAsync();
                 for (int i = 1; i < 493; i++)
@@ -191,7 +181,7 @@
                     if (i == 132 && !isSupporter)
                     {
                         await ctx.TriggerTypingAsync();
-                        await ctx.RespondAsync($"{ctx.User.Mention} Ditto has been skipped since he is only available to Supporters. Please consider donating to lift this restriction.");
+                        await ctx.RespondEmbed($"{ctx.User.Username} Ditto has been skipped since he is only available to Supporters. Please consider donating to lift this restriction.");
                         continue;
                     }
 
@@ -224,13 +214,16 @@
                 _dep.SubscriptionProcessor.Manager.Save(subscription);
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} subscribed to **all** Pokemon notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}..");
+                await ctx.RespondEmbed($"{ctx.User.Username} subscribed to **all** Pokemon notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}..");
                 return;
             }
 
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
             var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig);
+            var validation = ValidatePokemon(poke.Replace(" ", "").Split(','));
+            var db = Database.Instance;
+
             foreach (var arg in poke.Replace(" ", "").Split(','))
             {
                 if (!int.TryParse(arg, out int pokeId))
@@ -239,34 +232,27 @@
                     if (pokeId == 0)
                     {
                         await ctx.TriggerTypingAsync();
-                        await ctx.RespondAsync($"{ctx.User.Mention} failed to lookup Pokemon by name and pokedex id {arg}.");
+                        await ctx.RespondEmbed($"{ctx.User.Username} failed to lookup Pokemon by name and pokedex id {arg}.");
                         continue;
                     }
-                }
-
-                if (pokeId == 132 && !isSupporter)
-                {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} Ditto is only available to Supporters, please consider donating to unlock this feature.");
-                    continue;
                 }
 
                 //Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
                 if (IsCommonPokemon(pokeId) && iv < Strings.CommonTypeMinimumIV && !isModOrHigher)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} {Database.Instance.Pokemon[pokeId].Name} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {Strings.CommonTypeMinimumIV}% or higher.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {db.Pokemon[pokeId].Name} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {Strings.CommonTypeMinimumIV}% or higher.");
                     continue;
                 }
 
-                if (!Database.Instance.Pokemon.ContainsKey(pokeId))
+                if (!db.Pokemon.ContainsKey(pokeId))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} {pokeId} is not a valid Pokemon id.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {pokeId} is not a valid Pokemon id.");
                     continue;
                 }
 
-                var pokemon = Database.Instance.Pokemon[pokeId];
+                var pokemon = db.Pokemon[pokeId];
 
                 if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
                 {
@@ -275,15 +261,13 @@
                     continue;
                 }
 
-                var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
-
                 //User has already subscribed before, check if their new requested sub already exists.
                 if (!subscription.Pokemon.Exists(x => x.PokemonId == pokeId))
                 {
                     if (!isSupporter && subscription.Pokemon.Count >= Strings.MaxPokemonSubscriptions)
                     {
                         await ctx.TriggerTypingAsync();
-                        await ctx.RespondAsync($"{ctx.User.Mention} non-supporter members have a limited notification amount of {Strings.MaxPokemonSubscriptions} different Pokemon, please consider donating to lift this to every Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new Pokemon.");
+                        await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited notification amount of {Strings.MaxPokemonSubscriptions} different Pokemon, please consider donating to lift this to every Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new Pokemon.");
                         return;
                     }
 
@@ -314,13 +298,13 @@
             }
 
             await ctx.TriggerTypingAsync();
-            await ctx.RespondAsync
+            await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Mention} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
+                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
-                    ? $"\r\n{ctx.User.Mention} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
+                    ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
                     : string.Empty)
             );
         }
@@ -334,20 +318,18 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
                 return;
             }
 
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to any Pokemon notifications.");
+                await ctx.RespondEmbed($"{ctx.User.Mention} is not subscribed to any Pokemon notifications.");
                 return;
             }
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
-
             if (string.Compare(poke, Strings.All, true) == 0)
             {
                 var confirm = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.");
@@ -358,64 +340,38 @@
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllPokemon(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"Failed to remove all Pokemon subscriptions for {ctx.User.Mention}.");
+                    await ctx.RespondEmbed($"Could not remove all Pokemon subscriptions for {ctx.User.Username}.");
                     return;
                 }
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} has unsubscribed from **all** Pokemon notifications.");
+                await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **all** Pokemon notifications.");
                 return;
             }
 
-            var db = Database.Instance;
-
-            var notSubscribed = new List<string>();
-            var unsubscribed = new List<string>();
-            foreach (var arg in poke.Replace(" ", "").Split(','))
+            var validation = ValidatePokemon(poke.Replace(" ", "").Split(','));
+            if (validation.Valid != null && validation.Valid.Count > 0)
             {
-                var pokeId = arg.PokemonIdFromName();
-                if (pokeId == 0)
+                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x].Name);
+                var result = _dep.SubscriptionProcessor.Manager.RemovePokemon(ctx.User.Id, validation.Valid);
+                if (!result)
                 {
-                    if (!int.TryParse(arg, out pokeId))
-                    {
-                        await ctx.TriggerTypingAsync();
-                        await ctx.RespondAsync($"{ctx.User.Mention}, failed to lookup Pokemon by name and pokedex id using {arg}.");
-                        return;
-                    }
+                    await ctx.RespondEmbed($"{ctx.User.Username} Could not remove {string.Join(", ", pokemonNames)} Pokemon subscriptions.");
+                    return;
                 }
 
-                if (!db.Pokemon.ContainsKey(pokeId))
+                var msg = $"{ctx.User.Mention} has subscribed to **{string.Join("**, **", pokemonNames)}** Pokemon notifications.";
+                if (validation.Invalid != null && validation.Invalid.Count > 0)
                 {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention}, pokedex number {pokeId} is not a valid Pokemon id.");
-                    continue;
+                    msg += $"\r\n{string.Join(", ", validation.Invalid)} are not a valid Pokemon.";
                 }
 
-                var pokemon = db.Pokemon[pokeId];
-                var unsubscribePokemon = subscription.Pokemon.Find(x => x.PokemonId == pokeId);
-                if (unsubscribePokemon != null)
-                {
-                    if (_dep.SubscriptionProcessor.Manager.RemovePokemon(ctx.User.Id, pokeId))
-                    {
-                        unsubscribed.Add(pokemon.Name);
-                    }
-                }
-                else
-                {
-                    notSubscribed.Add(pokemon.Name);
-                }
+                await ctx.RespondEmbed(msg);
             }
-
-            await ctx.TriggerTypingAsync();
-            await ctx.RespondAsync
-            (
-                (unsubscribed.Count > 0
-                    ? $"{ctx.User.Mention} has unsubscribed from **{string.Join("**, **", unsubscribed)}** notifications."
-                    : string.Empty) +
-                (notSubscribed.Count > 0
-                    ? $" {ctx.User.Mention} is not subscribed to **{string.Join("**, **", notSubscribed)}** notifications."
-                    : string.Empty)
-            );
+            else
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your Pokemon subscriptions.");
+            }
         }
 
         [
@@ -428,8 +384,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
                 return;
             }
 
@@ -444,122 +399,64 @@
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
-                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to find city role {city}. To see a list of valid city roles type the command `.cities` or `.feeds`.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.");
                     return;
                 }
-            }
-            else
-            {
-                //Assign to all cities.
-                city = string.Empty;
             }
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                //var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.Config);
                 if (!isSupporter)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} Non-supporter members have a limited raid boss notification amount of {Strings.MaxRaidSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your raid boss notification subscriptions to be more specific and try again.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} Non-supporter members have a limited raid boss notification amount of {Strings.MaxRaidSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your raid boss notification subscriptions to be more specific and try again.");
                     return;
                 }
 
                 await ctx.TriggerTypingAsync();
                 for (var i = 1; i < 493; i++)
                 {
-                    //if (!i.IsValidRaidBoss(_dep.Config.RaidBosses)) continue;
-                    //if (!_dep.Db.IsValidRaidBoss(i))
-                    //    continue;
-
                     var pokemon = Database.Instance.Pokemon[i];
-                    if (string.IsNullOrEmpty(city))
-                    {
-                        for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
-                        {
-                            if (!_dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, i, _dep.WhConfig.CityRoles[cty]))
-                            {
-                                _logger.Error($"Failed to add raid boss {i} in city {_dep.WhConfig.CityRoles[cty]} added to {ctx.User.Id} subscription list.");
-                                continue;
-                            }
-
-                            _logger.Info($"Raid boss {i} in city {_dep.WhConfig.CityRoles[cty]} added to {ctx.User.Id} subscription list.");
-                            //AddRaidBoss(ctx.User.Id, i, _dep.WhConfig.CityRoles[cty]);
-                        }
-                    }
-                    else
-                    {
-                        //AddRaidBoss(ctx.User.Id, i, city);
-                        if (!_dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, i, city))
-                        {
-                            _logger.Error($"Failed to add raid boss {i} in city {city} added to {ctx.User.Id} subscription list.");
-                            continue;
-                        }
-
-                        _logger.Info($"Raid boss {i} in city {city} added to {ctx.User.Id} subscription list.");
-                    }
+                    var result = _dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, i, string.IsNullOrEmpty(city) ? _dep.WhConfig.CityRoles : new List<string> { city });
                 }
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} Subscribed to **all** raid boss notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} Subscribed to **all** raid boss notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
                 return;
             }
 
-            var alreadySubscribed = new List<string>();
-            var subscribed = new List<string>();
-
+            //Check if user is not a Supporter and if they've exceeded their maximum raid subscriptions.
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
-
-            foreach (var arg in poke.Replace(" ", "").Split(','))
+            if (!isSupporter && subscription.Raids.Count >= Strings.MaxRaidSubscriptions)
             {
-                if (!isSupporter && subscription.Raids.Count >= Strings.MaxRaidSubscriptions)
-                {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} Non-supporter members have a limited notification amount of {Strings.MaxRaidSubscriptions} different raid bosses, please consider donating to lift this to every raid Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new raid Pokemon.");
-                    return;
-                }
-
-                var pokeId = arg.PokemonIdFromName();
-                if (pokeId == 0)
-                {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to find raid Pokemon {arg}.");
-                    continue;
-                }
-
-                var pokemon = Database.Instance.Pokemon[pokeId];
-                var result = false;
-                if (string.IsNullOrEmpty(city))
-                {
-                    for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
-                    {
-                        result |= _dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, pokeId, _dep.WhConfig.CityRoles[cty]);
-                    }
-                }
-                else
-                {
-                    result |= _dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, pokeId, city);
-                }
-
-                if (result)
-                {
-                    subscribed.Add(pokemon.Name);
-                }
-                else
-                {
-                    alreadySubscribed.Add(pokemon.Name);
-                }
+                await ctx.TriggerTypingAsync();
+                await ctx.RespondEmbed($"{ctx.User.Username} Non-supporter members have a limited notification amount of {Strings.MaxRaidSubscriptions} different raid bosses, please consider donating to lift this to every raid Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new raid Pokemon.");
+                return;
             }
 
-            await ctx.TriggerTypingAsync();
-            await ctx.RespondAsync
-            (
-                (subscribed.Count > 0
-                    ? $"{ctx.User.Mention} has subscribed to **{string.Join("**, **", subscribed)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}."
-                    : string.Empty) +
-                (alreadySubscribed.Count > 0
-                    ? $" {ctx.User.Mention} is already subscribed to {string.Join(",", alreadySubscribed)} raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}."
-                    : string.Empty)
-            );
+            var validation = ValidatePokemon(poke.Replace(" ", "").Split(','));
+            if (validation.Valid != null && validation.Valid.Count > 0)
+            {
+                var result = _dep.SubscriptionProcessor.Manager.AddRaid(
+                    ctx.User.Id,
+                    validation.Valid,
+                    string.IsNullOrEmpty(city)
+                        ? _dep.WhConfig.CityRoles
+                        : new List<string> { city });
+
+                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x].Name);
+                var msg = $"{ctx.User.Username} has subscribed to **{string.Join("**, **", pokemonNames)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.";
+                if (validation.Invalid != null && validation.Invalid.Count > 0)
+                {
+                    msg += $"\r\n{string.Join(", ", validation.Invalid)} are not valid raid boss Pokemon.";
+                }
+
+                await ctx.RespondEmbed(msg);
+            }
+            else
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your raid subscriptions.");
+            }
         }
 
         [
@@ -572,8 +469,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));
                 return;
             }
 
@@ -581,7 +477,7 @@
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
-                    await ctx.RespondAsync($"{ctx.User.Mention} Could not find city role {city}. To see a list of valid city roles type the command `.cities` or `.feeds`.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.");
                     return;
                 }
             }
@@ -589,7 +485,7 @@
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
                 return;
             }
 
@@ -600,7 +496,7 @@
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var result = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.");
+                var result = await ctx.Confirm($"{ctx.User.Username} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.");
                 if (!result)
                     return;
 
@@ -608,12 +504,12 @@
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllRaids(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} Could not remove all raid boss subscriptions.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} Could not remove all raid boss subscriptions.");
                     return;
                 }
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} has unsubscribed from **all** raid boss notifications!");
+                await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **all** raid boss notifications!");
                 return;
             }
 
@@ -628,102 +524,17 @@
                         : new List<string> { city });
 
                 var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x].Name);
-                var msg = $"{ctx.User.Mention} has unsubscribed from **{string.Join("**, **", pokemonNames)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}.";
+                var msg = $"{ctx.User.Username} has unsubscribed from **{string.Join("**, **", pokemonNames)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}.";
                 if (validation.Invalid != null && validation.Invalid.Count > 0)
                 {
                     msg += $"\r\n{string.Join(", ", validation.Invalid)} are not valid raid boss Pokemon.";
                 }
 
-                await ctx.RespondAsync(msg);
+                await ctx.RespondEmbed(msg);
             }
             else
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} An error occurred while trying to remove your raid subscriptions.");
-            }
-
-            //foreach (var arg in poke.Replace(" ", "").Split(','))
-            //{
-            //    var pokeId = arg.PokemonIdFromName();
-            //    if (pokeId == 0)
-            //    {
-            //        await ctx.TriggerTypingAsync();
-            //        await ctx.RespondAsync($"{ctx.User.Mention} Failed to find raid boss Pokemon {arg}.");
-            //        continue;
-            //    }
-
-            //    var pokemon = Database.Instance.Pokemon[pokeId];
-            //    var result = false;
-            //    _dep.SubscriptionProcessor.Manager.RemoveRaid(ctx.User.Id, poke.Replace(" ", "").Split(','), string.IsNullOrEmpty(city) ? _dep.WhConfig.CityRoles : city);
-            //    if (string.IsNullOrEmpty(city))
-            //    {
-            //        for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
-            //        {
-            //            result |= _dep.SubscriptionProcessor.Manager.RemoveRaid(ctx.User.Id, pokeId, _dep.WhConfig.CityRoles[cty]);
-            //        }
-            //    }
-            //    else
-            //    {
-            //        result |= _dep.SubscriptionProcessor.Manager.RemoveRaid(ctx.User.Id, pokeId, city);
-            //    }
-
-            //    if (result)
-            //    {
-            //        unsubscribed.Add(pokemon.Name);
-            //    }
-            //    else
-            //    {
-            //        notSubscribed.Add(pokemon.Name);
-            //    }
-            //}
-
-            //await ctx.TriggerTypingAsync();
-            //await ctx.RespondAsync
-            //(
-            //    (unsubscribed.Count > 0
-            //        ? $"{ctx.User.Mention} has unsubscribed from **{string.Join("**, **", unsubscribed)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}."
-            //        : string.Empty) +
-            //    (notSubscribed.Count > 0
-            //        ? $" {ctx.User.Mention} is not subscribed to {string.Join(",", notSubscribed)} raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}."
-            //        : string.Empty)
-            //);
-        }
-
-        private PokemonValidation ValidatePokemon(IEnumerable<string> pokemon)
-        {
-            var valid = new List<int>();
-            var invalid = new List<string>();
-            //for (var i = 0; i < pokemon.Count; i++)
-            foreach (var poke in pokemon)
-            {
-                var pokeId = poke.PokemonIdFromName();
-                if (pokeId == 0)
-                {
-                    //await ctx.RespondAsync($"{ctx.User.Mention} Failed to find raid boss Pokemon {arg}.");
-                    invalid.Add(poke);
-                    continue;
-                }
-
-                if (!Database.Instance.Pokemon.ContainsKey(pokeId))
-                {
-                    continue;
-                }
-
-                valid.Add(pokeId);
-            }
-
-            return new PokemonValidation { Valid = valid, Invalid = invalid };
-        }
-
-        public class PokemonValidation
-        {
-            public List<int> Valid { get; set; }
-
-            public List<string> Invalid { get; set; }
-
-            public PokemonValidation()
-            {
-                Valid = new List<int>();
-                Invalid = new List<string>();
+                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your raid subscriptions.");
             }
         }
 
@@ -737,8 +548,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));
                 return;
             }
 
@@ -746,7 +556,7 @@
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
-                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to find city role {city}. To see a list of valid city roles type the command `.cities` or `.feeds`.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type `.cities` or `.feeds`.");
                     return;
                 }
             }
@@ -759,37 +569,22 @@
             }
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
-            if (!isSupporter && subscription.Raids.Count >= Strings.MaxRaidSubscriptions)
+            if (!isSupporter && subscription.Quests.Count >= Strings.MaxQuestSubscriptions)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} Non-supporter members have a limited notification amount of {Strings.MaxQuestSubscriptions} different field research quests, please consider donating to lift this to every field research quest. Otherwise you will need to remove some subscriptions in order to subscribe to new field research quests.");
+                await ctx.RespondEmbed($"{ctx.User.Username} Non-supporter members have a limited notification amount of {Strings.MaxQuestSubscriptions} different field research quests, please consider donating to lift this to every field research quest. Otherwise you will need to remove some subscriptions in order to subscribe to new field research quests.");
                 return;
             }
 
-            var result = false;
             await ctx.TriggerTypingAsync();
-            if (string.IsNullOrEmpty(city))
-            {
-                for (var cty = 0; cty < _dep.WhConfig.CityRoles.Count; cty++)
-                {
-                    result |= _dep.SubscriptionProcessor.Manager.AddQuest(ctx.User.Id, rewardKeyword, _dep.WhConfig.CityRoles[cty]);
-                }
-            }
-            else
-            {
-                result |= _dep.SubscriptionProcessor.Manager.AddQuest(ctx.User.Id, rewardKeyword, city);
-            }
-
-            _dep.SubscriptionProcessor.Manager.Save(subscription);
-
-            await ctx.TriggerTypingAsync();
+            var result = _dep.SubscriptionProcessor.Manager.AddQuest(ctx.User.Id, rewardKeyword, string.IsNullOrEmpty(city) ? _dep.WhConfig.CityRoles : new List<string> { city });
             if (result)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} has subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} has subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
             }
             else
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} is already subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} is already subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
             }
         }
 
@@ -803,8 +598,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));// $"{ctx.User.Username} Subscriptions are not enabled in the config.");
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));
                 return;
             }
 
@@ -812,7 +606,7 @@
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
-                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to find city role {city}. To see a list of valid city roles type the command `.cities` or `.feeds`.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.");
                     return;
                 }
             }
@@ -820,7 +614,7 @@
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
                 return;
             }
 
@@ -838,12 +632,12 @@
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllQuests(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondAsync($"{ctx.User.Mention} Failed to remove all quest subscriptions.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} Failed to remove all quest subscriptions.");
                     return;
                 }
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondAsync($"{ctx.User.Mention} has unsubscribed from **all** quest notifications!");
+                await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **all** quest notifications.");
                 return;
             }
 
@@ -856,11 +650,11 @@
 
             if (result)
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} has unsubscribed from **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
             }
             else
             {
-                await ctx.RespondAsync($"{ctx.User.Mention} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
             }
         }
 
@@ -874,7 +668,6 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
                 return;
             }
@@ -910,7 +703,6 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
                 return;
             }
@@ -933,7 +725,6 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                //await ctx.RespondAsync($"{ctx.User.Mention} Subscriptions are not enabled in the config.");
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
                 return;
             }
@@ -1247,6 +1038,41 @@
             mention = mention.Replace("!", null);
 
             return ulong.TryParse(mention, out ulong result) ? result : 0;
+        }
+
+        private PokemonValidation ValidatePokemon(IEnumerable<string> pokemon)
+        {
+            var valid = new List<int>();
+            var invalid = new List<string>();
+            foreach (var poke in pokemon)
+            {
+                var pokeId = poke.PokemonIdFromName();
+                if (pokeId == 0)
+                {
+                    invalid.Add(poke);
+                    continue;
+                }
+
+                if (!Database.Instance.Pokemon.ContainsKey(pokeId))
+                    continue;
+
+                valid.Add(pokeId);
+            }
+
+            return new PokemonValidation { Valid = valid, Invalid = invalid };
+        }
+
+        public class PokemonValidation
+        {
+            public List<int> Valid { get; set; }
+
+            public List<string> Invalid { get; set; }
+
+            public PokemonValidation()
+            {
+                Valid = new List<int>();
+                Invalid = new List<string>();
+            }
         }
     }
 }
