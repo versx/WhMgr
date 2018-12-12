@@ -161,7 +161,7 @@
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                if (!isSupporter)
+                if (!isSupporter && subscription.Pokemon.Count >= Strings.MaxPokemonSubscriptions)
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited Pokemon notification amount of {Strings.MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.", DiscordColor.Red);
