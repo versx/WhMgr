@@ -35,7 +35,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -47,14 +47,14 @@
 
             if (!ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig))
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(ctx.User.Mention));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(ctx.User.Mention), DiscordColor.Red);
                 return;
             }
 
             var userId = ConvertMentionToUserId(mention);
             if (userId <= 0)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_INVALID_USER_MENTION").FormatText(ctx.User.Mention, mention));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_INVALID_USER_MENTION").FormatText(ctx.User.Mention, mention), DiscordColor.Red);
                 return;
             }
 
@@ -77,14 +77,14 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -109,7 +109,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -125,7 +125,7 @@
                 if (!ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} The minimum level and gender type parameters are only available to Supporter members, please consider donating to unlock this feature.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} The minimum level and gender type parameters are only available to Supporter members, please consider donating to unlock this feature.", DiscordColor.Red);
                     return;
                 }
             }
@@ -139,21 +139,21 @@
             if (iv < 0 || iv > 100)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} {iv} must be within the range of `0-100`.");
+                await ctx.RespondEmbed($"{ctx.User.Username} {iv} must be within the range of `0-100`.", DiscordColor.Red);
                 return;
             }
 
             if (gender != "*" && gender != "m" && gender != "f")
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} {gender} is not a valid gender.");
+                await ctx.RespondEmbed($"{ctx.User.Username} {gender} is not a valid gender.", DiscordColor.Red);
                 return;
             }
 
             if (lvl < 0 || lvl > 35)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} {lvl} must be within the range of `0-35`.");
+                await ctx.RespondEmbed($"{ctx.User.Username} {lvl} must be within the range of `0-35`.", DiscordColor.Red);
                 return;
             }
 
@@ -164,14 +164,14 @@
                 if (!isSupporter)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited Pokemon notification amount of {Strings.MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited Pokemon notification amount of {Strings.MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.", DiscordColor.Red);
                     return;
                 }
 
                 if (iv < 80)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} may not subscribe to **all** Pokemon with a minimum IV less than 80, please set something higher.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} may not subscribe to **all** Pokemon with a minimum IV less than 80, please set something higher.", DiscordColor.Red);
                     return;
                 }
 
@@ -181,7 +181,7 @@
                     if (i == 132 && !isSupporter)
                     {
                         await ctx.TriggerTypingAsync();
-                        await ctx.RespondEmbed($"{ctx.User.Username} Ditto has been skipped since he is only available to Supporters. Please consider donating to lift this restriction.");
+                        await ctx.RespondEmbed($"{ctx.User.Username} Ditto has been skipped since he is only available to Supporters. Please consider donating to lift this restriction.", DiscordColor.Red);
                         continue;
                     }
 
@@ -232,7 +232,7 @@
                     if (pokeId == 0)
                     {
                         await ctx.TriggerTypingAsync();
-                        await ctx.RespondEmbed($"{ctx.User.Username} failed to lookup Pokemon by name and pokedex id {arg}.");
+                        await ctx.RespondEmbed($"{ctx.User.Username} failed to lookup Pokemon by name and pokedex id {arg}.", DiscordColor.Red);
                         continue;
                     }
                 }
@@ -241,14 +241,14 @@
                 if (IsCommonPokemon(pokeId) && iv < Strings.CommonTypeMinimumIV && !isModOrHigher)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} {db.Pokemon[pokeId].Name} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {Strings.CommonTypeMinimumIV}% or higher.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {db.Pokemon[pokeId].Name} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {Strings.CommonTypeMinimumIV}% or higher.", DiscordColor.Red);
                     continue;
                 }
 
                 if (!db.Pokemon.ContainsKey(pokeId))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} {pokeId} is not a valid Pokemon id.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {pokeId} is not a valid Pokemon id.", DiscordColor.Red);
                     continue;
                 }
 
@@ -267,7 +267,7 @@
                     if (!isSupporter && subscription.Pokemon.Count >= Strings.MaxPokemonSubscriptions)
                     {
                         await ctx.TriggerTypingAsync();
-                        await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited notification amount of {Strings.MaxPokemonSubscriptions} different Pokemon, please consider donating to lift this to every Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new Pokemon.");
+                        await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited notification amount of {Strings.MaxPokemonSubscriptions} different Pokemon, please consider donating to lift this to every Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new Pokemon.", DiscordColor.Red);
                         return;
                     }
 
@@ -318,14 +318,14 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Mention} is not subscribed to any Pokemon notifications.");
+                await ctx.RespondEmbed($"{ctx.User.Mention} is not subscribed to any Pokemon notifications.", DiscordColor.Red);
                 return;
             }
 
@@ -340,7 +340,7 @@
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllPokemon(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"Could not remove all Pokemon subscriptions for {ctx.User.Username}.");
+                    await ctx.RespondEmbed($"Could not remove all Pokemon subscriptions for {ctx.User.Username}.", DiscordColor.Red);
                     return;
                 }
 
@@ -356,7 +356,7 @@
                 var result = _dep.SubscriptionProcessor.Manager.RemovePokemon(ctx.User.Id, validation.Valid);
                 if (!result)
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Username} Could not remove {string.Join(", ", pokemonNames)} Pokemon subscriptions.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} Could not remove {string.Join(", ", pokemonNames)} Pokemon subscriptions.", DiscordColor.Red);
                     return;
                 }
 
@@ -370,7 +370,7 @@
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your Pokemon subscriptions.");
+                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your Pokemon subscriptions.", DiscordColor.Red);
             }
         }
 
@@ -384,7 +384,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -399,7 +399,7 @@
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.", DiscordColor.Red);
                     return;
                 }
             }
@@ -409,7 +409,7 @@
                 if (!isSupporter)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} Non-supporter members have a limited raid boss notification amount of {Strings.MaxRaidSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your raid boss notification subscriptions to be more specific and try again.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} Non-supporter members have a limited raid boss notification amount of {Strings.MaxRaidSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your raid boss notification subscriptions to be more specific and try again.", DiscordColor.Red);
                     return;
                 }
 
@@ -430,7 +430,7 @@
             if (!isSupporter && subscription.Raids.Count >= Strings.MaxRaidSubscriptions)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} Non-supporter members have a limited notification amount of {Strings.MaxRaidSubscriptions} different raid bosses, please consider donating to lift this to every raid Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new raid Pokemon.");
+                await ctx.RespondEmbed($"{ctx.User.Username} Non-supporter members have a limited notification amount of {Strings.MaxRaidSubscriptions} different raid bosses, please consider donating to lift this to every raid Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new raid Pokemon.", DiscordColor.Red);
                 return;
             }
 
@@ -455,7 +455,7 @@
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your raid subscriptions.");
+                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your raid subscriptions.", DiscordColor.Red);
             }
         }
 
@@ -469,7 +469,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -477,7 +477,7 @@
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.", DiscordColor.Red);
                     return;
                 }
             }
@@ -485,7 +485,7 @@
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
                 return;
             }
 
@@ -504,7 +504,7 @@
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllRaids(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} Could not remove all raid boss subscriptions.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} Could not remove all raid boss subscriptions.", DiscordColor.Red);
                     return;
                 }
 
@@ -534,7 +534,7 @@
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your raid subscriptions.");
+                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your raid subscriptions.", DiscordColor.Red);
             }
         }
 
@@ -548,7 +548,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -556,7 +556,7 @@
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type `.cities` or `.feeds`.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type `.cities` or `.feeds`.", DiscordColor.Red);
                     return;
                 }
             }
@@ -572,7 +572,7 @@
             if (!isSupporter && subscription.Quests.Count >= Strings.MaxQuestSubscriptions)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} Non-supporter members have a limited notification amount of {Strings.MaxQuestSubscriptions} different field research quests, please consider donating to lift this to every field research quest. Otherwise you will need to remove some subscriptions in order to subscribe to new field research quests.");
+                await ctx.RespondEmbed($"{ctx.User.Username} Non-supporter members have a limited notification amount of {Strings.MaxQuestSubscriptions} different field research quests, please consider donating to lift this to every field research quest. Otherwise you will need to remove some subscriptions in order to subscribe to new field research quests.", DiscordColor.Red);
                 return;
             }
 
@@ -584,7 +584,7 @@
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} is already subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} is already subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
             }
         }
 
@@ -598,7 +598,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username));
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -606,7 +606,7 @@
             {
                 if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.", DiscordColor.Red);
                     return;
                 }
             }
@@ -614,7 +614,7 @@
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
                 return;
             }
 
@@ -632,7 +632,7 @@
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllQuests(ctx.User.Id))
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} Failed to remove all quest subscriptions.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} Failed to remove all quest subscriptions.", DiscordColor.Red);
                     return;
                 }
 
@@ -654,7 +654,7 @@
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
             }
         }
 
@@ -668,26 +668,26 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED")));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
             var parts = coordinates.Replace(" ", null).Split(',');
             if (!double.TryParse(parts[0], out var lat) || !double.TryParse(parts[1], out var lng))
             {
-                await ctx.RespondEmbed($"{ctx.User.Mention} Could not parse {coordinates} as valid coordinates.");
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not parse {coordinates} as valid coordinates.", DiscordColor.Red);
                 return;
             }
 
             if (!_dep.SubscriptionProcessor.Manager.SetDistance(ctx.User.Id, distance, lat, lng))
             {
-                await ctx.RespondEmbed($"{ctx.User.Mention} Could not update database, please try again later.");
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not update database, please try again later.", DiscordColor.Red);
                 return;
             }
 
@@ -703,13 +703,13 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
             if (!_dep.SubscriptionProcessor.Manager.AddGym(ctx.User.Id, gymName))
             {
-                await ctx.RespondEmbed($"{ctx.User.Mention} Could not add gym subscription '{gymName}' to database.");
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not add gym subscription '{gymName}' to database.", DiscordColor.Red);
                 return;
             }
 
@@ -725,7 +725,7 @@
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -733,7 +733,7 @@
             {
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllGyms(ctx.User.Id))
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Mention} Could not remove all gym subscriptions from database.");
+                    await ctx.RespondEmbed($"{ctx.User.Mention} Could not remove all gym subscriptions from database.", DiscordColor.Red);
                     return;
                 }
 
@@ -743,7 +743,7 @@
 
             if (!_dep.SubscriptionProcessor.Manager.RemoveGym(ctx.User.Id, gymName))
             {
-                await ctx.RespondEmbed($"{ctx.User.Mention} Could not remove gym subscription '{gymName}' from database.");
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not remove gym subscription '{gymName}' from database.", DiscordColor.Red);
                 return;
             }
 

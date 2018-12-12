@@ -23,8 +23,14 @@
 
         public static async Task<DiscordMessage> RespondEmbed(this CommandContext ctx, string message)
         {
+            return await RespondEmbed(ctx, message, DiscordColor.Green);
+        }
+
+        public static async Task<DiscordMessage> RespondEmbed(this CommandContext ctx, string message, DiscordColor color)
+        {
             var eb = new DiscordEmbedBuilder
             {
+                Color = color,
                 Description = message
             };
 

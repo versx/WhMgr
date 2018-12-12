@@ -271,8 +271,6 @@
 
         private void ProcessPokemon(PokemonData pkmn)
         {
-            //_logger.Trace($"WebHookManager::ProcessPokemon [Pkmn={pkmn.Id}]");
-
             if (!_alarms.EnablePokemon)
                 return;
 
@@ -349,8 +347,6 @@
 
         private void ProcessRaid(RaidData raid)
         {
-            //_logger.Trace($"WebHookManager::ProcessRaid [Raid={raid.PokemonId}]");
-
             if (!_alarms.EnableRaids)
                 return;
 
@@ -455,8 +451,6 @@
 
         private void ProcessQuest(QuestData quest)
         {
-            //_logger.Trace($"WebhookManager::ProcessQuest [Quest={quest.PokestopId}]");
-
             if (!_alarms.EnableQuests)
                 return;
 
