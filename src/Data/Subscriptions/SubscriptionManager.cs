@@ -207,7 +207,8 @@
                     var city = cities[i];
                     var raidSub = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.City, city, true) == 0);
                     if (raidSub != null)
-                        return true;
+                        //return true;
+                        continue;
 
                     //Create new raid subscription object.
                     raidSub = new RaidSubscription
@@ -228,7 +229,7 @@
                         {
                             _logger.Debug("Raid Updated!");
                         }
-                        return true;
+                        //return true;
                     }
                     catch (Exception ex)
                     {
@@ -236,7 +237,8 @@
                     }
                 }
 
-                return false;
+                //return false;
+                return true;
             }
         }
 
@@ -252,7 +254,8 @@
                     var city = cities[i];
                     var questSub = subscription.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) && string.Compare(x.City, city, true) == 0);
                     if (questSub != null)
-                        return true;
+                        //return true;
+                        continue;
 
                     //Create new raid subscription object.
                     questSub = new QuestSubscription
@@ -273,7 +276,6 @@
                         {
                             _logger.Debug("Quest Updated!");
                         }
-                        return true;
                     }
                     catch (Exception ex)
                     {
@@ -281,7 +283,7 @@
                     }
                 }
 
-                return false;
+                return true;
             }
         }
 
