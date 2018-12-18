@@ -64,6 +64,20 @@
             }
         }
 
+        public bool SetAlertTime(ulong userId, DateTime alertTime)
+        {
+            _logger.Trace($"SubscriptionManager::SetAlertTime [UserId={userId}, AlertTime={alertTime}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = GetUserSubscriptions(userId);
+                subscription.AlertTime = alertTime;
+                db.Save(subscription, true);
+
+                return subscription.AlertTime == alertTime;
+            }
+        }
+
         public bool UserExists(ulong userId)
         {
             using (var db = DataAccessLayer.CreateFactory())
@@ -284,6 +298,46 @@
                 }
 
                 return true;
+            }
+        }
+
+        public bool AddSnoozedQuest(ulong userId, SnoozedQuest quest)
+        {
+            _logger.Trace($"SubscriptionManager::AddSnoozedQuest [UserId={userId}, SnoozedQuest={quest.PokestopName}]");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = GetUserSubscriptions(userId);
+                var questSub = subscription.SnoozedQuests.FirstOrDefault(x =>
+                    string.Compare(quest.PokestopName, x.PokestopName, true) == 0 &&
+                    string.Compare(quest.Quest, x.Quest, true) == 0 &&
+                    string.Compare(quest.Reward, x.Reward, true) == 0 &&
+                    string.Compare(quest.City, x.City, true) == 0);
+
+                //Already added.
+                if (questSub != null)
+                    return true;
+
+                subscription.SnoozedQuests.Add(quest);
+
+                try
+                {
+                    if (db.Save(subscription, true))
+                    {
+                        _logger.Debug($"Snoozed Quest Added!");
+                    }
+                    else
+                    {
+                        _logger.Debug("Snoozed Quest Updated!");
+                    }
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                }
+
+                return false;
             }
         }
 

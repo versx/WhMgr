@@ -29,6 +29,9 @@
         [Alias("quests"), Reference]
         public List<QuestSubscription> Quests { get; set; }
 
+        [Alias("snoozed_quests")]
+        public List<SnoozedQuest> SnoozedQuests { get; set; }
+
         [Alias("distance"), Default(0)]
         public int DistanceM { get; set; }
 
@@ -37,6 +40,9 @@
 
         [Alias("longitude"), Default(0)]
         public double Longitude { get; set; }
+
+        [Alias("alert_time"), Default(null)]
+        public DateTime AlertTime { get; set; }
 
         [Ignore]
         public NotificationLimiter Limiter { get; set; }
@@ -48,7 +54,9 @@
             Raids = new List<RaidSubscription>();
             Gyms = new List<GymSubscription>();
             Quests = new List<QuestSubscription>();
+            SnoozedQuests = new List<SnoozedQuest>();
             Limiter = new NotificationLimiter();
+            AlertTime = DateTime.MinValue;
         }
     }
 }

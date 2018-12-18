@@ -115,7 +115,7 @@
             Geofences = new Dictionary<string, GeofenceItem>();
 
             _logger = EventLogger.GetLogger();
-            _logger.Trace($"WebHookManager::WebHookManager [Port={port}]");
+            _logger.Trace($"WebhookManager::WebhookManager [Port={port}]");
 
             _webhooks = new Dictionary<string, WebHookObject>();
             GeofenceService = new GeofenceService();
@@ -191,7 +191,7 @@
 
         private AlarmList LoadAlarms(string alarmsFilePath)
         {
-            _logger.Trace($"WebHookManager::LoadAlarms [AlarmsFilePath={alarmsFilePath}]");
+            _logger.Trace($"WebhookManager::LoadAlarms [AlarmsFilePath={alarmsFilePath}]");
 
             if (!File.Exists(alarmsFilePath))
             {
@@ -234,7 +234,7 @@
 
         private void LoadAlarmsOnChange()
         {
-            _logger.Trace($"WebHookManager::LoadAlarmsOnChange");
+            _logger.Trace($"WebhookManager::LoadAlarmsOnChange");
 
             var path = Path.Combine(Directory.GetCurrentDirectory(), Strings.AlarmsFileName);
             var fileWatcher = new FileWatcher(path);
@@ -244,7 +244,7 @@
 
         private void LoadWebHooks()
         {
-            _logger.Trace($"WebHookManager::LoadWebHooks");
+            _logger.Trace($"WebhookManager::LoadWebHooks");
 
             foreach (var alarm in _alarms.Alarms)
             {
@@ -428,7 +428,7 @@
 
                     if (alarm.Filters.Raids.OnlyEx && !(raid.IsExclusive || raid.SponsorId))
                     {
-                        _logger.Info($"[{alarm.Name}[{geofence.Name}] Skipping raid boss {raid.PokemonId}: only ex {alarm.Filters.Raids.OnlyEx}.");
+                        _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: only ex {alarm.Filters.Raids.OnlyEx}.");
                         continue;
                     }
 

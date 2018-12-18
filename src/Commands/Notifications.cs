@@ -455,7 +455,7 @@
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your raid subscriptions.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to add {poke} to your raid subscriptions.", DiscordColor.Red);
             }
         }
 
@@ -656,6 +656,36 @@
             {
                 await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
             }
+        }
+
+        public async Task SetTimeAsync(CommandContext ctx,
+            [Description("")] string alertTime)
+        {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            if (!DateTime.TryParse(alertTime, out var time))
+            {
+                await ctx.RespondEmbed($"Alert time '{time}' is not valid, example '07:00:00'.", DiscordColor.Red);
+                return;
+            }
+
+            if (!_dep.SubscriptionProcessor.Manager.SetAlertTime(ctx.User.Id, time))
+            {
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not update database with alert time, please try again later.", DiscordColor.Red);
+                return;
+            }
+
+            await ctx.RespondEmbed($"{ctx.User.Mention} Quest notifications will snooze until '{time}'.");
         }
 
         [

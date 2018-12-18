@@ -196,7 +196,7 @@
             catch (Exception ex)
             {
                 _logger.Error(ex);
-                _logger.Debug(data);
+                _logger.Debug(Convert.ToString(data));
             }
         }
 

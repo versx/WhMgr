@@ -275,6 +275,9 @@
         {
             _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Pokemon.Id}, Despawn: {e.Pokemon.DespawnTime}");
 
+            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+                return;
+
             var wh = _whm.WebHooks[e.Alarm.Name];
             if (wh == null)
             {
@@ -311,6 +314,9 @@
         private async void OnRaidAlarmTriggered(object sender, RaidAlarmTriggeredEventArgs e)
         {
             _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Raid.PokemonId}, Level: {e.Raid.Level}, StartTime: {e.Raid.StartTime}]");
+
+            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+                return;
 
             var wh = _whm.WebHooks[e.Alarm.Name];
             if (wh == null)
@@ -351,6 +357,9 @@
         private async void OnQuestAlarmTriggered(object sender, QuestAlarmTriggeredEventArgs e)
         {
             _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Quest.PokestopId}, Type={e.Quest.Type}]");
+
+            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+                return;
 
             var wh = _whm.WebHooks[e.Alarm.Name];
             if (wh == null)

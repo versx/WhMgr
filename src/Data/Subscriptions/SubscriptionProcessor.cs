@@ -314,8 +314,35 @@
                         continue;
                     }
 
-                    _logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
+                    //Check if time is passed user preset snooze time, if so save to db to be requested later, otherwise add to queue.
+                    if ((user.AlertTime.TimeOfDay > DateTime.Now.TimeOfDay && user.AlertTime > DateTime.MinValue))
+                    {
+                        var snoozedQuest = new SnoozedQuest
+                        {
+                            Date = DateTime.Now.Date,
+                            UserId = user.UserId,
+                            PokestopName = quest.PokestopName,
+                            Latitude = quest.Latitude,
+                            Longitude = quest.Longitude,
+                            Quest = quest.GetMessage(),
+                            Condition = quest.GetConditionName(),
+                            Reward = quest.GetRewardString(),
+                            RewardType = quest.Rewards[0]?.Type ?? QuestRewardType.Unset,
+                            IconUrl = quest.GetIconUrl(),
+                            City = loc.Name
+                        };
 
+                        _logger.Debug($"Snoozing quest {quest.GetMessage()} for user {user.UserId}.");
+                        var result = Manager.AddSnoozedQuest(user.UserId, snoozedQuest);
+                        if (!result)
+                        {
+                            _logger.Warn($"Could not add snoozed quest [{snoozedQuest.PokestopName}, {snoozedQuest.Quest}] to user {user.UserId} subscriptions.");
+                        }
+
+                        continue;
+                    }
+
+                    _logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
                     Statistics.Instance.SubscriptionQuestsSent++;
                     Thread.Sleep(5);

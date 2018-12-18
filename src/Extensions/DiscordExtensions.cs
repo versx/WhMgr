@@ -193,7 +193,7 @@
 
         public static bool HasRole(this DiscordMember member, ulong roleId)
         {
-            var role = member.Roles.FirstOrDefault(x => x.Id == roleId);
+            var role = member?.Roles.FirstOrDefault(x => x.Id == roleId);
             return role != null;
         }
 
