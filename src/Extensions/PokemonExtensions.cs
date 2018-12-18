@@ -720,7 +720,7 @@
                 }
             }
 
-            return string.Join("/", list);
+            return string.Join(" ", list);
         }
 
         public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes, DiscordClient client, ulong guildId)
