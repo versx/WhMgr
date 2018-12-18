@@ -965,6 +965,7 @@
             if (hasQuests)
             {
                 msg += $"Quest Subscriptions: ({subscription.Quests.Count.ToString("N0")}/{(isSupporter ? "∞" : Strings.MaxQuestSubscriptions.ToString())} used)\r\n";
+                msg += $"Alert Time: {(subscription.AlertTime.HasValue ? subscription.AlertTime.Value.ToString("hh:mm:ss") : "Not set")}\r\n";
                 msg += "```";
                 msg += string.Join(Environment.NewLine, GetQuestSubscriptionNames(author));
                 msg += "```";
