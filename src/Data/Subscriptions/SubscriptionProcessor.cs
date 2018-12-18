@@ -315,7 +315,7 @@
                     }
 
                     //Check if time is passed user preset snooze time, if so save to db to be requested later, otherwise add to queue.
-                    if ((user.AlertTime.TimeOfDay > DateTime.Now.TimeOfDay && user.AlertTime > DateTime.MinValue))
+                    if (user.AlertTime.HasValue && user.AlertTime.Value.TimeOfDay > DateTime.Now.TimeOfDay)
                     {
                         var snoozedQuest = new SnoozedQuest
                         {

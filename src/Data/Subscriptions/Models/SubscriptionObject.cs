@@ -29,7 +29,7 @@
         [Alias("quests"), Reference]
         public List<QuestSubscription> Quests { get; set; }
 
-        [Alias("snoozed_quests")]
+        [Alias("snoozed_quests"), Reference]
         public List<SnoozedQuest> SnoozedQuests { get; set; }
 
         [Alias("distance"), Default(0)]
@@ -42,7 +42,7 @@
         public double Longitude { get; set; }
 
         [Alias("alert_time"), Default(null)]
-        public DateTime AlertTime { get; set; }
+        public DateTime? AlertTime { get; set; }
 
         [Ignore]
         public NotificationLimiter Limiter { get; set; }

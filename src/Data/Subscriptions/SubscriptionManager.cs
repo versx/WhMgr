@@ -64,19 +64,21 @@
             }
         }
 
-        public bool SetAlertTime(ulong userId, DateTime alertTime)
+        public bool SetAlertTime(ulong userId, DateTime? alertTime)
         {
             _logger.Trace($"SubscriptionManager::SetAlertTime [UserId={userId}, AlertTime={alertTime}]");
 
             using (var db = DataAccessLayer.CreateFactory())
             {
                 var subscription = GetUserSubscriptions(userId);
-                subscription.AlertTime = alertTime;
+                subscription.AlertTime = alertTime == DateTime.MinValue ? null : alertTime;
                 db.Save(subscription, true);
 
                 return subscription.AlertTime == alertTime;
             }
         }
+
+        #region User
 
         public bool UserExists(ulong userId)
         {
@@ -89,8 +91,6 @@
 
         public SubscriptionObject GetUserSubscriptions(ulong userId)
         {
-            //_logger.Trace($"SubscriptionManager::GetUserSubscriptions [UserId={userId}]");
-
             using (var db = DataAccessLayer.CreateFactory())
             {
                 var subscription = db.LoadSingleById<SubscriptionObject>(userId);
@@ -105,8 +105,6 @@
 
         public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(int pokeId)
         {
-            //_logger.Trace($"SubscriptionManager::GetUserSubscriptionsByPokemonId [PokemonId={pokeId}]");
-
             var subscriptions = GetUserSubscriptions();
             if (subscriptions != null)
             {
@@ -118,8 +116,6 @@
 
         public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
-            //_logger.Trace($"SubscriptionManager::GetUserSubscriptionsByRaidBossId [PokemonId={pokeId}]");
-
             var subscriptions = GetUserSubscriptions();
             if (subscriptions != null)
             {
@@ -131,8 +127,6 @@
 
         public List<SubscriptionObject> GetUserSubscriptions()
         {
-            //_logger.Trace($"SubscriptionManager::GetUserSubscriptions");
-
             try
             {
                 using (var db = DataAccessLayer.CreateFactory())
@@ -147,6 +141,8 @@
 
             return null;
         }
+
+        #endregion
 
         #region Add
 
@@ -433,10 +429,9 @@
 
             using (var db = DataAccessLayer.CreateFactory())
             {
-                //TODO: Foreach raid subscription instead of Forloop
                 for (var i = 0; i < pokemonIds.Count; i++)
                 {
-                    if (db.Delete<RaidSubscription>(x => x.UserId == userId && x.PokemonId == pokemonIds[i] && cities.Contains(x.City)) == 0)
+                    if (db.Delete<RaidSubscription>(x => x.UserId == userId && x.PokemonId == pokemonIds[i] && cities.Select(y => y.ToLower()).Contains(x.City.ToLower())) == 0)
                     {
                         _logger.Warn($"Could not delete raid subscription for user {userId} raid {pokemonIds[i]} city {cities}");
                     }
@@ -589,6 +584,7 @@
                 db.CreateTable<RaidSubscription>();
                 db.CreateTable<GymSubscription>();
                 db.CreateTable<QuestSubscription>();
+                db.CreateTable<SnoozedQuest>();
 
                 _logger.Info($"Database tables created.");
             }

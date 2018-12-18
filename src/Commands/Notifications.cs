@@ -658,12 +658,16 @@
             }
         }
 
+        [
+            Command("alert-time"),
+            Description("")
+        ]
         public async Task SetTimeAsync(CommandContext ctx,
-            [Description("")] string alertTime)
+            [Description("")] string alertTime = "")
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
-                await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -673,19 +677,72 @@
                 return;
             }
 
-            if (!DateTime.TryParse(alertTime, out var time))
+            var time = DateTime.MinValue;
+            if (!string.IsNullOrEmpty(alertTime) && !DateTime.TryParse(alertTime, out time))
             {
-                await ctx.RespondEmbed($"Alert time '{time}' is not valid, example '07:00:00'.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} Alert time '{time}' is not valid, example '07:00:00'.", DiscordColor.Red);
                 return;
             }
 
             if (!_dep.SubscriptionProcessor.Manager.SetAlertTime(ctx.User.Id, time))
             {
-                await ctx.RespondEmbed($"{ctx.User.Mention} Could not update database with alert time, please try again later.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} Could not update database with alert time, please try again later.", DiscordColor.Red);
                 return;
             }
 
-            await ctx.RespondEmbed($"{ctx.User.Mention} Quest notifications will snooze until '{time}'.");
+            await ctx.RespondEmbed($"{ctx.User.Username} Quest notifications will snooze until '{time}'.");
+        }
+
+        [
+            Command("quests"),
+            Description("Display a list of your field research quests for the day.")
+        ]
+        public async Task QuestsAsync(CommandContext ctx,
+            [Description("Filter by reward or leave empty for all.")] string reward = "")
+        {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
+            if (subscription.SnoozedQuests.Count == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} does not have any snoozed field research quests.");
+                return;
+            }
+
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = string.IsNullOrEmpty(reward) ? "All Field Research Quests" : $"{reward} Field Research Quests",
+                Color = DiscordColor.Orange,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"versx | {DateTime.Now}",
+                    IconUrl = ctx.Guild?.IconUrl
+                }
+            };
+
+            var snoozedQuests = subscription.SnoozedQuests.Where(x => x.Date.Date == DateTime.Now.Date);
+            if (!string.IsNullOrEmpty(reward))
+            {
+                snoozedQuests = snoozedQuests.Where(x => x.Reward.ToLower().Contains(reward.ToLower()));
+            }
+
+            var grouped = snoozedQuests.GroupBy(x => x.Reward).ToList();
+            for (var i = 0; i < grouped.Count; i++)
+            {
+                eb.AddField(grouped[i].Key, string.Join(Environment.NewLine, grouped[i].Select(x => $"• {x.City}: [{x.PokestopName}]({string.Format(Strings.GoogleMaps, x.Latitude, x.Longitude)})")), true);
+            }
+
+            await ctx.Client.SendDirectMessage(ctx.User, eb);
         }
 
         [
@@ -986,6 +1043,7 @@
             var results = subscribedQuests.GroupBy(p => p.RewardKeyword, (key, g) => new { Reward = key, Cities = g.ToList() });
             foreach (var quest in results)
             {
+                //TODO: Fix matching lists.
                 var isAllCities = _dep.WhConfig.CityRoles.UnorderedEquals(quest.Cities.Select(x => x.City).ToList());
                 list.Add($"{quest.Reward} (From: {(isAllCities ? "All Areas" : string.Join(", ", quest.Cities.Select(x => x.City)))})");
             }

@@ -9,8 +9,6 @@
     [Alias("snoozed_quest")]
     public class SnoozedQuest
     {
-        //TODO: Request by reward or all.
-
         [Alias("date")]
         public DateTime Date { get; set; }
 
