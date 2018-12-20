@@ -178,12 +178,14 @@
                 await ctx.TriggerTypingAsync();
                 for (int i = 1; i < 493; i++)
                 {
+                    /*
                     if (i == 132 && !isSupporter)
                     {
                         await ctx.TriggerTypingAsync();
                         await ctx.RespondEmbed($"{ctx.User.Username} Ditto has been skipped since he is only available to Supporters. Please consider donating to lift this restriction.", DiscordColor.Red);
                         continue;
                     }
+                    */
 
                     if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
                     {
@@ -360,7 +362,7 @@
                     return;
                 }
 
-                var msg = $"{ctx.User.Mention} has subscribed to **{string.Join("**, **", pokemonNames)}** Pokemon notifications.";
+                var msg = $"{ctx.User.Mention} has unsubscribed from **{string.Join("**, **", pokemonNames)}** Pokemon notifications.";
                 if (validation.Invalid != null && validation.Invalid.Count > 0)
                 {
                     msg += $"\r\n{string.Join(", ", validation.Invalid)} are not a valid Pokemon.";
@@ -660,10 +662,10 @@
 
         [
             Command("alert-time"),
-            Description("")
+            Description("Set an alert time when to start receiving field research quest notifications.")
         ]
         public async Task SetTimeAsync(CommandContext ctx,
-            [Description("")] string alertTime = "")
+            [Description("Time string in the format of hh:mm:ss e.g. 7:00:00")] string alertTime = "")
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
