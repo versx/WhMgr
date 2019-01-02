@@ -65,7 +65,7 @@
             return null;
         }
 
-        public static DiscordMember GetMemberById(this DiscordClient client, ulong guildId, ulong id)
+        public static async Task<DiscordMember> GetMemberById(this DiscordClient client, ulong guildId, ulong id)
         {
             if (!client.Guilds.ContainsKey(guildId))
                 return null;
@@ -76,7 +76,9 @@
 
             var member = guild?.Members?.FirstOrDefault(x => x.Id == id);
             if (member == null)
-                return null;
+            {
+                member = await guild.GetMemberAsync(id);
+            }
 
             return member;
         }
@@ -174,9 +176,9 @@
             return HasRole(member, supporterRoleId);
         }
 
-        public static bool HasModeratorRole(this DiscordClient client, ulong guildId, ulong userId, ulong moderatorRoleId)
+        public static async Task<bool> HasModeratorRole(this DiscordClient client, ulong guildId, ulong userId, ulong moderatorRoleId)
         {
-            var member = client.GetMemberById(guildId, userId);
+            var member = await client.GetMemberById(guildId, userId);
             if (member == null)
             {
                 _logger.Error($"Failed to get moderator user with id {userId}.");

@@ -41,8 +41,8 @@
         [Alias("longitude"), Default(0)]
         public double Longitude { get; set; }
 
-        [Alias("alert_time"), Default(null)]
-        public DateTime? AlertTime { get; set; }
+        //[Alias("alert_time"), Default(null)]
+        //public DateTime? AlertTime { get; set; }
 
         [Ignore]
         public NotificationLimiter Limiter { get; set; }
@@ -56,7 +56,7 @@
             Quests = new List<QuestSubscription>();
             SnoozedQuests = new List<SnoozedQuest>();
             Limiter = new NotificationLimiter();
-            AlertTime = DateTime.MinValue;
+            //AlertTime = DateTime.MinValue;
         }
     }
 }

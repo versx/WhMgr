@@ -43,6 +43,12 @@
         [JsonProperty("ignoreMissing")]
         public bool IgnoreMissing { get; set; }
 
+        //[JsonProperty("geofence")]
+        //public string Geofence { get; set; }
+
+        //[JsonProperty("webhook")]
+        //public string Webhook { get; set; }
+
         public FilterPokemonObject()
         {
             MinimumIV = 0;

@@ -300,6 +300,12 @@
             }
 
             await ctx.TriggerTypingAsync();
+            if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} I don't recognize any of the Pokemon you specified.");
+                return;
+            }
+
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
@@ -660,40 +666,40 @@
             }
         }
 
-        [
-            Command("alert-time"),
-            Description("Set an alert time when to start receiving field research quest notifications.")
-        ]
-        public async Task SetTimeAsync(CommandContext ctx,
-            [Description("Time string in the format of hh:mm:ss e.g. 7:00:00")] string alertTime = "")
-        {
-            if (!_dep.WhConfig.EnableSubscriptions)
-            {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
-            }
+        //[
+        //    Command("alert-time"),
+        //    Description("Set an alert time when to start receiving field research quest notifications.")
+        //]
+        //public async Task SetTimeAsync(CommandContext ctx,
+        //    [Description("Time string in the format of hh:mm:ss e.g. 7:00:00")] string alertTime = "")
+        //{
+        //    if (!_dep.WhConfig.EnableSubscriptions)
+        //    {
+        //        await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+        //        return;
+        //    }
 
-            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
-            {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
-            }
+        //    if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
+        //    {
+        //        await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+        //        return;
+        //    }
 
-            var time = DateTime.MinValue;
-            if (!string.IsNullOrEmpty(alertTime) && !DateTime.TryParse(alertTime, out time))
-            {
-                await ctx.RespondEmbed($"{ctx.User.Username} Alert time '{time}' is not valid, example '07:00:00'.", DiscordColor.Red);
-                return;
-            }
+        //    var time = DateTime.MinValue;
+        //    if (!string.IsNullOrEmpty(alertTime) && !DateTime.TryParse(alertTime, out time))
+        //    {
+        //        await ctx.RespondEmbed($"{ctx.User.Username} Alert time '{time}' is not valid, example '07:00:00'.", DiscordColor.Red);
+        //        return;
+        //    }
 
-            if (!_dep.SubscriptionProcessor.Manager.SetAlertTime(ctx.User.Id, time))
-            {
-                await ctx.RespondEmbed($"{ctx.User.Username} Could not update database with alert time, please try again later.", DiscordColor.Red);
-                return;
-            }
+        //    if (!_dep.SubscriptionProcessor.Manager.SetAlertTime(ctx.User.Id, time))
+        //    {
+        //        await ctx.RespondEmbed($"{ctx.User.Username} Could not update database with alert time, please try again later.", DiscordColor.Red);
+        //        return;
+        //    }
 
-            await ctx.RespondEmbed($"{ctx.User.Username} Quest notifications will snooze until '{time}'.");
-        }
+        //    await ctx.RespondEmbed($"{ctx.User.Username} Quest notifications will snooze until '{time}'.");
+        //}
 
         [
             Command("quests"),
@@ -877,7 +883,7 @@
 
         private async Task SendUserSubscriptionSettings(DiscordClient client, DiscordUser receiver, DiscordUser user)
         {
-            var userSettings = BuildUserSubscriptionSettings(client, user);
+            var userSettings = await BuildUserSubscriptionSettings(client, user);
             userSettings = userSettings.Length > 2000 ? userSettings.Substring(0, Math.Min(userSettings.Length, 1500)) : userSettings;
             var eb = new DiscordEmbedBuilder
             {
@@ -892,7 +898,7 @@
             await client.SendDirectMessage(receiver, eb.Build());
         }
 
-        private string BuildUserSubscriptionSettings(DiscordClient client, DiscordUser user)
+        private async Task<string> BuildUserSubscriptionSettings(DiscordClient client, DiscordUser user)
         {
             var author = user.Id;
             var isSubbed = _dep.SubscriptionProcessor.Manager.UserExists(author);
@@ -905,7 +911,7 @@
 
             if (hasPokemon)
             {
-                var member = client.GetMemberById(_dep.WhConfig.GuildId, author);
+                var member = await client.GetMemberById(_dep.WhConfig.GuildId, author);
                 if (member == null)
                 {
                     var error = $"Failed to get discord member from id {author}.";
@@ -967,7 +973,7 @@
             if (hasQuests)
             {
                 msg += $"Quest Subscriptions: ({subscription.Quests.Count.ToString("N0")}/{(isSupporter ? "∞" : Strings.MaxQuestSubscriptions.ToString())} used)\r\n";
-                msg += $"Alert Time: {(subscription.AlertTime.HasValue ? subscription.AlertTime.Value.ToString("hh:mm:ss") : "Not set")}\r\n";
+                //msg += $"Alert Time: {(subscription.AlertTime.HasValue ? subscription.AlertTime.Value.ToString("hh:mm:ss") : "Not set")}\r\n";
                 msg += "```";
                 msg += string.Join(Environment.NewLine, GetQuestSubscriptionNames(author));
                 msg += "```";

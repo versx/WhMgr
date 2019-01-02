@@ -273,7 +273,7 @@
 
         private async void OnPokemonAlarmTriggered(object sender, PokemonAlarmTriggeredEventArgs e)
         {
-            _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Pokemon.Id}, Despawn: {e.Pokemon.DespawnTime}");
+            _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Pokemon.Id}, Despawn: {e.Pokemon.DespawnTime}]");
 
             if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
                 return;
@@ -434,7 +434,8 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(() => _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
+            //new System.Threading.Thread(() => _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
+            _subProcessor.EnqueuePokemonSubscription(e);
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
@@ -445,7 +446,8 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(() => _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
+            //new System.Threading.Thread(() => _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
+            _subProcessor.EnqueueRaidSubscription(e);
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
@@ -456,7 +458,8 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(() => _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
+            //new System.Threading.Thread(() => _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
+            _subProcessor.EnqueueQuestSubscription(e);
         }
 
         #endregion
@@ -499,6 +502,8 @@
 
             Statistics.Instance.WriteOut();
             Statistics.Instance.Reset();
+
+            //TODO: Delete snoozed quests
 
             for (var i = 0; i < _dep.WhConfig.QuestChannelIds.Count; i++)
             {

@@ -64,20 +64,20 @@
             }
         }
 
-        public bool SetAlertTime(ulong userId, DateTime? alertTime)
-        {
-            _logger.Trace($"SubscriptionManager::SetAlertTime [UserId={userId}, AlertTime={alertTime}]");
+        //public bool SetAlertTime(ulong userId, DateTime? alertTime)
+        //{
+        //    _logger.Trace($"SubscriptionManager::SetAlertTime [UserId={userId}, AlertTime={alertTime}]");
 
-            var value = alertTime.HasValue && alertTime.Value != DateTime.MinValue ? alertTime : null;
-            using (var db = DataAccessLayer.CreateFactory())
-            {
-                var subscription = GetUserSubscriptions(userId);
-                subscription.AlertTime = value;
-                db.Save(subscription, true);
+        //    var value = alertTime.HasValue && alertTime.Value != DateTime.MinValue ? alertTime : null;
+        //    using (var db = DataAccessLayer.CreateFactory())
+        //    {
+        //        var subscription = GetUserSubscriptions(userId);
+        //        subscription.AlertTime = value;
+        //        db.Save(subscription, true);
 
-                return subscription.AlertTime == value;
-            }
-        }
+        //        return subscription.AlertTime == value;
+        //    }
+        //}
 
         #region User
 
