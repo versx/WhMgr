@@ -434,8 +434,10 @@
             if (_subProcessor == null)
                 return;
 
-            //new System.Threading.Thread(() => _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
-            _subProcessor.EnqueuePokemonSubscription(e);
+#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
+            new System.Threading.Thread(async () => await _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
+#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+            //_subProcessor.EnqueuePokemonSubscription(e);
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
@@ -446,8 +448,10 @@
             if (_subProcessor == null)
                 return;
 
-            //new System.Threading.Thread(() => _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
-            _subProcessor.EnqueueRaidSubscription(e);
+#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
+            new System.Threading.Thread(async () => await _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
+#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+            //_subProcessor.EnqueueRaidSubscription(e);
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
@@ -458,8 +462,10 @@
             if (_subProcessor == null)
                 return;
 
-            //new System.Threading.Thread(() => _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
-            _subProcessor.EnqueueQuestSubscription(e);
+#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
+            new System.Threading.Thread(async () => await _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
+#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+            //_subProcessor.EnqueueQuestSubscription(e);
         }
 
         #endregion

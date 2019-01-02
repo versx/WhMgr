@@ -77,7 +77,14 @@
             var member = guild?.Members?.FirstOrDefault(x => x.Id == id);
             if (member == null)
             {
-                member = await guild.GetMemberAsync(id);
+                try
+                {
+                    member = await guild.GetMemberAsync(id);
+                }
+                catch
+                {
+                    return null;
+                }
             }
 
             return member;

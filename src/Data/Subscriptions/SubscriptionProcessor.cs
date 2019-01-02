@@ -29,11 +29,10 @@
         private readonly WhConfig _whConfig;
         private readonly WebhookManager _whm;
         private readonly EmbedBuilder _embedBuilder;
-        //private readonly NotificationQueue _queue;
-        private readonly Queue<PokemonData> _pkmnQueue;
-        private readonly Queue<RaidData> _raidQueue;
-        private readonly Queue<QuestData> _questQueue;
-
+        private readonly NotificationQueue _queue;
+        //private readonly Queue<PokemonData> _pkmnQueue;
+        //private readonly Queue<RaidData> _raidQueue;
+        //private readonly Queue<QuestData> _questQueue;
 
         #endregion
 
@@ -53,11 +52,11 @@
             _whConfig = config;
             _whm = whm;
             _embedBuilder = embedBuilder;
-            //_queue = new NotificationQueue();
+            _queue = new NotificationQueue();
 
-            _pkmnQueue = new Queue<PokemonData>();
-            _raidQueue = new Queue<RaidData>();
-            _questQueue = new Queue<QuestData>();
+            //_pkmnQueue = new Queue<PokemonData>();
+            //_raidQueue = new Queue<RaidData>();
+            //_questQueue = new Queue<QuestData>();
 
             Manager = new SubscriptionManager();
 
@@ -68,35 +67,35 @@
 
         #region Public Methods
 
-        public void EnqueuePokemonSubscription(PokemonData pkmn)
-        {
-            if (!_pkmnQueue.Contains(pkmn))
-            {
-                _pkmnQueue.Enqueue(pkmn);
-            }
-        }
+        //public void EnqueuePokemonSubscription(PokemonData pkmn)
+        //{
+        //    if (!_pkmnQueue.Contains(pkmn))
+        //    {
+        //        _pkmnQueue.Enqueue(pkmn);
+        //    }
+        //}
 
-        public void EnqueueRaidSubscription(RaidData raid)
-        {
-            if (!_raidQueue.Contains(raid))
-            {
-                _raidQueue.Enqueue(raid);
-            }
-        }
+        //public void EnqueueRaidSubscription(RaidData raid)
+        //{
+        //    if (!_raidQueue.Contains(raid))
+        //    {
+        //        _raidQueue.Enqueue(raid);
+        //    }
+        //}
 
-        public void EnqueueQuestSubscription(QuestData quest)
-        {
-            if (!_questQueue.Contains(quest))
-            {
-                _questQueue.Enqueue(quest);
-            }
-        }
+        //public void EnqueueQuestSubscription(QuestData quest)
+        //{
+        //    if (!_questQueue.Contains(quest))
+        //    {
+        //        _questQueue.Enqueue(quest);
+        //    }
+        //}
 
         #endregion
 
         #region Private Methods
 
-        private async Task ProcessPokemonSubscription(PokemonData pkmn)
+        public async Task ProcessPokemonSubscription(PokemonData pkmn)
         {
             if (!_whConfig.EnableSubscriptions)
                 return;
@@ -120,7 +119,6 @@
             }
 
             SubscriptionObject user;
-            bool isSupporter;
             PokemonSubscription subscribedPokemon;
             var pokemon = db.Pokemon[pkmn.Id];
             bool matchesIV;
@@ -147,18 +145,18 @@
                     {
                         _logger.Debug($"FAILED TO GET MEMBER BY ID {user.UserId}");
                         _logger.Error(ex);
-                    }
-
-                    if (member == null)
-                    {
-                        _logger.Warn($"Failed to find Discord member with id {user.UserId}.");
                         continue;
                     }
 
-                    isSupporter = member.HasSupporterRole(_whConfig.SupporterRoleId);
-                    if (!isSupporter)
+                    if (!member.HasSupporterRole(_whConfig.SupporterRoleId))
                     {
                         _logger.Debug($"User {member.Username} is not a supporter, skipping pokemon {pokemon.Name}...");
+                        continue;
+                    }
+
+                    if (!member.Roles.Select(x => x.Name.ToLower()).Contains(loc.Name.ToLower()))
+                    {
+                        //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
                         continue;
                     }
 
@@ -166,12 +164,6 @@
                     if (subscribedPokemon == null)
                     {
                         _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name}.");
-                        continue;
-                    }
-
-                    if (!member.Roles.Select(x => x.Name.ToLower()).Contains(loc.Name.ToLower()))
-                    {
-                        //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
                         continue;
                     }
 
@@ -183,10 +175,10 @@
                     if (!(matchesIV && matchesLvl && matchesGender))
                         continue;
 
-                    _logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
+                    //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
-                    //_queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-                    await _client.SendDirectMessage(member, embed);
+                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
+                    //await _client.SendDirectMessage(member, embed);
                     Statistics.Instance.SubscriptionPokemonSent++;
                     Thread.Sleep(5);
                 }
@@ -197,7 +189,7 @@
             }
         }
 
-        private async Task ProcessRaidSubscription(RaidData raid)
+        public async Task ProcessRaidSubscription(RaidData raid)
         {
             if (!_whConfig.EnableSubscriptions)
                 return;
@@ -220,7 +212,6 @@
                 return;
             }
 
-            bool isSupporter;
             SubscriptionObject user;
             var pokemon = db.Pokemon[raid.PokemonId];
             var embed = _embedBuilder.BuildRaidMessage(raid, loc.Name);
@@ -242,8 +233,7 @@
                         continue;
                     }
 
-                    isSupporter = member.HasSupporterRole(_whConfig.SupporterRoleId);
-                    if (!isSupporter)
+                    if (!member.HasSupporterRole(_whConfig.SupporterRoleId))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
                         continue;
@@ -270,8 +260,8 @@
                         continue;
                     }
 
-                    var exists = user.Raids.FirstOrDefault(x => 
-                        x.PokemonId == raid.PokemonId && 
+                    var exists = user.Raids.FirstOrDefault(x =>
+                        x.PokemonId == raid.PokemonId &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;
                     if (!exists)
@@ -280,10 +270,10 @@
                         continue;
                     }
 
-                    _logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
+                    //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
-                    //_queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-                    await _client.SendDirectMessage(member, embed);
+                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
+                    //await _client.SendDirectMessage(member, embed);
                     Statistics.Instance.SubscriptionRaidsSent++;
                     Thread.Sleep(5);
                 }
@@ -294,7 +284,7 @@
             }
         }
 
-        private async Task ProcessQuestSubscription(QuestData quest)
+        public async Task ProcessQuestSubscription(QuestData quest)
         {
             if (!_whConfig.EnableSubscriptions)
                 return;
@@ -359,29 +349,29 @@
                     //Check if time is passed user preset snooze time, if so save to db to be requested later, otherwise add to queue.
                     //if (user.AlertTime.HasValue && user.AlertTime.Value.TimeOfDay > DateTime.Now.TimeOfDay)
                     //{
-                        var snoozedQuest = new SnoozedQuest
-                        {
-                            Date = DateTime.Now.Date,
-                            UserId = user.UserId,
-                            PokestopName = quest.PokestopName,
-                            Latitude = quest.Latitude,
-                            Longitude = quest.Longitude,
-                            Quest = quest.GetMessage(),
-                            Condition = quest.GetConditionName(),
-                            Reward = quest.GetRewardString(),
-                            RewardType = quest.Rewards[0]?.Type ?? QuestRewardType.Unset,
-                            IconUrl = quest.GetIconUrl(),
-                            City = loc.Name
-                        };
+                    var snoozedQuest = new SnoozedQuest
+                    {
+                        Date = DateTime.Now.Date,
+                        UserId = user.UserId,
+                        PokestopName = quest.PokestopName,
+                        Latitude = quest.Latitude,
+                        Longitude = quest.Longitude,
+                        Quest = quest.GetMessage(),
+                        Condition = quest.GetConditionName(),
+                        Reward = quest.GetRewardString(),
+                        RewardType = quest.Rewards[0]?.Type ?? QuestRewardType.Unset,
+                        IconUrl = quest.GetIconUrl(),
+                        City = loc.Name
+                    };
 
-                        _logger.Debug($"Snoozing quest {quest.GetMessage()} for user {user.UserId}.");
-                        var result = Manager.AddSnoozedQuest(user.UserId, snoozedQuest);
-                        if (!result)
-                        {
-                            _logger.Warn($"Could not add snoozed quest [{snoozedQuest.PokestopName}, {snoozedQuest.Quest}] to user {user.UserId} subscriptions.");
-                        }
+                    _logger.Info($"Snoozing quest {quest.GetMessage()} for user {user.UserId}.");
+                    var result = Manager.AddSnoozedQuest(user.UserId, snoozedQuest);
+                    if (!result)
+                    {
+                        _logger.Warn($"Could not add snoozed quest [{snoozedQuest.PokestopName}, {snoozedQuest.Quest}] to user {user.UserId} subscriptions.");
+                    }
 
-                        //continue;
+                    //continue;
                     //}
 
                     //_logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
@@ -396,86 +386,86 @@
             }
         }
 
-        //        private void ProcessQueue()
-        //        {
-        //            _logger.Trace($"SubscriptionProcessor::ProcessQueue");
-
-        //#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
-        //            new Thread(async () =>
-        //#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
-        //            {
-        //                while (true)
-        //                {
-        //                    if (_queue.Count == 0)
-        //                    {
-        //                        Thread.Sleep(50);
-        //                        continue;
-        //                    }
-
-        //                    if (_queue.Count > MaxQueueCountWarning)
-        //                    {
-        //                        _logger.Warn($"Subscription Queue is {_queue.Count.ToString("N0")} items long.");
-        //                    }
-
-        //                    var item = _queue.Dequeue();
-        //                    await _client.SendDirectMessage(item.Item1, item.Item3);
-
-        //                    _logger.Debug($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
-        //                    Thread.Sleep(50);
-        //                }
-        //            })
-        //            { IsBackground = true }.Start();
-        //        }
-
         private void ProcessQueue()
         {
+            _logger.Trace($"SubscriptionProcessor::ProcessQueue");
+
 #pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
             new Thread(async () =>
 #pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
             {
                 while (true)
                 {
-                    if (_pkmnQueue.Count > 0)
+                    if (_queue.Count == 0)
                     {
-                        if (_pkmnQueue.Count > MaxQueueCountWarning)
-                        {
-                            _logger.Warn($"Pokemon subscription queue is {_pkmnQueue.Count.ToString("N0")} items long.");
-                        }
-
-                        var pkmn = _pkmnQueue.Dequeue();
-                        await ProcessPokemonSubscription(pkmn);
-                        Thread.Sleep(5);
+                        Thread.Sleep(50);
+                        continue;
                     }
 
-                    if (_raidQueue.Count > 0)
+                    if (_queue.Count > MaxQueueCountWarning)
                     {
-                        if (_raidQueue.Count > MaxQueueCountWarning)
-                        {
-                            _logger.Warn($"Raid subscription queue is {_pkmnQueue.Count.ToString("N0")} items long.");
-                        }
-
-                        var raid = _raidQueue.Dequeue();
-                        await ProcessRaidSubscription(raid);
-                        Thread.Sleep(5);
+                        _logger.Warn($"Subscription queue is {_queue.Count.ToString("N0")} items long.");
                     }
 
-                    if (_questQueue.Count > 0)
-                    {
-                        if (_questQueue.Count > MaxQueueCountWarning)
-                        {
-                            _logger.Warn($"Quest subscription queue is {_pkmnQueue.Count.ToString("N0")} items long.");
-                        }
+                    var item = _queue.Dequeue();
+                    await _client.SendDirectMessage(item.Item1, item.Item3);
 
-                        var quest = _questQueue.Dequeue();
-                        await ProcessQuestSubscription(quest);
-                        Thread.Sleep(5);
-                    }
-
-                    Thread.Sleep(25);
+                    _logger.Info($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
+                    Thread.Sleep(10);
                 }
             })
             { IsBackground = true }.Start();
         }
+
+        //        private void ProcessQueue()
+        //        {
+        //#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
+        //            new Thread(async () =>
+        //#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+        //            {
+        //                while (true)
+        //                {
+        //                    if (_pkmnQueue.Count > 0)
+        //                    {
+        //                        if (_pkmnQueue.Count > MaxQueueCountWarning)
+        //                        {
+        //                            _logger.Warn($"Pokemon subscription queue is {_pkmnQueue.Count.ToString("N0")} items long.");
+        //                        }
+
+        //                        var pkmn = _pkmnQueue.Dequeue();
+        //                        await ProcessPokemonSubscription(pkmn);
+        //                        Thread.Sleep(5);
+        //                    }
+
+        //                    if (_raidQueue.Count > 0)
+        //                    {
+        //                        if (_raidQueue.Count > MaxQueueCountWarning)
+        //                        {
+        //                            _logger.Warn($"Raid subscription queue is {_pkmnQueue.Count.ToString("N0")} items long.");
+        //                        }
+
+        //                        var raid = _raidQueue.Dequeue();
+        //                        await ProcessRaidSubscription(raid);
+        //                        Thread.Sleep(5);
+        //                    }
+
+        //                    if (_questQueue.Count > 0)
+        //                    {
+        //                        if (_questQueue.Count > MaxQueueCountWarning)
+        //                        {
+        //                            _logger.Warn($"Quest subscription queue is {_pkmnQueue.Count.ToString("N0")} items long.");
+        //                        }
+
+        //                        var quest = _questQueue.Dequeue();
+        //                        await ProcessQuestSubscription(quest);
+        //                        Thread.Sleep(5);
+        //                    }
+
+        //                    Thread.Sleep(10);
+        //                }
+        //            })
+        //            { IsBackground = true }.Start();
+        //        }
 
         private GeofenceItem GetGeofence(double latitude, double longitude)
         {
