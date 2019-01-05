@@ -21,6 +21,7 @@
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
     using DSharpPlus.CommandsNext;
+    using DSharpPlus.Interactivity;
 
     //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
     //TODO: Optimize webhook and subscription processing.
@@ -34,6 +35,7 @@
 
         private readonly DiscordClient _client;
         private readonly CommandsNextModule _commands;
+        private readonly InteractivityModule _interactivity;
         private readonly Dependencies _dep;
         private readonly WebhookManager _whm;
         private readonly WhConfig _whConfig;
@@ -113,6 +115,21 @@
             _client.Ready += Client_Ready;
             _client.ClientErrored += Client_ClientErrored;
             _client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
+
+            _interactivity = _client.UseInteractivity
+            (
+                new InteractivityConfiguration
+                {
+                    // default pagination behaviour to just ignore the reactions
+                    PaginationBehaviour = TimeoutBehaviour.Ignore,
+
+                    // default pagination timeout to 5 minutes
+                    PaginationTimeout = TimeSpan.FromMinutes(5), //TODO: Set prod
+
+                    // default timeout for other actions to 2 minutes
+                    Timeout = TimeSpan.FromMinutes(2) //TODO: Set prod
+                }
+            );
 
             _embedBuilder = new EmbedBuilder(_client, _whConfig, _lang);
             if (_whConfig.EnableSubscriptions)

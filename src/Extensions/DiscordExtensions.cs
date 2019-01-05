@@ -235,10 +235,17 @@
         {
             await ctx.RespondEmbed(message);
             var interactivity = ctx.Client.GetModule<InteractivityModule>();
+            if (interactivity == null)
+            {
+                _logger.Error("Interactivity model failed to load!");
+                return false;
+            }
+
             var m = await interactivity.WaitForMessageAsync(
                 x => x.Channel.Id == ctx.Channel.Id
-                && x.Author.Id == ctx.Member.Id
-                && Regex.IsMatch(x.Content, ConfirmRegex));
+                && x.Author.Id == ctx.User.Id
+                && Regex.IsMatch(x.Content, ConfirmRegex), 
+                TimeSpan.FromMinutes(2));
 
             return Regex.IsMatch(m.Message.Content, YesRegex);
         }

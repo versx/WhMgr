@@ -1,5 +1,7 @@
 ﻿namespace WhMgr.Commands
 {
+    using DSharpPlus.Interactivity;
+
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions;
     using WhMgr.Localization;
@@ -7,6 +9,8 @@
 
     public class Dependencies
     {
+        public InteractivityModule Interactivity;
+
         public WebhookManager Whm { get; }
 
         public SubscriptionProcessor SubscriptionProcessor { get; }

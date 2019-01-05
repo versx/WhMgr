@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
 
     public static class GenericsExtensions
     {
@@ -77,6 +78,32 @@
             }
 
             return true;
+        }
+
+        public static bool ScrambledEquals<T>(this IEnumerable<T> list1, IEnumerable<T> list2, IEqualityComparer<T> comparer)
+        {
+            var cnt = new Dictionary<T, int>(comparer);
+            foreach (T s in list1)
+            {
+                if (cnt.ContainsKey(s))
+                {
+                    cnt[s]++;
+                    continue;
+                }
+
+                cnt.Add(s, 1);
+            }
+            foreach (T s in list2)
+            {
+                if (cnt.ContainsKey(s))
+                {
+                    cnt[s]--;
+                    continue;
+                }
+
+                return false;
+            }
+            return cnt.Values.All(c => c == 0);
         }
     }
 }

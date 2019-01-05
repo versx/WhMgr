@@ -27,6 +27,18 @@
         }
 
         [
+            Command("test1"),
+        ]
+        public async Task TestAsync(CommandContext ctx)
+        {
+            var result = await ctx.Confirm($"{ctx.User.Username} are you sure you want to remove **all** of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.");
+            if (!result)
+                return;
+
+            await ctx.RespondAsync("OK");
+        }
+
+        [
             Command("info"),
             Description("Shows your current Pokemon and Raid boss notification subscriptions.")
         ]
@@ -635,7 +647,8 @@
             if (string.Compare(rewardKeyword, Strings.All, true) == 0)
             {
                 var removeAllResult = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Quests.Count.ToString("N0")} of your field research quest subscriptions? Please reply back with `y` or `yes` to confirm.");
-                if (!removeAllResult) return;
+                if (!removeAllResult)
+                    return;
 
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllQuests(ctx.User.Id))
                 {
@@ -1021,6 +1034,7 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
             var subscribedRaids = subscription.Raids;
             subscribedRaids.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
+            var cityRoles = _dep.WhConfig.CityRoles.Select(x => x.ToLower());
 
             var results = subscribedRaids.GroupBy(x => x.PokemonId, (key, g) => new { PokemonId = key, Cities = g.ToList() });
             foreach (var raid in results)
@@ -1032,7 +1046,7 @@
                 if (pokemon == null)
                     continue;
 
-                var isAllCities = _dep.WhConfig.CityRoles.UnorderedEquals(raid.Cities.Select(x => x.City).ToList());
+                var isAllCities = cityRoles.ScrambledEquals(raid.Cities.Select(x => x.City).ToList(), StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
                 list.Add($"{pokemon.Name} (From: {(isAllCities ? "All Areas" : string.Join(", ", raid.Cities.Select(x => x.City)))})");
             }
 
@@ -1048,12 +1062,13 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
             var subscribedQuests = subscription.Quests;
             subscribedQuests.Sort((x, y) => string.Compare(x.RewardKeyword.ToLower(), y.RewardKeyword.ToLower(), true));
+            var cityRoles = _dep.WhConfig.CityRoles.Select(x => x.ToLower());
 
             var results = subscribedQuests.GroupBy(p => p.RewardKeyword, (key, g) => new { Reward = key, Cities = g.ToList() });
             foreach (var quest in results)
             {
                 //TODO: Fix matching lists.
-                var isAllCities = _dep.WhConfig.CityRoles.UnorderedEquals(quest.Cities.Select(x => x.City).ToList());
+                var isAllCities = cityRoles.ScrambledEquals(quest.Cities.Select(x => x.City.ToLower()).ToList(), StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
                 list.Add($"{quest.Reward} (From: {(isAllCities ? "All Areas" : string.Join(", ", quest.Cities.Select(x => x.City)))})");
             }
 

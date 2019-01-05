@@ -1,7 +1,6 @@
 ﻿namespace WhMgr.Data.Subscriptions
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -408,6 +407,9 @@
                     }
 
                     var item = _queue.Dequeue();
+                    if (item == null || item?.Item1 == null || item?.Item3 == null)
+                        continue;
+
                     await _client.SendDirectMessage(item.Item1, item.Item3);
 
                     _logger.Info($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
