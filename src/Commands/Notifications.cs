@@ -27,18 +27,6 @@
         }
 
         [
-            Command("test1"),
-        ]
-        public async Task TestAsync(CommandContext ctx)
-        {
-            var result = await ctx.Confirm($"{ctx.User.Username} are you sure you want to remove **all** of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.");
-            if (!result)
-                return;
-
-            await ctx.RespondAsync("OK");
-        }
-
-        [
             Command("info"),
             Description("Shows your current Pokemon and Raid boss notification subscriptions.")
         ]
