@@ -343,7 +343,8 @@
                 //}
 
                 if (!(float.TryParse(pkmn.Height, out var height) && float.TryParse(pkmn.Weight, out var weight) &&
-                      Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters.Pokemon.Size)))
+                      Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters.Pokemon.Size)) && 
+                      alarm.Filters.Pokemon.Size.HasValue)
                 {
                     continue;
                 }
