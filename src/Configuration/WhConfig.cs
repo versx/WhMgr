@@ -40,6 +40,9 @@
         [JsonProperty("connectionString")]
         public string ConnectionString { get; set; }
 
+        [JsonProperty("scannerConnectionString")]
+        public string ScannerConnectionString { get; set; }
+
         [JsonProperty("commandPrefix")]
         public string CommandPrefix { get; set; }
 

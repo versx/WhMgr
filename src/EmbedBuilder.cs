@@ -4,9 +4,10 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-
+    using ServiceStack.OrmLite;
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Localization;
@@ -134,8 +135,8 @@
             //eb.Description += $"**Address:** {Utils.GetGoogleAddress(pokemon.Latitude, pokemon.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
             if (!string.IsNullOrEmpty(pokemon.PokestopId))
             {
-                eb.Description += $"**Near Pokestop:** {pokemon.PokestopId}\r\n";
-                //TODO: Lookup pokestop name and url.
+                var pokestopName = GetPokestopNameById(pokemon.PokestopId);
+                eb.Description += $"**Near Pokestop:** {pokestopName}\r\n";
             }
             eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, pokemon.Latitude, pokemon.Longitude)) + "\r\n";
             //eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)})**";
@@ -325,5 +326,22 @@
         }
 
         #endregion
+
+        private string GetPokestopNameById(string pokestopId)
+        {
+            if (string.IsNullOrEmpty(_whConfig.ScannerConnectionString))
+                return pokestopId;
+
+            using (var db = DataAccessLayer.CreateFactory(_whConfig.ScannerConnectionString))
+            {
+                var pokestop = db.LoadSingleById<Pokestop>(pokestopId);
+                if (!string.IsNullOrEmpty(pokestop.Name))
+                {
+                    return pokestop.Name;
+                }
+            }
+
+            return pokestopId;
+        }
     }
 }

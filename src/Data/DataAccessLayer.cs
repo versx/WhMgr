@@ -10,10 +10,15 @@
 
         public static IDbConnection CreateFactory()
         {
-            if (string.IsNullOrEmpty(ConnectionString))
+            return CreateFactory(ConnectionString);
+        }
+
+        public static IDbConnection CreateFactory(string connectionString)
+        {
+            if (string.IsNullOrEmpty(connectionString))
                 return null;
 
-            var factory = new OrmLiteConnectionFactory(ConnectionString, MySqlDialect.Provider);
+            var factory = new OrmLiteConnectionFactory(connectionString, MySqlDialect.Provider);
             return factory.Open();
         }
     }
