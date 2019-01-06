@@ -35,6 +35,7 @@
             }
         }
 
+        [JsonIgnore]
         public string IVRounded
         {
             get
