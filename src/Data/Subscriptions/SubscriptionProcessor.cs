@@ -149,7 +149,7 @@
 
                     if (!member.HasSupporterRole(_whConfig.SupporterRoleId))
                     {
-                        _logger.Debug($"User {member.Username} is not a supporter, skipping pokemon {pokemon.Name}...");
+                        _logger.Debug($"User {member?.Username} is not a supporter, skipping pokemon {pokemon.Name}...");
                         continue;
                     }
 

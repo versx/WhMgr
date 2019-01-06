@@ -111,21 +111,21 @@
             return Convert.ToInt32(cp < 10 ? 10 : cp);
         }
 
-        public static string GetSize(this int id, float height, float weight)
+        public static PokemonSize GetSize(this int id, float height, float weight)
         {
             if (!Database.Instance.Pokemon.ContainsKey(id))
-                return string.Empty;
+                return PokemonSize.Normal;
 
             var stats = Database.Instance.Pokemon[id];
             var weightRatio = weight / (float)stats.BaseStats.Weight;
             var heightRatio = height / (float)stats.BaseStats.Height;
             var size = heightRatio + weightRatio;
 
-            if (size < 1.5) return "Tiny";
-            if (size <= 1.75) return "Small";
-            if (size < 2.25) return "Normal";
-            if (size <= 2.5) return "Large";
-            return "Big";
+            if (size < 1.5)   return PokemonSize.Tiny;
+            if (size <= 1.75) return PokemonSize.Small;
+            if (size < 2.25)  return PokemonSize.Normal;
+            if (size <= 2.5)  return PokemonSize.Large;
+            return PokemonSize.Big;
         }
 
         public static string GetPokemonForm(this int pokeId, string formId)
@@ -770,7 +770,7 @@
             return 0;
         }
 
-        private static bool IsUrlExist(string url)
+        private static bool UrlExist(string url)
         {
             try
             {
@@ -794,6 +794,41 @@
                 //Any exception will returns false.
                 return false;
             }
+        }
+
+        public static PokemonValidation ValidatePokemon(this IEnumerable<string> pokemon)
+        {
+            var valid = new List<int>();
+            var invalid = new List<string>();
+            foreach (var poke in pokemon)
+            {
+                var pokeId = poke.PokemonIdFromName();
+                if (pokeId == 0)
+                {
+                    invalid.Add(poke);
+                    continue;
+                }
+
+                if (!Database.Instance.Pokemon.ContainsKey(pokeId))
+                    continue;
+
+                valid.Add(pokeId);
+            }
+
+            return new PokemonValidation { Valid = valid, Invalid = invalid };
+        }
+    }
+
+    public class PokemonValidation
+    {
+        public List<int> Valid { get; set; }
+
+        public List<string> Invalid { get; set; }
+
+        public PokemonValidation()
+        {
+            Valid = new List<int>();
+            Invalid = new List<string>();
         }
     }
 }

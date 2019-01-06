@@ -157,6 +157,11 @@
             return false;
         }
 
+        public bool MatchesSize(PokemonSize pkmnSize, PokemonSize? filterSize)
+        {
+            return (filterSize.HasValue && pkmnSize == filterSize.Value) || !filterSize.HasValue;
+        }
+
         public bool MatchesAttack(string atk, int minimumAtk)
         {
             var matchesAtk = false;

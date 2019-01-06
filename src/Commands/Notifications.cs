@@ -97,6 +97,8 @@
             }
         }
 
+        #region Pokeme / Pokemenot
+
         [
             Command("pokeme"),
             Description("Subscribe to Pokemon notifications based on the pokedex number or name, minimum IV stats, or minimum level.")
@@ -223,7 +225,7 @@
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
             var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig);
-            var validation = ValidatePokemon(poke.Replace(" ", "").Split(','));
+            var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
             var db = Database.Instance;
 
             foreach (var arg in poke.Replace(" ", "").Split(','))
@@ -357,7 +359,7 @@
                 return;
             }
 
-            var validation = ValidatePokemon(poke.Replace(" ", "").Split(','));
+            var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
             if (validation.Valid != null && validation.Valid.Count > 0)
             {
                 var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x].Name);
@@ -381,6 +383,10 @@
                 await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your Pokemon subscriptions.", DiscordColor.Red);
             }
         }
+
+        #endregion
+
+        #region Raidme / Raidmenot
 
         [
             Command("raidme"),
@@ -442,7 +448,7 @@
                 return;
             }
 
-            var validation = ValidatePokemon(poke.Replace(" ", "").Split(','));
+            var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
             if (validation.Valid != null && validation.Valid.Count > 0)
             {
                 var result = _dep.SubscriptionProcessor.Manager.AddRaid(
@@ -521,7 +527,7 @@
                 return;
             }
 
-            var validation = ValidatePokemon(poke.Replace(" ", "").Split(','));
+            var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
             if (validation.Valid != null && validation.Valid.Count > 0)
             {
                 var result = _dep.SubscriptionProcessor.Manager.RemoveRaid(
@@ -545,6 +551,10 @@
                 await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your raid subscriptions.", DiscordColor.Red);
             }
         }
+
+        #endregion
+
+        #region Questme / Questmenot
 
         [
             Command("questme"),
@@ -666,6 +676,8 @@
                 await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
             }
         }
+
+        #endregion
 
         //[
         //    Command("alert-time"),
@@ -790,6 +802,8 @@
             await ctx.RespondEmbed($"{ctx.User.Mention} Raid notifications within a {distance} meter radius of location {lat},{lng}.");
         }
 
+        #region Gymme / Gymmenot
+
         [
             Command("gymme"),
             Description("Add raid notifications for specific gyms.")
@@ -845,6 +859,8 @@
 
             await ctx.RespondEmbed($"{ctx.User.Mention} Removed gym subscription '{gymName}' from database.");
         }
+
+        #endregion
 
         [
             Command("stats"),
@@ -1055,7 +1071,6 @@
             var results = subscribedQuests.GroupBy(p => p.RewardKeyword, (key, g) => new { Reward = key, Cities = g.ToList() });
             foreach (var quest in results)
             {
-                //TODO: Fix matching lists.
                 var isAllCities = cityRoles.ScrambledEquals(quest.Cities.Select(x => x.City.ToLower()).ToList(), StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
                 list.Add($"{quest.Reward} (From: {(isAllCities ? "All Areas" : string.Join(", ", quest.Cities.Select(x => x.City)))})");
             }
@@ -1138,41 +1153,6 @@
             mention = mention.Replace("!", null);
 
             return ulong.TryParse(mention, out ulong result) ? result : 0;
-        }
-
-        private PokemonValidation ValidatePokemon(IEnumerable<string> pokemon)
-        {
-            var valid = new List<int>();
-            var invalid = new List<string>();
-            foreach (var poke in pokemon)
-            {
-                var pokeId = poke.PokemonIdFromName();
-                if (pokeId == 0)
-                {
-                    invalid.Add(poke);
-                    continue;
-                }
-
-                if (!Database.Instance.Pokemon.ContainsKey(pokeId))
-                    continue;
-
-                valid.Add(pokeId);
-            }
-
-            return new PokemonValidation { Valid = valid, Invalid = invalid };
-        }
-
-        public class PokemonValidation
-        {
-            public List<int> Valid { get; set; }
-
-            public List<string> Invalid { get; set; }
-
-            public PokemonValidation()
-            {
-                Valid = new List<int>();
-                Invalid = new List<string>();
-            }
         }
     }
 }

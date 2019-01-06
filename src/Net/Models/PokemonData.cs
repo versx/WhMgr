@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Net.Models
 {
     using System;
+    using System.Collections.Generic;
 
     using Newtonsoft.Json;
 
@@ -30,7 +31,22 @@
                     return "?";
                 }
 
-                return Convert.ToString((sta + atk + def) * 100 / 45) + "%";
+                return Math.Round((sta + atk + def) * 100.0 / 45.0, 1) + "%";
+            }
+        }
+
+        public string IVRounded
+        {
+            get
+            {
+                if (!int.TryParse(Stamina, out int sta) ||
+                    !int.TryParse(Attack, out int atk) ||
+                    !int.TryParse(Defense, out int def))
+                {
+                    return "?";
+                }
+
+                return Math.Round((double)(sta + atk + def) * 100 / 45) + "%";
             }
         }
 
@@ -108,6 +124,20 @@
 
         [JsonProperty("form")]
         public int FormId { get; set; }
+
+        [JsonIgnore]
+        public PokemonSize? Size
+        {
+            get
+            {
+                if (float.TryParse(Height, out var height) && float.TryParse(Weight, out var weight))
+                {
+                    return Id.GetSize(height, weight);
+                }
+
+                return null;
+            }
+        }
 
         [JsonIgnore]
         public bool IsMissingStats => string.IsNullOrEmpty(Level);

@@ -202,8 +202,15 @@
 
         public static bool HasRole(this DiscordMember member, ulong roleId)
         {
-            var role = member?.Roles.FirstOrDefault(x => x.Id == roleId);
-            return role != null;
+            try
+            {
+                var role = member?.Roles.FirstOrDefault(x => x.Id == roleId);
+                return role != null;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static bool HasRole(this DiscordClient client, DiscordMember member, string roleName)
@@ -252,9 +259,9 @@
 
         public static DiscordColor BuildColor(this string iv)
         {
-            if (int.TryParse(iv.Substring(0, iv.Length - 1), out int result))
+            if (double.TryParse(iv.Substring(0, iv.Length - 1), out var result))
             {
-                if (result == 100)
+                if (Math.Abs(result - 100) < double.Epsilon)
                     return DiscordColor.Green;
                 else if (result >= 90 && result < 100)
                     return DiscordColor.Orange;

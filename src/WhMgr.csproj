@@ -130,6 +130,7 @@
     <Compile Include="Net\Models\GymData.cs" />
     <Compile Include="Net\Models\GymDetailsData.cs" />
     <Compile Include="Net\Models\PokemonGender.cs" />
+    <Compile Include="Net\Models\PokemonSize.cs" />
     <Compile Include="Net\Models\PokemonTeam.cs" />
     <Compile Include="Net\Models\PokestopData.cs" />
     <Compile Include="Net\Models\QuestData.cs" />

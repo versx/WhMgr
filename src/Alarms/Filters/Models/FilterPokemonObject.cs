@@ -5,6 +5,8 @@
 
     using Newtonsoft.Json;
 
+    using WhMgr.Net.Models;
+
     public class FilterPokemonObject
     {
         [JsonProperty("enabled")]
@@ -35,6 +37,9 @@
         [JsonProperty("gender")]
         public char Gender { get; set; }
 
+        [JsonProperty("size")]
+        public PokemonSize? Size { get; set; }
+
         //TODO: Filter by move?
 
         [JsonProperty("type")]
@@ -58,6 +63,7 @@
             MinimumLevel = 0;
             MaximumLevel = 100; //Support for when they increase level cap. :wink:
             Gender = '*';
+            Size = null;
         }
     }
 }

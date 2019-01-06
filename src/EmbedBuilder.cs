@@ -107,10 +107,9 @@
                 //eb.Description += $"**Types:** {GetTypeEmojiIcons(pkmn.Types)}\r\n";
             }
 
-            if (float.TryParse(pokemon.Height, out var height) && float.TryParse(pokemon.Weight, out var weight))
+            if (pokemon.Size.HasValue)
             {
-                var size = pokemon.Id.GetSize(height, weight);
-                eb.Description += _lang.Translate("EMBED_POKEMON_SIZE").FormatText(size) + "\r\n";
+                eb.Description += _lang.Translate("EMBED_POKEMON_SIZE").FormatText(pokemon.Size.ToString()) + "\r\n";
                 //eb.Description += $"**Size:** {size}\r\n";
             }
 
@@ -133,6 +132,11 @@
             eb.Description += _lang.Translate("EMBED_LOCATION").FormatText(Math.Round(pokemon.Latitude, 5), Math.Round(pokemon.Longitude, 5)) + "\r\n";
             //eb.Description += $"**Location:** {Math.Round(pokemon.Latitude, 5)},{Math.Round(pokemon.Longitude, 5)}\r\n";
             //eb.Description += $"**Address:** {Utils.GetGoogleAddress(pokemon.Latitude, pokemon.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
+            if (!string.IsNullOrEmpty(pokemon.PokestopId))
+            {
+                eb.Description += $"**Near Pokestop:** {pokemon.PokestopId}\r\n";
+                //TODO: Lookup pokestop name and url.
+            }
             eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, pokemon.Latitude, pokemon.Longitude)) + "\r\n";
             //eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)})**";
             eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}";
@@ -265,10 +269,10 @@
             var gmapsUrl = string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude);
             var eb = new DiscordEmbedBuilder
             {
-                Title = $"{city.Replace("Quests", null).Replace("Spinda", null).Replace("Nincada", null)}: {(string.IsNullOrEmpty(quest.PokestopName) ? _lang.Translate("UNKNOWN_POKESTOP") : quest.PokestopName)}",
+                Title = $"{city}: {(string.IsNullOrEmpty(quest.PokestopName) ? _lang.Translate("UNKNOWN_POKESTOP") : quest.PokestopName)}",
                 Url = gmapsUrl,
                 ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude) + $"&key={_whConfig.GmapsKey}",
-                ThumbnailUrl = quest.GetIconUrl(),
+                ThumbnailUrl = quest.PokestopUrl,//quest.GetIconUrl(),
                 Color = DiscordColor.Orange
             };
 
@@ -287,6 +291,7 @@
             //eb.Description += $"**Time Remaining:** {quest.TimeLeft.ToReadableStringNoSeconds()}\r\n";
             //eb.Description += $"**Location:** {quest.Latitude},{quest.Longitude}\r\n";
             //eb.Description += $"**Address:** {Utils.GetGoogleAddress(quest.Latitude, quest.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
+            //eb.Description += $"**[[Click Here To View Pokestop]({quest.PokestopUrl})]**\r\n";
             eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, quest.Latitude, quest.Longitude)) + "\r\n";
             //eb.Description += $"**[Google Maps Link]({gmapsUrl})**\r\n";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter

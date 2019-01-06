@@ -1,6 +1,8 @@
 ﻿namespace WhMgr.Net.Models
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 
     using Newtonsoft.Json;
 
@@ -90,6 +92,23 @@
 
         [JsonIgnore]
         public bool IsEgg => PokemonId == 0;
+
+        [JsonIgnore]
+        public List<PokemonType> Weaknesses
+        {
+            get
+            {
+                var db = Data.Database.Instance;
+                if (db.Pokemon.ContainsKey(PokemonId) && !IsEgg)
+                {
+                    var list = new List<PokemonType>();
+                    db.Pokemon[PokemonId].Types.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
+                    return list;
+                }
+
+                return null;
+            }
+        }
 
         [JsonIgnore]
         public bool IsMissingStats => FastMove == 0;

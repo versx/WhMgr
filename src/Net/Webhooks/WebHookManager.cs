@@ -12,6 +12,7 @@
     using WhMgr.Alarms.Filters;
     using WhMgr.Alarms.Models;
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
     using WhMgr.Geofence;
     using WhMgr.Net;
     using WhMgr.Net.Models;
@@ -340,6 +341,12 @@
                 //    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
                 //    continue;
                 //}
+
+                if (!(float.TryParse(pkmn.Height, out var height) && float.TryParse(pkmn.Weight, out var weight) &&
+                      Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters.Pokemon.Size)))
+                {
+                    continue;
+                }
 
                 OnPokemonAlarmTriggered(pkmn, alarm);
             }
