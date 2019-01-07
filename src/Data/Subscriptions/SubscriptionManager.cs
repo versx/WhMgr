@@ -8,6 +8,7 @@
 
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
+    using WhMgr.Net.Models;
 
     public class SubscriptionManager
     {
@@ -569,6 +570,75 @@
 
         #endregion
 
+        #region Add Statistics
+
+        public bool AddPokemonStatistic(ulong userId, PokemonData pokemon)
+        {
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = GetUserSubscriptions(userId);
+                if (subscription == null)
+                    return false;
+
+                subscription.PokemonStatistics.Add(new PokemonStatistics
+                {
+                    UserId = userId,
+                    PokemonId = (uint)pokemon.Id,
+                    IV = pokemon.IV,
+                    CP = int.Parse(pokemon.CP ?? "0"),
+                    Date = DateTime.Now,
+                    Latitude = pokemon.Latitude,
+                    Longitude = pokemon.Longitude
+                });
+
+                return db.Save(subscription, true);
+            }
+        }
+
+        public bool AddRaidStatistic(ulong userId, RaidData raid)
+        {
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = GetUserSubscriptions(userId);
+                if (subscription == null)
+                    return false;
+
+                subscription.RaidStatistics.Add(new RaidStatistics
+                {
+                    UserId = userId,
+                    PokemonId = (uint)raid.PokemonId,
+                    Date = DateTime.Now,
+                    Latitude = raid.Latitude,
+                    Longitude = raid.Longitude
+                });
+
+                return db.Save(subscription, true);
+            }
+        }
+
+        public bool AddQuestStatistic(ulong userId, QuestData quest)
+        {
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                var subscription = GetUserSubscriptions(userId);
+                if (subscription == null)
+                    return false;
+
+                subscription.QuestStatistics.Add(new QuestStatistics
+                {
+                    UserId = userId,
+                    Reward = quest.GetRewardString(),
+                    Date = DateTime.Now,
+                    Latitude = quest.Latitude,
+                    Longitude = quest.Longitude
+                });
+
+                return db.Save(subscription, true);
+            }
+        }
+
+        #endregion
+
         #region Private Methods
 
         private void CreateDefaultTables()
@@ -586,6 +656,9 @@
                 db.CreateTable<GymSubscription>();
                 db.CreateTable<QuestSubscription>();
                 db.CreateTable<SnoozedQuest>();
+                db.CreateTable<PokemonStatistics>();
+                db.CreateTable<RaidStatistics>();
+                db.CreateTable<QuestStatistics>();
 
                 _logger.Info($"Database tables created.");
             }

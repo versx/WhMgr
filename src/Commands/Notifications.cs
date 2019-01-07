@@ -863,6 +863,34 @@
         #endregion
 
         [
+            Command("history"),
+            Aliases("h")
+        ]
+        public async Task HistoryAsync(CommandContext ctx)
+        {
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = $"{ctx.User.Username}#{ctx.User.Discriminator} Notification History for {DateTime.Now.ToLongDateString()}",
+                Color = DiscordColor.Blurple,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"versx | {DateTime.Now}",
+                    IconUrl = ctx.Guild?.IconUrl
+                }
+            };
+
+            var pkmnStats = string.Join(Environment.NewLine, subscription.PokemonStatistics.Where(x => x.Date.Date == DateTime.Now.Date).Select(x => $"{x.Date.ToShortTimeString()}: {Database.Instance.Pokemon[(int)x.PokemonId].Name} {x.IV} IV {x.CP} CP"));
+            var raidStats = string.Join(Environment.NewLine, subscription.RaidStatistics.Where(x => x.Date.Date == DateTime.Now.Date).Select(x => $"{x.Date.ToShortTimeString()}: {Database.Instance.Pokemon[(int)x.PokemonId].Name}"));
+            var questStats = string.Join(Environment.NewLine, subscription.QuestStatistics.Where(x => x.Date.Date == DateTime.Now.Date).Select(x => $"{x.Date.ToShortTimeString()}: {x.Reward}"));
+            eb.AddField("Pokemon Notifications", string.IsNullOrEmpty(pkmnStats) ? "None" : pkmnStats, true);
+            eb.AddField("Raid Notifications", string.IsNullOrEmpty(raidStats) ? "None" : raidStats, true);
+            eb.AddField("Quest Notifications", string.IsNullOrEmpty(questStats) ? "None" : questStats, true);
+
+            await ctx.RespondAsync(embed: eb);
+        }
+
+        [
             Command("stats"),
             Description("Notification statistics for alarms and subscriptions of Pokemon, Raids, and Quests.")
         ]
@@ -888,12 +916,15 @@
             eb.AddField("Top 25 Pokemon Stats", pkmnMsg.Substring(0, Math.Min(pkmnMsg.Length, 1500)) + "\r\n...", true);
             eb.AddField("Top 25 Raid Stats", raidMsg.Substring(0, Math.Min(raidMsg.Length, 1500)) + "\r\n...", true);
 
+            var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {Database.Instance.Pokemon[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
+            eb.AddField("Recent 100% Spawns", string.IsNullOrEmpty(hundos) ? "None" : hundos);
+
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
                 Text = $"versx | {DateTime.Now}",
                 IconUrl = ctx.Guild?.IconUrl
             };
-            await ctx.RespondAsync(ctx.User.Mention, false, eb);
+            await ctx.RespondAsync(embed: eb);
         }
 
         #region Private Methods

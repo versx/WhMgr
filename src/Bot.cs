@@ -321,6 +321,11 @@
                 await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
                 Statistics.Instance.PokemonSent++;
                 Statistics.Instance.IncrementPokemonStats(e.Pokemon.Id);
+
+                if (e.Pokemon.IV == "100%")
+                {
+                    Statistics.Instance.Add100Percent(e.Pokemon);
+                }
             }
             catch (Exception ex)
             {

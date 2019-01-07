@@ -177,6 +177,12 @@
                     //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
+
+                    if (!Manager.AddPokemonStatistic(member.Id, pkmn))
+                    {
+                        _logger.Warn($"Failed to add {pokemon.Name} Pokemon statistic for user {user.Id}.");
+                    }
+
                     //await _client.SendDirectMessage(member, embed);
                     Statistics.Instance.SubscriptionPokemonSent++;
                     Thread.Sleep(5);
@@ -272,6 +278,11 @@
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
+
+                    if (!Manager.AddRaidStatistic(member.Id, raid))
+                    {
+                        _logger.Warn($"Failed to add {pokemon.Name} raid statistic for user {user.Id}.");
+                    }
                     //await _client.SendDirectMessage(member, embed);
                     Statistics.Instance.SubscriptionRaidsSent++;
                     Thread.Sleep(5);
@@ -375,6 +386,11 @@
 
                     //_logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
                     //_queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
+
+                    if (!Manager.AddQuestStatistic(member.Id, quest))
+                    {
+                        _logger.Warn($"Failed to add {quest.GetRewardString()} quest statistic for user {user.Id}.");
+                    }
                     Statistics.Instance.SubscriptionQuestsSent++;
                     Thread.Sleep(5);
                 }

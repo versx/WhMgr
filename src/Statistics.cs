@@ -7,6 +7,7 @@
 
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Net.Models;
 
     public class Statistics
     {
@@ -42,15 +43,15 @@
 
         public long SubscriptionQuestsSent { get; set; }
 
-        public Dictionary<int, int> PokemonStats { get; set; }
+        public Dictionary<int, int> PokemonStats { get; }
 
-        public Dictionary<int, int> RaidStats { get; set; }
+        public Dictionary<int, int> RaidStats { get; }
 
         public IEnumerable<KeyValuePair<int, int>> Top25Pokemon => PokemonStats.GroupWithCount(25);
 
         public IEnumerable<KeyValuePair<int, int>> Top25Raids => RaidStats.GroupWithCount(25);
 
-        public Dictionary<DateTime, int> Hundos { get; set; }
+        public Dictionary<DateTime, PokemonData> Hundos { get; }
 
         #endregion
 
@@ -60,16 +61,16 @@
         {
             PokemonStats = new Dictionary<int, int>();
             RaidStats = new Dictionary<int, int>();
-            Hundos = new Dictionary<DateTime, int>();
+            Hundos = new Dictionary<DateTime, PokemonData>();
         }
 
         #endregion
 
         #region Public Methods
 
-        public void Add100Percent(int pokemonId)
+        public void Add100Percent(PokemonData pokemon)
         {
-            Hundos.Add(DateTime.Now, pokemonId);
+            Hundos.Add(DateTime.Now, pokemon);
         }
 
         public void IncrementPokemonStats(int pokemonId)

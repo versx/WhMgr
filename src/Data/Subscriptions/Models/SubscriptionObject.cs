@@ -44,6 +44,15 @@
         //[Alias("alert_time"), Default(null)]
         //public DateTime? AlertTime { get; set; }
 
+        [Alias("pokemon_stats"), Reference]
+        public List<PokemonStatistics> PokemonStatistics { get; set; }
+
+        [Alias("raid_stats"), Reference]
+        public List<RaidStatistics> RaidStatistics { get; set; }
+
+        [Alias("quest_stats"), Reference]
+        public List<QuestStatistics> QuestStatistics { get; set; }
+
         [Ignore]
         public NotificationLimiter Limiter { get; set; }
 
@@ -55,6 +64,9 @@
             Gyms = new List<GymSubscription>();
             Quests = new List<QuestSubscription>();
             SnoozedQuests = new List<SnoozedQuest>();
+            PokemonStatistics = new List<PokemonStatistics>();
+            RaidStatistics = new List<RaidStatistics>();
+            QuestStatistics = new List<QuestStatistics>();
             Limiter = new NotificationLimiter();
             //AlertTime = DateTime.MinValue;
         }
