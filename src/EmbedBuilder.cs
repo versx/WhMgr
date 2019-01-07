@@ -135,7 +135,7 @@
                 var pokestop = GetPokestopById(pokemon.PokestopId);
                 if (pokestop != null && !string.IsNullOrEmpty(pokestop.Name))
                 {
-                    eb.Description += $"**Near Pokestop:** {pokestop.Name}\r\n";
+                    eb.Description += $"**Near Pokestop:** [{pokestop.Name}]({pokestop.Url})\r\n";
                 }
             }
 
