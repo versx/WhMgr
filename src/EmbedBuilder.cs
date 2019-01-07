@@ -130,14 +130,18 @@
                 //eb.Description += $"**Charge Move:** {chargeMove.Name}\r\n";
             }
 
+            if (!string.IsNullOrEmpty(pokemon.PokestopId))
+            {
+                var pokestop = GetPokestopById(pokemon.PokestopId);
+                if (pokestop != null && !string.IsNullOrEmpty(pokestop.Name))
+                {
+                    eb.Description += $"**Near Pokestop:** {pokestop.Name}\r\n";
+                }
+            }
+
             eb.Description += _lang.Translate("EMBED_LOCATION").FormatText(Math.Round(pokemon.Latitude, 5), Math.Round(pokemon.Longitude, 5)) + "\r\n";
             //eb.Description += $"**Location:** {Math.Round(pokemon.Latitude, 5)},{Math.Round(pokemon.Longitude, 5)}\r\n";
             //eb.Description += $"**Address:** {Utils.GetGoogleAddress(pokemon.Latitude, pokemon.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
-            if (!string.IsNullOrEmpty(pokemon.PokestopId))
-            {
-                var pokestopName = GetPokestopNameById(pokemon.PokestopId);
-                eb.Description += $"**Near Pokestop:** {pokestopName}\r\n";
-            }
             eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, pokemon.Latitude, pokemon.Longitude)) + "\r\n";
             //eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)})**";
             eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}";
@@ -327,21 +331,21 @@
 
         #endregion
 
-        private string GetPokestopNameById(string pokestopId)
+        private Pokestop GetPokestopById(string pokestopId)
         {
             if (string.IsNullOrEmpty(_whConfig.ScannerConnectionString))
-                return pokestopId;
+                return null;
 
             using (var db = DataAccessLayer.CreateFactory(_whConfig.ScannerConnectionString))
             {
                 var pokestop = db.LoadSingleById<Pokestop>(pokestopId);
-                if (!string.IsNullOrEmpty(pokestop.Name))
+                if (pokestop != null)
                 {
-                    return pokestop.Name;
+                    return pokestop;
                 }
             }
 
-            return pokestopId;
+            return null;
         }
     }
 }

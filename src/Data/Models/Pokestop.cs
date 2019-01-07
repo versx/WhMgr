@@ -2,6 +2,7 @@
 {
     using ServiceStack.DataAnnotations;
 
+    [Alias("pokestop")]
     public class Pokestop
     {
         [Alias("id")]

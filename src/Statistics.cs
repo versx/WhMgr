@@ -50,6 +50,8 @@
 
         public IEnumerable<KeyValuePair<int, int>> Top25Raids => RaidStats.GroupWithCount(25);
 
+        public Dictionary<DateTime, int> Hundos { get; set; }
+
         #endregion
 
         #region Constructor
@@ -58,11 +60,17 @@
         {
             PokemonStats = new Dictionary<int, int>();
             RaidStats = new Dictionary<int, int>();
+            Hundos = new Dictionary<DateTime, int>();
         }
 
         #endregion
 
         #region Public Methods
+
+        public void Add100Percent(int pokemonId)
+        {
+            Hundos.Add(DateTime.Now, pokemonId);
+        }
 
         public void IncrementPokemonStats(int pokemonId)
         {
