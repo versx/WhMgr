@@ -9,6 +9,7 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
+    using DSharpPlus.Interactivity;
 
     using WhMgr.Data;
     using WhMgr.Data.Subscriptions.Models;
@@ -760,7 +761,8 @@
             var grouped = snoozedQuests.GroupBy(x => x.Reward).ToList();
             for (var i = 0; i < grouped.Count; i++)
             {
-                eb.AddField(grouped[i].Key, string.Join(Environment.NewLine, grouped[i].Select(x => $"• {x.City}: [{x.PokestopName}]({string.Format(Strings.GoogleMaps, x.Latitude, x.Longitude)})")), true);
+                var value = string.Join(Environment.NewLine, grouped[i].Select(x => $"• {x.City}: [{x.PokestopName}]({string.Format(Strings.GoogleMaps, x.Latitude, x.Longitude)})"));
+                eb.AddField(grouped[i].Key, value.Substring(0, Math.Min(1024, value.Length)), true);
             }
 
             await ctx.Client.SendDirectMessage(ctx.User, eb);
@@ -883,11 +885,19 @@
             var pkmnStats = string.Join(Environment.NewLine, subscription.PokemonStatistics.Where(x => x.Date.Date == DateTime.Now.Date).Select(x => $"{x.Date.ToShortTimeString()}: {Database.Instance.Pokemon[(int)x.PokemonId].Name} {x.IV} IV {x.CP} CP"));
             var raidStats = string.Join(Environment.NewLine, subscription.RaidStatistics.Where(x => x.Date.Date == DateTime.Now.Date).Select(x => $"{x.Date.ToShortTimeString()}: {Database.Instance.Pokemon[(int)x.PokemonId].Name}"));
             var questStats = string.Join(Environment.NewLine, subscription.QuestStatistics.Where(x => x.Date.Date == DateTime.Now.Date).Select(x => $"{x.Date.ToShortTimeString()}: {x.Reward}"));
-            eb.AddField("Pokemon Notifications", string.IsNullOrEmpty(pkmnStats) ? "None" : pkmnStats, true);
-            eb.AddField("Raid Notifications", string.IsNullOrEmpty(raidStats) ? "None" : raidStats, true);
-            eb.AddField("Quest Notifications", string.IsNullOrEmpty(questStats) ? "None" : questStats, true);
 
-            await ctx.RespondAsync(embed: eb);
+            var interactivity = _dep.Interactivity;
+            var timeout = System.Threading.Timeout.InfiniteTimeSpan;
+            var msg = $"**Pokemon Notifications**\r\n{(string.IsNullOrEmpty(pkmnStats) ? "None" : pkmnStats)}\r\n\r\n" +
+                      $"**Raid Notifications**\r\n{(string.IsNullOrEmpty(raidStats) ? "None" : raidStats)}\r\n\r\n" +
+                      $"**Quest Notifications**\r\n{(string.IsNullOrEmpty(questStats) ? "None" : questStats)}\r\n";
+            await interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, interactivity.GeneratePagesInEmbeds(msg), timeout, TimeoutBehaviour.Ignore);
+
+            //eb.AddField("Pokemon Notifications", string.IsNullOrEmpty(pkmnStats) ? "None" : pkmnStats, true);
+            //eb.AddField("Raid Notifications", string.IsNullOrEmpty(raidStats) ? "None" : raidStats, true);
+            //eb.AddField("Quest Notifications", string.IsNullOrEmpty(questStats) ? "None" : questStats, true);
+
+            //await ctx.RespondAsync(embed: eb);
         }
 
         [
