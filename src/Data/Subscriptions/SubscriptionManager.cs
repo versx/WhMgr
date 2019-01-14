@@ -645,22 +645,29 @@
         {
             _logger.Trace($"SubscriptionManager::CreateDefaultTables");
 
-            using (var db = DataAccessLayer.CreateFactory())
+            try
             {
-                if (db == null)
-                    return;
+                using (var db = DataAccessLayer.CreateFactory())
+                {
+                    if (db == null)
+                        return;
 
-                db.CreateTable<SubscriptionObject>();
-                db.CreateTable<PokemonSubscription>();
-                db.CreateTable<RaidSubscription>();
-                db.CreateTable<GymSubscription>();
-                db.CreateTable<QuestSubscription>();
-                db.CreateTable<SnoozedQuest>();
-                db.CreateTable<PokemonStatistics>();
-                db.CreateTable<RaidStatistics>();
-                db.CreateTable<QuestStatistics>();
+                    db.CreateTable<SubscriptionObject>();
+                    db.CreateTable<PokemonSubscription>();
+                    db.CreateTable<RaidSubscription>();
+                    db.CreateTable<GymSubscription>();
+                    db.CreateTable<QuestSubscription>();
+                    db.CreateTable<SnoozedQuest>();
+                    db.CreateTable<PokemonStatistics>();
+                    db.CreateTable<RaidStatistics>();
+                    db.CreateTable<QuestStatistics>();
 
-                _logger.Info($"Database tables created.");
+                    _logger.Info($"Database tables created.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
             }
         }
 

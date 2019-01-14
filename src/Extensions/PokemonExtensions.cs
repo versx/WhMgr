@@ -713,7 +713,7 @@
                     continue;
 
                 var emojiId = client.Guilds[guildId].GetEmojiId($"types_{type.ToString().ToLower()}");
-                var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId) : type.ToString().ToLower();
+                var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId) : type.ToString();
                 if (!list.Contains(emojiName))
                 {
                     list.Add(emojiName);

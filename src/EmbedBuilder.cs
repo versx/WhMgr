@@ -133,7 +133,7 @@
             if (!string.IsNullOrEmpty(pokemon.PokestopId))
             {
                 var pokestop = GetPokestopById(pokemon.PokestopId);
-                if (pokestop != null && !string.IsNullOrEmpty(pokestop.Name))
+                if (pokestop != null && !string.IsNullOrEmpty(pokestop?.Name))
                 {
                     eb.Description += $"**Near Pokestop:** [{pokestop.Name}]({pokestop.Url})\r\n";
                 }
@@ -336,13 +336,20 @@
             if (string.IsNullOrEmpty(_whConfig.ScannerConnectionString))
                 return null;
 
-            using (var db = DataAccessLayer.CreateFactory(_whConfig.ScannerConnectionString))
+            try
             {
-                var pokestop = db.LoadSingleById<Pokestop>(pokestopId);
-                if (pokestop != null)
+                using (var db = DataAccessLayer.CreateFactory(_whConfig.ScannerConnectionString))
                 {
-                    return pokestop;
+                    var pokestop = db.LoadSingleById<Pokestop>(pokestopId);
+                    if (pokestop != null)
+                    {
+                        return pokestop;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
             }
 
             return null;
