@@ -48,7 +48,7 @@
 
         #region Constructor
 
-        public Bot(WhConfig whConfig)
+        public Bot(WhConfig whConfig, string alarmsFilePath)
         {
             var name = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName;
             _logger = EventLogger.GetLogger(name);
@@ -81,7 +81,7 @@
                 }
             };
 
-            _whm = new WebhookManager(_whConfig.WebhookPort);
+            _whm = new WebhookManager(_whConfig.WebhookPort, alarmsFilePath);
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
             _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;

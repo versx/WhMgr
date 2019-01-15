@@ -24,6 +24,7 @@
 
         private readonly HttpServer _http;
         private AlarmList _alarms;
+        private readonly string _alarmsFilePath;
         private readonly Dictionary<string, WebHookObject> _webhooks;
         private readonly IEventLogger _logger;
 
@@ -110,7 +111,7 @@
 
         #region Constructor
 
-        public WebhookManager(ushort port)
+        public WebhookManager(ushort port, string alarmsFilePath)
         {
             Filters = new Filters();
             Geofences = new Dictionary<string, GeofenceItem>();
@@ -120,7 +121,8 @@
 
             _webhooks = new Dictionary<string, WebHookObject>();
             GeofenceService = new GeofenceService();
-            _alarms = LoadAlarms(Strings.AlarmsFileName);
+            _alarmsFilePath = alarmsFilePath;
+            _alarms = LoadAlarms(_alarmsFilePath);
 
             LoadWebHooks();
 
@@ -131,7 +133,7 @@
             _http.PokestopReceived += Http_PokestopReceived;
             _http.GymReceived += Http_GymReceived;
             _http.GymDetailsReceived += Http_GymDetailsReceived;
-            _http.IsDebug = true;
+            _http.IsDebug = false;
             _http.Start();
 
             new System.Threading.Thread(LoadAlarmsOnChange).Start();
@@ -237,9 +239,8 @@
         {
             _logger.Trace($"WebhookManager::LoadAlarmsOnChange");
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), Strings.AlarmsFileName);
-            var fileWatcher = new FileWatcher(path);
-            fileWatcher.FileChanged += (sender, e) => _alarms = LoadAlarms(path);
+            var fileWatcher = new FileWatcher(_alarmsFilePath);
+            fileWatcher.FileChanged += (sender, e) => _alarms = LoadAlarms(_alarmsFilePath);
             fileWatcher.Start();
         }
 
