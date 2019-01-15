@@ -229,6 +229,12 @@
             var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
             var db = Database.Instance;
 
+            if (validation.Valid.Count == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} Invalid Pokemon: `{poke}`");
+                return;
+            }
+
             foreach (var arg in poke.Replace(" ", "").Split(','))
             {
                 if (!int.TryParse(arg, out int pokeId))
@@ -887,6 +893,12 @@
             var questStats = string.Join(Environment.NewLine, subscription.QuestStatistics.Where(x => x.Date.Date == DateTime.Now.Date).Select(x => $"{x.Date.ToShortTimeString()}: {x.Reward}"));
 
             var interactivity = _dep.Interactivity;
+            if (interactivity == null)
+            {
+                _logger.Warn("Failed to get 'InteractivityModel'.");
+                return;
+            }
+
             var timeout = System.Threading.Timeout.InfiniteTimeSpan;
             var msg = $"**Pokemon Notifications**\r\n{(string.IsNullOrEmpty(pkmnStats) ? "None" : pkmnStats)}\r\n\r\n" +
                       $"**Raid Notifications**\r\n{(string.IsNullOrEmpty(raidStats) ? "None" : raidStats)}\r\n\r\n" +

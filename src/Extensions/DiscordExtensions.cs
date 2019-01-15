@@ -96,7 +96,7 @@
             {
                 await ctx.TriggerTypingAsync();
             }
-            return await ctx.RespondEmbed($"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more. Donation information can be found by typing the `.donate` command.");
+            return await ctx.RespondEmbed($"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\nDonation information can be found by typing the `.donate` command.");
         }
 
         internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message)

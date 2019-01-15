@@ -226,6 +226,22 @@
                 };
                 await e.Context.RespondAsync(string.Empty, embed: embed);
             }
+            else if (e.Exception is ArgumentException)
+            {
+                // The user lacks required permissions, 
+                var emoji = DiscordEmoji.FromName(e.Context.Client, ":x:");
+
+                var example = $"Command Example: ```{_whConfig.CommandPrefix}{e.Command.Name} {string.Join(" ", e.Command.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
+
+                // let's wrap the response into an embed
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = $"{emoji} Invalid Argument(s)",
+                    Description = $"{string.Join(Environment.NewLine, e.Command.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type}.**"))}.\r\n\r\n{example}",
+                    Color = new DiscordColor(0xFF0000) // red
+                };
+                await e.Context.RespondAsync(string.Empty, embed: embed);
+            }
             else if (e.Exception is DSharpPlus.CommandsNext.Exceptions.CommandNotFoundException)
             {
                 _logger.Warn($"User {e.Context.User.Username} tried executing command {e.Context.Message.Content} but command does not exist.");
@@ -567,6 +583,9 @@
 
         private void CleanupDepartedMembers()
         {
+            if (!_whConfig.EnableSubscriptions)
+                return;
+
             _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
             var users = _subProcessor.Manager.GetUserSubscriptions();
