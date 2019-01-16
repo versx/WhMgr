@@ -12,7 +12,7 @@
         public const string GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
         //public const string GoogleMapsStaticImage = "https://maps.googleapis.com/maps/api/staticmap?center={0},{1}&markers=color:red%7C{0},{1}&maptype=roadmap&size=300x175&zoom=14";
-        public const string GoogleMapsStaticImage = "http://ver.sx/x/map/staticmap.php?center={0},{1}&markers={0},{1},red-pushpin&zoom=15&size=300x175&maptype=mapnik";
+        public const string GoogleMapsStaticImage = "http://ver.sx/x/map/staticmap.php?center={0},{1}&markers={0},{1},red-pushpin&zoom=14&size=300x175&maptype=mapnik";
 
         //public const string PokemonImage = "http://ver.sx/pogo/monsters/{0:D3}_{1:D2}{2}{3}.png";
         public const string PokemonImage = "http://ver.sx/pogo/monsters/{0:D3}_{1:D3}.png";
