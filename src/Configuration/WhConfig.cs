@@ -31,9 +31,6 @@
         [JsonProperty("webhookPort")]
         public ushort WebhookPort { get; set; }
 
-        [JsonProperty("gmapsKey")]
-        public string GmapsKey { get; set; }
-
         [JsonProperty("enableSubscriptions")]
         public bool EnableSubscriptions { get; set; }
 

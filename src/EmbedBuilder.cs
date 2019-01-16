@@ -4,7 +4,9 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
+
     using ServiceStack.OrmLite;
+
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Data.Models;
@@ -59,7 +61,7 @@
             {
                 Title = string.IsNullOrEmpty(city) ? _lang.Translate("EMBED_DIRECTIONS") /*"DIRECTIONS"*/ : city,
                 Url = string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude),
-                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}",
+                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude),// + $"&key={_whConfig.GmapsKey}",
                 ThumbnailUrl = pokemon.Id.GetPokemonImage(pokemon.Gender, pokemon.FormId.ToString()),//string.Format(Strings.PokemonImage, pokemon.Id, Convert.ToInt32(pokemon.Gender)),//Convert.ToInt32(string.IsNullOrEmpty(pokemon.FormId) ? "0" : pokemon.FormId)),
                 Color = pokemon.IV.BuildColor()
             };
@@ -144,7 +146,7 @@
             //eb.Description += $"**Address:** {Utils.GetGoogleAddress(pokemon.Latitude, pokemon.Longitude, _whConfig.GmapsKey)?.Address}\r\n";
             eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, pokemon.Latitude, pokemon.Longitude)) + "\r\n";
             //eb.Description += $"**[Google Maps Link]({string.Format(Strings.GoogleMaps, pokemon.Latitude, pokemon.Longitude)})**";
-            eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude) + $"&key={_whConfig.GmapsKey}";
+            eb.ImageUrl = string.Format(Strings.GoogleMapsStaticImage, pokemon.Latitude, pokemon.Longitude);// + $"&key={_whConfig.GmapsKey}";
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
             {
                 Text = $"versx | {DateTime.Now}",
@@ -172,7 +174,7 @@
             {
                 Title = string.IsNullOrEmpty(city) ? _lang.Translate("EMBED_DIRECTIONS") /*"DIRECTIONS"*/ : $"{city}: {raid.GymName}",
                 Url = string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude),
-                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude) + $"&key={_whConfig.GmapsKey}",
+                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, raid.Latitude, raid.Longitude),// + $"&key={_whConfig.GmapsKey}",
                 ThumbnailUrl = pkmnImage,
                 Color = Convert.ToInt32(raid.Level).BuildRaidColor()
             };
@@ -276,7 +278,7 @@
             {
                 Title = $"{city}: {(string.IsNullOrEmpty(quest.PokestopName) ? _lang.Translate("UNKNOWN_POKESTOP") : quest.PokestopName)}",
                 Url = gmapsUrl,
-                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude) + $"&key={_whConfig.GmapsKey}",
+                ImageUrl = string.Format(Strings.GoogleMapsStaticImage, quest.Latitude, quest.Longitude),//+ $"&key={_whConfig.GmapsKey}",
                 ThumbnailUrl = quest.PokestopUrl,//quest.GetIconUrl(),
                 Color = DiscordColor.Orange
             };
