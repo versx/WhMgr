@@ -567,7 +567,7 @@
                         if (message == null)
                             continue;
 
-                        await message.DeleteAsync("Channel reset.");
+                        try { await message.DeleteAsync("Channel reset."); } catch { continue; }
                     }
 
                     messages = await channel.GetMessagesAsync();

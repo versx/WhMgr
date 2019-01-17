@@ -162,67 +162,74 @@
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
 
-            if (string.Compare(poke, Strings.All, true) == 0)
+            try
             {
-                if (!isSupporter && subscription.Pokemon.Count >= Strings.MaxPokemonSubscriptions)
+                if (string.Compare(poke, Strings.All, true) == 0)
                 {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited Pokemon notification amount of {Strings.MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.", DiscordColor.Red);
-                    return;
-                }
-
-                if (iv < 80)
-                {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} may not subscribe to **all** Pokemon with a minimum IV less than 80, please set something higher.", DiscordColor.Red);
-                    return;
-                }
-
-                await ctx.TriggerTypingAsync();
-                for (int i = 1; i < 493; i++)
-                {
-                    /*
-                    if (i == 132 && !isSupporter)
+                    if (!isSupporter && subscription.Pokemon.Count >= Strings.MaxPokemonSubscriptions)
                     {
                         await ctx.TriggerTypingAsync();
-                        await ctx.RespondEmbed($"{ctx.User.Username} Ditto has been skipped since he is only available to Supporters. Please consider donating to lift this restriction.", DiscordColor.Red);
-                        continue;
-                    }
-                    */
-
-                    if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
-                    {
-                        _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, i, (i == 201 ? 0 : iv), lvl, gender);
-                        continue;
+                        await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited Pokemon notification amount of {Strings.MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.", DiscordColor.Red);
+                        return;
                     }
 
-                    //User has already subscribed before, check if their new requested sub already exists.
-                    if (!subscription.Pokemon.Exists(x => x.PokemonId == i))
+                    if (iv < 80)
                     {
-                        //Always ignore the user's input for Unown and set it to 0 by default.
-                        subscription.Pokemon.Add(new PokemonSubscription { PokemonId = i, MinimumIV = (i == 201 ? 0 : iv), MinimumLevel = lvl, Gender = gender });
-                        continue;
+                        await ctx.TriggerTypingAsync();
+                        await ctx.RespondEmbed($"{ctx.User.Username} may not subscribe to **all** Pokemon with a minimum IV less than 80, please set something higher.", DiscordColor.Red);
+                        return;
                     }
 
-                    //Check if minimum IV value is different from value in database, if not add it to the already subscribed list.
-                    var subscribedPokemon = subscription.Pokemon.Find(x => x.PokemonId == i);
-                    if (iv != subscribedPokemon.MinimumIV ||
-                        lvl != subscribedPokemon.MinimumLevel ||
-                        gender != subscribedPokemon.Gender)
+                    await ctx.TriggerTypingAsync();
+                    for (int i = 1; i < 493; i++)
                     {
-                        subscribedPokemon.MinimumIV = (i == 201 ? 0 : iv);
-                        subscribedPokemon.MinimumLevel = lvl;
-                        subscribedPokemon.Gender = gender;
+                        /*
+                        if (i == 132 && !isSupporter)
+                        {
+                            await ctx.TriggerTypingAsync();
+                            await ctx.RespondEmbed($"{ctx.User.Username} Ditto has been skipped since he is only available to Supporters. Please consider donating to lift this restriction.", DiscordColor.Red);
+                            continue;
+                        }
+                        */
+
+                        if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
+                        {
+                            _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, i, (i == 201 ? 0 : iv), lvl, gender);
+                            continue;
+                        }
+
+                        //User has already subscribed before, check if their new requested sub already exists.
+                        if (!subscription.Pokemon.Exists(x => x.PokemonId == i))
+                        {
+                            //Always ignore the user's input for Unown and set it to 0 by default.
+                            subscription.Pokemon.Add(new PokemonSubscription { PokemonId = i, MinimumIV = (i == 201 ? 0 : iv), MinimumLevel = lvl, Gender = gender });
+                            continue;
+                        }
+
+                        //Check if minimum IV value is different from value in database, if not add it to the already subscribed list.
+                        var subscribedPokemon = subscription.Pokemon.Find(x => x.PokemonId == i);
+                        if (iv != subscribedPokemon.MinimumIV ||
+                            lvl != subscribedPokemon.MinimumLevel ||
+                            gender != subscribedPokemon.Gender)
+                        {
+                            subscribedPokemon.MinimumIV = (i == 201 ? 0 : iv);
+                            subscribedPokemon.MinimumLevel = lvl;
+                            subscribedPokemon.Gender = gender;
+                        }
                     }
+
+                    _dep.SubscriptionProcessor.Manager.Save(subscription);
+
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondEmbed($"{ctx.User.Username} subscribed to **all** Pokemon notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}.");
+                    return;
                 }
-
-                _dep.SubscriptionProcessor.Manager.Save(subscription);
-
-                await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} subscribed to **all** Pokemon notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}.");
-                return;
             }
-
+            catch (Exception ex)
+            {
+                _logger.Debug($"POKEME FAILED-----------------------------------");
+                _logger.Error(ex);
+            }
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
             var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig);
@@ -827,11 +834,11 @@
 
             if (!_dep.SubscriptionProcessor.Manager.AddGym(ctx.User.Id, gymName))
             {
-                await ctx.RespondEmbed($"{ctx.User.Mention} Could not add gym subscription '{gymName}' to database.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not add gym subscription '{gymName}' to your list of gyms to receive notifications from.", DiscordColor.Red);
                 return;
             }
 
-            await ctx.RespondEmbed($"{ctx.User.Mention} Added gym subscription '{gymName}' to database.");
+            await ctx.RespondEmbed($"{ctx.User.Mention} Added gym subscription '{gymName}' to your list of gyms to receive notifications from.");
         }
 
         [
@@ -851,21 +858,21 @@
             {
                 if (!_dep.SubscriptionProcessor.Manager.RemoveAllGyms(ctx.User.Id))
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Mention} Could not remove all gym subscriptions from database.", DiscordColor.Red);
+                    await ctx.RespondEmbed($"{ctx.User.Mention} Could not remove all gym subscriptions from your list of gyms to receive notifications from.", DiscordColor.Red);
                     return;
                 }
 
-                await ctx.RespondEmbed($"{ctx.User.Mention} Removed all gym subscriptions from database.");
+                await ctx.RespondEmbed($"{ctx.User.Mention} Removed all gym subscriptions from your list of gyms to receive notifications from.");
                 return;
             }
 
             if (!_dep.SubscriptionProcessor.Manager.RemoveGym(ctx.User.Id, gymName))
             {
-                await ctx.RespondEmbed($"{ctx.User.Mention} Could not remove gym subscription '{gymName}' from database.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not remove gym subscription '{gymName}' from your list of gyms to receive notifications from.", DiscordColor.Red);
                 return;
             }
 
-            await ctx.RespondEmbed($"{ctx.User.Mention} Removed gym subscription '{gymName}' from database.");
+            await ctx.RespondEmbed($"{ctx.User.Mention} Removed gym subscription '{gymName}' from your list of gyms to receive notifications from.");
         }
 
         #endregion
