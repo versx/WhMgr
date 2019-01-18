@@ -153,7 +153,10 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
           "rewards": ["spinda", "stardust"],
           
           //Quest filter type, either Include or Exclude.
-          "type": "Include"
+          "type": "Include",
+		  
+          //Only send shiny encounter quests.
+          "isShiny": false
         }
       },
       //Path to geofence file.

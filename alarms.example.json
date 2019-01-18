@@ -15,7 +15,7 @@
 					"min_iv": 0, //Minimum IV of Pokemon to send
 					"max_iv": 100, //Maximum IV of Pokemon to send
 					"size": "Big", //Tiny, Small, Normal, Large, Big
-					"type": "Include", //Include/Exclude
+					"type": "Include", //Include or Exclude
 					"ignoreMissing": true //Ignore Pokemon missing stats
 				},
 				"eggs":
@@ -24,15 +24,15 @@
 					"min_lvl": 1, //Minimum egg level to send
 					"max_lvl": 5 //Maximum egg level to send
 					"onlyEx": false, //Only send ex-eligible raids.
-					"team": "All", //Only send a specific team 
+					"team": "All", //All, Valor, Mystic, Instinct, Neutral
 				},
 				"raids":
 				{
 					"enabled": true, //Filter is enabled
 					"pokemon": [], //Raid bosses to include or none for all.
-					"type": "Include", //Include/Exclude
+					"type": "Include", //Include or Exclude
 					"onlyEx": false, //Only send ex-eligible raids.
-					"team": "All", //All, Valor, Mystic, Instinct
+					"team": "All", //All, Valor, Mystic, Instinct, Nuetral
 					"ignoreMissing": true //Ignore raids missing stats
 				},
 				"quests":
