@@ -10,67 +10,163 @@
 			{
 				"pokemon":
 				{
-					"enabled": true,
-					"pokemon": [280,337,374],
-					"min_iv": 0,
-					"max_iv": 100,
-					"type": "Include",
-					"ignoreMissing": true
+					"enabled": true, //Filter is enabled
+					"pokemon": [280,337,374], //List of Pokemon for the filter or empty for all
+					"min_iv": 0, //Minimum IV of Pokemon to send
+					"max_iv": 100, //Maximum IV of Pokemon to send
+					"size": "Big", //Tiny, Small, Normal, Large, Big
+					"type": "Include", //Include/Exclude
+					"ignoreMissing": true //Ignore Pokemon missing stats
 				},
 				"eggs":
 				{
-					"enabled": true,
-					"min_lvl": 1,
-					"max_lvl": 5
+					"enabled": true, //Filter is enabled
+					"min_lvl": 1, //Minimum egg level to send
+					"max_lvl": 5 //Maximum egg level to send
+					"onlyEx": false, //Only send ex-eligible raids.
+					"team": "All", //Only send a specific team 
 				},
 				"raids":
 				{
-					"enabled": true,
-					"pokemon": [],
-					"type": "Include",
-					"ignoreMissing": true
+					"enabled": true, //Filter is enabled
+					"pokemon": [], //Raid bosses to include or none for all.
+					"type": "Include", //Include/Exclude
+					"onlyEx": false, //Only send ex-eligible raids.
+					"team": "All", //All, Valor, Mystic, Instinct
+					"ignoreMissing": true //Ignore raids missing stats
 				},
 				"quests":
 				{
-					"enabled": true,
-					"rewards": ["spinda", "nincada"]
+					"enabled": true, //Filter is enabled
+					"rewards": ["spinda", "nincada"], //Quest reward string (Chansey, stardust, candy, etc.)
+					"isShiny": false //Only shiny encounter quests.
 				}
 			},
 			"geofence":"geofence1.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
-			"name":"Alarm2",
+			"name":"City",
 			"filters":
 			{
 				"pokemon":
 				{
 					"enabled": true,
-					"pokemon": [280,337,374],
+					"pokemon": [1,4,10,13,16,17,19,20,21,22,23,24,25,27,29,30,32,33,37,39,41,43,46,47,48,50,51,52,53,56,58,63,69,74,77,79,84,92,96,102,104,105,111,128,133,152,155,161,162,163,164,165,166,167,168,177,178,185,187,190,191,193,194,198,200,209,210,215,216,218,219,220,225,228,252,255,261,262,263,264,265,273,276,277,285,293,299,300,304,307,309,311,312,314,315,322,325,331,333,343,351,353,355,361,363,387,390,396,399,401,425,427,434,158],
 					"min_iv": 0,
+					"max_iv": 100,
+					"type": "Exclude",
+					"ignoreMissing": false
+				}
+			},
+			"geofence":"Geofence.txt",
+			"webhook":"<DISCORD_WEBHOOK_URL>"
+		},
+		{
+			"name":"City100",
+			"filters":
+			{
+				"pokemon":
+				{
+					"enabled": true,
+					"pokemon": [],
+					"min_iv": 100,
 					"max_iv": 100,
 					"type": "Include",
 					"ignoreMissing": true
-				},
+				}
+			},
+			"geofence":"Geofence.txt",
+			"webhook":"<DISCORD_WEBHOOK_URL>"
+		},
+		{
+			"name":"CityRaids",
+			"filters":
+			{
 				"eggs":
 				{
 					"enabled": true,
 					"min_lvl": 1,
+					"max_lvl": 4
+				},
+				"raids":
+				{
+					"enabled": true,
+					"pokemon": [144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386,480,481,482,483,484,485,486,487,488,489,490,491,492,493],
+					"type": "Exclude",
+					"ignoreMissing": false
+				}
+			},
+			"geofence":"Geofence.txt",
+			"webhook":"<DISCORD_WEBHOOK_URL>"
+		},
+		{
+			"name":"CityLegendaryRaids",
+			"filters":
+			{
+				"eggs":
+				{
+					"enabled": true,
+					"min_lvl": 5,
 					"max_lvl": 5
+				},
+				"raids":
+				{
+					"enabled": true,
+					"pokemon": [144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386,480,481,482,483,484,485,486,487,488,489,490,491,492,493],
+					"type": "Include",
+					"ignoreMissing": false
+				}
+			},
+			"geofence":"Geofence.txt",
+			"webhook":"<DISCORD_WEBHOOK_URL>"
+		},
+		{
+			"name":"CityQuests",
+			"filters":
+			{
+				"quests":
+				{
+					"enabled": true
+				}
+			},
+			"geofence":"Geofence.txt",
+			"webhook":"<DISCORD_WEBHOOK_URL>"
+		},
+		{
+			"name":"AbsolQuests",
+			"filters":
+			{
+				"quests":
+				{
+					"enabled": true,
+					"rewards": ["Absol"]
+				}
+			},
+			"geofence":"Geofence.txt",
+			"webhook":"<DISCORD_WEBHOOK_URL>"
+		},
+		{
+			"name":"ExRaids",
+			"filters":
+			{
+				"eggs":
+				{
+					"enabled": true,
+					"min_lvl": 1,
+					"max_lvl": 5,
+					"onlyEx": true
 				},
 				"raids":
 				{
 					"enabled": true,
 					"pokemon": [],
 					"type": "Include",
-					"ignoreMissing": true
-				},
-				"quests":
-				{
-					"enabled": true
+					"onlyEx": true,
+					"ignoreMissing": false
 				}
 			},
-			"geofence":"geofence2.txt",
+			"geofence":"Geofence.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		}
 	]

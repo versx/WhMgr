@@ -509,6 +509,12 @@
                     continue;
                 }
 
+                if (alarm.Filters.Quests.IsShiny && !quest.IsShiny)
+                {
+                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter IsShiny={alarm.Filters.Quests.IsShiny} Quest={quest.IsShiny}.");
+                    continue;
+                }
+
                 OnQuestAlarmTriggered(quest, alarm);
             }
         }

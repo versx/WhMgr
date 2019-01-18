@@ -15,6 +15,9 @@
         [JsonProperty("rewards")]
         public List<string> RewardKeywords { get; set; }
 
+        [JsonProperty("isShiny")]
+        public bool IsShiny { get; set; }
+
         public FilterQuestObject()
         {
             RewardKeywords = new List<string>();
