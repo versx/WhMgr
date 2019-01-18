@@ -173,12 +173,12 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 
 *Note:* Geofence file format is the following:  
 ```
-[Geofence1]
+[City1]
 34.00,-117.00
 34.01,-117.01
 34.02,-117.02
 34.03,-117.03
-[Geofence2]
+[City2]
 33.00,-118.00
 33.01,-118.01
 33.02,-118.02
@@ -188,7 +188,9 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 Upload Discord emojis that are in the emojis folder.  
 7.) Start WhMgr.exe as Administrator privileges.  
 
-*Note: Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.*
+*Notes:  
+- Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.*  
+- DM notifications can be sent to users based on 
 
 
 ## TODO:  
@@ -196,7 +198,7 @@ Upload Discord emojis that are in the emojis folder.
 - Finish Localization.  
 - Wiki.  
 - Support for dynamic text replacement for alarm text.  
-- Raid lobby manager.
+- ~~Raid lobby manager.~~ (RaidLobbyist)[https://github.com/versx/RaidLobbyist]
 
 
 ## Examples:
