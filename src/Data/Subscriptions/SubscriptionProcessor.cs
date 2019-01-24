@@ -258,7 +258,7 @@
                         continue;
                     }
 
-                    if (user?.Gyms.Count > 0 && user?.Gyms?.FirstOrDefault(x => raid.GymName?.ToLower().Contains(x.Name?.ToLower()) ?? false) == null)
+                    if (user?.Gyms?.Count > 0 && user?.Gyms?.FirstOrDefault(x => raid.GymName?.ToLower().Contains(x.Name?.ToLower()) ?? false) == null)
                     {
                         //Skip if list is not empty and gym is not in list.
                         _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");

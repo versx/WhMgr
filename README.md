@@ -198,7 +198,7 @@ Upload Discord emojis that are in the emojis folder.
 - Finish Localization.  
 - Wiki.  
 - Support for dynamic text replacement for alarm text.  
-- ~~Raid lobby manager.~~ (RaidLobbyist)[https://github.com/versx/RaidLobbyist]
+- ~~Raid lobby manager.~~ [RaidLobbyist](https://github.com/versx/RaidLobbyist)
 
 
 ## Examples:
