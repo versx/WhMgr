@@ -281,7 +281,8 @@
                         case QuestConditionType.DaysInARow:
                             break;
                         case QuestConditionType.Item:
-                            return "Use item";
+                            list.Add("Use item");
+                            break;
                         case QuestConditionType.NewFriend:
                             list.Add("Make new friend");
                             break;

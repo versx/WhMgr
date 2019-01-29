@@ -163,6 +163,10 @@
             {
                 _commands.RegisterCommands<Notifications>();
             }
+            if (_whConfig.EnableCities)
+            {
+                _commands.RegisterCommands<Feeds>();
+            }
             _commands.RegisterCommands<Quests>();
         }
 
@@ -473,9 +477,10 @@
                 return;
 
 #pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
-            new System.Threading.Thread(async () => await _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
+            //new System.Threading.Thread(async () => await _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
 #pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
             //_subProcessor.EnqueuePokemonSubscription(e);
+            Task.Run(() => _subProcessor.ProcessPokemonSubscription(e));
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
@@ -487,9 +492,10 @@
                 return;
 
 #pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
-            new System.Threading.Thread(async () => await _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
+            //new System.Threading.Thread(async () => await _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
 #pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
             //_subProcessor.EnqueueRaidSubscription(e);
+            Task.Run(() => _subProcessor.ProcessRaidSubscription(e));
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)

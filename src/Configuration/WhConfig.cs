@@ -34,6 +34,9 @@
         [JsonProperty("enableSubscriptions")]
         public bool EnableSubscriptions { get; set; }
 
+        [JsonProperty("enableCities")]
+        public bool EnableCities { get; set; }
+
         [JsonProperty("connectionString")]
         public string ConnectionString { get; set; }
 

@@ -136,6 +136,12 @@
                     return db.LoadSelect<SubscriptionObject>();
                 }
             }
+            catch (OutOfMemoryException mex)
+            {
+                var p = System.Diagnostics.Process.GetCurrentProcess();
+                _logger.Debug($"-------------------OUT OF MEMORY EXCEPTION!");
+                _logger.Error(mex);
+            }
             catch (Exception ex)
             {
                 _logger.Error(ex);
