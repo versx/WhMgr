@@ -100,7 +100,7 @@
 
             if (Strings.WeatherEmojis.ContainsKey(pokemon.Weather))
             {
-                eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER").FormatText(Strings.WeatherEmojis[pokemon.Weather]) + (pkmn.IsWeatherBoosted(pokemon.Weather) ? "(Boosted)" : null) + "\r\n";
+                eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER").FormatText(Strings.WeatherEmojis[pokemon.Weather]) + (pkmn.IsWeatherBoosted(pokemon.Weather) ? " (Boosted)" : null) + "\r\n";
                 //eb.Description += $"**Weather:** {Strings.WeatherEmojis[pokemon.Weather]}\r\n";
             }
 
