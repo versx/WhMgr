@@ -89,5 +89,16 @@
             { WeatherType.Snow, "⛄️" },
             { WeatherType.Fog, "🌁" }
         };
+
+        public static IReadOnlyDictionary<WeatherType, List<PokemonType>> WeatherBoosts => new Dictionary<WeatherType, List<PokemonType>>
+        {
+            { WeatherType.Clear,        new List<PokemonType> { PokemonType.Fire,   PokemonType.Grass,    PokemonType.Ground } },
+            { WeatherType.Rain,         new List<PokemonType> { PokemonType.Water,  PokemonType.Electric, PokemonType.Bug } },
+            { WeatherType.PartlyCloudy, new List<PokemonType> { PokemonType.Normal, PokemonType.Rock } },
+            { WeatherType.Cloudy,       new List<PokemonType> { PokemonType.Fairy,  PokemonType.Fighting, PokemonType.Poison } },
+            { WeatherType.Windy,        new List<PokemonType> { PokemonType.Dragon, PokemonType.Flying,   PokemonType.Psychic } },
+            { WeatherType.Snow,         new List<PokemonType> { PokemonType.Ice,    PokemonType.Steel } },
+            { WeatherType.Fog,          new List<PokemonType> { PokemonType.Dark,   PokemonType.Ghost } }
+        };
     }
 }

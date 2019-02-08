@@ -88,11 +88,11 @@
                 //eb.Description += $"**Form:** {form}\r\n";
             }
 
-            if (int.TryParse(pokemon.Level, out var lvl) && lvl >= 30)
-            {
-                eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER_BOOSTED") + "\r\n";
-                //eb.Description += $":white_sun_rain_cloud: Boosted\r\n";
-            }
+            //if (int.TryParse(pokemon.Level, out var lvl) && lvl >= 30)
+            //{
+            //    eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER_BOOSTED") + "\r\n";
+            //    //eb.Description += $":white_sun_rain_cloud: Boosted\r\n";
+            //}
 
             //var maxCp = db.MaxCpAtLevel(pokemon.Id, 40);
             //var maxWildCp = db.MaxCpAtLevel(pokemon.Id, 35);
@@ -100,7 +100,7 @@
 
             if (Strings.WeatherEmojis.ContainsKey(pokemon.Weather))
             {
-                eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER").FormatText(Strings.WeatherEmojis[pokemon.Weather]) + "\r\n";
+                eb.Description += _lang.Translate("EMBED_POKEMON_WEATHER").FormatText(Strings.WeatherEmojis[pokemon.Weather]) + (pkmn.IsWeatherBoosted(pokemon.Weather) ? "(Boosted)" : null) + "\r\n";
                 //eb.Description += $"**Weather:** {Strings.WeatherEmojis[pokemon.Weather]}\r\n";
             }
 
@@ -343,10 +343,7 @@
                 using (var db = DataAccessLayer.CreateFactory(_whConfig.ScannerConnectionString))
                 {
                     var pokestop = db.LoadSingleById<Pokestop>(pokestopId);
-                    if (pokestop != null)
-                    {
-                        return pokestop;
-                    }
+                    return pokestop;
                 }
             }
             catch (Exception ex)

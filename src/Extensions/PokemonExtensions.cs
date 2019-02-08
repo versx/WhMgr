@@ -8,6 +8,7 @@
     using DSharpPlus;
 
     using WhMgr.Data;
+    using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
@@ -816,6 +817,18 @@
             }
 
             return new PokemonValidation { Valid = valid, Invalid = invalid };
+        }
+
+        public static bool IsWeatherBoosted(this PokemonInfo pkmn, WeatherType weather)
+        {
+            var types = pkmn.Types;
+            for (var i = 0; i < pkmn.Types.Count; i++)
+            {
+                if (Strings.WeatherBoosts[weather].Contains(pkmn.Types[i]))
+                    return true;
+            }
+
+            return false;
         }
     }
 
