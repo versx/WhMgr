@@ -11,47 +11,56 @@
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
+        //public bool Contains(GeofenceItem geofence, Location point)
+        //{
+        //    //Credits: https://stackoverflow.com/a/7739297/2313836
+
+        //    var contains = false;
+        //    for (int i = 0, j = geofence.Polygons.Count - 1; i < geofence.Polygons.Count; j = i++)
+        //    {
+        //        if ((((geofence.Polygons[i].Latitude <= point.Latitude) && (point.Latitude < geofence.Polygons[j].Latitude))
+        //                || ((geofence.Polygons[j].Latitude <= point.Latitude) && (point.Latitude < geofence.Polygons[i].Latitude)))
+        //                && (point.Longitude < (geofence.Polygons[j].Longitude - geofence.Polygons[i].Longitude) * (point.Latitude - geofence.Polygons[i].Latitude)
+        //                    / (geofence.Polygons[j].Latitude - geofence.Polygons[i].Latitude) + geofence.Polygons[i].Longitude))
+        //        {
+        //            contains = !contains;
+        //        }
+        //    }
+        //    return contains;
+        //}
+
+        //public bool InPolygon(GeofenceItem geofence, Location point)
+        //{
+        //    var poly = geofence.Polygons;
+        //    var c = false;
+        //    for (int i = -1, l = poly.Count, j = l - 1; ++i < l; j = i)
+        //    {
+        //        c = ((poly[i].Latitude <= point.Latitude && point.Latitude < poly[j].Latitude) || (poly[j].Latitude <= point.Latitude && point.Latitude < poly[i].Latitude)) &&
+        //            (point.Longitude < (poly[j].Longitude - poly[i].Longitude) * (point.Latitude - poly[i].Latitude) / (poly[j].Latitude - poly[i].Latitude) + poly[i].Longitude) &&
+        //            (c = !c);
+        //    }
+        //    return c;
+        //}
         public bool Contains(GeofenceItem geofence, Location point)
         {
-            //Credits: https://stackoverflow.com/a/7739297/2313836
-
-            var contains = false;
-            for (int i = 0, j = geofence.Polygons.Count - 1; i < geofence.Polygons.Count; j = i++)
+            var numOfPoints = geofence.Polygons.Count;
+            var lats = geofence.Polygons.Select(x => x.Latitude).ToList();
+            var lngs = geofence.Polygons.Select(x => x.Longitude).ToList();
+            var polygonContainsPoint = false;
+            for (int node = 0, altNode = (numOfPoints - 1); node < numOfPoints; altNode = node++)
             {
-                if ((((geofence.Polygons[i].Latitude <= point.Latitude) && (point.Latitude < geofence.Polygons[j].Latitude))
-                        || ((geofence.Polygons[j].Latitude <= point.Latitude) && (point.Latitude < geofence.Polygons[i].Latitude)))
-                        && (point.Longitude < (geofence.Polygons[j].Longitude - geofence.Polygons[i].Longitude) * (point.Latitude - geofence.Polygons[i].Latitude)
-                            / (geofence.Polygons[j].Latitude - geofence.Polygons[i].Latitude) + geofence.Polygons[i].Longitude))
+                if ((lngs[node] > point.Longitude != (lngs[altNode] > point.Longitude))
+                    && (point.Latitude < (lats[altNode] - lats[node])
+                                       * (point.Longitude - lngs[node])
+                                       / (lngs[altNode] - lngs[node])
+                                       + lats[node]
+                )
+            )
                 {
-                    contains = !contains;
+                    polygonContainsPoint = !polygonContainsPoint;
                 }
             }
-            return contains;
-        }
-
-        public bool InPolygon(GeofenceItem geofence, Location point)
-        {
-            /*
-                self.portalInPolygon = function portalInPolygon(polygon, portal) {
-                    var poly = polygon.getLatLngs();
-                    var pt = portal.getLatLng();
-                    var c = false;
-                    for (var i = -1, l = poly.length, j = l - 1; ++i < l; j = i) {
-                        ((poly[i].lat <= pt.lat && pt.lat < poly[j].lat) || (poly[j].lat <= pt.lat && pt.lat < poly[i].lat)) && (pt.lng < (poly[j].lng - poly[i].lng) * (pt.lat - poly[i].lat) / (poly[j].lat - poly[i].lat) + poly[i].lng) && (c = !c);
-                    }
-                    return c;
-                };
-             */
-
-            var poly = geofence.Polygons;
-            var c = false;
-            for (int i = -1, l = poly.Count, j = l - 1; ++i < l; j = i)
-            {
-                c = ((poly[i].Latitude <= point.Latitude && point.Latitude < poly[j].Latitude) || (poly[j].Latitude <= point.Latitude && point.Latitude < poly[i].Latitude)) &&
-                    (point.Longitude < (poly[j].Longitude - poly[i].Longitude) * (point.Latitude - poly[i].Latitude) / (poly[j].Latitude - poly[i].Latitude) + poly[i].Longitude) &&
-                    (c = !c);
-            }
-            return c;
+            return polygonContainsPoint;
         }
 
         public GeofenceItem GetGeofence(List<GeofenceItem> geofences, Location point)
