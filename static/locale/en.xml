@@ -3,8 +3,9 @@
 	<string name="UNKNOWN_POKESTOP">Unknown Pokestop</string>
 	<string name="EMBED_DIRECTIONS">DIRECTIONS</string>
 	
-	<string name="EMBED_POKEMON_TITLE">{0} {1}{2} {3} L{4} Despawn: {5} ({6} left)</string>
-	<string name="EMBED_POKEMON_TITLE_WITHOUT_DETAILS">{0} {1}{2} Despawn: {3} ({4} left)</string>
+	<string name="EMBED_POKEMON_TITLE">{0} {1}{2} {3} L{4}</string>
+	<string name="EMBED_POKEMON_DESPAWN">Despawn: {0} ({1} left)</string>
+	<string name="EMBED_POKEMON_TITLE_WITHOUT_DETAILS">{0} {1}{2}</string>
 	<string name="EMBED_POKEMON_DETAILS">**Details:** CP: {0} IV: {1} LV: {2}</string>
 	<string name="EMBED_POKEMON_STATS">**IV Stats:** Atk: {0}/Def: {1}/Sta: {2}</string>
 	<string name="EMBED_POKEMON_FORM">**Form:** {0}</string>

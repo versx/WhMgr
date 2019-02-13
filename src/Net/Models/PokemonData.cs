@@ -96,8 +96,11 @@
         [JsonProperty("disappear_time")]
         public long DisappearTime { get; set; }
 
-        [JsonProperty("seconds_until_despawn")]
-        public int SecondsUntilDespawn { get; set; }
+        [JsonProperty("disappear_time_verified")]
+        public bool DisappearTimeVerified { get; set; }
+
+        //[JsonProperty("seconds_until_despawn")]
+        //public int SecondsUntilDespawn { get; set; }
 
         [JsonProperty("first_seen")]
         public long FirstSeen { get; set; }

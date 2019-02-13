@@ -574,6 +574,16 @@
             }
         }
 
+        public bool RemoveAllSnoozedQuests()
+        {
+            _logger.Info($"SubscriptionManager::RemoveAllSnoozedQuests");
+
+            using (var db = DataAccessLayer.CreateFactory())
+            {
+                return db.DeleteAll<SnoozedQuest>() > 0;
+            }
+        }
+
         #endregion
 
         #region Add Statistics

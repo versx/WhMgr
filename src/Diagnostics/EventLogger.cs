@@ -112,7 +112,7 @@
             //lock (_lock)
             //{
             _waitHandle.WaitOne();
-            File.AppendAllText(Path.Combine(Strings.LogsFolder, DateTime.Now.ToString("yyyy-MM-dd") + ".log"), msg + Environment.NewLine);
+            File.AppendAllText(Path.Combine(Strings.LogsFolder, $"{Program.ManagerName}_{DateTime.Now.ToString("yyyy-MM-dd")}.log"), msg + Environment.NewLine);
             _waitHandle.Set();
             //}
         }

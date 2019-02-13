@@ -20,6 +20,7 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
+    using DSharpPlus.Exceptions;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
 
@@ -553,14 +554,24 @@
             Statistics.Instance.WriteOut();
             Statistics.Instance.Reset();
 
-            //TODO: Delete snoozed quests
+            _subProcessor.Manager.RemoveAllSnoozedQuests();
 
+            DiscordChannel channel = null;
             for (var i = 0; i < _dep.WhConfig.QuestChannelIds.Count; i++)
             {
-                var channel = await _client.GetChannelAsync(_dep.WhConfig.QuestChannelIds[i]);
-                if (channel == null)
+                var questChannelId = _dep.WhConfig.QuestChannelIds[i];
+                try
                 {
-                    _logger.Warn($"Failed to find channel by id {_dep.WhConfig.QuestChannelIds[i]}, skipping...");
+                    channel = await _client.GetChannelAsync(questChannelId);
+                    if (channel == null)
+                    {
+                        _logger.Warn($"Failed to find channel by id {questChannelId}, skipping...");
+                        continue;
+                    }
+                }
+                catch (NotFoundException)
+                {
+                    _logger.Debug($"Failed to get Discord channel {questChannelId}, skipping...");
                     continue;
                 }
 

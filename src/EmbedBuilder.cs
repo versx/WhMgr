@@ -70,11 +70,13 @@
             var pkmnName = pkmn.Name;//$"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name}";
             if (pokemon.IsMissingStats)
             {
-                eb.Description = _lang.Translate("EMBED_POKEMON_TITLE_WITHOUT_DETAILS").FormatText(pkmnName, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n"; //$"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
+                eb.Description = _lang.Translate("EMBED_POKEMON_TITLE_WITHOUT_DETAILS").FormatText(pkmnName, form, pokemon.Gender.GetPokemonGenderIcon()) + "\r\n"; //$"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
+                eb.Description += _lang.Translate("EMBED_POKEMON_DESPAWN").FormatText(pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableString(true)) + (pokemon.DisappearTimeVerified ? "" : "~") + "\r\n";
             }
             else
             {
-                eb.Description = _lang.Translate("EMBED_POKEMON_TITLE").FormatText(pkmnName, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.IV, pokemon.Level, pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableStringNoSeconds()) + "\r\n";
+                eb.Description = _lang.Translate("EMBED_POKEMON_TITLE").FormatText(pkmnName, form, pokemon.Gender.GetPokemonGenderIcon(), pokemon.IV, pokemon.Level) + "\r\n";
+                eb.Description += _lang.Translate("EMBED_POKEMON_DESPAWN").FormatText(pokemon.DespawnTime.ToLongTimeString(), pokemon.SecondsLeft.ToReadableString(true)) + (pokemon.DisappearTimeVerified ? "" : "~") + "\r\n";
                 eb.Description += _lang.Translate("EMBED_POKEMON_DETAILS").FormatText(pokemon.CP, pokemon.IV, pokemon.Level) + "\r\n";
                 eb.Description += _lang.Translate("EMBED_POKEMON_STATS").FormatText(pokemon.Attack, pokemon.Defense, pokemon.Stamina) + "\r\n";
                 //eb.Description = $"{pkmn.Name} {form}{pokemon.Gender.GetPokemonGenderIcon()} {pokemon.IV} L{pokemon.Level} Despawn: {pokemon.DespawnTime.ToLongTimeString()} ({pokemon.SecondsLeft.ToReadableStringNoSeconds()} left)\r\n\r\n";
@@ -292,7 +294,7 @@
                 //eb.Description += $"**Condition:** {quest.GetConditionName()}\r\n";
             }
             eb.Description += _lang.Translate("EMBED_QUEST_REWARD").FormatText(quest.GetRewardString()) + "\r\n";
-            eb.Description += _lang.Translate("EMBED_TIME_REMAINING").FormatText(quest.TimeLeft.ToReadableStringNoSeconds()) + "\r\n";
+            //eb.Description += _lang.Translate("EMBED_TIME_REMAINING").FormatText(quest.TimeLeft.ToReadableStringNoSeconds()) + "\r\n";
             eb.Description += _lang.Translate("EMBED_LOCATION").FormatText(Math.Round(quest.Latitude, 5), Math.Round(quest.Longitude, 5)) + "\r\n";
             //eb.Description += $"**Reward:** {quest.GetRewardString()}\r\n";
             //eb.Description += $"**Time Remaining:** {quest.TimeLeft.ToReadableStringNoSeconds()}\r\n";
