@@ -557,21 +557,22 @@
             _subProcessor.Manager.RemoveAllSnoozedQuests();
 
             DiscordChannel channel = null;
-            for (var i = 0; i < _dep.WhConfig.QuestChannelIds.Count; i++)
+            var channelIds = _dep.WhConfig.QuestChannelIds;
+            for (var i = 0; i < channelIds.Count; i++)
             {
-                var questChannelId = _dep.WhConfig.QuestChannelIds[i];
                 try
                 {
-                    channel = await _client.GetChannelAsync(questChannelId);
-                    if (channel == null)
-                    {
-                        _logger.Warn($"Failed to find channel by id {questChannelId}, skipping...");
-                        continue;
-                    }
+                    channel = await _client.GetChannelAsync(channelIds[i]);
                 }
                 catch (NotFoundException)
                 {
-                    _logger.Debug($"Failed to get Discord channel {questChannelId}, skipping...");
+                    _logger.Debug($"Failed to get Discord channel {channelIds[i]}, skipping...");
+                    continue;
+                }
+
+                if (channel == null)
+                {
+                    _logger.Warn($"Failed to find channel by id {channelIds[i]}, skipping...");
                     continue;
                 }
 
@@ -587,7 +588,15 @@
                         try { await message.DeleteAsync("Channel reset."); } catch { continue; }
                     }
 
-                    messages = await channel.GetMessagesAsync();
+                    try
+                    {
+                        messages = await channel.GetMessagesAsync();
+                    }
+                    catch (Newtonsoft.Json.JsonReaderException ex)
+                    {
+                        _logger.Error(ex);
+                        continue;
+                    }
                 }
 
                 _logger.Debug($"Deleted all {messages.Count.ToString("N0")} quest messages from channel {channel.Name}.");

@@ -349,14 +349,14 @@
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Mention} is not subscribed to any Pokemon notifications.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any Pokemon notifications.", DiscordColor.Red);
                 return;
             }
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var confirm = await ctx.Confirm($"{ctx.User.Mention} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.");
+                var confirm = await ctx.Confirm($"{ctx.User.Username} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.");
                 if (!confirm)
                     return;
 
@@ -384,7 +384,7 @@
                     return;
                 }
 
-                var msg = $"{ctx.User.Mention} has unsubscribed from **{string.Join("**, **", pokemonNames)}** Pokemon notifications.";
+                var msg = $"{ctx.User.Username} has unsubscribed from **{string.Join("**, **", pokemonNames)}** Pokemon notifications.";
                 if (validation.Invalid != null && validation.Invalid.Count > 0)
                 {
                     msg += $"\r\n{string.Join(", ", validation.Invalid)} are not a valid Pokemon.";
