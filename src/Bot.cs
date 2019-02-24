@@ -554,7 +554,10 @@
             Statistics.Instance.WriteOut();
             Statistics.Instance.Reset();
 
-            _subProcessor.Manager.RemoveAllSnoozedQuests();
+            if (_whConfig.EnableSubscriptions)
+            {
+                _subProcessor.Manager.RemoveAllSnoozedQuests();
+            }
 
             DiscordChannel channel = null;
             var channelIds = _dep.WhConfig.QuestChannelIds;
