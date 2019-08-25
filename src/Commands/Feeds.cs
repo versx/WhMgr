@@ -62,8 +62,16 @@
             if (!await ctx.Message.IsDirectMessageSupported())
                 return;
 
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (_dep.WhConfig.CitiesRequireSupporterRole && !isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return;
+            }
+
             if (string.IsNullOrEmpty(cityName))
             {
+                await ctx.RespondEmbed($"Please specific a city role name to assign.");
                 //TODO: Show message with reactions to assign.
             }
 
@@ -85,14 +93,14 @@
                     roles.AddRange(_dep.WhConfig.CityRoles);
                     if (roles.FirstOrDefault(x => string.Compare(city, x, true) == 0) == null)
                     {
-                        await ctx.RespondAsync($"{ctx.User.Mention} {city} is an incorrect city name, please type `.cities` to see a list of available cities.");
+                        await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} {city} is not a valid city name, type `.cities` to see a list of available cities.");
                         continue;
                     }
 
                     var cityRole = ctx.Client.GetRoleFromName(city);
                     if (cityRole == null)
                     {
-                        await ctx.RespondAsync($"{ctx.User.Mention} {city} is not a valid city role name.");
+                        await ctx.RespondEmbed($"{ctx.User.Mention}#{ctx.User.Discriminator} {city} is not a valid city name.");
                         continue;
                     }
 
@@ -131,13 +139,13 @@
                     return;
                 }
 
-                await ctx.RespondAsync
+                await ctx.RespondEmbed
                 (
                     (assigned.Count > 0
-                        ? $"{ctx.User.Mention} has joined role{(assigned.Count > 1 ? "s" : null)} **{string.Join("**, **", assigned)}**."
+                        ? $"{ctx.User.Username}#{ctx.User.Discriminator} has joined role{(assigned.Count > 1 ? "s" : null)} **{string.Join("**, **", assigned)}**."
                         : string.Empty) +
                     (alreadyAssigned.Count > 0
-                        ? $"\r\n{ctx.User.Mention} is already assigned to **{string.Join("**, **", alreadyAssigned)}** role{(alreadyAssigned.Count > 1 ? "s" : null)}."
+                        ? $"\r\n{ctx.User.Username}#{ctx.User.Discriminator} is already assigned to **{string.Join("**, **", alreadyAssigned)}** role{(alreadyAssigned.Count > 1 ? "s" : null)}."
                         : string.Empty)
                 );
             }
@@ -157,6 +165,13 @@
             if (!await ctx.Message.IsDirectMessageSupported())
                 return;
 
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (_dep.WhConfig.CitiesRequireSupporterRole && !isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return;
+            }
+
             if (string.Compare(cityName, Strings.All, true) == 0)
             {
                 await RemoveAllDefaultFeedRoles(ctx);
@@ -175,14 +190,14 @@
                     roles.AddRange(_dep.WhConfig.CityRoles);
                     if (!roles.Exists(x => string.Compare(city, x, true) == 0))
                     {
-                        await ctx.RespondAsync($"{ctx.User.Mention} has entered an incorrect city feed name, please enter one of the following: {(string.Join(",", _dep.WhConfig.CityRoles))}, or {Strings.All}.");
+                        await ctx.RespondAsync($"{ctx.User.Username}#{ctx.User.Discriminator} {city} is not a valid city name, type `.cities` to see a list of available cities.");
                         continue;
                     }
 
                     var cityRole = ctx.Client.GetRoleFromName(city);
                     if (cityRole == null)
                     {
-                        await ctx.RespondAsync($"{ctx.User.Mention} {city} is not a valid city role name.");
+                        await ctx.RespondEmbed($"{ctx.User.Username}{ctx.User.Discriminator} {city} is not a valid city role name.");
                         continue;
                     }
 
@@ -211,13 +226,13 @@
                     }
                 }
 
-                await ctx.RespondAsync
+                await ctx.RespondEmbed
                 (
                     (unassigned.Count > 0
-                        ? $"{ctx.User.Mention} has been removed from role{(unassigned.Count > 1 ? "s" : null)} **{string.Join("**, **", unassigned)}**."
+                        ? $"{ctx.User.Username}#{ctx.User.Discriminator} has been removed from role{(unassigned.Count > 1 ? "s" : null)} **{string.Join("**, **", unassigned)}**."
                         : string.Empty) +
                     (alreadyUnassigned.Count > 0
-                        ? $"\r\n{ctx.User.Mention} is not assigned to **{string.Join("**, **", alreadyUnassigned)}** roles{(alreadyUnassigned.Count > 1 ? "s" : null)}."
+                        ? $"\r\n{ctx.User.Username}#{ctx.User.Discriminator} is not assigned to **{string.Join("**, **", alreadyUnassigned)}** roles{(alreadyUnassigned.Count > 1 ? "s" : null)}."
                         : string.Empty)
                 );
             }
@@ -226,194 +241,6 @@
                 _logger.Error(ex);
             }
         }
-
-        //[
-        //    Command("chatme"),
-        //    Aliases("tagme"),
-        //    Description("Assign yourself to a city raid chat role.")
-        //]
-        //public async Task ChatMeAsync(CommandContext ctx,
-        //    [Description("City raid chat role to assign or leave blank for all.")] string raidChatRoleName = "")
-        //{
-        //    if (ctx.Guild == null)
-        //    {
-        //        var channel = await ctx.Client.GetChannel(_dep.Config.CommandsChannelId);
-        //        if (channel == null) return;
-
-        //        await ctx.RespondAsync($"{ctx.User.Mention} Currently I only support city feed assignment via the channel #{channel.Name}, direct message support is coming soon.");
-        //        return;
-        //    }
-
-        //    var raidChatRole = ctx.Client.GetRoleFromName(raidChatRoleName);
-        //    if (raidChatRole != null)
-        //    {
-        //        if (!raidChatRole.Name.ToLower().Contains("raids"))
-        //        {
-        //            await ctx.RespondAsync($"{ctx.User.Mention} Invalid role, please use one of the city raid chat roles such as @UplandRaids, @ChinoRaids, etc.");
-        //            return;
-        //        }
-
-        //        var feedRole = ctx.Client.GetRoleFromName(raidChatRoleName.Replace("raids", ""));
-        //        if (feedRole == null)
-        //        {
-        //            await ctx.RespondAsync($"{ctx.User.Mention} Failed to check if you have the appropriate city feed role.");
-        //            return;
-        //        }
-
-        //        if (!ctx.Member.HasRole(feedRole.Id))
-        //        {
-        //            await ctx.RespondAsync($"{ctx.User.Mention} You must first assign yourself the city feed role in order to assign yourself to your specified raids chat role. Please use the `.feedme` command to join a city feed.");
-        //            return;
-        //        }
-
-        //        if (!ctx.Member.Roles.Contains(raidChatRole))
-        //        {
-        //            await ctx.Member.GrantRoleAsync(raidChatRole);
-        //            await ctx.RespondAsync($"{ctx.User.Mention} was successfully assigned the {raidChatRole.Name} raid chat role.");
-        //        }
-        //        else
-        //        {
-        //            await ctx.RespondAsync($"{ctx.User.Mention} is already assigned to the {raidChatRole.Name} raid chat role.");
-        //        }
-
-        //        return;
-        //    }
-
-        //    try
-        //    {
-        //        var assigned = new List<string>();
-        //        var alreadyAssigned = new List<string>();
-        //        var roles = ctx.Member.Roles.ToList();
-        //        for (int i = 0; i < roles.Count; i++)
-        //        {
-        //            var role = roles[i];
-        //            if (!_dep.Config.CityRoles.Contains(role.Name))
-        //                continue;
-
-        //            var cityRaidRole = ctx.Client.GetRoleFromName(role.Name + "Raids");
-        //            if (cityRaidRole == null)
-        //            {
-        //                _dep.Logger.Error($"Failed to retrieve city raids role {role.Name}Raids.");
-        //                continue;
-        //            }
-
-        //            if (ctx.Member.HasRole(cityRaidRole.Id))
-        //            {
-        //                alreadyAssigned.Add(cityRaidRole.Name);
-        //                continue;
-        //            }
-
-        //            var reason = $"User initiated city raid assignment via {AssemblyUtils.AssemblyName}.";
-        //            await ctx.Guild.GrantRoleAsync(ctx.Member, cityRaidRole, reason);
-        //            assigned.Add(cityRaidRole.Name);
-        //        }
-
-        //        if (assigned.Count == 0 && alreadyAssigned.Count == 0)
-        //        {
-        //            //await message.RespondAsync($"{message.Author.Mention} you did not provide valid values that I could recognize.");
-        //            return;
-        //        }
-
-        //        await ctx.RespondAsync
-        //        (
-        //            (assigned.Count > 0
-        //                ? $"{ctx.User.Mention} has turned on city raid{(assigned.Count > 1 ? "s" : null)} chat role(s) for **{string.Join("**, **", assigned)}**."
-        //                : string.Empty) +
-        //            (alreadyAssigned.Count > 0
-        //                ? $"\r\n{ctx.User.Mention} is already assigned to **{string.Join("**, **", alreadyAssigned)}** city raid{(alreadyAssigned.Count > 1 ? "s" : null)} chat role(s)."
-        //                : string.Empty)
-        //        );
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _dep.Logger.Error(ex);
-        //    }
-        //}
-
-        //[
-        //    Command("chatmenot"),
-        //    Aliases("tagmenot"),
-        //    Description("Unassign yourself from a city raid chat role.")
-        //]
-        //public async Task ChatMeNotAsync(CommandContext ctx,
-        //    [Description("City raid chat role to unassign or leave blank for all.")] string raidChatRoleName = "")
-        //{
-        //    if (ctx.Guild == null)
-        //    {
-        //        var channel = await ctx.Client.GetChannel(_dep.Config.CommandsChannelId);
-        //        if (channel == null) return;
-
-        //        await ctx.RespondAsync($"{ctx.User.Mention} Currently I only support city feed assignment via the channel #{channel.Name}, direct message support is coming soon.");
-        //        return;
-        //    }
-
-        //    var raidChatRole = ctx.Client.GetRoleFromName(raidChatRoleName);
-        //    if (raidChatRole != null)
-        //    {
-        //        if (!raidChatRole.Name.ToLower().Contains("raids"))
-        //        {
-        //            await ctx.RespondAsync($"{ctx.User.Mention} Invalid role, please use one of the city raid chat tag roles such as UplandRaids, ChinoRaids, etc.");
-        //            return;
-        //        }
-
-        //        if (ctx.Member.Roles.Contains(raidChatRole))
-        //        {
-        //            await ctx.Member.RevokeRoleAsync(raidChatRole);
-        //            await ctx.RespondAsync($"{ctx.User.Mention} was successfully unassigned the {raidChatRole.Name} raid chat role.");
-        //        }
-        //        else
-        //        {
-        //            await ctx.RespondAsync($"{ctx.User.Mention} is not assigned to the {raidChatRole.Name} raid chat role.");
-        //        }
-
-        //        return;
-        //    }
-
-        //    var unassigned = new List<string>();
-        //    var alreadyUnassigned = new List<string>();
-
-        //    try
-        //    {
-        //        var roles = ctx.Member.Roles.ToList();
-        //        for (int i = 0; i < roles.Count; i++)
-        //        {
-        //            var role = roles[i];
-        //            if (!_dep.Config.CityRoles.Contains(role.Name))
-        //                continue;
-
-        //            var cityRaidRole = ctx.Client.GetRoleFromName(role.Name + "Raids");
-        //            if (cityRaidRole == null)
-        //            {
-        //                _dep.Logger.Error($"Failed to retrieve city raids chat role {role.Name}Raids.");
-        //                continue;
-        //            }
-
-        //            if (ctx.Member.HasRole(cityRaidRole.Id))
-        //            {
-        //                var reason = $"{ctx.User.Mention} initiated city raid assignment removal via {AssemblyUtils.AssemblyName}.";
-        //                await ctx.Member.RevokeRoleAsync(cityRaidRole, reason);
-        //                unassigned.Add(cityRaidRole.Name);
-        //                continue;
-        //            }
-
-        //            alreadyUnassigned.Add(cityRaidRole.Name);
-        //        }
-
-        //        await ctx.RespondAsync
-        //        (
-        //            (unassigned.Count > 0
-        //                ? $"{ctx.User.Mention} has been removed from city raid{(unassigned.Count > 1 ? "s" : null)} chat role(s) **{string.Join("**, **", unassigned)}**."
-        //                : string.Empty) +
-        //            (alreadyUnassigned.Count > 0
-        //                ? $"\r\n{ctx.User.Mention} is not assigned to **{string.Join("**, **", alreadyUnassigned)}** city raid{(alreadyUnassigned.Count > 1 ? "s" : null)} chat role(s)."
-        //                : string.Empty)
-        //        );
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _dep.Logger.Error(ex);
-        //    }
-        //}
 
         private async Task AssignAllDefaultFeedRoles(CommandContext ctx)
         {

@@ -75,7 +75,7 @@
         /// type and ZERO for value types)
         /// </summary>
         public Language()
-            : this(default(TTo))
+            : this(default)
         {
             CurrentCulture = new CultureInfo(DefaultLanguage);
             LocaleDirectory = Strings.LocaleFolder;
@@ -268,17 +268,17 @@
             return (T)tc.ConvertFromString(value);
         }
 
-        /// <summary>
-        /// Converts an object to its string representation.
-        /// </summary>
-        /// <typeparam name="T">The type of object to convert.</typeparam>
-        /// <param name="value">The actual object value.</param>
-        /// <returns>Returns the string representation of the converted object.</returns>
-        private static string ObjectToString<T>(T value)
-        {
-            var tc = TypeDescriptor.GetConverter(typeof(T));
-            return tc.ConvertToString(value);
-        }
+        ///// <summary>
+        ///// Converts an object to its string representation.
+        ///// </summary>
+        ///// <typeparam name="T">The type of object to convert.</typeparam>
+        ///// <param name="value">The actual object value.</param>
+        ///// <returns>Returns the string representation of the converted object.</returns>
+        //private static string ObjectToString<T>(T value)
+        //{
+        //    var tc = TypeDescriptor.GetConverter(typeof(T));
+        //    return tc.ConvertToString(value);
+        //}
 
         #endregion
     }

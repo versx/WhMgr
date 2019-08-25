@@ -2,13 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Newtonsoft.Json;
 
-    using WhMgr.Data;
     using WhMgr.Diagnostics;
-    using WhMgr.Extensions;
 
     /*
 [
@@ -113,7 +110,7 @@
     {
         public const string WebHookHeader = "quest";
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        //private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         [JsonProperty("pokestop_id")]
         public string PokestopId { get; set; }
@@ -161,221 +158,6 @@
         {
             Rewards = new List<QuestRewardMessage>();
             Conditions = new List<QuestConditionMessage>();
-        }
-
-        public string GetMessage()
-        {
-            switch (Type)
-            {
-                case QuestType.AddFriend:
-                    return $"Add {Target} Friends";
-                case QuestType.AutoComplete:
-                    return $"Autocomplete";
-                case QuestType.BadgeRank:
-                    return $"Get {Target} Badge(s)";
-                case QuestType.CatchPokemon:
-                    return $"Catch {Target} Pokemon";
-                case QuestType.CompleteBattle:
-                    return $"Complete {Target} Battles";
-                case QuestType.CompleteGymBattle:
-                    return $"Complete {Target} Gym Battles";
-                case QuestType.CompleteQuest:
-                    return $"Complete {Target} Quests";
-                case QuestType.CompleteRaidBattle:
-                    return $"Complete {Target} Raid Battles";
-                case QuestType.EvolveIntoPokemon:
-                    return $"Evolve {Target} Into Specific Pokemon";
-                case QuestType.EvolvePokemon:
-                    return $"Evolve {Target} Pokemon";
-                case QuestType.FavoritePokemon:
-                    return $"Favorite {Target} Pokemon";
-                case QuestType.FirstCatchOfTheDay:
-                    return $"Catch first Pokemon of the day";
-                case QuestType.FirstPokestopOfTheDay:
-                    return $"Spin first pokestop of the day";
-                case QuestType.GetBuddyCandy:
-                    return $"Earn {Target} candy walking with your buddy";
-                case QuestType.HatchEgg:
-                    return $"Hatch {Target} Eggs";
-                case QuestType.JoinRaid:
-                    return $"Join {Target} Raid Battles";
-                case QuestType.LandThrow:
-                    return $"Land {Target} Throws";
-                case QuestType.MultiPart:
-                    return "Multi Part Quest";
-                case QuestType.PlayerLevel:
-                    return $"Reach level {Target}"; ;
-                case QuestType.SendGift:
-                    return $"Send {Target} Gifts";
-                case QuestType.SpinPokestop:
-                    return $"Spin {Target} Pokestops";
-                case QuestType.TradePokemon:
-                    return $"Trade {Target} Pokemon";
-                case QuestType.TransferPokemon:
-                    return $"Transfer {Target} Pokemon";
-                case QuestType.UpgradePokemon:
-                    return $"Power up {Target} Pokemon";
-                case QuestType.UseBerryInEncounter:
-                    return $"Use {Target} Berries on Pokemon";
-                case QuestType.Unknown:
-                    return $"Unknown";
-            }
-
-            return Type.ToString();
-        }
-
-        public string GetIconUrl()
-        {
-            var iconIndex = 0;
-            switch (Rewards[0].Type)
-            {
-                case QuestRewardType.AvatarClothing:
-                    break;
-                case QuestRewardType.Candy:
-                    iconIndex = 1301;
-                    break;
-                case QuestRewardType.Experience:
-                    iconIndex = -2;
-                    break;
-                case QuestRewardType.Item:
-                    return string.Format(Strings.QuestImage, (int)Rewards[0].Info.Item);
-                case QuestRewardType.PokemonEncounter:
-                    return (IsDitto ? 132 : Rewards[0].Info.PokemonId).GetPokemonImage((PokemonGender)Rewards?[0].Info.GenderId, Rewards?[0].Info.FormId.ToString());
-                //string.Format(Strings.PokemonImage, Rewards[0].Info.Ditto ? 132 : Rewards[0].Info.PokemonId, 0);
-                case QuestRewardType.Quest:
-                    break;
-                case QuestRewardType.Stardust:
-                    iconIndex = -1;
-                    break;
-                case QuestRewardType.Unset:
-                    break;
-            }
-
-            return string.Format(Strings.QuestImage, iconIndex);
-        }
-
-        public string GetConditionName()
-        {
-            if (Conditions == null)
-                return null;
-
-            var list = new List<string>();
-            for (var i = 0; i < Conditions.Count; i++)
-            {
-                var condition = Conditions[i];
-                try
-                {
-                    switch (condition.Type)
-                    {
-                        case QuestConditionType.BadgeType:
-                            break;
-                        case QuestConditionType.CurveBall:
-                            list.Add("Curve ball");
-                            break;
-                        case QuestConditionType.DailyCaptureBonus:
-                            list.Add("Daily catch");
-                            break;
-                        case QuestConditionType.DailySpinBonus:
-                            list.Add("Daily spin");
-                            break;
-                        case QuestConditionType.DaysInARow:
-                            break;
-                        case QuestConditionType.Item:
-                            list.Add("Use item");
-                            break;
-                        case QuestConditionType.NewFriend:
-                            list.Add("Make new friend");
-                            break;
-                        case QuestConditionType.PlayerLevel:
-                            list.Add("Reach level");
-                            break;
-                        case QuestConditionType.PokemonCategory:
-                            list.Add(string.Join(", ", condition.Info.PokemonIds?.Select(x => Database.Instance.Pokemon[x].Name).ToList()));
-                            break;
-                        case QuestConditionType.PokemonType:
-                            list.Add(string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((PokemonType)x))) + "-type");
-                            break;
-                        case QuestConditionType.QuestContext:
-                            break;
-                        case QuestConditionType.RaidLevel:
-                            list.Add("Level " + string.Join(", ", condition.Info.RaidLevels));
-                            break;
-                        case QuestConditionType.SuperEffectiveCharge:
-                            list.Add("Super effective charge move");
-                            break;
-                        case QuestConditionType.ThrowType:
-                            list.Add(GetThrowName(condition.Info.ThrowTypeId));
-                            break;
-                        case QuestConditionType.ThrowTypeInARow:
-                            list.Add(GetThrowName(condition.Info.ThrowTypeId) + " in a row");
-                            break;
-                        case QuestConditionType.UniquePokestop:
-                            list.Add("Unique");
-                            break;
-                        case QuestConditionType.WeatherBoost:
-                            list.Add("Weather boosted");
-                            break;
-                        case QuestConditionType.WinBattleStatus:
-                            list.Add("Win battle status");
-                            break;
-                        case QuestConditionType.WinGymBattleStatus:
-                            list.Add("Win gym battle");
-                            break;
-                        case QuestConditionType.WinRaidStatus:
-                            list.Add("Win raid");
-                            break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex);
-                    list.Add(condition?.Type.ToString());
-                }
-            }
-
-            return string.Join(", ", list);
-        }
-
-        public string GetRewardString()
-        {
-            switch (Rewards[0].Type)
-            {
-                case QuestRewardType.AvatarClothing:
-                    return "Avatar Clothing";
-                case QuestRewardType.Candy:
-                    return $"{Rewards[0]?.Info.Amount.ToString("N0")} Rare Candy";
-                case QuestRewardType.Experience:
-                    return $"{Rewards[0]?.Info.Amount.ToString("N0")} XP";
-                case QuestRewardType.Item:
-                    return $"{Rewards[0]?.Info.Amount.ToString("N0")} {Rewards[0]?.Info.Item.ToString().Replace("_", " ")}";
-                case QuestRewardType.PokemonEncounter:
-                    return IsShiny ? $"**SHINY** " : Database.Instance.Pokemon[IsDitto ? 132 : Rewards[0].Info.PokemonId].Name;
-                case QuestRewardType.Quest:
-                    return "Quest";
-                case QuestRewardType.Stardust:
-                    return $"{Rewards[0]?.Info.Amount.ToString("N0")} Stardust";
-            }
-
-            return "Unknown";
-        }
-
-        private string GetThrowName(ActivityType throwTypeId)
-        {
-            switch (throwTypeId)
-            {
-                case ActivityType.CatchCurveThrow:
-                    return "Curve throw";
-                case ActivityType.CatchExcellentThrow:
-                    return "Excellent throw";
-                case ActivityType.CatchFirstThrow:
-                    return "First throw";
-                case ActivityType.CatchGreatThrow:
-                    return "Great throw";
-                case ActivityType.CatchNiceThrow:
-                    return "Nice throw";
-            }
-
-            return throwTypeId.ToString();
         }
     }
 

@@ -83,6 +83,7 @@
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -93,17 +94,23 @@
     <Compile Include="Alarms\Filters\Models\FilterQuestObject.cs" />
     <Compile Include="Alarms\Filters\Models\FilterRaidObject.cs" />
     <Compile Include="Bot.cs" />
-    <Compile Include="ChannelMonitor.cs" />
     <Compile Include="CommandLine.cs" />
     <Compile Include="Commands\Dependencies.cs" />
     <Compile Include="Commands\Feeds.cs" />
     <Compile Include="Commands\Nests.cs" />
     <Compile Include="Commands\Notifications.cs" />
+    <Compile Include="Commands\CommunityDay.cs" />
     <Compile Include="Commands\Quests.cs" />
+    <Compile Include="Commands\ShinyStats.cs" />
+    <Compile Include="Configuration\DiscordServer.cs" />
+    <Compile Include="Configuration\ShinyStatsConfiguration.cs" />
+    <Compile Include="Configuration\UrlConfiguration.cs" />
     <Compile Include="Configuration\WhConfig.cs" />
     <Compile Include="Data\DataAccessLayer.cs" />
     <Compile Include="Data\Database.cs" />
+    <Compile Include="Data\Models\PokemonPvP.cs" />
     <Compile Include="Data\Models\Pokestop.cs" />
+    <Compile Include="Data\Subscriptions\Models\InvasionSubscription.cs" />
     <Compile Include="Data\Subscriptions\Models\QuestStatistics.cs" />
     <Compile Include="Data\Subscriptions\Models\RaidStatistics.cs" />
     <Compile Include="Data\Subscriptions\Models\GymSubscription.cs" />
@@ -127,6 +134,7 @@
     <Compile Include="Extensions\GenericsExtensions.cs" />
     <Compile Include="Extensions\IntegerExtensions.cs" />
     <Compile Include="Extensions\PokemonExtensions.cs" />
+    <Compile Include="Extensions\QuestExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TimeSpanExtensions.cs" />
     <Compile Include="Localization\Language.cs" />
@@ -143,12 +151,7 @@
     <Compile Include="Net\Models\QuestData.cs" />
     <Compile Include="Net\Models\WeatherType.cs" />
     <Compile Include="Net\EventArgs\QuestDataEventArgs.cs" />
-    <Compile Include="Net\Webhooks\EventArgs\GymAlarmTriggeredEventArgs.cs" />
-    <Compile Include="Net\Webhooks\EventArgs\GymDetailsAlarmTriggeredEventArgs.cs" />
-    <Compile Include="Net\Webhooks\EventArgs\PokemonAlarmTriggeredEventArgs.cs" />
-    <Compile Include="Net\Webhooks\EventArgs\PokestopAlarmTriggeredEventArgs.cs" />
-    <Compile Include="Net\Webhooks\EventArgs\QuestAlarmTriggeredEventArgs.cs" />
-    <Compile Include="Net\Webhooks\EventArgs\RaidAlarmTriggeredEventArgs.cs" />
+    <Compile Include="Net\Webhooks\AlarmEventTriggeredEventArgs.cs" />
     <Compile Include="NotificationLimiter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

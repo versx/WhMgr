@@ -44,6 +44,7 @@
                 logger.Error($"Failed to load config {configFilePath}.");
                 return;
             }
+            whConfig.FileName = configFilePath;
 
             var bot = new Bot(whConfig, alarmsFilePath);
             bot.Start();

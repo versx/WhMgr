@@ -21,8 +21,8 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
         private static readonly object _lock = new object();
-        private readonly HttpListener _server;
-        private Thread _requestThread;
+        private HttpListener _server;
+        //private Thread _requestThread;
 
         #endregion
 
@@ -70,8 +70,6 @@
         {
             Port = port;
 
-            _server = new HttpListener();
-
             Initialize();
         }
 
@@ -98,8 +96,14 @@
             }
 
             _logger.Info($"Starting HttpServer request handler...");
-            _requestThread = new Thread(RequestHandler) { IsBackground = true };
-            _requestThread.Start();
+            //if (_requestThread == null)
+            //{
+                var requestThread = new Thread(RequestHandler) { IsBackground = true };
+            //}
+            //if (_requestThread.ThreadState != ThreadState.Running)
+            //{
+                requestThread.Start();
+            //}
         }
 
         public void Stop()
@@ -115,12 +119,12 @@
             _logger.Info($"HttpServer is stopping...");
             _server.Stop();
 
-            if (_requestThread != null)
-            {
-                _logger.Info($"Existing HttpServer main thread...");
-                _requestThread.Abort();
-                _requestThread = null;
-            }
+            //if (_requestThread != null)
+            //{
+            //    _logger.Info($"Existing HttpServer main thread...");
+            //    _requestThread.Abort();
+            //    _requestThread = null;
+            //}
         }
 
         #endregion
@@ -129,21 +133,39 @@
 
         private void RequestHandler()
         {
-            while (true)
+            while (_server.IsListening)
             {
                 var context = _server.GetContext();
                 var response = context.Response;
 
                 using (var sr = new StreamReader(context.Request.InputStream))
                 {
-                    var data = sr.ReadToEnd();
-                    ParseData(data);
+                    try
+                    {
+                        //if (sr.Peek() > -1)
+                        var data = sr.ReadToEnd();
+                        ParseData(data);
+                    }
+                    catch (HttpListenerException hle)
+                    {
+                        _logger.Error(hle);
+
+                        //Disconnected, reconnect.
+                        HandleDisconnect();
+                    }
                 }
 
-                var buffer = Encoding.UTF8.GetBytes(Strings.DefaultResponseMessage);
-                response.ContentLength64 = buffer.Length;
-                response.OutputStream.Write(buffer, 0, buffer.Length);
-                context.Response.Close();
+                try
+                {
+                    var buffer = Encoding.UTF8.GetBytes(Strings.DefaultResponseMessage);
+                    response.ContentLength64 = buffer.Length;
+                    response.OutputStream.Write(buffer, 0, buffer.Length);
+                    context.Response.Close();
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                }
 
                 Thread.Sleep(10);
             }
@@ -188,6 +210,7 @@
                             ParseQuest(message.Message);
                             break;
                         case PokestopData.WebhookHeader:
+                        case PokestopData.WebhookHeaderInvasion:
                             ParsePokestop(message.Message);
                             break;
                     }
@@ -281,6 +304,8 @@
                     return;
                 }
 
+                pokestop.SetTimes();
+
                 OnPokestopReceived(pokestop);
             }
             catch (Exception ex)
@@ -338,6 +363,8 @@
         {
             try
             {
+                _server = CreateListener();
+
                 var addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Wireless80211);
                 if (addresses.Count == 0)
                 {
@@ -369,6 +396,37 @@
             {
                 _logger.Error(ex);
             }
+        }
+
+        private HttpListener CreateListener()
+        {
+            return new HttpListener();
+        }
+
+        private void HandleDisconnect()
+        {
+            _logger.Warn("!!!!! HTTP listener disconnected, handling reconnect...");
+            _logger.Warn("Stopping existing listeners...");
+            Stop();
+
+            _logger.Warn("Disposing of old listener objects...");
+            _server.Close();
+            _server = null;
+
+            _logger.Warn("Initializing...");
+            Initialize();
+
+            //if (_requestThread != null)
+            //{
+            //    _logger.Info($"Existing HttpServer main thread...");
+            //    _requestThread.Abort();
+            //    _requestThread = null;
+            //}
+
+            _logger.Warn("Starting back up...");
+            Start();
+
+            _logger.Debug("Disconnect handled.");
         }
 
         #endregion

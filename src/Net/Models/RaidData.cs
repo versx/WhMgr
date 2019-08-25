@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Newtonsoft.Json;
 
@@ -75,8 +74,11 @@
         [JsonProperty("end")]
         public long End { get; set; }
 
-        [JsonProperty("is_exclusive")]
-        public bool IsExclusive { get; set; }
+        //[JsonProperty("is_exclusive")]
+        //public bool IsExclusive { get; set; }
+
+        [JsonProperty("ex_raid_eligible")]
+        public bool IsExEligible { get; set; }
 
         [JsonProperty("sponsor_id")]
         public bool SponsorId { get; set; }
@@ -121,16 +123,16 @@
         public void SetTimes()
         {
             StartTime = Start.FromUnix();
-            if (TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
-            {
-                StartTime = StartTime.AddHours(1); //DST
-            }
+            //if (TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
+            //{
+            //    StartTime = StartTime.AddHours(1); //DST
+            //}
 
             EndTime = End.FromUnix();
-            if (TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
-            {
-                EndTime = EndTime.AddHours(1); //DST
-            }
+            //if (TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
+            //{
+            //    EndTime = EndTime.AddHours(1); //DST
+            //}
         }
     }
 }

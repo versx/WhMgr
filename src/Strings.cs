@@ -12,18 +12,13 @@
         public const string GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
         //public const string GoogleMapsStaticImage = "https://maps.googleapis.com/maps/api/staticmap?center={0},{1}&markers=color:red%7C{0},{1}&maptype=roadmap&size=300x175&zoom=14";
-        public const string GoogleMapsStaticImage = "http://ver.sx/x/map/staticmap.php?center={0},{1}&markers={0},{1},red-pushpin&zoom=14&size=300x175&maptype=mapnik";
-
-        //public const string PokemonImage = "http://ver.sx/pogo/monsters/{0:D3}_{1:D2}{2}{3}.png";
-        public const string PokemonImage = "http://ver.sx/pogo/monsters/{0:D3}_{1:D3}.png";
-        public const string EggImage = "http://ver.sx/pogo/eggs/{0}.png";
-        public const string QuestImage = "http://ver.sx/pogo/quests/{0}.png";
+        //public const string GoogleMapsStaticImage = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+FF0000({1},{0})/{1},{0},14/300x175?access_token=pk.eyJ1IjoidmVyc3giLCJhIjoiY2p3dXNzYmR0MDFmNzRicXNlNHJ4YjJucSJ9.tBti0YjkEb98_hxhswsSOw";
 
         public const string DataFolder = "Data";
         public const string GeofenceFolder = "Geofences";
         public const string LibrariesFolder = "Libs";
-        public const string LocaleFolder = "static\\locale";
-        public const string EmojisFolder = "static\\emojis";
+        public static readonly string LocaleFolder = "static" + System.IO.Path.DirectorySeparatorChar + "locale";
+        public static readonly string EmojisFolder = "static" + System.IO.Path.DirectorySeparatorChar + "emojis";
         public const string StatsFolder = "Stats";
         public const string LogsFolder = "Logs";
 
@@ -42,6 +37,7 @@
         public const int MaxPokemonSubscriptions = 25;
         public const int MaxRaidSubscriptions = 5;
         public const int MaxQuestSubscriptions = 2;
+        public const int MaxInvasionSubscriptions = 1;
         public const int CommonTypeMinimumIV = 95;
 
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";
@@ -81,6 +77,7 @@
 
         public static IReadOnlyDictionary<WeatherType, string> WeatherEmojis => new Dictionary<WeatherType, string>
         {
+            { WeatherType.None, "" },
             { WeatherType.Clear, "☀️" },
             { WeatherType.Rain, "☔️" },
             { WeatherType.PartlyCloudy, "⛅" },
@@ -92,6 +89,7 @@
 
         public static IReadOnlyDictionary<WeatherType, List<PokemonType>> WeatherBoosts => new Dictionary<WeatherType, List<PokemonType>>
         {
+            { WeatherType.None,         new List<PokemonType> { } },
             { WeatherType.Clear,        new List<PokemonType> { PokemonType.Fire,   PokemonType.Grass,    PokemonType.Ground } },
             { WeatherType.Rain,         new List<PokemonType> { PokemonType.Water,  PokemonType.Electric, PokemonType.Bug } },
             { WeatherType.PartlyCloudy, new List<PokemonType> { PokemonType.Normal, PokemonType.Rock } },

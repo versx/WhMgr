@@ -7,11 +7,11 @@
     using Newtonsoft.Json;
 
     using WhMgr.Data;
-    using WhMgr.Diagnostics;
 
     public class WhConfig
     {
-        private static readonly EventLogger _logger = EventLogger.GetLogger();
+        [JsonProperty("servers")]
+        public Dictionary<ulong, DiscordServer> Servers { get; set; }
 
         [JsonProperty("token")]
         public string Token { get; set; }
@@ -37,6 +37,9 @@
         [JsonProperty("enableCities")]
         public bool EnableCities { get; set; }
 
+        [JsonProperty("citiesRequireSupporterRole")]
+        public bool CitiesRequireSupporterRole { get; set; }
+
         [JsonProperty("connectionString")]
         public string ConnectionString { get; set; }
 
@@ -52,11 +55,30 @@
         [JsonProperty("questChannelIds")]
         public List<ulong> QuestChannelIds { get; set; }
 
+        [JsonProperty("eventPokemonIds")]
+        public List<int> EventPokemonIds { get; set; }
+
+        [JsonProperty("shortUrlApiUrl")]
+        public string ShortUrlApiUrl { get; set; }
+
+        [JsonProperty("shinyStats")]
+        public ShinyStatsConfiguration ShinyStats { get; set; }
+
+        [JsonProperty("urls")]
+        public UrlConfiguration Urls { get; set; }
+
+        [JsonIgnore]
+        public string FileName { get; set; }
+
         public WhConfig()
         {
+            Servers = new Dictionary<ulong, DiscordServer>();
             CityRoles = new List<string>();
             Moderators = new List<ulong>();
             QuestChannelIds = new List<ulong>();
+            EventPokemonIds = new List<int>();
+            ShinyStats = new ShinyStatsConfiguration();
+            Urls = new UrlConfiguration();
         }
 
         public void Save(string filePath)

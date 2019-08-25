@@ -15,8 +15,14 @@
     public static class PokemonExtensions
     {
         private const string Alolan = "Alolan";
+        private const string Armored = "Armored";
+        private const string Shadow = "Shadow";
+        private const string Purified = "Purified";
+        private const string Normal = "";
+        private const string Glasses = "Glasses";
+        private const string NoEvolve = "No-Evolve";
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        //private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         public static readonly double[] CpMultipliers =
         {
@@ -87,6 +93,21 @@
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(maxAtk * maxAtk * maxDef * maxSta) / 10));
         }
 
+        public static int MinCpAtLevel(this int id, int level)
+        {
+            if (!Database.Instance.Pokemon.ContainsKey(id))
+                return 0;
+
+            var pkmn = Database.Instance.Pokemon[id];
+
+            var multiplier = CpMultipliers[level - 1];
+            var minAtk = (pkmn.BaseStats.Attack + 10) * multiplier;
+            var minDef = (pkmn.BaseStats.Defense + 10) * multiplier;
+            var minSta = (pkmn.BaseStats.Stamina + 10) * multiplier;
+
+            return (int)Math.Max(10, Math.Floor(Math.Sqrt(minAtk * minAtk * minDef * minSta) / 10));
+        }
+
         public static int GetLevel(this int id, int cp)
         {
             if (!Database.Instance.Pokemon.ContainsKey(id))
@@ -139,29 +160,143 @@
 
             switch (pokeId)
             {
+                case 1: //Bulbasaur
+                    switch (form)
+                    {
+                        case 163: //Normal
+                            return Normal;
+                        case 164: //Shadow
+                            return Shadow;
+                        case 165: //Purified
+                            return Purified;
+                        case 604: //No-Evolve
+                            return NoEvolve;
+                    }
+                    break;
+                case 2: //Ivysaur
+                    switch (form)
+                    {
+                        case 166: //Normal
+                            return Normal;
+                        case 167: //Shadow
+                            return Shadow;
+                        case 168: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 3: //Venasaur
+                    switch (form)
+                    {
+                        case 169: //Normal
+                            return Normal;
+                        case 170: //Shadow
+                            return Shadow;
+                        case 171: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 4: //Charmander
+                    switch (form)
+                    {
+                        case 172: //Normal
+                            return Normal;
+                        case 173: //Shadow
+                            return Shadow;
+                        case 174: //Purified
+                            return Purified;
+                        case 605: //No-Evolve
+                            return NoEvolve;
+                    }
+                    break;
+                case 5: //Charmeleon
+                    switch (form)
+                    {
+                        case 175: //Normal
+                            return Normal;
+                        case 176: //Shadow
+                            return Shadow;
+                        case 177: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 6: //Charizard
+                    switch (form)
+                    {
+                        case 178: //Normal
+                            return Normal;
+                        case 179: //Shadow
+                            return Shadow;
+                        case 180: //Purified
+                            return Purified;
+                        case 606: //No-Evolve
+                            return NoEvolve;
+                    }
+                    break;
                 case 7: //Squirtle
                     switch (form)
                     {
                         case 5: //Glasses
-                            return "Glasses";
+                            return Glasses;
+                        case 181: //Normal
+                            return Normal;
+                        case 182: //Shadow
+                            return Shadow;
+                        case 183: //Purified
+                            return Purified;
+                        case 607: //No-Evolve
+                            return NoEvolve;
+                    }
+                    break;
+                case 8: //Wartortle
+                    switch (form)
+                    {
+                        case 184: //Normal
+                            return Normal;
+                        case 185: //Shadow
+                            return Shadow;
+                        case 186: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 9: //Blastoise
+                    switch (form)
+                    {
+                        case 187: //Normal
+                            return Normal;
+                        case 188: //Shadow
+                            return Shadow;
+                        case 189: //Purified
+                            return Purified;
+                        case 608: //No-Evolve
+                            return NoEvolve;
                     }
                     break;
                 case 19: //Rattata
                     switch (form)
                     {
                         case 45: //Normal
-                            break;
+                            return Normal;
                         case 46: //Alolan
                             return Alolan;
+                        case 153: //Shadow
+                            return Shadow;
+                        case 154: //Purified
+                            return Purified;
                     }
                     break;
                 case 20: //Raticate
                     switch (form)
                     {
                         case 47: //Normal
-                            break;
+                            return Normal;
                         case 48: //Alolan
                             return Alolan;
+                        case 155: //Shadow
+                            return Shadow;
+                        case 156: //Purified
+                            return Purified;
+                        case 609: //No-Evolve
+                            return NoEvolve;
                     }
                     break;
                 case 25: //Pikachu
@@ -179,6 +314,12 @@
                             return "Straw Hat";
                         case 6: //FM/
                             return "FM";
+                        case 598: //Normal
+                            return Normal;
+                        case 599: //No-Evolve
+                            return NoEvolve;
+                        case 894: //Fall
+                            return "Fall";
                     }
                     break;
                 case 26: //Raichu
@@ -197,7 +338,7 @@
                         case 6: //FM/
                             return "FM";
                         case 49: //Normal
-                            break;
+                            return Normal;
                         case 50:
                             return Alolan;
                     }
@@ -206,7 +347,7 @@
                     switch (form)
                     {
                         case 51: //Normal
-                            break;
+                            return Normal;
                         case 52: //Alolan
                             return Alolan;
                     }
@@ -215,7 +356,7 @@
                     switch (form)
                     {
                         case 53: //Normal
-                            break;
+                            return Normal;
                         case 54: //Alolan
                             return Alolan;
                     }
@@ -224,7 +365,7 @@
                     switch (form)
                     {
                         case 55: //Normal
-                            break;
+                            return Normal;
                         case 56: //Alolan
                             return Alolan;
                     }
@@ -233,16 +374,38 @@
                     switch (form)
                     {
                         case 57: //Normal
-                            break;
+                            return Normal;
                         case 58: //Alolan
                             return Alolan;
+                    }
+                    break;
+                case 41:
+                    switch (form)
+                    {
+                        case 157: //Normal
+                            return Normal;
+                        case 158: //Shadow
+                            return Shadow;
+                        case 159: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 42:
+                    switch (form)
+                    {
+                        case 160: //Normal
+                            return Normal;
+                        case 161: //Shadow
+                            return Shadow;
+                        case 162: //Purified
+                            return Purified;
                     }
                     break;
                 case 50: //Diglett
                     switch (form)
                     {
                         case 59: //Normal
-                            break;
+                            return Normal;
                         case 60: //Alolan
                             return Alolan;
                     }
@@ -251,7 +414,7 @@
                     switch (form)
                     {
                         case 61: //Normal
-                            break;
+                            return Normal;
                         case 62: //Alolan
                             return Alolan;
                     }
@@ -260,7 +423,7 @@
                     switch (form)
                     {
                         case 63: //Normal
-                            break;
+                            return Normal;
                         case 64: //Alolan
                             return Alolan;
                     }
@@ -269,7 +432,7 @@
                     switch (form)
                     {
                         case 65: //Normal
-                            break;
+                            return Normal;
                         case 66: //Alolan
                             return Alolan;
                     }
@@ -278,7 +441,7 @@
                     switch (form)
                     {
                         case 67: //Normal
-                            break;
+                            return Normal;
                         case 68: //Alolan
                             return Alolan;
                     }
@@ -287,7 +450,7 @@
                     switch (form)
                     {
                         case 69: //Normal
-                            break;
+                            return Normal;
                         case 70: //Alolan
                             return Alolan;
                     }
@@ -296,7 +459,7 @@
                     switch (form)
                     {
                         case 71: //Normal
-                            break;
+                            return Normal;
                         case 72: //Alolan
                             return Alolan;
                     }
@@ -305,7 +468,7 @@
                     switch (form)
                     {
                         case 73: //Normal
-                            break;
+                            return Normal;
                         case 74: //Alolan
                             return Alolan;
                     }
@@ -314,7 +477,7 @@
                     switch (form)
                     {
                         case 75: //Normal
-                            break;
+                            return Normal;
                         case 76: //Alolan
                             return Alolan;
                     }
@@ -323,7 +486,7 @@
                     switch (form)
                     {
                         case 77: //Normal
-                            break;
+                            return Normal;
                         case 78: //Alolan
                             return Alolan;
                     }
@@ -332,9 +495,71 @@
                     switch (form)
                     {
                         case 79: //Normal
-                            break;
+                            return Normal;
                         case 80: //Alolan
                             return Alolan;
+                    }
+                    break;
+                case 143: //Snorlax
+                    switch (form)
+                    {
+                        case 199: //Normal
+                            return Normal;
+                        case 200: //Shadow
+                            return Shadow;
+                        case 201: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 147: //Dratini
+                    switch (form)
+                    {
+                        case 190: //Normal
+                            return Normal;
+                        case 191: //Shadow
+                            return Shadow;
+                        case 192: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 148: //Dragonair
+                    switch (form)
+                    {
+                        case 193: //Normal
+                            return Normal;
+                        case 194: //Shadow
+                            return Shadow;
+                        case 195: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 149: //Dragonite
+                    switch (form)
+                    {
+                        case 196: //Normal
+                            return Normal;
+                        case 197: //Shadow
+                            return Shadow;
+                        case 198: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 150: //Mewtwo
+                    switch (form)
+                    {
+                        case 133: //Armored
+                            return Armored;
+                    }
+                    break;
+                case 169: //Crobat
+                    switch (form)
+                    {
+                        case 202: //Normal
+                            return Normal;
+                        case 203: //Shadow
+                            return Shadow;
+                        case 204: //Purified
+                            return Purified;
                     }
                     break;
                 case 172: //Pichu
@@ -364,6 +589,57 @@
                         default:
                             return form.NumberToAlphabet().ToString();
                     }
+                case 202: //Wobbuffet
+                    switch (form)
+                    {
+                        case 602: //Normal
+                            return Normal;
+                        case 603: //No-Evolve
+                            return NoEvolve;
+                    }
+                    break;
+                case 258: //Mudkip
+                    switch (form)
+                    {
+                        case 205: //Normal
+                            return Normal;
+                        case 206: //Shadow
+                            return Shadow;
+                        case 207: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 259: //Marshtomp
+                    switch (form)
+                    {
+                        case 208: //Normal
+                            return Normal;
+                        case 209: //Shadow
+                            return Shadow;
+                        case 210: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 260: //Swampert
+                    switch (form)
+                    {
+                        case 211: //Normal
+                            return Normal;
+                        case 212: //Shadow
+                            return Shadow;
+                        case 213: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 265: //Wurmple
+                    switch (form)
+                    {
+                        case 600: //Normal
+                            return Normal;
+                        case 601: //No-Evolve
+                            return NoEvolve;
+                    }
+                    break;
                 case 327: //Spinda
                     switch (form)
                     {
@@ -389,7 +665,7 @@
                     switch (form)
                     {
                         case 29: //Normal
-                            break;
+                            return Normal;
                         case 30: //Sunny
                             return "Sunny";
                         case 31: //Water
@@ -402,7 +678,7 @@
                     switch (form)
                     {
                         case 33: //Normal
-                            break;
+                            return Normal;
                         case 34: //Attack
                             return "Attack";
                         case 35: //Defense
@@ -411,14 +687,18 @@
                             return "Speed";
                     }
                     break;
+                case 412: //Burmy
                 case 413: //Wormadam
                     switch (form)
                     {
                         case 87: //Plant
+                        case 118:
                             return "Plant";
                         case 88: //Sandy
+                        case 119:
                             return "Sandy";
                         case 89: //Trash
+                        case 120:
                             return "Trash";
                     }
                     break;
@@ -488,7 +768,7 @@
                     switch (form)
                     {
                         case 100: //Normal
-                            break;
+                            return Normal;
                         case 101: //Fighting
                             return "Fighting";
                         case 102: //Flying
@@ -530,15 +810,148 @@
             return null;
         }
 
-        public static string GetPokemonImage(this int pokemonId, PokemonGender gender, string form)
+        public static string GetCostume(this int pokeId, string costumeId)
         {
-            if (int.TryParse(form, out var formId))
+            if (!int.TryParse(costumeId, out int costume))
+                return null;
+
+            if (costume == 0)
+                return null;
+
+            switch (pokeId)
             {
-                return string.Format(Strings.PokemonImage, pokemonId, formId);
+                case 7:
+                    switch (costume)
+                    {
+                        case 0:
+                            break;
+                    }
+                    break;
+                case 25: //Pikachu
+                    switch (costume)
+                    {
+                        /*
+  case unset // = 0
+  case holiday2016 // = 1
+  case anniversary // = 2
+  case oneYearAnniversary // = 3
+  case halloween2017 // = 4
+  case summer2018 // = 5
+  case fall2018 // = 6
+  case november2018 // = 7
+  case winter2018 // = 8
+  case feb2019 // = 9
+  case may2019Noevolve // = 10
+                         */
+                        case 0: //Unset
+                            return null;
+                        case 1: //X-Mas Hat/Christmas /holiday2016
+                            return "Santa Hat";
+                        case 2: //Party Hat/Birthday /anniversary
+                            return "Party Hat";
+                        case 3: //Ash Hat /oneYearAnniversary
+                            return "Ash Hat";
+                        case 4: //Witch Hat/Halloween /halloween2017
+                            return "Witch Hat";
+                        case 5: //Straw Hat/Sun Glasses /summer2018
+                            return "Summer Hat";
+                        case 6: //FM /fall2018
+                            return "Fragment Hat";
+                        case 7: // /november2018
+                            return "Flower Crown";
+                        case 8: // /winter2018
+                            return "Beanie";
+                        case 9: // /feb2019
+                            return "Detective";
+                        case 10: // /may2019Noevolve
+                            return "Straw Hat";
+                        case 598: //Normal
+                            return Normal;
+                        case 599: //No-Evolve
+                            return NoEvolve;
+                    }
+                    break;
+                case 26: //Raichu
+                    switch (costume)
+                    {
+                        case 0: //Unset
+                            return null;
+                        case 1: //X-Mas Hat/Christmas /holiday2016
+                            return "Santa Hat";
+                        case 2: //Party Hat/Birthday /anniversary
+                            return "Party Hat";
+                        case 3: //Ash Hat /oneYearAnniversary
+                            return "Ash Hat";
+                        case 4: //Witch Hat/Halloween /halloween2017
+                            return "Witch Hat";
+                        case 5: //Straw Hat/Sun Glasses /summer2018
+                            return "Summer Hat";
+                        case 6: //FM /fall2018
+                            return "Fragment Hat";
+                        case 7: // /november2018
+                            return "Flower Crown";
+                        case 8: // /winter2018
+                            return "Beanie";
+                        case 9: // /feb2019
+                            return "Detective";
+                        //case 10: // /may2019Noevolve
+                        //    return "One Piece";
+                        case 598: //Normal
+                            return Normal;
+                        case 599: //No-Evolve
+                            return NoEvolve;
+                    }
+                    break;
+                case 172:
+                    switch (costume)
+                    {
+                        case 0: //Unset
+                            return null;
+                        case 1: //X-Mas Hat/Christmas /holiday2016
+                            return "Santa Hat";
+                        case 2: //Party Hat/Birthday /anniversary
+                            return "Party Hat";
+                        case 3: //Ash Hat /oneYearAnniversary
+                            return "Ash Hat";
+                        case 4: //Witch Hat/Halloween /halloween2017
+                            return "Witch Hat";
+                        case 5: //Straw Hat/Sun Glasses /summer2018
+                            return "Summer Hat";
+                        //case 6: //FM /fall2018
+                        //    return "Fragment Hat";
+                        //case 7: // /november2018
+                        //    return "Flower Crown";
+                        //case 8: // /winter2018
+                        //    return "Beanie";
+                        //case 9: // /feb2019
+                        //    return "Detective";
+                        case 10: // /may2019Noevolve
+                            return "Straw Hat";
+                        case 598: //Normal
+                            return Normal;
+                        case 599: //No-Evolve
+                            return NoEvolve;
+                    }
+                    break;
+            }
+
+            return string.Empty;
+        }
+
+        public static string GetPokemonImage(this int pokemonId, string pokemonImageUrl, PokemonGender gender, int form, int costume = 0)
+        {
+            if (form > 0)
+            {
+                return string.Format(pokemonImageUrl, pokemonId, form);
+            }
+
+            if (costume > 0)
+            {
+                return string.Format(pokemonImageUrl, pokemonId, costume);
             }
 
             var genderId = gender == PokemonGender.Female ? 1 : 0;
-            return string.Format(Strings.PokemonImage, pokemonId, genderId);
+            return string.Format(pokemonImageUrl, pokemonId, genderId);
         }
 
         //public static string GetPokemonImage(this int pokemonId, PokemonGender gender, string form, bool shiny)
@@ -705,6 +1118,11 @@
             return types.ToList();
         }
 
+        public static string GetTypeEmojiIcons(this PokemonType pokemonType, DiscordClient client, ulong guildId)
+        {
+            return GetTypeEmojiIcons(new List<PokemonType> { pokemonType }, client, guildId);
+        }
+
         public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes, DiscordClient client, ulong guildId)
         {
             var list = new List<string>();
@@ -811,7 +1229,10 @@
                 }
 
                 if (!Database.Instance.Pokemon.ContainsKey(pokeId))
+                {
+                    invalid.Add(poke);
                     continue;
+                }
 
                 valid.Add(pokeId);
             }
@@ -822,9 +1243,9 @@
         public static bool IsWeatherBoosted(this PokemonInfo pkmn, WeatherType weather)
         {
             var types = pkmn.Types;
-            for (var i = 0; i < pkmn.Types.Count; i++)
+            for (var i = 0; i < types.Count; i++)
             {
-                if (Strings.WeatherBoosts[weather].Contains(pkmn.Types[i]))
+                if (Strings.WeatherBoosts[weather].Contains(types[i]))
                     return true;
             }
 

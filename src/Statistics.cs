@@ -43,6 +43,8 @@
 
         public long SubscriptionQuestsSent { get; set; }
 
+        public long SubscriptionInvasionsSent { get; set; }
+
         public Dictionary<int, int> PokemonStats { get; }
 
         public Dictionary<int, int> RaidStats { get; }
@@ -125,7 +127,14 @@
             sb.Append(",");
             sb.Append(string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}")));
 
-            File.WriteAllText(Path.Combine(Strings.StatsFolder, string.Format(Strings.StatsFileName, DateTime.Now.ToString("yyyy-MM-dd_hhmmss"))), sb.ToString());
+            try
+            {
+                File.WriteAllText(Path.Combine(Strings.StatsFolder, string.Format(Strings.StatsFileName, DateTime.Now.ToString("yyyy-MM-dd_hhmmss"))), sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
         public void Reset()
@@ -138,6 +147,7 @@
             SubscriptionPokemonSent = 0;
             SubscriptionRaidsSent = 0;
             SubscriptionQuestsSent = 0;
+            SubscriptionInvasionsSent = 0;
         }
 
         #endregion

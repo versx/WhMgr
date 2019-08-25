@@ -24,7 +24,7 @@
             catch (Exception ex)
             {
                 Debug.WriteLine($"StringToObject: {ex}");
-                return default(T);
+                return default;
             }
         }
 

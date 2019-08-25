@@ -126,7 +126,7 @@
         {
             var nvc = new NameValueCollection
             {
-                { "lat1", "34.158245" },
+                { "lat1", "34.158245" }, //TODO: Add configurable nest coordinates
                 { "lng1", "-117.773597" },
                 { "lat2", "33.987064" },
                 { "lng2", "-117.523522" },

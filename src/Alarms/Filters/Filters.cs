@@ -2,6 +2,7 @@
 {
     using System;
 
+    using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
@@ -221,5 +222,41 @@
 
             return matchesSta;
         }
+
+        //public bool MatchesGreatLeague(PokemonData pkmn)
+        //{
+        //    if (!Database.Instance.PvPGreat.ContainsKey(pkmn.Id))
+        //        return false;
+
+        //    var greatPokemon = Database.Instance.PvPGreat[pkmn.Id];
+        //    return greatPokemon.Exists(x =>
+        //    {
+        //        if (int.TryParse(pkmn.Attack, out var atk) && atk == x.IVs.Attack &&
+        //            int.TryParse(pkmn.Defense, out var def) && def == x.IVs.Defense &&
+        //            int.TryParse(pkmn.Stamina, out var sta) && sta == x.IVs.Stamina)
+        //        {
+        //            return true;
+        //        }
+        //        return false;
+        //    });
+        //}
+
+        //public bool MatchesUltraLeague(PokemonData pkmn)
+        //{
+        //    if (!Database.Instance.PvPUltra.ContainsKey(pkmn.Id))
+        //        return false;
+
+        //    var ultraPokemon = Database.Instance.PvPUltra[pkmn.Id];
+        //    return ultraPokemon.Exists(x =>
+        //    {
+        //        if (int.TryParse(pkmn.Attack, out var atk) && atk == x.IVs.Attack &&
+        //            int.TryParse(pkmn.Defense, out var def) && def == x.IVs.Defense &&
+        //            int.TryParse(pkmn.Stamina, out var sta) && sta == x.IVs.Stamina)
+        //        {
+        //            return true;
+        //        }
+        //        return false;
+        //    });
+        //}
     }
 }

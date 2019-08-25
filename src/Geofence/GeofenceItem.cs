@@ -6,6 +6,8 @@
 
     public class GeofenceItem
     {
+        private const string DefaultName = "Unnamed";
+
         #region Properties
 
         public string Name { get; set; }
@@ -18,19 +20,17 @@
 
         public GeofenceItem()
         {
-            Name = "Unnamed";
+            Name = DefaultName;
             Polygons = new List<Location>();
         }
 
-        public GeofenceItem(string name)
+        public GeofenceItem(string name) : this(name ?? DefaultName, new List<Location>())
         {
-            Name = name;
-            Polygons = new List<Location>();
         }
 
         public GeofenceItem(string name, List<Location> polygons) : this()
         {
-            Name = name;
+            Name = name ?? DefaultName;
             Polygons = polygons;
         }
 

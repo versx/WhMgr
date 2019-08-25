@@ -29,8 +29,11 @@
         [Alias("quests"), Reference]
         public List<QuestSubscription> Quests { get; set; }
 
-        [Alias("snoozed_quests"), Reference]
-        public List<SnoozedQuest> SnoozedQuests { get; set; }
+        [Alias("invasions"), Reference]
+        public List<InvasionSubscription> Invasions { get; set; }
+
+        //[Alias("snoozed_quests"), Reference]
+        //public List<SnoozedQuest> SnoozedQuests { get; set; }
 
         [Alias("distance"), Default(0)]
         public int DistanceM { get; set; }
@@ -41,17 +44,14 @@
         [Alias("longitude"), Default(0)]
         public double Longitude { get; set; }
 
-        //[Alias("alert_time"), Default(null)]
-        //public DateTime? AlertTime { get; set; }
+        //[Alias("pokemon_stats"), Reference]
+        //public List<PokemonStatistics> PokemonStatistics { get; set; }
 
-        [Alias("pokemon_stats"), Reference]
-        public List<PokemonStatistics> PokemonStatistics { get; set; }
+        //[Alias("raid_stats"), Reference]
+        //public List<RaidStatistics> RaidStatistics { get; set; }
 
-        [Alias("raid_stats"), Reference]
-        public List<RaidStatistics> RaidStatistics { get; set; }
-
-        [Alias("quest_stats"), Reference]
-        public List<QuestStatistics> QuestStatistics { get; set; }
+        //[Alias("quest_stats"), Reference]
+        //public List<QuestStatistics> QuestStatistics { get; set; }
 
         [Ignore]
         public NotificationLimiter Limiter { get; set; }
@@ -63,12 +63,12 @@
             Raids = new List<RaidSubscription>();
             Gyms = new List<GymSubscription>();
             Quests = new List<QuestSubscription>();
-            SnoozedQuests = new List<SnoozedQuest>();
-            PokemonStatistics = new List<PokemonStatistics>();
-            RaidStatistics = new List<RaidStatistics>();
-            QuestStatistics = new List<QuestStatistics>();
+            Invasions = new List<InvasionSubscription>();
+            //SnoozedQuests = new List<SnoozedQuest>();
+            //PokemonStatistics = new List<PokemonStatistics>();
+            //RaidStatistics = new List<RaidStatistics>();
+            //QuestStatistics = new List<QuestStatistics>();
             Limiter = new NotificationLimiter();
-            //AlertTime = DateTime.MinValue;
         }
     }
 }

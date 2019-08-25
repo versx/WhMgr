@@ -9,7 +9,7 @@
 
     public class GeofenceService
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        //private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         //public bool Contains(GeofenceItem geofence, Location point)
         //{
@@ -60,6 +60,8 @@
                     polygonContainsPoint = !polygonContainsPoint;
                 }
             }
+            lats.Clear();
+            lngs.Clear();
             return polygonContainsPoint;
         }
 

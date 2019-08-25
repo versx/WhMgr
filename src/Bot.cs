@@ -43,7 +43,8 @@
         private readonly SubscriptionProcessor _subProcessor;
         private readonly EmbedBuilder _embedBuilder;
         private readonly Translator _lang;
-        private readonly IEventLogger _logger;
+
+        private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         #endregion
 
@@ -52,7 +53,7 @@
         public Bot(WhConfig whConfig, string alarmsFilePath)
         {
             var name = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName;
-            _logger = EventLogger.GetLogger(name);
+            //_logger = EventLogger.GetLogger(name);
             _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, SupporterRoleId={whConfig.SupporterRoleId}, WebhookPort={whConfig.WebhookPort}]");
 
             _lang = new Translator();
@@ -82,7 +83,7 @@
                 }
             };
 
-            _whm = new WebhookManager(_whConfig.WebhookPort, alarmsFilePath);
+            _whm = new WebhookManager(_whConfig, alarmsFilePath);
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
             _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
@@ -94,6 +95,7 @@
                 _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
+                _whm.InvasionSubscriptionTriggered += OnInvasionSubscriptionTriggered;
             }
 
             _logger.Info("WebhookManager is running...");
@@ -141,7 +143,7 @@
             DependencyCollection dep;
             using (var d = new DependencyCollectionBuilder())
             {
-                d.AddInstance(_dep = new Dependencies(_whm, _subProcessor, _whConfig, _lang));
+                d.AddInstance(_dep = new Dependencies(_interactivity, _whm, _subProcessor, _whConfig, _lang));
                 dep = d.Build();
             }
 
@@ -160,6 +162,8 @@
             );
             _commands.CommandExecuted += Commands_CommandExecuted;
             _commands.CommandErrored += Commands_CommandErrored;
+            _commands.RegisterCommands<CommunityDay>();
+            _commands.RegisterCommands<ShinyStats>();
             if (_whConfig.EnableSubscriptions)
             {
                 _commands.RegisterCommands<Notifications>();
@@ -259,6 +263,12 @@
 
         private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
         {
+            if (e.Application == "REST")
+            {
+                _logger.Error("RATE LIMITED-----------------");
+                return;
+            }
+
             //Color
             ConsoleColor color;
             switch (e.Level)
@@ -309,9 +319,9 @@
 
         #region WebhookManager Events
 
-        private async void OnPokemonAlarmTriggered(object sender, PokemonAlarmTriggeredEventArgs e)
+        private async void OnPokemonAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokemonData> e)
         {
-            _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Pokemon.Id}, Despawn: {e.Pokemon.DespawnTime}]");
+            _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
 
             if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
                 return;
@@ -323,29 +333,33 @@
                 return;
             }
 
-            var pkmn = Database.Instance.Pokemon[e.Pokemon.Id];
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(e.Pokemon.Latitude, e.Pokemon.Longitude));
+            var pokemon = e.Data;
+            var pkmn = Database.Instance.Pokemon[pokemon.Id];
+            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude));
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city from coordinates {e.Pokemon.Latitude},{e.Pokemon.Longitude} {pkmn.Name} {e.Pokemon.IV}, skipping...");
+                _logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
                 return;
             }
 
             try
             {
-                var form = e.Pokemon.Id.GetPokemonForm(e.Pokemon.FormId.ToString());
-                var pkmnImage = e.Pokemon.Id.GetPokemonImage(e.Pokemon.Gender, e.Pokemon.FormId.ToString());
-                var eb = _embedBuilder.BuildPokemonMessage(e.Pokemon, loc.Name);
+                var form = pokemon.Id.GetPokemonForm(pokemon.FormId.ToString());
+                //var costume = e.Pokemon.Id.GetCostume(e.Pokemon.Costume.ToString());
+                //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
+                var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.Urls.PokemonImage, pokemon.Gender, pokemon.FormId, pokemon.Costume);
+                var eb = _embedBuilder.BuildPokemonMessage(pokemon, loc.Name);
 
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-                var name = $"{pkmn.Name}{e.Pokemon.Gender.GetPokemonGenderIcon()}{form}";
+                var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIcon()}{form}";
                 await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
+                //TODO: Change to raw webhooks
                 Statistics.Instance.PokemonSent++;
-                Statistics.Instance.IncrementPokemonStats(e.Pokemon.Id);
+                Statistics.Instance.IncrementPokemonStats(pokemon.Id);
 
-                if (e.Pokemon.IV == "100%")
+                if (pokemon.IV == "100%")
                 {
-                    Statistics.Instance.Add100Percent(e.Pokemon);
+                    Statistics.Instance.Add100Percent(pokemon);
                 }
             }
             catch (Exception ex)
@@ -354,9 +368,9 @@
             }
         }
 
-        private async void OnRaidAlarmTriggered(object sender, RaidAlarmTriggeredEventArgs e)
+        private async void OnRaidAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<RaidData> e)
         {
-            _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Raid.PokemonId}, Level: {e.Raid.Level}, StartTime: {e.Raid.StartTime}]");
+            _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Data.PokemonId}, Level: {e.Data.Level}, StartTime: {e.Data.StartTime}]");
 
             if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
                 return;
@@ -368,27 +382,28 @@
                 return;
             }
 
-            var pkmn = Database.Instance.Pokemon[e.Raid.PokemonId];
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(e.Raid.Latitude, e.Raid.Longitude));
+            var raid = e.Data;
+            var pkmn = Database.Instance.Pokemon[raid.PokemonId];
+            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city from coordinates {e.Raid.Latitude},{e.Raid.Longitude} {pkmn.Name} {e.Raid.Level}, skipping...");
+                _logger.Warn($"Failed to lookup city from coordinates {raid.Latitude},{raid.Longitude} {pkmn.Name} {raid.Level}, skipping...");
                 return;
             }
 
             try
             {
-                var form = e.Raid.PokemonId.GetPokemonForm(e.Raid.Form.ToString());
-                var pkmnImage = e.Raid.IsEgg ? string.Format(Strings.EggImage, e.Raid.Level) : e.Raid.PokemonId.GetPokemonImage(PokemonGender.Unset, e.Raid.Form.ToString());
-                var eb = _embedBuilder.BuildRaidMessage(e.Raid, loc.Name);
+                var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
+                var pkmnImage = raid.IsEgg ? string.Format(_whConfig.Urls.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(_whConfig.Urls.PokemonImage, PokemonGender.Unset, raid.Form);
+                var eb = _embedBuilder.BuildRaidMessage(raid, loc.Name);
 
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-                var name = e.Raid.IsEgg ? $"Level {e.Raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
+                var name = raid.IsEgg ? $"Level {raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
                 await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
                 Statistics.Instance.RaidsSent++;
-                if (e.Raid.PokemonId > 0)
+                if (raid.PokemonId > 0)
                 {
-                    Statistics.Instance.IncrementRaidStats(e.Raid.PokemonId);
+                    Statistics.Instance.IncrementRaidStats(raid.PokemonId);
                 }
             }
             catch (Exception ex)
@@ -397,9 +412,9 @@
             }
         }
 
-        private async void OnQuestAlarmTriggered(object sender, QuestAlarmTriggeredEventArgs e)
+        private async void OnQuestAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<QuestData> e)
         {
-            _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Quest.PokestopId}, Type={e.Quest.Type}]");
+            _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, Type={e.Data.Type}]");
 
             if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
                 return;
@@ -411,18 +426,19 @@
                 return;
             }
 
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(e.Quest.Latitude, e.Quest.Longitude));
+            var quest = e.Data;
+            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city for coordinates {e.Quest.Latitude},{e.Quest.Longitude}, skipping...");
+                _logger.Warn($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
                 return;
             }
 
             try
             {
-                var eb = _embedBuilder.BuildQuestMessage(e.Quest, loc?.Name ?? e.Alarm.Name);
+                var eb = _embedBuilder.BuildQuestMessage(quest, loc?.Name ?? e.Alarm.Name);
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-                await whData.ExecuteAsync(string.Empty, e.Quest.GetMessage(), e.Quest.GetIconUrl(), false, new List<DiscordEmbed> { eb });
+                await whData.ExecuteAsync(string.Empty, quest.GetQuestMessage() ?? string.Empty, quest.GetIconUrl(_whConfig) ?? string.Empty, false, new List<DiscordEmbed> { eb });
                 Statistics.Instance.QuestsSent++;
             }
             catch (Exception ex)
@@ -431,20 +447,59 @@
             }
         }
 
-        private void OnPokestopAlarmTriggered(object sender, PokestopAlarmTriggeredEventArgs e)
+        private async void OnPokestopAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokestopData> e)
         {
-            _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Pokestop.PokestopId}, LureExpire={e.Pokestop.LureExpire}]");
+            _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, LureExpire={e.Data.LureExpire}, InvasionExpire={e.Data.IncidentExpire}]");
 
-            //TODO: Implement pokestop alarms.
-            if (e.Pokestop.LureExpire > 0)
+            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+                return;
+
+            var wh = _whm.WebHooks[e.Alarm.Name];
+            if (wh == null)
             {
-                //TODO: Send pokestop lure alarm.
+                _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
+                return;
+            }
+
+            var pokestop = e.Data;
+            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
+            if (loc == null)
+            {
+                _logger.Warn($"Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
+                return;
+            }
+
+            string icon;
+            if (pokestop.HasInvasion)
+            {
+                //TODO: Load from local file
+                icon = "http://images2.fanpop.com/image/photos/11300000/Team-Rocket-Logo-team-rocket-11302897-198-187.jpg";
+            }
+            else if (pokestop.HasLure)
+            {
+                icon = string.Format(_whConfig.Urls.QuestImage, Convert.ToInt32(pokestop.LureType));//"https://serebii.net/pokemongo/items/luremodule.png";
+            }
+            else
+            {
+                icon = pokestop.Url;
+            }
+
+            try
+            {
+                var eb = _embedBuilder.BuildPokestopMessage(pokestop, loc?.Name ?? e.Alarm.Name);
+                var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
+                await whData.ExecuteAsync(string.Empty, pokestop.Name ?? "Unknown Pokestop", icon, false, new List<DiscordEmbed> { eb });
+                //Statistics.Instance.QuestsSent++;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
             }
         }
 
-        private void OnGymAlarmTriggered(object sender, GymAlarmTriggeredEventArgs e)
+        private void OnGymAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<GymData> e)
         {
-            _logger.Info($"Gym Found [Alarm: {e.Alarm.Name}, GymId: {e.Gym.GymId}, Team={e.Gym.Team}, SlotsAvailable={e.Gym.SlotsAvailable}, GuardPokemonId={e.Gym.GuardPokemonId}]");
+            _logger.Info($"Gym Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, Team={e.Data.Team}, SlotsAvailable={e.Data.SlotsAvailable}, GuardPokemonId={e.Data.GuardPokemonId}]");
 
             if (!e.Alarm.Filters.Gyms.Enabled)
                 return;
@@ -452,14 +507,15 @@
             //TODO: Implement gym alarms.
         }
 
-        private void OnGymDetailsAlarmTriggered(object sender, GymDetailsAlarmTriggeredEventArgs e)
+        private void OnGymDetailsAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<GymDetailsData> e)
         {
-            _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.GymDetails.GymId}, InBattle={e.GymDetails.InBattle}, Team={e.GymDetails.Team}]");
+            _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");
 
             if (!e.Alarm.Filters.Gyms.Enabled)
                 return;
 
-            if (e.GymDetails.InBattle)
+            var gymDetails = e.Data;
+            if (gymDetails.InBattle)
             {
                 //TODO: Send gym battle alarms.
             }
@@ -513,6 +569,17 @@
             //_subProcessor.EnqueueQuestSubscription(e);
         }
 
+        private void OnInvasionSubscriptionTriggered(object sender, PokestopData e)
+        {
+            if (!_whConfig.EnableSubscriptions)
+                return;
+
+            if (_subProcessor == null)
+                return;
+
+            new System.Threading.Thread(async () => await _subProcessor.ProcessInvasionSubscription(e)) { IsBackground = true }.Start();
+        }
+
         #endregion
 
         #region Private Methods
@@ -556,53 +623,54 @@
 
             if (_whConfig.EnableSubscriptions)
             {
-                _subProcessor.Manager.RemoveAllSnoozedQuests();
+                //_subProcessor.Manager.RemoveAllSnoozedQuests();
             }
 
-            DiscordChannel channel = null;
+            if (_whConfig.ShinyStats.Enabled)
+            {
+                var statsChannel = await _client.GetChannelAsync(_whConfig.ShinyStats.ChannelId);
+                if (statsChannel == null)
+                {
+                    _logger.Warn($"Failed to get channel id {_whConfig.ShinyStats.ChannelId} to post shiny stats.");
+                }
+                else
+                {
+                    if (_whConfig.ShinyStats.ClearMessages)
+                    {
+                        await _client.DeleteMessages(_whConfig.ShinyStats.ChannelId);
+                    }
+
+                    await statsChannel.SendMessageAsync($"[**Shiny Pokemon stats for {DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString()}**]\r\n----------------------------------------------");
+                    var stats = await ShinyStats.GetStats(_whConfig);
+                    var sorted = stats.Keys.ToList();
+                    sorted.Sort();
+
+                    foreach (var pokemon in sorted)
+                    {
+                        if (pokemon == 0)
+                            continue;
+
+                        if (!Database.Instance.Pokemon.ContainsKey(pokemon))
+                            continue;
+
+                        var pkmn = Database.Instance.Pokemon[pokemon];
+                        var pkmnStats = stats[pokemon];
+                        var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
+                        var chanceMessage = chance == 0 ? null : $" with a **1/{chance}** ratio";
+                        await statsChannel.SendMessageAsync($"**{pkmn.Name} (#{pokemon})**  |  **{pkmnStats.Shiny.ToString("N0")}** shiny out of **{pkmnStats.Total.ToString("N0")}** total seen in the last 24 hours{chanceMessage}.");
+                    }
+
+                    var total = stats[0];
+                    var ratio = total.Shiny == 0 || total.Total == 0 ? null : $" with a **1/{Convert.ToInt32(total.Total / total.Shiny)}** ratio in total";
+                    await statsChannel.SendMessageAsync($"Found **{total.Shiny.ToString("N0")}** total shinies out of **{total.Total.ToString("N0")}** possiblities{ratio}.");
+                }
+            }
+
             var channelIds = _dep.WhConfig.QuestChannelIds;
             for (var i = 0; i < channelIds.Count; i++)
             {
-                try
-                {
-                    channel = await _client.GetChannelAsync(channelIds[i]);
-                }
-                catch (NotFoundException)
-                {
-                    _logger.Debug($"Failed to get Discord channel {channelIds[i]}, skipping...");
-                    continue;
-                }
-
-                if (channel == null)
-                {
-                    _logger.Warn($"Failed to find channel by id {channelIds[i]}, skipping...");
-                    continue;
-                }
-
-                var messages = await channel.GetMessagesAsync();
-                while (messages.Count > 0)
-                {
-                    for (var j = 0; j < messages.Count; j++)
-                    {
-                        var message = messages[j];
-                        if (message == null)
-                            continue;
-
-                        try { await message.DeleteAsync("Channel reset."); } catch { continue; }
-                    }
-
-                    try
-                    {
-                        messages = await channel.GetMessagesAsync();
-                    }
-                    catch (Newtonsoft.Json.JsonReaderException ex)
-                    {
-                        _logger.Error(ex);
-                        continue;
-                    }
-                }
-
-                _logger.Debug($"Deleted all {messages.Count.ToString("N0")} quest messages from channel {channel.Name}.");
+                var item = await _client.DeleteMessages(channelIds[i]);
+                _logger.Debug($"Deleted all {item.Item2.ToString("N0")} quest messages from channel {item.Item1.Name}.");
             }
 
             _logger.Debug($"Finished automatic quest messages cleanup...");
@@ -617,7 +685,7 @@
 
             _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
-            var users = _subProcessor.Manager.GetUserSubscriptions();
+            var users = _subProcessor.Manager.Subscriptions;// GetUserSubscriptions();
             for (var i = 0; i < users.Count; i++)
             {
                 var user = users[i];

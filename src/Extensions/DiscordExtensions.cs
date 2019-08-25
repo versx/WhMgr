@@ -17,7 +17,7 @@
     {
         private const string ConfirmRegex = "\\b[Yy][Ee]?[Ss]?\\b|\\b[Nn][Oo]?\\b";
         private const string YesRegex = "[Yy][Ee]?[Ss]?";
-        private const string NoRegex = "[Nn][Oo]?";
+        //private const string NoRegex = "[Nn][Oo]?";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
@@ -57,9 +57,11 @@
                     return msg;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                _logger.Error(ex);
+                //_logger.Error(ex);
+                _logger.Error($"Failed to send DM to user {user.Username}.");
+                //TODO: Delete user from subscriptions
             }
 
             return null;
@@ -74,7 +76,16 @@
             if (guild == null)
                 return null;
 
-            var member = guild?.Members?.FirstOrDefault(x => x.Id == id);
+            var members = guild.Members;
+            if (members?.Count <= 0)
+                return null;
+
+            DiscordMember member = null;
+            try
+            {
+                member = members?.FirstOrDefault(x => x.Id == id);
+            }
+            catch { }
             if (member == null)
             {
                 try
@@ -125,11 +136,6 @@
                 var isSupporter = client.HasSupporterRole(config.GuildId, userId, config.SupporterRoleId);
                 if (isSupporter)
                     return true;
-
-                //TODO: Check TeamElite role.
-                //var isElite = await client.HasSupporterRole(userId, config.TeamEliteRoleId);
-                //if (isElite)
-                    //return true;
             }
             catch (Exception ex)
             {
@@ -233,6 +239,60 @@
             return null;
         }
 
+        public static async Task<Tuple<DiscordChannel, long>> DeleteMessages(this DiscordClient client, ulong channelId)
+        {
+            var deleted = 0L;
+            DiscordChannel channel;
+            try
+            {
+                channel = await client.GetChannelAsync(channelId);
+            }
+            catch (DSharpPlus.Exceptions.NotFoundException)
+            {
+                _logger.Debug($"Failed to get Discord channel {channelId}, skipping...");
+                return null;
+            }
+
+            if (channel == null)
+            {
+                _logger.Warn($"Failed to find channel by id {channelId}, skipping...");
+                return null;
+            }
+
+            var messages = await channel?.GetMessagesAsync();
+            if (messages == null)
+                return null;
+
+            while (messages.Count > 0)
+            {
+                for (var j = 0; j < messages.Count; j++)
+                {
+                    var message = messages[j];
+                    if (message == null)
+                        continue;
+
+                    try
+                    {
+                        await message.DeleteAsync("Channel reset.");
+                        deleted++;
+                    }
+                    catch { continue; }
+                }
+
+                try
+                {
+                    messages = await channel.GetMessagesAsync();
+                }
+                catch (Newtonsoft.Json.JsonReaderException ex)
+                {
+                    _logger.Error(ex);
+                    continue;
+                }
+            }
+
+            return Tuple.Create(channel, deleted);
+        }
+
         public static ulong? GetEmojiId(this DiscordGuild guild, string emojiName)
         {
             return guild.Emojis.FirstOrDefault(x => string.Compare(x.Name, emojiName, true) == 0)?.Id;
@@ -277,11 +337,9 @@
             switch (level)
             {
                 case 1:
-                    return DiscordColor.HotPink;
                 case 2:
                     return DiscordColor.HotPink;
                 case 3:
-                    return DiscordColor.Yellow;
                 case 4:
                     return DiscordColor.Yellow;
                 case 5:

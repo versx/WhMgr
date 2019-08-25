@@ -40,6 +40,12 @@
         [JsonProperty("size")]
         public PokemonSize? Size { get; set; }
 
+        [JsonProperty("great_league")]
+        public bool IsPvpGreatLeague { get; set; }
+
+        [JsonProperty("ultra_league")]
+        public bool IsPvpUltraLeague { get; set; }
+
         //TODO: Filter by move?
 
         [JsonProperty("type")]

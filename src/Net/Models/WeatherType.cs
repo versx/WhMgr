@@ -2,7 +2,8 @@
 {
     public enum WeatherType
     {
-        Clear = 0,
+        None = 0,
+        Clear,
         Rain,
         PartlyCloudy,
         Cloudy,

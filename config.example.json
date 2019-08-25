@@ -9,10 +9,24 @@
   "webhookPort": 8002,
   "gmapsKey": "<GOOGLE_MAPS_KEY>",
   "enableSubscriptions": false,
-  "connectionString": "",
+  "enableCities": false,
+  "citiesRequireSupporterRole": false,
+  "connectionString": "Uid=user;Password=pass123;Server=127.0.0.1;Port=3306;Database=brock;",
+  "scannerConnectionString": "Uid=user;Password=pass123;Server=127.0.0.1;Port=3306;Database=rdm;",
   "cityRoles": [
 	"City1",
 	"City2"
   ],
-  "commandPrefix": null
+  "commandPrefix": ".",
+  "questChannelIds": [
+      000000000000,
+	  000000000001
+  ],
+  "eventPokemonIds": [],
+  "shortUrlApiUrl": "",
+  "shinyStats": {
+      "enabled": true,
+	  "clearMessages": false,
+	  "channelId": 000000000000
+  }
 }

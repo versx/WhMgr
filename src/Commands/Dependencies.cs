@@ -19,8 +19,9 @@
 
         public Translator Language { get; }
 
-        public Dependencies(WebhookManager whm, SubscriptionProcessor subProcessor, WhConfig whConfig, Translator language)
+        public Dependencies(InteractivityModule interactivity, WebhookManager whm, SubscriptionProcessor subProcessor, WhConfig whConfig, Translator language)
         {
+            Interactivity = interactivity;
             Whm = whm;
             SubscriptionProcessor = subProcessor;
             WhConfig = whConfig;

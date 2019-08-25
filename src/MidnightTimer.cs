@@ -52,7 +52,7 @@
             if ((MinutesAfterMidnight < 0) || (MinutesAfterMidnight > 59))
             {
                 // if it is outside of this range, throw a exception
-                throw new ArgumentException("Minuets after midnight is less than 0 or more than 60!");
+                throw new ArgumentException("Minutes after midnight is less than 0 or more than 60!");
             }
 
             // Set the internal value

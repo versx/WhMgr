@@ -57,7 +57,7 @@
             //_raidQueue = new Queue<RaidData>();
             //_questQueue = new Queue<QuestData>();
 
-            Manager = new SubscriptionManager();
+            Manager = new SubscriptionManager(_whConfig);
 
             ProcessQueue();
         }
@@ -106,7 +106,7 @@
             var loc = GetGeofence(pkmn.Latitude, pkmn.Longitude);
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
                 return;
             }
 
@@ -149,11 +149,14 @@
 
                     if (!member.HasSupporterRole(_whConfig.SupporterRoleId))
                     {
-                        _logger.Debug($"User {member?.Username} is not a supporter, skipping pokemon {pokemon.Name}...");
+                        _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pokemon.Name}...");
                         continue;
                     }
 
-                    if (!member.Roles.Select(x => x.Name.ToLower()).Contains(loc.Name.ToLower()))
+                    if (member?.Roles == null || loc == null)
+                        continue;
+
+                    if (!member.Roles.Select(x => x?.Name?.ToLower()).Contains(loc?.Name?.ToLower()))
                     {
                         //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
                         continue;
@@ -192,6 +195,17 @@
                     _logger.Error(ex);
                 }
             }
+
+            subscriptions.Clear();
+            subscriptions = null;
+            member = null;
+            embed = null;
+            user = null;
+            loc = null;
+            pokemon = null;
+            db = null;
+
+            await Task.CompletedTask;
         }
 
         public async Task ProcessRaidSubscription(RaidData raid)
@@ -258,7 +272,7 @@
                         continue;
                     }
 
-                    if (user?.Gyms?.Count > 0 && user?.Gyms?.FirstOrDefault(x => raid.GymName?.ToLower().Contains(x.Name?.ToLower()) ?? false) == null)
+                    if (user.Gyms.Count > 0 && !user.Gyms.Exists(x => !string.IsNullOrEmpty(x?.Name) && raid.GymName.ToLower().Contains(x.Name?.ToLower())))
                     {
                         //Skip if list is not empty and gym is not in list.
                         _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");
@@ -292,6 +306,15 @@
                     _logger.Error(ex);
                 }
             }
+
+            subscriptions.Clear();
+            subscriptions = null;
+            embed = null;
+            user = null;
+            loc = null;
+            db = null;
+
+            await Task.CompletedTask;
         }
 
         public async Task ProcessQuestSubscription(QuestData quest)
@@ -301,8 +324,8 @@
 
             var db = Database.Instance;
             var reward = quest.Rewards[0].Info;
-            var rewardKeyword = quest.GetRewardString();
-            var questName = quest.GetMessage();
+            var rewardKeyword = quest.GetReward();
+            var questName = quest.GetQuestMessage();
 
             var loc = GetGeofence(quest.Latitude, quest.Longitude);
             if (loc == null)
@@ -356,36 +379,11 @@
                         continue;
                     }
 
-                    //Check if time is passed user preset snooze time, if so save to db to be requested later, otherwise add to queue.
-                    //if (user.AlertTime.HasValue && user.AlertTime.Value.TimeOfDay > DateTime.Now.TimeOfDay)
-                    //{
-                    var snoozedQuest = new SnoozedQuest
-                    {
-                        Date = DateTime.Now.Date,
-                        UserId = user.UserId,
-                        PokestopName = quest.PokestopName,
-                        Latitude = quest.Latitude,
-                        Longitude = quest.Longitude,
-                        Quest = quest.GetMessage(),
-                        Condition = quest.GetConditionName(),
-                        Reward = quest.GetRewardString(),
-                        RewardType = quest.Rewards[0]?.Type ?? QuestRewardType.Unset,
-                        IconUrl = quest.GetIconUrl(),
-                        City = loc.Name
-                    };
-
-                    _logger.Info($"Snoozing quest {quest.GetMessage()} for user {user.UserId}.");
-                    var result = Manager.AddSnoozedQuest(user.UserId, snoozedQuest);
-                    if (!result)
-                    {
-                        _logger.Warn($"Could not add snoozed quest [{snoozedQuest.PokestopName}, {snoozedQuest.Quest}] to user {user.UserId} subscriptions.");
-                    }
-
                     //continue;
                     //}
 
                     //_logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
-                    //_queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
+                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
 
                     //if (!Manager.AddQuestStatistic(member.Id, quest))
                     //{
@@ -399,6 +397,88 @@
                     _logger.Error(ex);
                 }
             }
+        }
+
+        public async Task ProcessInvasionSubscription(PokestopData pokestop)
+        {
+            if (!_whConfig.EnableSubscriptions)
+                return;
+
+            var loc = GetGeofence(pokestop.Latitude, pokestop.Longitude);
+            if (loc == null)
+            {
+                _logger.Warn($"Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
+                return;
+            }
+
+            var subscriptions = Manager.GetUserSubscriptionsByGruntType(pokestop.GruntType);
+            if (subscriptions == null)
+            {
+                _logger.Warn($"Failed to get subscriptions from database table.");
+                return;
+            }
+
+            SubscriptionObject user;
+            var embed = _embedBuilder.BuildPokestopMessage(pokestop, loc.Name);
+            for (int i = 0; i < subscriptions.Count; i++)
+            {
+                try
+                {
+                    user = subscriptions[i];
+                    if (user == null)
+                        continue;
+
+                    if (!user.Enabled)
+                        continue;
+
+                    var member = await _client.GetMemberById(_whConfig.GuildId, user.UserId);
+                    if (member == null)
+                    {
+                        _logger.Warn($"Failed to find member with id {user.UserId}.");
+                        continue;
+                    }
+
+                    if (!member.HasSupporterRole(_whConfig.SupporterRoleId))
+                    {
+                        _logger.Info($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
+                        continue;
+                    }
+
+                    var exists = user.Invasions.FirstOrDefault(x =>
+                        x.GruntType == pokestop.GruntType &&
+                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
+                    ) != null;
+                    if (!exists)
+                    {
+                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
+                        continue;
+                    }
+
+                    //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
+
+                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokestop.Name, embed));
+
+                    //if (!Manager.AddRaidStatistic(member.Id, raid))
+                    //{
+                    //    _logger.Warn($"Failed to add {pokemon.Name} raid statistic for user {user.Id}.");
+                    //}
+                    //await _client.SendDirectMessage(member, embed);
+                    Statistics.Instance.SubscriptionInvasionsSent++;
+                    Thread.Sleep(5);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                }
+            }
+
+            subscriptions.Clear();
+            subscriptions = null;
+            embed = null;
+            user = null;
+            loc = null;
+
+            await Task.CompletedTask;
         }
 
         private void ProcessQueue()
@@ -427,7 +507,6 @@
                         continue;
 
                     await _client.SendDirectMessage(item.Item1, item.Item3);
-
                     _logger.Info($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
                     Thread.Sleep(10);
                 }

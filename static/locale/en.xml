@@ -3,7 +3,7 @@
 	<string name="UNKNOWN_POKESTOP">Unknown Pokestop</string>
 	<string name="EMBED_DIRECTIONS">DIRECTIONS</string>
 	
-	<string name="EMBED_POKEMON_TITLE">{0} {1}{2} {3} L{4}</string>
+	<string name="EMBED_POKEMON_TITLE">{0} {1}{2} {3} ({4}/{5}/{6}) L{7}</string>
 	<string name="EMBED_POKEMON_DESPAWN">Despawn: {0} ({1} left)</string>
 	<string name="EMBED_POKEMON_TITLE_WITHOUT_DETAILS">{0} {1}{2}</string>
 	<string name="EMBED_POKEMON_DETAILS">**Details:** CP: {0} IV: {1} LV: {2}</string>
@@ -20,6 +20,7 @@
 	<string name="EMBED_RAID_ENDS_WITH_TIME_LEFT">**Ends:** {0} ({1} left)</string>
 	<string name="EMBED_RAID_STARTED">**Started:** {0}</string>
 	<string name="EMBED_RAID_PERFECT_CP">**Perfect CP:** {0} / :white_sun_rain_cloud: {1}</string>
+	<string name="EMBED_RAID_WORST_CP">**Worst CP:** {0} / :white_sun_rain_cloud: {1}</string>
 	<string name="EMBED_RAID_WEAKNESSES">**Weaknesses:** {0}</string>
 	<string name="EMBED_RAID_EX_GYM">{0} **Gym!**</string>
 	
@@ -28,7 +29,7 @@
 	<string name="EMBED_QUEST_REWARD">**Reward:** {0}</string>
 	
 	<string name="EMBED_TYPES">**Types:** {0}</string>
-	<string name="EMBED_MOVE_FAST">**Fast Move:** {0}</string>
+	<string name="EMBED_MOVE_FAST">**Moveset:** {0}</string>
 	<string name="EMBED_MOVE_CHARGE">**Charge Move:** {0}</string>
 	<string name="EMBED_TEAM">**Team:** {0}</string>
 	<string name="EMBED_TIME_REMAINING">**Time Remaining:** {0}</string>

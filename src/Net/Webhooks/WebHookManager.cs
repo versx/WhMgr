@@ -11,6 +11,7 @@
     using WhMgr.Alarms;
     using WhMgr.Alarms.Filters;
     using WhMgr.Alarms.Models;
+    using WhMgr.Configuration;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
@@ -26,6 +27,7 @@
         private AlarmList _alarms;
         private readonly string _alarmsFilePath;
         private readonly Dictionary<string, WebHookObject> _webhooks;
+        private readonly WhConfig _config;
         private readonly IEventLogger _logger;
 
         #endregion
@@ -46,40 +48,40 @@
 
         #region Alarms
 
-        public event EventHandler<PokemonAlarmTriggeredEventArgs> PokemonAlarmTriggered;
+        public event EventHandler<AlarmEventTriggeredEventArgs<PokemonData>> PokemonAlarmTriggered;
         private void OnPokemonAlarmTriggered(PokemonData pkmn, AlarmObject alarm)
         {
-            PokemonAlarmTriggered?.Invoke(this, new PokemonAlarmTriggeredEventArgs(pkmn, alarm));
+            PokemonAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<PokemonData>(pkmn, alarm));
         }
 
-        public event EventHandler<RaidAlarmTriggeredEventArgs> RaidAlarmTriggered;
+        public event EventHandler<AlarmEventTriggeredEventArgs<RaidData>> RaidAlarmTriggered;
         private void OnRaidAlarmTriggered(RaidData raid, AlarmObject alarm)
         {
-            RaidAlarmTriggered?.Invoke(this, new RaidAlarmTriggeredEventArgs(raid, alarm));
+            RaidAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<RaidData>(raid, alarm));
         }
 
-        public event EventHandler<QuestAlarmTriggeredEventArgs> QuestAlarmTriggered;
+        public event EventHandler<AlarmEventTriggeredEventArgs<QuestData>> QuestAlarmTriggered;
         private void OnQuestAlarmTriggered(QuestData quest, AlarmObject alarm)
         {
-            QuestAlarmTriggered?.Invoke(this, new QuestAlarmTriggeredEventArgs(quest, alarm));
+            QuestAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<QuestData>(quest, alarm));
         }
 
-        public event EventHandler<GymAlarmTriggeredEventArgs> GymAlarmTriggered;
+        public event EventHandler<AlarmEventTriggeredEventArgs<GymData>> GymAlarmTriggered;
         private void OnGymAlarmTriggered(GymData gym, AlarmObject alarm)
         {
-            GymAlarmTriggered?.Invoke(this, new GymAlarmTriggeredEventArgs(gym, alarm));
+            GymAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<GymData>(gym, alarm));
         }
 
-        public event EventHandler<GymDetailsAlarmTriggeredEventArgs> GymDetailsAlarmTriggered;
+        public event EventHandler<AlarmEventTriggeredEventArgs<GymDetailsData>> GymDetailsAlarmTriggered;
         private void OnGymDetailsAlarmTriggered(GymDetailsData gymDetails, AlarmObject alarm)
         {
-            GymDetailsAlarmTriggered?.Invoke(this, new GymDetailsAlarmTriggeredEventArgs(gymDetails, alarm));
+            GymDetailsAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<GymDetailsData>(gymDetails, alarm));
         }
 
-        public event EventHandler<PokestopAlarmTriggeredEventArgs> PokestopAlarmTriggered;
+        public event EventHandler<AlarmEventTriggeredEventArgs<PokestopData>> PokestopAlarmTriggered;
         private void OnPokestopAlarmTriggered(PokestopData pokestop, AlarmObject alarm)
         {
-            PokestopAlarmTriggered?.Invoke(this, new PokestopAlarmTriggeredEventArgs(pokestop, alarm));
+            PokestopAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<PokestopData>(pokestop, alarm));
         }
 
         #endregion
@@ -105,28 +107,35 @@
             QuestSubscriptionTriggered?.Invoke(this, quest);
         }
 
+        public event EventHandler<PokestopData> InvasionSubscriptionTriggered;
+        private void OnInvasionSubscriptionTriggered(PokestopData pokestop)
+        {
+            InvasionSubscriptionTriggered?.Invoke(this, pokestop);
+        }
+
         #endregion
 
         #endregion
 
         #region Constructor
 
-        public WebhookManager(ushort port, string alarmsFilePath)
+        public WebhookManager(WhConfig config, string alarmsFilePath)
         {
             Filters = new Filters();
             Geofences = new Dictionary<string, GeofenceItem>();
 
             _logger = EventLogger.GetLogger();
-            _logger.Trace($"WebhookManager::WebhookManager [Port={port}]");
+            _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, AlarmsFilePath={alarmsFilePath}]");
 
             _webhooks = new Dictionary<string, WebHookObject>();
             GeofenceService = new GeofenceService();
             _alarmsFilePath = alarmsFilePath;
             _alarms = LoadAlarms(_alarmsFilePath);
+            _config = config;
 
             LoadWebHooks();
 
-            _http = new HttpServer(port);
+            _http = new HttpServer(_config.WebhookPort);
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
             _http.QuestReceived += Http_QuestReceived;
@@ -149,6 +158,21 @@
             {
                 _logger.Debug($"Pokemon {e.Pokemon.Id} already despawned at {e.Pokemon.DespawnTime}");
                 return;
+            }
+
+            if (_config.EventPokemonIds.Contains(e.Pokemon.Id) && _config.EventPokemonIds.Count > 0)
+            {
+                var iv = PokemonData.GetIV(e.Pokemon.Attack, e.Pokemon.Defense, e.Pokemon.Stamina);
+                if (iv < 90)
+                    return;
+            }
+
+            if (e.Pokemon.IsDitto)
+            {
+                // Ditto
+                var originalId = e.Pokemon.Id;
+                e.Pokemon.OriginalPokemonId = originalId;
+                e.Pokemon.Id = 132;
             }
 
             ProcessPokemon(e.Pokemon);
@@ -175,7 +199,13 @@
 
         private void Http_PokestopReceived(object sender, PokestopDataEventArgs e)
         {
-            ProcessPokestop(e.Pokestop);
+            e.Pokestop.SetTimes();
+
+            if (e.Pokestop.HasLure || e.Pokestop.HasInvasion)
+            {
+                ProcessPokestop(e.Pokestop);
+                OnInvasionSubscriptionTriggered(e.Pokestop);
+            }
         }
 
         private void Http_GymReceived(object sender, GymDataEventArgs e)
@@ -290,7 +320,7 @@
 
                 if (!alarm.Filters.Pokemon.Enabled)
                 {
-                    _logger.Info($"[{alarm.Name}] Skipping pokemon {pkmn.Id} because Pokemon filter not enabled.");
+                    //_logger.Info($"[{alarm.Name}] Skipping pokemon {pkmn.Id} because Pokemon filter not enabled.");
                     continue;
                 }
 
@@ -334,6 +364,16 @@
                 if (!Filters.MatchesLvl(pkmn.Level, alarm.Filters.Pokemon.MinimumLevel, alarm.Filters.Pokemon.MaximumLevel))
                 {
                     //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumLevel={alarm.Filters.Pokemon.MinimumLevel} and MaximumLevel={alarm.Filters.Pokemon.MaximumLevel} and Level={pkmn.Level}.");
+                    continue;
+                }
+
+                if (!pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague)
+                {
+                    continue;
+                }
+
+                if (!pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague)
+                {
                     continue;
                 }
 
@@ -398,7 +438,7 @@
                         continue;
                     }
 
-                    if (alarm.Filters.Eggs.OnlyEx && !(raid.IsExclusive || raid.SponsorId))
+                    if (alarm.Filters.Eggs.OnlyEx && !raid.IsExEligible)
                     {
                         //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: only ex {alarm.Filters.Eggs.OnlyEx}.");
                         continue;
@@ -435,7 +475,7 @@
                         continue;
                     }
 
-                    if (alarm.Filters.Raids.OnlyEx && !(raid.IsExclusive || raid.SponsorId))
+                    if (alarm.Filters.Raids.OnlyEx && !raid.IsExEligible)
                     {
                         _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: only ex {alarm.Filters.Raids.OnlyEx}.");
                         continue;
@@ -469,7 +509,7 @@
             if (_alarms.Alarms?.Count == 0)
                 return;
 
-            var rewardKeyword = quest.GetRewardString();
+            var rewardKeyword = quest.GetReward();
 
             for (var i = 0; i < _alarms.Alarms.Count; i++)
             {
@@ -545,6 +585,18 @@
                     continue;
                 }
 
+                if (!alarm.Filters.Pokestops.Lured && pokestop.HasLure)
+                {
+                    //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: lure filter not enabled.");
+                    continue;
+                }
+
+                if (!alarm.Filters.Pokestops.Invasions && pokestop.HasInvasion)
+                {
+                    //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: invasion filter not enabled.");
+                    continue;
+                }
+
                 var geofence = InGeofence(alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
                 if (geofence == null)
                 {
@@ -615,7 +667,7 @@
             }
         }
 
-        private GeofenceItem InGeofence(List<GeofenceItem> geofences, Location location)
+        public GeofenceItem InGeofence(List<GeofenceItem> geofences, Location location)
         {
             for (var i = 0; i < geofences.Count; i++)
             {
