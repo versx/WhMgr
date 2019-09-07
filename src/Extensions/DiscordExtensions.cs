@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Extensions
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
@@ -15,8 +16,8 @@
 
     public static class DiscordExtensions
     {
-        private const string ConfirmRegex = "\\b[Yy][Ee]?[Ss]?\\b|\\b[Nn][Oo]?\\b";
-        private const string YesRegex = "[Yy][Ee]?[Ss]?";
+        public const string ConfirmRegex = "\\b[Yy][Ee]?[Ss]?\\b|\\b[Nn][Oo]?\\b";
+        public const string YesRegex = "[Yy][Ee]?[Ss]?";
         //private const string NoRegex = "[Nn][Oo]?";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
@@ -107,7 +108,7 @@
             {
                 await ctx.TriggerTypingAsync();
             }
-            return await ctx.RespondEmbed($"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\nDonation information can be found by typing the `.donate` command.");
+            return await ctx.RespondEmbed($"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\nDonation information can be found by typing the `donate` command.");
         }
 
         internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message)
@@ -133,7 +134,7 @@
                 if (isModerator)
                     return true;
 
-                var isSupporter = client.HasSupporterRole(config.GuildId, userId, config.SupporterRoleId);
+                var isSupporter = client.HasSupporterRole(config.GuildId, userId, config.DonorRoleIds);
                 if (isSupporter)
                     return true;
             }
@@ -168,7 +169,7 @@
             return userId == ownerId;
         }
 
-        public static bool HasSupporterRole(this DiscordClient client, ulong guildId, ulong userId, ulong supporterRoleId)
+        public static bool HasSupporterRole(this DiscordClient client, ulong guildId, ulong userId, List<ulong> supporterRoleIds)
         {
             if (!client.Guilds.ContainsKey(guildId))
                 return false;
@@ -181,12 +182,20 @@
                 return false;
             }
 
-            return member.HasSupporterRole(supporterRoleId);
+            return member.HasSupporterRole(supporterRoleIds);
         }
 
-        public static bool HasSupporterRole(this DiscordMember member, ulong supporterRoleId)
+        public static bool HasSupporterRole(this DiscordMember member, List<ulong> supporterRoleIds)
         {
-            return HasRole(member, supporterRoleId);
+            for (var i = 0; i < supporterRoleIds.Count; i++)
+            {
+                if (HasRole(member, supporterRoleIds[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static async Task<bool> HasModeratorRole(this DiscordClient client, ulong guildId, ulong userId, ulong moderatorRoleId)

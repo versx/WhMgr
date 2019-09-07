@@ -147,7 +147,7 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.SupporterRoleId))
+                    if (!member.HasSupporterRole(_whConfig.DonorRoleIds))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pokemon.Name}...");
                         continue;
@@ -160,6 +160,17 @@
                     {
                         //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
                         continue;
+                    }
+
+                    if (user.DistanceM > 0)
+                    {
+                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                        if (user.DistanceM < distance)
+                        {
+                            //Skip if distance is set and is not met.
+                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM} meters.");
+                            continue;
+                        }
                     }
 
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id);
@@ -252,7 +263,7 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.SupporterRoleId))
+                    if (!member.HasSupporterRole(_whConfig.DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
                         continue;
@@ -264,12 +275,15 @@
                     //    continue;
                     //}
 
-                    var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
-                    if (user.DistanceM > 0 && user.DistanceM < distance)
+                    if (user.DistanceM > 0)
                     {
-                        //Skip if distance is set and is not met.
-                        _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM} meters.");
-                        continue;
+                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
+                        if (user.DistanceM < distance)
+                        {
+                            //Skip if distance is set and is not met.
+                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM} meters.");
+                            continue;
+                        }
                     }
 
                     if (user.Gyms.Count > 0 && !user.Gyms.Exists(x => !string.IsNullOrEmpty(x?.Name) && raid.GymName.ToLower().Contains(x.Name?.ToLower())))
@@ -362,7 +376,7 @@
                         continue;
                     }
 
-                    isSupporter = member.HasSupporterRole(_whConfig.SupporterRoleId);
+                    isSupporter = member.HasSupporterRole(_whConfig.DonorRoleIds);
                     if (!isSupporter)
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping quest {questName}...");
@@ -377,6 +391,17 @@
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
                         continue;
+                    }
+
+                    if (user.DistanceM > 0)
+                    {
+                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
+                        if (user.DistanceM < distance)
+                        {
+                            //Skip if distance is set and is not met.
+                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Quest {quest.Template}, Quest is farther than set distance of '{user.DistanceM} meters.");
+                            continue;
+                        }
                     }
 
                     //continue;
@@ -438,7 +463,7 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.SupporterRoleId))
+                    if (!member.HasSupporterRole(_whConfig.DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
                         continue;
@@ -452,6 +477,17 @@
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
                         continue;
+                    }
+
+                    if (user.DistanceM > 0)
+                    {
+                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
+                        if (user.DistanceM < distance)
+                        {
+                            //Skip if distance is set and is not met.
+                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}, TR Invasion is farther than set distance of '{user.DistanceM} meters.");
+                            continue;
+                        }
                     }
 
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");

@@ -97,9 +97,11 @@
     <Compile Include="CommandLine.cs" />
     <Compile Include="Commands\Dependencies.cs" />
     <Compile Include="Commands\Feeds.cs" />
+    <Compile Include="Commands\Gyms.cs" />
     <Compile Include="Commands\Nests.cs" />
     <Compile Include="Commands\Notifications.cs" />
     <Compile Include="Commands\CommunityDay.cs" />
+    <Compile Include="Commands\Owner.cs" />
     <Compile Include="Commands\Quests.cs" />
     <Compile Include="Commands\ShinyStats.cs" />
     <Compile Include="Configuration\DiscordServer.cs" />
@@ -108,6 +110,13 @@
     <Compile Include="Configuration\WhConfig.cs" />
     <Compile Include="Data\DataAccessLayer.cs" />
     <Compile Include="Data\Database.cs" />
+    <Compile Include="Data\Models\Discord\DiscordEmbed.cs" />
+    <Compile Include="Data\Models\Discord\DiscordEmbedAuthor.cs" />
+    <Compile Include="Data\Models\Discord\DiscordEmbedFooter.cs" />
+    <Compile Include="Data\Models\Discord\DiscordEmbedImage.cs" />
+    <Compile Include="Data\Models\Discord\DiscordField.cs" />
+    <Compile Include="Data\Models\Discord\DiscordWebhookMessage.cs" />
+    <Compile Include="Data\Models\Gym.cs" />
     <Compile Include="Data\Models\PokemonPvP.cs" />
     <Compile Include="Data\Models\Pokestop.cs" />
     <Compile Include="Data\Subscriptions\Models\InvasionSubscription.cs" />
@@ -175,6 +184,7 @@
     <Compile Include="Strings.cs" />
     <Compile Include="Net\Webhooks\WebhookManager.cs" />
     <Compile Include="Utilities\FileWatcher.cs" />
+    <Compile Include="Utilities\NetUtil.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

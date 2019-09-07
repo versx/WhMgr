@@ -26,7 +26,6 @@
 
     //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
     //TODO: Optimize webhook and subscription processing.
-    //TODO: Raid lobby manager
     //TODO: Optimize database queries
     //TODO: Reload config on change
 
@@ -43,6 +42,7 @@
         private readonly SubscriptionProcessor _subProcessor;
         private readonly EmbedBuilder _embedBuilder;
         private readonly Translator _lang;
+        private readonly Dictionary<string, GymDetailsData> _gyms;
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
@@ -54,7 +54,7 @@
         {
             var name = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName;
             //_logger = EventLogger.GetLogger(name);
-            _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, SupporterRoleId={whConfig.SupporterRoleId}, WebhookPort={whConfig.WebhookPort}]");
+            _logger.Trace($"Bot::Bot [WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, GuildId={whConfig.GuildId}, WebhookPort={whConfig.WebhookPort}]");
 
             _lang = new Translator();
             _whConfig = whConfig;
@@ -82,6 +82,8 @@
                     }
                 }
             };
+
+            _gyms = new Dictionary<string, GymDetailsData>();
 
             _whm = new WebhookManager(_whConfig, alarmsFilePath);
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
@@ -162,8 +164,11 @@
             );
             _commands.CommandExecuted += Commands_CommandExecuted;
             _commands.CommandErrored += Commands_CommandErrored;
+            _commands.RegisterCommands<Owner>();
             _commands.RegisterCommands<CommunityDay>();
             _commands.RegisterCommands<ShinyStats>();
+            _commands.RegisterCommands<Gyms>();
+            _commands.RegisterCommands<Quests>();
             if (_whConfig.EnableSubscriptions)
             {
                 _commands.RegisterCommands<Notifications>();
@@ -172,7 +177,6 @@
             {
                 _commands.RegisterCommands<Feeds>();
             }
-            _commands.RegisterCommands<Quests>();
         }
 
         #endregion
@@ -370,10 +374,10 @@
 
         private async void OnRaidAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<RaidData> e)
         {
-            _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Data.PokemonId}, Level: {e.Data.Level}, StartTime: {e.Data.StartTime}]");
-
             if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
                 return;
+
+            _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Data.PokemonId}, Level: {e.Data.Level}, StartTime: {e.Data.StartTime}]");
 
             var wh = _whm.WebHooks[e.Alarm.Name];
             if (wh == null)
@@ -414,10 +418,10 @@
 
         private async void OnQuestAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<QuestData> e)
         {
-            _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, Type={e.Data.Type}]");
-
             if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
                 return;
+
+            _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, Type={e.Data.Type}]");
 
             var wh = _whm.WebHooks[e.Alarm.Name];
             if (wh == null)
@@ -449,10 +453,10 @@
 
         private async void OnPokestopAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokestopData> e)
         {
-            _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, LureExpire={e.Data.LureExpire}, InvasionExpire={e.Data.IncidentExpire}]");
-
             if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
                 return;
+
+            _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, LureExpire={e.Data.LureExpire}, InvasionExpire={e.Data.IncidentExpire}]");
 
             var wh = _whm.WebHooks[e.Alarm.Name];
             if (wh == null)
@@ -499,25 +503,35 @@
 
         private void OnGymAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<GymData> e)
         {
-            _logger.Info($"Gym Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, Team={e.Data.Team}, SlotsAvailable={e.Data.SlotsAvailable}, GuardPokemonId={e.Data.GuardPokemonId}]");
-
-            if (!e.Alarm.Filters.Gyms.Enabled)
+            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
                 return;
+
+            _logger.Info($"Gym Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, Team={e.Data.Team}, SlotsAvailable={e.Data.SlotsAvailable}, GuardPokemonId={e.Data.GuardPokemonId}]");
 
             //TODO: Implement gym alarms.
         }
 
         private void OnGymDetailsAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<GymDetailsData> e)
         {
-            _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");
-
-            if (!e.Alarm.Filters.Gyms.Enabled)
+            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
                 return;
 
+            _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");
+
             var gymDetails = e.Data;
-            if (gymDetails.InBattle)
+            if (!_gyms.ContainsKey(gymDetails.GymId))
             {
-                //TODO: Send gym battle alarms.
+                _gyms.Add(gymDetails.GymId, gymDetails);
+            }
+
+            var oldGym = _gyms[gymDetails.GymId];
+            if (oldGym.Team != gymDetails.Team)
+            {
+                //TODO: Team changed
+            }
+            if (oldGym.InBattle != gymDetails.InBattle)
+            {
+                //TODO: Gym under attack!
             }
         }
 

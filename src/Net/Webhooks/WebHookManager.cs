@@ -664,6 +664,20 @@
                     //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName} because not in geofence.");
                     continue;
                 }
+
+                if ((alarm.Filters?.Gyms?.UnderAttack ?? false) && !gymDetails.InBattle)
+                {
+                    //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName{gymDetails.GymName}, not under attack.");
+                    continue;
+                }
+
+                if (alarm.Filters?.Gyms?.Team != gymDetails.Team && alarm.Filters?.Gyms?.Team != PokemonTeam.All)
+                {
+                    //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName{gymDetails.GymName}, not specified team {alarm.Filters.Gyms.Team}.");
+                    continue;
+                }
+
+                OnGymDetailsAlarmTriggered(gymDetails, alarm);
             }
         }
 

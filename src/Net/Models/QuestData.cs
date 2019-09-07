@@ -272,7 +272,12 @@
         AddFriend,
         TradePokemon,
         SendGift,
-        EvolveIntoPokemon
+        EvolveIntoPokemon,
+        Quest26NotKnown,
+        CompleteCombat,
+        TakeSnapshot,
+        BattleTeamRocket,
+        PurifyPokemon
     }
 
     public enum QuestRewardType
@@ -309,7 +314,14 @@
         PlayerLevel,
         WinBattleStatus,
         NewFriend,
-        DaysInARow
+        DaysInARow,
+        UniquePokemon,
+        NpcCombat,
+        PvpCombat,
+        Location,
+        Distance,
+        PokemonAlignment,
+        InvasionsCharacter
     }
 
     public enum PokemonType
@@ -391,7 +403,7 @@
     {
         Unknown = 0,
         CatchPokemon,
-        CatchLegendPokemon,
+        CatchLegendyPokemon,
         FleePokemon,
         DefeatFort,
         EvolvePokemon,
@@ -435,5 +447,17 @@
         RraidLevel3AdditionalXP,
         RraidLevel4AdditionalXP,
         RraidLevel5AdditionalXP
+    }
+
+    public enum PokemonAlignment
+    {
+        Shadow = 1, //alignment_1
+        Purified //alignment_2
+    }
+
+    public enum CharacterCategory
+    {
+        TeamLeader = 1, //character_category_1
+        Grunt //character_category_2
     }
 }

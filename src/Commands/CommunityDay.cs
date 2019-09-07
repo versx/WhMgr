@@ -16,9 +16,9 @@
     [
         Group("event"),
         Aliases("ev"),
-        Description("Administrative commands."),
+        Description("Event Pokemon management commands."),
         Hidden,
-        RequirePermissions(Permissions.Administrator)
+        RequirePermissions(Permissions.KickMembers)
     ]
     public class CommunityDay
     {
@@ -34,7 +34,7 @@
         [
             Command("list"),
             Aliases("l"),
-            Description("")
+            Description("List all Pokemon considered as `event`.")
         ]
         public async Task ListCommandDayAsync(CommandContext ctx)
         {
@@ -66,7 +66,7 @@
         [
             Command("set"),
             Aliases("s"),
-            Description("")
+            Description("Sets a list of Pokemon as `event`.")
         ]
         public async Task SetCommunityDayAsync(CommandContext ctx,
             [Description("Comma separated list of event Pokemon")] string eventPokemonIds = "0")

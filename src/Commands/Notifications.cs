@@ -98,7 +98,7 @@
             if (_dep.SubscriptionProcessor.Manager.Set(ctx.User.Id, enabled))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} has **{cmd}d** Pokemon, Raid, and Quest notifications.");
+                await ctx.RespondEmbed($"{ctx.User.Username} has **{cmd}d** Pokemon, Raid, Quest, and Invasion notifications.");
             }
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -422,7 +422,7 @@
         ]
         public async Task RaidMeAsync(CommandContext ctx,
             [Description("Pokemon name or id to subscribe to raid notifications.")] string poke,
-            [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
+            [Description("City to send the notification if the raid appears in otherwise if null all will be sent."), RemainingText] string city = null)
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
@@ -435,6 +435,12 @@
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
+            }
+
+            //Remove any spaces from city names
+            if (city.Contains(" "))
+            {
+                city = city.Replace(" ", "");
             }
 
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
@@ -510,12 +516,18 @@
         ]
         public async Task RaidMeNotAsync(CommandContext ctx,
             [Description("Pokemon name or id to unsubscribe from raid notifications.")] string poke,
-            [Description("City to remove the quest notifications from otherwise if null all will be sent.")] string city = null)
+            [Description("City to remove the quest notifications from otherwise if null all will be sent."), RemainingText] string city = null)
         {
             if (!_dep.WhConfig.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
                 return;
+            }
+
+            //Remove any spaces from city names
+            if (city.Contains(" "))
+            {
+                city = city.Replace(" ", "");
             }
 
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
@@ -1224,7 +1236,9 @@
                     return new List<string> { error };
                 }
 
-                var feeds = member.Roles.Select(x => x.Name).Where(x => _dep.WhConfig.CityRoles.Contains(x)).ToList();
+                var feeds = member?.Roles?.Select(x => x.Name).Where(x => _dep.WhConfig.CityRoles.Contains(x))?.ToList();
+                if (feeds == null)
+                    return messages;
                 feeds.Sort();
 
                 var pokemon = subscription.Pokemon;
@@ -1245,6 +1259,7 @@
 
                 var msg = $"Enabled: **{(subscription.Enabled ? "Yes" : "No")}**\r\n";
                 msg += $"Feed Zones: ```{string.Join(", ", feeds)}```\r\n";
+                msg += $"Distance: **{(subscription.DistanceM == 0 ? "Not Set (Any Distance)" : $"{subscription.DistanceM} kilometers")}**\r\n";
                 msg += $"Pokemon Subscriptions: ({pokemon.Count}/{(isSupporter ? "∞" : Strings.MaxPokemonSubscriptions.ToString())} used)\r\n";
                 msg += "```";
 

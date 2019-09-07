@@ -13,63 +13,7 @@
     {
         public static string GetQuestMessage(this QuestData quest)
         {
-            switch (quest.Type)
-            {
-                case QuestType.AddFriend:
-                    return $"Add {quest.Target} Friends";
-                case QuestType.AutoComplete:
-                    return $"Autocomplete";
-                case QuestType.BadgeRank:
-                    return $"Get {quest.Target} Badge(s)";
-                case QuestType.CatchPokemon:
-                    return $"Catch {quest.Target} Pokemon";
-                case QuestType.CompleteBattle:
-                    return $"Complete {quest.Target} Battles";
-                case QuestType.CompleteGymBattle:
-                    return $"Complete {quest.Target} Gym Battles";
-                case QuestType.CompleteQuest:
-                    return $"Complete {quest.Target} Quests";
-                case QuestType.CompleteRaidBattle:
-                    return $"Complete {quest.Target} Raid Battles";
-                case QuestType.EvolveIntoPokemon:
-                    return $"Evolve {quest.Target} Into Specific Pokemon";
-                case QuestType.EvolvePokemon:
-                    return $"Evolve {quest.Target} Pokemon";
-                case QuestType.FavoritePokemon:
-                    return $"Favorite {quest.Target} Pokemon";
-                case QuestType.FirstCatchOfTheDay:
-                    return $"Catch first Pokemon of the day";
-                case QuestType.FirstPokestopOfTheDay:
-                    return $"Spin first pokestop of the day";
-                case QuestType.GetBuddyCandy:
-                    return $"Earn {quest.Target} candy walking with your buddy";
-                case QuestType.HatchEgg:
-                    return $"Hatch {quest.Target} Eggs";
-                case QuestType.JoinRaid:
-                    return $"Join {quest.Target} Raid Battles";
-                case QuestType.LandThrow:
-                    return $"Land {quest.Target} Throws";
-                case QuestType.MultiPart:
-                    return "Multi Part Quest";
-                case QuestType.PlayerLevel:
-                    return $"Reach level {quest.Target}"; ;
-                case QuestType.SendGift:
-                    return $"Send {quest.Target} Gifts";
-                case QuestType.SpinPokestop:
-                    return $"Spin {quest.Target} Pokestops";
-                case QuestType.TradePokemon:
-                    return $"Trade {quest.Target} Pokemon";
-                case QuestType.TransferPokemon:
-                    return $"Transfer {quest.Target} Pokemon";
-                case QuestType.UpgradePokemon:
-                    return $"Power up {quest.Target} Pokemon";
-                case QuestType.UseBerryInEncounter:
-                    return $"Use {quest.Target} Berries on Pokemon";
-                case QuestType.Unknown:
-                    return $"Unknown";
-            }
-
-            return quest.Type.ToString();
+            return GetQuestMessage(quest.Type, quest.Target);
         }
 
         public static string GetQuestMessage(this QuestType type, int target)
@@ -126,6 +70,14 @@
                     return $"Power up {target} Pokemon";
                 case QuestType.UseBerryInEncounter:
                     return $"Use {target} Berries on Pokemon";
+                case QuestType.CompleteCombat:
+                    return $"Complete {target} Combat(s)";
+                case QuestType.TakeSnapshot:
+                    return $"Take {target} Snapshot(s)";
+                case QuestType.BattleTeamRocket:
+                    return $"Battle {target} Team Rocket Battle(s)";
+                case QuestType.PurifyPokemon:
+                    return $"Purify {target} Pokemon";
                 case QuestType.Unknown:
                     return $"Unknown";
             }
@@ -208,6 +160,20 @@
                     return "Win gym battle";
                 case QuestConditionType.WinRaidStatus:
                     return "Win raid";
+                case QuestConditionType.UniquePokemon:
+                    return "Unique Pokemon";
+                case QuestConditionType.NpcCombat:
+                    return "NPC Combat";
+                case QuestConditionType.PvpCombat:
+                    return "PvP Combat";
+                case QuestConditionType.Location:
+                    return "Location";
+                case QuestConditionType.Distance:
+                    return "Distance";
+                case QuestConditionType.PokemonAlignment:
+                    return "Pokemon Alignment"; //TODO: Finish Pokemon Alignment(s): %{alignments}
+                case QuestConditionType.InvasionsCharacter:
+                    return "Invasion Category"; //TODO: Finish Invasion Category(s): %{categories}
             }
 
             return null;

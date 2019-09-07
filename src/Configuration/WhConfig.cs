@@ -19,8 +19,8 @@
         [JsonProperty("ownerId")]
         public ulong OwnerId { get; set; }
 
-        [JsonProperty("supporterRoleId")]
-        public ulong SupporterRoleId { get; set; }
+        [JsonProperty("donorRoleIds")]
+        public List<ulong> DonorRoleIds { get; set; }
 
         [JsonProperty("guildId")]
         public ulong GuildId { get; set; }

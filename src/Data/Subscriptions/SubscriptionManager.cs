@@ -917,13 +917,25 @@
 
             try
             {
+                if (_conn == null)
+                {
+                    _conn = DataAccessLayer.CreateFactory().Open();
+                }
                 var results = _conn.Select<SubscriptionObject>();
                 var list = results.ToList();
                 return _conn;
             }
             catch (MySql.Data.MySqlClient.MySqlException)
             {
-                return _conn = DataAccessLayer.CreateFactory().Open();
+                try
+                {
+                    return _conn = DataAccessLayer.CreateFactory().Open();
+                }
+                catch (MySql.Data.MySqlClient.MySqlException)
+                {
+                    //TODO: Better solution
+                    return _conn;
+                }
                 //return GetConnection();
             }
 
