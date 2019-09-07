@@ -22,7 +22,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
   "ownerId": 000000000000,
   
   //Discord server donator role id.
-  "supporterRoleId": 000000000000,
+  "donorRoleIds": [000000000000, 000000000001],
   
   //List of Discord server moderator role ids.
   "moderators": [000000000000],
@@ -33,14 +33,14 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
   //Listening port to accept webhook data.
   "webhookPort": 8002,
   
-  //Google maps key.
-  "gmapsKey": "<GOOGLE_MAPS_KEY>",
-  
   //Enable discord user subscriptions for custom notifications to Quests/Raids/Pokemon, if enabled database information is required below.
   "enableSubscriptions": false,
   
   //MySQL database connection string.
   "connectionString": "Uid=user;Password=password;Server=127.0.0.1;Port=3306;Database=brockdb",
+  
+  //MySQL database connection string for RealDeviceMap scanner.
+  "scannerConnectionString": "Uid=user;Password=password;Server=127.0.0.1;Port=3306;Database=brockdb",
   
   //City roles to filter by geofence.
   "cityRoles": [
@@ -48,8 +48,44 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
     "City2"
   ],
   
+  //Assigning city roles require a donor role.
+  "citiesRequireSupporterRole": false,
+  
   //Bot command prefix, if empty/null the bot's mention prefix is set as default.
-  "commandPrefix": null
+  "commandPrefix": null,
+  
+  //Channel IDs of quest channels to clear messages at midnight.
+  "questChannelIds": [
+    000000000000,
+	000000000001
+  ],
+  
+  //Shiny statistics
+  "shinyStats": {
+    //Enables or disables shiny statistics posting.
+    "enabled": false,
+	
+	//Clear all old shiny statistic reports.
+    "clearMessages": true,
+	
+	//Channel ID to post the shiny statistics to.
+    "channelId": 000000000000
+  },
+  
+  //Image URLs
+  "urls": {
+    //Pokemon images repository path.
+    "pokemonImage": "https://example.com/pogo/monsters/{0:D3}_{1:D3}.png",
+	
+	//Raid egg images repository path.
+	"eggImage": "https://example.com/pogo/eggs/{0}.png",
+	
+	//Field research quest images repository path.
+	"questImage": "https://example.com/pogo/quests/{0}.png",
+	
+	//Static map images template.
+	"staticMap": "https://example.com/staticmap.php?center={0},{1}&markers={0},{1},red-pushpin&zoom=14&size=300x175&maptype=mapnik",
+  }
 }
 ```
 2.) Copy `alarms.example.json` to `alarms.json`.  
@@ -64,6 +100,12 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
   
   //Global switch for Quest notifications.
   "enableQuests": false,
+  
+  //Global switch for Pokestop notifications.
+  "enablePokestops": false,
+  
+  //Global switch for Gym notifications.
+  "enableGyms": false,
   
   //List of alarms
   "alarms": 
@@ -157,7 +199,29 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 		  
           //Only send shiny encounter quests.
           "isShiny": false
-        }
+        },
+		"pokestops":
+		{
+		  //Determines if pokestop alarms will be enabled.
+		  "enabled": true,
+		  
+		  //Alarm is sent if there is an active Pokestop lure.
+		  "lured": true,
+		  
+		  //Alarm is sent if there is an active Team Rocket invasion.
+		  "invasions": true
+		},
+		"gyms":
+		{
+		  //Determines if gym alarms will be enabled.
+		  "enabled": true,
+		  
+		  //Alarm is sent if the gym is under attack (in battle).
+		  "underAttack": true,
+		  
+		  //Alarm is sent if gym team is changed to the following. i.e. Valor, Mystic, Instinct, Neutral, or All
+		  "team": "Valor"
+		}
       },
       //Path to geofence file.
       "geofence":"geofence1.txt",
