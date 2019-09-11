@@ -4,8 +4,8 @@
 	<string name="EMBED_DIRECTIONS">DIRECTIONS</string>
 	
 	<string name="EMBED_POKEMON_TITLE">{0} {1}{2} {3} ({4}/{5}/{6}) L{7}</string>
-	<string name="EMBED_POKEMON_DESPAWN">Despawn: {0} ({1} left)</string>
 	<string name="EMBED_POKEMON_TITLE_WITHOUT_DETAILS">{0} {1}{2}</string>
+	<string name="EMBED_POKEMON_DESPAWN">**Despawn:** {0} ({1} left)</string>
 	<string name="EMBED_POKEMON_DETAILS">**Details:** CP: {0} IV: {1} LV: {2}</string>
 	<string name="EMBED_POKEMON_STATS">**IV Stats:** Atk: {0}/Def: {1}/Sta: {2}</string>
 	<string name="EMBED_POKEMON_FORM">**Form:** {0}</string>

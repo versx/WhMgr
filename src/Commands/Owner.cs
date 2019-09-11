@@ -8,6 +8,7 @@
     using DSharpPlus.Entities;
 
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
     using WhMgr.Utilities;
 
     [
@@ -48,6 +49,38 @@
             eb.AddField("Pokemon.com", isPtcBanned ? "Banned" : "Good", true);
             eb.AddField("NianticLabs.com", isNiaBanned ? "Banned" : "Good", true);
             await ctx.RespondAsync(string.Empty, false, eb.Build());
+        }
+
+        [
+            Command("clean-departed"),
+            Description("")
+        ]
+        public async Task CleanDepartedAsync(CommandContext ctx)
+        {
+            _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
+
+            var removed = 0;
+            var users = _dep.SubscriptionProcessor?.Manager?.Subscriptions;// GetUserSubscriptions();
+            for (var i = 0; i < users.Count; i++)
+            {
+                var user = users[i];
+                var discordUser = ctx.Client.GetMemberById(_dep.WhConfig.GuildId, user.UserId);
+                var isSupporter = ctx.Client.HasSupporterRole(_dep.WhConfig.GuildId, user.UserId, _dep.WhConfig.DonorRoleIds);
+                if (discordUser == null || !isSupporter)
+                {
+                    _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
+                    if (!_dep.SubscriptionProcessor.Manager.RemoveAllUserSubscriptions(user.UserId))
+                    {
+                        _logger.Warn($"Could not remove user {user.UserId} subscription settings from the database.");
+                        continue;
+                    }
+
+                    _logger.Info($"Removed {user.UserId} and subscriptions from database.");
+                    removed++;
+                }
+            }
+
+            await ctx.RespondEmbed($"Removed {removed.ToString("N0")} of {users.Count.ToString("N0")} total members.");
         }
     }
 }

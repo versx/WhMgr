@@ -413,7 +413,20 @@
         {
             _logger.Trace($"EmbedBuilder::BuildGymMessage [Gym={gym.GymId}, City={city}]");
 
-            return null;
+            var gmapsUrl = string.Format(Strings.GoogleMaps, gym.Latitude, gym.Longitude);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = $"{city}: {(string.IsNullOrEmpty(gym.GymName) ? _lang.Translate("UNKNOWN_GYM") : gym.GymName)}",
+                Url = gmapsUrl,
+                ImageUrl = string.Format(_whConfig.Urls.StaticMap, gym.Latitude, gym.Longitude),
+                ThumbnailUrl = gym.Url,
+                Color = gym.Team == PokemonTeam.Mystic ? DiscordColor.Blue : 
+                        gym.Team == PokemonTeam.Valor ? DiscordColor.Red : 
+                        gym.Team == PokemonTeam.Instinct ? DiscordColor.Yellow : 
+                        DiscordColor.Gray
+            };
+
+            return eb.Build();
         }
 
         public DiscordEmbed BuildGymDetailsMessage(GymDetailsData gymDetails, string city)

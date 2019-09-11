@@ -438,7 +438,7 @@
             }
 
             //Remove any spaces from city names
-            if (city.Contains(" "))
+            if (!string.IsNullOrEmpty(city) && city.Contains(" "))
             {
                 city = city.Replace(" ", "");
             }
@@ -525,7 +525,7 @@
             }
 
             //Remove any spaces from city names
-            if (city.Contains(" "))
+            if (!string.IsNullOrEmpty(city) && city.Contains(" "))
             {
                 city = city.Replace(" ", "");
             }

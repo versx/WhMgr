@@ -276,6 +276,10 @@
                 case InvasionGruntType.FightingFemaleGrunt:
                     gender = PokemonGender.Female;
                     type = PokemonType.Fighting;
+                    secondReward = false;
+                    encounters.First = new List<int> { 107 };
+                    encounters.Second = new List<int> { 107 };
+                    encounters.Third = new List<int> { 107 };
                     break;
                 case InvasionGruntType.FightingMaleGrunt:
                     gender = PokemonGender.Male;
@@ -285,9 +289,12 @@
                     gender = PokemonGender.Female;
                     type = PokemonType.Fire;
                     secondReward = true;
-                    encounters.First = new List<int> { 4, 19, 228 };
-                    encounters.Second = new List<int> { 229, 5 };
-                    encounters.Third = new List<int> { 229, 5, 6 };
+                    //encounters.First = new List<int> { 4, 19, 228 };
+                    //encounters.Second = new List<int> { 229, 5 };
+                    //encounters.Third = new List<int> { 229, 5, 6 };
+                    encounters.First = new List<int> { 4, 58, 228 };
+                    encounters.Second = new List<int> { 5, 229 };
+                    encounters.Third = new List<int> { 6, 59, 229 };
                     break;
                 case InvasionGruntType.FireMaleGrunt:
                     gender = PokemonGender.Male;
@@ -297,9 +304,12 @@
                     gender = PokemonGender.Female;
                     type = PokemonType.Flying;
                     secondReward = false;
+                    //encounters.First = new List<int> { 41, 42 };
+                    //encounters.Second = new List<int> { 42, 169, 123 };
+                    //encounters.Third = new List<int> { 169, 149, 130 };
                     encounters.First = new List<int> { 41, 42 };
-                    encounters.Second = new List<int> { 42, 169, 123 };
-                    encounters.Third = new List<int> { 169, 149, 130 };
+                    encounters.Second = new List<int> { 42, 123, 169 };
+                    encounters.Third = new List<int> { 149, 130, 169 };
                     break;
                 case InvasionGruntType.FlyingMaleGrunt:
                     gender = PokemonGender.Male;
@@ -313,9 +323,12 @@
                     gender = PokemonGender.Male;
                     type = PokemonType.Grass;
                     secondReward = true;
-                    encounters.First = new List<int> { 1, 19, 41 };
-                    encounters.Second = new List<int> { 1, 2 };
-                    encounters.Third = new List<int> { 2, 3 };
+                    //encounters.First = new List<int> { 1, 19, 41 };
+                    //encounters.Second = new List<int> { 1, 2 };
+                    //encounters.Third = new List<int> { 2, 3 };
+                    encounters.First = new List<int> { 1, 43, 387 };
+                    encounters.Second = new List<int> { 1, 2, 44 };
+                    encounters.Third = new List<int> { 2, 3, 388 };
                     break;
                 case InvasionGruntType.GroundFemaleGrunt:
                     gender = PokemonGender.Female;
@@ -325,9 +338,12 @@
                     gender = PokemonGender.Male;
                     type = PokemonType.Ground;
                     secondReward = false;
-                    encounters.First = new List<int> { 104, 19, 41 };
-                    encounters.Second = new List<int> { 104, 105, 20 };
-                    encounters.Third = new List<int> { 105, 20 };
+                    //encounters.First = new List<int> { 104, 19, 41 };
+                    //encounters.Second = new List<int> { 104, 105, 20 };
+                    //encounters.Third = new List<int> { 105, 20 };
+                    encounters.First = new List<int> { 19, 104, 246 };
+                    encounters.Second = new List<int> { 20, 104, 105 };
+                    encounters.Third = new List<int> { 20, 105 };
                     break;
                 case InvasionGruntType.IceFemaleGrunt:
                     gender = PokemonGender.Female;
@@ -361,9 +377,12 @@
                     gender = PokemonGender.Female;
                     type = PokemonType.Poison;
                     secondReward = true;
-                    encounters.First = new List<int> { 88, 41, 1 };
-                    encounters.Second = new List<int> { 88, 89, 42 };
-                    encounters.Third = new List<int> { 89, 42, 2 };
+                    //encounters.First = new List<int> { 88, 41, 1 };
+                    //encounters.Second = new List<int> { 88, 89, 42 };
+                    //encounters.Third = new List<int> { 89, 42, 2 };
+                    encounters.First = new List<int> { 41, 48, 88 };
+                    encounters.Second = new List<int> { 42, 88, 89 };
+                    encounters.Third = new List<int> { 42, 49, 89 };
                     break;
                 case InvasionGruntType.PoisonMaleGrunt:
                     gender = PokemonGender.Male;
@@ -377,9 +396,12 @@
                     gender = PokemonGender.Male;
                     type = PokemonType.Psychic;
                     secondReward = true;
-                    encounters.First = new List<int> { 96, 41, 280 };
+                    //encounters.First = new List<int> { 96, 41, 280 };
+                    //encounters.Second = new List<int> { 96, 97, 280 };
+                    //encounters.Third = new List<int> { 97, 281 };
+                    encounters.First = new List<int> { 63, 96, 280 };
                     encounters.Second = new List<int> { 96, 97, 280 };
-                    encounters.Third = new List<int> { 97, 281 };
+                    encounters.Third = new List<int> { 64, 97, 281 };
                     break;
                 case InvasionGruntType.RockFemaleGrunt:
                     gender = PokemonGender.Female;
@@ -388,14 +410,20 @@
                 case InvasionGruntType.RockMaleGrunt:
                     gender = PokemonGender.Male;
                     type = PokemonType.Rock;
+                    encounters.First = new List<int> { 246 };
+                    encounters.Second = new List<int> { 246, 247 };
+                    encounters.Third = new List<int> { 247, 248 };
                     break;
                 case InvasionGruntType.WaterFemaleGrunt:
                     gender = PokemonGender.Female;
                     type = PokemonType.Water;
                     secondReward = false;
-                    encounters.First = new List<int> { 60, 129 };
-                    encounters.Second = new List<int> { 61 };
-                    encounters.Third = new List<int> { 62, 186 };
+                    //encounters.First = new List<int> { 60, 129 };
+                    //encounters.Second = new List<int> { 61 };
+                    //encounters.Third = new List<int> { 62, 186 };
+                    encounters.First = new List<int> { 54, 60 };
+                    encounters.Second = new List<int> { 55, 61 };
+                    encounters.Third = new List<int> { 56, 61, 186 };
                     break;
                 case InvasionGruntType.WaterMaleGrunt:
                     gender = PokemonGender.Male;
