@@ -175,7 +175,7 @@
                     return false;
                 }
 
-                matchesAtk |= resultAtk >= minimumAtk;
+                matchesAtk = resultAtk == minimumAtk;
             }
 
             matchesAtk |= (missing && minimumAtk == 0);
@@ -195,7 +195,7 @@
                     return false;
                 }
 
-                matchesDef |= resultAtk >= minimumDef;
+                matchesDef = resultAtk == minimumDef;
             }
 
             matchesDef |= (missing && minimumDef == 0);
@@ -215,7 +215,7 @@
                     return false;
                 }
 
-                matchesSta |= resultAtk >= minimumSta;
+                matchesSta = resultAtk == minimumSta;
             }
 
             matchesSta |= (missing && minimumSta == 0);

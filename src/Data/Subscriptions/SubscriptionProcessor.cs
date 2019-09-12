@@ -123,6 +123,9 @@
             bool matchesIV;
             bool matchesLvl;
             bool matchesGender;
+            bool matchesAttack;
+            bool matchesDefense;
+            bool matchesStamina;
             DiscordMember member = null;
             var embed = _embedBuilder.BuildPokemonMessage(pkmn, loc.Name);
             for (var i = 0; i < subscriptions.Count; i++)
@@ -184,8 +187,12 @@
                     //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
                     matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, subscribedPokemon.MinimumLevel);
                     matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
+                    matchesAttack = _whm.Filters.MatchesAttack(pkmn.Attack, subscribedPokemon.Attack);
+                    matchesDefense = _whm.Filters.MatchesDefense(pkmn.Defense, subscribedPokemon.Defense);
+                    matchesStamina = _whm.Filters.MatchesStamina(pkmn.Stamina, subscribedPokemon.Stamina);
 
-                    if (!(matchesIV && matchesLvl && matchesGender))
+                    var hasStats = subscribedPokemon.Attack > 0 || subscribedPokemon.Defense > 0 || subscribedPokemon.Stamina > 0;
+                    if (!((matchesIV && matchesLvl && matchesGender) || (hasStats && matchesAttack && matchesDefense && matchesStamina)))
                         continue;
 
                     //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");

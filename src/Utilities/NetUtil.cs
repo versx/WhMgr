@@ -24,7 +24,7 @@
                 //Returns TRUE if the Status code != 200
                 response.Close();
                 var result = response.StatusCode;
-                return (result == HttpStatusCode.Forbidden || 
+                return (result == HttpStatusCode.Forbidden ||
                         result == HttpStatusCode.Conflict);
             }
             catch
@@ -73,6 +73,29 @@
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
+        public static string Get(string url)
+        {
+            using (var wc = new WebClient())
+            {
+                wc.Proxy = null;
+                try
+                {
+                    return wc.DownloadString(url);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to download data: {ex}");
+                }
+            }
+
+            return null;
         }
     }
 }

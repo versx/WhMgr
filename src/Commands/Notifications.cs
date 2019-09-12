@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -10,11 +11,14 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
+    using Newtonsoft.Json;
+
     using WhMgr.Data;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Net.Models;
+    using WhMgr.Utilities;
 
     public class Notifications
     {
@@ -112,7 +116,7 @@
         ]
         public async Task PokeMeAsync(CommandContext ctx,
             [Description("Pokemon name or id to subscribe to Pokemon spawn notifications.")] string poke,
-            [Description("Minimum IV to receive notifications for, use 0 to disregard IV.")] int iv = 0,
+            [Description("Minimum IV to receive notifications for, use 0 to disregard IV.")] string iv = "0",
             [Description("Minimum level to receive notifications for, use 0 to disregard level.")] int lvl = 0,
             [Description("Specific gender the Pokemon must be, use * to disregard gender.")] string gender = "*")
         {
@@ -145,11 +149,42 @@
             //    return;
             //}
 
-            if (iv < 0 || iv > 100)
+            var attack = 0;
+            var defense = 0;
+            var stamina = 0;
+            var realIV = 0;
+            if (iv.Contains("-"))
             {
-                await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} {iv} must be within the range of `0-100`.", DiscordColor.Red);
-                return;
+                var split = iv.Split('-');
+                if (split.Length != 3)
+                {
+                    await ctx.RespondEmbed($"{ctx.User.Username} {iv} is not a valid value. (Example: `0-15-6`)", DiscordColor.Red);
+                    return;
+                }
+                if (!int.TryParse(split[0], out attack))
+                {
+                    await ctx.RespondEmbed($"{ctx.User.Username} {split[0]} is not a valid attack value. Must be between `0-15`", DiscordColor.Red);
+                    return;
+                }
+                if (!int.TryParse(split[1], out defense))
+                {
+                    await ctx.RespondEmbed($"{ctx.User.Username} {split[1]} is not a valid defense value. Must be between `0-15`", DiscordColor.Red);
+                    return;
+                }
+                if (!int.TryParse(split[2], out stamina))
+                {
+                    await ctx.RespondEmbed($"{ctx.User.Username} {split[2]} is not a valid stamina value. Must be between `0-15`", DiscordColor.Red);
+                    return;
+                }
+            }
+            else
+            {
+                if (!int.TryParse(iv, out realIV) || realIV < 0 || realIV > 100)
+                {
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondEmbed($"{ctx.User.Username} {iv} must be within the range of `0-100`.", DiscordColor.Red);
+                    return;
+                }
             }
 
             if (gender != "*" && gender != "m" && gender != "f")
@@ -181,7 +216,7 @@
                         return;
                     }
 
-                    if (iv < 90)
+                    if (realIV < 90)
                     {
                         await ctx.TriggerTypingAsync();
                         await ctx.RespondEmbed($"{ctx.User.Username} may not subscribe to **all** Pokemon with a minimum IV less than 90, please set something higher.", DiscordColor.Red);
@@ -202,7 +237,7 @@
 
                         if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
                         {
-                            _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, i, (i == 201 ? 0 : iv), lvl, gender);
+                            _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, i, (i == 201 ? 0 : realIV), lvl, gender);
                             continue;
                         }
 
@@ -210,17 +245,21 @@
                         if (!subscription.Pokemon.Exists(x => x.PokemonId == i))
                         {
                             //Always ignore the user's input for Unown and set it to 0 by default.
-                            subscription.Pokemon.Add(new PokemonSubscription { PokemonId = i, MinimumIV = (i == 201 ? 0 : iv), MinimumLevel = lvl, Gender = gender });
+                            subscription.Pokemon.Add(new PokemonSubscription {
+                                PokemonId = i,
+                                MinimumIV = (i == 201 ? 0 : realIV),
+                                MinimumLevel = lvl
+                            });
                             continue;
                         }
 
                         //Check if minimum IV value is different from value in database, if not add it to the already subscribed list.
                         var subscribedPokemon = subscription.Pokemon.Find(x => x.PokemonId == i);
-                        if (iv != subscribedPokemon.MinimumIV ||
+                        if (realIV != subscribedPokemon.MinimumIV ||
                             lvl != subscribedPokemon.MinimumLevel ||
                             gender != subscribedPokemon.Gender)
                         {
-                            subscribedPokemon.MinimumIV = (i == 201 ? 0 : iv);
+                            subscribedPokemon.MinimumIV = (i == 201 ? 0 : realIV);
                             subscribedPokemon.MinimumLevel = lvl;
                             subscribedPokemon.Gender = gender;
                         }
@@ -236,9 +275,10 @@
             }
             catch (Exception ex)
             {
-                _logger.Debug($"POKEME FAILED-----------------------------------");
+                _logger.Debug($"[ERROR] POKEME FAILED-----------------------------------");
                 _logger.Error(ex);
             }
+
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
             var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig);
@@ -265,7 +305,7 @@
                 }
 
                 //Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
-                if (IsCommonPokemon(pokeId) && iv < Strings.CommonTypeMinimumIV && !isModOrHigher)
+                if (IsCommonPokemon(pokeId) && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed($"{ctx.User.Username} {db.Pokemon[pokeId].Name} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {Strings.CommonTypeMinimumIV}% or higher.", DiscordColor.Red);
@@ -283,7 +323,7 @@
 
                 if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
                 {
-                    _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokeId, (pokeId == 201 ? 0 : iv), lvl, gender);
+                    _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokeId, (pokeId == 201 ? 0 : realIV), lvl, gender, attack, defense, stamina);
                     subscribed.Add(pokemon.Name);
                     continue;
                 }
@@ -298,7 +338,7 @@
                         return;
                     }
 
-                    _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokeId, (pokeId == 201 ? 0 : iv), lvl, gender);
+                    _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokeId, (pokeId == 201 ? 0 : realIV), lvl, gender, attack, defense, stamina);
                     subscribed.Add(pokemon.Name);
                     continue;
                 }
@@ -306,13 +346,19 @@
                 {
                     //Check if minimum IV value is different from value in database, if not add it to the already subscribed list.
                     var subscribedPokemon = subscription.Pokemon.Find(x => x.PokemonId == pokeId);
-                    if (iv != subscribedPokemon.MinimumIV ||
+                    if (realIV != subscribedPokemon.MinimumIV ||
                         lvl != subscribedPokemon.MinimumLevel ||
-                        gender != subscribedPokemon.Gender)
+                        gender != subscribedPokemon.Gender ||
+                        attack != subscribedPokemon.Attack ||
+                        defense != subscribedPokemon.Defense ||
+                        stamina != subscribedPokemon.Stamina)
                     {
-                        subscribedPokemon.MinimumIV = iv;
+                        subscribedPokemon.MinimumIV = realIV;
                         subscribedPokemon.MinimumLevel = lvl;
                         subscribedPokemon.Gender = gender;
+                        subscribedPokemon.Attack = attack;
+                        subscribedPokemon.Defense = defense;
+                        subscribedPokemon.Stamina = stamina;
                         subscribed.Add(pokemon.Name);
 
                         _dep.SubscriptionProcessor.Manager.Save(subscription);
@@ -334,10 +380,10 @@
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
+                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $"minimum IV of {iv}%")}{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
-                    ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
+                    ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $"minimum IV of {iv}%")}{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
                     : string.Empty)
             );
 
@@ -1191,6 +1237,62 @@
             await ctx.RespondAsync(embed: eb);
         }
 
+        #region Import / Export
+
+        [
+            Command("import"),
+            Description("Import your saved notification subscription settings for Pokemon, Raids, Quests, Pokestops, and Gyms.")
+        ]
+        public async Task ImportAsync(CommandContext ctx)
+        {
+            await ctx.RespondEmbed("Please upload your subscriptions.json file to import now within 3 minutes...");
+            var xc = await _dep.Interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && x.Attachments.Count > 0, TimeSpan.FromSeconds(180));
+            if (xc != null)
+            {
+                var attachment = xc.Message.Attachments[0];
+                if (attachment == null)
+                    return;
+
+                var data = NetUtil.Get(attachment.Url);
+                if (string.IsNullOrEmpty(data))
+                {
+                    await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} Failed to get uploaded attachment.", DiscordColor.Red);
+                    return;
+                }
+
+                var subscription = JsonConvert.DeserializeObject<SubscriptionObject>(data);
+                if (subscription == null)
+                {
+                    await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} Malformed subscription data, failed to import.", DiscordColor.Red);
+                    return;
+                }
+                _dep.SubscriptionProcessor.Manager.Save(subscription);
+                await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} Your subscriptions were imported successfully.", DiscordColor.Green);
+            }
+        }
+
+        [
+            Command("export"),
+            Description("Export your current notification subscription settings for Pokemon, Raids, Quests, Pokestops, and Gyms.")
+        ]
+        public async Task ExportAsync(CommandContext ctx)
+        {
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
+            if (subscription == null)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} Does not have any subscriptions to export.");
+                return;
+            }
+
+            var json = JsonConvert.SerializeObject(subscription, Formatting.Indented);
+            var tmpFile = Path.Combine(Path.GetTempPath(), $"subscriptions_{DateTime.Now.ToString("yyyy-MM-dd")}.json");
+            File.WriteAllText(tmpFile, json);
+
+            await ctx.RespondWithFileAsync(tmpFile, "Download your subscription settings here.");
+        }
+
+        #endregion
+
         #region Private Methods
 
         private async Task SendUserSubscriptionSettings(DiscordClient client, DiscordUser receiver, DiscordUser user)
@@ -1276,7 +1378,8 @@
                     foreach (var poke in sub.Pokes)
                     {
                         var pkmn = Database.Instance.Pokemon[poke.PokemonId];
-                        msg += $"{poke.PokemonId}: {pkmn.Name} {poke.MinimumIV}%+{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}\r\n";
+                        var ivSet = poke.Attack > 0 || poke.Defense > 0 || poke.Stamina > 0;
+                        msg += $"{poke.PokemonId}: {pkmn.Name} {(ivSet ? $"{poke.Attack}/{poke.Defense}/{poke.Stamina}" : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}\r\n";
                     }
                 }
                 msg += "```" + Environment.NewLine + Environment.NewLine;
@@ -1456,8 +1559,8 @@
                 56, //Mankey
                 58, //Growlithe
                 60, //Poliwag
-                63, //Abra
-                66, //Machop
+                //63, //Abra
+                //66, //Machop
                 69, //Bellsprout
                 72, //Tentacool
                 74, //Geodude
@@ -1495,7 +1598,7 @@
                 177, //Natu
                 179, //Mareep
                 183, //Marill
-                185, //Sudowoodo
+                //185, //Sudowoodo
                 187, //Hoppip
                 //190, //Aipom
                 191, //Sunkern

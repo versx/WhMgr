@@ -2,16 +2,34 @@
 {
     using ServiceStack.DataAnnotations;
 
-    [Alias("gyms")]
+    using Newtonsoft.Json;
+
+    [
+        JsonObject("gyms"),
+        Alias("gyms")
+    ]
     public class GymSubscription
     {
-        [Alias("id"), PrimaryKey, AutoIncrement]
+        [
+            JsonIgnore,
+            Alias("id"), 
+            PrimaryKey, 
+            AutoIncrement
+        ]
         public int Id { get; set; }
 
-        [Alias("userId"), ForeignKey(typeof(SubscriptionObject))]
+        [
+            JsonProperty("user_id"),
+            Alias("userId"), 
+            ForeignKey(typeof(SubscriptionObject))
+        ]
         public ulong UserId { get; set; }
 
-        [Alias("name"), Unique]
+        [
+            JsonProperty("name"),
+            Alias("name"), 
+            Unique
+        ]
         public string Name { get; set; }
     }
 }

@@ -240,9 +240,9 @@
 
         #region Add
 
-        public bool AddPokemon(ulong userId, int pokemonId, int iv = 0, int lvl = 0, string gender = "*")
+        public bool AddPokemon(ulong userId, int pokemonId, int iv = 0, int lvl = 0, string gender = "*", int attack = 0, int defense = 0, int stamina = 0)
         {
-            _logger.Trace($"SubscriptionManager::AddPokemon [UserId={userId}, PokemonId={pokemonId}, IV={iv}, Level={lvl}, Gender={gender}]");
+            _logger.Trace($"SubscriptionManager::AddPokemon [UserId={userId}, PokemonId={pokemonId}, IV={iv}, Level={lvl}, Gender={gender}, Attack={attack}, Defense={defense}, Stamina={stamina}]");
 
             if (!IsDbConnectionOpen())
             {
@@ -260,7 +260,10 @@
                     UserId = userId,
                     MinimumIV = iv,
                     MinimumLevel = lvl,
-                    Gender = gender
+                    Gender = gender,
+                    Attack = attack,
+                    Defense = defense,
+                    Stamina = stamina
                 };
                 subscription.Pokemon.Add(pkmnSub);
             }
@@ -269,11 +272,17 @@
                 //Pokemon subscription exists, check if values are the same.
                 if (iv != pkmnSub.MinimumIV ||
                     lvl != pkmnSub.MinimumLevel ||
-                    gender != pkmnSub.Gender)
+                    gender != pkmnSub.Gender ||
+                    attack != pkmnSub.Attack ||
+                    defense != pkmnSub.Defense ||
+                    stamina != pkmnSub.Stamina)
                 {
                     pkmnSub.MinimumIV = (pkmnSub.PokemonId == 201 ? 0 : iv);
                     pkmnSub.MinimumLevel = lvl;
                     pkmnSub.Gender = gender;
+                    pkmnSub.Attack = attack;
+                    pkmnSub.Defense = defense;
+                    pkmnSub.Stamina = stamina;
                 }
             }
 

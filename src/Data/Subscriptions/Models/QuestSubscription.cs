@@ -2,19 +2,41 @@
 {
     using ServiceStack.DataAnnotations;
 
-    [Alias("quests")]
+    using Newtonsoft.Json;
+
+    [
+        JsonObject("quests"),
+        Alias("quests")
+    ]
     public class QuestSubscription
     {
-        [Alias("id"), PrimaryKey, AutoIncrement]
+        [
+            JsonIgnore,
+            Alias("id"),
+            PrimaryKey, 
+            AutoIncrement
+        ]
         public int Id { get; set; }
 
-        [Alias("userId"), ForeignKey(typeof(SubscriptionObject))]
+        [
+            JsonProperty("user_id"),
+            Alias("userId"),
+            ForeignKey(typeof(SubscriptionObject))
+        ]
         public ulong UserId { get; set; }
 
-        [Alias("reward"), Required]
+        [
+            JsonProperty("reward"),
+            Alias("reward"), 
+            Required
+        ]
         public string RewardKeyword { get; set; }
 
-        [Alias("city"), Required]
+        [
+            JsonProperty("city"),
+            Alias("city"), 
+            Required
+        ]
         public string City { get; set; }
     }
 }

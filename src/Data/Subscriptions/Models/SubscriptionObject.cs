@@ -5,43 +5,91 @@
 
     using ServiceStack.DataAnnotations;
 
-    [Alias("subscriptions")]
+    using Newtonsoft.Json;
+
+    [
+        JsonObject("subscriptions"),
+        Alias("subscriptions")
+    ]
     public class SubscriptionObject
     {
-        [Alias("id"), AutoIncrement]
+        [
+            JsonIgnore,
+            Alias("id"),
+            AutoIncrement
+        ]
         public int Id { get; set; }
 
-        [Alias("userId"), PrimaryKey]
+        [
+            JsonProperty("user_id"),
+            Alias("userId"), 
+            PrimaryKey
+        ]
         public ulong UserId { get; set; }
 
-        [Alias("enabled"), Default(1)]
+        [
+            JsonProperty("enabled"),
+            Alias("enabled"), 
+            Default(1)
+        ]
         public bool Enabled { get; set; }
 
-        [Alias("pokemon"), Reference]
+        [
+            JsonProperty("pokemon"),
+            Alias("pokemon"), 
+            Reference
+        ]
         public List<PokemonSubscription> Pokemon { get; set; }
 
-        [Alias("raids"), Reference]
+        [
+            JsonProperty("raids"),
+            Alias("raids"), 
+            Reference]
         public List<RaidSubscription> Raids { get; set; }
 
-        [Alias("gyms"), Reference]
+        [
+            JsonProperty("gyms"),
+            Alias("gyms"), 
+            Reference
+        ]
         public List<GymSubscription> Gyms { get; set; }
 
-        [Alias("quests"), Reference]
+        [
+            JsonProperty("quests"),
+            Alias("quests"),
+            Reference
+        ]
         public List<QuestSubscription> Quests { get; set; }
 
-        [Alias("invasions"), Reference]
+        [
+            JsonProperty("invasions"),
+            Alias("invasions"),
+            Reference
+        ]
         public List<InvasionSubscription> Invasions { get; set; }
 
         //[Alias("snoozed_quests"), Reference]
         //public List<SnoozedQuest> SnoozedQuests { get; set; }
 
-        [Alias("distance"), Default(0)]
+        [
+            JsonProperty("distance"),
+            Alias("distance"),
+            Default(0)
+        ]
         public int DistanceM { get; set; }
 
-        [Alias("latitude"), Default(0)]
+        [
+            JsonProperty("latitude"),
+            Alias("latitude"),
+            Default(0)
+        ]
         public double Latitude { get; set; }
 
-        [Alias("longitude"), Default(0)]
+        [
+            JsonProperty("latitude"),
+            Alias("longitude"), 
+            Default(0)
+        ]
         public double Longitude { get; set; }
 
         //[Alias("pokemon_stats"), Reference]
@@ -53,7 +101,10 @@
         //[Alias("quest_stats"), Reference]
         //public List<QuestStatistics> QuestStatistics { get; set; }
 
-        [Ignore]
+        [
+            JsonIgnore,
+            Ignore
+        ]
         public NotificationLimiter Limiter { get; set; }
 
         public SubscriptionObject()

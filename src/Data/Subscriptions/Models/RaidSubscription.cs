@@ -2,19 +2,41 @@
 {
     using ServiceStack.DataAnnotations;
 
-    [Alias("raids")]
+    using Newtonsoft.Json;
+
+    [
+        JsonObject("raids"),
+        Alias("raids")
+    ]
     public class RaidSubscription
     {
-        [Alias("id"), PrimaryKey, AutoIncrement]
+        [
+            JsonIgnore,
+            Alias("id"), 
+            PrimaryKey, 
+            AutoIncrement
+        ]
         public int Id { get; set; }
 
-        [Alias("userId"), ForeignKey(typeof(SubscriptionObject))]
+        [
+            JsonProperty("user_id"),
+            Alias("userId"),
+            ForeignKey(typeof(SubscriptionObject))
+        ]
         public ulong UserId { get; set; }
 
-        [Alias("pokemon_id"), Required]
+        [
+            JsonProperty("pokemon_id"),
+            Alias("pokemon_id"), 
+            Required
+        ]
         public int PokemonId { get; set; }
 
-        [Alias("city"), Required]
+        [
+            JsonProperty("city"),
+            Alias("city"), 
+            Required
+        ]
         public string City { get; set; }
     }
 }

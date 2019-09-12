@@ -16,7 +16,7 @@
         public const string WebHookHeader = "pokemon";
 
         //TODO: Add ditto disguises to external file
-        private static readonly List<int> DittoDisguises = new List<int> { 41, 48, 46, 163, 193, 223, 165, 293, 316 };
+        private static readonly List<int> DittoDisguises = new List<int> { 48, 46, 163, 165, 193, 223, 293, 316 };
 
         #region Properties
 
