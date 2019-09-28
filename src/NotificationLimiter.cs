@@ -4,10 +4,10 @@
 
     public class NotificationLimiter
     {
-        public const int MaxNotificationsPerMinute = 60;
+        public const int MaxNotificationsPerMinute = 30;
         public const int ThresholdTimeout = 60;
 
-        private readonly DateTime _start;
+        //private readonly DateTime _start;
         private DateTime _last;
 
         public int Count { get; private set; }
@@ -16,7 +16,7 @@
 
         public NotificationLimiter()
         {
-            _start = DateTime.Now;
+            //_start = DateTime.Now;
             _last = DateTime.Now;
 
             Count = 0;

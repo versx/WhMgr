@@ -178,8 +178,6 @@
                 matchesAtk = resultAtk == minimumAtk;
             }
 
-            matchesAtk |= (missing && minimumAtk == 0);
-
             return matchesAtk;
         }
 
@@ -198,8 +196,6 @@
                 matchesDef = resultAtk == minimumDef;
             }
 
-            matchesDef |= (missing && minimumDef == 0);
-
             return matchesDef;
         }
 
@@ -217,8 +213,6 @@
 
                 matchesSta = resultAtk == minimumSta;
             }
-
-            matchesSta |= (missing && minimumSta == 0);
 
             return matchesSta;
         }

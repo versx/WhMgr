@@ -22,21 +22,27 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
-        public static async Task<DiscordMessage> RespondEmbed(this CommandContext ctx, string message)
+        public static async Task<List<DiscordMessage>> RespondEmbed(this CommandContext ctx, string message)
         {
             return await RespondEmbed(ctx, message, DiscordColor.Green);
         }
 
-        public static async Task<DiscordMessage> RespondEmbed(this CommandContext ctx, string message, DiscordColor color)
+        public static async Task<List<DiscordMessage>> RespondEmbed(this CommandContext ctx, string message, DiscordColor color)
         {
-            var eb = new DiscordEmbedBuilder
+            var messagesSent = new List<DiscordMessage>();
+            var messages = message.SplitInParts(2048);
+            foreach (var msg in messages)
             {
-                Color = color,
-                Description = message
-            };
+                var eb = new DiscordEmbedBuilder
+                {
+                    Color = color,
+                    Description = msg
+                };
 
-            await ctx.TriggerTypingAsync();
-            return await ctx.RespondAsync(string.Empty, false, eb);
+                await ctx.TriggerTypingAsync();
+                messagesSent.Add(await ctx.RespondAsync(string.Empty, false, eb));
+            }
+            return messagesSent;
         }
 
         public static async Task<DiscordMessage> SendDirectMessage(this DiscordClient client, DiscordUser user, DiscordEmbed embed)
@@ -108,7 +114,12 @@
             {
                 await ctx.TriggerTypingAsync();
             }
-            return await ctx.RespondEmbed($"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\nDonation information can be found by typing the `donate` command.");
+            var message = await ctx.RespondEmbed($"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\nDonation information can be found by typing the `donate` command.");
+            if (message.Count > 0)
+            {
+                return message[0];
+            }
+            return null;
         }
 
         internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message)

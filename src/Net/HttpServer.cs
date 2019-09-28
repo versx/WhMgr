@@ -138,6 +138,9 @@
                 var context = _server.GetContext();
                 var response = context.Response;
 
+                if (context.Request?.InputStream == null)
+                    continue;
+
                 using (var sr = new StreamReader(context.Request.InputStream))
                 {
                     try
@@ -159,7 +162,10 @@
                 {
                     var buffer = Encoding.UTF8.GetBytes(Strings.DefaultResponseMessage);
                     response.ContentLength64 = buffer.Length;
-                    response.OutputStream.Write(buffer, 0, buffer.Length);
+                    if (response?.OutputStream != null)
+                    {
+                        response.OutputStream.Write(buffer, 0, buffer.Length);
+                    }
                     context.Response.Close();
                 }
                 catch (Exception ex)

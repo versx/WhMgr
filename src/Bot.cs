@@ -118,6 +118,7 @@
                 UseInternalLogHandler = true
             });
             _client.Ready += Client_Ready;
+            //_client.MessageCreated += Client_MessageCreated;
             _client.ClientErrored += Client_ClientErrored;
             _client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
 
@@ -201,6 +202,17 @@
 
             await CreateEmojis();
         }
+
+        //private async Task Client_MessageCreated(MessageCreateEventArgs e)
+        //{
+        //    if (e.Author.Id == e.Client.CurrentUser.Id)
+        //        return;
+
+        //    if (_whConfig.BotChannelIds.Count > 0 && !_whConfig.BotChannelIds.Contains(e.Channel.Id))
+        //        return;
+
+        //    await _commands.HandleCommandsAsync(e);
+        //}
 
         private async Task Client_ClientErrored(ClientErrorEventArgs e)
         {
@@ -333,7 +345,7 @@
             var wh = _whm.WebHooks[e.Alarm.Name];
             if (wh == null)
             {
-                _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
+                _logger.Error($"[POKEMON] Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
                 return;
             }
 
@@ -342,7 +354,7 @@
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude));
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
+                //_logger.Warn($"[POKEMON] Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
                 return;
             }
 
@@ -352,7 +364,7 @@
                 //var costume = e.Pokemon.Id.GetCostume(e.Pokemon.Costume.ToString());
                 //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
                 var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.Urls.PokemonImage, pokemon.Gender, pokemon.FormId, pokemon.Costume);
-                var eb = _embedBuilder.BuildPokemonMessage(pokemon, loc.Name);
+                var eb = _embedBuilder.BuildPokemonMessage(pokemon, loc.Name, pkmnImage);
 
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIcon()}{form}";
@@ -382,7 +394,7 @@
             var wh = _whm.WebHooks[e.Alarm.Name];
             if (wh == null)
             {
-                _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
+                _logger.Error($"[RAID] Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
                 return;
             }
 
@@ -391,7 +403,7 @@
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city from coordinates {raid.Latitude},{raid.Longitude} {pkmn.Name} {raid.Level}, skipping...");
+                //_logger.Warn($"[RAID] Failed to lookup city from coordinates {raid.Latitude},{raid.Longitude} {pkmn.Name} {raid.Level}, skipping...");
                 return;
             }
 
@@ -399,7 +411,7 @@
             {
                 var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                 var pkmnImage = raid.IsEgg ? string.Format(_whConfig.Urls.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(_whConfig.Urls.PokemonImage, PokemonGender.Unset, raid.Form);
-                var eb = _embedBuilder.BuildRaidMessage(raid, loc.Name);
+                var eb = _embedBuilder.BuildRaidMessage(raid, loc.Name, pkmnImage);
 
                 var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
                 var name = raid.IsEgg ? $"Level {raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
@@ -426,7 +438,7 @@
             var wh = _whm.WebHooks[e.Alarm.Name];
             if (wh == null)
             {
-                _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
+                _logger.Error($"[QUEST] Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
                 return;
             }
 
@@ -434,7 +446,7 @@
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
+                //_logger.Warn($"[QUEST] Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
                 return;
             }
 
@@ -461,7 +473,7 @@
             var wh = _whm.WebHooks[e.Alarm.Name];
             if (wh == null)
             {
-                _logger.Error($"Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
+                _logger.Error($"[POKESTOP] Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
                 return;
             }
 
@@ -469,7 +481,7 @@
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
+                //_logger.Warn($"[POKESTOP] Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
                 return;
             }
 

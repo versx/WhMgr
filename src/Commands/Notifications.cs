@@ -31,6 +31,8 @@
             _dep = dep;
         }
 
+        #region General
+
         [
             Command("info"),
             Description("Shows your current Pokemon and Raid boss notification subscriptions.")
@@ -108,6 +110,46 @@
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
+        [
+            Command("set-distance"),
+            Description("Set the distance and location you'd like to receive raid notifications.")
+        ]
+        public async Task SetDistanceAsync(CommandContext ctx,
+            [Description("Maximum distance in meters between the set coordinates.")] int distance,
+            [Description("Coordinates in `34.00,-117.00` format."), RemainingText] string coordinates)
+        {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            var parts = coordinates.Replace(" ", null).Split(',');
+            if (!double.TryParse(parts[0], out var lat) || !double.TryParse(parts[1], out var lng))
+            {
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not parse {coordinates} as valid coordinates.", DiscordColor.Red);
+                return;
+            }
+
+            if (!_dep.SubscriptionProcessor.Manager.SetDistance(ctx.User.Id, distance, lat, lng))
+            {
+                await ctx.RespondEmbed($"{ctx.User.Mention} Could not update database, please try again later.", DiscordColor.Red);
+                return;
+            }
+
+            await ctx.RespondEmbed($"{ctx.User.Mention} Raid notifications within a {distance} meter radius of location {lat},{lng}.");
+
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        #endregion
+
         #region Pokeme / Pokemenot
 
         [
@@ -115,7 +157,7 @@
             Description("Subscribe to Pokemon notifications based on the pokedex number or name, minimum IV stats, or minimum level.")
         ]
         public async Task PokeMeAsync(CommandContext ctx,
-            [Description("Pokemon name or id to subscribe to Pokemon spawn notifications.")] string poke,
+            [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to Pokemon spawn notifications.")] string poke,
             [Description("Minimum IV to receive notifications for, use 0 to disregard IV.")] string iv = "0",
             [Description("Minimum level to receive notifications for, use 0 to disregard level.")] int lvl = 0,
             [Description("Specific gender the Pokemon must be, use * to disregard gender.")] string gender = "*")
@@ -133,15 +175,15 @@
                 return;
             }
 
-            if (lvl > 0 || gender != "*")
-            {
-                if (!ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig))
-                {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} The minimum level and gender type parameters are only available to Supporter members, please consider donating to unlock this feature.", DiscordColor.Red);
-                    return;
-                }
-            }
+            //if (lvl > 0 || gender != "*")
+            //{
+            //    if (!ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig))
+            //    {
+            //        await ctx.TriggerTypingAsync();
+            //        await ctx.RespondEmbed($"{ctx.User.Username} The minimum level and gender type parameters are only available to Supporter members, please consider donating to unlock this feature.", DiscordColor.Red);
+            //        return;
+            //    }
+            //}
 
             //if (!int.TryParse(cpArg, out int cp))
             //{
@@ -224,7 +266,7 @@
                     }
 
                     await ctx.TriggerTypingAsync();
-                    for (int i = 1; i < 495; i++)
+                    for (int i = 1; i < Strings.MaxPokemonIds; i++)
                     {
                         /*
                         if (i == 132 && !isSupporter)
@@ -282,7 +324,34 @@
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
             var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig);
-            var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
+            //var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
+            PokemonValidation validation;
+            if (poke.Contains("-") && int.TryParse(poke.Split('-')[0], out var startRange) && int.TryParse(poke.Split('-')[1], out var endRange))
+            {
+                //If `poke` param is a range
+                var range = GetListFromRange(startRange, endRange);
+                validation = range.ValidatePokemon();
+            }
+            else if (Strings.PokemonGenerationRanges.Select(x => "gen" + x.Key).ToList().Contains(poke))
+            {
+                if (!int.TryParse(poke.Replace("gen", ""), out var gen) || !Strings.PokemonGenerationRanges.ContainsKey(gen))
+                {
+                    var keys = Strings.PokemonGenerationRanges.Keys.ToList();
+                    var minValue = keys[0];
+                    var maxValue = keys[keys.Count - 1];
+                    await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon generation number, valid values are between `{minValue}-{maxValue}`. i.e. `{_dep.WhConfig.CommandPrefix}pokeme gen3`");
+                    return;
+                }
+
+                var genRange = Strings.PokemonGenerationRanges[gen];
+                var range = GetListFromRange(genRange.Start, genRange.End);
+                validation = range.ValidatePokemon();
+            }
+            else
+            {
+                //If `poke` param is a list
+                validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
+            }
             var db = Database.Instance;
 
             if (validation.Valid.Count == 0)
@@ -291,18 +360,19 @@
                 return;
             }
 
-            foreach (var arg in poke.Replace(" ", "").Split(','))
+            //foreach (var arg in poke.Replace(" ", "").Split(','))
+            foreach (var pokeId in validation.Valid)
             {
-                if (!int.TryParse(arg, out int pokeId))
-                {
-                    pokeId = arg.PokemonIdFromName();
-                    if (pokeId == 0)
-                    {
-                        await ctx.TriggerTypingAsync();
-                        await ctx.RespondEmbed($"{ctx.User.Username} failed to lookup Pokemon by name and pokedex id {arg}.", DiscordColor.Red);
-                        continue;
-                    }
-                }
+                //if (!int.TryParse(arg, out int pokeId))
+                //{
+                //    pokeId = arg.PokemonIdFromName();
+                //    if (pokeId == 0)
+                //    {
+                //        await ctx.TriggerTypingAsync();
+                //        await ctx.RespondEmbed($"{ctx.User.Username} failed to lookup Pokemon by name and pokedex id {arg}.", DiscordColor.Red);
+                //        continue;
+                //    }
+                //}
 
                 //Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
                 if (IsCommonPokemon(pokeId) && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
@@ -776,118 +846,6 @@
 
         #endregion
 
-        [
-            Command("quests"),
-            Description("Display a list of your field research quests for the day.")
-        ]
-        public async Task QuestsAsync(CommandContext ctx,
-            [Description("Filter by reward or leave empty for all.")] string reward,
-            [Description("City")] string city)
-        {
-            if (!_dep.WhConfig.EnableSubscriptions)
-            {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
-            }
-
-            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
-            {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
-            }
-
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
-            if (subscription.Quests.Count == 0)
-            {
-                await ctx.RespondEmbed($"{ctx.User.Username} does not have any field research quest subscriptions.");
-                return;
-            }
-
-            /**
-             * .quests - Return all quests based on their subscriptions.
-             * .quests reward - Return all quests based on keyword.
-             */
-
-            //TODO: Check date
-            var rewardKeywords = subscription.Quests.Select(x => x.RewardKeyword).ToList();
-            var quests = _dep.SubscriptionProcessor.Manager.GetQuests(
-                string.IsNullOrEmpty(reward)
-                ? rewardKeywords
-                : new List<string> { reward });
-
-            quests = quests.Where(x => x.QuestTimestamp.FromUnix().Date == DateTime.Now.Date).ToList();
-            /*
-            var eb = new DiscordEmbedBuilder
-            {
-                Title = string.IsNullOrEmpty(reward) ? "All Field Research Quests" : $"{reward} Field Research Quests",
-                Color = DiscordColor.Orange,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"versx | {DateTime.Now}",
-                    IconUrl = ctx.Guild?.IconUrl
-                }
-            };
-            */
-
-            var grouped = quests.GroupBy(x => GetGeofence(x.Latitude, x.Longitude)?.Name).ToList();
-            var pagesData = (string.IsNullOrEmpty(reward) ? "All Field Research Quests" : $"{reward} Field Research Quests") + "\r\n";
-            for (var i = 0; i < Math.Min(25, grouped.Count); i++)
-            {
-                if (string.Compare(grouped[i].Key, city, true) != 0)
-                    continue;
-
-                var rewardsWithCities = grouped[i].Select(x => $"• [{x.Name}]({string.Format(Strings.GoogleMaps, x.Latitude, x.Longitude)})");
-                var value = string.Join(Environment.NewLine, rewardsWithCities);
-
-                _logger.Debug($"REWARD: {grouped[i].Key} => {value}");
-                pagesData += $"{grouped[i].Key}\r\n{value}";
-                //eb.AddField(grouped[i].Key, value.Substring(0, Math.Min(1024, value.Length)), true);
-            }
-            var pages = _dep.Interactivity.GeneratePagesInEmbeds(pagesData);
-            var dm = await ctx.Client.CreateDmAsync(ctx.User);
-            await _dep.Interactivity.SendPaginatedMessage(dm, ctx.User, pages, System.Threading.Timeout.InfiniteTimeSpan);
-
-            //await ctx.Client.SendDirectMessage(ctx.User, eb);
-        }
-
-        [
-            Command("set-distance"),
-            Description("Set the distance and location you'd like to receive raid notifications.")
-        ]
-        public async Task SetDistanceAsync(CommandContext ctx,
-            [Description("Maximum distance in meters between the set coordinates.")] int distance,
-            [Description("Coordinates in `34.00,-117.00` format."), RemainingText] string coordinates)
-        {
-            if (!_dep.WhConfig.EnableSubscriptions)
-            {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
-            }
-
-            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
-            {
-                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
-            }
-
-            var parts = coordinates.Replace(" ", null).Split(',');
-            if (!double.TryParse(parts[0], out var lat) || !double.TryParse(parts[1], out var lng))
-            {
-                await ctx.RespondEmbed($"{ctx.User.Mention} Could not parse {coordinates} as valid coordinates.", DiscordColor.Red);
-                return;
-            }
-
-            if (!_dep.SubscriptionProcessor.Manager.SetDistance(ctx.User.Id, distance, lat, lng))
-            {
-                await ctx.RespondEmbed($"{ctx.User.Mention} Could not update database, please try again later.", DiscordColor.Red);
-                return;
-            }
-
-            await ctx.RespondEmbed($"{ctx.User.Mention} Raid notifications within a {distance} meter radius of location {lat},{lng}.");
-
-            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
-        }
-
         #region Gymme / Gymmenot
 
         [
@@ -1158,6 +1116,7 @@
         }
         #endregion
 
+        #region No Longer Used
         //[
         //    Command("history"),
         //    Aliases("h")
@@ -1200,42 +1159,118 @@
         //    //await ctx.RespondAsync(embed: eb);
         //}
 
-        [
-            Command("stats"),
-            Description("Notification statistics for alarms and subscriptions of Pokemon, Raids, and Quests.")
-        ]
-        public async Task StatsAsync(CommandContext ctx)
-        {
-            var stats = Statistics.Instance;
-            var eb = new DiscordEmbedBuilder
-            {
-                Title = $"{DateTime.Now.ToLongDateString()} Notification Statistics",
-                Color = DiscordColor.Blurple,
-                ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
-            };
-            eb.AddField("Pokemon", stats.PokemonSent.ToString("N0"), true);
-            eb.AddField("Pokemon Subscriptions", stats.SubscriptionPokemonSent.ToString("N0"), true);
-            eb.AddField("Raids", stats.RaidsSent.ToString("N0"), true);
-            eb.AddField("Raid Subscriptions", stats.SubscriptionRaidsSent.ToString("N0"), true);
-            eb.AddField("Quests", stats.QuestsSent.ToString("N0"), true);
-            eb.AddField("Quest Subscriptions", stats.SubscriptionQuestsSent.ToString("N0"), true);
+        //[
+        //    Command("quests"),
+        //    Description("Display a list of your field research quests for the day.")
+        //]
+        //public async Task QuestsAsync(CommandContext ctx,
+        //    [Description("Filter by reward or leave empty for all.")] string reward,
+        //    [Description("City")] string city)
+        //{
+        //    if (!_dep.WhConfig.EnableSubscriptions)
+        //    {
+        //        await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+        //        return;
+        //    }
 
-            var pkmnMsg = string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}"));
-            var raidMsg = string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}"));
+        //    if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
+        //    {
+        //        await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+        //        return;
+        //    }
 
-            eb.AddField("Top 25 Pokemon Stats", pkmnMsg.Substring(0, Math.Min(pkmnMsg.Length, 1500)) + "\r\n...", true);
-            eb.AddField("Top 25 Raid Stats", raidMsg.Substring(0, Math.Min(raidMsg.Length, 1500)) + "\r\n...", true);
+        //    var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
+        //    if (subscription.Quests.Count == 0)
+        //    {
+        //        await ctx.RespondEmbed($"{ctx.User.Username} does not have any field research quest subscriptions.");
+        //        return;
+        //    }
 
-            var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {Database.Instance.Pokemon[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
-            eb.AddField("Recent 100% Spawns", string.IsNullOrEmpty(hundos) ? "None" : hundos);
+        //    /**
+        //     * .quests - Return all quests based on their subscriptions.
+        //     * .quests reward - Return all quests based on keyword.
+        //     */
 
-            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
-            {
-                Text = $"versx | {DateTime.Now}",
-                IconUrl = ctx.Guild?.IconUrl
-            };
-            await ctx.RespondAsync(embed: eb);
-        }
+        //    //TODO: Check date
+        //    var rewardKeywords = subscription.Quests.Select(x => x.RewardKeyword).ToList();
+        //    var quests = _dep.SubscriptionProcessor.Manager.GetQuests(
+        //        string.IsNullOrEmpty(reward)
+        //        ? rewardKeywords
+        //        : new List<string> { reward });
+
+        //    quests = quests.Where(x => x.QuestTimestamp.FromUnix().Date == DateTime.Now.Date).ToList();
+        //    /*
+        //    var eb = new DiscordEmbedBuilder
+        //    {
+        //        Title = string.IsNullOrEmpty(reward) ? "All Field Research Quests" : $"{reward} Field Research Quests",
+        //        Color = DiscordColor.Orange,
+        //        Footer = new DiscordEmbedBuilder.EmbedFooter
+        //        {
+        //            Text = $"versx | {DateTime.Now}",
+        //            IconUrl = ctx.Guild?.IconUrl
+        //        }
+        //    };
+        //    */
+
+        //    var grouped = quests.GroupBy(x => GetGeofence(x.Latitude, x.Longitude)?.Name).ToList();
+        //    var pagesData = (string.IsNullOrEmpty(reward) ? "All Field Research Quests" : $"{reward} Field Research Quests") + "\r\n";
+        //    for (var i = 0; i < Math.Min(25, grouped.Count); i++)
+        //    {
+        //        if (string.Compare(grouped[i].Key, city, true) != 0)
+        //            continue;
+
+        //        var rewardsWithCities = grouped[i].Select(x => $"• [{x.Name}]({string.Format(Strings.GoogleMaps, x.Latitude, x.Longitude)})");
+        //        var value = string.Join(Environment.NewLine, rewardsWithCities);
+
+        //        _logger.Debug($"REWARD: {grouped[i].Key} => {value}");
+        //        pagesData += $"{grouped[i].Key}\r\n{value}";
+        //        //eb.AddField(grouped[i].Key, value.Substring(0, Math.Min(1024, value.Length)), true);
+        //    }
+        //    var pages = _dep.Interactivity.GeneratePagesInEmbeds(pagesData);
+        //    var dm = await ctx.Client.CreateDmAsync(ctx.User);
+        //    await _dep.Interactivity.SendPaginatedMessage(dm, ctx.User, pages, System.Threading.Timeout.InfiniteTimeSpan);
+
+        //    //await ctx.Client.SendDirectMessage(ctx.User, eb);
+        //}
+
+        //[
+        //    Command("stats"),
+        //    Description("Notification statistics for alarms and subscriptions of Pokemon, Raids, and Quests.")
+        //]
+        //public async Task StatsAsync(CommandContext ctx)
+        //{
+        //    var stats = Statistics.Instance;
+        //    var eb = new DiscordEmbedBuilder
+        //    {
+        //        Title = $"{DateTime.Now.ToLongDateString()} Notification Statistics",
+        //        Color = DiscordColor.Blurple,
+        //        ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
+        //    };
+        //    eb.AddField("Pokemon", stats.PokemonSent.ToString("N0"), true);
+        //    eb.AddField("Pokemon Subscriptions", stats.SubscriptionPokemonSent.ToString("N0"), true);
+        //    eb.AddField("Raids", stats.RaidsSent.ToString("N0"), true);
+        //    eb.AddField("Raid Subscriptions", stats.SubscriptionRaidsSent.ToString("N0"), true);
+        //    eb.AddField("Quests", stats.QuestsSent.ToString("N0"), true);
+        //    eb.AddField("Quest Subscriptions", stats.SubscriptionQuestsSent.ToString("N0"), true);
+
+        //    var pkmnMsg = string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}"));
+        //    var raidMsg = string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}"));
+
+        //    eb.AddField("Top 25 Pokemon Stats", pkmnMsg.Substring(0, Math.Min(pkmnMsg.Length, 1500)) + "\r\n...", true);
+        //    eb.AddField("Top 25 Raid Stats", raidMsg.Substring(0, Math.Min(raidMsg.Length, 1500)) + "\r\n...", true);
+
+        //    var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {Database.Instance.Pokemon[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
+        //    eb.AddField("Recent 100% Spawns", string.IsNullOrEmpty(hundos) ? "None" : hundos);
+
+        //    eb.Footer = new DiscordEmbedBuilder.EmbedFooter
+        //    {
+        //        Text = $"versx | {DateTime.Now}",
+        //        IconUrl = ctx.Guild?.IconUrl
+        //    };
+        //    await ctx.RespondAsync(embed: eb);
+        //}
+
+        #endregion
 
         #region Import / Export
 
@@ -1285,10 +1320,96 @@
             }
 
             var json = JsonConvert.SerializeObject(subscription, Formatting.Indented);
-            var tmpFile = Path.Combine(Path.GetTempPath(), $"subscriptions_{DateTime.Now.ToString("yyyy-MM-dd")}.json");
+            var tmpFile = Path.Combine(Path.GetTempPath(), $"{ctx.Guild.Name}_{ctx.User.Username}_subscriptions_{DateTime.Now.ToString("yyyy-MM-dd")}.json");
             File.WriteAllText(tmpFile, json);
 
             await ctx.RespondWithFileAsync(tmpFile, "Download your subscription settings here.");
+        }
+
+        #endregion
+
+        #region Icon Style
+
+        [
+            Command("icons"),
+            Description("List all available icon styles.")
+        ]
+        public async Task IconsAsync(CommandContext ctx)
+        {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return;
+            }
+
+            var eb = new DiscordEmbedBuilder
+            {
+                Color = DiscordColor.Green,
+                Description =
+                    "**Available Icon Styles:**\r\n" +
+                    $"- {string.Join($"{Environment.NewLine}- ", _dep.WhConfig.IconStyles.Keys)}" +
+                    Environment.NewLine +
+                    Environment.NewLine +
+                    $"*Type `{_dep.WhConfig.CommandPrefix}set-icons iconStyle` to use that icon style when receiving notifications from {Strings.BotName}.*",
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"versx | {DateTime.Now}",
+                    IconUrl = ctx.Guild?.IconUrl
+                }
+            };
+
+            await ctx.TriggerTypingAsync();
+            await ctx.RespondAsync(embed: eb.Build());
+        }
+
+        [
+            Command("set-icons"),
+            Description("Set the icon style to use when receiving notifications via direct message.")
+        ]
+        public async Task SetIconAsync(CommandContext ctx,
+            [Description("Icon style to use.")] string iconStyle = "Default")
+        {
+            if (!_dep.WhConfig.EnableSubscriptions)
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return;
+            }
+
+            if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            if (!_dep.WhConfig.IconStyles.Select(x => x.Key.ToLower()).Contains(iconStyle.ToLower()))
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} Entered an invalid icon style, type `{_dep.WhConfig.CommandPrefix}icons` to see a list of valid options.", DiscordColor.Red);
+                return;
+            }
+
+            if (!_dep.SubscriptionProcessor.Manager.SetIconStyle(ctx.User.Id, iconStyle))
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} Could not update database, please try again later.", DiscordColor.Red);
+                return;
+            }
+
+            await ctx.RespondEmbed($"{ctx.User.Username} Icon style set for {iconStyle}.");
+
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
         #endregion
@@ -1377,9 +1498,11 @@
 
                     foreach (var poke in sub.Pokes)
                     {
+                        if (!Database.Instance.Pokemon.ContainsKey(poke.PokemonId))
+                            continue;
+
                         var pkmn = Database.Instance.Pokemon[poke.PokemonId];
-                        var ivSet = poke.Attack > 0 || poke.Defense > 0 || poke.Stamina > 0;
-                        msg += $"{poke.PokemonId}: {pkmn.Name} {(ivSet ? $"{poke.Attack}/{poke.Defense}/{poke.Stamina}" : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}\r\n";
+                        msg += $"{poke.PokemonId}: {pkmn.Name} {(poke.HasStats ? $"{poke.Attack}/{poke.Defense}/{poke.Stamina}" : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}\r\n";
                     }
                 }
                 msg += "```" + Environment.NewLine + Environment.NewLine;
@@ -1425,30 +1548,30 @@
             return messages;
         }
 
-        private List<string> GetPokemonSubscriptionNames(ulong userId)
-        {
-            var list = new List<string>();
-            if (!_dep.SubscriptionProcessor.Manager.UserExists(userId))
-                return list;
+        //private List<string> GetPokemonSubscriptionNames(ulong userId)
+        //{
+        //    var list = new List<string>();
+        //    if (!_dep.SubscriptionProcessor.Manager.UserExists(userId))
+        //        return list;
 
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
-            var subscribedPokemon = subscription.Pokemon;
-            subscribedPokemon.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
+        //    var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
+        //    var subscribedPokemon = subscription.Pokemon;
+        //    subscribedPokemon.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
 
-            foreach (var poke in subscribedPokemon)
-            {
-                if (!Database.Instance.Pokemon.ContainsKey(poke.PokemonId))
-                    continue;
+        //    foreach (var poke in subscribedPokemon)
+        //    {
+        //        if (!Database.Instance.Pokemon.ContainsKey(poke.PokemonId))
+        //            continue;
 
-                var pokemon = Database.Instance.Pokemon[poke.PokemonId];
-                if (pokemon == null)
-                    continue;
+        //        var pokemon = Database.Instance.Pokemon[poke.PokemonId];
+        //        if (pokemon == null)
+        //            continue;
 
-                list.Add(pokemon.Name);
-            }
+        //        list.Add(pokemon.Name);
+        //    }
 
-            return list;
-        }
+        //    return list;
+        //}
 
         private List<string> GetRaidSubscriptionNames(ulong userId)
         {
@@ -1667,10 +1790,25 @@
                 //425, //Drifloon
                 427, //Buneary
                 434, //Stunky
-                459 //Snover
+                459, //Snover
+                504, //Patrat
+                506, //Lillipup
+                509, //Purrloin
+                519, //Pidove
 
             };
             return commonPokemon.Contains(pokeId);
+        }
+
+        private List<string> GetListFromRange(int startRange, int endRange)
+        {
+            var list = new List<string>();
+            for (; startRange < endRange; startRange++)
+            {
+                list.Add(startRange.ToString());
+            }
+            return list;
+            //validation = rangePokemon.ToString().Split(',').ValidatePokemon();
         }
 
         #endregion

@@ -77,6 +77,12 @@
         //[Alias("city")]
         //public string City { get; set; }
 
+        [
+            JsonIgnore,
+            Ignore
+        ]
+        public bool HasStats => Attack > 0 || Defense > 0 || Stamina > 0;
+
         public PokemonSubscription()
         {
             MinimumCP = 0;

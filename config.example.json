@@ -7,7 +7,6 @@
   ],
   "guildId": 000000000000,
   "webhookPort": 8002,
-  "gmapsKey": "<GOOGLE_MAPS_KEY>",
   "enableSubscriptions": false,
   "enableCities": false,
   "citiesRequireSupporterRole": false,
@@ -20,7 +19,7 @@
   "commandPrefix": ".",
   "questChannelIds": [
       000000000000,
-	  000000000001
+      000000000001
   ],
   "eventPokemonIds": [],
   "shortUrlApiUrl": "",

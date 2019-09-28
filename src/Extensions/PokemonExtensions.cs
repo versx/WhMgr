@@ -437,6 +437,17 @@
                             return Alolan;
                     }
                     break;
+                case 58: //Growlithe
+                switch (form)
+                    {
+                        case 280: //Normal
+                            return Normal;
+                        case 281: //Shadow
+                            return Shadow;
+                        case 282: //Purified
+                            return Purified;
+                    }
+                    break;
                 case 74: //Geodude
                     switch (form)
                     {
@@ -500,6 +511,28 @@
                             return Alolan;
                     }
                     break;
+                case 115: //Kangaskhan
+                    switch (form)
+                    {
+                        case 839: //Normal
+                            return Normal;
+                        case 840: //Shadow
+                            return Shadow;
+                        case 841: //Purified
+                            return Purified;
+                    }
+                    break;
+                case 127: //Pinsir
+                    switch (form)
+                    {
+                        case 898: //Normal
+                            return Normal;
+                        case 899: //Shadow
+                            return Shadow;
+                        case 900: //Purified
+                            return Purified;
+                    }
+                    break;
                 case 143: //Snorlax
                     switch (form)
                     {
@@ -549,6 +582,8 @@
                     {
                         case 133: //Armored
                             return Armored;
+                        case 135: //Normal
+                            return Normal;
                     }
                     break;
                 case 169: //Crobat
@@ -803,6 +838,121 @@
                             return "Dark";
                         case 117: //Fairy
                             return "Fairy";
+                    }
+                    break;
+                case 550: //Basculin
+                    switch (form)
+                    {
+                        case 136: //Red Striped
+                            return "Red Striped";
+                        case 137: //Blue Striped
+                            return "Blue Striped";
+                    }
+                    break;
+                case 555: //Darmanitan
+                    switch (form)
+                    {
+                        case 138: //Standard
+                            return "Standard";
+                        case 139: //Zen
+                            return "Zen";
+                    }
+                    break;
+                case 585: //Deerling
+                    switch (form)
+                    {
+                        case 585: //Spring
+                            return "Spring";
+                        case 586: //Summer
+                            return "Summer";
+                        case 587: //Autumn
+                            return "Autumn";
+                        case 588: //Winter
+                            return "Winter";
+                    }
+                    break;
+                case 586: //Sawsbuck
+                    switch (form)
+                    {
+                        case 589: //Spring
+                            return "Spring";
+                        case 590: //Summer
+                            return "Summer";
+                        case 591: //Autumn
+                            return "Autumn";
+                        case 592: //Winter
+                            return "Winter";
+                    }
+                    break;
+                case 641: //Tornadus
+                    switch (form)
+                    {
+                        case 140: //Incarnate
+                            return "Incarnate";
+                        case 141: //Therian
+                            return "Therian";
+                    }
+                    break;
+                case 642: //Thundurus
+                    switch (form)
+                    {
+                        case 142: //Incarnate
+                            return "Incarnate";
+                        case 143: //Therian
+                            return "Therian";
+                    }
+                    break;
+                case 645: //Landorus
+                    switch (form)
+                    {
+                        case 144: //Incarnate
+                            return "Incarnate";
+                        case 145: //Therian
+                            return "Therian";
+                    }
+                    break;
+                case 646: //Kyurem
+                    switch (form)
+                    {
+                        case 146: //Normal
+                            return Normal;
+                        case 147: //Black
+                            return "Black";
+                        case 148: //White
+                            return "White";
+                    }
+                    break;
+                case 647: //Keldeo
+                    switch (form)
+                    {
+                        case 149: //Ordinary
+                            return "Ordinary";
+                        case 150: //Resolute
+                            return "Resolute";
+                    }
+                    break;
+                case 648: //Meloetta
+                    switch (form)
+                    {
+                        case 151: //Aria
+                            return "Aria";
+                        case 152: //Pirouette
+                            return "Pirouette";
+                    }
+                    break;
+                case 649: //Genesect
+                    switch (form)
+                    {
+                        case 593: //Normal
+                            return Normal;
+                        case 594: //Shock
+                            return "Shock";
+                        case 595: //Burn
+                            return "Burn";
+                        case 596: //Chill
+                            return "Chill";
+                        case 597: //Douse
+                            return "Douse";
                     }
                     break;
             }

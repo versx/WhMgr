@@ -25,6 +25,9 @@
         [JsonProperty("guildId")]
         public ulong GuildId { get; set; }
 
+        [JsonProperty("botChannelIds")]
+        public List<ulong> BotChannelIds { get; set; }
+
         [JsonProperty("moderators")]
         public List<ulong> Moderators { get; set; }
 
@@ -67,18 +70,23 @@
         [JsonProperty("urls")]
         public UrlConfiguration Urls { get; set; }
 
+        [JsonProperty("iconStyles")]
+        public Dictionary<string, string> IconStyles { get; set; }
+
         [JsonIgnore]
         public string FileName { get; set; }
 
         public WhConfig()
         {
             Servers = new Dictionary<ulong, DiscordServer>();
+            BotChannelIds = new List<ulong>();
             CityRoles = new List<string>();
             Moderators = new List<ulong>();
             QuestChannelIds = new List<ulong>();
             EventPokemonIds = new List<int>();
             ShinyStats = new ShinyStatsConfiguration();
             Urls = new UrlConfiguration();
+            IconStyles = new Dictionary<string, string>();
         }
 
         public void Save(string filePath)

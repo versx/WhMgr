@@ -23,14 +23,19 @@
         private System.Data.IDbConnection _conn;
         //private readonly System.Data.IDbConnection _scanConn;
 
+        private readonly OrmLiteConnectionFactory _connFactory;
+        private readonly OrmLiteConnectionFactory _scanConnFactory;
+
         public SubscriptionManager(WhConfig whConfig)
         {
             _logger.Trace($"SubscriptionManager::SubscriptionManager");
 
             _whConfig = whConfig;
-            _conn = DataAccessLayer.CreateFactory().Open();
-            if (_conn == null)
-                throw new Exception("Failed to connect to the database.");
+            //_conn = DataAccessLayer.CreateFactory().Open();
+            //if (_conn == null)
+            //    throw new Exception("Failed to connect to the database.");
+            _connFactory = new OrmLiteConnectionFactory(_whConfig.ConnectionString, MySqlDialect.Provider);
+            _scanConnFactory = new OrmLiteConnectionFactory(_whConfig.ScannerConnectionString, MySqlDialect.Provider);
 
             CreateDefaultTables();
             ReloadSubscriptions();
@@ -85,6 +90,22 @@
             return subscription.DistanceM == distance &&
                 Math.Abs(subscription.Latitude - latitude) < double.Epsilon &&
                 Math.Abs(subscription.Longitude - longitude) < double.Epsilon;
+        }
+
+        public bool SetIconStyle(ulong userId, string iconStyle)
+        {
+            _logger.Trace($"SubscriptionManager::Set [UserId={userId}, IconStyle={iconStyle}]");
+
+            if (!IsDbConnectionOpen())
+            {
+                throw new Exception("Not connected to database.");
+            }
+
+            var subscription = GetUserSubscriptions(userId);
+            subscription.IconStyle = iconStyle;
+            _conn.Save(subscription, true);
+
+            return subscription.IconStyle == iconStyle;
         }
 
         #region User
@@ -172,7 +193,11 @@
                 }
 
                 var conn = GetConnection();
-                return conn.LoadSelect<SubscriptionObject>();//.Where(x => x.Enabled).ToList();
+                var expression = conn?.From<SubscriptionObject>();
+                var where = expression?.Where(x => x.Enabled);
+                var query = conn?.LoadSelect(where);
+                var list = query?.ToList();
+                return list;
             }
             catch (OutOfMemoryException mex)
             {
@@ -190,7 +215,11 @@
 
         public void ReloadSubscriptions()
         {
-            _subscriptions = GetUserSubscriptions();
+            var subs = GetUserSubscriptions();
+            if (subs == null)
+                return;
+
+            _subscriptions = subs;
         }
 
         #endregion
@@ -200,7 +229,7 @@
             try
             {
                 List<Pokestop> pokestops;
-                using (var db = DataAccessLayer.CreateFactory(_whConfig.ScannerConnectionString).Open())
+                using (var db = _scanConnFactory.Open())
                 {
                     pokestops = db.LoadSelect<Pokestop>();
                     pokestops = pokestops.Where(x => x.QuestTimestamp > 0).ToList();
@@ -809,6 +838,25 @@
 
         #endregion
 
+        public string GetUserIconStyle(ulong userId)
+        {
+            if (!IsDbConnectionOpen())
+            {
+                throw new Exception("Not connected to database.");
+            }
+
+            try
+            {
+                var conn = GetConnection();
+                var sub = conn.LoadSingleById<SubscriptionObject>(userId);
+                return sub.IconStyle ?? "Default";
+            }
+            catch (MySql.Data.MySqlClient.MySqlException)
+            {
+                return "Default";
+            }
+        }
+
         #region Add Statistics
 
         //public bool AddPokemonStatistic(ulong userId, PokemonData pokemon)
@@ -919,6 +967,7 @@
 
         private System.Data.IDbConnection GetConnection()
         {
+            /*
             if (!IsDbConnectionOpen())
             {
                 _conn = DataAccessLayer.CreateFactory().Open();
@@ -930,8 +979,8 @@
                 {
                     _conn = DataAccessLayer.CreateFactory().Open();
                 }
-                var results = _conn.Select<SubscriptionObject>();
-                var list = results.ToList();
+                //var results = _conn.Select<SubscriptionObject>();
+                //var list = results.ToList();
                 return _conn;
             }
             catch (MySql.Data.MySqlClient.MySqlException)
@@ -949,6 +998,9 @@
             }
 
             //return _conn ?? DataAccessLayer.CreateFactory().Open();
+            */
+
+            return _connFactory.Open();
         }
 
         private bool IsDbConnectionOpen()

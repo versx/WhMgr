@@ -127,7 +127,6 @@
             bool matchesDefense;
             bool matchesStamina;
             DiscordMember member = null;
-            var embed = _embedBuilder.BuildPokemonMessage(pkmn, loc.Name);
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -191,12 +190,40 @@
                     matchesDefense = _whm.Filters.MatchesDefense(pkmn.Defense, subscribedPokemon.Defense);
                     matchesStamina = _whm.Filters.MatchesStamina(pkmn.Stamina, subscribedPokemon.Stamina);
 
-                    var hasStats = subscribedPokemon.Attack > 0 || subscribedPokemon.Defense > 0 || subscribedPokemon.Stamina > 0;
-                    if (!((matchesIV && matchesLvl && matchesGender) || (hasStats && matchesAttack && matchesDefense && matchesStamina)))
+                    if (!((matchesIV && matchesLvl && matchesGender) || (subscribedPokemon.HasStats && matchesAttack && matchesDefense && matchesStamina)))
                         continue;
+
+                    /*
+                    if (user.Limiter.IsLimited())
+                    {
+                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+                        if (!user.RateLimitNotificationSent)
+                        {
+                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of 30 notifications within a 60 second time span.";
+                            var eb = new DiscordEmbedBuilder
+                            {
+                                Title = "Rate Limited",
+                                Description = rateLimitMessage,
+                                Color = DiscordColor.Red,
+                                Footer = new DiscordEmbedBuilder.EmbedFooter
+                                {
+                                    Text = $"versx | {DateTime.Now}",
+                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
+                                }
+                            };
+                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
+                            user.RateLimitNotificationSent = true;
+                        }
+                        continue;
+                    }
+
+                    user.RateLimitNotificationSent = false;
+                    */
 
                     //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
+                    var iconStyle = Manager.GetUserIconStyle(user.UserId);
+                    var embed = _embedBuilder.BuildPokemonMessage(pkmn, loc.Name, _whConfig.IconStyles[iconStyle]);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 
                     //if (!Manager.AddPokemonStatistic(member.Id, pkmn))
@@ -217,7 +244,7 @@
             subscriptions.Clear();
             subscriptions = null;
             member = null;
-            embed = null;
+            //embed = null;
             user = null;
             loc = null;
             pokemon = null;
@@ -238,7 +265,7 @@
             var loc = GetGeofence(raid.Latitude, raid.Longitude);
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
+                //_logger.Warn($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
                 return;
             }
 
@@ -251,7 +278,6 @@
 
             SubscriptionObject user;
             var pokemon = db.Pokemon[raid.PokemonId];
-            var embed = _embedBuilder.BuildRaidMessage(raid, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -310,8 +336,37 @@
                         continue;
                     }
 
+                    /*
+                    if (user.Limiter.IsLimited())
+                    {
+                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+                        if (!user.RateLimitNotificationSent)
+                        {
+                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of 30 notifications within a 60 second time span.";
+                            var eb = new DiscordEmbedBuilder
+                            {
+                                Title = "Rate Limited",
+                                Description = rateLimitMessage,
+                                Color = DiscordColor.Red,
+                                Footer = new DiscordEmbedBuilder.EmbedFooter
+                                {
+                                    Text = $"versx | {DateTime.Now}",
+                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
+                                }
+                            };
+                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
+                            user.RateLimitNotificationSent = true;
+                        }
+                        continue;
+                    }
+
+                    user.RateLimitNotificationSent = false;
+                    */
+
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
+                    var iconStyle = Manager.GetUserIconStyle(user.UserId);
+                    var embed = _embedBuilder.BuildRaidMessage(raid, loc.Name, _whConfig.IconStyles[iconStyle]);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 
                     //if (!Manager.AddRaidStatistic(member.Id, raid))
@@ -330,7 +385,7 @@
 
             subscriptions.Clear();
             subscriptions = null;
-            embed = null;
+            //embed = null;
             user = null;
             loc = null;
             db = null;
@@ -351,7 +406,7 @@
             var loc = GetGeofence(quest.Latitude, quest.Longitude);
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
+                //_logger.Warn($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
                 return;
             }
 
@@ -414,6 +469,33 @@
                     //continue;
                     //}
 
+                    /*
+                    if (user.Limiter.IsLimited())
+                    {
+                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+                        if (!user.RateLimitNotificationSent)
+                        {
+                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of 30 notifications within a 60 second time span.";
+                            var eb = new DiscordEmbedBuilder
+                            {
+                                Title = "Rate Limited",
+                                Description = rateLimitMessage,
+                                Color = DiscordColor.Red,
+                                Footer = new DiscordEmbedBuilder.EmbedFooter
+                                {
+                                    Text = $"versx | {DateTime.Now}",
+                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
+                                }
+                            };
+                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
+                            user.RateLimitNotificationSent = true;
+                        }
+                        continue;
+                    }
+
+                    user.RateLimitNotificationSent = false;
+                    */
+
                     //_logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
 
@@ -439,7 +521,7 @@
             var loc = GetGeofence(pokestop.Latitude, pokestop.Longitude);
             if (loc == null)
             {
-                _logger.Warn($"Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
+                //_logger.Warn($"Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
                 return;
             }
 
@@ -497,6 +579,33 @@
                         }
                     }
 
+                    /*
+                    if (user.Limiter.IsLimited())
+                    {
+                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+                        if (!user.RateLimitNotificationSent)
+                        {
+                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of 30 notifications within a 60 second time span.";
+                            var eb = new DiscordEmbedBuilder
+                            {
+                                Title = "Rate Limited",
+                                Description = rateLimitMessage,
+                                Color = DiscordColor.Red,
+                                Footer = new DiscordEmbedBuilder.EmbedFooter
+                                {
+                                    Text = $"versx | {DateTime.Now}",
+                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
+                                }
+                            };
+                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
+                            user.RateLimitNotificationSent = true;
+                        }
+                        continue;
+                    }
+
+                    user.RateLimitNotificationSent = false;
+                    */
+
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokestop.Name, embed));
@@ -548,6 +657,36 @@
                     var item = _queue.Dequeue();
                     if (item == null || item?.Item1 == null || item?.Item3 == null)
                         continue;
+
+                    var member = item.Item1;
+                    var user = Manager.Subscriptions.FirstOrDefault(x => x.UserId == item.Item1.Id);
+                    if (user == null)
+                        continue;
+
+                    if (user.Limiter.IsLimited())
+                    {
+                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+                        if (!user.RateLimitNotificationSent)
+                        {
+                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of 30 notifications within a 60 second time span.";
+                            var eb = new DiscordEmbedBuilder
+                            {
+                                Title = "Rate Limited",
+                                Description = rateLimitMessage,
+                                Color = DiscordColor.Red,
+                                Footer = new DiscordEmbedBuilder.EmbedFooter
+                                {
+                                    Text = $"versx | {DateTime.Now}",
+                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
+                                }
+                            };
+                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
+                            user.RateLimitNotificationSent = true;
+                        }
+                        continue;
+                    }
+
+                    user.RateLimitNotificationSent = false;
 
                     await _client.SendDirectMessage(item.Item1, item.Item3);
                     _logger.Info($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");

@@ -86,11 +86,18 @@
         public double Latitude { get; set; }
 
         [
-            JsonProperty("latitude"),
+            JsonProperty("longitude"),
             Alias("longitude"), 
             Default(0)
         ]
         public double Longitude { get; set; }
+
+        [
+            JsonProperty("icon_style"),
+            Alias("icon_style"),
+            Default("Default")
+        ]
+        public string IconStyle { get; set; }
 
         //[Alias("pokemon_stats"), Reference]
         //public List<PokemonStatistics> PokemonStatistics { get; set; }
@@ -106,6 +113,12 @@
             Ignore
         ]
         public NotificationLimiter Limiter { get; set; }
+
+        [
+            JsonIgnore,
+            Ignore
+        ]
+        public bool RateLimitNotificationSent { get; set; }
 
         public SubscriptionObject()
         {

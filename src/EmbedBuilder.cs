@@ -47,7 +47,7 @@
 
         #region Public Methods
 
-        public DiscordEmbed BuildPokemonMessage(PokemonData pokemon, string city)
+        public DiscordEmbed BuildPokemonMessage(PokemonData pokemon, string city, string pokemonImageUrl)
         {
             //_logger.Trace($"EmbedBuilder::BuildPokemonMessage [Pokemon={pokemon.Id}, City={city}]");
 
@@ -74,7 +74,7 @@
                 Title = string.IsNullOrEmpty(city) ? _lang.Translate("EMBED_DIRECTIONS") : city,
                 Url = gmapsLocationLink,
                 ImageUrl = gmapsStaticMapLink,
-                ThumbnailUrl = pokemon.Id.GetPokemonImage(_whConfig.Urls.PokemonImage, pokemon.Gender, pokemon.FormId, pokemon.Costume),
+                ThumbnailUrl = pokemon.Id.GetPokemonImage(pokemonImageUrl, pokemon.Gender, pokemon.FormId, pokemon.Costume),
                 Color = pokemon.IV.BuildColor()
             };
 
@@ -229,7 +229,7 @@
             return embed;
         }
 
-        public DiscordEmbed BuildRaidMessage(RaidData raid, string city)
+        public DiscordEmbed BuildRaidMessage(RaidData raid, string city, string pokemonRaidImageUrl)
         {
             //_logger.Trace($"EmbedBuilder::BuildRaidMessage [Raid={raid.PokemonId}, City={city}]");
 
@@ -241,7 +241,7 @@
                 return null;
             }
 
-            var pkmnImage = raid.IsEgg ? string.Format(_whConfig.Urls.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(_whConfig.Urls.PokemonImage, PokemonGender.Unset, raid.Form);
+            var pkmnImage = raid.IsEgg ? string.Format(_whConfig.Urls.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(pokemonRaidImageUrl, PokemonGender.Unset, raid.Form);
             var eb = new DiscordEmbedBuilder
             {
                 Title = string.IsNullOrEmpty(city) ? _lang.Translate("EMBED_DIRECTIONS") : $"{city}: {raid.GymName}",

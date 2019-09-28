@@ -16,7 +16,7 @@
         public const string WebHookHeader = "pokemon";
 
         //TODO: Add ditto disguises to external file
-        private static readonly List<int> DittoDisguises = new List<int> { 48, 46, 163, 165, 193, 223, 293, 316 };
+        private static readonly List<int> DittoDisguises = new List<int> { 13, 46, 48, 163, 165, 167, 187, 223, 273, 293, 300, 316, 322, 399 };
 
         #region Properties
 
@@ -280,6 +280,7 @@
                 //    return false;
 
                 var isUnderLevel6 = IsUnderLevel(6);
+                var isStatsUnder4 = IsStatsBelow4;
                 //var isUnderLevel31 = IsUnderLevel(31);
                 //var isAboveLevel30 = IsAboveLevel(30);
                 //var isWindOrRain = Weather == WeatherType.Windy || Weather == WeatherType.Rain;
@@ -288,6 +289,7 @@
 
                 var check1 = Weather != WeatherType.None &&
                        isUnderLevel6 &&
+                       isStatsUnder4 &&
                        DittoDisguises.Contains(Id);
                 //var check2 = (Id == 193 && (isNotBoosted || (isWindOrRain && isUnderLevel6)));
                 //var check3 = (Id == 193 && isWindOrRain && isUnderLevel31 && IsStatsBelow4);
@@ -328,7 +330,7 @@
                 return int.TryParse(Attack, out var atk) &&
                        int.TryParse(Defense, out var def) &&
                        int.TryParse(Stamina, out var sta) &&
-                       atk < 4 && def < 4 && sta < 4;
+                       (atk < 4 || def < 4 || sta < 4);
             }
         }
 

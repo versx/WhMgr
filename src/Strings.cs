@@ -31,6 +31,8 @@
         public const string ErrorLogFileName = "error.log";
         public const string StatsFileName = "notifications_{0}.csv";
 
+        public const int MaxPokemonIds = 649;
+
         public const string All = "All";
 
         public const int MaxPokemonDisplayed = 70;
@@ -43,6 +45,15 @@
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";
 
         public const string CrashMessage = "WHM JUST CRASHED!";
+
+        public static readonly Dictionary<int, PokemonGenerationRange> PokemonGenerationRanges = new Dictionary<int, PokemonGenerationRange>
+        {
+            { 1, new PokemonGenerationRange { Generation = 1, Start = 1, End = 151 } },
+            { 2, new PokemonGenerationRange { Generation = 2, Start = 152, End = 251 } },
+            { 3, new PokemonGenerationRange { Generation = 3, Start = 252, End = 385 } },
+            { 4, new PokemonGenerationRange { Generation = 4, Start = 386, End = 493 } },
+            { 5, new PokemonGenerationRange { Generation = 5, Start = 495, End = 649 } }
+        };
 
         public static readonly string[] EmojiList =
         {
@@ -98,5 +109,14 @@
             { WeatherType.Snow,         new List<PokemonType> { PokemonType.Ice,    PokemonType.Steel } },
             { WeatherType.Fog,          new List<PokemonType> { PokemonType.Dark,   PokemonType.Ghost } }
         };
+    }
+
+    public class PokemonGenerationRange
+    {
+        public int Generation { get; set; }
+
+        public int Start { get; set; }
+
+        public int End { get; set; }
     }
 }
