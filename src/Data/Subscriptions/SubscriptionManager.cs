@@ -269,9 +269,9 @@
 
         #region Add
 
-        public bool AddPokemon(ulong userId, int pokemonId, int iv = 0, int lvl = 0, string gender = "*", int attack = 0, int defense = 0, int stamina = 0)
+        public bool AddPokemon(ulong userId, int pokemonId, string form = null, int iv = 0, int lvl = 0, string gender = "*", int attack = 0, int defense = 0, int stamina = 0)
         {
-            _logger.Trace($"SubscriptionManager::AddPokemon [UserId={userId}, PokemonId={pokemonId}, IV={iv}, Level={lvl}, Gender={gender}, Attack={attack}, Defense={defense}, Stamina={stamina}]");
+            _logger.Trace($"SubscriptionManager::AddPokemon [UserId={userId}, PokemonId={pokemonId}, Form={form}, IV={iv}, Level={lvl}, Gender={gender}, Attack={attack}, Defense={defense}, Stamina={stamina}]");
 
             if (!IsDbConnectionOpen())
             {
@@ -279,13 +279,14 @@
             }
 
             var subscription = GetUserSubscriptions(userId);
-            var pkmnSub = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId);
+            var pkmnSub = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
             if (pkmnSub == null)
             {
                 //Create new pkmn subscription object.
                 pkmnSub = new PokemonSubscription
                 {
                     PokemonId = pokemonId,
+                    Form = form,
                     UserId = userId,
                     MinimumIV = iv,
                     MinimumLevel = lvl,
@@ -299,13 +300,15 @@
             else
             {
                 //Pokemon subscription exists, check if values are the same.
-                if (iv != pkmnSub.MinimumIV ||
+                if (form != pkmnSub.Form || 
+                    iv != pkmnSub.MinimumIV ||
                     lvl != pkmnSub.MinimumLevel ||
                     gender != pkmnSub.Gender ||
                     attack != pkmnSub.Attack ||
                     defense != pkmnSub.Defense ||
                     stamina != pkmnSub.Stamina)
                 {
+                    pkmnSub.Form = form;
                     pkmnSub.MinimumIV = (pkmnSub.PokemonId == 201 ? 0 : iv);
                     pkmnSub.MinimumLevel = lvl;
                     pkmnSub.Gender = gender;
@@ -333,7 +336,7 @@
             }
             catch (MySql.Data.MySqlClient.MySqlException)
             {
-                return AddPokemon(userId, pokemonId, iv, lvl, gender);
+                return AddPokemon(userId, pokemonId, form, iv, lvl, gender);
             }
             catch (Exception ex)
             {
@@ -343,9 +346,9 @@
             return false;
         }
 
-        public bool AddRaid(ulong userId, int pokemonId, List<string> cities)
+        public bool AddRaid(ulong userId, int pokemonId, string form, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::AddRaid [UserId={userId}, PokemonId={pokemonId}, Cities={cities}]");
+            _logger.Trace($"SubscriptionManager::AddRaid [UserId={userId}, PokemonId={pokemonId}, Form={form}, Cities={cities}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
@@ -353,7 +356,10 @@
                 for (var i = 0; i < cities.Count; i++)
                 {
                     var city = cities[i];
-                    var raidSub = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.City, city, true) == 0);
+                    var raidSub = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && 
+                                                                         string.Compare(x.Form, form, true) == 0 &&
+                                                                         string.Compare(x.City, city, true) == 0
+                                                                     );
                     if (raidSub != null)
                         //return true;
                         continue;
@@ -362,6 +368,7 @@
                     raidSub = new RaidSubscription
                     {
                         PokemonId = pokemonId,
+                        Form = form,
                         UserId = userId,
                         City = city
                     };
@@ -382,7 +389,7 @@
                 }
                 catch (MySql.Data.MySqlClient.MySqlException)
                 {
-                    return AddRaid(userId, pokemonId, cities);
+                    return AddRaid(userId, pokemonId, form, cities);
                 }
                 catch (Exception ex)
                 {
@@ -588,7 +595,7 @@
             }
         }
 
-        public bool AddRaid(ulong userId, List<int> pokemonIds, List<string> cities)
+        public bool AddRaid(ulong userId, Dictionary<int, string> pokemonIds, List<string> cities)
         {
             _logger.Trace($"SubscriptionManager::AddRaid [UserId={userId}, PokemonIds={string.Join(", ", pokemonIds)}, Cities={cities}]");
 
@@ -598,9 +605,12 @@
             }
 
             var errors = 0;
-            for (var i = 0; i < pokemonIds.Count; i++)
+            var keys = pokemonIds.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
             {
-                if (!AddRaid(userId, pokemonIds[i], cities))
+                var pokemonId = keys[i];
+                var form = pokemonIds[pokemonId];
+                if (!AddRaid(userId, pokemonId, form, cities))
                 {
                     errors++;
                 }
@@ -613,18 +623,20 @@
 
         #region Remove
 
-        public bool RemovePokemon(ulong userId, List<int> pokemonIds)
+        public bool RemovePokemon(ulong userId, Dictionary<int, string> pokemonIds)
         {
             _logger.Trace($"SubscriptionManager::RemovePokemon [UserId={userId}, PokemonIds={pokemonIds}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                for (var i = 0; i < pokemonIds.Count; i++)
+                var keys = pokemonIds.Keys.ToList();
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    var pokemonId = pokemonIds[i];
-                    if (conn.Delete<PokemonSubscription>(x => x.UserId == userId && x.PokemonId == pokemonId) == 0)
+                    var pokemonId = keys[i];
+                    var form = pokemonIds[pokemonId];
+                    if (conn.Delete<PokemonSubscription>(x => x.UserId == userId && x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0) == 0)
                     {
-                        _logger.Warn($"Could not delete Pokemon {pokemonId} from {userId} subscription.");
+                        _logger.Warn($"Could not delete Pokemon {pokemonId}-{form} from {userId} subscription.");
                     }
                 }
             }
@@ -632,15 +644,22 @@
             return true;
         }
 
-        public bool RemoveRaid(ulong userId, List<int> pokemonIds, List<string> cities)
+        public bool RemoveRaid(ulong userId, Dictionary<int, string> pokemonIds, List<string> cities)
         {
             _logger.Trace($"SubscriptionManager::RemoveRaid [UserId={userId}, PokemonId={pokemonIds}, Cities={cities}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                for (var i = 0; i < pokemonIds.Count; i++)
+                var keys = pokemonIds.Keys.ToList();
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    if (conn.Delete<RaidSubscription>(x => x.UserId == userId && x.PokemonId == pokemonIds[i] && cities.Select(y => y.ToLower()).Contains(x.City.ToLower())) == 0)
+                    var pokemonId = keys[i];
+                    var form = pokemonIds[pokemonId];
+                    if (conn.Delete<RaidSubscription>(x => x.UserId == userId && 
+                                                           x.PokemonId == pokemonId && 
+                                                           string.Compare(x.Form, form, true) == 0 && 
+                                                           cities.Select(y => y.ToLower()).Contains(x.City.ToLower())
+                                                       ) == 0)
                     {
                         _logger.Warn($"Could not delete raid subscription for user {userId} raid {pokemonIds[i]} city {cities}");
                     }

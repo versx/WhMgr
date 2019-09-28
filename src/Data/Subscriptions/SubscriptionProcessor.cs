@@ -169,13 +169,14 @@
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
                         if (user.DistanceM < distance)
                         {
-                            //Skip if distance is set and is not met.
+                            //Skip if distance is set and is not with specified distance.
                             _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM} meters.");
                             continue;
                         }
                     }
 
-                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id);
+                    var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
+                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(form) || string.Compare(x.Form, form, true) == 0));
                     if (subscribedPokemon == null)
                     {
                         _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name}.");
@@ -190,7 +191,10 @@
                     matchesDefense = _whm.Filters.MatchesDefense(pkmn.Defense, subscribedPokemon.Defense);
                     matchesStamina = _whm.Filters.MatchesStamina(pkmn.Stamina, subscribedPokemon.Stamina);
 
-                    if (!((matchesIV && matchesLvl && matchesGender) || (subscribedPokemon.HasStats && matchesAttack && matchesDefense && matchesStamina)))
+                    if (!(
+                        (!subscribedPokemon.HasStats && matchesIV && matchesLvl && matchesGender) || 
+                        (subscribedPokemon.HasStats && matchesAttack && matchesDefense && matchesStamina)
+                         ))
                         continue;
 
                     /*
@@ -326,8 +330,10 @@
                         continue;
                     }
 
+                    var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                     var exists = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
+                        (string.Compare(x.Form, form, true) == 0 || string.IsNullOrEmpty(form)) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;
                     if (!exists)

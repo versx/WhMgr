@@ -9,7 +9,6 @@
 
     using WhMgr.Data;
     using WhMgr.Data.Models;
-    using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
     public static class PokemonExtensions
@@ -21,6 +20,27 @@
         private const string Normal = "";
         private const string Glasses = "Glasses";
         private const string NoEvolve = "No-Evolve";
+        private const string Anniversary = "Anniversary";
+        private const string Christmas = "Christmas";
+        private const string Birthday = "Birthday";
+        private const string Halloween = "Halloween";
+        private const string Sunny = "Sunny";
+        private const string Overcast = "Overcast";
+        private const string Rainy = "Rainy";
+        private const string Snowy = "Snowy";
+        private const string Attack = "Attack";
+        private const string Defense = "Defense";
+        private const string Speed = "Speed";
+        private const string Plant = "Plant";
+        private const string Sandy = "Sandy";
+        private const string Trash = "Trash";
+        private const string Altered = "Altered";
+        private const string Origin = "Origin";
+        private const string WestSea = "West Sea";
+        private const string EastSea = "East Sea";
+
+        private const string ExclaimationMark = "!";
+        private const string QuestionMark = "?";
 
         //private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
@@ -303,13 +323,13 @@
                     switch (form)
                     {
                         case 1: //X-Mas Hat/Christmas
-                            return "Christmas";
+                            return Christmas;
                         case 2: //Party Hat/Birthday
-                            return "Birthday";
-                        case 3: //Ash Hat
-                            return "Ash Hat";
+                            return Birthday;
+                        case 3: //Ash Hat/Anniversary
+                            return Anniversary;
                         case 4: //Witch Hat/Halloween
-                            return "Halloween";
+                            return Halloween;
                         case 5: //Straw Hat/Sun Glasses
                             return "Straw Hat";
                         case 6: //FM/
@@ -326,13 +346,13 @@
                     switch (form)
                     {
                         case 1: //X-Mas Hat/Christmas
-                            return "Christmas";
+                            return Christmas;
                         case 2: //Party Hat/Birthday
-                            return "Birthday";
-                        case 3: //Ash Hat
-                            return "Ash Hat";
+                            return Birthday;
+                        case 3: //Ash Hat/Anniversary
+                            return Anniversary;
                         case 4: //Witch Hat/Halloween
-                            return "Halloween";
+                            return Halloween;
                         case 5: //Straw Hat/Sun Glasses
                             return "Straw Hat";
                         case 6: //FM/
@@ -601,13 +621,13 @@
                     switch (form)
                     {
                         case 1: //X-Mas Hat/Christmas
-                            return "Christmas";
+                            return Christmas;
                         case 2: //Party Hat/Birthday
-                            return "Birthday";
-                        case 3: //Ash Hat
-                            return "Ash Hat";
+                            return Birthday;
+                        case 3: //Ash Hat/Anniversary
+                            return Anniversary;
                         case 4: //Witch Hat/Halloween
-                            return "Halloween";
+                            return Halloween;
                         case 5: //Straw Hat/Sun Glasses
                             return "Straw Hat";
                         case 6: //FM/
@@ -617,10 +637,10 @@
                 case 201: //Unown
                     switch (form)
                     {
-                        case 27:
-                            return "!";
-                        case 28:
-                            return "?";
+                        case 27: //!
+                            return ExclaimationMark;
+                        case 28: //?
+                            return QuestionMark;
                         default:
                             return form.NumberToAlphabet().ToString();
                     }
@@ -702,11 +722,11 @@
                         case 29: //Normal
                             return Normal;
                         case 30: //Sunny
-                            return "Sunny";
+                            return Sunny;
                         case 31: //Water
-                            return "Rainy";
+                            return Rainy;
                         case 32: //Snow
-                            return "Snowy";
+                            return Snowy;
                     }
                     break;
                 case 386: //Deoxys
@@ -715,11 +735,11 @@
                         case 33: //Normal
                             return Normal;
                         case 34: //Attack
-                            return "Attack";
+                            return Attack;
                         case 35: //Defense
-                            return "Defense";
+                            return Defense;
                         case 36: //Speed
-                            return "Speed";
+                            return Speed;
                     }
                     break;
                 case 412: //Burmy
@@ -728,40 +748,40 @@
                     {
                         case 87: //Plant
                         case 118:
-                            return "Plant";
+                            return Plant;
                         case 88: //Sandy
                         case 119:
-                            return "Sandy";
+                            return Sandy;
                         case 89: //Trash
                         case 120:
-                            return "Trash";
+                            return Trash;
                     }
                     break;
                 case 421: //Cherrim
                     switch (form)
                     {
                         case 94: //Overcast
-                            return "Overcast";
+                            return Overcast;
                         case 95: //Sunny
-                            return "Sunny";
+                            return Sunny;
                     }
                     break;
                 case 422: //Shellos
                     switch (form)
                     {
                         case 96:
-                            return "West Sea";
+                            return WestSea;
                         case 97:
-                            return "East Sea";
+                            return EastSea;
                     }
                     break;
                 case 423: //Gastrodon
                     switch (form)
                     {
                         case 98:
-                            return "West Sea";
+                            return WestSea;
                         case 99:
-                            return "East Sea";
+                            return EastSea;
                     }
                     break;
                 case 479: //Rotom
@@ -785,9 +805,9 @@
                     switch (form)
                     {
                         case 90: //Altered
-                            return "Altered";
+                            return Altered;
                         case 91: //Origin
-                            return "Origin";
+                            return Origin;
                     }
                     break;
                 case 492: //Shaymin
@@ -999,7 +1019,7 @@
                             return "Santa Hat";
                         case 2: //Party Hat/Birthday /anniversary
                             return "Party Hat";
-                        case 3: //Ash Hat /oneYearAnniversary
+                        case 3: //Ash Hat /Anniversary
                             return "Ash Hat";
                         case 4: //Witch Hat/Halloween /halloween2017
                             return "Witch Hat";
@@ -1367,11 +1387,24 @@
 
         public static PokemonValidation ValidatePokemon(this IEnumerable<string> pokemon)
         {
-            var valid = new List<int>();
+            var valid = new Dictionary<int, string>();
             var invalid = new List<string>();
             foreach (var poke in pokemon)
             {
-                var pokeId = poke.PokemonIdFromName();
+                var form = string.Empty;
+                var pokeIdStr = poke;
+                if (poke.Contains("-"))
+                {
+                    //Has form
+                    var formSplit = poke.Split('-');
+                    if (formSplit.Length != 2)
+                        continue;
+
+                    pokeIdStr = formSplit[0];
+                    form = formSplit[1];
+                }
+
+                var pokeId = pokeIdStr.PokemonIdFromName();
                 if (pokeId == 0)
                 {
                     invalid.Add(poke);
@@ -1384,7 +1417,7 @@
                     continue;
                 }
 
-                valid.Add(pokeId);
+                valid.Add(pokeId, form);
             }
 
             return new PokemonValidation { Valid = valid, Invalid = invalid };
@@ -1405,13 +1438,13 @@
 
     public class PokemonValidation
     {
-        public List<int> Valid { get; set; }
+        public Dictionary<int, string> Valid { get; set; }
 
         public List<string> Invalid { get; set; }
 
         public PokemonValidation()
         {
-            Valid = new List<int>();
+            Valid = new Dictionary<int, string>();
             Invalid = new List<string>();
         }
     }

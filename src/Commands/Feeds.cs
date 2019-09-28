@@ -30,6 +30,9 @@
         ]
         public async Task FeedsAsync(CommandContext ctx)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
             var eb = new DiscordEmbedBuilder
             {
                 Color = DiscordColor.Red,

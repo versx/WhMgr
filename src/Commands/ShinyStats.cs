@@ -90,6 +90,7 @@
             {
                 using (var db = DataAccessLayer.CreateFactory(config.ScannerConnectionString).Open())
                 {
+                    db.SetCommandTimeout(120);
                     //var unixTimestamp = DateTimeOffset.ToUnixTimeSeconds();
                     var twentyFourHoursAgo = DateTime.Now.Subtract(TimeSpan.FromHours(24));
                     var pokemon = db.Select<PokemonData>().Where(x => x.Shiny.HasValue && x.Updated.FromUnix() > twentyFourHoursAgo).ToList();

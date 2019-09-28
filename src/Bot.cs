@@ -165,6 +165,7 @@
             );
             _commands.CommandExecuted += Commands_CommandExecuted;
             _commands.CommandErrored += Commands_CommandErrored;
+            _commands.RegisterCommands<General>();
             _commands.RegisterCommands<Owner>();
             _commands.RegisterCommands<CommunityDay>();
             _commands.RegisterCommands<ShinyStats>();
@@ -632,7 +633,7 @@
                     }
 
                     var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
-                    await guild.CreateEmojiAsync(emoji, fs, null, "Missing Valor emoji.");
+                    await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
 
                     _logger.Info($"Emoji {emoji} created successfully.");
                 }
@@ -647,10 +648,12 @@
             Statistics.Instance.WriteOut();
             Statistics.Instance.Reset();
 
+            /*
             if (_whConfig.EnableSubscriptions)
             {
-                //_subProcessor.Manager.RemoveAllSnoozedQuests();
+                _subProcessor.Manager.RemoveAllSnoozedQuests();
             }
+            */
 
             if (_whConfig.ShinyStats.Enabled)
             {
@@ -666,7 +669,8 @@
                         await _client.DeleteMessages(_whConfig.ShinyStats.ChannelId);
                     }
 
-                    await statsChannel.SendMessageAsync($"[**Shiny Pokemon stats for {DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString()}**]\r\n----------------------------------------------");
+                    //Subtract an hour to make sure it shows yesterdays date.
+                    await statsChannel.SendMessageAsync($"[**Shiny Pokemon stats for {DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()}**]\r\n----------------------------------------------");
                     var stats = await ShinyStats.GetStats(_whConfig);
                     var sorted = stats.Keys.ToList();
                     sorted.Sort();

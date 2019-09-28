@@ -33,6 +33,12 @@
         public int PokemonId { get; set; }
 
         [
+            JsonProperty("form"),
+            Alias("form")
+        ]
+        public string Form { get; set; }
+
+        [
             JsonProperty("city"),
             Alias("city"), 
             Required
