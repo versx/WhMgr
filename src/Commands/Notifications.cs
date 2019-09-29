@@ -241,12 +241,12 @@
             {
                 if (string.Compare(poke, Strings.All, true) == 0)
                 {
-                    if (!isSupporter && subscription.Pokemon.Count >= Strings.MaxPokemonSubscriptions)
-                    {
-                        await ctx.TriggerTypingAsync();
-                        await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited Pokemon notification amount of {Strings.MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.", DiscordColor.Red);
-                        return;
-                    }
+                    //if (!isSupporter && subscription.Pokemon.Count >= Strings.MaxPokemonSubscriptions)
+                    //{
+                    //    await ctx.TriggerTypingAsync();
+                    //    await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited Pokemon notification amount of {Strings.MaxPokemonSubscriptions}, thus you may not use the 'all' parameter. Please narrow down your Pokemon notification subscriptions to be more specific and try again.", DiscordColor.Red);
+                    //    return;
+                    //}
 
                     if (realIV < 90)
                     {
@@ -333,7 +333,6 @@
                 //If `poke` param is a list
                 validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
             }
-            var db = Database.Instance;
 
             if (validation.Valid.Count == 0)
             {
@@ -347,70 +346,63 @@
                 var pokemonId = pokeId.Key;
                 var form = pokeId.Value;
 
-                //Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
-                if (IsCommonPokemon(pokemonId) && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
-                {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} {db.Pokemon[pokemonId].Name} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {Strings.CommonTypeMinimumIV}% or higher.", DiscordColor.Red);
-                    continue;
-                }
-
-                if (!db.Pokemon.ContainsKey(pokemonId))
+                if (!Database.Instance.Pokemon.ContainsKey(pokemonId))
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed($"{ctx.User.Username} {pokeId} is not a valid Pokemon id.", DiscordColor.Red);
                     continue;
                 }
 
-                var pokemon = db.Pokemon[pokemonId];
+                var pokemon = Database.Instance.Pokemon[pokemonId];
+
+                //Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
+                if (IsCommonPokemon(pokemonId) && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
+                {
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondEmbed($"{ctx.User.Username} {pokemon.Name} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {Strings.CommonTypeMinimumIV}% or higher.", DiscordColor.Red);
+                    continue;
+                }
 
                 if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
                 {
                     _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokemonId, form, (pokemonId == 201 ? 0 : realIV), lvl, gender, attack, defense, stamina);
-                    subscribed.Add(pokemon.Name);
+                    subscribed.Add(string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form);
                     continue;
                 }
 
                 //User has already subscribed before, check if their new requested sub already exists.
-                if (!subscription.Pokemon.Exists(x => x.PokemonId == pokemonId))
+                if (!subscription.Pokemon.Exists(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0))
                 {
-                    if (!isSupporter && subscription.Pokemon.Count >= Strings.MaxPokemonSubscriptions)
-                    {
-                        await ctx.TriggerTypingAsync();
-                        await ctx.RespondEmbed($"{ctx.User.Username} non-supporter members have a limited notification amount of {Strings.MaxPokemonSubscriptions} different Pokemon, please consider donating to lift this to every Pokemon. Otherwise you will need to remove some subscriptions in order to subscribe to new Pokemon.", DiscordColor.Red);
-                        return;
-                    }
-
                     _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokemonId, form, (pokemonId == 201 ? 0 : realIV), lvl, gender, attack, defense, stamina);
-                    subscribed.Add(pokemon.Name);
+                    subscribed.Add(string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form);
                     continue;
                 }
-                else
-                {
-                    //Check if minimum IV value is different from value in database, if not add it to the already subscribed list.
-                    var subscribedPokemon = subscription.Pokemon.Find(x => x.PokemonId == pokemonId);
-                    if (realIV != subscribedPokemon.MinimumIV ||
-                        lvl != subscribedPokemon.MinimumLevel ||
-                        gender != subscribedPokemon.Gender ||
-                        attack != subscribedPokemon.Attack ||
-                        defense != subscribedPokemon.Defense ||
-                        stamina != subscribedPokemon.Stamina)
-                    {
-                        subscribedPokemon.MinimumIV = realIV;
-                        subscribedPokemon.MinimumLevel = lvl;
-                        subscribedPokemon.Gender = gender;
-                        subscribedPokemon.Attack = attack;
-                        subscribedPokemon.Defense = defense;
-                        subscribedPokemon.Stamina = stamina;
-                        subscribed.Add(pokemon.Name);
 
-                        _dep.SubscriptionProcessor.Manager.Save(subscription);
-                    }
-                    else
-                    {
-                        alreadySubscribed.Add(pokemon.Name);
-                    }
+                //Check if minimum IV value is different from value in database, if not add it to the already subscribed list.
+                var subscribedPokemon = subscription.Pokemon.Find(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
+                if (realIV != subscribedPokemon.MinimumIV ||
+                    string.Compare(form, subscribedPokemon.Form, true) != 0 ||
+                    lvl != subscribedPokemon.MinimumLevel ||
+                    gender != subscribedPokemon.Gender ||
+                    attack != subscribedPokemon.Attack ||
+                    defense != subscribedPokemon.Defense ||
+                    stamina != subscribedPokemon.Stamina)
+                {
+                    subscribedPokemon.Form = form;
+                    subscribedPokemon.MinimumIV = realIV;
+                    subscribedPokemon.MinimumLevel = lvl;
+                    subscribedPokemon.Gender = gender;
+                    subscribedPokemon.Attack = attack;
+                    subscribedPokemon.Defense = defense;
+                    subscribedPokemon.Stamina = stamina;
+                    subscribed.Add(string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form);
+
+                    _dep.SubscriptionProcessor.Manager.Save(subscription);
+                    continue;
                 }
+
+                //Already subscribed to the same Pokemon and form
+                alreadySubscribed.Add(string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form);
             }
 
             await ctx.TriggerTypingAsync();
@@ -504,7 +496,7 @@
             }
             if (validation.Valid != null && validation.Valid.Count > 0)
             {
-                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : x.Value));
+                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
                 var result = _dep.SubscriptionProcessor.Manager.RemovePokemon(ctx.User.Id, validation.Valid);
                 if (!result)
                 {
@@ -688,7 +680,7 @@
                         ? _dep.WhConfig.CityRoles 
                         : new List<string> { city });
 
-                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : x.Value));
+                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
                 var msg = $"{ctx.User.Username} has unsubscribed from **{string.Join("**, **", pokemonNames)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}.";
                 if (validation.Invalid != null && validation.Invalid.Count > 0)
                 {
@@ -1473,6 +1465,7 @@
 
                 var msg = $"Enabled: **{(subscription.Enabled ? "Yes" : "No")}**\r\n";
                 msg += $"Feed Zones: ```{string.Join(", ", feeds)}```\r\n";
+                msg += $"Icon Style: **{subscription.IconStyle}**\r\n";
                 msg += $"Distance: **{(subscription.DistanceM == 0 ? "Not Set (Any Distance)" : $"{subscription.DistanceM} kilometers")}**\r\n";
                 msg += $"Pokemon Subscriptions: ({pokemon.Count}/{(isSupporter ? "∞" : Strings.MaxPokemonSubscriptions.ToString())} used)\r\n";
                 msg += "```";
@@ -1493,7 +1486,8 @@
                             continue;
 
                         var pkmn = Database.Instance.Pokemon[poke.PokemonId];
-                        msg += $"{poke.PokemonId}: {pkmn.Name} {(poke.HasStats ? $"{poke.Attack}/{poke.Defense}/{poke.Stamina}" : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}\r\n";
+                        var form = string.IsNullOrEmpty(poke.Form) ? string.Empty : $" ({poke.Form})";
+                        msg += $"{poke.PokemonId}: {pkmn.Name}{form} {(poke.HasStats ? $"{poke.Attack}/{poke.Defense}/{poke.Stamina}" : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}\r\n";
                     }
                 }
                 msg += "```" + Environment.NewLine + Environment.NewLine;

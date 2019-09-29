@@ -176,10 +176,11 @@
                     }
 
                     var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
-                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(form) || string.Compare(x.Form, form, true) == 0));
+                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
+                    //subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && string.Compare(x.Form, form, true) == 0);
                     if (subscribedPokemon == null)
                     {
-                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name}.");
+                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
@@ -226,7 +227,7 @@
 
                     //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
-                    var iconStyle = Manager.GetUserIconStyle(user.UserId);
+                    var iconStyle = Manager.GetUserIconStyle(user);
                     var embed = _embedBuilder.BuildPokemonMessage(pkmn, loc.Name, _whConfig.IconStyles[iconStyle]);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 
@@ -333,7 +334,8 @@
                     var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                     var exists = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
-                        (string.Compare(x.Form, form, true) == 0 || string.IsNullOrEmpty(form)) &&
+                        (string.Compare(x.Form, form, true) == 0 || string.IsNullOrEmpty(x.Form)) &&
+                        //string.Compare(x.Form, form, true) == 0 &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;
                     if (!exists)
@@ -371,7 +373,7 @@
 
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
-                    var iconStyle = Manager.GetUserIconStyle(user.UserId);
+                    var iconStyle = Manager.GetUserIconStyle(user);
                     var embed = _embedBuilder.BuildRaidMessage(raid, loc.Name, _whConfig.IconStyles[iconStyle]);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 

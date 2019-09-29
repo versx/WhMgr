@@ -133,7 +133,7 @@
             _alarms = LoadAlarms(_alarmsFilePath);
             _config = config;
 
-            LoadWebHooks();
+            LoadWebhooks();
 
             _http = new HttpServer(_config.WebhookPort);
             _http.PokemonReceived += Http_PokemonReceived;
@@ -274,16 +274,16 @@
             fileWatcher.Start();
         }
 
-        private void LoadWebHooks()
+        private void LoadWebhooks()
         {
-            _logger.Trace($"WebhookManager::LoadWebHooks");
+            _logger.Trace($"WebhookManager::LoadWebhooks");
 
             foreach (var alarm in _alarms.Alarms)
             {
                 if (string.IsNullOrEmpty(alarm.Webhook))
                     continue;
 
-                var wh = GetWebHookData(alarm.Webhook);
+                var wh = GetWebhookData(alarm.Webhook);
                 if (wh == null)
                 {
                     _logger.Error($"Failed to download webhook data from {alarm.Webhook}.");
@@ -699,7 +699,7 @@
 
         #region Static Methods
 
-        public static WebHookObject GetWebHookData(string webHook)
+        public static WebHookObject GetWebhookData(string webHook)
         {
             /**Example:
              * {

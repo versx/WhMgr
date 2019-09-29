@@ -4,7 +4,7 @@
 
     public class NotificationLimiter
     {
-        public const int MaxNotificationsPerMinute = 30;
+        public const int MaxNotificationsPerMinute = 15;
         public const int ThresholdTimeout = 60;
 
         //private readonly DateTime _start;

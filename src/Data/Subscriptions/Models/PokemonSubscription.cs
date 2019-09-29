@@ -98,6 +98,7 @@
             Attack = 0;
             Defense = 0;
             Stamina = 0;
+            Form = string.Empty;
         }
     }
 }

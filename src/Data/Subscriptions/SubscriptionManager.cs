@@ -300,7 +300,7 @@
             else
             {
                 //Pokemon subscription exists, check if values are the same.
-                if (form != pkmnSub.Form || 
+                if (string.Compare(form, pkmnSub.Form, true) != 0 || 
                     iv != pkmnSub.MinimumIV ||
                     lvl != pkmnSub.MinimumLevel ||
                     gender != pkmnSub.Gender ||
@@ -857,23 +857,34 @@
 
         #endregion
 
-        public string GetUserIconStyle(ulong userId)
+        public string GetUserIconStyle(SubscriptionObject user)
         {
-            if (!IsDbConnectionOpen())
+            var styles = _whConfig.IconStyles;
+            var keys = styles.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
             {
-                throw new Exception("Not connected to database.");
+                var key = keys[i];
+                if (string.Compare(key, user.IconStyle, true) == 0)
+                {
+                    return key;
+                }
             }
+            return "Default";
+            //if (!IsDbConnectionOpen())
+            //{
+            //    throw new Exception("Not connected to database.");
+            //}
 
-            try
-            {
-                var conn = GetConnection();
-                var sub = conn.LoadSingleById<SubscriptionObject>(userId);
-                return sub.IconStyle ?? "Default";
-            }
-            catch (MySql.Data.MySqlClient.MySqlException)
-            {
-                return "Default";
-            }
+            //try
+            //{
+            //    var conn = GetConnection();
+            //    var sub = conn.LoadSingleById<SubscriptionObject>(userId);
+            //    return sub.IconStyle ?? "Default";
+            //}
+            //catch (MySql.Data.MySqlClient.MySqlException)
+            //{
+            //    return "Default";
+            //}
         }
 
         #region Add Statistics
