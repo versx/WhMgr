@@ -1,14 +1,14 @@
 {
     "pokemon": {
-	    "avatarUrl": "",
-		"content": "<pkmn_name> <form> <gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><br>**Moveset:** <moveset><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
-		"iconUrl": "",
-	    "title": "<geofence>",
-		"url": "<gmaps_url>",
-		"username": "<form> <pkmn_name><gender>"
+        "avatarUrl": "",
+        "content": "<pkmn_name> <form> <gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><br>**Moveset:** <moveset><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
+        "iconUrl": "",
+        "title": "<geofence>",
+        "url": "<gmaps_url>",
+        "username": "<form> <pkmn_name><gender>"
 	},
 	"pokemonMissingStats": {
-	    "avatarUrl": "",
+        "avatarUrl": "",
         "content": "<pkmn_name> <form> <gender><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Types:** <types_emoji> | **Size:** <size><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
         "iconUrl": "",
         "title": "<geofence>",

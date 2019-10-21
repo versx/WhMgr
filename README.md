@@ -114,10 +114,10 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
       //Alarm name.
       "name":"Alarm1",
 	  
-	  //Alerts file.
-	  "alerts":"default.json",
+      //Alerts file.
+      "alerts":"default.json",
 	  
-	  //Alarm filters.
+      //Alarm filters.
       "filters":"default.json",
 	  
       //Path to geofence file.
@@ -151,8 +151,17 @@ Upload Discord emojis that are in the emojis folder.
 
 *Notes:  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.*  
-- DM notifications can be sent to users based on 
-
+- DM notifications can be sent to users based on:
+    - Pokemon IV
+    - Pokemon Level
+    - Pokemon Attack/Defense/Stamina values
+    - Pokemon Gender
+    - Raid Boss
+    - Raid City
+    - Raid Distance
+    - Gym Name
+    - Quest Reward
+    - Invasion Type  
 
 ## TODO:  
 - Allow Pokemon id and name in Pokemon filter lists. 
