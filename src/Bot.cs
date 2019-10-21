@@ -16,6 +16,7 @@
     using WhMgr.Localization;
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
+    using WhMgr.Utilities;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
@@ -23,6 +24,7 @@
     using DSharpPlus.Exceptions;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
+    using WhMgr.Data.Models.Discord;
 
     //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
     //TODO: Optimize webhook and subscription processing.
@@ -146,7 +148,7 @@
             DependencyCollection dep;
             using (var d = new DependencyCollectionBuilder())
             {
-                d.AddInstance(_dep = new Dependencies(_interactivity, _whm, _subProcessor, _whConfig, _lang));
+                d.AddInstance(_dep = new Dependencies(_interactivity, _whm, _subProcessor, _whConfig, _lang, new StripeService(_whConfig.StripeApiKey)));
                 dep = d.Build();
             }
 
@@ -336,19 +338,14 @@
 
         #region WebhookManager Events
 
-        private async void OnPokemonAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokemonData> e)
+        private void OnPokemonAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokemonData> e)
         {
             _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
 
-            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //    return;
+            if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
-
-            var wh = _whm.WebHooks[e.Alarm.Name];
-            if (wh == null)
-            {
-                _logger.Error($"[POKEMON] Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
-                return;
-            }
 
             var pokemon = e.Data;
             var pkmn = Database.Instance.Pokemon[pokemon.Id];
@@ -365,12 +362,18 @@
                 //var costume = e.Pokemon.Id.GetCostume(e.Pokemon.Costume.ToString());
                 //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
                 var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.Urls.PokemonImage, pokemon.Gender, pokemon.FormId, pokemon.Costume);
-                var eb = _embedBuilder.BuildPokemonMessage(pokemon, loc.Name, pkmnImage);
+                //var eb = _embedBuilder.BuildPokemonMessage(pokemon, loc.Name, pkmnImage);
+                var eb = _embedBuilder.GeneratePokemonMessage(pokemon, e.Alarm, loc.Name, pkmnImage);
+                var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIconValue()}{form}";
+                var jsonEmbed = new DiscordWebhookMessage
+                {
+                    Username = name,
+                    AvatarUrl = pkmnImage,
+                    Embeds = new List<DiscordEmbed> { eb }
+                }.Build();
+                //_logger.Debug($"JSON EMBED: {jsonEmbed}");
+                NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
 
-                var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-                var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIcon()}{form}";
-                await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
-                //TODO: Change to raw webhooks
                 Statistics.Instance.PokemonSent++;
                 Statistics.Instance.IncrementPokemonStats(pokemon.Id);
 
@@ -385,22 +388,16 @@
             }
         }
 
-        private async void OnRaidAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<RaidData> e)
+        private void OnRaidAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<RaidData> e)
         {
-            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //    return;
+            if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
             _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Data.PokemonId}, Level: {e.Data.Level}, StartTime: {e.Data.StartTime}]");
 
-            var wh = _whm.WebHooks[e.Alarm.Name];
-            if (wh == null)
-            {
-                _logger.Error($"[RAID] Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
-                return;
-            }
-
             var raid = e.Data;
-            var pkmn = Database.Instance.Pokemon[raid.PokemonId];
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
             if (loc == null)
             {
@@ -410,13 +407,21 @@
 
             try
             {
+                var pkmn = Database.Instance.Pokemon[raid.PokemonId];
                 var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                 var pkmnImage = raid.IsEgg ? string.Format(_whConfig.Urls.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(_whConfig.Urls.PokemonImage, PokemonGender.Unset, raid.Form);
-                var eb = _embedBuilder.BuildRaidMessage(raid, loc.Name, pkmnImage);
-
-                var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
+                //var eb = _embedBuilder.BuildRaidMessage(raid, loc.Name, pkmnImage);
+                var eb = _embedBuilder.GenerateRaidMessage(raid, e.Alarm, loc.Name, pkmnImage);
                 var name = raid.IsEgg ? $"Level {raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
-                await whData.ExecuteAsync(string.Empty, name, pkmnImage, false, new List<DiscordEmbed> { eb });
+                var jsonEmbed = new DiscordWebhookMessage
+                {
+                    Username = name,
+                    AvatarUrl = pkmnImage,
+                    Embeds = new List<DiscordEmbed> { eb }
+                }.Build();
+                //_logger.Debug($"JSON EMBED: {jsonEmbed}");
+                NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
+
                 Statistics.Instance.RaidsSent++;
                 if (raid.PokemonId > 0)
                 {
@@ -429,19 +434,14 @@
             }
         }
 
-        private async void OnQuestAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<QuestData> e)
+        private void OnQuestAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<QuestData> e)
         {
-            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //    return;
+            if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
             _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, Type={e.Data.Type}]");
-
-            var wh = _whm.WebHooks[e.Alarm.Name];
-            if (wh == null)
-            {
-                _logger.Error($"[QUEST] Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
-                return;
-            }
 
             var quest = e.Data;
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
@@ -453,9 +453,17 @@
 
             try
             {
-                var eb = _embedBuilder.BuildQuestMessage(quest, loc?.Name ?? e.Alarm.Name);
-                var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-                await whData.ExecuteAsync(string.Empty, quest.GetQuestMessage() ?? string.Empty, quest.GetIconUrl(_whConfig) ?? string.Empty, false, new List<DiscordEmbed> { eb });
+                //var eb = _embedBuilder.BuildQuestMessage(quest, loc?.Name ?? e.Alarm.Name);
+                var eb = _embedBuilder.GenerateQuestMessage(quest, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var jsonEmbed = new DiscordWebhookMessage
+                {
+                    Username = quest.GetQuestMessage(),
+                    AvatarUrl = quest.GetIconUrl(_whConfig),
+                    Embeds = new List<DiscordEmbed> { eb }
+                }.Build();
+                //_logger.Debug($"JSON EMBED: {jsonEmbed}");
+                NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
+
                 Statistics.Instance.QuestsSent++;
             }
             catch (Exception ex)
@@ -464,19 +472,14 @@
             }
         }
 
-        private async void OnPokestopAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokestopData> e)
+        private void OnPokestopAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokestopData> e)
         {
-            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //    return;
+            if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
             _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, LureExpire={e.Data.LureExpire}, InvasionExpire={e.Data.IncidentExpire}]");
-
-            var wh = _whm.WebHooks[e.Alarm.Name];
-            if (wh == null)
-            {
-                _logger.Error($"[POKESTOP] Failed to parse webhook data from {e.Alarm.Name} {e.Alarm.Webhook}.");
-                return;
-            }
 
             var pokestop = e.Data;
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
@@ -503,9 +506,17 @@
 
             try
             {
-                var eb = _embedBuilder.BuildPokestopMessage(pokestop, loc?.Name ?? e.Alarm.Name);
-                var whData = await _client.GetWebhookWithTokenAsync(wh.Id, wh.Token);
-                await whData.ExecuteAsync(string.Empty, pokestop.Name ?? "Unknown Pokestop", icon, false, new List<DiscordEmbed> { eb });
+                //var eb = _embedBuilder.BuildPokestopMessage(pokestop, loc?.Name ?? e.Alarm.Name);
+                var eb = _embedBuilder.GeneratePokestopMessage(pokestop, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var jsonEmbed = new DiscordWebhookMessage
+                {
+                    Username = pokestop.Name ?? "Unknown Pokestop",
+                    AvatarUrl = icon,
+                    Embeds = new List<DiscordEmbed> { eb }
+                }.Build();
+                //_logger.Debug($"JSON EMBED: {jsonEmbed}");
+                NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
+
                 //Statistics.Instance.QuestsSent++;
             }
             catch (Exception ex)
@@ -516,7 +527,9 @@
 
         private void OnGymAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<GymData> e)
         {
-            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //    return;
+            if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
             _logger.Info($"Gym Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, Team={e.Data.Team}, SlotsAvailable={e.Data.SlotsAvailable}, GuardPokemonId={e.Data.GuardPokemonId}]");
@@ -526,7 +539,9 @@
 
         private void OnGymDetailsAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<GymDetailsData> e)
         {
-            if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
+            //    return;
+            if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
             _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");

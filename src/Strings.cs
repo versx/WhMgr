@@ -16,6 +16,8 @@
 
         public const string DataFolder = "Data";
         public const string GeofenceFolder = "Geofences";
+        public const string AlertsFolder = "Alerts";
+        public const string FiltersFolder = "Filters";
         public const string LibrariesFolder = "Libs";
         public static readonly string LocaleFolder = "static" + System.IO.Path.DirectorySeparatorChar + "locale";
         public static readonly string EmojisFolder = "static" + System.IO.Path.DirectorySeparatorChar + "emojis";
@@ -89,13 +91,13 @@
         public static IReadOnlyDictionary<WeatherType, string> WeatherEmojis => new Dictionary<WeatherType, string>
         {
             { WeatherType.None, "" },
-            { WeatherType.Clear, "☀️" },
-            { WeatherType.Rain, "☔️" },
-            { WeatherType.PartlyCloudy, "⛅" },
-            { WeatherType.Cloudy, "☁️" },
-            { WeatherType.Windy, "💨" },
-            { WeatherType.Snow, "⛄️" },
-            { WeatherType.Fog, "🌁" }
+            { WeatherType.Clear, ":sunny:" }, //☀️
+            { WeatherType.Rain, ":umbrella:" }, //☔️
+            { WeatherType.PartlyCloudy, ":partly_sunny:" }, //⛅
+            { WeatherType.Cloudy, ":cloud:" }, //☁️
+            { WeatherType.Windy, ":dash:" }, //💨
+            { WeatherType.Snow, ":snowman:" }, //⛄️
+            { WeatherType.Fog, ":foggy:" } //🌁
         };
 
         public static IReadOnlyDictionary<WeatherType, List<PokemonType>> WeatherBoosts => new Dictionary<WeatherType, List<PokemonType>>

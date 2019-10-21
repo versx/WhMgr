@@ -46,6 +46,13 @@
                 return;
             }
 
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return;
+            }
+
             if (string.IsNullOrEmpty(mention))
             {
                 await SendUserSubscriptionSettings(ctx.Client, ctx.User, ctx.User);
@@ -90,6 +97,13 @@
                 return;
             }
 
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return;
+            }
+
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.TriggerTypingAsync();
@@ -97,7 +111,7 @@
                 return;
             }
 
-            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+            //_dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
 
             var cmd = ctx.Message.Content.TrimStart('.', ' ');
             var enabled = cmd.ToLower().Contains("enable");
@@ -124,6 +138,13 @@
                 return;
             }
 
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return;
+            }
+
             if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -146,6 +167,45 @@
             await ctx.RespondEmbed($"{ctx.User.Mention} Raid notifications within a {distance} meter radius of location {lat},{lng}.");
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        [
+            Command("expire"),
+            Aliases("expires"),
+            Description("")
+        ]
+        public async Task GetExpireDateAsync(CommandContext ctx)
+        {
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return;
+            }
+
+            var guildId = ctx.Guild?.Id ?? _dep.WhConfig.GuildId;
+            var message = BuildExpirationMessage(guildId, ctx.User);
+            await ctx.Client.SendDirectMessage(ctx.User, message);
+        }
+
+        [
+            Command("expire-admin"),
+            Description(""),
+            RequireOwner
+        ]
+        public async Task GetExpireAdminAsync(CommandContext ctx,
+            [Description("Discord user id to check expire date for")] string userId)
+        {
+            if (!ulong.TryParse(userId, out var realUserId))
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} Failed to parse user id {userId}", DiscordColor.Red);
+                return;
+            }
+
+            var guildId = ctx.Guild?.Id ?? _dep.WhConfig.GuildId;
+            var user = await ctx.Client.GetUserAsync(realUserId);
+            var message = BuildExpirationMessage(guildId, user);
+            await ctx.Client.SendDirectMessage(ctx.User, message);
         }
 
         #endregion
@@ -260,7 +320,7 @@
                     {
                         if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
                         {
-                            _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, i, null, (i == 201 ? 0 : realIV), lvl, gender);
+                            _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, i, null, (i == 201 ? 0 : realIV), i == 201 ? 0 : lvl, i == 201 ? "*" : gender);
                             continue;
                         }
 
@@ -271,7 +331,7 @@
                             subscription.Pokemon.Add(new PokemonSubscription {
                                 PokemonId = i,
                                 MinimumIV = (i == 201 ? 0 : realIV),
-                                MinimumLevel = lvl
+                                MinimumLevel = (i == 201 ? 0 : lvl)
                             });
                             continue;
                         }
@@ -283,8 +343,8 @@
                             gender != subscribedPokemon.Gender)
                         {
                             subscribedPokemon.MinimumIV = (i == 201 ? 0 : realIV);
-                            subscribedPokemon.MinimumLevel = lvl;
-                            subscribedPokemon.Gender = gender;
+                            subscribedPokemon.MinimumLevel = (i == 201 ? 0 : lvl);
+                            subscribedPokemon.Gender = (i == 201 ? "*" : gender);
                         }
                     }
 
@@ -305,42 +365,13 @@
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
             var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(_dep.WhConfig);
-            //var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
-            PokemonValidation validation;
-            if (poke.Contains("-") && int.TryParse(poke.Split('-')[0], out var startRange) && int.TryParse(poke.Split('-')[1], out var endRange))
+            var validation = ValidatePokemonList(poke);
+            if (validation == null || validation.Valid.Count == 0)
             {
-                //If `poke` param is a range
-                var range = GetListFromRange(startRange, endRange);
-                validation = range.ValidatePokemon();
-            }
-            else if (Strings.PokemonGenerationRanges.Select(x => "gen" + x.Key).ToList().Contains(poke))
-            {
-                if (!int.TryParse(poke.Replace("gen", ""), out var gen) || !Strings.PokemonGenerationRanges.ContainsKey(gen))
-                {
-                    var keys = Strings.PokemonGenerationRanges.Keys.ToList();
-                    var minValue = keys[0];
-                    var maxValue = keys[keys.Count - 1];
-                    await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon generation number, valid values are between `{minValue}-{maxValue}`. i.e. `{_dep.WhConfig.CommandPrefix}pokeme gen3`");
-                    return;
-                }
-
-                var genRange = Strings.PokemonGenerationRanges[gen];
-                var range = GetListFromRange(genRange.Start, genRange.End);
-                validation = range.ValidatePokemon();
-            }
-            else
-            {
-                //If `poke` param is a list
-                validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
-            }
-
-            if (validation.Valid.Count == 0)
-            {
-                await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} Invalid Pokemon: `{poke}`");
+                await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon `{poke}`", DiscordColor.Red);
                 return;
             }
 
-            //foreach (var arg in poke.Replace(" ", "").Split(','))
             foreach (var pokeId in validation.Valid)
             {
                 var pokemonId = pokeId.Key;
@@ -365,7 +396,7 @@
 
                 if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
                 {
-                    _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokemonId, form, (pokemonId == 201 ? 0 : realIV), lvl, gender, attack, defense, stamina);
+                    _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokemonId, form, (pokemonId == 201 ? 0 : realIV), (pokemonId == 201 ? 0 : lvl), (pokemonId == 201 ? "*" : gender), attack, defense, stamina);
                     subscribed.Add(string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form);
                     continue;
                 }
@@ -373,7 +404,7 @@
                 //User has already subscribed before, check if their new requested sub already exists.
                 if (!subscription.Pokemon.Exists(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0))
                 {
-                    _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokemonId, form, (pokemonId == 201 ? 0 : realIV), lvl, gender, attack, defense, stamina);
+                    _dep.SubscriptionProcessor.Manager.AddPokemon(ctx.User.Id, pokemonId, form, (pokemonId == 201 ? 0 : realIV), (pokemonId == 201 ? 0 : lvl), (pokemonId == 201 ? "*" : gender), attack, defense, stamina);
                     subscribed.Add(string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form);
                     continue;
                 }
@@ -466,34 +497,7 @@
                 return;
             }
 
-            //var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
-            PokemonValidation validation;
-            if (poke.Contains("-") && int.TryParse(poke.Split('-')[0], out var startRange) && int.TryParse(poke.Split('-')[1], out var endRange))
-            {
-                //If `poke` param is a range
-                var range = GetListFromRange(startRange, endRange);
-                validation = range.ValidatePokemon();
-            }
-            else if (Strings.PokemonGenerationRanges.Select(x => "gen" + x.Key).ToList().Contains(poke))
-            {
-                if (!int.TryParse(poke.Replace("gen", ""), out var gen) || !Strings.PokemonGenerationRanges.ContainsKey(gen))
-                {
-                    var keys = Strings.PokemonGenerationRanges.Keys.ToList();
-                    var minValue = keys[0];
-                    var maxValue = keys[keys.Count - 1];
-                    await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon generation number, valid values are between `{minValue}-{maxValue}`. i.e. `{_dep.WhConfig.CommandPrefix}pokeme gen3`");
-                    return;
-                }
-
-                var genRange = Strings.PokemonGenerationRanges[gen];
-                var range = GetListFromRange(genRange.Start, genRange.End);
-                validation = range.ValidatePokemon();
-            }
-            else
-            {
-                //If `poke` param is a list
-                validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
-            }
+            var validation = ValidatePokemonList(poke);
             if (validation.Valid != null && validation.Valid.Count > 0)
             {
                 var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
@@ -514,7 +518,8 @@
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your Pokemon subscriptions.", DiscordColor.Red);
+                //await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your Pokemon subscriptions.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon `{poke}`", DiscordColor.Red);
             }
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -582,7 +587,8 @@
                 return;
             }
 
-            var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
+            //var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
+            var validation = ValidatePokemonList(poke);
             if (validation.Valid != null && validation.Valid.Count > 0)
             {
                 var result = _dep.SubscriptionProcessor.Manager.AddRaid(
@@ -603,7 +609,9 @@
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to add {poke} to your raid subscriptions.", DiscordColor.Red);
+                //await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to add {poke} to your raid subscriptions.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon `{poke}`", DiscordColor.Red);
+                return;
             }
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -670,7 +678,8 @@
                 return;
             }
 
-            var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
+            //var validation = poke.Replace(" ", "").Split(',').ValidatePokemon();
+            var validation = ValidatePokemonList(poke);
             if (validation.Valid != null && validation.Valid.Count > 0)
             {
                 var result = _dep.SubscriptionProcessor.Manager.RemoveRaid(
@@ -691,7 +700,8 @@
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your raid subscriptions.", DiscordColor.Red);
+                //await ctx.RespondEmbed($"{ctx.User.Username} An error occurred while trying to remove your raid subscriptions.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon `{poke}`", DiscordColor.Red);
             }
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -844,6 +854,13 @@
                 return;
             }
 
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return;
+            }
+
             if (!_dep.SubscriptionProcessor.Manager.AddGym(ctx.User.Id, gymName))
             {
                 await ctx.RespondEmbed($"{ctx.User.Mention} Could not add gym subscription '{gymName}' to your list of gyms to receive notifications from.", DiscordColor.Red);
@@ -865,6 +882,13 @@
             if (!_dep.WhConfig.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
+            if (!isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
                 return;
             }
 
@@ -1386,11 +1410,11 @@
 
             if (!_dep.SubscriptionProcessor.Manager.SetIconStyle(ctx.User.Id, iconStyle))
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} Could not update database, please try again later.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} Failed to set icon style, please try again later.", DiscordColor.Red);
                 return;
             }
 
-            await ctx.RespondEmbed($"{ctx.User.Username} Icon style set for {iconStyle}.");
+            await ctx.RespondEmbed($"{ctx.User.Username} Icon style changed to **{iconStyle}**.");
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -1788,7 +1812,7 @@
         private List<string> GetListFromRange(int startRange, int endRange)
         {
             var list = new List<string>();
-            for (; startRange < endRange; startRange++)
+            for (; startRange <= endRange; startRange++)
             {
                 list.Add(startRange.ToString());
             }
@@ -1796,6 +1820,22 @@
         }
 
         #endregion
+
+        private DiscordEmbedBuilder BuildExpirationMessage(ulong guildId, DiscordUser user)
+        {
+            var customerData = _dep.Stripe.GetCustomerData(guildId, user.Id);
+            if (!customerData.ExpireDate.HasValue)
+            {
+                return null;
+            }
+            var expires = customerData.ExpireDate.Value;
+            var remaining = expires.GetTimeRemaining();
+            return new DiscordEmbedBuilder
+            {
+                Title = $"{user.Username}#{user.Discriminator} ({user.Id}) Subscription Expires",
+                Description = $"Your subscription will expire in {remaining.ToReadableStringNoSeconds()} on {customerData.ExpireDate}\r\n\r\nTo cancel your subscription type `cancel` in the #become-a-donor channel."
+            };
+        }
 
         private static ulong ConvertMentionToUserId(string mention)
         {
@@ -1807,6 +1847,51 @@
             mention = mention.Replace("!", null);
 
             return ulong.TryParse(mention, out ulong result) ? result : 0;
+        }
+
+        private PokemonValidation ValidatePokemonList(string pokemonList)
+        {
+            if (string.IsNullOrEmpty(pokemonList))
+                return null;
+
+            pokemonList = pokemonList.Replace(" ", "");
+
+            PokemonValidation validation;
+            if (pokemonList.Contains("-") && int.TryParse(pokemonList.Split('-')[0], out var startRange) && int.TryParse(pokemonList.Split('-')[1], out var endRange))
+            {
+                //If `poke` param is a range
+                var range = GetListFromRange(startRange, endRange);
+                validation = range.ValidatePokemon();
+            }
+            else if (Strings.PokemonGenerationRanges.Select(x => "gen" + x.Key).ToList().Contains(pokemonList))
+            {
+                //If `poke` is pokemon generation
+                if (!int.TryParse(pokemonList.Replace("gen", ""), out var gen) || !Strings.PokemonGenerationRanges.ContainsKey(gen))
+                {
+                    var keys = Strings.PokemonGenerationRanges.Keys.ToList();
+                    var minValue = keys[0];
+                    var maxValue = keys[keys.Count - 1];
+                    //await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon generation number, valid values are between `{minValue}-{maxValue}`. i.e. `{_dep.WhConfig.CommandPrefix}pokeme gen3`");
+                    return null;
+                }
+
+                var genRange = Strings.PokemonGenerationRanges[gen];
+                var range = GetListFromRange(genRange.Start, genRange.End);
+                validation = range.ValidatePokemon();
+            }
+            else
+            {
+                //If `poke` param is a list
+                validation = pokemonList.Replace(" ", "").Split(',').ValidatePokemon();
+            }
+
+            //if (validation.Valid.Count == 0)
+            //{
+            //    //await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} Invalid Pokemon: `{poke}`");
+            //    return null;
+            //}
+
+            return validation;
         }
     }
 }

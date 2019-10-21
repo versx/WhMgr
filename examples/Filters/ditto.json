@@ -1,0 +1,9 @@
+{
+	"pokemon":
+	{
+		"enabled": true,
+		"pokemon": [132],
+		"type": "Include",
+		"ignoreMissing": false
+	}
+}

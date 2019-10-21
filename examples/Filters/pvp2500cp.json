@@ -1,0 +1,14 @@
+{
+	"pokemon":
+	{
+		"enabled": true,
+		"pokemon": [],
+		"min_iv": 0,
+		"max_iv": 100,
+		"min_cp": 0,
+		"max_cp": 2500,
+		"ultra_league": true,
+		"type": "Include",
+		"ignoreMissing": true
+    }
+}

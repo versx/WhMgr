@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
 
+    using DSharpPlus.Entities;
     using Newtonsoft.Json;
 
     public class DiscordWebhookMessage

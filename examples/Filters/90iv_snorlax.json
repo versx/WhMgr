@@ -1,0 +1,11 @@
+{
+	"pokemon":
+	{
+		"enabled": true,
+		"pokemon": [143],
+		"min_iv": 90,
+		"max_iv": 100,
+		"type": "Include",
+		"ignoreMissing": true
+	}
+}

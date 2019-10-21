@@ -1,0 +1,7 @@
+{
+	"quests":
+	{
+		"enabled": true,
+		"rewards": ["Chansey"]
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"eggs":
+	{
+		"enabled": true,
+		"min_lvl": 1,
+		"max_lvl": 5,
+		"onlyEx": true
+	},
+	"raids":
+	{
+		"enabled": true,
+		"pokemon": [],
+		"type": "Include",
+		"onlyEx": true,
+		"ignoreMissing": false
+	}
+}

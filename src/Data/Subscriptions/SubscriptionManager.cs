@@ -633,8 +633,11 @@
                 for (var i = 0; i < keys.Count; i++)
                 {
                     var pokemonId = keys[i];
-                    var form = pokemonIds[pokemonId];
-                    if (conn.Delete<PokemonSubscription>(x => x.UserId == userId && x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0) == 0)
+                    var form = pokemonIds[pokemonId];//?.ToLower();
+                    var expression = conn?.From<PokemonSubscription>();
+                    var where = expression?.Where(x => x.UserId == userId && x.PokemonId == pokemonId && x.Form == form);//string.Compare(x.Form, form, true) == 0);
+                    var result = conn.Delete(where);
+                    if (result == 0)
                     {
                         _logger.Warn($"Could not delete Pokemon {pokemonId}-{form} from {userId} subscription.");
                     }
@@ -657,11 +660,12 @@
                     var form = pokemonIds[pokemonId];
                     if (conn.Delete<RaidSubscription>(x => x.UserId == userId && 
                                                            x.PokemonId == pokemonId && 
-                                                           string.Compare(x.Form, form, true) == 0 && 
+                                                           //string.Compare(x.Form, form, true) == 0 && 
+                                                           x.Form == form &&
                                                            cities.Select(y => y.ToLower()).Contains(x.City.ToLower())
                                                        ) == 0)
                     {
-                        _logger.Warn($"Could not delete raid subscription for user {userId} raid {pokemonIds[i]} city {cities}");
+                        _logger.Warn($"Could not delete raid subscription for user {userId} raid {pokemonId} city {cities}");
                     }
                 }
             }

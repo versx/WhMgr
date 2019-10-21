@@ -1163,6 +1163,19 @@
             }
         }
 
+        public static string GetPokemonGenderIconValue(this PokemonGender gender)
+        {
+            switch (gender)
+            {
+                case PokemonGender.Male:
+                    return "\u2642";//♂
+                case PokemonGender.Female:
+                    return "\u2640";//♀
+                default:
+                    return "";//⚲
+            }
+        }
+
         public static List<PokemonType> GetStrengths(this PokemonType type)
         {
             var types = new PokemonType[0];
@@ -1391,7 +1404,7 @@
             var invalid = new List<string>();
             foreach (var poke in pokemon)
             {
-                var form = string.Empty;
+                string form = null;
                 var pokeIdStr = poke;
                 if (poke.Contains("-"))
                 {

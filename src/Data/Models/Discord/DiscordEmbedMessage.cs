@@ -5,7 +5,7 @@
 
     using Newtonsoft.Json;
 
-    public class DiscordEmbed
+    public class DiscordEmbedMessage
     {
         [JsonProperty("title")]
         public string Title { get; set; }
@@ -31,7 +31,10 @@
         [JsonProperty("image")]
         public DiscordEmbedImage Image { get; set; }
 
-        public DiscordEmbed()
+        [JsonProperty("url")]
+        public string Url { get; set; }
+
+        public DiscordEmbedMessage()
         {
             Fields = new List<DiscordField>();
         }

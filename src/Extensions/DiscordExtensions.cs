@@ -352,6 +352,14 @@
             return DiscordColor.White;
         }
 
+        public static DiscordColor BuildRaidColor(this string level)
+        {
+            if (!int.TryParse(level, out var lvl))
+                return DiscordColor.Black;
+
+            return BuildRaidColor(lvl);
+        }
+
         public static DiscordColor BuildRaidColor(this int level)
         {
             switch (level)

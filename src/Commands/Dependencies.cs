@@ -19,13 +19,16 @@
 
         public Translator Language { get; }
 
-        public Dependencies(InteractivityModule interactivity, WebhookManager whm, SubscriptionProcessor subProcessor, WhConfig whConfig, Translator language)
+        public StripeService Stripe { get; }
+
+        public Dependencies(InteractivityModule interactivity, WebhookManager whm, SubscriptionProcessor subProcessor, WhConfig whConfig, Translator language, StripeService stripe)
         {
             Interactivity = interactivity;
             Whm = whm;
             SubscriptionProcessor = subProcessor;
             WhConfig = whConfig;
             Language = language;
+            Stripe = stripe;
         }
     }
 }

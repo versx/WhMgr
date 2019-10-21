@@ -1,0 +1,10 @@
+{
+	"raids":
+	{
+		"enabled": true,
+		"pokemon": [303],
+		"type": "Include",
+		"onlyEx": false,
+		"ignoreMissing": false
+	}
+}

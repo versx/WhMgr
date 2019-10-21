@@ -26,7 +26,7 @@
         private readonly HttpServer _http;
         private AlarmList _alarms;
         private readonly string _alarmsFilePath;
-        private readonly Dictionary<string, WebHookObject> _webhooks;
+        //private readonly Dictionary<string, WebHookObject> _webhooks;
         private readonly WhConfig _config;
         private readonly IEventLogger _logger;
 
@@ -34,7 +34,7 @@
 
         #region Properties
 
-        public IReadOnlyDictionary<string, WebHookObject> WebHooks => _webhooks;
+        //public IReadOnlyDictionary<string, WebHookObject> WebHooks => _webhooks;
 
         public GeofenceService GeofenceService { get; }
 
@@ -127,13 +127,13 @@
             _logger = EventLogger.GetLogger();
             _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, AlarmsFilePath={alarmsFilePath}]");
 
-            _webhooks = new Dictionary<string, WebHookObject>();
+            //_webhooks = new Dictionary<string, WebHookObject>();
             GeofenceService = new GeofenceService();
             _alarmsFilePath = alarmsFilePath;
             _alarms = LoadAlarms(_alarmsFilePath);
             _config = config;
 
-            LoadWebhooks();
+            //LoadWebhooks();
 
             _http = new HttpServer(_config.WebhookPort);
             _http.PokemonReceived += Http_PokemonReceived;
@@ -260,6 +260,12 @@
                         _logger.Debug($"Geofence file loaded for {x.Name}...");
                     }
                 }
+
+                _logger.Info($"Loading alerts file {x.AlertsFile}...");
+                x.LoadAlerts();
+
+                _logger.Info($"Loading filters file {x.FiltersFile}...");
+                x.LoadFilters();
             });
 
             return alarms;
@@ -274,28 +280,34 @@
             fileWatcher.Start();
         }
 
-        private void LoadWebhooks()
-        {
-            _logger.Trace($"WebhookManager::LoadWebhooks");
+        //private void LoadWebhooks()
+        //{
+        //    _logger.Trace($"WebhookManager::LoadWebhooks");
 
-            foreach (var alarm in _alarms.Alarms)
-            {
-                if (string.IsNullOrEmpty(alarm.Webhook))
-                    continue;
+        //    if (_alarms == null)
+        //    {
+        //        _logger.Error(nameof(_alarms) + " is null");
+        //        return;
+        //    }
 
-                var wh = GetWebhookData(alarm.Webhook);
-                if (wh == null)
-                {
-                    _logger.Error($"Failed to download webhook data from {alarm.Webhook}.");
-                    continue;
-                }
+        //    foreach (var alarm in _alarms.Alarms)
+        //    {
+        //        if (string.IsNullOrEmpty(alarm.Webhook))
+        //            continue;
 
-                if (!_webhooks.ContainsKey(alarm.Name))
-                {
-                    _webhooks.Add(alarm.Name, wh);
-                }
-            }
-        }
+        //        var wh = GetWebhookData(alarm.Webhook);
+        //        if (wh == null)
+        //        {
+        //            _logger.Error($"Failed to download webhook data from {alarm.Webhook}.");
+        //            continue;
+        //        }
+
+        //        if (!_webhooks.ContainsKey(alarm.Name))
+        //        {
+        //            _webhooks.Add(alarm.Name, wh);
+        //        }
+        //    }
+        //}
 
         #endregion
 
@@ -367,11 +379,13 @@
                     continue;
                 }
 
+                //var greatLeagueRank = 25; //TODO: Make configurable
                 if (!pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague)
                 {
                     continue;
                 }
 
+                //var ultraLeagueRank = 25; //TODO: Make configurable
                 if (!pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague)
                 {
                     continue;

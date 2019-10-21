@@ -1,0 +1,8 @@
+{
+	"pokestops":
+	{
+		"enabled": true,
+		"lured": false,
+		"invasions": true
+	}
+}

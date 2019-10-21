@@ -114,115 +114,12 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
       //Alarm name.
       "name":"Alarm1",
 	  
+	  //Alerts file.
+	  "alerts":"default.json",
+	  
 	  //Alarm filters.
-      "filters":
-      {
-        "pokemon":
-        {
-          //Determines if pokemon alarms will be enabled.
-          "enabled": true,
-          
-          //Pokemon to filter, if empty all will be reported.
-          "pokemon": [280,337,374],
-          
-          //Minimum IV pokemon to report.
-          "min_iv": 0,
-          
-          //Maximum IV pokemon to report.
-          "max_iv": 100,
-
-          //Minimum CP pokemon to report.
-          "min_cp": 0,
-          
-          //Maximum CP pokemon to report.
-          "max_cp": 999999,
-		  
-          //Minimum level pokemon to report.
-          "min_lvl": 0,
-          
-          //Maximum level pokemon to report.
-          "max_lvl": 100,
-		  
-          //Pokemon filter type, either Include or Exclude.
-          "type": "Include",
-          
-          //Ignore pokemon missing information.
-          "ignoreMissing": true
-        },
-        "eggs":
-        {
-          //Determines if raid egg alarms will be enabled.
-          "enabled": true,
-          
-          //Minimum egg level to report.
-          "min_lvl": 1,
-          
-          //Maximum egg level to report.
-          "max_lvl": 5,
-		  
-          //Only ex-eligible raids
-          "onlyEx": false,
-		  
-          //Filter by team control. Valor, Mystic, Instinct, Neutral, or All
-          "team": "All"
-        },
-        "raids":
-        {
-          //Determines if raid alarms will be enabled.
-          "enabled": true,
-          
-          //Pokemon to filter, if empty all will be reported.
-          "pokemon": [],
-          
-          //Raid filter type, either Include or Exclude.
-          "type": "Include",
-
-          //Only ex-eligible raids
-          "onlyEx": false,
-		  
-          //Filter by team control. Valor, Mystic, Instinct, Neutral, or All
-          "team": "All",
-		  
-          //Ignore raids missing information.
-          "ignoreMissing": true
-        },
-        "quests":
-        {
-          //Determines if quest alarms will be enabled.
-          "enabled": true,
-          
-          //Filter quest rewards by keyword.
-          "rewards": ["spinda", "stardust"],
-          
-          //Quest filter type, either Include or Exclude.
-          "type": "Include",
-		  
-          //Only send shiny encounter quests.
-          "isShiny": false
-        },
-		"pokestops":
-		{
-		  //Determines if pokestop alarms will be enabled.
-		  "enabled": true,
-		  
-		  //Alarm is sent if there is an active Pokestop lure.
-		  "lured": true,
-		  
-		  //Alarm is sent if there is an active Team Rocket invasion.
-		  "invasions": true
-		},
-		"gyms":
-		{
-		  //Determines if gym alarms will be enabled.
-		  "enabled": true,
-		  
-		  //Alarm is sent if the gym is under attack (in battle).
-		  "underAttack": true,
-		  
-		  //Alarm is sent if gym team is changed to the following. i.e. Valor, Mystic, Instinct, Neutral, or All
-		  "team": "Valor"
-		}
-      },
+      "filters":"default.json",
+	  
       //Path to geofence file.
       "geofence":"geofence1.txt",
       
@@ -258,10 +155,11 @@ Upload Discord emojis that are in the emojis folder.
 
 
 ## TODO:  
-- Allow Pokemon id and name in Pokemon filter lists.  
+- Allow Pokemon id and name in Pokemon filter lists. 
+- Pokemon form support.  
 - Finish Localization.  
 - Wiki.  
-- Support for dynamic text replacement for alarm text.  
+- Finish dynamic text replacement for alarm text.  
 - ~~Raid lobby manager.~~ [RaidLobbyist](https://github.com/versx/RaidLobbyist)
 
 

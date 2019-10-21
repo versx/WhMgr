@@ -11,9 +11,7 @@
 
         public static TimeSpan GetTimeRemaining(this DateTime startTime, DateTime endTime)
         {
-            var start = startTime;
-            var end = DateTime.Parse(endTime.ToLongTimeString());
-            var remaining = TimeSpan.FromTicks(end.Ticks - start.Ticks);
+            var remaining = TimeSpan.FromTicks(endTime.Ticks - startTime.Ticks);
             return remaining;
         }
     }

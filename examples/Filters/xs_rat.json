@@ -1,0 +1,10 @@
+{
+	"pokemon":
+	{
+		"enabled": true,
+		"pokemon": [19],
+		"size": "Tiny",
+		"type": "Include",
+		"ignoreMissing": true
+	}
+}

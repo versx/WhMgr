@@ -70,11 +70,17 @@
         [JsonProperty("urls")]
         public UrlConfiguration Urls { get; set; }
 
+        [JsonProperty("iconStyle")]
+        public string IconStyle { get; set; }
+
         [JsonProperty("iconStyles")]
         public Dictionary<string, string> IconStyles { get; set; }
 
         [JsonProperty("streamCategoryChannelId")]
         public ulong StreamCategoryChannelId { get; set; }
+
+        [JsonProperty("stripeApiKey")]
+        public string StripeApiKey { get; set; }
 
         [JsonIgnore]
         public string FileName { get; set; }
@@ -89,6 +95,7 @@
             EventPokemonIds = new List<int>();
             ShinyStats = new ShinyStatsConfiguration();
             Urls = new UrlConfiguration();
+            IconStyle = "Default";
             IconStyles = new Dictionary<string, string>();
         }
 

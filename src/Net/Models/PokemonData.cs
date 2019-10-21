@@ -17,6 +17,7 @@
 
         //TODO: Add ditto disguises to external file
         private static readonly List<int> DittoDisguises = new List<int> { 13, 46, 48, 163, 165, 167, 187, 223, 273, 293, 300, 316, 322, 399 };
+        //private readonly Dictionary<string, string> _properties;
 
         #region Properties
 
@@ -263,7 +264,6 @@
                 {
                     return Id.GetSize(height, weight);
                 }
-
                 return null;
             }
         }
@@ -288,14 +288,19 @@
                 //var isNotBoosted = Weather == WeatherType.None && isAboveLevel30;
 
                 var check1 = Weather != WeatherType.None &&
-                       isUnderLevel6 &&
-                       isStatsUnder4 &&
+                       (isUnderLevel6 || isStatsUnder4) &&
+                       //isUnderLevel6 &&
+                       //isStatsUnder4 &&
                        DittoDisguises.Contains(Id);
                 //var check2 = (Id == 193 && (isNotBoosted || (isWindOrRain && isUnderLevel6)));
                 //var check3 = (Id == 193 && isWindOrRain && isUnderLevel31 && IsStatsBelow4);
                 //var check4 = (Id == 41 && ((Weather == WeatherType.None && isAboveLevel30) || (isWindOrCloudy && isUnderLevel6)));
                 //var check5 = (Id == 41 && isWindOrCloudy && isUnderLevel31 && IsStatsBelow4);
                 //var check6 = (Id == 16 || Id == 163 || Id == 276) && Weather == WeatherType.Windy && (isUnderLevel6 || (isUnderLevel31 && IsStatsBelow4));
+                if (check1)
+                {
+                    FormId = 0;
+                }
 
                 return check1;// || check2 || check3 || check4 || check5 || check6;
 
@@ -351,17 +356,25 @@
                 if (!Database.Instance.PvPGreat.ContainsKey(Id))
                     return false;
 
-                var greatPokemon = Database.Instance.PvPGreat[Id];
-                return greatPokemon.Exists(x =>
-                {
-                    if (int.TryParse(Attack, out var atk) && atk == x.IVs.Attack &&
+                return Database.Instance.PvPGreat[Id].Exists(x =>
+                        int.TryParse(Attack, out var atk) && atk == x.IVs.Attack &&
                         int.TryParse(Defense, out var def) && def == x.IVs.Defense &&
-                        int.TryParse(Stamina, out var sta) && sta == x.IVs.Stamina)
-                    {
-                        return true;
-                    }
-                    return false;
-                });
+                        int.TryParse(Stamina, out var sta) && sta == x.IVs.Stamina);
+            }
+        }
+
+        [
+            JsonIgnore,
+            Ignore
+        ]
+        public List<Data.Models.PokemonPvP> GreatLeagueStats
+        {
+            get
+            {
+                return Database.Instance.PvPGreat[Id].FindAll(x =>
+                    int.TryParse(Attack, out var atk) && atk == x.IVs.Attack &&
+                    int.TryParse(Defense, out var def) && def == x.IVs.Defense &&
+                    int.TryParse(Stamina, out var sta) && sta == x.IVs.Stamina);
             }
         }
 
@@ -376,17 +389,25 @@
                 if (!Database.Instance.PvPUltra.ContainsKey(Id))
                     return false;
 
-                var ultraPokemon = Database.Instance.PvPUltra[Id];
-                return ultraPokemon.Exists(x =>
-                {
-                    if (int.TryParse(Attack, out var atk) && atk == x.IVs.Attack &&
+                return Database.Instance.PvPUltra[Id].Exists(x =>
+                        int.TryParse(Attack, out var atk) && atk == x.IVs.Attack &&
                         int.TryParse(Defense, out var def) && def == x.IVs.Defense &&
-                        int.TryParse(Stamina, out var sta) && sta == x.IVs.Stamina)
-                    {
-                        return true;
-                    }
-                    return false;
-                });
+                        int.TryParse(Stamina, out var sta) && sta == x.IVs.Stamina);
+            }
+        }
+
+        [
+            JsonIgnore,
+            Ignore
+        ]
+        public List<Data.Models.PokemonPvP> UltraLeagueStats
+        {
+            get
+            {
+                return Database.Instance.PvPUltra[Id].FindAll(x =>
+                        int.TryParse(Attack, out var atk) && atk == x.IVs.Attack &&
+                        int.TryParse(Defense, out var def) && def == x.IVs.Defense &&
+                        int.TryParse(Stamina, out var sta) && sta == x.IVs.Stamina);
             }
         }
 
@@ -403,10 +424,14 @@
 
         public PokemonData()
         {
+            //_properties = new Dictionary<string, string>();
+
             SetDespawnTime();
         }
 
         #endregion
+
+        #region Public Methods
 
         public void SetDespawnTime()
         {
@@ -445,6 +470,8 @@
         {
             return int.TryParse(Level, out var level) && level >= targetLevel;
         }
+
+        #endregion
 
         public static double GetIV(string attack, string defense, string stamina)
         {

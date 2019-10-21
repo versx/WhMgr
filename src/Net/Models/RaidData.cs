@@ -44,6 +44,9 @@
         [JsonProperty("gym_name")]
         public string GymName { get; set; }
 
+        [JsonProperty("gym_url")]
+        public string GymUrl { get; set; }
+
         [JsonProperty("pokemon_id")]
         public int PokemonId { get; set; }
 
@@ -85,6 +88,9 @@
 
         [JsonProperty("form")]
         public int Form { get; set; }
+
+        [JsonProperty("gender")]
+        public PokemonGender Gender { get; set; }
 
         [JsonIgnore]
         public DateTime StartTime { get; private set; }
