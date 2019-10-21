@@ -3,40 +3,22 @@
     using System;
     using System.Collections.Generic;
 
+    using DSharpPlus;
+    using DSharpPlus.Entities;
     using Newtonsoft.Json;
 
+    using WhMgr.Alarms.Alerts;
+    using WhMgr.Alarms.Models;
+    using WhMgr.Configuration;
+    using WhMgr.Data;
     using WhMgr.Extensions;
-
-    /*
-[
-    {
-        "type":"raid",
-        "message":
-        {
-            "end":1541647095,
-            "latitude":34.070584,
-            "level":3,
-            "pokemon_id":210,
-            "move_2":279,
-            "is_exclusive":false,
-            "sponsor_id":false,
-            "cp":15328,
-            "form":0,
-            "move_1":202,
-            "spawn":1541640795,
-            "start":1541644395,
-            "gym_id":"efa2c34f8679419fb508545a504735e1.16",
-            "team_id":3,
-            "gym_name":"Unknown",
-            "longitude":-117.566666
-        }
-    }
-]
-     */
+    using WhMgr.Utilities;
 
     public sealed class RaidData
     {
         public const string WebHookHeader = "raid";
+
+        #region Properties
 
         [JsonProperty("gym_id")]
         public string GymId { get; set; }
@@ -76,9 +58,6 @@
 
         [JsonProperty("end")]
         public long End { get; set; }
-
-        //[JsonProperty("is_exclusive")]
-        //public bool IsExclusive { get; set; }
 
         [JsonProperty("ex_raid_eligible")]
         public bool IsExEligible { get; set; }
@@ -121,6 +100,8 @@
         [JsonIgnore]
         public bool IsMissingStats => FastMove == 0;
 
+        #endregion
+
         public RaidData()
         {
             SetTimes();
@@ -139,6 +120,139 @@
             //{
             //    EndTime = EndTime.AddHours(1); //DST
             //}
+        }
+
+        public DiscordEmbed GenerateRaidMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string pokemonRaidImageUrl)
+        {
+            var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;
+            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
+            var properties = GetProperties(client, whConfig, city);
+            var img = IsEgg ? string.Format(whConfig.Urls.EggImage, Level) : PokemonId.GetPokemonImage(pokemonRaidImageUrl, PokemonGender.Unset, Form);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
+                ImageUrl = properties["tilemaps_url"],
+                ThumbnailUrl = img,
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Color = Level.BuildRaidColor(),
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"versx | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId]?.IconUrl : string.Empty
+                }
+            };
+            return eb.Build();
+        }
+
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
+        {
+            var pkmnInfo = Database.Instance.Pokemon[PokemonId];
+            var form = PokemonId.GetPokemonForm(Form.ToString());
+            var gender = Gender.GetPokemonGenderIcon();
+            var level = Level;
+            //var weather = raid.Weather?.ToString();
+            //var weatherEmoji = string.Empty;
+            //if (raid.Weather.HasValue && Strings.WeatherEmojis.ContainsKey(raid.Weather.Value) && raid.Weather != WeatherType.None)
+            //{
+            //    var isWeatherBoosted = pkmnInfo.IsWeatherBoosted(raid.Weather.Value);
+            //    var isWeatherBoostedText = isWeatherBoosted ? " (Boosted)" : null;
+            //    weatherEmoji = Strings.WeatherEmojis[raid.Weather.Value] + isWeatherBoostedText;
+            //}
+            var move1 = string.Empty;
+            var move2 = string.Empty;
+            if (Database.Instance.Movesets.ContainsKey(FastMove))
+            {
+                move1 = Database.Instance.Movesets[FastMove].Name;
+            }
+            if (Database.Instance.Movesets.ContainsKey(ChargeMove))
+            {
+                move2 = Database.Instance.Movesets[ChargeMove].Name;
+            }
+            var type1 = pkmnInfo?.Types?[0];
+            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
+            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons(client, whConfig.GuildId);
+            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons(client, whConfig.GuildId) : string.Empty;
+            var typeEmojis = $"{type1Emoji} {type2Emoji}";
+            var weaknesses = string.Join(", ", Weaknesses);
+            var weaknessesEmoji = Weaknesses.GetWeaknessEmojiIcons(client, whConfig.GuildId);
+            var weaknessesEmojiFormatted = weaknessesEmoji.Split(' ').Length > 6 ? System.Text.RegularExpressions.Regex.Replace(weaknessesEmoji, "(.{" + 6 + "})", "$1" + Environment.NewLine) : weaknessesEmoji;
+            var perfectRange = PokemonId.MaxCpAtLevel(20);
+            var boostedRange = PokemonId.MaxCpAtLevel(25);
+            var worstRange = PokemonId.MinCpAtLevel(20);
+            var worstBoosted = PokemonId.MinCpAtLevel(25);
+            var exEmojiId = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId].GetEmojiId("ex") : 0;
+            var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
+            var teamEmojiId = client.Guilds[whConfig.GuildId].GetEmojiId(Team.ToString().ToLower());
+            var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
+
+            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
+            var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);
+            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+
+            const string defaultMissingValue = "?";
+            var dict = new Dictionary<string, string>
+            {
+                //Raid boss properties
+                { "pkmn_id", PokemonId.ToString() },
+                { "pkmn_name", pkmnInfo.Name },
+                { "form", form },
+                { "form_id", Form.ToString() },
+                { "form_id_3", Form.ToString("D3") },
+                { "is_egg", IsEgg ? "Yes": "No" },
+                { "is_ex", IsExEligible ? "Yes" : "No" },
+                { "ex_emoji", exEmoji },
+                { "team", Team.ToString() },
+                { "team_emoji", teamEmoji },
+                { "cp", CP ?? defaultMissingValue },
+                { "lvl", level ?? defaultMissingValue },
+                { "gender", gender ?? defaultMissingValue },
+                { "move_1", move1 ?? defaultMissingValue },
+                { "move_2", move2 ?? defaultMissingValue },
+                { "moveset", $"{move1}/{move2}" },
+                { "type_1", type1?.ToString() ?? defaultMissingValue },
+                { "type_2", type2?.ToString() ?? defaultMissingValue },
+                { "type_1_emoji", type1Emoji },
+                { "type_2_emoji", type2Emoji },
+                { "types", $"{type1}/{type2}" },
+                { "types_emoji", typeEmojis },
+                { "weaknesses", weaknesses },
+                { "weaknesses_emoji", weaknessesEmojiFormatted },
+                { "perfect_cp", perfectRange.ToString() },
+                { "perfect_cp_boosted", boostedRange.ToString() },
+                { "worst_cp", worstRange.ToString() },
+                { "worst_cp_boosted", worstBoosted.ToString() },
+
+                //Time properties
+                { "start_time", StartTime.ToLongTimeString() },
+                { "start_time_left", DateTime.Now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds() },
+                { "end_time", EndTime.ToLongTimeString() },
+                { "end_time_left", EndTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+
+                //Location properties
+                { "geofence", city ?? defaultMissingValue },
+                { "lat", Latitude.ToString() },
+                { "lng", Longitude.ToString() },
+                { "lat_5", Math.Round(Latitude, 5).ToString() },
+                { "lng_5", Math.Round(Longitude, 5).ToString() },
+
+                //Location links
+                { "tilemaps_url", gmapsStaticMapLink },
+                { "gmaps_url", gmapsLocationLink },
+                { "applemaps_url", appleMapsLocationLink },
+
+                //Gym properties
+                { "gym_id", GymId },
+                { "gym_name", GymName },
+                { "gym_url", GymUrl },
+
+                //Misc properties
+                { "br", "\r\n" }
+            };
+            return dict;
         }
     }
 }

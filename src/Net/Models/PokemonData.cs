@@ -3,12 +3,21 @@
     using System;
     using System.Collections.Generic;
 
+    using DSharpPlus;
+    using DSharpPlus.Entities;
     using Newtonsoft.Json;
 
     using ServiceStack.DataAnnotations;
+    using ServiceStack.OrmLite;
 
+    using WhMgr.Alarms.Alerts;
+    using WhMgr.Alarms.Models;
+    using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Data.Models;
+    using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Utilities;
 
     [Alias("pokemon")]
     public sealed class PokemonData
@@ -17,6 +26,7 @@
 
         //TODO: Add ditto disguises to external file
         private static readonly List<int> DittoDisguises = new List<int> { 13, 46, 48, 163, 165, 167, 187, 223, 273, 293, 300, 316, 322, 399 };
+        private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         #region Properties
 
@@ -464,7 +474,165 @@
             return int.TryParse(Level, out var level) && level >= targetLevel;
         }
 
+        public DiscordEmbed GeneratePokemonMessage(DiscordClient client, WhConfig whConfig, PokemonData pkmn, AlarmObject alarm, string city, string pokemonImageUrl)
+        {
+            //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
+            //TODO: Add to alarm content and contentMissingInfo
+            var alertMessageType = pkmn.IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
+            var alertMessage = alarm?.Alerts[alertMessageType] ?? AlertMessage.Defaults[alertMessageType];
+            var properties = GetProperties(client, whConfig, city);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alertMessage.Url, properties),
+                ImageUrl = properties["tilemaps_url"],
+                ThumbnailUrl = pkmn.Id.GetPokemonImage(pokemonImageUrl, pkmn.Gender, pkmn.FormId, pkmn.Costume),
+                Description = DynamicReplacementEngine.ReplaceText(alertMessage.Content, properties),
+                Color = pkmn.IV.BuildColor(),
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"versx | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId]?.IconUrl : string.Empty
+                }
+            };
+            return eb.Build();
+        }
+
         #endregion
+
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
+        {
+            var pkmnInfo = Database.Instance.Pokemon[Id];
+            var form = Id.GetPokemonForm(FormId.ToString());
+            var costume = Id.GetCostume(Costume.ToString());
+            var gender = Gender.GetPokemonGenderIcon();
+            var level = Level;
+            var size = Size?.ToString();
+            var weather = Weather?.ToString();
+            var weatherEmoji = string.Empty;
+            if (Weather.HasValue && Strings.WeatherEmojis.ContainsKey(Weather.Value) && Weather != WeatherType.None)
+            {
+                var isWeatherBoosted = pkmnInfo.IsWeatherBoosted(Weather.Value);
+                var isWeatherBoostedText = isWeatherBoosted ? " (Boosted)" : null;
+                weatherEmoji = Strings.WeatherEmojis[Weather.Value] + isWeatherBoostedText;
+            }
+            var move1 = string.Empty;
+            var move2 = string.Empty;
+            if (int.TryParse(FastMove, out var fastMoveId) && Database.Instance.Movesets.ContainsKey(fastMoveId))
+            {
+                move1 = Database.Instance.Movesets[fastMoveId].Name;
+            }
+            if (int.TryParse(ChargeMove, out var chargeMoveId) && Database.Instance.Movesets.ContainsKey(chargeMoveId))
+            {
+                move2 = Database.Instance.Movesets[chargeMoveId].Name;
+            }
+            var type1 = pkmnInfo?.Types?[0];
+            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
+            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons(client, whConfig.GuildId);
+            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons(client, whConfig.GuildId) : string.Empty;
+            var typeEmojis = $"{type1Emoji} {type2Emoji}";
+            var catchPokemon = IsDitto ? Database.Instance.Pokemon[OriginalPokemonId] : Database.Instance.Pokemon[Id];
+
+            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
+            var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);
+            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+            var pokestop = GetPokestopById(whConfig.ScannerConnectionString, PokestopId);
+
+            const string defaultMissingValue = "?";
+            var dict = new Dictionary<string, string>
+            {
+                //Main properties
+                { "pkmn_id", Id.ToString() },
+                { "pkmn_name", pkmnInfo.Name },
+                { "form", form },
+                { "form_id", FormId.ToString() },
+                { "form_id_3", FormId.ToString("D3") },
+                { "costume_id_3", Costume.ToString("D3") },
+                { "cp", CP ?? defaultMissingValue },
+                { "lvl", level ?? defaultMissingValue },
+                { "gender", gender ?? defaultMissingValue },
+                { "size", size ?? defaultMissingValue },
+                { "move_1", move1 ?? defaultMissingValue },
+                { "move_2", move2 ?? defaultMissingValue },
+                { "moveset", $"{move1}/{move2}" },
+                { "type_1", type1?.ToString() ?? defaultMissingValue },
+                { "type_2", type2?.ToString() ?? defaultMissingValue },
+                { "type_1_emoji", type1Emoji },
+                { "type_2_emoji", type2Emoji },
+                { "types", $"{type1}/{type2}" },
+                { "types_emoji", typeEmojis },
+                { "atk_iv", Attack ?? defaultMissingValue },
+                { "def_iv", Defense ?? defaultMissingValue },
+                { "sta_iv", Stamina ?? defaultMissingValue },
+                { "iv", IV ?? defaultMissingValue },
+                { "iv_rnd", IVRounded ?? defaultMissingValue },
+
+                //Other properties
+                { "costume", costume ?? defaultMissingValue },
+                { "height", Height ?? defaultMissingValue },
+                { "weight", Weight ?? defaultMissingValue },
+                { "is_ditto", IsDitto ? "Yes" : "No" },
+                { "original_pkmn_id", OriginalPokemonId.ToString() },
+                { "weather", weather ?? defaultMissingValue },
+                { "weather_emoji", weatherEmoji ?? defaultMissingValue },
+                { "username", Username ?? defaultMissingValue },
+                { "spawnpoint_id", SpawnpointId ?? defaultMissingValue },
+                { "encounter_id", EncounterId ?? defaultMissingValue },
+                { "original_pokemon_id", OriginalPokemonId.ToString() },
+                { "original_pokemon_id_3", OriginalPokemonId.ToString("D3") },
+                { "original_pokemon_name", catchPokemon?.Name },
+
+                //Time properties
+                { "despawn_time", DespawnTime.ToString("hh:mm:ss tt") },
+                { "despawn_time_verified", DisappearTimeVerified ? "Yes" : "No" },
+                { "time_left", SecondsLeft.ToReadableString(true) ?? defaultMissingValue },
+
+                //Location properties
+                { "geofence", city ?? defaultMissingValue },
+                { "lat", Latitude.ToString() },
+                { "lng", Longitude.ToString() },
+                { "lat_5", Math.Round(Latitude, 5).ToString() },
+                { "lng_5", Math.Round(Longitude, 5).ToString() },
+
+                //Location links
+                { "tilemaps_url", gmapsStaticMapLink },
+                { "gmaps_url", gmapsLocationLink },
+                { "applemaps_url", appleMapsLocationLink },
+
+                //Pokestop properties
+                { "pokestop_id", PokestopId ?? defaultMissingValue },
+                { "pokestop_name", pokestop?.Name ?? defaultMissingValue },
+                { "pokestop_url", pokestop?.Url ?? defaultMissingValue },
+
+                //Misc properties
+                { "br", "\r\n" }
+            };
+            return dict;
+        }
+
+        public Pokestop GetPokestopById(string scannerConnectionString, string pokestopId)
+        {
+            if (string.IsNullOrEmpty(scannerConnectionString))
+                return null;
+
+            try
+            {
+                using (var db = DataAccessLayer.CreateFactory(scannerConnectionString).Open())
+                {
+                    var pokestop = db.LoadSingleById<Pokestop>(pokestopId);
+                    return pokestop;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return null;
+        }
 
         public static double GetIV(string attack, string defense, string stamina)
         {

@@ -155,6 +155,7 @@
     <Compile Include="Extensions\DiscordExtensions.cs" />
     <Compile Include="Extensions\GenericsExtensions.cs" />
     <Compile Include="Extensions\IntegerExtensions.cs" />
+    <Compile Include="Extensions\InvasionExtensions.cs" />
     <Compile Include="Extensions\PokemonExtensions.cs" />
     <Compile Include="Extensions\QuestExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />

@@ -3,9 +3,14 @@
     using System;
     using System.Collections.Generic;
 
+    using DSharpPlus.Entities;
     using Newtonsoft.Json;
 
-    using WhMgr.Diagnostics;
+    using WhMgr.Alarms.Alerts;
+    using WhMgr.Alarms.Models;
+    using WhMgr.Configuration;
+    using WhMgr.Extensions;
+    using WhMgr.Utilities;
 
     /*
 [
@@ -112,6 +117,8 @@
 
         //private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
+        #region Properties
+
         [JsonProperty("pokestop_id")]
         public string PokestopId { get; set; }
 
@@ -154,10 +161,74 @@
         [JsonIgnore]
         public bool IsShiny => Rewards?[0]?.Info?.Shiny ?? false;
 
+        #endregion
+
         public QuestData()
         {
             Rewards = new List<QuestRewardMessage>();
             Conditions = new List<QuestConditionMessage>();
+        }
+
+        public DiscordEmbed GenerateQuestMessage(WhConfig whConfig, AlarmObject alarm, string city)
+        {
+            var alertType = AlertMessageType.Quests;
+            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
+            var properties = GetProperties(whConfig, city);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
+                ImageUrl = properties["tilemaps_url"],
+                ThumbnailUrl = PokestopUrl,
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Color = DiscordColor.Orange
+            };
+            return eb.Build();
+        }
+
+        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
+        {
+            var questMessage = this.GetQuestMessage();
+            var questConditions = this.GetConditions();
+            var questReward = this.GetReward();
+            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
+            var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);
+            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+
+            const string defaultMissingValue = "?";
+            var dict = new Dictionary<string, string>
+            {
+                //Main properties
+                { "quest_task", questMessage },
+                { "quest_conditions", questConditions },
+                { "quest_reward", questReward },
+                { "is_ditto", IsDitto ? "Yes" : "No" },
+                { "is_shiny", IsShiny ? "Yes" : "No" },
+
+                //Location properties
+                { "geofence", city ?? defaultMissingValue },
+                { "lat", Latitude.ToString() },
+                { "lng", Longitude.ToString() },
+                { "lat_5", Math.Round(Latitude, 5).ToString() },
+                { "lng_5", Math.Round(Longitude, 5).ToString() },
+
+                //Location links
+                { "tilemaps_url", gmapsStaticMapLink },
+                { "gmaps_url", gmapsLocationLink },
+                { "applemaps_url", appleMapsLocationLink },
+
+                //Pokestop properties
+                { "pokestop_id", PokestopId ?? defaultMissingValue },
+                { "pokestop_name", PokestopName ?? defaultMissingValue },
+                { "pokestop_url", PokestopUrl ?? defaultMissingValue },
+
+                //Misc properties
+                { "br", "\r\n" }
+            };
+            return dict;
         }
     }
 

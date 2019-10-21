@@ -26,7 +26,7 @@
         private readonly DiscordClient _client;
         private readonly WhConfig _whConfig;
         private readonly WebhookManager _whm;
-        private readonly EmbedBuilder _embedBuilder;
+        //private readonly EmbedBuilder _embedBuilder;
         private readonly NotificationQueue _queue;
 
         #endregion
@@ -39,14 +39,14 @@
 
         #region Constructor
 
-        public SubscriptionProcessor(DiscordClient client, WhConfig config, WebhookManager whm, EmbedBuilder embedBuilder)
+        public SubscriptionProcessor(DiscordClient client, WhConfig config, WebhookManager whm)//, EmbedBuilder embedBuilder)
         {
             _logger.Trace($"SubscriptionProcessor::SubscriptionProcessor");
 
             _client = client;
             _whConfig = config;
             _whm = whm;
-            _embedBuilder = embedBuilder;
+            //_embedBuilder = embedBuilder;
             _queue = new NotificationQueue();
 
             Manager = new SubscriptionManager(_whConfig);
@@ -164,7 +164,8 @@
                     //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
                     var iconStyle = Manager.GetUserIconStyle(user);
-                    var embed = _embedBuilder.BuildPokemonMessage(pkmn, loc.Name, _whConfig.IconStyles[iconStyle]);
+                    //var embed = _embedBuilder.BuildPokemonMessage(pkmn, loc.Name, _whConfig.IconStyles[iconStyle]);
+                    var embed = pkmn.GeneratePokemonMessage(_client, _whConfig, pkmn, null, loc.Name, _whConfig.IconStyles[iconStyle]);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 
                     //if (!Manager.AddPokemonStatistic(member.Id, pkmn))
@@ -280,7 +281,8 @@
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
                     var iconStyle = Manager.GetUserIconStyle(user);
-                    var embed = _embedBuilder.BuildRaidMessage(raid, loc.Name, _whConfig.IconStyles[iconStyle]);
+                    //var embed = _embedBuilder.BuildRaidMessage(raid, loc.Name, _whConfig.IconStyles[iconStyle]);
+                    var embed = raid.GenerateRaidMessage(_client, _whConfig, null, loc.Name, _whConfig.IconStyles[iconStyle]);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 
                     //if (!Manager.AddRaidStatistic(member.Id, raid))
@@ -331,7 +333,8 @@
 
             bool isSupporter;
             SubscriptionObject user;
-            var embed = _embedBuilder.BuildQuestMessage(quest, loc.Name);
+            //var embed = _embedBuilder.BuildQuestMessage(quest, loc.Name);
+            var embed = quest.GenerateQuestMessage(_whConfig, null, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -415,7 +418,8 @@
             }
 
             SubscriptionObject user;
-            var embed = _embedBuilder.BuildPokestopMessage(pokestop, loc.Name);
+            //var embed = _embedBuilder.BuildPokestopMessage(pokestop, loc.Name);
+            var embed = pokestop.GeneratePokestopMessage(_client, _whConfig, null, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try

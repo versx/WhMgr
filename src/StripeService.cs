@@ -36,8 +36,8 @@
 
         public Customer GetCustomer(ulong guildId, ulong userId)
         {
-            var customers = GetAllCustomers();//_customerService.List(_customerListOptions, _requestOptions);
-            var customerObj = customers./*Data.*/FirstOrDefault(x =>
+            var customers = GetAllCustomers();
+            var customerObj = customers.FirstOrDefault(x =>
                               ulong.TryParse(x.Metadata["user_server_discord_id"], out var discordGuildId) && discordGuildId == guildId &&
                               ulong.TryParse(x.Metadata["user_discord_id"], out var discordUserId) && discordUserId == userId);
             return customerObj;
@@ -76,14 +76,6 @@
 
         public CustomerData GetCustomerData(ulong guildId, ulong userId)
         {
-            /*
-            "metadata": {
-              "role_discord_id": "617924024449761291",
-              "role_name": "Donor2",
-              "server_id": "574451996656926720",
-              "server_name": "OC Scans"
-            },
-            */
             var customer = GetCustomer(guildId, userId);
             var expires = GetExpireDate(customer);
             var roleName = GetSubscriptionData(customer, "role_name");

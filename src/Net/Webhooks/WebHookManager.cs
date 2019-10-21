@@ -660,6 +660,10 @@
             }
         }
 
+        #endregion
+
+        #region Geofence Utilities
+
         public GeofenceItem InGeofence(List<GeofenceItem> geofences, Location location)
         {
             for (var i = 0; i < geofences.Count; i++)

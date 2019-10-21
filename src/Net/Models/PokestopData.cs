@@ -3,14 +3,22 @@
     using System;
     using System.Collections.Generic;
 
+    using DSharpPlus;
+    using DSharpPlus.Entities;
     using Newtonsoft.Json;
 
+    using WhMgr.Alarms.Alerts;
+    using WhMgr.Alarms.Models;
+    using WhMgr.Configuration;
     using WhMgr.Extensions;
+    using WhMgr.Utilities;
 
     public sealed class PokestopData
     {
         public const string WebhookHeader = "pokestop";
         public const string WebhookHeaderInvasion = "invasion";
+
+        #region Properties
 
         [JsonProperty("pokestop_id")]
         public string PokestopId { get; set; }
@@ -60,6 +68,8 @@
         public bool HasLure => LureExpire > 0 && LureType != PokestopLureType.None && LureExpireTime > DateTime.Now;
 
         public bool HasInvasion => IncidentExpire > 0 && InvasionExpireTime > DateTime.Now;
+
+        #endregion
 
         public PokestopData()
         {
@@ -170,6 +180,78 @@
                 default:
                     return gruntType.ToString();
             }
+        }
+
+        public DiscordEmbed GeneratePokestopMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        {
+            var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
+            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
+            var properties = GetProperties(client, whConfig, city);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
+                ImageUrl = properties["tilemaps_url"],
+                ThumbnailUrl = Url,
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Color = HasInvasion ? DiscordColor.Red : HasLure ?
+                    (LureType == PokestopLureType.Normal ? DiscordColor.HotPink
+                    : LureType == PokestopLureType.Glacial ? DiscordColor.CornflowerBlue
+                    : LureType == PokestopLureType.Mossy ? DiscordColor.SapGreen
+                    : LureType == PokestopLureType.Magnetic ? DiscordColor.Gray
+                    : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue
+            };
+            return eb.Build();
+        }
+
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
+        {
+            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
+            var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);
+            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+            var invasion = new TeamRocketInvasion(GruntType);
+            var invasionEncounters = invasion.GetPossibleInvasionEncounters();
+
+            const string defaultMissingValue = "?";
+            var dict = new Dictionary<string, string>
+            {
+                //Main properties
+                { "has_lure", HasLure ? "Yes" : "No" },
+                { "lure_type", LureType.ToString() },
+                { "lure_expire_time", LureExpireTime.ToLongTimeString() },
+                { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+                { "has_invasion", HasInvasion ? "Yes" : "No" },
+                { "grunt_type", invasion.Type == PokemonType.None ? "Tier II" : invasion?.Type.ToString() },
+                { "grunt_type_emoji", invasion.Type == PokemonType.None ? "Tier II" : invasion.Type.GetTypeEmojiIcons(client, whConfig.GuildId) },
+                { "grunt_gender", invasion.Gender.ToString() },
+                { "invasion_expire_time", InvasionExpireTime.ToLongTimeString() },
+                { "invasion_expire_time_left", InvasionExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+                { "invasion_encounters", $"**Encounter Reward Chance:**\r\n" + invasionEncounters },
+
+                //Location properties
+                { "geofence", city ?? defaultMissingValue },
+                { "lat", Latitude.ToString() },
+                { "lng", Longitude.ToString() },
+                { "lat_5", Math.Round(Latitude, 5).ToString() },
+                { "lng_5", Math.Round(Longitude, 5).ToString() },
+
+                //Location links
+                { "tilemaps_url", gmapsStaticMapLink },
+                { "gmaps_url", gmapsLocationLink },
+                { "applemaps_url", appleMapsLocationLink },
+
+                //Pokestop properties
+                { "pokestop_id", PokestopId ?? defaultMissingValue },
+                { "pokestop_name", Name ?? defaultMissingValue },
+                { "pokestop_url", Url ?? defaultMissingValue },
+
+                //Misc properties
+                { "br", "\r\n" }
+            };
+            return dict;
         }
     }
 

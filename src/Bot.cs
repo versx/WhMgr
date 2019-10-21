@@ -46,7 +46,7 @@
         private readonly WebhookManager _whm;
         private readonly WhConfig _whConfig;
         private readonly SubscriptionProcessor _subProcessor;
-        private readonly EmbedBuilder _embedBuilder;
+        //private readonly EmbedBuilder _embedBuilder;
         private readonly Translator _lang;
         private readonly Dictionary<string, GymDetailsData> _gyms;
 
@@ -139,10 +139,10 @@
                 }
             );
 
-            _embedBuilder = new EmbedBuilder(_client, _whConfig, _lang);
+            //_embedBuilder = new EmbedBuilder(_client, _whConfig, _lang);
             if (_whConfig.EnableSubscriptions)
             {
-                _subProcessor = new SubscriptionProcessor(_client, _whConfig, _whm, _embedBuilder);
+                _subProcessor = new SubscriptionProcessor(_client, _whConfig, _whm);//, _embedBuilder);
             }
 
             DependencyCollection dep;
@@ -361,7 +361,7 @@
                 //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
                 var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.Urls.PokemonImage, pokemon.Gender, pokemon.FormId, pokemon.Costume);
                 //var eb = _embedBuilder.BuildPokemonMessage(pokemon, loc.Name, pkmnImage);
-                var eb = _embedBuilder.GeneratePokemonMessage(pokemon, e.Alarm, loc.Name, pkmnImage);
+                var eb = pokemon.GeneratePokemonMessage(_client, _whConfig, pokemon, e.Alarm, loc.Name, pkmnImage);
                 var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIconValue()}{form}";
                 var jsonEmbed = new DiscordWebhookMessage
                 {
@@ -406,7 +406,7 @@
                 var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                 var pkmnImage = raid.IsEgg ? string.Format(_whConfig.Urls.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(_whConfig.Urls.PokemonImage, PokemonGender.Unset, raid.Form);
                 //var eb = _embedBuilder.BuildRaidMessage(raid, loc.Name, pkmnImage);
-                var eb = _embedBuilder.GenerateRaidMessage(raid, e.Alarm, loc.Name, pkmnImage);
+                var eb = raid.GenerateRaidMessage(_client, _whConfig, e.Alarm, loc.Name, pkmnImage);
                 var name = raid.IsEgg ? $"Level {raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
                 var jsonEmbed = new DiscordWebhookMessage
                 {
@@ -446,7 +446,7 @@
             try
             {
                 //var eb = _embedBuilder.BuildQuestMessage(quest, loc?.Name ?? e.Alarm.Name);
-                var eb = _embedBuilder.GenerateQuestMessage(quest, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var eb = quest.GenerateQuestMessage(_whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = quest.GetQuestMessage(),
@@ -496,7 +496,7 @@
             try
             {
                 //var eb = _embedBuilder.BuildPokestopMessage(pokestop, loc?.Name ?? e.Alarm.Name);
-                var eb = _embedBuilder.GeneratePokestopMessage(pokestop, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var eb = pokestop.GeneratePokestopMessage(_client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = pokestop.Name ?? "Unknown Pokestop",
