@@ -21,7 +21,6 @@
 
         public IReadOnlyList<SubscriptionObject> Subscriptions => _subscriptions;
         private System.Data.IDbConnection _conn;
-        //private readonly System.Data.IDbConnection _scanConn;
 
         private readonly OrmLiteConnectionFactory _connFactory;
         private readonly OrmLiteConnectionFactory _scanConnFactory;
@@ -31,9 +30,6 @@
             _logger.Trace($"SubscriptionManager::SubscriptionManager");
 
             _whConfig = whConfig;
-            //_conn = DataAccessLayer.CreateFactory().Open();
-            //if (_conn == null)
-            //    throw new Exception("Failed to connect to the database.");
             _connFactory = new OrmLiteConnectionFactory(_whConfig.ConnectionString, MySqlDialect.Provider);
             _scanConnFactory = new OrmLiteConnectionFactory(_whConfig.ScannerConnectionString, MySqlDialect.Provider);
 
@@ -151,36 +147,26 @@
 
         public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(int pokeId)
         {
-            //var subscriptions = GetUserSubscriptions();
-            //if (subscriptions != null)
-            //{
-            //    return subscriptions.Where(x => x.Pokemon.Exists(y => y.PokemonId == pokeId)).ToList();
-            //}
-            //List<SubscriptionObject> subs;
-            //using (var db = DataAccessLayer.CreateFactory())
-            //{
-            //    subs = db.LoadSelect<SubscriptionObject>().Where(x => x.Enabled && x.Pokemon.Exists(y => y.PokemonId == pokeId)).ToList();
-            //}
-
-            //return subs;
-            return _subscriptions?.Where(x => x.Enabled && x.Pokemon != null && x.Pokemon.Exists(y => y.PokemonId == pokeId))?.ToList();
+            return _subscriptions?.Where(x => 
+                x.Enabled && x.Pokemon != null && 
+                x.Pokemon.Exists(y => y.PokemonId == pokeId)
+            )?.ToList();
         }
 
         public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
-            //var subscriptions = GetUserSubscriptions();
-            //if (subscriptions != null)
-            //{
-            //    return subscriptions.Where(x => x.Raids.Exists(y => y.PokemonId == pokeId)).ToList();
-            //}
-
-            //return null;
-            return _subscriptions?.Where(x => x.Enabled && x.Raids != null && x.Raids.Exists(y => y.PokemonId == pokeId))?.ToList();
+            return _subscriptions?.Where(x => 
+                x.Enabled && x.Raids != null && 
+                x.Raids.Exists(y => y.PokemonId == pokeId)
+            )?.ToList();
         }
 
         public List<SubscriptionObject> GetUserSubscriptionsByGruntType(InvasionGruntType gruntType)
         {
-            return _subscriptions?.Where(x => x.Enabled && x.Invasions != null && x.Invasions.Exists(y => y.GruntType == gruntType))?.ToList();
+            return _subscriptions?.Where(x => 
+                x.Enabled && x.Invasions != null && 
+                x.Invasions.Exists(y => y.GruntType == gruntType)
+            )?.ToList();
         }
 
         public List<SubscriptionObject> GetUserSubscriptions()
@@ -331,7 +317,6 @@
                 }
 
                 _logger.Debug($"LastInsertId: {conn.LastInsertId()}");
-
                 return true;
             }
             catch (MySql.Data.MySqlClient.MySqlException)
@@ -361,7 +346,6 @@
                                                                          string.Compare(x.City, city, true) == 0
                                                                      );
                     if (raidSub != null)
-                        //return true;
                         continue;
 
                     //Create new raid subscription object.
@@ -385,7 +369,6 @@
                     {
                         _logger.Debug("Raid Updated!");
                     }
-                    //return true;
                 }
                 catch (MySql.Data.MySqlClient.MySqlException)
                 {
@@ -397,7 +380,6 @@
                 }
             }
 
-            //return false;
             return true;
         }
 
@@ -413,7 +395,6 @@
                     var city = cities[i];
                     var questSub = subscription.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) && string.Compare(x.City, city, true) == 0);
                     if (questSub != null)
-                        //return true;
                         continue;
 
                     //Create new raid subscription object.
@@ -462,7 +443,6 @@
                     var city = cities[i];
                     var invasionSub = subscription.Invasions.FirstOrDefault(x => gruntType == x.GruntType && string.Compare(x.City, city, true) == 0);
                     if (invasionSub != null)
-                        //return true;
                         continue;
 
                     //Create new Team Rocket invasion subscription object.
@@ -498,50 +478,6 @@
 
             return true;
         }
-
-        //public bool AddSnoozedQuest(ulong userId, SnoozedQuest quest)
-        //{
-        //    _logger.Trace($"SubscriptionManager::AddSnoozedQuest [UserId={userId}, SnoozedQuest={quest.PokestopName}]");
-
-        //    if (!IsDbConnectionOpen())
-        //    {
-        //        throw new Exception("Not connected to database.");
-        //    }
-
-        //    var subscription = GetUserSubscriptions(userId);
-        //    var questSub = subscription.SnoozedQuests.FirstOrDefault(x =>
-        //        string.Compare(quest.PokestopName, x.PokestopName, true) == 0 &&
-        //        string.Compare(quest.Quest, x.Quest, true) == 0 &&
-        //        string.Compare(quest.Reward, x.Reward, true) == 0 &&
-        //        string.Compare(quest.City, x.City, true) == 0);
-
-        //    //Already added.
-        //    if (questSub != null)
-        //        return true;
-
-        //    subscription.SnoozedQuests.Add(quest);
-
-        //    try
-        //    {
-        //        var conn = GetConnection();
-        //        if (conn.Save(subscription, true))
-        //        {
-        //            _logger.Debug($"Snoozed Quest Added!");
-        //        }
-        //        else
-        //        {
-        //            _logger.Debug("Snoozed Quest Updated!");
-        //        }
-
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Error(ex);
-        //    }
-
-        //    return false;
-        //}
 
         public bool AddGym(ulong userId, string gymName)
         {
@@ -848,17 +784,6 @@
             }
         }
 
-        //public bool RemoveAllSnoozedQuests()
-        //{
-        //    _logger.Info($"SubscriptionManager::RemoveAllSnoozedQuests");
-
-        //    using (var conn = DataAccessLayer.CreateFactory().Open())
-        //    {
-        //        var result = conn.DeleteAll<SnoozedQuest>();
-        //        return result > 0;
-        //    }
-        //}
-
         #endregion
 
         public string GetUserIconStyle(SubscriptionObject user)
@@ -874,21 +799,6 @@
                 }
             }
             return "Default";
-            //if (!IsDbConnectionOpen())
-            //{
-            //    throw new Exception("Not connected to database.");
-            //}
-
-            //try
-            //{
-            //    var conn = GetConnection();
-            //    var sub = conn.LoadSingleById<SubscriptionObject>(userId);
-            //    return sub.IconStyle ?? "Default";
-            //}
-            //catch (MySql.Data.MySqlClient.MySqlException)
-            //{
-            //    return "Default";
-            //}
         }
 
         #region Add Statistics
@@ -1001,39 +911,6 @@
 
         private System.Data.IDbConnection GetConnection()
         {
-            /*
-            if (!IsDbConnectionOpen())
-            {
-                _conn = DataAccessLayer.CreateFactory().Open();
-            }
-
-            try
-            {
-                if (_conn == null)
-                {
-                    _conn = DataAccessLayer.CreateFactory().Open();
-                }
-                //var results = _conn.Select<SubscriptionObject>();
-                //var list = results.ToList();
-                return _conn;
-            }
-            catch (MySql.Data.MySqlClient.MySqlException)
-            {
-                try
-                {
-                    return _conn = DataAccessLayer.CreateFactory().Open();
-                }
-                catch (MySql.Data.MySqlClient.MySqlException)
-                {
-                    //TODO: Better solution
-                    return _conn;
-                }
-                //return GetConnection();
-            }
-
-            //return _conn ?? DataAccessLayer.CreateFactory().Open();
-            */
-
             return _connFactory.Open();
         }
 

@@ -12,7 +12,6 @@
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
-    using WhMgr.Geofence;
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
 
@@ -29,9 +28,6 @@
         private readonly WebhookManager _whm;
         private readonly EmbedBuilder _embedBuilder;
         private readonly NotificationQueue _queue;
-        //private readonly Queue<PokemonData> _pkmnQueue;
-        //private readonly Queue<RaidData> _raidQueue;
-        //private readonly Queue<QuestData> _questQueue;
 
         #endregion
 
@@ -53,10 +49,6 @@
             _embedBuilder = embedBuilder;
             _queue = new NotificationQueue();
 
-            //_pkmnQueue = new Queue<PokemonData>();
-            //_raidQueue = new Queue<RaidData>();
-            //_questQueue = new Queue<QuestData>();
-
             Manager = new SubscriptionManager(_whConfig);
 
             ProcessQueue();
@@ -65,34 +57,6 @@
         #endregion
 
         #region Public Methods
-
-        //public void EnqueuePokemonSubscription(PokemonData pkmn)
-        //{
-        //    if (!_pkmnQueue.Contains(pkmn))
-        //    {
-        //        _pkmnQueue.Enqueue(pkmn);
-        //    }
-        //}
-
-        //public void EnqueueRaidSubscription(RaidData raid)
-        //{
-        //    if (!_raidQueue.Contains(raid))
-        //    {
-        //        _raidQueue.Enqueue(raid);
-        //    }
-        //}
-
-        //public void EnqueueQuestSubscription(QuestData quest)
-        //{
-        //    if (!_questQueue.Contains(quest))
-        //    {
-        //        _questQueue.Enqueue(quest);
-        //    }
-        //}
-
-        #endregion
-
-        #region Private Methods
 
         public async Task ProcessPokemonSubscription(PokemonData pkmn)
         {
@@ -103,7 +67,7 @@
             if (!db.Pokemon.ContainsKey(pkmn.Id))
                 return;
 
-            var loc = GetGeofence(pkmn.Latitude, pkmn.Longitude);
+            var loc = _whm.GetGeofence(pkmn.Latitude, pkmn.Longitude);
             if (loc == null)
             {
                 //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
@@ -177,7 +141,6 @@
 
                     var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
-                    //subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && string.Compare(x.Form, form, true) == 0);
                     if (subscribedPokemon == null)
                     {
                         _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
@@ -198,33 +161,6 @@
                          ))
                         continue;
 
-                    /*
-                    if (user.Limiter.IsLimited())
-                    {
-                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
-                        if (!user.RateLimitNotificationSent)
-                        {
-                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of 30 notifications within a 60 second time span.";
-                            var eb = new DiscordEmbedBuilder
-                            {
-                                Title = "Rate Limited",
-                                Description = rateLimitMessage,
-                                Color = DiscordColor.Red,
-                                Footer = new DiscordEmbedBuilder.EmbedFooter
-                                {
-                                    Text = $"versx | {DateTime.Now}",
-                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
-                                }
-                            };
-                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
-                            user.RateLimitNotificationSent = true;
-                        }
-                        continue;
-                    }
-
-                    user.RateLimitNotificationSent = false;
-                    */
-
                     //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
                     var iconStyle = Manager.GetUserIconStyle(user);
@@ -235,8 +171,6 @@
                     //{
                     //    _logger.Warn($"Failed to add {pokemon.Name} Pokemon statistic for user {user.Id}.");
                     //}
-
-                    //await _client.SendDirectMessage(member, embed);
                     Statistics.Instance.SubscriptionPokemonSent++;
                     Thread.Sleep(5);
                 }
@@ -249,7 +183,6 @@
             subscriptions.Clear();
             subscriptions = null;
             member = null;
-            //embed = null;
             user = null;
             loc = null;
             pokemon = null;
@@ -267,7 +200,7 @@
             if (!db.Pokemon.ContainsKey(raid.PokemonId))
                 return;
 
-            var loc = GetGeofence(raid.Latitude, raid.Longitude);
+            var loc = _whm.GetGeofence(raid.Latitude, raid.Longitude);
             if (loc == null)
             {
                 //_logger.Warn($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
@@ -344,33 +277,6 @@
                         continue;
                     }
 
-                    /*
-                    if (user.Limiter.IsLimited())
-                    {
-                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
-                        if (!user.RateLimitNotificationSent)
-                        {
-                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of 30 notifications within a 60 second time span.";
-                            var eb = new DiscordEmbedBuilder
-                            {
-                                Title = "Rate Limited",
-                                Description = rateLimitMessage,
-                                Color = DiscordColor.Red,
-                                Footer = new DiscordEmbedBuilder.EmbedFooter
-                                {
-                                    Text = $"versx | {DateTime.Now}",
-                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
-                                }
-                            };
-                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
-                            user.RateLimitNotificationSent = true;
-                        }
-                        continue;
-                    }
-
-                    user.RateLimitNotificationSent = false;
-                    */
-
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
                     var iconStyle = Manager.GetUserIconStyle(user);
@@ -381,7 +287,6 @@
                     //{
                     //    _logger.Warn($"Failed to add {pokemon.Name} raid statistic for user {user.Id}.");
                     //}
-                    //await _client.SendDirectMessage(member, embed);
                     Statistics.Instance.SubscriptionRaidsSent++;
                     Thread.Sleep(5);
                 }
@@ -393,7 +298,6 @@
 
             subscriptions.Clear();
             subscriptions = null;
-            //embed = null;
             user = null;
             loc = null;
             db = null;
@@ -411,7 +315,7 @@
             var rewardKeyword = quest.GetReward();
             var questName = quest.GetQuestMessage();
 
-            var loc = GetGeofence(quest.Latitude, quest.Longitude);
+            var loc = _whm.GetGeofence(quest.Latitude, quest.Longitude);
             if (loc == null)
             {
                 //_logger.Warn($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
@@ -474,36 +378,6 @@
                         }
                     }
 
-                    //continue;
-                    //}
-
-                    /*
-                    if (user.Limiter.IsLimited())
-                    {
-                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
-                        if (!user.RateLimitNotificationSent)
-                        {
-                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of 30 notifications within a 60 second time span.";
-                            var eb = new DiscordEmbedBuilder
-                            {
-                                Title = "Rate Limited",
-                                Description = rateLimitMessage,
-                                Color = DiscordColor.Red,
-                                Footer = new DiscordEmbedBuilder.EmbedFooter
-                                {
-                                    Text = $"versx | {DateTime.Now}",
-                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
-                                }
-                            };
-                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
-                            user.RateLimitNotificationSent = true;
-                        }
-                        continue;
-                    }
-
-                    user.RateLimitNotificationSent = false;
-                    */
-
                     //_logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
 
@@ -526,7 +400,7 @@
             if (!_whConfig.EnableSubscriptions)
                 return;
 
-            var loc = GetGeofence(pokestop.Latitude, pokestop.Longitude);
+            var loc = _whm.GetGeofence(pokestop.Latitude, pokestop.Longitude);
             if (loc == null)
             {
                 //_logger.Warn($"Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
@@ -587,33 +461,6 @@
                         }
                     }
 
-                    /*
-                    if (user.Limiter.IsLimited())
-                    {
-                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
-                        if (!user.RateLimitNotificationSent)
-                        {
-                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of 30 notifications within a 60 second time span.";
-                            var eb = new DiscordEmbedBuilder
-                            {
-                                Title = "Rate Limited",
-                                Description = rateLimitMessage,
-                                Color = DiscordColor.Red,
-                                Footer = new DiscordEmbedBuilder.EmbedFooter
-                                {
-                                    Text = $"versx | {DateTime.Now}",
-                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
-                                }
-                            };
-                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
-                            user.RateLimitNotificationSent = true;
-                        }
-                        continue;
-                    }
-
-                    user.RateLimitNotificationSent = false;
-                    */
-
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokestop.Name, embed));
@@ -622,7 +469,6 @@
                     //{
                     //    _logger.Warn($"Failed to add {pokemon.Name} raid statistic for user {user.Id}.");
                     //}
-                    //await _client.SendDirectMessage(member, embed);
                     Statistics.Instance.SubscriptionInvasionsSent++;
                     Thread.Sleep(5);
                 }
@@ -640,6 +486,10 @@
 
             await Task.CompletedTask;
         }
+
+        #endregion
+
+        #region Private Methods
 
         private void ProcessQueue()
         {
@@ -702,62 +552,6 @@
                 }
             })
             { IsBackground = true }.Start();
-        }
-
-        //        private void ProcessQueue()
-        //        {
-        //#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
-        //            new Thread(async () =>
-        //#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
-        //            {
-        //                while (true)
-        //                {
-        //                    if (_pkmnQueue.Count > 0)
-        //                    {
-        //                        if (_pkmnQueue.Count > MaxQueueCountWarning)
-        //                        {
-        //                            _logger.Warn($"Pokemon subscription queue is {_pkmnQueue.Count.ToString("N0")} items long.");
-        //                        }
-
-        //                        var pkmn = _pkmnQueue.Dequeue();
-        //                        await ProcessPokemonSubscription(pkmn);
-        //                        Thread.Sleep(5);
-        //                    }
-
-        //                    if (_raidQueue.Count > 0)
-        //                    {
-        //                        if (_raidQueue.Count > MaxQueueCountWarning)
-        //                        {
-        //                            _logger.Warn($"Raid subscription queue is {_pkmnQueue.Count.ToString("N0")} items long.");
-        //                        }
-
-        //                        var raid = _raidQueue.Dequeue();
-        //                        await ProcessRaidSubscription(raid);
-        //                        Thread.Sleep(5);
-        //                    }
-
-        //                    if (_questQueue.Count > 0)
-        //                    {
-        //                        if (_questQueue.Count > MaxQueueCountWarning)
-        //                        {
-        //                            _logger.Warn($"Quest subscription queue is {_pkmnQueue.Count.ToString("N0")} items long.");
-        //                        }
-
-        //                        var quest = _questQueue.Dequeue();
-        //                        await ProcessQuestSubscription(quest);
-        //                        Thread.Sleep(5);
-        //                    }
-
-        //                    Thread.Sleep(10);
-        //                }
-        //            })
-        //            { IsBackground = true }.Start();
-        //        }
-
-        private GeofenceItem GetGeofence(double latitude, double longitude)
-        {
-            var loc = _whm.GeofenceService.GetGeofence(_whm.Geofences.Select(x => x.Value).ToList(), new Location(latitude, longitude));
-            return loc;
         }
 
         #endregion

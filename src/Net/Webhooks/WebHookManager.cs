@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Net;
 
     using Newtonsoft.Json;
 
@@ -26,15 +25,12 @@
         private readonly HttpServer _http;
         private AlarmList _alarms;
         private readonly string _alarmsFilePath;
-        //private readonly Dictionary<string, WebHookObject> _webhooks;
         private readonly WhConfig _config;
         private readonly IEventLogger _logger;
 
         #endregion
 
         #region Properties
-
-        //public IReadOnlyDictionary<string, WebHookObject> WebHooks => _webhooks;
 
         public GeofenceService GeofenceService { get; }
 
@@ -127,13 +123,10 @@
             _logger = EventLogger.GetLogger();
             _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, AlarmsFilePath={alarmsFilePath}]");
 
-            //_webhooks = new Dictionary<string, WebHookObject>();
             GeofenceService = new GeofenceService();
             _alarmsFilePath = alarmsFilePath;
             _alarms = LoadAlarms(_alarmsFilePath);
             _config = config;
-
-            //LoadWebhooks();
 
             _http = new HttpServer(_config.WebhookPort);
             _http.PokemonReceived += Http_PokemonReceived;
@@ -173,6 +166,7 @@
                 var originalId = e.Pokemon.Id;
                 e.Pokemon.OriginalPokemonId = originalId;
                 e.Pokemon.Id = 132;
+                e.Pokemon.FormId = 0;
             }
 
             ProcessPokemon(e.Pokemon);
@@ -220,7 +214,7 @@
 
         #endregion
 
-        #region Private Methods
+        #region Alarms Initialization
 
         private AlarmList LoadAlarms(string alarmsFilePath)
         {
@@ -279,35 +273,6 @@
             fileWatcher.FileChanged += (sender, e) => _alarms = LoadAlarms(_alarmsFilePath);
             fileWatcher.Start();
         }
-
-        //private void LoadWebhooks()
-        //{
-        //    _logger.Trace($"WebhookManager::LoadWebhooks");
-
-        //    if (_alarms == null)
-        //    {
-        //        _logger.Error(nameof(_alarms) + " is null");
-        //        return;
-        //    }
-
-        //    foreach (var alarm in _alarms.Alarms)
-        //    {
-        //        if (string.IsNullOrEmpty(alarm.Webhook))
-        //            continue;
-
-        //        var wh = GetWebhookData(alarm.Webhook);
-        //        if (wh == null)
-        //        {
-        //            _logger.Error($"Failed to download webhook data from {alarm.Webhook}.");
-        //            continue;
-        //        }
-
-        //        if (!_webhooks.ContainsKey(alarm.Name))
-        //        {
-        //            _webhooks.Add(alarm.Name, wh);
-        //        }
-        //    }
-        //}
 
         #endregion
 
@@ -709,30 +674,10 @@
             return null;
         }
 
-        #endregion
-
-        #region Static Methods
-
-        public static WebHookObject GetWebhookData(string webHook)
+        public GeofenceItem GetGeofence(double latitude, double longitude)
         {
-            /**Example:
-             * {
-             *   "name": "", 
-             *   "channel_id": "", 
-             *   "token": "", 
-             *   "avatar": null, 
-             *   "guild_id": "", 
-             *   "id": ""
-             * }
-             */
-
-            using (var wc = new WebClient())
-            {
-                wc.Proxy = null;
-                var json = wc.DownloadString(webHook);
-                var data = JsonConvert.DeserializeObject<WebHookObject>(json);
-                return data;
-            }
+            var loc = GeofenceService.GetGeofence(Geofences.Select(x => x.Value).ToList(), new Location(latitude, longitude));
+            return loc;
         }
 
         #endregion

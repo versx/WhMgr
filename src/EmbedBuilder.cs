@@ -815,6 +815,8 @@
             return msg;
         }
 
+        #region Dynamic DiscordEmbed
+
         public DiscordEmbed GeneratePokemonMessage(PokemonData pkmn, AlarmObject alarm, string city, string pokemonImageUrl)
         {
             //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
@@ -900,6 +902,8 @@
             };
             return eb.Build();
         }
+
+        #endregion
     }
 
     public class UrlShortener
@@ -935,37 +939,3 @@
         public int StatusCode { get; set; }
     }
 }
-
-/*
-'monsters': {
-    'username': "<mon_name>",
-    'content': "",
-    'icon_url': get_image_url(
-        "regular/monsters/<mon_id_3>_<form_id_3>.png"),
-    'avatar_url': get_image_url(
-        "regular/monsters/<mon_id_3>_<form_id_3>.png"),
-    'title': "A wild <mon_name> has appeared!",
-    'url': "<gmaps>",
-    'body': "Available until <24h_time> (<time_left>)."
-},
-
-alert = {
-    'webhook_url': settings.pop('webhook_url', self.__webhook_url),
-    'username': settings.pop('username', default['username']),
-    'avatar_url': settings.pop('avatar_url', default['avatar_url']),
-    'disable_embed': parse_boolean(
-        settings.pop('disable_embed', self.__disable_embed)),
-    'content': settings.pop('content', default['content']),
-    'icon_url': settings.pop('icon_url', default['icon_url']),
-    'title': settings.pop('title', default['title']),
-    'url': settings.pop('url', default['url']),
-    'body': settings.pop('body', default['body']),
-    'map': get_static_map_url(
-        settings.pop('map', self.__map), self.__static_map_key)
-}
-
-def replace(string, pkinfo):
-    for key in pkinfo:
-        s = s.replace("<{}>".format(key), str(pkinfo[key]))
-    return s
- */

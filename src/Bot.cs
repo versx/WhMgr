@@ -9,6 +9,7 @@
     using WhMgr.Commands;
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Data.Models.Discord;
     using WhMgr.Data.Subscriptions;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
@@ -24,7 +25,6 @@
     using DSharpPlus.Exceptions;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
-    using WhMgr.Data.Models.Discord;
 
     //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
     //TODO: Reload config on change
@@ -66,9 +66,7 @@
             _whConfig = whConfig;
             DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
 
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
             AppDomain.CurrentDomain.UnhandledException += async (sender, e) =>
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
             {
                 _logger.Debug("Unhandled exception caught.");
                 _logger.Error((Exception)e.ExceptionObject);
@@ -109,9 +107,7 @@
             _logger.Info("WebhookManager is running...");
 
             var midnight = new DandTSoftware.Timers.MidnightTimer();
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
             midnight.TimeReached += async (e) => await ResetQuests();
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
             midnight.Start();
 
             _client = new DiscordClient(new DiscordConfiguration
@@ -344,12 +340,10 @@
 
         private void OnPokemonAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokemonData> e)
         {
-            _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
-
-            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
-            //    return;
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
+
+            _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
 
             var pokemon = e.Data;
             var pkmn = Database.Instance.Pokemon[pokemon.Id];
@@ -375,7 +369,6 @@
                     AvatarUrl = pkmnImage,
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
-                //_logger.Debug($"JSON EMBED: {jsonEmbed}");
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
 
                 Statistics.Instance.PokemonSent++;
@@ -394,8 +387,6 @@
 
         private void OnRaidAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<RaidData> e)
         {
-            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
-            //    return;
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
@@ -423,7 +414,6 @@
                     AvatarUrl = pkmnImage,
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
-                //_logger.Debug($"JSON EMBED: {jsonEmbed}");
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
 
                 Statistics.Instance.RaidsSent++;
@@ -440,8 +430,6 @@
 
         private void OnQuestAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<QuestData> e)
         {
-            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
-            //    return;
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
@@ -465,7 +453,6 @@
                     AvatarUrl = quest.GetIconUrl(_whConfig),
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
-                //_logger.Debug($"JSON EMBED: {jsonEmbed}");
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
 
                 Statistics.Instance.QuestsSent++;
@@ -478,8 +465,6 @@
 
         private void OnPokestopAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokestopData> e)
         {
-            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
-            //    return;
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
@@ -518,7 +503,6 @@
                     AvatarUrl = icon,
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
-                //_logger.Debug($"JSON EMBED: {jsonEmbed}");
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
 
                 //Statistics.Instance.QuestsSent++;
@@ -579,11 +563,7 @@
             if (_subProcessor == null)
                 return;
 
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
             new System.Threading.Thread(async () => await _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
-            //_subProcessor.EnqueuePokemonSubscription(e);
-            //Task.Run(() => _subProcessor.ProcessPokemonSubscription(e));
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
@@ -594,11 +574,7 @@
             if (_subProcessor == null)
                 return;
 
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
             new System.Threading.Thread(async () => await _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
-            //_subProcessor.EnqueueRaidSubscription(e);
-            //Task.Run(() => _subProcessor.ProcessRaidSubscription(e));
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
@@ -609,10 +585,7 @@
             if (_subProcessor == null)
                 return;
 
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
             new System.Threading.Thread(async () => await _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
-            //_subProcessor.EnqueueQuestSubscription(e);
         }
 
         private void OnInvasionSubscriptionTriggered(object sender, PokestopData e)
@@ -666,13 +639,6 @@
 
             Statistics.Instance.WriteOut();
             Statistics.Instance.Reset();
-
-            /*
-            if (_whConfig.EnableSubscriptions)
-            {
-                _subProcessor.Manager.RemoveAllSnoozedQuests();
-            }
-            */
 
             if (_whConfig.ShinyStats.Enabled)
             {
@@ -734,7 +700,7 @@
 
             _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
-            var users = _subProcessor.Manager.Subscriptions;// GetUserSubscriptions();
+            var users = _subProcessor.Manager.Subscriptions;
             for (var i = 0; i < users.Count; i++)
             {
                 var user = users[i];
