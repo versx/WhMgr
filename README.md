@@ -218,3 +218,18 @@ Discord Raid Egg Notifications:
 
 Discord Quest Notifications:  
 ![Quest Notifications](images/quests.png "Quest Notifications")  
+
+Discord Lure Notifications:  
+![Lure Notifications](images/lure.png "Lure Notifications")  
+
+Discord Lure (Glacial) Notifications:  
+![Lure (Glacial) Notifications](images/lure_glacial.png "Lure (Glacial) Notifications")  
+
+Discord Lure (Mossy) Notifications:  
+![Lure (Mossy) Notifications](images/lure_mossy.png "Lure (Mossy) Notifications")  
+
+Discord Lure (Magnetic) Notifications:  
+![Lure (Magnetic) Notifications](images/lure_magnetic.png "Lure (Magnetic) Notifications")  
+
+Discord Team Rocket Invasion Notifications:  
+![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
