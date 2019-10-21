@@ -489,6 +489,8 @@
             var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons(_client, _whConfig.GuildId);
             var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons(_client, _whConfig.GuildId) : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
+            var catchPokemon = pkmn.IsDitto ? Database.Instance.Pokemon[pkmn.OriginalPokemonId] : Database.Instance.Pokemon[pkmn.Id];
+
             var gmapsLink = string.Format(Strings.GoogleMaps, pkmn.Latitude, pkmn.Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, pkmn.Latitude, pkmn.Longitude);
             var staticMapLink = string.Format(_whConfig.Urls.StaticMap, pkmn.Latitude, pkmn.Longitude);
@@ -537,6 +539,9 @@
                 { "username", pkmn.Username ?? defaultMissingValue },
                 { "spawnpoint_id", pkmn.SpawnpointId ?? defaultMissingValue },
                 { "encounter_id", pkmn.EncounterId ?? defaultMissingValue },
+                { "original_pokemon_id", pkmn.OriginalPokemonId.ToString() },
+                { "original_pokemon_id_3", pkmn.OriginalPokemonId.ToString("D3") },
+                { "original_pokemon_name", catchPokemon?.Name },
 
                 //Time properties
                 { "despawn_time", pkmn.DespawnTime.ToString("hh:mm:ss tt") },

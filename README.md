@@ -8,6 +8,20 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, and field research quests. Also supports Discord user's subscribing to Pokemon, raid, or quest notifications via DM.
 
 
+## Features:  
+- Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, and invasions.  
+- Per user custom Discord notifications for Pokemon, raids, quests, and invasions.  
+- Customizable alert messages with dynamic text replacement.  
+- Support for multiple cities/areas using roles and geofences.  
+- Daily shiny stats reporting.  
+- Automatic quest message purge at midnight.  
+- Support for Donors/Supporters only notifications.  
+- Direct messages of Pokemon notifications based on city roles assigned.  
+- Custom prefix support as well as mentionable user support for commands.  
+- Custom image support for Discord alarm reports.  
+- Custom icon style selection for Discord user notifications.  
+- Lots more...  
+
 ## Getting Started:  
 
 1.) Copy `config.example.json` to `config.json`.  
@@ -162,6 +176,26 @@ Upload Discord emojis that are in the emojis folder.
     - Gym Name
     - Quest Reward
     - Invasion Type  
+	
+## Dynamic Text Replacement  
+**Pokemon**  
+| Place Holder | Description | Example |  
+|---|---|---|  
+| pkmn_id | Pokemon ID | 1 |  
+| pkmn_id_3 | Pokemon ID (always 3 digits) | 001 |  
+| pkmn_name | Pokemon name | Bulbasaur |  
+
+**Raids**  
+
+**Eggs**  
+
+**Quests**  
+
+**Pokestops**  
+
+**Gyms**  
+- TODO
+
 
 ## TODO:  
 - Allow Pokemon id and name in Pokemon filter lists. 

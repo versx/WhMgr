@@ -27,9 +27,13 @@
     using WhMgr.Data.Models.Discord;
 
     //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
-    //TODO: Optimize webhook and subscription processing.
-    //TODO: Optimize database queries
     //TODO: Reload config on change
+
+    //TODO: PvP ranks dts
+    //TODO: Near Pokestop dts
+    //TODO: Ditto dts
+    //TODO: DTS if statements
+    //TODO: Separate subscriptions dts
 
     public class Bot
     {
