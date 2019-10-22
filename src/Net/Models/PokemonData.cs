@@ -587,7 +587,7 @@
 
                 //Time properties
                 { "despawn_time", DespawnTime.ToString("hh:mm:ss tt") },
-                { "despawn_time_verified", DisappearTimeVerified ? "Yes" : "No" },
+                { "despawn_time_verified", DisappearTimeVerified ? "" : "~" },
                 { "time_left", SecondsLeft.ToReadableString(true) ?? defaultMissingValue },
 
                 //Location properties

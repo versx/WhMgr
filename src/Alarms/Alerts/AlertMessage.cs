@@ -11,7 +11,7 @@
                 AlertMessageType.Pokemon, new AlertMessageSettings
                 {
                     AvatarUrl = "",
-                    Content = "<pkmn_name> <form> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><br>**Moveset:** <moveset><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_link>)]**",
+                    Content = "<pkmn_name> <form> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<despawn_time_verified><br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><br>**Moveset:** <moveset><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
                     IconUrl = "",
                     Title = "<geofence>",
                     Url = "<gmaps_url>",
@@ -22,7 +22,7 @@
                 AlertMessageType.PokemonMissingStats, new AlertMessageSettings
                 {
                     AvatarUrl = "",
-                    Content = "<pkmn_name> <form><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Types:** <types_emoji> | **Size:** <size><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_link>)]**",
+                    Content = "<pkmn_name> <form><br>**Despawn:** <despawn_time> (<time_left> left)<despawn_time_verified><br>**Types:** <types_emoji><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
                     IconUrl = "",
                     Title = "<geofence>",
                     Url = "<gmaps_url>",
