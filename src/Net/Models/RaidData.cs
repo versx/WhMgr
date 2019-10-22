@@ -85,11 +85,10 @@
         {
             get
             {
-                var db = Data.Database.Instance;
-                if (db.Pokemon.ContainsKey(PokemonId) && !IsEgg)
+                if (Database.Instance.Pokemon.ContainsKey(PokemonId) && !IsEgg)
                 {
                     var list = new List<PokemonType>();
-                    db.Pokemon[PokemonId].Types.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
+                    Database.Instance.Pokemon[PokemonId].Types.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
                     return list;
                 }
 
@@ -170,13 +169,13 @@
                 move2 = Database.Instance.Movesets[ChargeMove].Name;
             }
             var type1 = pkmnInfo?.Types?[0];
-            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
+            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1] : PokemonType.None;
             var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons(client, whConfig.GuildId);
             var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons(client, whConfig.GuildId) : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
-            var weaknesses = string.Join(", ", Weaknesses);
+            var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
             var weaknessesEmoji = Weaknesses.GetWeaknessEmojiIcons(client, whConfig.GuildId);
-            var weaknessesEmojiFormatted = weaknessesEmoji.Split(' ').Length > 6 ? System.Text.RegularExpressions.Regex.Replace(weaknessesEmoji, "(.{" + 6 + "})", "$1" + Environment.NewLine) : weaknessesEmoji;
+            var weaknessesEmojiFormatted = weaknessesEmoji;
             var perfectRange = PokemonId.MaxCpAtLevel(20);
             var boostedRange = PokemonId.MaxCpAtLevel(25);
             var worstRange = PokemonId.MinCpAtLevel(20);

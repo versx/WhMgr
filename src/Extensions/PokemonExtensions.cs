@@ -100,11 +100,10 @@
 
         public static int MaxCpAtLevel(this int id, int level)
         {
-            if (!Database.Instance.Pokemon.ContainsKey(id))
+            if (!Database.Instance.Pokemon.ContainsKey(id) || id == 0)
                 return 0;
 
             var pkmn = Database.Instance.Pokemon[id];
-
             var multiplier = CpMultipliers[level - 1];
             var maxAtk = (pkmn.BaseStats.Attack + 15) * multiplier;
             var maxDef = (pkmn.BaseStats.Defense + 15) * multiplier;
@@ -115,11 +114,10 @@
 
         public static int MinCpAtLevel(this int id, int level)
         {
-            if (!Database.Instance.Pokemon.ContainsKey(id))
+            if (!Database.Instance.Pokemon.ContainsKey(id) || id == 0)
                 return 0;
 
             var pkmn = Database.Instance.Pokemon[id];
-
             var multiplier = CpMultipliers[level - 1];
             var minAtk = (pkmn.BaseStats.Attack + 10) * multiplier;
             var minDef = (pkmn.BaseStats.Defense + 10) * multiplier;
@@ -1327,6 +1325,9 @@
 
         public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes, DiscordClient client, ulong guildId)
         {
+            if (pokemonTypes == null || pokemonTypes?.Count == 0)
+                return string.Empty;
+
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
