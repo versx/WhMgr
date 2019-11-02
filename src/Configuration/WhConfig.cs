@@ -79,9 +79,6 @@
         [JsonProperty("iconStyles")]
         public Dictionary<string, string> IconStyles { get; set; }
 
-        [JsonProperty("streamCategoryChannelId")]
-        public ulong StreamCategoryChannelId { get; set; }
-
         [JsonProperty("stripeApiKey")]
         public string StripeApiKey { get; set; }
 

@@ -167,9 +167,9 @@
             );
             _commands.CommandExecuted += Commands_CommandExecuted;
             _commands.CommandErrored += Commands_CommandErrored;
-            _commands.RegisterCommands<General>();
             _commands.RegisterCommands<Owner>();
             _commands.RegisterCommands<CommunityDay>();
+            _commands.RegisterCommands<Nests>();
             _commands.RegisterCommands<ShinyStats>();
             _commands.RegisterCommands<Gyms>();
             _commands.RegisterCommands<Quests>();

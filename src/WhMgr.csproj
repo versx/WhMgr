@@ -109,7 +109,6 @@
     <Compile Include="CommandLine.cs" />
     <Compile Include="Commands\Dependencies.cs" />
     <Compile Include="Commands\Feeds.cs" />
-    <Compile Include="Commands\General.cs" />
     <Compile Include="Commands\Gyms.cs" />
     <Compile Include="Commands\Nests.cs" />
     <Compile Include="Commands\Notifications.cs" />
