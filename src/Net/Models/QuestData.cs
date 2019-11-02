@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
 
+    using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
 
@@ -169,7 +170,7 @@
             Conditions = new List<QuestConditionMessage>();
         }
 
-        public DiscordEmbed GenerateQuestMessage(WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbed GenerateQuestMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var alertType = AlertMessageType.Quests;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
@@ -181,7 +182,12 @@
                 ImageUrl = properties["tilemaps_url"],
                 ThumbnailUrl = PokestopUrl,
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
-                Color = DiscordColor.Orange
+                Color = DiscordColor.Orange,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"versx | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId]?.IconUrl : string.Empty
+                }
             };
             return eb.Build();
         }

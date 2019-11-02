@@ -1,23 +1,6 @@
 ﻿namespace WhMgr
 {
-    //    using System;
-    //    using System.Linq;
-
-    //    using DSharpPlus;
-    //    using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
-
-    //    using ServiceStack.OrmLite;
-
-    //    using WhMgr.Configuration;
-    //    using WhMgr.Data;
-    //    using WhMgr.Data.Models;
-    //    using WhMgr.Diagnostics;
-    //    using WhMgr.Extensions;
-    //    using WhMgr.Localization;
-    //    using WhMgr.Net.Models;
-    //    using WhMgr.Utilities;
 
     //    public class EmbedBuilder
     //    {

@@ -25,7 +25,7 @@
         public const string WebHookHeader = "pokemon";
 
         //TODO: Add ditto disguises to external file
-        private static readonly List<int> DittoDisguises = new List<int> { 13, 46, 48, 163, 165, 167, 187, 223, 273, 293, 300, 316, 322, 399 };
+        //private static readonly List<int> DittoDisguises = new List<int> { 13, 46, 48, 163, 165, 167, 187, 223, 273, 293, 300, 316, 322, 399 };
         private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         #region Properties
@@ -278,57 +278,57 @@
             JsonIgnore,
             Ignore
         ]
-        public bool IsDitto
-        {
-            get
-            {
-                //if (!int.TryParse(Level, out var level))
-                //    return false;
+        public bool IsDitto => Id == 132;
+        //{
+        //    get
+        //    {
+        //        //if (!int.TryParse(Level, out var level))
+        //        //    return false;
 
-                var isUnderLevel6 = IsUnderLevel(6);
-                var isStatsUnder4 = IsStatsBelow4;
-                //var isUnderLevel31 = IsUnderLevel(31);
-                //var isAboveLevel30 = IsAboveLevel(30);
-                //var isWindOrRain = Weather == WeatherType.Windy || Weather == WeatherType.Rain;
-                //var isWindOrCloudy = Weather == WeatherType.Windy || Weather == WeatherType.Cloudy;
-                //var isNotBoosted = Weather == WeatherType.None && isAboveLevel30;
+        //        var isUnderLevel6 = IsUnderLevel(6);
+        //        var isStatsUnder4 = IsStatsBelow4;
+        //        //var isUnderLevel31 = IsUnderLevel(31);
+        //        //var isAboveLevel30 = IsAboveLevel(30);
+        //        //var isWindOrRain = Weather == WeatherType.Windy || Weather == WeatherType.Rain;
+        //        //var isWindOrCloudy = Weather == WeatherType.Windy || Weather == WeatherType.Cloudy;
+        //        //var isNotBoosted = Weather == WeatherType.None && isAboveLevel30;
 
-                var check1 = Weather != WeatherType.None &&
-                       (isUnderLevel6 || isStatsUnder4) &&
-                       //isUnderLevel6 &&
-                       //isStatsUnder4 &&
-                       DittoDisguises.Contains(Id);
-                //var check2 = (Id == 193 && (isNotBoosted || (isWindOrRain && isUnderLevel6)));
-                //var check3 = (Id == 193 && isWindOrRain && isUnderLevel31 && IsStatsBelow4);
-                //var check4 = (Id == 41 && ((Weather == WeatherType.None && isAboveLevel30) || (isWindOrCloudy && isUnderLevel6)));
-                //var check5 = (Id == 41 && isWindOrCloudy && isUnderLevel31 && IsStatsBelow4);
-                //var check6 = (Id == 16 || Id == 163 || Id == 276) && Weather == WeatherType.Windy && (isUnderLevel6 || (isUnderLevel31 && IsStatsBelow4));
-                if (check1)
-                {
-                    FormId = 0;
-                }
+        //        var check1 = Weather != WeatherType.None &&
+        //               (isUnderLevel6 || isStatsUnder4) &&
+        //               //isUnderLevel6 &&
+        //               //isStatsUnder4 &&
+        //               DittoDisguises.Contains(Id);
+        //        //var check2 = (Id == 193 && (isNotBoosted || (isWindOrRain && isUnderLevel6)));
+        //        //var check3 = (Id == 193 && isWindOrRain && isUnderLevel31 && IsStatsBelow4);
+        //        //var check4 = (Id == 41 && ((Weather == WeatherType.None && isAboveLevel30) || (isWindOrCloudy && isUnderLevel6)));
+        //        //var check5 = (Id == 41 && isWindOrCloudy && isUnderLevel31 && IsStatsBelow4);
+        //        //var check6 = (Id == 16 || Id == 163 || Id == 276) && Weather == WeatherType.Windy && (isUnderLevel6 || (isUnderLevel31 && IsStatsBelow4));
+        //        if (check1)
+        //        {
+        //            FormId = 0;
+        //        }
 
-                return check1;// || check2 || check3 || check4 || check5 || check6;
+        //        return check1;// || check2 || check3 || check4 || check5 || check6;
 
-                /*
-                if pokemon_id == 193:
-                    if (is_no_weather_boost and is_above_level_30) or ((is_windy or is_raining) and is_below_level_6):
-                        make_ditto()
-                        return
-                    if (is_windy or is_raining) and is_below_level_31 and stat_below_4:
-                        make_ditto()
-                        return
-                if pokemon_id == 41:
-                    if (is_no_weather_boost and is_above_level_30) or ((is_windy or is_cloudy) and is_below_level_6):
-                        make_ditto()
-                    elif (is_windy or is_cloudy) and is_below_level_31 and stat_below_4:
-                        make_ditto()
-                if (pokemon_id == 16 or pokemon_id == 163 or pokemon_id == 276) and is_windy:
-                    if is_below_level_6 or (is_below_level_31 and stat_below_4):
-                        make_ditto()
-                 */
-            }
-        }
+        //        /*
+        //        if pokemon_id == 193:
+        //            if (is_no_weather_boost and is_above_level_30) or ((is_windy or is_raining) and is_below_level_6):
+        //                make_ditto()
+        //                return
+        //            if (is_windy or is_raining) and is_below_level_31 and stat_below_4:
+        //                make_ditto()
+        //                return
+        //        if pokemon_id == 41:
+        //            if (is_no_weather_boost and is_above_level_30) or ((is_windy or is_cloudy) and is_below_level_6):
+        //                make_ditto()
+        //            elif (is_windy or is_cloudy) and is_below_level_31 and stat_below_4:
+        //                make_ditto()
+        //        if (pokemon_id == 16 or pokemon_id == 163 or pokemon_id == 276) and is_windy:
+        //            if is_below_level_6 or (is_below_level_31 and stat_below_4):
+        //                make_ditto()
+        //         */
+        //    }
+        //}
 
 		[
 		    JsonIgnore,
@@ -346,10 +346,10 @@
         }
 
         [
-            JsonIgnore,
-            Ignore
+            JsonProperty("display_pokemon_id"),
+            Alias("display_pokemon_id")
         ]
-        public int OriginalPokemonId { get; set; }
+        public int? DisplayPokemonId { get; set; }
 
 		[
 		    JsonIgnore,
@@ -373,7 +373,7 @@
             JsonIgnore,
             Ignore
         ]
-        public List<Data.Models.PokemonPvP> GreatLeagueStats
+        public List<PokemonPvP> GreatLeagueStats
         {
             get
             {
@@ -406,7 +406,7 @@
             JsonIgnore,
             Ignore
         ]
-        public List<Data.Models.PokemonPvP> UltraLeagueStats
+        public List<PokemonPvP> UltraLeagueStats
         {
             get
             {
@@ -438,29 +438,31 @@
 
         public void SetDespawnTime()
         {
+            //TODO: DST config option
+
             DespawnTime = DisappearTime.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(DespawnTime))
             //{
-            //    DespawnTime = DespawnTime.AddHours(1); //DST
+                DespawnTime = DespawnTime.AddHours(1); //DST
             //}
             SecondsLeft = DespawnTime.Subtract(DateTime.Now);
 
             FirstSeenTime = FirstSeen.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(FirstSeenTime))
             //{
-            //    FirstSeenTime = FirstSeenTime.AddHours(1); //DST
+                FirstSeenTime = FirstSeenTime.AddHours(1); //DST
             //}
 
             LastModifiedTime = LastModified.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(LastModifiedTime))
             //{
-            //    LastModifiedTime = LastModifiedTime.AddHours(1);
+                LastModifiedTime = LastModifiedTime.AddHours(1);
             //}
 
             UpdatedTime = Updated.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(Updated))
             //{
-            //    UpdatedTime = Updated.AddHours(1);
+                UpdatedTime = UpdatedTime.AddHours(1);
             //}
         }
 
@@ -477,7 +479,6 @@
         public DiscordEmbed GeneratePokemonMessage(DiscordClient client, WhConfig whConfig, PokemonData pkmn, AlarmObject alarm, string city, string pokemonImageUrl)
         {
             //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
-            //TODO: Add to alarm content and contentMissingInfo
             var alertMessageType = pkmn.IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alertMessage = alarm?.Alerts[alertMessageType] ?? AlertMessage.Defaults[alertMessageType];
             var properties = GetProperties(client, whConfig, city);
@@ -505,7 +506,7 @@
             var pkmnInfo = Database.Instance.Pokemon[Id];
             var form = Id.GetPokemonForm(FormId.ToString());
             var costume = Id.GetCostume(Costume.ToString());
-            var gender = Gender.GetPokemonGenderIcon();
+            var gender = Gender.GetPokemonGenderIconValue();
             var level = Level;
             var size = Size?.ToString();
             var weather = Weather?.ToString();
@@ -531,7 +532,7 @@
             var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons(client, whConfig.GuildId);
             var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons(client, whConfig.GuildId) : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
-            var catchPokemon = IsDitto ? Database.Instance.Pokemon[OriginalPokemonId] : Database.Instance.Pokemon[Id];
+            var catchPokemon = IsDitto ? Database.Instance.Pokemon[DisplayPokemonId ?? Id] : Database.Instance.Pokemon[Id];
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
@@ -553,7 +554,7 @@
                 { "costume_id_3", Costume.ToString("D3") },
                 { "cp", CP ?? defaultMissingValue },
                 { "lvl", level ?? defaultMissingValue },
-                { "gender", gender ?? defaultMissingValue },
+                { "gender", gender /*?? defaultMissingValue*/ },
                 { "size", size ?? defaultMissingValue },
                 { "move_1", move1 ?? defaultMissingValue },
                 { "move_2", move2 ?? defaultMissingValue },
@@ -574,16 +575,15 @@
                 { "costume", costume ?? defaultMissingValue },
                 { "height", Height ?? defaultMissingValue },
                 { "weight", Weight ?? defaultMissingValue },
-                { "is_ditto", IsDitto ? "Yes" : "No" },
-                { "original_pkmn_id", OriginalPokemonId.ToString() },
+                { "is_ditto", Convert.ToString(IsDitto) },
+                { "original_pkmn_id", Convert.ToString(DisplayPokemonId) },
+                { "original_pkmn_id_3", (DisplayPokemonId ?? 0).ToString("D3") },
+                { "original_pkmn_name", catchPokemon?.Name },
                 { "weather", weather ?? defaultMissingValue },
                 { "weather_emoji", weatherEmoji ?? defaultMissingValue },
                 { "username", Username ?? defaultMissingValue },
                 { "spawnpoint_id", SpawnpointId ?? defaultMissingValue },
                 { "encounter_id", EncounterId ?? defaultMissingValue },
-                { "original_pokemon_id", OriginalPokemonId.ToString() },
-                { "original_pokemon_id_3", OriginalPokemonId.ToString("D3") },
-                { "original_pokemon_name", catchPokemon?.Name },
 
                 //Time properties
                 { "despawn_time", DespawnTime.ToString("hh:mm:ss tt") },
@@ -603,6 +603,7 @@
                 { "applemaps_url", appleMapsLocationLink },
 
                 //Pokestop properties
+                { "near_pokestop", Convert.ToString(pokestop != null) },
                 { "pokestop_id", PokestopId ?? defaultMissingValue },
                 { "pokestop_name", pokestop?.Name ?? defaultMissingValue },
                 { "pokestop_url", pokestop?.Url ?? defaultMissingValue },

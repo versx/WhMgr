@@ -446,7 +446,7 @@
             try
             {
                 //var eb = _embedBuilder.BuildQuestMessage(quest, loc?.Name ?? e.Alarm.Name);
-                var eb = quest.GenerateQuestMessage(_whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var eb = quest.GenerateQuestMessage(_client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = quest.GetQuestMessage(),

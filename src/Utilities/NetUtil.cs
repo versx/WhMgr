@@ -52,7 +52,7 @@
                 try
                 {
                     var resp = wc.UploadString(webhookUrl, json);
-                    Console.WriteLine($"Response: {resp}");
+                    //Console.WriteLine($"Response: {resp}");
                     Thread.Sleep(200);
                 }
                 catch (WebException ex)

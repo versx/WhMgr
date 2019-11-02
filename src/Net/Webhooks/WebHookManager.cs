@@ -149,7 +149,7 @@
         {
             if (DateTime.Now > e.Pokemon.DespawnTime)
             {
-                _logger.Debug($"Pokemon {e.Pokemon.Id} already despawned at {e.Pokemon.DespawnTime}");
+                _logger.Debug($"[WHM] Pokemon {e.Pokemon.Id} already despawned at {e.Pokemon.DespawnTime}");
                 return;
             }
 
@@ -160,14 +160,14 @@
                     return;
             }
 
-            if (e.Pokemon.IsDitto)
-            {
-                // Ditto
-                var originalId = e.Pokemon.Id;
-                e.Pokemon.OriginalPokemonId = originalId;
-                e.Pokemon.Id = 132;
-                e.Pokemon.FormId = 0;
-            }
+            //if (e.Pokemon.IsDitto)
+            //{
+            //    // Ditto
+            //    var originalId = e.Pokemon.Id;
+            //    e.Pokemon.OriginalPokemonId = originalId;
+            //    e.Pokemon.Id = 132;
+            //    e.Pokemon.FormId = 0;
+            //}
 
             ProcessPokemon(e.Pokemon);
             OnPokemonSubscriptionTriggered(e.Pokemon);
@@ -177,7 +177,7 @@
         {
             if (DateTime.Now > e.Raid.EndTime)
             {
-                _logger.Debug($"Raid boss {e.Raid.PokemonId} already despawned at {e.Raid.EndTime}");
+                _logger.Debug($"[WHM] Raid boss {e.Raid.PokemonId} already despawned at {e.Raid.EndTime}");
                 return;
             }
 
@@ -218,29 +218,29 @@
 
         private AlarmList LoadAlarms(string alarmsFilePath)
         {
-            _logger.Trace($"WebhookManager::LoadAlarms [AlarmsFilePath={alarmsFilePath}]");
+            _logger.Trace($"[WHM] WebhookManager::LoadAlarms [AlarmsFilePath={alarmsFilePath}]");
 
             if (!File.Exists(alarmsFilePath))
             {
-                _logger.Error($"Failed to load file alarms file '{alarmsFilePath}'...");
+                _logger.Error($"[WHM] Failed to load file alarms file '{alarmsFilePath}'...");
                 return null;
             }
 
             var alarmData = File.ReadAllText(alarmsFilePath);
             if (string.IsNullOrEmpty(alarmData))
             {
-                _logger.Error($"Failed to load '{alarmsFilePath}', file is empty...");
+                _logger.Error($"[WHM] Failed to load '{alarmsFilePath}', file is empty...");
                 return null;
             }
 
             var alarms = JsonConvert.DeserializeObject<AlarmList>(alarmData);
             if (alarms == null)
             {
-                _logger.Error($"Failed to deserialize the alarms file '{alarmsFilePath}', make sure you don't have any json syntax errors.");
+                _logger.Error($"[WHM] Failed to deserialize the alarms file '{alarmsFilePath}', make sure you don't have any json syntax errors.");
                 return null;
             }
 
-            _logger.Info($"Alarms file {alarmsFilePath} was loaded successfully.");
+            _logger.Info($"[WHM] Alarms file {alarmsFilePath} was loaded successfully.");
 
             alarms.Alarms.ForEach(x =>
             {
@@ -251,14 +251,14 @@
                     if (!Geofences.ContainsKey(geofence.Name))
                     {
                         Geofences.Add(geofence.Name, geofence);
-                        _logger.Debug($"Geofence file loaded for {x.Name}...");
+                        _logger.Debug($"[WHM] Geofence file loaded for {x.Name}...");
                     }
                 }
 
-                _logger.Info($"Loading alerts file {x.AlertsFile}...");
+                _logger.Info($"[WHM] Loading alerts file {x.AlertsFile}...");
                 x.LoadAlerts();
 
-                _logger.Info($"Loading filters file {x.FiltersFile}...");
+                _logger.Info($"[WHM] Loading filters file {x.FiltersFile}...");
                 x.LoadFilters();
             });
 
@@ -267,7 +267,7 @@
 
         private void LoadAlarmsOnChange()
         {
-            _logger.Trace($"WebhookManager::LoadAlarmsOnChange");
+            _logger.Trace($"[WHM] WebhookManager::LoadAlarmsOnChange");
 
             var fileWatcher = new FileWatcher(_alarmsFilePath);
             fileWatcher.FileChanged += (sender, e) => _alarms = LoadAlarms(_alarmsFilePath);
@@ -297,50 +297,50 @@
 
                 if (!alarm.Filters.Pokemon.Enabled)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping pokemon {pkmn.Id} because Pokemon filter not enabled.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping pokemon {pkmn.Id} because Pokemon filter not enabled.");
                     continue;
                 }
 
                 var geofence = InGeofence(alarm.Geofences, new Location(pkmn.Latitude, pkmn.Longitude));
                 if (geofence == null)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping pokemon {pkmn.Id} because not in geofence.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping pokemon {pkmn.Id} because not in geofence.");
                     continue;
                 }
 
                 if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
                 {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: filter {alarm.Filters.Pokemon.FilterType}.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: filter {alarm.Filters.Pokemon.FilterType}.");
                     continue;
                 }
 
                 if (alarm.Filters.Pokemon.FilterType == FilterType.Include && (!alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id) && alarm.Filters.Pokemon.Pokemon?.Count > 0))
                 {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: filter {alarm.Filters.Pokemon.FilterType}.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: filter {alarm.Filters.Pokemon.FilterType}.");
                     continue;
                 }
 
                 if (alarm.Filters.Pokemon.IgnoreMissing && pkmn.IsMissingStats)
                 {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: IgnoreMissing=true.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: IgnoreMissing=true.");
                     continue;
                 }
 
                 if (!Filters.MatchesIV(pkmn.IV, alarm.Filters.Pokemon.MinimumIV, alarm.Filters.Pokemon.MaximumIV))
                 {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumIV={alarm.Filters.Pokemon.MinimumIV} and MaximumIV={alarm.Filters.Pokemon.MaximumIV} and IV={pkmn.IV}.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumIV={alarm.Filters.Pokemon.MinimumIV} and MaximumIV={alarm.Filters.Pokemon.MaximumIV} and IV={pkmn.IV}.");
                     continue;
                 }
 
                 if (!Filters.MatchesCP(pkmn.CP, alarm.Filters.Pokemon.MinimumCP, alarm.Filters.Pokemon.MaximumCP))
                 {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumCP={alarm.Filters.Pokemon.MinimumCP} and MaximumCP={alarm.Filters.Pokemon.MaximumCP} and CP={pkmn.CP}.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumCP={alarm.Filters.Pokemon.MinimumCP} and MaximumCP={alarm.Filters.Pokemon.MaximumCP} and CP={pkmn.CP}.");
                     continue;
                 }
 
                 if (!Filters.MatchesLvl(pkmn.Level, alarm.Filters.Pokemon.MinimumLevel, alarm.Filters.Pokemon.MaximumLevel))
                 {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumLevel={alarm.Filters.Pokemon.MinimumLevel} and MaximumLevel={alarm.Filters.Pokemon.MaximumLevel} and Level={pkmn.Level}.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumLevel={alarm.Filters.Pokemon.MinimumLevel} and MaximumLevel={alarm.Filters.Pokemon.MaximumLevel} and Level={pkmn.Level}.");
                     continue;
                 }
 
@@ -358,7 +358,7 @@
 
                 //if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
                 //{
-                //    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
+                //    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
                 //    continue;
                 //}
 
@@ -390,7 +390,7 @@
                 var geofence = InGeofence(alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
                 if (geofence == null)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level} because not in geofence.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level} because not in geofence.");
                     continue;
                 }
 
@@ -401,31 +401,31 @@
 
                     if (!alarm.Filters.Eggs.Enabled)
                     {
-                        _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: raids filter not enabled.");
+                        _logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: raids filter not enabled.");
                         continue;
                     }
 
                     if (!int.TryParse(raid.Level, out var level))
                     {
-                        _logger.Warn($"[{alarm.Name}] [{geofence.Name}] Failed to parse '{raid.Level}' as raid level.");
+                        _logger.Warn($"[WHM] [{alarm.Name}] [{geofence.Name}] Failed to parse '{raid.Level}' as raid level.");
                         continue;
                     }
 
                     if (!(level >= alarm.Filters.Eggs.MinimumLevel && level <= alarm.Filters.Eggs.MaximumLevel))
                     {
-                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: '{raid.Level}' does not meet the MinimumLevel={alarm.Filters.Eggs.MinimumLevel} and MaximumLevel={alarm.Filters.Eggs.MaximumLevel} filters.");
+                        //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: '{raid.Level}' does not meet the MinimumLevel={alarm.Filters.Eggs.MinimumLevel} and MaximumLevel={alarm.Filters.Eggs.MaximumLevel} filters.");
                         continue;
                     }
 
                     if (alarm.Filters.Eggs.OnlyEx && !raid.IsExEligible)
                     {
-                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: only ex {alarm.Filters.Eggs.OnlyEx}.");
+                        //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: only ex {alarm.Filters.Eggs.OnlyEx}.");
                         continue;
                     }
 
                     if (alarm.Filters.Eggs.Team != PokemonTeam.All && alarm.Filters.Eggs.Team != raid.Team)
                     {
-                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: '{raid.Team}' does not meet Team={alarm.Filters.Eggs.Team} filter.");
+                        //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: '{raid.Team}' does not meet Team={alarm.Filters.Eggs.Team} filter.");
                         continue;
                     }
 
@@ -438,37 +438,37 @@
 
                     if (!alarm.Filters.Raids.Enabled)
                     {
-                        _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: raids filter not enabled.");
+                        _logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: raids filter not enabled.");
                         continue;
                     }
 
                     if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId))
                     {
-                        _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: filter {alarm.Filters.Raids.FilterType}.");
+                        _logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: filter {alarm.Filters.Raids.FilterType}.");
                         continue;
                     }
 
                     if (alarm.Filters.Raids.FilterType == FilterType.Include && (!alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId) && alarm.Filters.Raids.Pokemon?.Count > 0))
                     {
-                        _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: filter {alarm.Filters.Raids.FilterType}.");
+                        _logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: filter {alarm.Filters.Raids.FilterType}.");
                         continue;
                     }
 
                     if (alarm.Filters.Raids.OnlyEx && !raid.IsExEligible)
                     {
-                        _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: only ex {alarm.Filters.Raids.OnlyEx}.");
+                        _logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: only ex {alarm.Filters.Raids.OnlyEx}.");
                         continue;
                     }
 
                     if (alarm.Filters.Raids.Team != PokemonTeam.All && alarm.Filters.Raids.Team != raid.Team)
                     {
-                        _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: '{raid.Team}' does not meet Team={alarm.Filters.Raids.Team} filter.");
+                        _logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: '{raid.Team}' does not meet Team={alarm.Filters.Raids.Team} filter.");
                         continue;
                     }
 
                     if (alarm.Filters.Raids.IgnoreMissing && raid.IsMissingStats)
                     {
-                        _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: IgnoreMissing=true.");
+                        _logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: IgnoreMissing=true.");
                         continue;
                     }
 
@@ -498,39 +498,39 @@
 
                 if (!alarm.Filters.Quests.Enabled)
                 {
-                    _logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: quests filter not enabled.");
+                    _logger.Info($"[WHM] [{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: quests filter not enabled.");
                     continue;
                 }
 
                 var geofence = InGeofence(alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
                 if (geofence == null)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: not in geofence.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: not in geofence.");
                     continue;
                 }
 
                 var contains = alarm.Filters.Quests.RewardKeywords.Select(x => x.ToLower()).FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.ToLower())) != null;
                 if (alarm.Filters.Quests.FilterType == FilterType.Exclude && contains)
                 {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter {alarm.Filters.Quests.FilterType}.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter {alarm.Filters.Quests.FilterType}.");
                     continue;
                 }
 
                 if (!(alarm.Filters.Quests.FilterType == FilterType.Include && (contains || alarm.Filters.Quests?.RewardKeywords.Count == 0)))
                 {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}: filter {alarm.Filters.Quests.FilterType}.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}: filter {alarm.Filters.Quests.FilterType}.");
                     continue;
                 }
 
                 if (!contains && alarm.Filters?.Quests?.RewardKeywords?.Count > 0)
                 {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: rewards does not match reward keywords.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: rewards does not match reward keywords.");
                     continue;
                 }
 
                 if (alarm.Filters.Quests.IsShiny && !quest.IsShiny)
                 {
-                    //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter IsShiny={alarm.Filters.Quests.IsShiny} Quest={quest.IsShiny}.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter IsShiny={alarm.Filters.Quests.IsShiny} Quest={quest.IsShiny}.");
                     continue;
                 }
 
@@ -560,26 +560,26 @@
 
                 if (!alarm.Filters.Pokestops.Enabled)
                 {
-                    _logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
+                    _logger.Info($"[WHM] [{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
                     continue;
                 }
 
                 if (!alarm.Filters.Pokestops.Lured && pokestop.HasLure)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: lure filter not enabled.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: lure filter not enabled.");
                     continue;
                 }
 
                 if (!alarm.Filters.Pokestops.Invasions && pokestop.HasInvasion)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: invasion filter not enabled.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: invasion filter not enabled.");
                     continue;
                 }
 
                 var geofence = InGeofence(alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
                 if (geofence == null)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
                     continue;
                 }
 
@@ -606,14 +606,14 @@
 
                 if (!alarm.Filters.Gyms.Enabled)
                 {
-                    _logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName}: gym filter not enabled.");
+                    _logger.Info($"[WHM] [{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName}: gym filter not enabled.");
                     continue;
                 }
 
                 var geofence = InGeofence(alarm.Geofences, new Location(gym.Latitude, gym.Longitude));
                 if (geofence == null)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName} because not in geofence.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName} because not in geofence.");
                     continue;
                 }
 
@@ -623,8 +623,6 @@
 
         private void ProcessGymDetails(GymDetailsData gymDetails)
         {
-            //_logger.Trace($"WebhookManager::ProcessGymDetails [GymId={gymDetails.GymId}]");
-
             if (!_alarms.EnableGyms) //GymDetails
                 return;
 
@@ -640,19 +638,19 @@
                 var geofence = InGeofence(alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
                 if (geofence == null)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName} because not in geofence.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName} because not in geofence.");
                     continue;
                 }
 
                 if ((alarm.Filters?.Gyms?.UnderAttack ?? false) && !gymDetails.InBattle)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName{gymDetails.GymName}, not under attack.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName{gymDetails.GymName}, not under attack.");
                     continue;
                 }
 
                 if (alarm.Filters?.Gyms?.Team != gymDetails.Team && alarm.Filters?.Gyms?.Team != PokemonTeam.All)
                 {
-                    //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName{gymDetails.GymName}, not specified team {alarm.Filters.Gyms.Team}.");
+                    //_logger.Info($"[WHM] [{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName{gymDetails.GymName}, not specified team {alarm.Filters.Gyms.Team}.");
                     continue;
                 }
 
@@ -680,8 +678,10 @@
 
         public GeofenceItem GetGeofence(double latitude, double longitude)
         {
-            var loc = GeofenceService.GetGeofence(Geofences.Select(x => x.Value).ToList(), new Location(latitude, longitude));
-            return loc;
+            return GeofenceService.GetGeofence(
+                Geofences.Select(x => x.Value).ToList(), 
+                new Location(latitude, longitude)
+            );
         }
 
         #endregion

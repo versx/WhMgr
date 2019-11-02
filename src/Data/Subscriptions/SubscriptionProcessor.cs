@@ -83,14 +83,14 @@
 
             SubscriptionObject user;
             PokemonSubscription subscribedPokemon;
-            var pokemon = db.Pokemon[pkmn.Id];
-            bool matchesIV;
-            bool matchesLvl;
-            bool matchesGender;
-            bool matchesAttack;
-            bool matchesDefense;
-            bool matchesStamina;
             DiscordMember member = null;
+            var pokemon = db.Pokemon[pkmn.Id];
+            var matchesIV = false;
+            var matchesLvl = false;
+            var matchesGender = false;
+            var matchesAttack = false;
+            var matchesDefense = false;
+            var matchesStamina = false;
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -334,7 +334,7 @@
             bool isSupporter;
             SubscriptionObject user;
             //var embed = _embedBuilder.BuildQuestMessage(quest, loc.Name);
-            var embed = quest.GenerateQuestMessage(_whConfig, null, loc.Name);
+            var embed = quest.GenerateQuestMessage(_client, _whConfig, null, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try

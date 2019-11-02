@@ -41,20 +41,20 @@
         [JsonProperty("lure_expiration")]
         public long LureExpire { get; set; }
 
+        [JsonIgnore]
+        public DateTime LureExpireTime { get; set; }
+
         [JsonProperty("lure_id")]
         public PokestopLureType LureType { get; set; }
 
-        [JsonIgnore]
-        public DateTime LureExpireTime { get; set; }
+        [JsonProperty("incident_expire_timestamp")]
+        public long IncidentExpire { get; set; }
 
         [JsonIgnore]
         public DateTime InvasionExpireTime { get; set; }
 
         [JsonProperty("pokestop_display")]
         public PokestopDisplay PokestopDisplay { get; set; }
-
-        [JsonProperty("incident_expire_timestamp")]
-        public long IncidentExpire { get; set; }
 
         [JsonProperty("grunt_type")]
         public InvasionGruntType GruntType { get; set; }
@@ -79,15 +79,15 @@
         public void SetTimes()
         {
             LureExpireTime = LureExpire.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
+            //if (TimeZoneInfo.Local.IsDaylightSavingTime(LureExpireTime))
             //{
-            //    StartTime = StartTime.AddHours(1); //DST
+                LureExpireTime = LureExpireTime.AddHours(1); //DST
             //}
 
             InvasionExpireTime = IncidentExpire.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
+            //if (TimeZoneInfo.Local.IsDaylightSavingTime(InvasionExpireTime))
             //{
-            //    EndTime = EndTime.AddHours(1); //DST
+                InvasionExpireTime = InvasionExpireTime.AddHours(1); //DST
             //}
         }
 
@@ -199,7 +199,12 @@
                     : LureType == PokestopLureType.Glacial ? DiscordColor.CornflowerBlue
                     : LureType == PokestopLureType.Mossy ? DiscordColor.SapGreen
                     : LureType == PokestopLureType.Magnetic ? DiscordColor.Gray
-                    : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue
+                    : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"versx | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId]?.IconUrl : string.Empty
+                }
             };
             return eb.Build();
         }
@@ -219,11 +224,11 @@
             var dict = new Dictionary<string, string>
             {
                 //Main properties
-                { "has_lure", HasLure ? "Yes" : "No" },
+                { "has_lure", Convert.ToString(HasLure) },
                 { "lure_type", LureType.ToString() },
                 { "lure_expire_time", LureExpireTime.ToLongTimeString() },
                 { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
-                { "has_invasion", HasInvasion ? "Yes" : "No" },
+                { "has_invasion", Convert.ToString(HasInvasion) },
                 { "grunt_type", invasion.Type == PokemonType.None ? "Tier II" : invasion?.Type.ToString() },
                 { "grunt_type_emoji", invasion.Type == PokemonType.None ? "Tier II" : invasion.Type.GetTypeEmojiIcons(client, whConfig.GuildId) },
                 { "grunt_gender", invasion.Gender.ToString() },

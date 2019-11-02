@@ -148,7 +148,7 @@
     <Compile Include="Data\Subscriptions\SubscriptionProcessor.cs" />
     <Compile Include="Diagnostics\IEventLogger.cs" />
     <Compile Include="Diagnostics\LogType.cs" />
-    <Compile Include="EmbedBuilder.cs" />
+    <Compile Include="UrlShortener.cs" />
     <Compile Include="Extensions\CoordinatesDistanceExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />

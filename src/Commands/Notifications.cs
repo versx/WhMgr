@@ -282,7 +282,7 @@
             if (gender != "*" && gender != "m" && gender != "f")
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} {gender} is not a valid gender.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} {gender} is not a valid gender. (i.e. `m`, `f`, `*`)", DiscordColor.Red);
                 return;
             }
 
@@ -446,7 +446,7 @@
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $"minimum IV of {iv}%")}{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
+                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
                     ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."

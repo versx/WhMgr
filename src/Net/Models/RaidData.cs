@@ -111,13 +111,13 @@
             StartTime = Start.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
             //{
-            //    StartTime = StartTime.AddHours(1); //DST
+                StartTime = StartTime.AddHours(1); //DST
             //}
 
             EndTime = End.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
             //{
-            //    EndTime = EndTime.AddHours(1); //DST
+                EndTime = EndTime.AddHours(1); //DST
             //}
         }
 
@@ -201,8 +201,8 @@
                 { "form", form },
                 { "form_id", Form.ToString() },
                 { "form_id_3", Form.ToString("D3") },
-                { "is_egg", IsEgg ? "Yes": "No" },
-                { "is_ex", IsExEligible ? "Yes" : "No" },
+                { "is_egg", Convert.ToString(IsEgg) },
+                { "is_ex", Convert.ToString(IsExEligible) },
                 { "ex_emoji", exEmoji },
                 { "team", Team.ToString() },
                 { "team_emoji", teamEmoji },

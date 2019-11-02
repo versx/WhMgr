@@ -1166,9 +1166,9 @@
             switch (gender)
             {
                 case PokemonGender.Male:
-                    return "\u2642";//♂
+                    return "-m";//"\u2642";//♂
                 case PokemonGender.Female:
-                    return "\u2640";//♀
+                    return "-f";//"\u2640";//♀
                 default:
                     return "";//⚲
             }
