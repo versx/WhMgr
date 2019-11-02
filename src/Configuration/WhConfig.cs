@@ -49,6 +49,9 @@
         [JsonProperty("scannerConnectionString")]
         public string ScannerConnectionString { get; set; }
 
+        [JsonProperty("nestsConnectionString")]
+        public string NestsConnectionString { get; set; }
+
         [JsonProperty("commandPrefix")]
         public string CommandPrefix { get; set; }
 

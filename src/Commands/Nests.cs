@@ -8,14 +8,15 @@
     using System.Text;
     using System.Threading.Tasks;
 
-    using DSharpPlus;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
     using Newtonsoft.Json;
+    using ServiceStack.OrmLite;
 
     using WhMgr.Data;
+    using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
@@ -32,7 +33,58 @@
         }
 
         [
-             Command("nests"),
+            Command("nests"),
+            Description("")
+        ]
+        public async Task ListNestsAsync(CommandContext ctx, string pokemon)
+        {
+            var db = Database.Instance;
+            var pokeId = pokemon.PokemonIdFromName();
+            if (pokeId == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} {pokemon} is not a valid Pokemon id or name.");
+                return;
+            }
+
+            var pkmn = db.Pokemon[pokeId];
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = $"Local {pkmn.Name} Nests",
+                Color = DiscordColor.Blurple,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"versx | {DateTime.Now}",
+                    IconUrl = ctx.Guild?.IconUrl
+                }
+            };
+            var nests = GetNests(_dep.WhConfig.NestsConnectionString)?.Where(x => x.Value.PokemonId == pokeId);
+            if (nests == null)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from SilphRoad atlas.");
+                return;
+            }
+
+            var groupedNests = GroupNests(nests);
+            foreach (var nest in groupedNests)
+            {
+                var sb = new StringBuilder();
+                foreach (var gn in nest.Value)
+                {
+                    sb.AppendLine($"[{gn.Name}]({string.Format(Strings.GoogleMaps, gn.Latitude, gn.Longitude)})");
+                }
+                eb.AddField($"{nest.Key}", sb.ToString(), true);
+            }
+
+            if (eb.Fields.Count == 0)
+            {
+                eb.Description = $"{ctx.User.Username} Could not find any nests for {pkmn.Name}.";
+            }
+
+            await ctx.RespondAsync(ctx.User.Mention, false, eb);
+        }
+
+        [
+             Command("nests-silph"),
              Description("Displays a list of local nests from https://thesilphroad.com/atlas")
          ]
         public async Task NestsAsync(CommandContext ctx, string pokemon)
@@ -56,7 +108,7 @@
                     IconUrl = ctx.Guild?.IconUrl
                 }
             };
-            var nests = GetNests()?.Where(x => x.Value.PokemonId == pokeId);
+            var nests = GetSilphNests()?.Where(x => x.Value.PokemonId == pokeId);
             if (nests == null)
             {
                 await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from SilphRoad atlas.");
@@ -110,6 +162,31 @@
             return dict;
         }
 
+        private Dictionary<string, List<Nest>> GroupNests(IEnumerable<KeyValuePair<int, Nest>> nests)
+        {
+            var dict = new Dictionary<string, List<Nest>>();
+            foreach (var nest in nests)
+            {
+                var geofences = _dep.Whm.Geofences.Values.ToList();
+                var geofence = _dep.Whm.GeofenceService.GetGeofence(geofences, new Location(nest.Value.Latitude, nest.Value.Longitude));
+                if (geofence == null)
+                {
+                    _logger.Warn($"Failed to find geofence for nest {nest.Key}.");
+                    continue;
+                }
+
+                if (dict.ContainsKey(geofence.Name))
+                {
+                    dict[geofence.Name].Add(nest.Value);
+                }
+                else
+                {
+                    dict.Add(geofence.Name, new List<Nest> { nest.Value });
+                }
+            }
+            return dict;
+        }
+
         private byte[] Get(string url, NameValueCollection options)
         {
             using (var wc = new WebClient())
@@ -122,7 +199,29 @@
             }
         }
 
-        private Dictionary<int, LocalMarker> GetNests()
+        public Dictionary<int, Nest> GetNests(string nestsConnectionString = null)
+        {
+            if (string.IsNullOrEmpty(nestsConnectionString))
+                return null;
+
+            try
+            {
+                using (var db = DataAccessLayer.CreateFactory(nestsConnectionString).Open())
+                {
+                    var nests = db.LoadSelect<Nest>();
+                    var dict = nests.ToDictionary(x => x.PokemonId, x => x);
+                    return dict;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return null;
+        }
+
+        private Dictionary<int, LocalMarker> GetSilphNests()
         {
             var nvc = new NameValueCollection
             {

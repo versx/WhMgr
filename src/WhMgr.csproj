@@ -130,6 +130,7 @@
     <Compile Include="Data\Models\Discord\DiscordField.cs" />
     <Compile Include="Data\Models\Discord\DiscordWebhookMessage.cs" />
     <Compile Include="Data\Models\Gym.cs" />
+    <Compile Include="Data\Models\Nest.cs" />
     <Compile Include="Data\Models\PokemonPvP.cs" />
     <Compile Include="Data\Models\Pokestop.cs" />
     <Compile Include="Data\Subscriptions\Models\InvasionSubscription.cs" />
