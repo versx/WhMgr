@@ -211,8 +211,9 @@
                 { "quest_task", questMessage },
                 { "quest_conditions", questConditions },
                 { "quest_reward", questReward },
-                { "is_ditto", IsDitto ? "Yes" : "No" },
-                { "is_shiny", IsShiny ? "Yes" : "No" },
+                { "has_quest_conditions", Convert.ToString(!string.IsNullOrEmpty(questConditions)) },
+                { "is_ditto", Convert.ToString(IsDitto) },
+                { "is_shiny", Convert.ToString(IsShiny) },
 
                 //Location properties
                 { "geofence", city ?? defaultMissingValue },

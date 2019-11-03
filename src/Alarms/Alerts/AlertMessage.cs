@@ -78,7 +78,7 @@
                 AlertMessageType.Quests, new AlertMessageSettings
                 {
                     AvatarUrl = "<quest_reward>", //TODO: QuestReward AvatorUrl
-                    Content = "**Quest:** <quest_task><br>**Reward:** <quest_reward><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
+                    Content = "**Quest:** <quest_task><br><#has_quest_conditions>**Condition(s):** <quest_conditions><br></has_quest_conditions>**Reward:** <quest_reward><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
                     IconUrl = "<quest_reward>", //TODO: QuestReward IconUrl
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",

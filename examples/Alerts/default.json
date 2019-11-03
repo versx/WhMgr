@@ -45,11 +45,11 @@
         "iconUrl": "<pokestop_url>",
         "title": "<geofence>: <pokestop_name>",
         "url": "<gmaps_url>",
-        "username": "<geofence>: <pokestop_name>"
+        "username": "<pokestop_name>"
 	},
 	"quests": {
         "avatarUrl": "<quest_reward>",
-        "content": "**Quest:** <quest_task><br>**Reward:** <quest_reward><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
+        "content": "**Quest:** <quest_task><br><#has_quest_conditions>**Condition(s):** <quest_conditions><br></has_quest_conditions>**Reward:** <quest_reward><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
         "iconUrl": "<quest_reward>",
         "title": "<geofence>: <pokestop_name>",
         "url": "<gmaps_url>",
