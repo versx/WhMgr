@@ -111,13 +111,13 @@
             StartTime = Start.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
             //{
-                StartTime = StartTime.AddHours(1); //DST
+            //    StartTime = StartTime.AddHours(1); //DST
             //}
 
             EndTime = End.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
             //{
-                EndTime = EndTime.AddHours(1); //DST
+            //    EndTime = EndTime.AddHours(1); //DST
             //}
         }
 

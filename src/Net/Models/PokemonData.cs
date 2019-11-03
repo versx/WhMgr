@@ -443,26 +443,26 @@
             DespawnTime = DisappearTime.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(DespawnTime))
             //{
-                DespawnTime = DespawnTime.AddHours(1); //DST
+            //    DespawnTime = DespawnTime.AddHours(1); //DST
             //}
             SecondsLeft = DespawnTime.Subtract(DateTime.Now);
 
             FirstSeenTime = FirstSeen.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(FirstSeenTime))
             //{
-                FirstSeenTime = FirstSeenTime.AddHours(1); //DST
+            //    FirstSeenTime = FirstSeenTime.AddHours(1); //DST
             //}
 
             LastModifiedTime = LastModified.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(LastModifiedTime))
             //{
-                LastModifiedTime = LastModifiedTime.AddHours(1);
+            //    LastModifiedTime = LastModifiedTime.AddHours(1);
             //}
 
             UpdatedTime = Updated.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(Updated))
             //{
-                UpdatedTime = UpdatedTime.AddHours(1);
+            //    UpdatedTime = UpdatedTime.AddHours(1);
             //}
         }
 
