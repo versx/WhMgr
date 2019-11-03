@@ -10,7 +10,7 @@
     /// </summary>
     public static class CommandLine
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("COMMANDLINE");
 
         /// <summary>
         /// Parses the provided command line parameters.

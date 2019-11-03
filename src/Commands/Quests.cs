@@ -12,7 +12,7 @@
 
     public class Quests
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("QUESTS");
         private readonly Dependencies _dep;
 
         public Quests(Dependencies dep)

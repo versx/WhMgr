@@ -1,14 +1,18 @@
 ﻿namespace WhMgr.Diagnostics
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Threading;
 
     public class EventLogger : IEventLogger
     {
+        private const string DefaultLoggerName = "default";
+
         #region Static Variables
 
-        private static EventLogger _instance;
+        //private static EventLogger _instance;
+        private static readonly Dictionary<string, EventLogger> _instances = new Dictionary<string, EventLogger>();
         //private static readonly object _lock = new object();
         private static readonly EventWaitHandle _waitHandle = new EventWaitHandle(true, EventResetMode.AutoReset, Strings.BotName + new Random().Next(10000, 90000));
 
@@ -16,34 +20,59 @@
 
         #region Properties
 
+        public string Name { get; set; }
+
         public Action<LogType, string> LogHandler { get; set; }
 
         public static EventLogger GetLogger(string name = null)
         {
-            if (_instance == null)
+            var instanceName = (name ?? DefaultLoggerName).ToLower();
+            if (_instances.ContainsKey(instanceName))
             {
-                CreateLogsDirectory();
-
-                _instance = new EventLogger();
-                _instance.Info("Logging started...");
+                return _instances[instanceName];
             }
 
-            return _instance;
+            _instances.Add(instanceName, new EventLogger(instanceName));
+            return _instances[instanceName];
+
+            //if (_instance == null)
+            //{
+            //    CreateLogsDirectory();
+
+            //    _instance = new EventLogger();
+            //    _instance.Info("Logging started...");
+            //}
+
+            //return _instance;
         }
 
         #endregion
 
         #region Constructor(s)
 
-        public EventLogger()
+        public EventLogger() 
+            : this(DefaultLoggerName)
         {
+        }
+
+        public EventLogger(string name)
+        {
+            Name = name;
             LogHandler = new Action<LogType, string>(DefaultLogHandler);
+            //_instances = new Dictionary<string, IEventLogger>();
             CreateLogsDirectory();
         }
 
-        public EventLogger(Action<LogType, string> logHandler)
+        public EventLogger(Action<LogType, string> logHandler) 
+            : this(DefaultLoggerName, logHandler)
         {
+        }
+
+        public EventLogger(string name, Action<LogType, string> logHandler)
+        {
+            Name = name;
             LogHandler = logHandler;
+            //_instances = new Dictionary<string, EventLogger>();
             CreateLogsDirectory();
         }
 
@@ -87,7 +116,7 @@
 
         private void DefaultLogHandler(LogType logType, string message)
         {
-            var msg = $"{DateTime.Now.ToShortTimeString()} [{logType.ToString().ToUpper()}] {message}";
+            var msg = $"{DateTime.Now.ToShortTimeString()} [{logType.ToString().ToUpper()}] [{Name.ToUpper()}] {message}";
 
             switch (logType)
             {
@@ -119,10 +148,10 @@
 
         private static void CreateLogsDirectory()
         {
-            if (!Directory.Exists(Strings.LogsFolder))
-            {
-                Directory.CreateDirectory(Strings.LogsFolder);
-            }
+            if (Directory.Exists(Strings.LogsFolder))
+                return;
+
+            Directory.CreateDirectory(Strings.LogsFolder);
         }
 
         #endregion

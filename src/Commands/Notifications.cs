@@ -22,7 +22,7 @@
 
     public class Notifications
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("NOTIFICATIONS");
 
         private readonly Dependencies _dep;
 

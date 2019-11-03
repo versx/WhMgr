@@ -15,7 +15,7 @@
 
     public class SubscriptionManager
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION_MANAGER");
         private readonly WhConfig _whConfig;
         private List<SubscriptionObject> _subscriptions;
 

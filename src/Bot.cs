@@ -22,7 +22,6 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using DSharpPlus.EventArgs;
-    using DSharpPlus.Exceptions;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
 
@@ -30,9 +29,6 @@
     //TODO: Reload config on change
 
     //TODO: PvP ranks dts
-    //TODO: Near Pokestop dts
-    //TODO: Ditto dts
-    //TODO: DTS if statements
     //TODO: Separate subscriptions dts
 
     public class Bot
@@ -50,7 +46,7 @@
         private readonly Translator _lang;
         private readonly Dictionary<string, GymDetailsData> _gyms;
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("BOT");
 
         #endregion
 
@@ -58,17 +54,14 @@
 
         public Bot(WhConfig whConfig, string alarmsFilePath)
         {
-            var name = System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.FullName;
-            //_logger = EventLogger.GetLogger(name);
-            _logger.Trace($"[BOT] WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, GuildId={whConfig.GuildId}, WebhookPort={whConfig.WebhookPort}");
-
+            _logger.Trace($"WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, GuildId={whConfig.GuildId}, WebhookPort={whConfig.WebhookPort}");
             _lang = new Translator();
             _whConfig = whConfig;
             DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
 
             AppDomain.CurrentDomain.UnhandledException += async (sender, e) =>
             {
-                _logger.Debug("[BOT] Unhandled exception caught.");
+                _logger.Debug("Unhandled exception caught.");
                 _logger.Error((Exception)e.ExceptionObject);
 
                 if (e.IsTerminating)
@@ -78,7 +71,7 @@
                         var owner = await _client.GetUserAsync(_whConfig.OwnerId);
                         if (owner == null)
                         {
-                            _logger.Warn($"[BOT] Failed to get owner from id {_whConfig.OwnerId}.");
+                            _logger.Warn($"Failed to get owner from id {_whConfig.OwnerId}.");
                             return;
                         }
 
@@ -104,7 +97,7 @@
                 _whm.InvasionSubscriptionTriggered += OnInvasionSubscriptionTriggered;
             }
 
-            _logger.Info("[BOT] WebhookManager is running...");
+            _logger.Info("WebhookManager is running...");
 
             var midnight = new DandTSoftware.Timers.MidnightTimer();
             midnight.TimeReached += async (e) => await ResetQuests();
@@ -189,8 +182,8 @@
 
         public void Start()
         {
-            _logger.Trace("[BOT] Start");
-            _logger.Info("[BOT] Connecting to Discord...");
+            _logger.Trace("Start");
+            _logger.Info("Connecting to Discord...");
 
             _client.ConnectAsync();
         }
@@ -201,7 +194,7 @@
 
         private async Task Client_Ready(ReadyEventArgs e)
         {
-            _logger.Info($"[BOT] [DISCORD] Connected.");
+            _logger.Info($"[DISCORD] Connected.");
 
             await CreateEmojis();
         }
@@ -284,7 +277,7 @@
         {
             if (e.Application == "REST")
             {
-                _logger.Error("[BOT] [DISCORD] RATE LIMITED-----------------");
+                _logger.Error("[DISCORD] RATE LIMITED-----------------");
                 return;
             }
 
@@ -343,7 +336,7 @@
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
-            _logger.Info($"[BOT] Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
+            _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
 
             var pokemon = e.Data;
             var pkmn = Database.Instance.Pokemon[pokemon.Id];
@@ -390,7 +383,7 @@
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
-            _logger.Info($"[BOT] Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Data.PokemonId}, Level: {e.Data.Level}, StartTime: {e.Data.StartTime}]");
+            _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Data.PokemonId}, Level: {e.Data.Level}, StartTime: {e.Data.StartTime}]");
 
             var raid = e.Data;
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
@@ -433,7 +426,7 @@
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
-            _logger.Info($"[BOT] Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, Type={e.Data.Type}]");
+            _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, Type={e.Data.Type}]");
 
             var quest = e.Data;
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
@@ -468,7 +461,7 @@
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
-            _logger.Info($"[BOT] Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, LureExpire={e.Data.LureExpire}, InvasionExpire={e.Data.IncidentExpire}]");
+            _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, LureExpire={e.Data.LureExpire}, InvasionExpire={e.Data.IncidentExpire}]");
 
             var pokestop = e.Data;
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
@@ -520,7 +513,7 @@
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
-            _logger.Info($"[BOT] Gym Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, Team={e.Data.Team}, SlotsAvailable={e.Data.SlotsAvailable}, GuardPokemonId={e.Data.GuardPokemonId}]");
+            _logger.Info($"Gym Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, Team={e.Data.Team}, SlotsAvailable={e.Data.SlotsAvailable}, GuardPokemonId={e.Data.GuardPokemonId}]");
 
             //TODO: Implement gym alarms.
         }
@@ -532,7 +525,7 @@
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
-            _logger.Info($"[BOT] Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");
+            _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");
 
             var gymDetails = e.Data;
             if (!_gyms.ContainsKey(gymDetails.GymId))
@@ -605,7 +598,7 @@
 
         private async Task CreateEmojis()
         {
-            _logger.Trace($"[BOT] CreateEmojis");
+            _logger.Trace($"CreateEmojis");
 
             var guild = _client.Guilds[_whConfig.GuildId];
             for (var i = 0; i < Strings.EmojiList.Length; i++)
@@ -615,27 +608,27 @@
                 var emojiExists = emojis.FirstOrDefault(x => string.Compare(x.Name, emoji, true) == 0);
                 if (emojiExists == null)
                 {
-                    _logger.Debug($"[BOT] Emoji {emoji} doesn't exist, creating...");
+                    _logger.Debug($"Emoji {emoji} doesn't exist, creating...");
 
                     var emojiPath = Path.Combine(Strings.EmojisFolder, emoji + ".png");
                     if (!File.Exists(emojiPath))
                     {
-                        _logger.Error($"[BOT] Failed to file emoji file at {emojiPath}, skipping...");
+                        _logger.Error($"Failed to file emoji file at {emojiPath}, skipping...");
                         continue;
                     }
 
                     var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
                     await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
 
-                    _logger.Info($"[BOT] Emoji {emoji} created successfully.");
+                    _logger.Info($"Emoji {emoji} created successfully.");
                 }
             }
         }
 
         private async Task ResetQuests()
         {
-            _logger.Debug($"[BOT] MIDNIGHT {DateTime.Now}");
-            _logger.Debug($"[BOT] Starting automatic quest messages cleanup...");
+            _logger.Debug($"MIDNIGHT {DateTime.Now}");
+            _logger.Debug($"Starting automatic quest messages cleanup...");
 
             Statistics.Instance.WriteOut();
             Statistics.Instance.Reset();
@@ -645,7 +638,7 @@
                 var statsChannel = await _client.GetChannelAsync(_whConfig.ShinyStats.ChannelId);
                 if (statsChannel == null)
                 {
-                    _logger.Warn($"[BOT] Failed to get channel id {_whConfig.ShinyStats.ChannelId} to post shiny stats.");
+                    _logger.Warn($"Failed to get channel id {_whConfig.ShinyStats.ChannelId} to post shiny stats.");
                 }
                 else
                 {
@@ -685,22 +678,22 @@
             for (var i = 0; i < channelIds.Count; i++)
             {
                 var item = await _client.DeleteMessages(channelIds[i]);
-                _logger.Debug($"[BOT] Deleted all {item.Item2.ToString("N0")} quest messages from channel {item.Item1.Name}.");
+                _logger.Debug($"Deleted all {item.Item2.ToString("N0")} quest messages from channel {item.Item1.Name}.");
             }
 
-            _logger.Debug($"[BOT] Finished automatic quest messages cleanup...");
+            _logger.Debug($"Finished automatic quest messages cleanup...");
 
             CleanupDepartedMembers();
         }
 
         private void CleanupDepartedMembers()
         {
-            _logger.Trace("[BOT] CleanupDepartedMembers");
+            _logger.Trace("CleanupDepartedMembers");
 
             if (!_whConfig.EnableSubscriptions)
                 return;
 
-            _logger.Debug($"[BOT] Checking if there are any subscriptions for members that are no longer apart of the server...");
+            _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
             var users = _subProcessor.Manager.Subscriptions;
             for (var i = 0; i < users.Count; i++)
@@ -709,10 +702,10 @@
                 var discordUser = _client.GetMemberById(_whConfig.GuildId, user.UserId);
                 if (discordUser == null)
                 {
-                    _logger.Debug($"[BOT] Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
+                    _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
                     if (!_subProcessor.Manager.RemoveAllUserSubscriptions(user.UserId))
                     {
-                        _logger.Warn($"[BOT] Could not remove user {user.UserId} subscription settings from the database.");
+                        _logger.Warn($"Could not remove user {user.UserId} subscription settings from the database.");
                     }
                 }
             }

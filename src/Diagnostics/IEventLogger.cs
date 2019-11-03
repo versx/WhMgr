@@ -4,6 +4,8 @@
 
     public interface IEventLogger
     {
+        string Name { get; }
+
         void Trace(string format, params object[] args);
 
         void Debug(string format, params object[] args);

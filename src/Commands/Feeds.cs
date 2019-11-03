@@ -14,7 +14,7 @@
 
     public class Feeds
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("FEEDS");
 
         private readonly Dependencies _dep;
 

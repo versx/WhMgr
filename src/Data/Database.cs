@@ -22,7 +22,7 @@
 
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("DATABASE");
 
         #endregion
 

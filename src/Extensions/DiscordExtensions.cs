@@ -20,7 +20,7 @@
         public const string YesRegex = "[Yy][Ee]?[Ss]?";
         //private const string NoRegex = "[Nn][Oo]?";
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("DISCORD_EXTENSIONS");
 
         public static async Task<List<DiscordMessage>> RespondEmbed(this CommandContext ctx, string message)
         {

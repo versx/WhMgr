@@ -21,7 +21,7 @@
 
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION_PROCESSOR");
 
         private readonly DiscordClient _client;
         private readonly WhConfig _whConfig;

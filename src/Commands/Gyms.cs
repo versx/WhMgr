@@ -23,7 +23,7 @@
     ]
     public class Gyms
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMS");
         private readonly Dependencies _dep;
 
         public Gyms(Dependencies dep)

@@ -14,7 +14,7 @@
 
     public static class Utils
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("UTILS");
 
         public static Location GetGoogleAddress(double lat, double lng, string gmapsKey)
         {

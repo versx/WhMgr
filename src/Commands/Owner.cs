@@ -20,7 +20,7 @@
         const string PokemonTrainerClub = "https://sso.pokemon.com/sso/login";
         const string NianticLabs = "https://pgorelease.nianticlabs.com/plfe/version";
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("OWNER");
         private readonly Dependencies _dep;
 
         public Owner(Dependencies dep)

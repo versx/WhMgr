@@ -26,7 +26,7 @@
 
         //TODO: Add ditto disguises to external file
         //private static readonly List<int> DittoDisguises = new List<int> { 13, 46, 48, 163, 165, 167, 187, 223, 273, 293, 300, 316, 322, 399 };
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("POKEMONDATA");
 
         #region Properties
 

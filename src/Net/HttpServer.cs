@@ -19,7 +19,7 @@
     {
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("HTTP");
         private static readonly object _lock = new object();
         private HttpListener _server;
         //private Thread _requestThread;
@@ -79,23 +79,23 @@
 
         public void Start()
         {
-            _logger.Trace($"[HTTP] Start");
+            _logger.Trace($"Start");
 
             if (_server.IsListening)
             {
-                _logger.Debug($"[HTTP] Already listening, failed to start...");
+                _logger.Debug($"Already listening, failed to start...");
                 return;
             }
 
-            _logger.Info($"[HTTP] Starting...");
+            _logger.Info($"Starting...");
             _server.Start();
 
             if (_server.IsListening)
             {
-                _logger.Debug($"[HTTP] Listening on port {Port}...");
+                _logger.Debug($"Listening on port {Port}...");
             }
 
-            _logger.Info($"[HTTP] Starting HttpServer request handler...");
+            _logger.Info($"Starting HttpServer request handler...");
             //if (_requestThread == null)
             //{
                 var requestThread = new Thread(RequestHandler) { IsBackground = true };
@@ -108,20 +108,20 @@
 
         public void Stop()
         {
-            _logger.Trace($"[HTTP] Stop");
+            _logger.Trace($"Stop");
 
             if (!_server.IsListening)
             {
-                _logger.Debug($"[HTTP] Not running, failed to stop...");
+                _logger.Debug($"Not running, failed to stop...");
                 return;
             }
 
-            _logger.Info($"[HTTP] Stopping...");
+            _logger.Info($"Stopping...");
             _server.Stop();
 
             //if (_requestThread != null)
             //{
-            //    _logger.Info($"[HTTP] Exiting main thread...");
+            //    _logger.Info($"Exiting main thread...");
             //    _requestThread.Abort();
             //    _requestThread = null;
             //}
@@ -236,7 +236,7 @@
                 PokemonData pokemon = JsonConvert.DeserializeObject<PokemonData>(Convert.ToString(message));
                 if (pokemon == null)
                 {
-                    _logger.Error($"[HTTP] Failed to parse Pokemon webhook object: {message}");
+                    _logger.Error($"Failed to parse Pokemon webhook object: {message}");
                     return;
                 }
 
@@ -258,13 +258,13 @@
                 RaidData raid = JsonConvert.DeserializeObject<RaidData>(Convert.ToString(message));
                 if (raid == null)
                 {
-                    _logger.Error($"[HTTP] Failed to parse Pokemon webhook object: {message}");
+                    _logger.Error($"Failed to parse Pokemon webhook object: {message}");
                     return;
                 }
 
                 if (SkipEggs && raid.PokemonId == 0)
                 {
-                    _logger.Debug($"[HTTP] Level {raid.Level} Egg, skipping...");
+                    _logger.Debug($"Level {raid.Level} Egg, skipping...");
                     return;
                 }
 
@@ -286,7 +286,7 @@
                 QuestData quest = JsonConvert.DeserializeObject<QuestData>(Convert.ToString(message));
                 if (quest == null)
                 {
-                    _logger.Error($"[HTTP] Failed to parse Quest webhook object: {message}");
+                    _logger.Error($"Failed to parse Quest webhook object: {message}");
                     return;
                 }
 
@@ -306,7 +306,7 @@
                 PokestopData pokestop = JsonConvert.DeserializeObject<PokestopData>(Convert.ToString(message));
                 if (pokestop == null)
                 {
-                    _logger.Error($"[HTTP] Failed to parse pokestop webhook object: {message}");
+                    _logger.Error($"Failed to parse pokestop webhook object: {message}");
                     return;
                 }
 
@@ -328,7 +328,7 @@
                 GymData gym = JsonConvert.DeserializeObject<GymData>(Convert.ToString(message));
                 if (gym == null)
                 {
-                    _logger.Error($"[HTTP] Failed to parse gym webhook object: {message}");
+                    _logger.Error($"Failed to parse gym webhook object: {message}");
                     return;
                 }
 
@@ -348,7 +348,7 @@
                 GymDetailsData gymDetails = JsonConvert.DeserializeObject<GymDetailsData>(Convert.ToString(message));
                 if (gymDetails == null)
                 {
-                    _logger.Error($"[HTTP] Failed to parse gym details webhook object: {message}");
+                    _logger.Error($"Failed to parse gym details webhook object: {message}");
                     return;
                 }
 
@@ -367,7 +367,7 @@
 
         private void Initialize()
         {
-            _logger.Trace("[HTTP] Initialize");
+            _logger.Trace("Initialize");
             try
             {
                 _server = CreateListener();
@@ -386,7 +386,7 @@
                         if (!_server.Prefixes.Contains(endpoint))
                             _server.Prefixes.Add(endpoint);
 
-                        _logger.Debug($"[HTTP] [IP ADDRESS] {endpoint}");
+                        _logger.Debug($"[IP ADDRESS] {endpoint}");
                     }
                 }
 
@@ -396,7 +396,7 @@
                     if (!_server.Prefixes.Contains(endpoint))
                         _server.Prefixes.Add(endpoint);
 
-                    _logger.Debug($"[HTTP] [IP ADDRESS] {endpoint}");
+                    _logger.Debug($"[IP ADDRESS] {endpoint}");
                 }
             }
             catch (Exception ex)
@@ -412,15 +412,15 @@
 
         private void HandleDisconnect()
         {
-            _logger.Warn("[HTTP] !!!!! HTTP listener disconnected, handling reconnect...");
-            _logger.Warn("[HTTP] Stopping existing listeners...");
+            _logger.Warn("!!!!! HTTP listener disconnected, handling reconnect...");
+            _logger.Warn("Stopping existing listeners...");
             Stop();
 
-            _logger.Warn("[HTTP] Disposing of old listener objects...");
+            _logger.Warn("Disposing of old listener objects...");
             _server.Close();
             _server = null;
 
-            _logger.Warn("[HTTP] Initializing...");
+            _logger.Warn("Initializing...");
             Initialize();
 
             //if (_requestThread != null)
@@ -430,10 +430,10 @@
             //    _requestThread = null;
             //}
 
-            _logger.Warn("[HTTP] Starting back up...");
+            _logger.Warn("Starting back up...");
             Start();
 
-            _logger.Debug("[HTTP] Disconnect handled.");
+            _logger.Debug("Disconnect handled.");
         }
 
         #endregion

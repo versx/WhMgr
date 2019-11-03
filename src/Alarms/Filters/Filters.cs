@@ -8,7 +8,7 @@
 
     public class Filters
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger();
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("FILTERS");
 
         public Filters()
         {
