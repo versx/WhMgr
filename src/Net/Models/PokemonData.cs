@@ -8,7 +8,6 @@
     using Newtonsoft.Json;
 
     using ServiceStack.DataAnnotations;
-    using ServiceStack.OrmLite;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
