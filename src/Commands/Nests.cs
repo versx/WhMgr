@@ -50,7 +50,7 @@
                     }
                 };
 
-                var nests = GetNests(_dep.WhConfig.NestsConnectionString);
+                var nests = GetNests(_dep.WhConfig.ConnectionStrings.Nests);
                 if (nests == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from nest database.");
@@ -105,7 +105,7 @@
                     }
                 };
 
-                var nests = GetNests(_dep.WhConfig.NestsConnectionString)?.Where(x => x.Key == pokeId);
+                var nests = GetNests(_dep.WhConfig.ConnectionStrings.Nests)?.Where(x => x.Key == pokeId);
                 if (nests == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from nest database.");

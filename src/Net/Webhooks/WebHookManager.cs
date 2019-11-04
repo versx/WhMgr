@@ -26,6 +26,7 @@
         private AlarmList _alarms;
         private readonly string _alarmsFilePath;
         private readonly WhConfig _config;
+        private readonly Dictionary<string, GymDetailsData> _gyms;
         private readonly IEventLogger _logger = EventLogger.GetLogger("WHM");
 
         #endregion
@@ -37,6 +38,8 @@
         public Dictionary<string, GeofenceItem> Geofences { get; private set; }
 
         public Filters Filters { get; }
+
+        public IReadOnlyDictionary<string, GymDetailsData> Gyms => _gyms;
 
         #endregion
 
@@ -123,6 +126,7 @@
             _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, AlarmsFilePath={alarmsFilePath}]");
 
             GeofenceService = new GeofenceService();
+            _gyms = new Dictionary<string, GymDetailsData>();
             _alarmsFilePath = alarmsFilePath;
             _alarms = LoadAlarms(_alarmsFilePath);
             _config = config;
@@ -600,7 +604,7 @@
             for (var i = 0; i < _alarms.Alarms.Count; i++)
             {
                 var alarm = _alarms.Alarms[i];
-                if (alarm.Filters.Pokestops == null)
+                if (alarm.Filters.Gyms == null)
                     continue;
 
                 if (!alarm.Filters.Gyms.Enabled)
@@ -640,6 +644,16 @@
                     //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName} because not in geofence.");
                     continue;
                 }
+
+                if (!_gyms.ContainsKey(gymDetails.GymId))
+                {
+                    _gyms.Add(gymDetails.GymId, gymDetails);
+                }
+
+                var oldGym = _gyms[gymDetails.GymId];
+                var changed = oldGym.Team != gymDetails.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
+                if (!changed)
+                    return;
 
                 if ((alarm.Filters?.Gyms?.UnderAttack ?? false) && !gymDetails.InBattle)
                 {

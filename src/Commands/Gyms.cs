@@ -38,7 +38,7 @@
         public async Task ConvertedPokestopsToGymsAsync(CommandContext ctx,
             [Description("Real or dry run check (y/n)")] string yesNo = "y")
         {
-            using (var db = Data.DataAccessLayer.CreateFactory(_dep.WhConfig.ScannerConnectionString).Open())
+            using (var db = Data.DataAccessLayer.CreateFactory(_dep.WhConfig.ConnectionStrings.Scanner).Open())
             {
                 //Select query where ids match for pokestops and gyms
                 var convertedGyms = db.Select<Data.Models.Pokestop>("SELECT pokestop.id, pokestop.lat, pokestop.lon, pokestop.name, pokestop.url FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id = gym.id;");

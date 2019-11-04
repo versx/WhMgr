@@ -48,7 +48,7 @@
 
         public Dictionary<int, PokemonInfo> Pokemon { get; set; }
 
-        public Dictionary<int, MovesetModel> Movesets { get; }
+        public Dictionary<int, Moveset> Movesets { get; }
 
         public Dictionary<int, List<PokemonPvP>> PvPGreat { get; set; }
 
@@ -61,7 +61,7 @@
         public Database()
         {
             Pokemon = LoadInit<Dictionary<int, PokemonInfo>>(Path.Combine(Strings.DataFolder, PokemonFileName), typeof(Dictionary<int, PokemonInfo>));
-            Movesets = LoadInit<Dictionary<int, MovesetModel>>(Path.Combine(Strings.DataFolder, MovesetsFileName), typeof(Dictionary<int, MovesetModel>));
+            Movesets = LoadInit<Dictionary<int, Moveset>>(Path.Combine(Strings.DataFolder, MovesetsFileName), typeof(Dictionary<int, Moveset>));
             PvPGreat = LoadInit<Dictionary<int, List<PokemonPvP>>>(Path.Combine(Strings.DataFolder, PvPGreatStatsFileName), typeof(Dictionary<int, List<PokemonPvP>>));
             PvPUltra = LoadInit<Dictionary<int, List<PokemonPvP>>>(Path.Combine(Strings.DataFolder, PvPUltraStatsFileName), typeof(Dictionary<int, List<PokemonPvP>>));
         }

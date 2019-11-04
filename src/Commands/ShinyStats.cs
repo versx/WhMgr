@@ -104,7 +104,7 @@
             };
             try
             {
-                using (var db = DataAccessLayer.CreateFactory(config.ScannerConnectionString).Open())
+                using (var db = DataAccessLayer.CreateFactory(config.ConnectionStrings.Scanner).Open())
                 {
                     db.SetCommandTimeout(120);
                     //var unixTimestamp = DateTimeOffset.ToUnixTimeSeconds();

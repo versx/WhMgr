@@ -30,8 +30,8 @@
             _logger.Trace($"SubscriptionManager::SubscriptionManager");
 
             _whConfig = whConfig;
-            _connFactory = new OrmLiteConnectionFactory(_whConfig.ConnectionString, MySqlDialect.Provider);
-            _scanConnFactory = new OrmLiteConnectionFactory(_whConfig.ScannerConnectionString, MySqlDialect.Provider);
+            _connFactory = new OrmLiteConnectionFactory(_whConfig.ConnectionStrings.Main, MySqlDialect.Provider);
+            _scanConnFactory = new OrmLiteConnectionFactory(_whConfig.ConnectionStrings.Scanner, MySqlDialect.Provider);
 
             CreateDefaultTables();
             ReloadSubscriptions();

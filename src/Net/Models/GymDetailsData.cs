@@ -1,10 +1,23 @@
 ﻿namespace WhMgr.Net.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using DSharpPlus;
+    using DSharpPlus.Entities;
+
     using Newtonsoft.Json;
+
+    using WhMgr.Alarms.Alerts;
+    using WhMgr.Alarms.Models;
+    using WhMgr.Configuration;
+    using WhMgr.Extensions;
+    using WhMgr.Utilities;
 
     public sealed class GymDetailsData
     {
         public const string WebhookHeader = "gym_details";
+
+        #region Properties
 
         [JsonProperty("id")]
         public string GymId { get; set; }
@@ -32,5 +45,87 @@
 
         [JsonProperty("in_battle")]
         public bool InBattle { get; set; }
+
+        #endregion
+
+        public DiscordEmbed GenerateGymMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, GymDetailsData oldGym, string city)
+        {
+            var alertType = AlertMessageType.Gyms;
+            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
+            var properties = GetProperties(client, whConfig, city, oldGym);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
+                ImageUrl = properties["tilemaps_url"],
+                ThumbnailUrl = Url,
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Color = Team == PokemonTeam.Mystic ? DiscordColor.Blue :
+                    Team == PokemonTeam.Valor ? DiscordColor.Red :
+                    Team == PokemonTeam.Instinct ? DiscordColor.Yellow :
+                    DiscordColor.LightGray,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"versx | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId]?.IconUrl : string.Empty
+                }
+            };
+            return eb.Build();
+        }
+
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city, GymDetailsData oldGym)
+        {
+            var exEmojiId = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId].GetEmojiId("ex") : 0;
+            var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
+            var teamEmojiId = client.Guilds[whConfig.GuildId].GetEmojiId(Team.ToString().ToLower());
+            var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
+            var oldTeamEmojiId = client.Guilds[whConfig.GuildId].GetEmojiId(oldGym.Team.ToString().ToLower());
+            var oldTeamEmoji = oldTeamEmojiId > 0 ? $"<:{oldGym.Team.ToString().ToLower()}:{oldTeamEmojiId}>" : oldGym.Team.ToString();
+
+            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
+            var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);
+            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+
+            const string defaultMissingValue = "?";
+            var dict = new Dictionary<string, string>
+            {
+                //Main properties
+                { "gym_id", GymId },
+                { "gym_name", GymName },
+                { "gym_url", Url },
+                { "gym_team", Team.ToString() },
+                { "gym_team_emoji", teamEmoji },
+                { "old_gym_id", oldGym.GymId },
+                { "old_gym_name", oldGym.GymName },
+                { "old_gym_url", oldGym.Url },
+                { "old_gym_team", oldGym.Team.ToString() },
+                { "old_gym_team_emoji", oldTeamEmoji },
+                { "team_changed", Convert.ToString(oldGym?.Team != Team) },
+                { "in_battle", Convert.ToString(InBattle) },
+                { "under_attack", Convert.ToString(InBattle) },
+                { "is_ex", Convert.ToString(SponsorId) },
+                { "ex_emoji", exEmoji },
+                { "slots_available", SlotsAvailable.ToString("N0") },
+
+                //Location properties
+                { "geofence", city ?? defaultMissingValue },
+                { "lat", Latitude.ToString() },
+                { "lng", Longitude.ToString() },
+                { "lat_5", Math.Round(Latitude, 5).ToString() },
+                { "lng_5", Math.Round(Longitude, 5).ToString() },
+
+                //Location links
+                { "tilemaps_url", gmapsStaticMapLink },
+                { "gmaps_url", gmapsLocationLink },
+                { "applemaps_url", appleMapsLocationLink },
+
+                //Misc properties
+                { "br", "\r\n" }
+            };
+            return dict;
+        }
     }
 }

@@ -2,9 +2,7 @@
 {
     using Newtonsoft.Json;
 
-    using WhMgr.Net.Models;
-
-    public class MovesetModel
+    public class Moveset
     {
         [JsonProperty("name")]
         public string Name { get; set; }

@@ -57,7 +57,7 @@
             _logger.Trace($"WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, GuildId={whConfig.GuildId}, WebhookPort={whConfig.WebhookPort}");
             _lang = new Translator();
             _whConfig = whConfig;
-            DataAccessLayer.ConnectionString = _whConfig.ConnectionString;
+            DataAccessLayer.ConnectionString = _whConfig.ConnectionStrings.Main;
 
             AppDomain.CurrentDomain.UnhandledException += async (sender, e) =>
             {
@@ -520,27 +520,49 @@
 
         private void OnGymDetailsAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<GymDetailsData> e)
         {
-            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
-            //    return;
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
             _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");
 
             var gymDetails = e.Data;
-            if (!_gyms.ContainsKey(gymDetails.GymId))
+            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
+            if (loc == null)
             {
-                _gyms.Add(gymDetails.GymId, gymDetails);
+                //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
+                return;
             }
 
-            var oldGym = _gyms[gymDetails.GymId];
-            if (oldGym.Team != gymDetails.Team)
+            try
             {
-                //TODO: Team changed
+                if (!_gyms.ContainsKey(gymDetails.GymId))
+                {
+                    _gyms.Add(gymDetails.GymId, gymDetails);
+                }
+
+                var oldGym = _gyms[gymDetails.GymId];
+                var changed = oldGym.Team != gymDetails.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
+                if (!changed)
+                    return;
+
+                var eb = gymDetails.GenerateGymMessage(_client, _whConfig, e.Alarm, oldGym, loc?.Name ?? e.Alarm.Name);
+                var name = gymDetails.GymName;
+                var jsonEmbed = new DiscordWebhookMessage
+                {
+                    Username = name,
+                    AvatarUrl = gymDetails.Url,
+                    Embeds = new List<DiscordEmbed> { eb }
+                }.Build();
+                NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
+
+                _gyms[gymDetails.GymId] = gymDetails;
+
+                //Statistics.Instance.PokemonSent++;
+                //Statistics.Instance.IncrementPokemonStats(pokemon.Id);
             }
-            if (oldGym.InBattle != gymDetails.InBattle)
+            catch (Exception ex)
             {
-                //TODO: Gym under attack!
+                _logger.Error(ex);
             }
         }
 

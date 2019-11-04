@@ -116,6 +116,7 @@
     <Compile Include="Commands\Owner.cs" />
     <Compile Include="Commands\Quests.cs" />
     <Compile Include="Commands\ShinyStats.cs" />
+    <Compile Include="Configuration\ConnectionStringsConfiguration.cs" />
     <Compile Include="Configuration\DiscordServer.cs" />
     <Compile Include="Configuration\ShinyStatsConfiguration.cs" />
     <Compile Include="Configuration\UrlConfiguration.cs" />

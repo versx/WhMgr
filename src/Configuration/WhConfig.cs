@@ -8,6 +8,24 @@
 
     using WhMgr.Data;
 
+    //public class SubscriptionsConfiguration
+    //{
+    //    [JsonProperty("enableSubscriptions")]
+    //    public bool EnableSubscriptions { get; set; }
+
+    //    [JsonProperty("enableCities")]
+    //    public bool EnableCities { get; set; }
+
+    //    [JsonProperty("citiesRequireSupporterRole")]
+    //    public bool CitiesRequireSupporterRole { get; set; }
+
+    //    [JsonProperty("iconStyle")]
+    //    public string IconStyle { get; set; }
+
+    //    [JsonProperty("iconStyles")]
+    //    public Dictionary<string, string> IconStyles { get; set; }
+    //}
+
     public class WhConfig
     {
         [JsonProperty("servers")]
@@ -43,14 +61,8 @@
         [JsonProperty("citiesRequireSupporterRole")]
         public bool CitiesRequireSupporterRole { get; set; }
 
-        [JsonProperty("connectionString")]
-        public string ConnectionString { get; set; }
-
-        [JsonProperty("scannerConnectionString")]
-        public string ScannerConnectionString { get; set; }
-
-        [JsonProperty("nestsConnectionString")]
-        public string NestsConnectionString { get; set; }
+        [JsonProperty("connectionStrings")]
+        public ConnectionStringsConfiguration ConnectionStrings { get; set; }
 
         [JsonProperty("commandPrefix")]
         public string CommandPrefix { get; set; }
@@ -90,6 +102,7 @@
             Servers = new Dictionary<ulong, DiscordServer>();
             BotChannelIds = new List<ulong>();
             CityRoles = new List<string>();
+            ConnectionStrings = new ConnectionStringsConfiguration();
             Moderators = new List<ulong>();
             QuestChannelIds = new List<ulong>();
             EventPokemonIds = new List<int>();

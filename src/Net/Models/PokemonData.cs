@@ -540,7 +540,7 @@
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
-            var pokestop = GetPokestopById(whConfig.ScannerConnectionString, PokestopId);
+            var pokestop = GetPokestopById(whConfig.ConnectionStrings.Scanner, PokestopId);
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -579,6 +579,8 @@
                 { "original_pkmn_id", Convert.ToString(DisplayPokemonId) },
                 { "original_pkmn_id_3", (DisplayPokemonId ?? 0).ToString("D3") },
                 { "original_pkmn_name", catchPokemon?.Name },
+                { "is_weather_boosted", Convert.ToString(true) }, //Weather: :dash: (Boosted)
+                { "has_weather", Convert.ToString(Weather.HasValue) },
                 { "weather", weather ?? defaultMissingValue },
                 { "weather_emoji", weatherEmoji ?? defaultMissingValue },
                 { "username", Username ?? defaultMissingValue },
