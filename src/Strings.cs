@@ -65,6 +65,13 @@
             "instinct",
 
             //Weather emojis
+            "weather_1", //Clear
+            "weather_2", //Rain
+            "weather_3", //PartlyCloudy/Overcast
+            "weather_4", //Cloudy
+            "weather_5", //Windy
+            "weather_6", //Snow
+            "weather_7", //Fog
 
             //Catch chances emojis
 
@@ -95,13 +102,13 @@
         public static IReadOnlyDictionary<WeatherType, string> WeatherEmojis => new Dictionary<WeatherType, string>
         {
             { WeatherType.None, "" },
-            { WeatherType.Clear, ":sunny:" }, //☀️
-            { WeatherType.Rain, ":umbrella:" }, //☔️
-            { WeatherType.PartlyCloudy, ":partly_sunny:" }, //⛅
-            { WeatherType.Cloudy, ":cloud:" }, //☁️
-            { WeatherType.Windy, ":dash:" }, //💨
-            { WeatherType.Snow, ":snowman:" }, //⛄️
-            { WeatherType.Fog, ":foggy:" } //🌁
+            { WeatherType.Clear, ":weather_1:" },//":sunny:" }, //☀️
+            { WeatherType.Rain, ":weather_2:" },//":umbrella:" }, //☔️
+            { WeatherType.PartlyCloudy, ":weather_3:" },//":partly_sunny:" }, //⛅
+            { WeatherType.Cloudy, ":weather_4:" },//":cloud:" }, //☁️
+            { WeatherType.Windy, ":weather_5:" },//":dash:" }, //💨
+            { WeatherType.Snow, ":weather_6:" },//":snowman:" }, //⛄️
+            { WeatherType.Fog, ":weather_7:" },//":foggy:" } //🌁
         };
 
         public static IReadOnlyDictionary<WeatherType, List<PokemonType>> WeatherBoosts => new Dictionary<WeatherType, List<PokemonType>>
