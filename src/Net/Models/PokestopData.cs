@@ -10,6 +10,7 @@
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
+    using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Utilities;
 
@@ -17,6 +18,8 @@
     {
         public const string WebhookHeader = "pokestop";
         public const string WebhookHeaderInvasion = "invasion";
+
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("POKESTOPDATA");
 
         #region Properties
 
@@ -76,18 +79,20 @@
             SetTimes();
         }
 
+        #region Public Methods
+
         public void SetTimes()
         {
             LureExpireTime = LureExpire.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(LureExpireTime))
             //{
-                LureExpireTime = LureExpireTime.AddHours(1); //DST
+            LureExpireTime = LureExpireTime.AddHours(1); //DST
             //}
 
             InvasionExpireTime = IncidentExpire.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(InvasionExpireTime))
             //{
-                InvasionExpireTime = InvasionExpireTime.AddHours(1); //DST
+            InvasionExpireTime = InvasionExpireTime.AddHours(1); //DST
             //}
         }
 
@@ -209,6 +214,10 @@
             return eb.Build();
         }
 
+        #endregion
+
+        #region Private Methods
+
         private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
         {
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
@@ -230,7 +239,10 @@
                 { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
                 { "has_invasion", Convert.ToString(HasInvasion) },
                 { "grunt_type", invasion.Type == PokemonType.None ? "Tier II" : invasion?.Type.ToString() },
-                { "grunt_type_emoji", invasion.Type == PokemonType.None ? "Tier II" : invasion.Type.GetTypeEmojiIcons(client, whConfig.GuildId) },
+                { "grunt_type_emoji", invasion.Type == PokemonType.None ? "Tier II" : client.Guilds.ContainsKey(whConfig.GuildId) ?
+                    invasion.Type.GetTypeEmojiIcons(client.Guilds[whConfig.GuildId]) :
+                    string.Empty
+                },
                 { "grunt_gender", invasion.Gender.ToString() },
                 { "invasion_expire_time", InvasionExpireTime.ToLongTimeString() },
                 { "invasion_expire_time_left", InvasionExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
@@ -258,6 +270,8 @@
             };
             return dict;
         }
+
+        #endregion
     }
 
     public class TeamRocketInvasion

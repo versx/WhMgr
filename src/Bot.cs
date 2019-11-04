@@ -27,7 +27,6 @@
 
     //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
     //TODO: Reload config on change
-
     //TODO: PvP ranks dts
     //TODO: Separate subscriptions dts
 
@@ -42,7 +41,6 @@
         private readonly WebhookManager _whm;
         private readonly WhConfig _whConfig;
         private readonly SubscriptionProcessor _subProcessor;
-        //private readonly EmbedBuilder _embedBuilder;
         private readonly Translator _lang;
         private readonly Dictionary<string, GymDetailsData> _gyms;
 
@@ -58,6 +56,7 @@
             _lang = new Translator();
             _whConfig = whConfig;
             DataAccessLayer.ConnectionString = _whConfig.ConnectionStrings.Main;
+            DataAccessLayer.ScannerConnectionString = _whConfig.ConnectionStrings.Scanner;
 
             AppDomain.CurrentDomain.UnhandledException += async (sender, e) =>
             {
@@ -132,10 +131,9 @@
                 }
             );
 
-            //_embedBuilder = new EmbedBuilder(_client, _whConfig, _lang);
             if (_whConfig.EnableSubscriptions)
             {
-                _subProcessor = new SubscriptionProcessor(_client, _whConfig, _whm);//, _embedBuilder);
+                _subProcessor = new SubscriptionProcessor(_client, _whConfig, _whm);
             }
 
             DependencyCollection dep;
@@ -195,6 +193,14 @@
         private async Task Client_Ready(ReadyEventArgs e)
         {
             _logger.Info($"[DISCORD] Connected.");
+            _logger.Info($"[DISCORD] Current Application:");
+            _logger.Info($"[DISCORD] Name: {e.Client.CurrentApplication.Name}");
+            _logger.Info($"[DISCORD] Description: {e.Client.CurrentApplication.Description}");
+            _logger.Info($"[DISCORD] Owner: {e.Client.CurrentApplication.Owner.Username}#{e.Client.CurrentApplication.Owner.Discriminator}");
+            _logger.Info($"[DISCORD] Current User:");
+            _logger.Info($"[DISCORD] Id: {e.Client.CurrentUser.Id}");
+            _logger.Info($"[DISCORD] Name: {e.Client.CurrentUser.Username}#{e.Client.CurrentUser.Discriminator}");
+            _logger.Info($"[DISCORD] Email: {e.Client.CurrentUser.Email}");
 
             await CreateEmojis();
         }

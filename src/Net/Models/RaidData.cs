@@ -170,19 +170,29 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1] : PokemonType.None;
-            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons(client, whConfig.GuildId);
-            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons(client, whConfig.GuildId) : string.Empty;
+            var type1Emoji = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? 
+                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.EmojiGuildId]) : 
+                string.Empty;
+            var type2Emoji = client.Guilds.ContainsKey(whConfig.EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
+                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.EmojiGuildId]) : 
+                string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
-            var weaknessesEmoji = Weaknesses.GetWeaknessEmojiIcons(client, whConfig.GuildId);
+            var weaknessesEmoji = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? 
+                Weaknesses.GetWeaknessEmojiIcons(client.Guilds[whConfig.EmojiGuildId]) : 
+                string.Empty;
             var weaknessesEmojiFormatted = weaknessesEmoji;
             var perfectRange = PokemonId.MaxCpAtLevel(20);
             var boostedRange = PokemonId.MaxCpAtLevel(25);
             var worstRange = PokemonId.MinCpAtLevel(20);
             var worstBoosted = PokemonId.MinCpAtLevel(25);
-            var exEmojiId = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId].GetEmojiId("ex") : 0;
+            var exEmojiId = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? 
+                client.Guilds[whConfig.EmojiGuildId].GetEmojiId("ex") : 
+                0;
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = client.Guilds[whConfig.GuildId].GetEmojiId(Team.ToString().ToLower());
+            var teamEmojiId = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? 
+                client.Guilds[whConfig.EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 
+                0;
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);

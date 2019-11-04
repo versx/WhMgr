@@ -6,6 +6,7 @@
     using System.Net;
 
     using DSharpPlus;
+    using DSharpPlus.Entities;
 
     using WhMgr.Data;
     using WhMgr.Data.Models;
@@ -1299,20 +1300,17 @@
             return types.ToList();
         }
 
-        public static string GetTypeEmojiIcons(this PokemonType pokemonType, DiscordClient client, ulong guildId)
+        public static string GetTypeEmojiIcons(this PokemonType pokemonType, DiscordGuild guild)
         {
-            return GetTypeEmojiIcons(new List<PokemonType> { pokemonType }, client, guildId);
+            return GetTypeEmojiIcons(new List<PokemonType> { pokemonType }, guild);
         }
 
-        public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes, DiscordClient client, ulong guildId)
+        public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes, DiscordGuild guild)
         {
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
-                if (!client.Guilds.ContainsKey(guildId))
-                    continue;
-
-                var emojiId = client.Guilds[guildId].GetEmojiId($"types_{type.ToString().ToLower()}");
+                var emojiId = guild.GetEmojiId($"types_{type.ToString().ToLower()}");
                 var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId) : type.ToString();
                 if (!list.Contains(emojiName))
                 {
@@ -1323,7 +1321,7 @@
             return string.Join(" ", list);
         }
 
-        public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes, DiscordClient client, ulong guildId)
+        public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes, DiscordGuild guild)
         {
             if (pokemonTypes == null || pokemonTypes?.Count == 0)
                 return string.Empty;
@@ -1334,10 +1332,7 @@
                 var weaknessLst = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
                 foreach (var weakness in weaknessLst)
                 {
-                    if (!client.Guilds.ContainsKey(guildId))
-                        continue;
-
-                    var emojiId = client.Guilds[guildId].GetEmojiId($"types_{weakness.ToString().ToLower()}");
+                    var emojiId = guild.GetEmojiId($"types_{weakness.ToString().ToLower()}");
                     var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId) : weakness.ToString();
                     if (!list.Contains(emojiName))
                     {

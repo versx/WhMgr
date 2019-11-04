@@ -11,7 +11,7 @@
                 AlertMessageType.Pokemon, new AlertMessageSettings
                 {
                     AvatarUrl = "",
-                    Content = "<pkmn_name> <form><gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><br>**Moveset:** <moveset><br><#near_pokestop>**Near Pokestop:** [<pokestop_name>](<pokestop_url>)<br></near_pokestop><#is_ditto>**Catch Pokemon:** <original_pkmn_name><br></is_ditto>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
+                    Content = "<pkmn_name> <form><gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><br><#has_weather>**Weather:** <weather><#is_weather_boosted> (Boosted)</is_weather_boosted><br></has_weather>**Moveset:** <moveset><br><#near_pokestop>**Near Pokestop:** [<pokestop_name>](<pokestop_url>)<br></near_pokestop><#is_ditto>**Catch Pokemon:** <original_pkmn_name><br></is_ditto>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
                     IconUrl = "",
                     Title = "<geofence>",
                     Url = "<gmaps_url>",

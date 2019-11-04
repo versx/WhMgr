@@ -1,7 +1,7 @@
 {
     "pokemon": {
         "avatarUrl": "",
-        "content": "<pkmn_name> <form><gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><br>**Moveset:** <moveset><br><#near_pokestop>**Near Pokestop:** [<pokestop_name>](<pokestop_url>)<br></near_pokestop><#is_ditto>**Catch Pokemon:** <original_pkmn_name><br></is_ditto>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
+        "content": "<pkmn_name> <form><gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><br><#has_weather>**Weather:** <weather><#is_weather_boosted> (Boosted)</is_weather_boosted><br></has_weather>**Moveset:** <moveset><br><#near_pokestop>**Near Pokestop:** [<pokestop_name>](<pokestop_url>)<br></near_pokestop><#is_ditto>**Catch Pokemon:** <original_pkmn_name><br></is_ditto>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
         "iconUrl": "",
         "title": "<geofence>",
         "url": "<gmaps_url>",
@@ -17,7 +17,7 @@
 	},
 	"gyms": {
         "avatarUrl": "",
-        "content": "<#team_changed>Gym changed from <old_gym_team_emoji> <old_gym_team> to <gym_team_emoji> <gym_team><br></team_changed><#in_battle>Gym is under attack!<br></in_battle>**Slots Available:** <slots_avilable><br><#is_ex><ex_gym_emoji> Gym!</is_ex>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
+        "content": "<#team_changed>Gym changed from <old_gym_team_emoji> <old_gym_team> to <gym_team_emoji> <gym_team><br></team_changed><#in_battle>Gym is under attack!<br></in_battle>**Slots Available:** <slots_available><br><#is_ex><ex_gym_emoji> Gym!</is_ex>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
         "iconUrl": "",
         "title": "<geofence>: <gym_name>",
         "url": "<gmaps_url>",

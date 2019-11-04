@@ -43,6 +43,9 @@
         [JsonProperty("guildId")]
         public ulong GuildId { get; set; }
 
+        [JsonProperty("emojiGuildId")]
+        public ulong EmojiGuildId { get; set; }
+
         [JsonProperty("botChannelIds")]
         public List<ulong> BotChannelIds { get; set; }
 

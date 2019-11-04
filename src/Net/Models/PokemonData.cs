@@ -514,7 +514,7 @@
             if (Weather.HasValue && Strings.WeatherEmojis.ContainsKey(Weather.Value) && Weather != WeatherType.None)
             {
                 var isWeatherBoosted = pkmnInfo.IsWeatherBoosted(Weather.Value);
-                var isWeatherBoostedText = isWeatherBoosted ? " (Boosted)" : null;
+                var isWeatherBoostedText = isWeatherBoosted ? " (Boosted)" : string.Empty;
                 weatherEmoji = Strings.WeatherEmojis[Weather.Value] + isWeatherBoostedText;
             }
             var move1 = string.Empty;
@@ -529,8 +529,12 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons(client, whConfig.GuildId);
-            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons(client, whConfig.GuildId) : string.Empty;
+            var type1Emoji = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? 
+                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.EmojiGuildId]) : 
+                string.Empty;
+            var type2Emoji = client.Guilds.ContainsKey(whConfig.EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
+                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.EmojiGuildId]) : 
+                string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? Database.Instance.Pokemon[DisplayPokemonId ?? Id] : Database.Instance.Pokemon[Id];
 
@@ -540,7 +544,7 @@
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
-            var pokestop = GetPokestopById(whConfig.ConnectionStrings.Scanner, PokestopId);
+            var pokestop = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -554,16 +558,16 @@
                 { "costume_id_3", Costume.ToString("D3") },
                 { "cp", CP ?? defaultMissingValue },
                 { "lvl", level ?? defaultMissingValue },
-                { "gender", gender /*?? defaultMissingValue*/ },
+                { "gender", gender },
                 { "size", size ?? defaultMissingValue },
                 { "move_1", move1 ?? defaultMissingValue },
                 { "move_2", move2 ?? defaultMissingValue },
-                { "moveset", $"{move1}/{move2}" },
+                { "moveset", $"{move1} | {move2}" },
                 { "type_1", type1?.ToString() ?? defaultMissingValue },
                 { "type_2", type2?.ToString() ?? defaultMissingValue },
                 { "type_1_emoji", type1Emoji },
                 { "type_2_emoji", type2Emoji },
-                { "types", $"{type1}/{type2}" },
+                { "types", $"{type1} | {type2}" },
                 { "types_emoji", typeEmojis },
                 { "atk_iv", Attack ?? defaultMissingValue },
                 { "def_iv", Defense ?? defaultMissingValue },
@@ -579,7 +583,7 @@
                 { "original_pkmn_id", Convert.ToString(DisplayPokemonId) },
                 { "original_pkmn_id_3", (DisplayPokemonId ?? 0).ToString("D3") },
                 { "original_pkmn_name", catchPokemon?.Name },
-                { "is_weather_boosted", Convert.ToString(true) }, //Weather: :dash: (Boosted)
+                { "is_weather_boosted", Convert.ToString(pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherType.None)) }, //Weather: :dash: (Boosted)
                 { "has_weather", Convert.ToString(Weather.HasValue) },
                 { "weather", weather ?? defaultMissingValue },
                 { "weather_emoji", weatherEmoji ?? defaultMissingValue },
@@ -616,26 +620,26 @@
             return dict;
         }
 
-        public Pokestop GetPokestopById(string scannerConnectionString, string pokestopId)
-        {
-            if (string.IsNullOrEmpty(scannerConnectionString))
-                return null;
+        //public Pokestop GetPokestopById(string scannerConnectionString, string pokestopId)
+        //{
+        //    if (string.IsNullOrEmpty(scannerConnectionString))
+        //        return null;
 
-            try
-            {
-                using (var db = DataAccessLayer.CreateFactory(scannerConnectionString).Open())
-                {
-                    var pokestop = db.LoadSingleById<Pokestop>(pokestopId);
-                    return pokestop;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
+        //    try
+        //    {
+        //        using (var db = DataAccessLayer.CreateFactory(scannerConnectionString).Open())
+        //        {
+        //            var pokestop = db.LoadSingleById<Pokestop>(pokestopId);
+        //            return pokestop;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.Error(ex);
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         public static double GetIV(string attack, string defense, string stamina)
         {

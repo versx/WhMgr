@@ -64,6 +64,10 @@
             "mystic",
             "instinct",
 
+            //Weather emojis
+
+            //Catch chances emojis
+
             //Ex gym emoji
             "ex",
 

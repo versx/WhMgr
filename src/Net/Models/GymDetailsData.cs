@@ -75,11 +75,11 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city, GymDetailsData oldGym)
         {
-            var exEmojiId = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId].GetEmojiId("ex") : 0;
+            var exEmojiId = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? client.Guilds[whConfig.EmojiGuildId].GetEmojiId("ex") : 0;
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = client.Guilds[whConfig.GuildId].GetEmojiId(Team.ToString().ToLower());
+            var teamEmojiId = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? client.Guilds[whConfig.EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 0;
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
-            var oldTeamEmojiId = client.Guilds[whConfig.GuildId].GetEmojiId(oldGym.Team.ToString().ToLower());
+            var oldTeamEmojiId = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? client.Guilds[whConfig.EmojiGuildId].GetEmojiId(oldGym.Team.ToString().ToLower()) : 0;
             var oldTeamEmoji = oldTeamEmojiId > 0 ? $"<:{oldGym.Team.ToString().ToLower()}:{oldTeamEmojiId}>" : oldGym.Team.ToString();
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
