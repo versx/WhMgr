@@ -1321,6 +1321,14 @@
             return string.Join(" ", list);
         }
 
+        public static string GetWeatherEmojiIcon(this WeatherType weather, DiscordGuild guild)
+        {
+            var key = $"weather_" + Convert.ToInt32(weather);
+            var emojiId = guild.GetEmojiId(key);
+            var emojiName = emojiId > 0 ? $"<:{key}:{emojiId}>" : weather.ToString();
+            return emojiName;
+        }
+
         public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes, DiscordGuild guild)
         {
             if (pokemonTypes == null || pokemonTypes?.Count == 0)

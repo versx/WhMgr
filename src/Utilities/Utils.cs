@@ -75,5 +75,17 @@
 
             return null;
         }
+
+        public static string PrepareStaticMapUrl(string staticMapUrl, string marker, double lat, double lng)
+        {
+            var url = string.Format(staticMapUrl, lat, lng);
+            var markerUrl = "?markers=[{\"url\":\"<marker>\",\"height\":32,\"width\":32,\"x_offset\":0,\"y_offset\":0,\"latitude\":<lat>,\"longitude\":<lng>}]";
+            markerUrl = markerUrl
+                .Replace("<marker>", marker)
+                .Replace("<lat>", lat.ToString())
+                .Replace("<lng>", lng.ToString());
+
+            return url + Uri.EscapeUriString(markerUrl);
+        }
     }
 }

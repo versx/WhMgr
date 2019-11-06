@@ -11,7 +11,7 @@
                 AlertMessageType.Pokemon, new AlertMessageSettings
                 {
                     AvatarUrl = "",
-                    Content = "<pkmn_name> <form><gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><br><#has_weather>**Weather:** <weather_emoji><#is_weather_boosted> (Boosted)</is_weather_boosted><br></has_weather>**Moveset:** <moveset><br><#near_pokestop>**Near Pokestop:** [<pokestop_name>](<pokestop_url>)<br></near_pokestop><#is_ditto>**Catch Pokemon:** <original_pkmn_name><br></is_ditto>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
+                    Content = "<pkmn_name> <form><gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><#has_weather> | <weather_emoji><#is_weather_boosted> (Boosted)</is_weather_boosted></has_weather><br>**Moveset:** <moveset><br><#near_pokestop>**Near Pokestop:** [<pokestop_name>](<pokestop_url>)<br></near_pokestop><#is_ditto>**Catch Pokemon:** <original_pkmn_name><br></is_ditto>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
                     IconUrl = "",
                     Title = "<geofence>",
                     Url = "<gmaps_url>",
@@ -67,7 +67,7 @@
                 AlertMessageType.Pokestops, new AlertMessageSettings
                 {
                     AvatarUrl = "",
-                    Content = "<#has_lure>**Lured Until:** <lure_expire_time> (<lure_expire_time_left> left)<br>**Lure Type:** <lure_type><br></has_lure><#has_invasion>**Expires:** <invasion_expire_time> (<invasion_expire_time_left> left)<br>**Type:** <grunt_type_emoji> | **Gender:** <grunt_gender><br><invasion_encounters><br></has_invasion>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
+                    Content = "<#has_lure>**Lure Expires:** <lure_expire_time> (<lure_expire_time_left> left)<br>**Lure Type:** <lure_type><br></has_lure><#has_invasion>**Expires:** <invasion_expire_time> (<invasion_expire_time_left> left)<br>**Type:** <grunt_type_emoji> | **Gender:** <grunt_gender><br><invasion_encounters><br></has_invasion>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
                     IconUrl = "",
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",
@@ -100,7 +100,7 @@
                 AlertMessageType.Lures, new AlertMessageSettings
                 {
                     AvatarUrl = "", //TODO: Lures IconUrl
-                    Content = "**Lured Until:** <lure_expire_time> (<lure_expire_time_left> left)<br>**Lure Type:** <lure_type><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
+                    Content = "**Lure Expires:** <lure_expire_time> (<lure_expire_time_left> left)<br>**Lure Type:** <lure_type><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
                     IconUrl = "<pokestop_url>",
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",

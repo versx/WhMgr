@@ -628,7 +628,7 @@
         {
             _logger.Trace($"CreateEmojis");
 
-            var guild = _client.Guilds[_whConfig.GuildId];
+            var guild = _client.Guilds[_whConfig.EmojiGuildId];
             for (var i = 0; i < Strings.EmojiList.Length; i++)
             {
                 var emoji = Strings.EmojiList[i];

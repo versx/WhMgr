@@ -220,9 +220,23 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
         {
+            string icon;
+            if (HasInvasion)
+            {
+                //TODO: Load from local file
+                icon = "https://map.ver.sx/static/img/pokestop/i0.png";
+            }
+            else if (HasLure)
+            {
+                icon = string.Format(whConfig.Urls.QuestImage, Convert.ToInt32(LureType));
+            }
+            else
+            {
+                icon = Url;
+            }
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
-            var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);
+            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, icon, Latitude, Longitude);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
@@ -239,7 +253,7 @@
                 { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
                 { "has_invasion", Convert.ToString(HasInvasion) },
                 { "grunt_type", invasion.Type == PokemonType.None ? "Tier II" : invasion?.Type.ToString() },
-                { "grunt_type_emoji", invasion.Type == PokemonType.None ? "Tier II" : client.Guilds.ContainsKey(whConfig.GuildId) ?
+                { "grunt_type_emoji", invasion.Type == PokemonType.None ? "Tier II" : client.Guilds.ContainsKey(whConfig.EmojiGuildId) ?
                     invasion.Type.GetTypeEmojiIcons(client.Guilds[whConfig.GuildId]) :
                     string.Empty
                 },

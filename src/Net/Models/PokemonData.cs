@@ -510,11 +510,12 @@
             var size = Size?.ToString();
             var weather = Weather?.ToString();
             var weatherEmoji = string.Empty;
+            var hasWeather = Weather.HasValue && Weather != WeatherType.None;
+            var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherType.None);
             if (Weather.HasValue && Strings.WeatherEmojis.ContainsKey(Weather.Value) && Weather != WeatherType.None)
             {
-                var isWeatherBoosted = pkmnInfo.IsWeatherBoosted(Weather.Value);
-                var isWeatherBoostedText = isWeatherBoosted ? " (Boosted)" : string.Empty;
-                weatherEmoji = Strings.WeatherEmojis[Weather.Value] + isWeatherBoostedText;
+                //TODO: Security check
+                weatherEmoji = Weather.Value.GetWeatherEmojiIcon(client.Guilds[whConfig.EmojiGuildId]);//Strings.WeatherEmojis[Weather.Value];
             }
             var move1 = string.Empty;
             var move2 = string.Empty;
@@ -537,9 +538,10 @@
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? Database.Instance.Pokemon[DisplayPokemonId ?? Id] : Database.Instance.Pokemon[Id];
 
+            var pkmnImage = Id.GetPokemonImage(whConfig.Urls.PokemonImage, Gender, FormId, Costume);
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
-            var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);
+            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, pkmnImage, Latitude, Longitude);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
@@ -561,7 +563,7 @@
                 { "size", size ?? defaultMissingValue },
                 { "move_1", move1 ?? defaultMissingValue },
                 { "move_2", move2 ?? defaultMissingValue },
-                { "moveset", $"{move1} | {move2}" },
+                { "moveset", $"{move1}/{move2}" },
                 { "type_1", type1?.ToString() ?? defaultMissingValue },
                 { "type_2", type2?.ToString() ?? defaultMissingValue },
                 { "type_1_emoji", type1Emoji },
@@ -582,8 +584,8 @@
                 { "original_pkmn_id", Convert.ToString(DisplayPokemonId) },
                 { "original_pkmn_id_3", (DisplayPokemonId ?? 0).ToString("D3") },
                 { "original_pkmn_name", catchPokemon?.Name },
-                { "is_weather_boosted", Convert.ToString(pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherType.None)) }, //Weather: :dash: (Boosted)
-                { "has_weather", Convert.ToString(Weather.HasValue) },
+                { "is_weather_boosted", Convert.ToString(isWeatherBoosted) }, //Weather: :dash: (Boosted)
+                { "has_weather", Convert.ToString(hasWeather) },
                 { "weather", weather ?? defaultMissingValue },
                 { "weather_emoji", weatherEmoji ?? defaultMissingValue },
                 { "username", Username ?? defaultMissingValue },
@@ -593,6 +595,7 @@
                 //Time properties
                 { "despawn_time", DespawnTime.ToString("hh:mm:ss tt") },
                 { "despawn_time_verified", DisappearTimeVerified ? "" : "~" },
+                { "is_despawn_time_verified", Convert.ToString(DisappearTimeVerified) },
                 { "time_left", SecondsLeft.ToReadableString(true) ?? defaultMissingValue },
 
                 //Location properties
