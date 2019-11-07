@@ -21,5 +21,8 @@
 
         [JsonProperty("username")]
         public string Username { get; set; }
+
+        [JsonProperty("imageUrl")]
+        public string ImageUrl { get; set; }
     }
 }

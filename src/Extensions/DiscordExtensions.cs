@@ -137,15 +137,15 @@
         {
             try
             {
-                var isAdmin = userId == config.OwnerId;
+                var isAdmin = userId == config.Discord.OwnerId;
                 if (isAdmin)
                     return true;
 
-                var isModerator = config.Moderators.Contains(userId);
+                var isModerator = config.Discord.Moderators.Contains(userId);
                 if (isModerator)
                     return true;
 
-                var isSupporter = client.HasSupporterRole(config.GuildId, userId, config.DonorRoleIds);
+                var isSupporter = client.HasSupporterRole(config.Discord.GuildId, userId, config.Discord.DonorRoleIds);
                 if (isSupporter)
                     return true;
             }
@@ -159,11 +159,11 @@
 
         public static bool IsModeratorOrHigher(this ulong userId, WhConfig config)
         {
-            var isAdmin = IsAdmin(userId, config.OwnerId);
+            var isAdmin = IsAdmin(userId, config.Discord.OwnerId);
             if (isAdmin)
                 return true;
 
-            var isModerator = config.Moderators.Contains(userId);
+            var isModerator = config.Discord.Moderators.Contains(userId);
             if (isModerator)
                 return true;
 
@@ -172,7 +172,7 @@
 
         public static bool IsModerator(this ulong userId, WhConfig config)
         {
-            return config.Moderators.Contains(userId);
+            return config.Discord.Moderators.Contains(userId);
         }
 
         public static bool IsAdmin(this ulong userId, ulong ownerId)

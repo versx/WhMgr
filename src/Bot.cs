@@ -52,7 +52,7 @@
 
         public Bot(WhConfig whConfig, string alarmsFilePath)
         {
-            _logger.Trace($"WhConfig={whConfig.GuildId}, OwnerId={whConfig.OwnerId}, GuildId={whConfig.GuildId}, WebhookPort={whConfig.WebhookPort}");
+            _logger.Trace($"WhConfig={whConfig.Discord.GuildId}, OwnerId={whConfig.Discord.OwnerId}, GuildId={whConfig.Discord.GuildId}, WebhookPort={whConfig.WebhookPort}");
             _lang = new Translator();
             _whConfig = whConfig;
             DataAccessLayer.ConnectionString = _whConfig.ConnectionStrings.Main;
@@ -67,10 +67,10 @@
                 {
                     if (_client != null)
                     {
-                        var owner = await _client.GetUserAsync(_whConfig.OwnerId);
+                        var owner = await _client.GetUserAsync(_whConfig.Discord.OwnerId);
                         if (owner == null)
                         {
-                            _logger.Warn($"Failed to get owner from id {_whConfig.OwnerId}.");
+                            _logger.Warn($"Failed to get owner from id {_whConfig.Discord.OwnerId}.");
                             return;
                         }
 
@@ -88,7 +88,7 @@
             _whm.PokestopAlarmTriggered += OnPokestopAlarmTriggered;
             _whm.GymAlarmTriggered += OnGymAlarmTriggered;
             _whm.GymDetailsAlarmTriggered += OnGymDetailsAlarmTriggered;
-            if (_whConfig.EnableSubscriptions)
+            if (_whConfig.Discord.EnableSubscriptions)
             {
                 _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
@@ -107,7 +107,7 @@
                 AutomaticGuildSync = true,
                 AutoReconnect = true,
                 EnableCompression = true,
-                Token = _whConfig.Token,
+                Token = _whConfig.Discord.Token,
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = true
             });
@@ -131,7 +131,7 @@
                 }
             );
 
-            if (_whConfig.EnableSubscriptions)
+            if (_whConfig.Discord.EnableSubscriptions)
             {
                 _subProcessor = new SubscriptionProcessor(_client, _whConfig, _whm);
             }
@@ -147,9 +147,9 @@
             (
                 new CommandsNextConfiguration
                 {
-                    StringPrefix = _whConfig.CommandPrefix?.ToString(),
+                    StringPrefix = _whConfig.Discord.CommandPrefix?.ToString(),
                     EnableDms = true,
-                    EnableMentionPrefix = string.IsNullOrEmpty(_whConfig.CommandPrefix),
+                    EnableMentionPrefix = string.IsNullOrEmpty(_whConfig.Discord.CommandPrefix),
                     EnableDefaultHelp = false,
                     CaseSensitive = false,
                     IgnoreExtraArguments = true,
@@ -164,11 +164,11 @@
             _commands.RegisterCommands<ShinyStats>();
             _commands.RegisterCommands<Gyms>();
             _commands.RegisterCommands<Quests>();
-            if (_whConfig.EnableSubscriptions)
+            if (_whConfig.Discord.EnableSubscriptions)
             {
                 _commands.RegisterCommands<Notifications>();
             }
-            if (_whConfig.EnableCities)
+            if (_whConfig.Discord.EnableCities)
             {
                 _commands.RegisterCommands<Feeds>();
             }
@@ -258,7 +258,7 @@
                 // The user lacks required permissions, 
                 var emoji = DiscordEmoji.FromName(e.Context.Client, ":x:");
 
-                var example = $"Command Example: ```{_whConfig.CommandPrefix}{e.Command.Name} {string.Join(" ", e.Command.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
+                var example = $"Command Example: ```{_whConfig.Discord.CommandPrefix}{e.Command.Name} {string.Join(" ", e.Command.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
 
                 // let's wrap the response into an embed
                 var embed = new DiscordEmbedBuilder
@@ -359,7 +359,6 @@
                 //var costume = e.Pokemon.Id.GetCostume(e.Pokemon.Costume.ToString());
                 //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
                 var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.Urls.PokemonImage, pokemon.Gender, pokemon.FormId, pokemon.Costume);
-                //var eb = _embedBuilder.BuildPokemonMessage(pokemon, loc.Name, pkmnImage);
                 var eb = pokemon.GeneratePokemonMessage(_client, _whConfig, pokemon, e.Alarm, loc.Name, pkmnImage);
                 var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIconValue()}{form}";
                 var jsonEmbed = new DiscordWebhookMessage
@@ -404,7 +403,6 @@
                 var pkmn = Database.Instance.Pokemon[raid.PokemonId];
                 var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                 var pkmnImage = raid.IsEgg ? string.Format(_whConfig.Urls.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(_whConfig.Urls.PokemonImage, PokemonGender.Unset, raid.Form);
-                //var eb = _embedBuilder.BuildRaidMessage(raid, loc.Name, pkmnImage);
                 var eb = raid.GenerateRaidMessage(_client, _whConfig, e.Alarm, loc.Name, pkmnImage);
                 var name = raid.IsEgg ? $"Level {raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
                 var jsonEmbed = new DiscordWebhookMessage
@@ -444,7 +442,6 @@
 
             try
             {
-                //var eb = _embedBuilder.BuildQuestMessage(quest, loc?.Name ?? e.Alarm.Name);
                 var eb = quest.GenerateQuestMessage(_client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
@@ -494,7 +491,6 @@
 
             try
             {
-                //var eb = _embedBuilder.BuildPokestopMessage(pokestop, loc?.Name ?? e.Alarm.Name);
                 var eb = pokestop.GeneratePokestopMessage(_client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
@@ -578,7 +574,7 @@
 
         private void OnPokemonSubscriptionTriggered(object sender, PokemonData e)
         {
-            if (!_whConfig.EnableSubscriptions)
+            if (!_whConfig.Discord.EnableSubscriptions)
                 return;
 
             if (_subProcessor == null)
@@ -589,7 +585,7 @@
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
         {
-            if (!_whConfig.EnableSubscriptions)
+            if (!_whConfig.Discord.EnableSubscriptions)
                 return;
 
             if (_subProcessor == null)
@@ -600,7 +596,7 @@
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
         {
-            if (!_whConfig.EnableSubscriptions)
+            if (!_whConfig.Discord.EnableSubscriptions)
                 return;
 
             if (_subProcessor == null)
@@ -611,7 +607,7 @@
 
         private void OnInvasionSubscriptionTriggered(object sender, PokestopData e)
         {
-            if (!_whConfig.EnableSubscriptions)
+            if (!_whConfig.Discord.EnableSubscriptions)
                 return;
 
             if (_subProcessor == null)
@@ -628,7 +624,7 @@
         {
             _logger.Trace($"CreateEmojis");
 
-            var guild = _client.Guilds[_whConfig.EmojiGuildId];
+            var guild = _client.Guilds[_whConfig.Discord.EmojiGuildId];
             for (var i = 0; i < Strings.EmojiList.Length; i++)
             {
                 var emoji = Strings.EmojiList[i];
@@ -702,7 +698,7 @@
                 }
             }
 
-            var channelIds = _dep.WhConfig.QuestChannelIds;
+            var channelIds = _dep.WhConfig.Discord.QuestChannelIds;
             for (var i = 0; i < channelIds.Count; i++)
             {
                 var item = await _client.DeleteMessages(channelIds[i]);
@@ -718,7 +714,7 @@
         {
             _logger.Trace("CleanupDepartedMembers");
 
-            if (!_whConfig.EnableSubscriptions)
+            if (!_whConfig.Discord.EnableSubscriptions)
                 return;
 
             _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
@@ -727,7 +723,7 @@
             for (var i = 0; i < users.Count; i++)
             {
                 var user = users[i];
-                var discordUser = _client.GetMemberById(_whConfig.GuildId, user.UserId);
+                var discordUser = _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
                 if (discordUser == null)
                 {
                     _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");

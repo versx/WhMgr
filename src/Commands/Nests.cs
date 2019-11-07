@@ -33,6 +33,80 @@
             Command("nests"),
             Description("")
         ]
+        public async Task PostNestsAsync(CommandContext ctx)
+        {
+            //TODO: If delete existing, delete existing
+
+            var channel = await ctx.Client.GetChannelAsync(_dep.WhConfig.NestsChannelId);
+            if (channel == null)
+            {
+                await ctx.RespondAsync($"{ctx.User.Username} Nests disabled.");
+                return;
+            }
+
+            if (true) //Clear Message
+            {
+                var deleted = await ctx.Client.DeleteMessages(_dep.WhConfig.NestsChannelId);
+            }
+
+            var nests = GetNests(_dep.WhConfig.ConnectionStrings.Nests);
+            if (nests == null)
+            {
+                await ctx.RespondAsync($"{ctx.User.Username} Failed to get nest list.");
+                return;
+            }
+
+            for (var i = 0; i < nests.Count; i++)
+            {
+                var nest = nests[i];
+                if (nest.Average == 0)
+                    continue;
+
+                var pkmn = Database.Instance.Pokemon[nest.PokemonId];
+                var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, Net.Models.PokemonGender.Unset, 0);
+                var type1Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) ?
+                    pkmn?.Types?[0].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
+                    string.Empty;
+                var type2Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) && pkmn?.Types?.Count > 1 ?
+                    pkmn?.Types?[1].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
+                    string.Empty;
+                var typeEmojis = $"{type1Emoji} {type2Emoji}";
+                var googleMapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
+                var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
+                var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
+                var staticMapLink = Utilities.Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pkmnImage, nest.Latitude, nest.Longitude);
+                var geofences = _dep.Whm.Geofences.Values.ToList();
+                var geofence = _dep.Whm.GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
+                if (geofence == null)
+                {
+                    //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
+                    continue;
+                }
+
+                var eb = new DiscordEmbedBuilder
+                {
+                    Title = $"{geofence?.Name ?? "Unknown"}: {nest.Name}",
+                    Color = DiscordColor.Green,
+                    Description = $"**Pokemon:** {pkmn.Name}\r\n**Average Spawns:** {nest.Average}/h | **Types:** {typeEmojis}\r\n**[[Google Maps]({googleMapsLink})] [[Apple Maps]({appleMapsLink})] [[Waze Maps]({wazeMapsLink})]**",
+                    ImageUrl = staticMapLink,
+                    Url = googleMapsLink,
+                    ThumbnailUrl = pkmnImage,                    
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
+                        IconUrl = ctx.Guild?.IconUrl
+                    }
+                };
+
+                await channel.SendMessageAsync(null, false, eb);
+                System.Threading.Thread.Sleep(100);
+            }
+        }
+
+        [
+            Command("list-nests"),
+            Description("")
+        ]
         public async Task ListNestsAsync(CommandContext ctx, string pokemon = null)
         {
             var db = Database.Instance;
@@ -45,12 +119,12 @@
                     Color = DiscordColor.Blurple,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
-                        Text = $"versx | {DateTime.Now}",
+                        Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
                         IconUrl = ctx.Guild?.IconUrl
                     }
                 };
 
-                var nests = GetNests(_dep.WhConfig.ConnectionStrings.Nests);
+                var nests = GetNestsByPokemon(_dep.WhConfig.ConnectionStrings.Nests);
                 if (nests == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from nest database.");
@@ -100,12 +174,12 @@
                     Color = DiscordColor.Blurple,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
-                        Text = $"versx | {DateTime.Now}",
+                        Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
                         IconUrl = ctx.Guild?.IconUrl
                     }
                 };
 
-                var nests = GetNests(_dep.WhConfig.ConnectionStrings.Nests)?.Where(x => x.Key == pokeId);
+                var nests = GetNestsByPokemon(_dep.WhConfig.ConnectionStrings.Nests)?.Where(x => x.Key == pokeId);
                 if (nests == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from nest database.");
@@ -163,7 +237,40 @@
             return dict;
         }
 
-        public Dictionary<int, List<Nest>> GetNests(string nestsConnectionString = null)
+
+
+        public Dictionary<int, List<Nest>> GetNestsByPokemon(string nestsConnectionString = null)
+        {
+            if (string.IsNullOrEmpty(nestsConnectionString))
+                return null;
+
+            try
+            {
+                var nests = GetNests(nestsConnectionString);
+                var dict = new Dictionary<int, List<Nest>>();
+                for (var i = 0; i < nests.Count; i++)
+                {
+                    var nest = nests[i];
+                    if (dict.ContainsKey(nest.PokemonId))
+                    {
+                        dict[nest.PokemonId].Add(nest);
+                        continue;
+                    }
+
+                    dict.Add(nest.PokemonId, new List<Nest> { nest });
+                }
+                //var dict = nests.ToDictionary(x => x.PokemonId, x => x);
+                return dict;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return null;
+        }
+
+        public List<Nest> GetNests(string nestsConnectionString = null)
         {
             if (string.IsNullOrEmpty(nestsConnectionString))
                 return null;
@@ -173,20 +280,7 @@
                 using (var db = DataAccessLayer.CreateFactory(nestsConnectionString).Open())
                 {
                     var nests = db.LoadSelect<Nest>();
-                    var dict = new Dictionary<int, List<Nest>>();
-                    for (var i = 0; i < nests.Count; i++)
-                    {
-                        var nest = nests[i];
-                        if (dict.ContainsKey(nest.PokemonId))
-                        {
-                            dict[nest.PokemonId].Add(nest);
-                            continue;
-                        }
-
-                        dict.Add(nest.PokemonId, new List<Nest> { nest });
-                    }
-                    //var dict = nests.ToDictionary(x => x.PokemonId, x => x);
-                    return dict;
+                    return nests;
                 }
             }
             catch (Exception ex)

@@ -30,12 +30,12 @@
         {
             if (channel == null)
             {
-                for (var i = 0; i < _dep.WhConfig.QuestChannelIds.Count; i++)
+                for (var i = 0; i < _dep.WhConfig.Discord.QuestChannelIds.Count; i++)
                 {
-                    var qChannel = await ctx.Client.GetChannelAsync(_dep.WhConfig.QuestChannelIds[i]);
+                    var qChannel = await ctx.Client.GetChannelAsync(_dep.WhConfig.Discord.QuestChannelIds[i]);
                     if (qChannel == null)
                     {
-                        _logger.Warn($"Could not get quest channel from id '{_dep.WhConfig.QuestChannelIds[i]}'.");
+                        _logger.Warn($"Could not get quest channel from id '{_dep.WhConfig.Discord.QuestChannelIds[i]}'.");
                         continue;
                     }
 

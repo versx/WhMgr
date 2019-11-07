@@ -64,8 +64,8 @@
             for (var i = 0; i < users.Count; i++)
             {
                 var user = users[i];
-                var discordUser = ctx.Client.GetMemberById(_dep.WhConfig.GuildId, user.UserId);
-                var isSupporter = ctx.Client.HasSupporterRole(_dep.WhConfig.GuildId, user.UserId, _dep.WhConfig.DonorRoleIds);
+                var discordUser = ctx.Client.GetMemberById(_dep.WhConfig.Discord.GuildId, user.UserId);
+                var isSupporter = ctx.Client.HasSupporterRole(_dep.WhConfig.Discord.GuildId, user.UserId, _dep.WhConfig.Discord.DonorRoleIds);
                 if (discordUser == null || !isSupporter)
                 {
                     _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");

@@ -196,7 +196,7 @@
     //            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(gmapsLocationLink) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(appleMapsLocationLink) + "\r\n";
     //            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
     //            {
-    //                Text = $"versx | {DateTime.Now}",
+    //                Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
     //                IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
     //            };
     //            var embed = eb.Build();
@@ -297,7 +297,7 @@
     //            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, raid.Latitude, raid.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, raid.Latitude, raid.Longitude)) + "\r\n";
     //            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
     //            {
-    //                Text = $"versx | {DateTime.Now}",
+    //                Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
     //                IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
     //            };
     //            var embed = eb.Build();
@@ -329,7 +329,7 @@
     //            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, quest.Latitude, quest.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, quest.Latitude, quest.Longitude)) + "\r\n";
     //            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
     //            {
-    //                Text = $"versx | {DateTime.Now}",
+    //                Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
     //                IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
     //            };
 
@@ -380,7 +380,7 @@
     //            eb.Description += _lang.Translate("EMBED_GMAPS").FormatText(string.Format(Strings.GoogleMaps, pokestop.Latitude, pokestop.Longitude)) + " " + _lang.Translate("EMBED_APPLEMAPS").FormatText(string.Format(Strings.AppleMaps, pokestop.Latitude, pokestop.Longitude)) + "\r\n";
     //            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
     //            {
-    //                Text = $"versx | {DateTime.Now}",
+    //                Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
     //                IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
     //            };
 

@@ -179,14 +179,14 @@
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
-                ImageUrl = properties["tilemaps_url"],
-                ThumbnailUrl = PokestopUrl,
+                ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = DiscordColor.Orange,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"versx | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
                 }
             };
             return eb.Build();
@@ -197,12 +197,15 @@
             var questMessage = this.GetQuestMessage();
             var questConditions = this.GetConditions();
             var questReward = this.GetReward();
+            var questRewardImageUrl = this.GetIconUrl(whConfig);
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, this.GetIconUrl(whConfig), Latitude, Longitude);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
-            var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -211,6 +214,7 @@
                 { "quest_task", questMessage },
                 { "quest_conditions", questConditions },
                 { "quest_reward", questReward },
+                { "quest_reward_img_url", questRewardImageUrl },
                 { "has_quest_conditions", Convert.ToString(!string.IsNullOrEmpty(questConditions)) },
                 { "is_ditto", Convert.ToString(IsDitto) },
                 { "is_shiny", Convert.ToString(IsShiny) },
@@ -223,9 +227,10 @@
                 { "lng_5", Math.Round(Longitude, 5).ToString() },
 
                 //Location links
-                { "tilemaps_url", gmapsStaticMapLink },
+                { "tilemaps_url", staticMapLink },
                 { "gmaps_url", gmapsLocationLink },
                 { "applemaps_url", appleMapsLocationLink },
+                { "wazemaps_url", wazeMapsLocationLink },
 
                 //Pokestop properties
                 { "pokestop_id", PokestopId ?? defaultMissingValue },

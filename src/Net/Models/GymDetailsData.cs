@@ -57,8 +57,8 @@
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
-                ImageUrl = properties["tilemaps_url"],
-                ThumbnailUrl = Url,
+                ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl , properties),
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = Team == PokemonTeam.Mystic ? DiscordColor.Blue :
                     Team == PokemonTeam.Valor ? DiscordColor.Red :
@@ -66,8 +66,8 @@
                     DiscordColor.LightGray,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"versx | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
                 }
             };
             return eb.Build();
@@ -75,19 +75,21 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city, GymDetailsData oldGym)
         {
-            var exEmojiId = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? client.Guilds[whConfig.EmojiGuildId].GetEmojiId("ex") : 0;
+            var exEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId("ex") : 0;
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? client.Guilds[whConfig.EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 0;
+            var teamEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 0;
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
-            var oldTeamEmojiId = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? client.Guilds[whConfig.EmojiGuildId].GetEmojiId(oldGym.Team.ToString().ToLower()) : 0;
+            var oldTeamEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId(oldGym.Team.ToString().ToLower()) : 0;
             var oldTeamEmoji = oldTeamEmojiId > 0 ? $"<:{oldGym.Team.ToString().ToLower()}:{oldTeamEmojiId}>" : oldGym.Team.ToString();
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
-            var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
+            var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);//whConfig.Urls.StaticMap.Gyms.Enabled ? string.Format(whConfig.Urls.StaticMap.Gyms.Url, Latitude, Longitude) : string.Empty
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
-            var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -118,9 +120,10 @@
                 { "lng_5", Math.Round(Longitude, 5).ToString() },
 
                 //Location links
-                { "tilemaps_url", gmapsStaticMapLink },
+                { "tilemaps_url", staticMapLink },
                 { "gmaps_url", gmapsLocationLink },
                 { "applemaps_url", appleMapsLocationLink },
+                { "wazemaps_url", wazeMapsLocationLink },
 
                 //Misc properties
                 { "br", "\r\n" }

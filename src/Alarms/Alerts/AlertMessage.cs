@@ -10,23 +10,25 @@
             {
                 AlertMessageType.Pokemon, new AlertMessageSettings
                 {
-                    AvatarUrl = "",
+                    AvatarUrl = "<pkmn_img_url>",
                     Content = "<pkmn_name> <form><gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><#has_weather> | <weather_emoji><#is_weather_boosted> (Boosted)</is_weather_boosted></has_weather><br>**Moveset:** <moveset><br><#near_pokestop>**Near Pokestop:** [<pokestop_name>](<pokestop_url>)<br></near_pokestop><#is_ditto>**Catch Pokemon:** <original_pkmn_name><br></is_ditto>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
-                    IconUrl = "",
+                    IconUrl = "<pkmn_img_url>",
                     Title = "<geofence>",
                     Url = "<gmaps_url>",
-                    Username = "<form> <pkmn_name><gender>"
+                    Username = "<form> <pkmn_name><gender>",
+                    ImageUrl = "<tilemaps_url>"
                 }
             },
             {
                 AlertMessageType.PokemonMissingStats, new AlertMessageSettings
                 {
-                    AvatarUrl = "",
+                    AvatarUrl = "<pkmn_img_url>",
                     Content = "<pkmn_name> <form><gender><br>**Despawn:** <despawn_time> (<time_left> left)<despawn_time_verified><br>**Types:** <types_emoji><br><#has_weather>**Weather:** <weather_emoji><#is_weather_boosted> (Boosted)</is_weather_boosted><br></has_weather><#near_pokestop>**Near Pokestop:** [<pokestop_name>](<pokestop_url>)<br></near_pokestop>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
-                    IconUrl = "",
+                    IconUrl = "<pkmn_img_url>",
                     Title = "<geofence>",
                     Url = "<gmaps_url>",
-                    Username = "<form> <pkmn_name><gender>"
+                    Username = "<form> <pkmn_name><gender>",
+                    ImageUrl = "<tilemaps_url>"
                 }
             },
             {
@@ -37,30 +39,33 @@
                     IconUrl = "",
                     Title = "<geofence>: <gym_name>",
                     Url = "<gmaps_url>",
-                    Username = "<gym_name>"
+                    Username = "<gym_name>",
+                    ImageUrl = "<tilemaps_url>"
                 }
             },
             {
                 AlertMessageType.Raids, new AlertMessageSettings
                 {
-                    AvatarUrl = "", //TODO: Raid AvatarUrl <pkmn>
+                    AvatarUrl = "<pkmn_img_url>",
                     //Content = "<pkmn_name> Raid Ends: <end_time><br>**Started:** <start_time><br>**Ends:** <end_time> (<end_time_left> left)<br>**Perfect CP:** <perfect_cp> / :white_sun_rain_cloud: <perfect_cp_boosted><br>**Worst CP:** <worst_cp> / :white_sun_rain_cloud: <worst_cp_boosted><br>**Types:** <types_emoji> | **Level:** <lvl><br>**Moveset:** <moveset><br>**Weaknesses:** <weaknesses_emoji><br>**Team:** <team_emoji><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
                     Content = "<pkmn_name> Raid Ends: <end_time> (<end_time_left> left)<br>**Perfect CP:** <perfect_cp> / :white_sun_rain_cloud: <perfect_cp_boosted><br>**Worst CP:** <worst_cp> / :white_sun_rain_cloud: <worst_cp_boosted><br>**Types:** <types_emoji> | **Level:** <lvl> | **Team:** <team_emoji><br>**Moveset:** <moveset><br>**Weaknesses:** <weaknesses_emoji><br><#is_ex><ex_emoji> Gym!<br></is_ex>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
-                    IconUrl = "", //TODO: Raid IconUrl <pkmn>
+                    IconUrl = "<pkmn_img_url>",
                     Title = "<geofence>: <gym_name>",
                     Url = "<gmaps_url>",
-                    Username = "<pkmn_form> <pkmn_name> Raid"
+                    Username = "<pkmn_form> <pkmn_name> Raid",
+                    ImageUrl = "<tilemaps_url>"
                 }
             },
             {
                 AlertMessageType.Eggs, new AlertMessageSettings
                 {
-                    AvatarUrl = "", //TODO: Egg AvatarUrl
+                    AvatarUrl = "<pkmn_img_url>",
                     Content = "Hatches: <start_time> (<start_time_left>)<br>**Ends:** <end_time> (<end_time_left> left)<br>**Team:** <team_emoji><br><#is_ex><ex_emoji> Gym!<br></is_ex>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**", //TODO: Maybe Expire_time_left
-                    IconUrl = "", //TODO: Egg IconUrl
+                    IconUrl = "<pkmn_img_url>",
                     Title = "<geofence>: <gym_name>",
                     Url = "<gmaps_url>",
-                    Username = "Level <raid_lvl> Egg"
+                    Username = "Level <raid_lvl> Egg",
+                    ImageUrl = "<tilemaps_url>"
                 }
             },
             {
@@ -71,18 +76,20 @@
                     IconUrl = "",
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",
-                    Username = "<pokestop_name>"
+                    Username = "<pokestop_name>",
+                    ImageUrl = "<tilemaps_url>"
                 }
             },
             {
                 AlertMessageType.Quests, new AlertMessageSettings
                 {
-                    AvatarUrl = "<quest_reward>", //TODO: QuestReward AvatorUrl
+                    AvatarUrl = "<quest_reward>",
                     Content = "**Quest:** <quest_task><br><#has_quest_conditions>**Condition(s):** <quest_conditions><br></has_quest_conditions>**Reward:** <quest_reward><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
-                    IconUrl = "<quest_reward>", //TODO: QuestReward IconUrl
+                    IconUrl = "<quest_reward_img_url>",
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",
-                    Username = "<quest_task>"
+                    Username = "<quest_task>",
+                    ImageUrl = "<tilemaps_url>"
                 }
             },
             {
@@ -93,7 +100,8 @@
                     IconUrl = "<pokestop_url>",
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",
-                    Username = "<pokestop_name>"
+                    Username = "<pokestop_name>",
+                    ImageUrl = "<tilemaps_url>"
                 }
             },
             {
@@ -104,7 +112,8 @@
                     IconUrl = "<pokestop_url>",
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",
-                    Username = "<pokestop_name>"
+                    Username = "<pokestop_name>",
+                    ImageUrl = "<tilemaps_url>"
                 }
             }
         };

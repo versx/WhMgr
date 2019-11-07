@@ -11,6 +11,7 @@
 
         public const string GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
+        public const string WazeMaps = "https://www.waze.com/ul?ll={0},{1}&navigate=yes";
         //public const string GoogleMapsStaticImage = "https://maps.googleapis.com/maps/api/staticmap?center={0},{1}&markers=color:red%7C{0},{1}&maptype=roadmap&size=300x175&zoom=14";
         //public const string GoogleMapsStaticImage = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+FF0000({1},{0})/{1},{0},14/300x175?access_token=pk.eyJ1IjoidmVyc3giLCJhIjoiY2p3dXNzYmR0MDFmNzRicXNlNHJ4YjJucSJ9.tBti0YjkEb98_hxhswsSOw";
 

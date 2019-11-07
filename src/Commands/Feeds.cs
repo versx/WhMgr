@@ -38,15 +38,15 @@
                 Color = DiscordColor.Red,
                 Description = 
                     "**Available City Roles:**\r\n" +
-                    $"- {string.Join($"{Environment.NewLine}- ", _dep.WhConfig.CityRoles)}" +
+                    $"- {string.Join($"{Environment.NewLine}- ", _dep.WhConfig.Discord.CityRoles)}" +
                     Environment.NewLine +
                     $"- {Strings.All}" +
                     Environment.NewLine +
                     Environment.NewLine +
-                    $"*Type `{_dep.WhConfig.CommandPrefix}feedme cityname` to assign yourself to that city role.*",
+                    $"*Type `{_dep.WhConfig.Discord.CommandPrefix}feedme cityname` to assign yourself to that city role.*",
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"versx | {DateTime.Now}",
+                    Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
                     IconUrl = ctx.Guild?.IconUrl
                 }
             };
@@ -66,7 +66,7 @@
                 return;
 
             var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
-            if (_dep.WhConfig.CitiesRequireSupporterRole && !isSupporter)
+            if (_dep.WhConfig.Discord.CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
@@ -93,7 +93,7 @@
                 foreach (var city in cityNames)
                 {
                     var roles = new List<string>();
-                    roles.AddRange(_dep.WhConfig.CityRoles);
+                    roles.AddRange(_dep.WhConfig.Discord.CityRoles);
                     if (roles.FirstOrDefault(x => string.Compare(city, x, true) == 0) == null)
                     {
                         await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} {city} is not a valid city name, type `.cities` to see a list of available cities.");
@@ -117,7 +117,7 @@
                         alreadyAssigned.Add(cityRole.Name);
                     }
 
-                    if (_dep.WhConfig.CityRoles.FirstOrDefault(x => string.Compare(x, city, true) == 0) != null)
+                    if (_dep.WhConfig.Discord.CityRoles.FirstOrDefault(x => string.Compare(x, city, true) == 0) != null)
                     {
                         var cityRaidRole = ctx.Client.GetRoleFromName($"{city}Raids");
                         if (cityRaidRole != null)
@@ -169,7 +169,7 @@
                 return;
 
             var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
-            if (_dep.WhConfig.CitiesRequireSupporterRole && !isSupporter)
+            if (_dep.WhConfig.Discord.CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
@@ -190,7 +190,7 @@
                 foreach (var city in cityNames)
                 {
                     var roles = new List<string>();
-                    roles.AddRange(_dep.WhConfig.CityRoles);
+                    roles.AddRange(_dep.WhConfig.Discord.CityRoles);
                     if (!roles.Exists(x => string.Compare(city, x, true) == 0))
                     {
                         await ctx.RespondAsync($"{ctx.User.Username}#{ctx.User.Discriminator} {city} is not a valid city name, type `.cities` to see a list of available cities.");
@@ -247,13 +247,13 @@
 
         private async Task AssignAllDefaultFeedRoles(CommandContext ctx)
         {
-            if (_dep.WhConfig.CityRoles == null)
+            if (_dep.WhConfig.Discord.CityRoles == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
             }
 
-            foreach (var city in _dep.WhConfig.CityRoles)
+            foreach (var city in _dep.WhConfig.Discord.CityRoles)
             {
                 var cityRole = ctx.Client.GetRoleFromName(city);
                 if (cityRole == null)
@@ -274,7 +274,7 @@
 
         private async Task RemoveAllDefaultFeedRoles(CommandContext ctx)
         {
-            foreach (var city in _dep.WhConfig.CityRoles)
+            foreach (var city in _dep.WhConfig.Discord.CityRoles)
             {
                 var cityRole = ctx.Client.GetRoleFromName(city);
                 if (cityRole == null)

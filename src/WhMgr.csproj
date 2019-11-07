@@ -119,6 +119,7 @@
     <Compile Include="Configuration\ConnectionStringsConfiguration.cs" />
     <Compile Include="Configuration\DiscordServer.cs" />
     <Compile Include="Configuration\ShinyStatsConfiguration.cs" />
+    <Compile Include="Configuration\StaticMapConfiguration.cs" />
     <Compile Include="Configuration\UrlConfiguration.cs" />
     <Compile Include="Configuration\WhConfig.cs" />
     <Compile Include="Data\DataAccessLayer.cs" />

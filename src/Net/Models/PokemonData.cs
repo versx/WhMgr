@@ -485,14 +485,14 @@
             {
                 Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alertMessage.Url, properties),
-                ImageUrl = properties["tilemaps_url"],
-                ThumbnailUrl = pkmn.Id.GetPokemonImage(pokemonImageUrl, pkmn.Gender, pkmn.FormId, pkmn.Costume),
+                ImageUrl = DynamicReplacementEngine.ReplaceText(alertMessage.ImageUrl, properties),
+                ThumbnailUrl = pokemonImageUrl,
                 Description = DynamicReplacementEngine.ReplaceText(alertMessage.Content, properties),
                 Color = pkmn.IV.BuildColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"versx | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
                 }
             };
             return eb.Build();
@@ -515,7 +515,7 @@
             if (Weather.HasValue && Strings.WeatherEmojis.ContainsKey(Weather.Value) && Weather != WeatherType.None)
             {
                 //TODO: Security check
-                weatherEmoji = Weather.Value.GetWeatherEmojiIcon(client.Guilds[whConfig.EmojiGuildId]);//Strings.WeatherEmojis[Weather.Value];
+                weatherEmoji = Weather.Value.GetWeatherEmojiIcon(client.Guilds[whConfig.Discord.EmojiGuildId]);//Strings.WeatherEmojis[Weather.Value];
             }
             var move1 = string.Empty;
             var move2 = string.Empty;
@@ -529,11 +529,11 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? 
-                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.EmojiGuildId]) : 
+            var type1Emoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
+                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
                 string.Empty;
-            var type2Emoji = client.Guilds.ContainsKey(whConfig.EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
-                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.EmojiGuildId]) : 
+            var type2Emoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
+                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
                 string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? Database.Instance.Pokemon[DisplayPokemonId ?? Id] : Database.Instance.Pokemon[Id];
@@ -541,20 +541,23 @@
             var pkmnImage = Id.GetPokemonImage(whConfig.Urls.PokemonImage, Gender, FormId, Costume);
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, pkmnImage, Latitude, Longitude);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
-            var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var pokestop = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
             {
                 //Main properties
-                { "pkmn_id", Id.ToString() },
+                { "pkmn_id", Convert.ToString(Id) },
                 { "pkmn_name", pkmnInfo.Name },
+                { "pkmn_img_url", pkmnImage },
                 { "form", form },
-                { "form_id", FormId.ToString() },
+                { "form_id", Convert.ToString(FormId) },
                 { "form_id_3", FormId.ToString("D3") },
                 { "costume_id_3", Costume.ToString("D3") },
                 { "cp", CP ?? defaultMissingValue },
@@ -600,15 +603,16 @@
 
                 //Location properties
                 { "geofence", city ?? defaultMissingValue },
-                { "lat", Latitude.ToString() },
-                { "lng", Longitude.ToString() },
-                { "lat_5", Math.Round(Latitude, 5).ToString() },
-                { "lng_5", Math.Round(Longitude, 5).ToString() },
+                { "lat", Convert.ToString(Latitude) },
+                { "lng", Convert.ToString(Longitude) },
+                { "lat_5", Convert.ToString(Math.Round(Latitude, 5)) },
+                { "lng_5", Convert.ToString(Math.Round(Longitude, 5)) },
 
                 //Location links
-                { "tilemaps_url", gmapsStaticMapLink },
+                { "tilemaps_url", staticMapLink },
                 { "gmaps_url", gmapsLocationLink },
                 { "applemaps_url", appleMapsLocationLink },
+                { "wazemaps_url", wazeMapsLocationLink },
 
                 //Pokestop properties
                 { "near_pokestop", Convert.ToString(pokestop != null) },

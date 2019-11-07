@@ -121,24 +121,23 @@
             //}
         }
 
-        public DiscordEmbed GenerateRaidMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string pokemonRaidImageUrl)
+        public DiscordEmbed GenerateRaidMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string raidImageUrl)
         {
             var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = GetProperties(client, whConfig, city);
-            var img = IsEgg ? string.Format(whConfig.Urls.EggImage, Level) : PokemonId.GetPokemonImage(pokemonRaidImageUrl, PokemonGender.Unset, Form);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
-                ImageUrl = properties["tilemaps_url"],
-                ThumbnailUrl = img,
+                ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
+                ThumbnailUrl = raidImageUrl,//DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = Level.BuildRaidColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"versx | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.GuildId) ? client.Guilds[whConfig.GuildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
                 }
             };
             return eb.Build();
@@ -170,38 +169,40 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1] : PokemonType.None;
-            var type1Emoji = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? 
-                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.EmojiGuildId]) : 
+            var type1Emoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
+                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
                 string.Empty;
-            var type2Emoji = client.Guilds.ContainsKey(whConfig.EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
-                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.EmojiGuildId]) : 
+            var type2Emoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
+                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
                 string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
-            var weaknessesEmoji = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? 
-                Weaknesses.GetWeaknessEmojiIcons(client.Guilds[whConfig.EmojiGuildId]) : 
+            var weaknessesEmoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
+                Weaknesses.GetWeaknessEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
                 string.Empty;
             var weaknessesEmojiFormatted = weaknessesEmoji;
             var perfectRange = PokemonId.MaxCpAtLevel(20);
             var boostedRange = PokemonId.MaxCpAtLevel(25);
             var worstRange = PokemonId.MinCpAtLevel(20);
             var worstBoosted = PokemonId.MinCpAtLevel(25);
-            var exEmojiId = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? 
-                client.Guilds[whConfig.EmojiGuildId].GetEmojiId("ex") : 
+            var exEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
+                client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId("ex") : 
                 0;
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = client.Guilds.ContainsKey(whConfig.EmojiGuildId) ? 
-                client.Guilds[whConfig.EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 
+            var teamEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
+                client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 
                 0;
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
 
             var pkmnImage = IsEgg ? string.Format(whConfig.Urls.EggImage, Level) : PokemonId.GetPokemonImage(whConfig.Urls.PokemonImage, PokemonGender.Unset, Form);
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, pkmnImage, Latitude, Longitude);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
-            var gmapsStaticMapLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -209,6 +210,7 @@
                 //Raid boss properties
                 { "pkmn_id", PokemonId.ToString() },
                 { "pkmn_name", pkmnInfo.Name },
+                { "pkmn_img_url", pkmnImage },
                 { "form", form },
                 { "form_id", Form.ToString() },
                 { "form_id_3", Form.ToString("D3") },
@@ -250,9 +252,10 @@
                 { "lng_5", Math.Round(Longitude, 5).ToString() },
 
                 //Location links
-                { "tilemaps_url", gmapsStaticMapLink },
+                { "tilemaps_url", staticMapLink },
                 { "gmaps_url", gmapsLocationLink },
                 { "applemaps_url", appleMapsLocationLink },
+                { "wazemaps_url", wazeMapsLocationLink },
 
                 //Gym properties
                 { "gym_id", GymId },

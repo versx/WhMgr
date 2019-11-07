@@ -45,7 +45,7 @@
                 Title = "Event Pokemon List",
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"versx | {DateTime.Now}",
+                    Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
                     IconUrl = ctx.Guild?.IconUrl
                 }
             };

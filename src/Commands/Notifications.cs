@@ -40,7 +40,7 @@
         public async Task InfoAsync(CommandContext ctx,
             [Description("Discord user mention string.")] string mention = "")
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -91,7 +91,7 @@
         ]
         public async Task EnableDisableAsync(CommandContext ctx)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -132,7 +132,7 @@
             [Description("Maximum distance in meters between the set coordinates.")] int distance,
             [Description("Coordinates in `34.00,-117.00` format."), RemainingText] string coordinates)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -183,7 +183,7 @@
                 return;
             }
 
-            var guildId = ctx.Guild?.Id ?? _dep.WhConfig.GuildId;
+            var guildId = ctx.Guild?.Id ?? _dep.WhConfig.Discord.GuildId;
             var message = BuildExpirationMessage(guildId, ctx.User);
             await ctx.Client.SendDirectMessage(ctx.User, message);
         }
@@ -202,7 +202,7 @@
                 return;
             }
 
-            var guildId = ctx.Guild?.Id ?? _dep.WhConfig.GuildId;
+            var guildId = ctx.Guild?.Id ?? _dep.WhConfig.Discord.GuildId;
             var user = await ctx.Client.GetUserAsync(realUserId);
             var message = BuildExpirationMessage(guildId, user);
             await ctx.Client.SendDirectMessage(ctx.User, message);
@@ -222,7 +222,7 @@
             [Description("Minimum level to receive notifications for, use 0 to disregard level.")] int lvl = 0,
             [Description("Specific gender the Pokemon must be, use * to disregard gender.")] string gender = "*")
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -463,7 +463,7 @@
         public async Task PokeMeNotAsync(CommandContext ctx,
             [Description("Pokemon name or id to unsubscribe from Pokemon spawn notifications.")] string poke)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -537,7 +537,7 @@
             [Description("Pokemon name or id to subscribe to raid notifications.")] string poke,
             [Description("City to send the notification if the raid appears in otherwise if null all will be sent."), RemainingText] string city = null)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -558,7 +558,7 @@
 
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
-                if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
+                if (_dep.WhConfig.Discord.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.", DiscordColor.Red);
                     return;
@@ -578,7 +578,7 @@
                 for (var i = 1; i < Strings.MaxPokemonIds; i++)
                 {
                     var pokemon = Database.Instance.Pokemon[i];
-                    var result = _dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, i, string.Empty/*TODO: Add all forms support*/, string.IsNullOrEmpty(city) ? _dep.WhConfig.CityRoles : new List<string> { city });
+                    var result = _dep.SubscriptionProcessor.Manager.AddRaid(ctx.User.Id, i, string.Empty/*TODO: Add all forms support*/, string.IsNullOrEmpty(city) ? _dep.WhConfig.Discord.CityRoles : new List<string> { city });
                 }
 
                 await ctx.TriggerTypingAsync();
@@ -595,7 +595,7 @@
                     ctx.User.Id,
                     validation.Valid,
                     string.IsNullOrEmpty(city)
-                        ? _dep.WhConfig.CityRoles
+                        ? _dep.WhConfig.Discord.CityRoles
                         : new List<string> { city });
 
                 var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
@@ -625,7 +625,7 @@
             [Description("Pokemon name or id to unsubscribe from raid notifications.")] string poke,
             [Description("City to remove the quest notifications from otherwise if null all will be sent."), RemainingText] string city = null)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
                 return;
@@ -639,7 +639,7 @@
 
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
-                if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
+                if (_dep.WhConfig.Discord.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.", DiscordColor.Red);
                     return;
@@ -686,7 +686,7 @@
                     ctx.User.Id, 
                     validation.Valid, 
                     string.IsNullOrEmpty(city) 
-                        ? _dep.WhConfig.CityRoles 
+                        ? _dep.WhConfig.Discord.CityRoles 
                         : new List<string> { city });
 
                 var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
@@ -719,7 +719,7 @@
             [Description("Reward keyword to use to find field research. Example: Spinda, 1200 stardust, candy")] string rewardKeyword,
             [Description("City to send the notification if the quest appears in otherwise if null all will be sent.")] string city = null)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
                 return;
@@ -727,7 +727,7 @@
 
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
-                if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
+                if (_dep.WhConfig.Discord.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type `.cities` or `.feeds`.", DiscordColor.Red);
                     return;
@@ -750,7 +750,7 @@
             }
 
             await ctx.TriggerTypingAsync();
-            var result = _dep.SubscriptionProcessor.Manager.AddQuest(ctx.User.Id, rewardKeyword, string.IsNullOrEmpty(city) ? _dep.WhConfig.CityRoles : new List<string> { city });
+            var result = _dep.SubscriptionProcessor.Manager.AddQuest(ctx.User.Id, rewardKeyword, string.IsNullOrEmpty(city) ? _dep.WhConfig.Discord.CityRoles : new List<string> { city });
             if (result)
             {
                 await ctx.RespondEmbed($"{ctx.User.Username} has subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
@@ -771,7 +771,7 @@
             [Description("Reward keyword to remove from field research quest subscriptions. Example: Spinda, 1200 stardust, candy")] string rewardKeyword,
             [Description("City to remove the quest notifications from otherwise if null all will be sent.")] string city = null)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
                 return;
@@ -779,7 +779,7 @@
 
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
-                if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
+                if (_dep.WhConfig.Discord.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.", DiscordColor.Red);
                     return;
@@ -822,7 +822,7 @@
                     ctx.User.Id,
                     rewardKeyword,
                     string.IsNullOrEmpty(city)
-                        ? _dep.WhConfig.CityRoles
+                        ? _dep.WhConfig.Discord.CityRoles
                         : new List<string> { city });
 
             if (result)
@@ -848,7 +848,7 @@
         public async Task GymMeAsync(CommandContext ctx,
             [Description("Gym name to subscribed to."), RemainingText] string gymName)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -879,7 +879,7 @@
         public async Task GymMeNotAsync(CommandContext ctx,
             [Description("Gym name to unsubscribed from."), RemainingText] string gymName)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -928,7 +928,7 @@
             [Description("Invasion type i.e. `fire-m` to add.")] string invasionType,
             [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -943,7 +943,7 @@
 
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
-                if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
+                if (_dep.WhConfig.Discord.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.", DiscordColor.Red);
                     return;
@@ -974,7 +974,7 @@
             //}
 
             await ctx.TriggerTypingAsync();
-            var result = _dep.SubscriptionProcessor.Manager.AddInvasion(ctx.User.Id, gruntType, string.IsNullOrEmpty(city) ? _dep.WhConfig.CityRoles : new List<string> { city });
+            var result = _dep.SubscriptionProcessor.Manager.AddInvasion(ctx.User.Id, gruntType, string.IsNullOrEmpty(city) ? _dep.WhConfig.Discord.CityRoles : new List<string> { city });
             if (result)
             {
                 await ctx.RespondEmbed($"{ctx.User.Username} has subscribed to **{(pkmnType == PokemonType.None ? "Tier II" : pkmnType.ToString())} {pokemonGender}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
@@ -995,7 +995,7 @@
             [Description("Invasion type i.e. `water-f` to remove.")] string invasionType,
             [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
                 return;
@@ -1010,7 +1010,7 @@
 
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
-                if (_dep.WhConfig.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
+                if (_dep.WhConfig.Discord.CityRoles.Find(x => string.Compare(x.ToLower(), city.ToLower(), true) == 0) == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.", DiscordColor.Red);
                     return;
@@ -1064,7 +1064,7 @@
                     ctx.User.Id,
                     gruntType,
                     string.IsNullOrEmpty(city)
-                        ? _dep.WhConfig.CityRoles
+                        ? _dep.WhConfig.Discord.CityRoles
                         : new List<string> { city });
 
             if (result)
@@ -1137,7 +1137,7 @@
         //        Color = DiscordColor.Blurple,
         //        Footer = new DiscordEmbedBuilder.EmbedFooter
         //        {
-        //            Text = $"versx | {DateTime.Now}",
+        //            Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
         //            IconUrl = ctx.Guild?.IconUrl
         //        }
         //    };
@@ -1213,7 +1213,7 @@
         //        Color = DiscordColor.Orange,
         //        Footer = new DiscordEmbedBuilder.EmbedFooter
         //        {
-        //            Text = $"versx | {DateTime.Now}",
+        //            Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
         //            IconUrl = ctx.Guild?.IconUrl
         //        }
         //    };
@@ -1271,7 +1271,7 @@
 
         //    eb.Footer = new DiscordEmbedBuilder.EmbedFooter
         //    {
-        //        Text = $"versx | {DateTime.Now}",
+        //        Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
         //        IconUrl = ctx.Guild?.IconUrl
         //    };
         //    await ctx.RespondAsync(embed: eb);
@@ -1327,7 +1327,7 @@
             }
 
             var json = JsonConvert.SerializeObject(subscription, Formatting.Indented);
-            var tmpFile = Path.Combine(Path.GetTempPath(), $"{ctx.Guild.Name}_{ctx.User.Username}_subscriptions_{DateTime.Now.ToString("yyyy-MM-dd")}.json");
+            var tmpFile = Path.Combine(Path.GetTempPath(), $"{ctx.Guild?.Name}_{ctx.User.Username}_subscriptions_{DateTime.Now.ToString("yyyy-MM-dd")}.json");
             File.WriteAllText(tmpFile, json);
 
             await ctx.RespondWithFileAsync(tmpFile, "Download your subscription settings here.");
@@ -1343,7 +1343,7 @@
         ]
         public async Task IconsAsync(CommandContext ctx)
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -1364,10 +1364,10 @@
                     $"- {string.Join($"{Environment.NewLine}- ", _dep.WhConfig.IconStyles.Keys)}" +
                     Environment.NewLine +
                     Environment.NewLine +
-                    $"*Type `{_dep.WhConfig.CommandPrefix}set-icons iconStyle` to use that icon style when receiving notifications from {Strings.BotName}.*",
+                    $"*Type `{_dep.WhConfig.Discord.CommandPrefix}set-icons iconStyle` to use that icon style when receiving notifications from {Strings.BotName}.*",
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"versx | {DateTime.Now}",
+                    Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
                     IconUrl = ctx.Guild?.IconUrl
                 }
             };
@@ -1383,7 +1383,7 @@
         public async Task SetIconAsync(CommandContext ctx,
             [Description("Icon style to use.")] string iconStyle = "Default")
         {
-            if (!_dep.WhConfig.EnableSubscriptions)
+            if (!_dep.WhConfig.Discord.EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
@@ -1404,7 +1404,7 @@
 
             if (!_dep.WhConfig.IconStyles.Select(x => x.Key.ToLower()).Contains(iconStyle.ToLower()))
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} Entered an invalid icon style, type `{_dep.WhConfig.CommandPrefix}icons` to see a list of valid options.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} Entered an invalid icon style, type `{_dep.WhConfig.Discord.CommandPrefix}icons` to see a list of valid options.", DiscordColor.Red);
                 return;
             }
 
@@ -1458,7 +1458,7 @@
 
             if (hasPokemon)
             {
-                var member = await client.GetMemberById(_dep.WhConfig.GuildId, author);
+                var member = await client.GetMemberById(_dep.WhConfig.Discord.GuildId, author);
                 if (member == null)
                 {
                     var error = $"Failed to get discord member from id {author}.";
@@ -1466,7 +1466,7 @@
                     return new List<string> { error };
                 }
 
-                var feeds = member?.Roles?.Select(x => x.Name).Where(x => _dep.WhConfig.CityRoles.Contains(x))?.ToList();
+                var feeds = member?.Roles?.Select(x => x.Name).Where(x => _dep.WhConfig.Discord.CityRoles.Contains(x))?.ToList();
                 if (feeds == null)
                     return messages;
                 feeds.Sort();
@@ -1591,7 +1591,7 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
             var subscribedRaids = subscription.Raids;
             subscribedRaids.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
-            var cityRoles = _dep.WhConfig.CityRoles.Select(x => x.ToLower());
+            var cityRoles = _dep.WhConfig.Discord.CityRoles.Select(x => x.ToLower());
 
             var results = subscribedRaids.GroupBy(x => x.PokemonId, (key, g) => new { PokemonId = key, Cities = g.ToList() });
             foreach (var raid in results)
@@ -1619,7 +1619,7 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
             var subscribedQuests = subscription.Quests;
             subscribedQuests.Sort((x, y) => string.Compare(x.RewardKeyword.ToLower(), y.RewardKeyword.ToLower(), true));
-            var cityRoles = _dep.WhConfig.CityRoles.Select(x => x.ToLower());
+            var cityRoles = _dep.WhConfig.Discord.CityRoles.Select(x => x.ToLower());
 
             var results = subscribedQuests.GroupBy(p => p.RewardKeyword, (key, g) => new { Reward = key, Cities = g.ToList() });
             foreach (var quest in results)
@@ -1640,7 +1640,7 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
             var subscribedInvasions = subscription.Invasions;
             subscribedInvasions.Sort((x, y) => string.Compare(x.GruntType.ToString().ToLower(), y.GruntType.ToString().ToLower(), true));
-            var cityRoles = _dep.WhConfig.CityRoles.Select(x => x.ToLower());
+            var cityRoles = _dep.WhConfig.Discord.CityRoles.Select(x => x.ToLower());
 
             var results = subscribedInvasions.GroupBy(p => p.GruntType, (key, g) => new { Grunt = key, Cities = g.ToList() });
             foreach (var invasion in results)

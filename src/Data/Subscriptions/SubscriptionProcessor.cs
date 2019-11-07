@@ -60,7 +60,7 @@
 
         public async Task ProcessPokemonSubscription(PokemonData pkmn)
         {
-            if (!_whConfig.EnableSubscriptions)
+            if (!_whConfig.Discord.EnableSubscriptions)
                 return;
 
             var db = Database.Instance;
@@ -104,7 +104,7 @@
 
                     try
                     {
-                        member = await _client.GetMemberById(_whConfig.GuildId, user.UserId);
+                        member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
                     }
                     catch (Exception ex)
                     {
@@ -113,7 +113,7 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Discord.DonorRoleIds))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pokemon.Name}...");
                         continue;
@@ -194,7 +194,7 @@
 
         public async Task ProcessRaidSubscription(RaidData raid)
         {
-            if (!_whConfig.EnableSubscriptions)
+            if (!_whConfig.Discord.EnableSubscriptions)
                 return;
 
             var db = Database.Instance;
@@ -228,14 +228,14 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.GuildId, user.UserId);
+                    var member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Discord.DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
                         continue;
@@ -309,7 +309,7 @@
 
         public async Task ProcessQuestSubscription(QuestData quest)
         {
-            if (!_whConfig.EnableSubscriptions)
+            if (!_whConfig.Discord.EnableSubscriptions)
                 return;
 
             var db = Database.Instance;
@@ -346,14 +346,14 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.GuildId, user.UserId);
+                    var member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
-                    isSupporter = member.HasSupporterRole(_whConfig.DonorRoleIds);
+                    isSupporter = member.HasSupporterRole(_whConfig.Discord.DonorRoleIds);
                     if (!isSupporter)
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping quest {questName}...");
@@ -400,7 +400,7 @@
 
         public async Task ProcessInvasionSubscription(PokestopData pokestop)
         {
-            if (!_whConfig.EnableSubscriptions)
+            if (!_whConfig.Discord.EnableSubscriptions)
                 return;
 
             var loc = _whm.GetGeofence(pokestop.Latitude, pokestop.Longitude);
@@ -431,14 +431,14 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.GuildId, user.UserId);
+                    var member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Discord.DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
                         continue;
@@ -538,8 +538,8 @@
                                 Color = DiscordColor.Red,
                                 Footer = new DiscordEmbedBuilder.EmbedFooter
                                 {
-                                    Text = $"versx | {DateTime.Now}",
-                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.GuildId) ? _client.Guilds[_whConfig.GuildId]?.IconUrl : string.Empty
+                                    Text = $"{(_client.Guilds.ContainsKey(_whConfig.Discord.GuildId) ? _client.Guilds[_whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
+                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.Discord.GuildId) ? _client.Guilds[_whConfig.Discord.GuildId]?.IconUrl : string.Empty
                                 }
                             };
                             await _client.SendDirectMessage(member, string.Empty, eb.Build());
