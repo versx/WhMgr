@@ -387,6 +387,18 @@
                     gender = PokemonGender.Male;
                     type = PokemonType.Dragon;
                     break;
+                case InvasionGruntType.ElectricFemaleGrunt:
+                    gender = PokemonGender.Female;
+                    type = PokemonType.Electric;
+                    secondReward = false;
+                    encounters.First = new List<int> { 125, 179 };
+                    encounters.Second = new List<int> { 125, 180 };
+                    encounters.Third = new List<int> { 125, 181 };
+                    break;
+                case InvasionGruntType.ElectricMaleGrunt:
+                    gender = PokemonGender.Male;
+                    type = PokemonType.Electric;
+                    break;
                 case InvasionGruntType.FairyFemaleGrunt:
                     gender = PokemonGender.Female;
                     type = PokemonType.Fairy;
@@ -430,6 +442,18 @@
                 case InvasionGruntType.FlyingMaleGrunt:
                     gender = PokemonGender.Male;
                     type = PokemonType.Flying;
+                    break;
+                case InvasionGruntType.GhostFemaleGrunt:
+                    gender = PokemonGender.Female;
+                    type = PokemonType.Ghost;
+                    break;
+                case InvasionGruntType.GhostMaleGrunt:
+                    gender = PokemonGender.Male;
+                    type = PokemonType.Ghost;
+                    secondReward = false;
+                    encounters.First = new List<int> { 302, 353, 355 };
+                    encounters.Second = new List<int> { 302, 354, 356 };
+                    encounters.Third = new List<int> { 302, 354, 477 };
                     break;
                 case InvasionGruntType.GrassFemaleGrunt:
                     gender = PokemonGender.Female;
@@ -536,6 +560,12 @@
                     encounters.Third = new List<int> { 129, 130 };
                     break;
                 case InvasionGruntType.PlayerTeamLeader:
+                case InvasionGruntType.DecoyFemale:
+                case InvasionGruntType.DecoyMale:
+                case InvasionGruntType.Giovanni:
+                case InvasionGruntType.ExecutiveCliff:
+                case InvasionGruntType.ExecutiveArlo:
+                case InvasionGruntType.ExecutiveSierra:
                     break;
             }
 
@@ -589,9 +619,9 @@
                     switch (gender)
                     {
                         case PokemonGender.Male:
-                            break;
+                            return InvasionGruntType.ElectricMaleGrunt;
                         case PokemonGender.Female:
-                            break;
+                            return InvasionGruntType.ElectricFemaleGrunt;
                     }
                     break;
                 case PokemonType.Fairy:
@@ -634,9 +664,11 @@
                     switch (gender)
                     {
                         case PokemonGender.Male:
-                            return InvasionGruntType.DarknessMaleGrunt;
+                            //return InvasionGruntType.DarknessMaleGrunt;
+                            return InvasionGruntType.GhostMaleGrunt;
                         case PokemonGender.Female:
-                            return InvasionGruntType.DarknessFemaleGrunt;
+                            //return InvasionGruntType.DarknessFemaleGrunt;
+                            return InvasionGruntType.GhostFemaleGrunt;
                     }
                     break;
                 case PokemonType.Grass:
@@ -799,6 +831,16 @@
         RockMaleGrunt,
         WaterFemaleGrunt,
         WaterMaleGrunt,
-        PlayerTeamLeader
+        PlayerTeamLeader,
+        ExecutiveCliff,
+        ExecutiveArlo,
+        ExecutiveSierra,
+        Giovanni,
+        DecoyMale,
+        DecoyFemale,
+        GhostFemaleGrunt,
+        GhostMaleGrunt,
+        ElectricFemaleGrunt,
+        ElectricMaleGrunt
     }
 }
