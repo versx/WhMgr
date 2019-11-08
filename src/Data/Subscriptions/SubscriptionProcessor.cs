@@ -164,8 +164,7 @@
                     //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
                     var iconStyle = Manager.GetUserIconStyle(user);
-                    //var embed = _embedBuilder.BuildPokemonMessage(pkmn, loc.Name, _whConfig.IconStyles[iconStyle]);
-                    var embed = pkmn.GeneratePokemonMessage(_client, _whConfig, pkmn, null, loc.Name, _whConfig.IconStyles[iconStyle]);
+                    var embed = pkmn.GeneratePokemonMessage(_client, _whConfig, pkmn, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], pkmn.Id, pkmn.FormId));
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 
                     //if (!Manager.AddPokemonStatistic(member.Id, pkmn))
@@ -281,8 +280,7 @@
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
                     var iconStyle = Manager.GetUserIconStyle(user);
-                    //var embed = _embedBuilder.BuildRaidMessage(raid, loc.Name, _whConfig.IconStyles[iconStyle]);
-                    var embed = raid.GenerateRaidMessage(_client, _whConfig, null, loc.Name, _whConfig.IconStyles[iconStyle]);
+                    var embed = raid.GenerateRaidMessage(_client, _whConfig, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], raid.PokemonId, raid.Form));
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 
                     //if (!Manager.AddRaidStatistic(member.Id, raid))

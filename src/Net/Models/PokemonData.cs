@@ -627,27 +627,6 @@
             return dict;
         }
 
-        //public Pokestop GetPokestopById(string scannerConnectionString, string pokestopId)
-        //{
-        //    if (string.IsNullOrEmpty(scannerConnectionString))
-        //        return null;
-
-        //    try
-        //    {
-        //        using (var db = DataAccessLayer.CreateFactory(scannerConnectionString).Open())
-        //        {
-        //            var pokestop = db.LoadSingleById<Pokestop>(pokestopId);
-        //            return pokestop;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Error(ex);
-        //    }
-
-        //    return null;
-        //}
-
         public static double GetIV(string attack, string defense, string stamina)
         {
             if (!int.TryParse(attack, out int atk) ||
