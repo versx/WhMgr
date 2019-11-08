@@ -115,6 +115,18 @@
                     Username = "<pokestop_name>",
                     ImageUrl = "<tilemaps_url>"
                 }
+            },
+            {
+                AlertMessageType.Nests, new AlertMessageSettings
+                {
+                    AvatarUrl = "",
+                    Content = "**Pokemon:** <pkmn_name><br>**Average Spawns:** {<avg_spawns>}/h | **Types:** <type_emojis>\r\n**[[Google Maps]({gmapsLink})] [[Apple Maps]({appleMapsLink})] [[Waze Maps]({wazeMapsLink})]**",
+                    IconUrl = "<pkmn_img_url>",
+                    Title = "<geofence>: <nest_name>",
+                    Url = "<gmaps_url>",
+                    Username = "",
+                    ImageUrl = "<tilemaps_url>"
+                }
             }
         };
     }

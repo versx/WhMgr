@@ -10,6 +10,7 @@
         Pokestops,
         Quests,
         Invasions,
-        Lures
+        Lures,
+        Nests
     }
 }

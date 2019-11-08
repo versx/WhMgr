@@ -491,7 +491,7 @@
                 Color = pkmn.IV.BuildColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
+                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
                     IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
                 }
             };
@@ -559,6 +559,8 @@
                 { "form", form },
                 { "form_id", Convert.ToString(FormId) },
                 { "form_id_3", FormId.ToString("D3") },
+                { "costume", costume ?? defaultMissingValue },
+                { "costume_id", Convert.ToString(Costume) },
                 { "costume_id_3", Costume.ToString("D3") },
                 { "cp", CP ?? defaultMissingValue },
                 { "lvl", level ?? defaultMissingValue },
@@ -580,7 +582,6 @@
                 { "iv_rnd", IVRounded ?? defaultMissingValue },
 
                 //Other properties
-                { "costume", costume ?? defaultMissingValue },
                 { "height", Height ?? defaultMissingValue },
                 { "weight", Weight ?? defaultMissingValue },
                 { "is_ditto", Convert.ToString(IsDitto) },

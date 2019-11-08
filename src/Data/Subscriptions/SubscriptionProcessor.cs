@@ -538,7 +538,7 @@
                                 Color = DiscordColor.Red,
                                 Footer = new DiscordEmbedBuilder.EmbedFooter
                                 {
-                                    Text = $"{(_client.Guilds.ContainsKey(_whConfig.Discord.GuildId) ? _client.Guilds[_whConfig.Discord.GuildId]?.Name : "versx")} | {DateTime.Now}",
+                                    Text = $"{(_client.Guilds.ContainsKey(_whConfig.Discord.GuildId) ? _client.Guilds[_whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
                                     IconUrl = _client.Guilds.ContainsKey(_whConfig.Discord.GuildId) ? _client.Guilds[_whConfig.Discord.GuildId]?.IconUrl : string.Empty
                                 }
                             };

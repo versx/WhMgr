@@ -17,6 +17,8 @@
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
+    using WhMgr.Net.Models;
+    using WhMgr.Utilities;
 
     public class Nests
     {
@@ -35,8 +37,6 @@
         ]
         public async Task PostNestsAsync(CommandContext ctx)
         {
-            //TODO: If delete existing, delete existing
-
             var channel = await ctx.Client.GetChannelAsync(_dep.WhConfig.NestsChannelId);
             if (channel == null)
             {
@@ -44,9 +44,13 @@
                 return;
             }
 
-            if (true) //Clear Message
+            if (true) //TODO: Config ClearMessages
             {
                 var deleted = await ctx.Client.DeleteMessages(_dep.WhConfig.NestsChannelId);
+                if (deleted.Item2 == 0)
+                {
+                    _logger.Warn($"Failed to delete messages in channel: {_dep.WhConfig.NestsChannelId}");
+                }
             }
 
             var nests = GetNests(_dep.WhConfig.ConnectionStrings.Nests);
@@ -62,8 +66,13 @@
                 if (nest.Average == 0)
                     continue;
 
+                //var properties = GetProperties(ctx.Client, nest);
+                //var eb = GenerateNestMessage(ctx.Client, _dep.WhConfig, nest, "");
+
                 var pkmn = Database.Instance.Pokemon[nest.PokemonId];
                 var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, Net.Models.PokemonGender.Unset, 0);
+                var type1 = pkmn?.Types?[0];
+                var type2 = pkmn?.Types?.Count > 1 ? pkmn.Types?[1] : PokemonType.None;
                 var type1Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) ?
                     pkmn?.Types?[0].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
                     string.Empty;
@@ -71,10 +80,10 @@
                     pkmn?.Types?[1].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
                     string.Empty;
                 var typeEmojis = $"{type1Emoji} {type2Emoji}";
-                var googleMapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
+                var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
                 var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
                 var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
-                var staticMapLink = Utilities.Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pkmnImage, nest.Latitude, nest.Longitude);
+                var staticMapLink = Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pkmnImage, nest.Latitude, nest.Longitude);
                 var geofences = _dep.Whm.Geofences.Values.ToList();
                 var geofence = _dep.Whm.GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
                 if (geofence == null)
@@ -82,18 +91,17 @@
                     //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
                     continue;
                 }
-
                 var eb = new DiscordEmbedBuilder
                 {
                     Title = $"{geofence?.Name ?? "Unknown"}: {nest.Name}",
                     Color = DiscordColor.Green,
-                    Description = $"**Pokemon:** {pkmn.Name}\r\n**Average Spawns:** {nest.Average}/h | **Types:** {typeEmojis}\r\n**[[Google Maps]({googleMapsLink})] [[Apple Maps]({appleMapsLink})] [[Waze Maps]({wazeMapsLink})]**",
+                    Description = $"**Pokemon:** {pkmn.Name}\r\n**Average Spawns:** {nest.Average}/h | **Types:** {typeEmojis}\r\n**[[Google Maps]({gmapsLink})] [[Apple Maps]({appleMapsLink})] [[Waze Maps]({wazeMapsLink})]**",
                     ImageUrl = staticMapLink,
-                    Url = googleMapsLink,
+                    Url = gmapsLink,
                     ThumbnailUrl = pkmnImage,                    
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
-                        Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
+                        Text = $"{ctx.Guild?.Name ?? Strings.Creator} | {DateTime.Now}",
                         IconUrl = ctx.Guild?.IconUrl
                     }
                 };
@@ -102,6 +110,85 @@
                 System.Threading.Thread.Sleep(100);
             }
         }
+
+        //public DiscordEmbed GenerateNestMessage(DiscordClient client, WhConfig whConfig, Nest nest, /*AlarmObject alarm,*/ string pokemonImageUrl)
+        //{
+        //    //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
+        //    var alertMessageType = AlertMessageType.Nests;
+        //    var alertMessage = alarm?.Alerts[alertMessageType] ?? AlertMessage.Defaults[alertMessageType];
+        //    var properties = GetProperties(client, nest);
+        //    var eb = new DiscordEmbedBuilder
+        //    {
+        //        Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
+        //        Url = DynamicReplacementEngine.ReplaceText(alertMessage.Url, properties),
+        //        ImageUrl = DynamicReplacementEngine.ReplaceText(alertMessage.ImageUrl, properties),
+        //        ThumbnailUrl = pokemonImageUrl,
+        //        Description = DynamicReplacementEngine.ReplaceText(alertMessage.Content, properties),
+        //        Color = DiscordColor.Green,
+        //        Footer = new DiscordEmbedBuilder.EmbedFooter
+        //        {
+        //            Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
+        //            IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
+        //        }
+        //    };
+        //    return eb.Build();
+        //}
+
+        //public IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, Nest nest)
+        //{
+        //    var pkmn = Database.Instance.Pokemon[nest.PokemonId];
+        //    var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, PokemonGender.Unset, 0);
+        //    var nestName = nest.Name ?? "Unknown";
+        //    var type1 = pkmn?.Types?[0];
+        //    var type2 = pkmn?.Types?.Count > 1 ? pkmn.Types?[1] : PokemonType.None;
+        //    var type1Emoji = client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) ?
+        //        pkmn?.Types?[0].GetTypeEmojiIcons(client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
+        //        string.Empty;
+        //    var type2Emoji = client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) && pkmn?.Types?.Count > 1 ?
+        //        pkmn?.Types?[1].GetTypeEmojiIcons(client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
+        //        string.Empty;
+        //    var typeEmojis = $"{type1Emoji} {type2Emoji}";
+        //    var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
+        //    var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
+        //    var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
+        //    var staticMapLink = Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pkmnImage, nest.Latitude, nest.Longitude);
+        //    var geofences = _dep.Whm.Geofences.Values.ToList();
+        //    var geofence = _dep.Whm.GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
+        //    var city = geofence?.Name ?? "Unknown";
+
+        //    var dict = new Dictionary<string, string>
+        //    {
+        //        //Main properties
+        //        { "pkmn_id", Convert.ToString(nest.PokemonId) },
+        //        { "pkmn_id_3", nest.PokemonId.ToString("D3") },
+        //        { "pkmn_name", pkmn?.Name },
+        //        { "avg_spawns", Convert.ToString(nest.Average) },
+        //        { "nest_name", nestName },
+        //        { "type_1", Convert.ToString(type1) },
+        //        { "type_2", Convert.ToString(type2) },
+        //        { "type_1_emoji", type1Emoji },
+        //        { "type_2_emoji", type2Emoji },
+        //        { "types", $"{type1} | {type2}" },
+        //        { "types_emoji", typeEmojis },
+
+        //        //Location properties
+        //        { "geofence", city },
+        //        { "lat", Convert.ToString(nest.Latitude) },
+        //        { "lng", Convert.ToString(nest.Longitude) },
+        //        { "lat_5", Convert.ToString(Math.Round(nest.Latitude, 5)) },
+        //        { "lng_5", Convert.ToString(Math.Round(nest.Longitude, 5)) },
+
+        //        //Location links
+        //        { "tilemaps_url", staticMapLink },
+        //        { "gmaps_url", gmapsLink },
+        //        { "applemaps_url", appleMapsLink },
+        //        { "wazemaps_url", wazeMapsLink },
+
+        //        //Misc properties
+        //        { "br", "\r\n" }
+        //    };
+        //    return dict;
+        //}
 
         [
             Command("list-nests"),
@@ -220,7 +307,7 @@
                     var geofence = _dep.Whm.GeofenceService.GetGeofence(geofences, new Location(nest2.Latitude, nest2.Longitude));
                     if (geofence == null)
                     {
-                        //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
+                        _logger.Warn($"Failed to find geofence for nest {nest.Key}.");
                         continue;
                     }
 
@@ -236,7 +323,6 @@
             }
             return dict;
         }
-
 
 
         public Dictionary<int, List<Nest>> GetNestsByPokemon(string nestsConnectionString = null)
