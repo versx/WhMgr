@@ -528,7 +528,7 @@
                         _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
                         if (!user.RateLimitNotificationSent)
                         {
-                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of 30 notifications within a 60 second time span.";
+                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of {NotificationLimiter.MaxNotificationsPerMinute} notifications within a 60 second time span.";
                             var eb = new DiscordEmbedBuilder
                             {
                                 Title = "Rate Limited",

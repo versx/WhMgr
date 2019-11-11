@@ -569,9 +569,9 @@
                 for (var i = 0; i < keys.Count; i++)
                 {
                     var pokemonId = keys[i];
-                    var form = pokemonIds[pokemonId];//?.ToLower();
+                    var form = pokemonIds[pokemonId];
                     var expression = conn?.From<PokemonSubscription>();
-                    var where = expression?.Where(x => x.UserId == userId && x.PokemonId == pokemonId && (string.IsNullOrEmpty(form) && (x.Form == null || x.Form == string.Empty)) || string.Compare(x.Form, form, true) == 0);//string.Compare(x.Form, form, true) == 0);
+                    var where = expression?.Where(x => x.UserId == userId && x.PokemonId == pokemonId && (string.IsNullOrEmpty(form) && (x.Form == null || x.Form == string.Empty)) || string.Compare(x.Form, form, true) == 0);
                     var result = conn.Delete(where);
                     if (result == 0)
                     {
