@@ -86,13 +86,13 @@
             LureExpireTime = LureExpire.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(LureExpireTime))
             //{
-            LureExpireTime = LureExpireTime.AddHours(1); //DST
+            //LureExpireTime = LureExpireTime.AddHours(1); //DST
             //}
 
             InvasionExpireTime = IncidentExpire.FromUnix();
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(InvasionExpireTime))
             //{
-            InvasionExpireTime = InvasionExpireTime.AddHours(1); //DST
+            //InvasionExpireTime = InvasionExpireTime.AddHours(1); //DST
             //}
         }
 
@@ -216,6 +216,32 @@
 
         #endregion
 
+        public static string GetGruntLeaderString(InvasionGruntType gruntType)
+        {
+            switch (gruntType)
+            {
+                case InvasionGruntType.Blanche:
+                case InvasionGruntType.Candela:
+                case InvasionGruntType.Spark:
+                    return Convert.ToString(gruntType);
+                case InvasionGruntType.ExecutiveArlo:
+                    return "Executive Arlo";
+                case InvasionGruntType.ExecutiveCliff:
+                    return "Executive Cliff";
+                case InvasionGruntType.ExecutiveSierra:
+                    return "Executive Sierra";
+                case InvasionGruntType.Giovanni:
+                    return "Giovanni or Decoy";
+                case InvasionGruntType.DecoyFemale:
+                case InvasionGruntType.DecoyMale:
+                    return "Decoy";
+                case InvasionGruntType.PlayerTeamLeader:
+                    return "Player Team Leader";
+                default:
+                    return "Tier II";
+            }
+        }
+
         #region Private Methods
 
         private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
@@ -243,6 +269,7 @@
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = new TeamRocketInvasion(GruntType);
+            var leaderString = GetGruntLeaderString(GruntType);
             var invasionEncounters = invasion.GetPossibleInvasionEncounters();
 
             const string defaultMissingValue = "?";
@@ -254,8 +281,8 @@
                 { "lure_expire_time", LureExpireTime.ToLongTimeString() },
                 { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
                 { "has_invasion", Convert.ToString(HasInvasion) },
-                { "grunt_type", invasion.Type == PokemonType.None ? "Tier II" : invasion?.Type.ToString() },
-                { "grunt_type_emoji", invasion.Type == PokemonType.None ? "Tier II" : client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ?
+                { "grunt_type", invasion.Type == PokemonType.None ? leaderString : invasion?.Type.ToString() },
+                { "grunt_type_emoji", invasion.Type == PokemonType.None ? leaderString : client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ?
                     invasion.Type.GetTypeEmojiIcons(client.Guilds[whConfig.Discord.GuildId]) :
                     string.Empty
                 },
@@ -293,6 +320,8 @@
 
     public class TeamRocketInvasion
     {
+        public InvasionGruntType InvasionGruntType { get; set; }
+
         public PokemonType Type { get; set; }
 
         public PokemonGender Gender { get; set; }
@@ -318,6 +347,7 @@
 
         public TeamRocketInvasion(InvasionGruntType gruntType)
         {
+            InvasionGruntType = gruntType;
             var gender = PokemonGender.Unset;
             var type = PokemonType.None;
             var secondReward = false;

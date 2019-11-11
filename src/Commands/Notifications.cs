@@ -952,19 +952,26 @@
 
             if (!invasionType.Contains("-"))
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} Please specify a gender. i.e. `.invme fire-m` or `.invme water-f ontario`");
-                return;
+                var invType = invasionType.ToLower();
+                if (!(invType.Contains("gio") || invType.Contains("clif") || invType.Contains("arlo") || invType.Contains("sierra") || invType.Contains("decoy")))
+                {
+                    await ctx.RespondEmbed($"{ctx.User.Username} Please specify a gender. i.e. `.invmenot fire-m` or `.invmenot water-f ontario or `.invmenot giovanni`");
+                    return;
+                }
             }
 
             var parts = invasionType.Split('-');
             var type = parts[0];
-            var gender = parts[1];
-            var pkmnType = GetPokemonTypeFromString(type);
+            var gender = parts.Length > 1 ? parts[1] : "m";
             var pokemonGender = (gender.ToLower().Contains("male") || gender.ToLower()[0] == 'm') ? PokemonGender.Male : PokemonGender.Female;
-            var gruntType = TeamRocketInvasion.GruntTypeToTrInvasion(pkmnType, pokemonGender);
+            var leaderType = GetLeaderGruntType(type, pokemonGender);
+            var pkmnType = GetPokemonTypeFromString(type);
+            var gruntType = leaderType == InvasionGruntType.Unset ?
+                TeamRocketInvasion.GruntTypeToTrInvasion(pkmnType, pokemonGender) :
+                leaderType;
+            var leaderString = PokestopData.GetGruntLeaderString(gruntType);
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
-
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
             //if (!isSupporter && subscription.Quests.Count >= Strings.MaxQuestSubscriptions)
             //{
@@ -977,11 +984,11 @@
             var result = _dep.SubscriptionProcessor.Manager.AddInvasion(ctx.User.Id, gruntType, string.IsNullOrEmpty(city) ? _dep.WhConfig.Discord.CityRoles : new List<string> { city });
             if (result)
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} has subscribed to **{(pkmnType == PokemonType.None ? "Tier II" : pkmnType.ToString())} {pokemonGender}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} has subscribed to **{(pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType))} {(leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender))}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} is already subscribed to **{(pkmnType == PokemonType.None ? "Tier II" : pkmnType.ToString())} {pokemonGender}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} is already subscribed to **{(pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType))} {(leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender))}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
             }
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -1047,16 +1054,24 @@
 
             if (!invasionType.Contains("-"))
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} Please specify a gender. i.e. `.invmenot fire-m` or `.invmenot water-f ontario`");
-                return;
+                var invType = invasionType.ToLower();
+                if (!(invType.Contains("gio") || invType.Contains("clif") || invType.Contains("arlo") || invType.Contains("sierra") || invType.Contains("decoy")))
+                {
+                    await ctx.RespondEmbed($"{ctx.User.Username} Please specify a gender. i.e. `.invmenot fire-m` or `.invmenot water-f ontario or `.invmenot giovanni`");
+                    return;
+                }
             }
 
             var parts = invasionType.Split('-');
             var type = parts[0];
-            var gender = parts[1];
-            var pkmnType = GetPokemonTypeFromString(type);
+            var gender = parts.Length > 1 ? parts[1] : "m";
             var pokemonGender = (gender.ToLower().Contains("male") || gender.ToLower()[0] == 'm') ? PokemonGender.Male : PokemonGender.Female;
-            var gruntType = TeamRocketInvasion.GruntTypeToTrInvasion(pkmnType, pokemonGender);
+            var leaderType = GetLeaderGruntType(type, pokemonGender);
+            var pkmnType = GetPokemonTypeFromString(type);
+            var gruntType = leaderType == InvasionGruntType.Unset ?
+                TeamRocketInvasion.GruntTypeToTrInvasion(pkmnType, pokemonGender) :
+                leaderType;
+            var leaderString = PokestopData.GetGruntLeaderString(gruntType);
 
             await ctx.TriggerTypingAsync();
 
@@ -1069,14 +1084,33 @@
 
             if (result)
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **{(pkmnType == PokemonType.None ? "Tier II" : pkmnType.ToString())} {gender}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+                await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **{(pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType))} {(leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender))}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
             }
             else
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{(pkmnType == PokemonType.None ? "Tier II" : pkmnType.ToString())} {gender}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
+                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{(pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType))} {(leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender))}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
             }
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        private InvasionGruntType GetLeaderGruntType(string leaderGruntType, PokemonGender gender = PokemonGender.Unset)
+        {
+            var type = leaderGruntType.ToLower();
+            if (type.Contains("gio") || type.Contains("giovanni"))
+                return InvasionGruntType.Giovanni;
+            else if (type.Contains("arlo"))
+                return InvasionGruntType.ExecutiveArlo;
+            else if (type.Contains("clif"))
+                return InvasionGruntType.ExecutiveCliff;
+            else if (type.Contains("sierra"))
+                return InvasionGruntType.ExecutiveSierra;
+            else if (type.Contains("decoy"))
+                return gender == PokemonGender.Male ?
+                    InvasionGruntType.DecoyMale : 
+                    InvasionGruntType.DecoyFemale;
+
+            return InvasionGruntType.Unset;
         }
 
         private PokemonType GetPokemonTypeFromString(string pokemonType)
@@ -1110,6 +1144,8 @@
                 return PokemonType.None;
             else if (type.Contains("normal"))
                 return PokemonType.Normal;
+            else if (type.Contains("poison"))
+                return PokemonType.Poison;
             else if (type.Contains("psychic"))
                 return PokemonType.Psychic;
             else if (type.Contains("rock"))
