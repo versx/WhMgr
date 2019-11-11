@@ -140,7 +140,7 @@
                     }
 
                     var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
-                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
+                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(form) && (x.Form == null || x.Form == string.Empty)) || string.Compare(x.Form, form, true) == 0);
                     if (subscribedPokemon == null)
                     {
                         _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
