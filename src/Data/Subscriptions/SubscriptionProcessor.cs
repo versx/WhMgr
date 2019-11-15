@@ -140,7 +140,7 @@
                     }
 
                     var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
-                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && ((string.IsNullOrEmpty(form) && (x.Form == null || x.Form == string.Empty)) || string.Compare(x.Form, form, true) == 0));
+                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && ((x.Form == null || x.Form == string.Empty) || string.Compare(x.Form, form, true) == 0));
                     if (subscribedPokemon == null)
                     {
                         _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
@@ -267,7 +267,8 @@
                     var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                     var exists = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
-                        (string.Compare(x.Form, form, true) == 0 || string.IsNullOrEmpty(x.Form)) &&
+                        //(string.Compare(x.Form, form, true) == 0 || string.IsNullOrEmpty(x.Form)) &&
+                        (x.Form == null || x.Form == string.Empty || string.Compare(x.Form, form, true) == 0) &&
                         //string.Compare(x.Form, form, true) == 0 &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;

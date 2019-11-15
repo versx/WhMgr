@@ -105,6 +105,7 @@
     <Compile Include="Alarms\Filters\Models\FilterPokestopObject.cs" />
     <Compile Include="Alarms\Filters\Models\FilterQuestObject.cs" />
     <Compile Include="Alarms\Filters\Models\FilterRaidObject.cs" />
+    <Compile Include="Alarms\Filters\Models\FilterWeatherObject.cs" />
     <Compile Include="Bot.cs" />
     <Compile Include="CommandLine.cs" />
     <Compile Include="Commands\Dependencies.cs" />
@@ -146,6 +147,13 @@
     <Compile Include="Data\Subscriptions\SubscriptionProcessor.cs" />
     <Compile Include="Diagnostics\IEventLogger.cs" />
     <Compile Include="Diagnostics\LogType.cs" />
+    <Compile Include="Net\EventArgs\DataReceivedEventArgs.cs" />
+    <Compile Include="Net\Models\WeatherData.cs" />
+    <Compile Include="Osm\Models\OsmFeature.cs" />
+    <Compile Include="Osm\Models\OsmFeatureCollection.cs" />
+    <Compile Include="Osm\Models\OsmFeatureGeometry.cs" />
+    <Compile Include="Osm\Models\OsmFeatureProperties.cs" />
+    <Compile Include="Osm\OsmManager.cs" />
     <Compile Include="UrlShortener.cs" />
     <Compile Include="Extensions\CoordinatesDistanceExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />

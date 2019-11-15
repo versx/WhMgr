@@ -17,6 +17,7 @@
     using WhMgr.Localization;
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
+    using WhMgr.Osm;
     using WhMgr.Utilities;
 
     using DSharpPlus;
@@ -88,6 +89,7 @@
             _whm.PokestopAlarmTriggered += OnPokestopAlarmTriggered;
             _whm.GymAlarmTriggered += OnGymAlarmTriggered;
             _whm.GymDetailsAlarmTriggered += OnGymDetailsAlarmTriggered;
+            _whm.WeatherAlarmTriggered += OnWeatherAlarmTriggered;
             if (_whConfig.Discord.EnableSubscriptions)
             {
                 _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
@@ -566,6 +568,54 @@
             {
                 _logger.Error(ex);
             }
+        }
+
+        private void OnWeatherAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<WeatherData> e)
+        {
+            //if (string.IsNullOrEmpty(e.Alarm.Webhook))
+            //    return;
+
+            //_logger.Info($"Weather Found [Alarm: {e.Alarm.Name}, S2CellId: {e.Data.Id}, Condition={e.Data.GameplayCondition}, Severity={e.Data.Severity}]");
+
+            //var weather = e.Data;
+            //var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
+            //if (loc == null)
+            //{
+            //    //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
+            //    return;
+            //}
+
+            //try
+            //{
+            //    if (!_gyms.ContainsKey(weather.Id))
+            //    {
+            //        _gyms.Add(weather.Id, weather);
+            //    }
+
+            //    var oldGym = _gyms[weather.Id];
+            //    var changed = oldGym.Team != weather.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
+            //    if (!changed)
+            //        return;
+
+            //    var eb = weather.GenerateGymMessage(_client, _whConfig, e.Alarm, oldGym, loc?.Name ?? e.Alarm.Name);
+            //    var name = weather.GymName;
+            //    var jsonEmbed = new DiscordWebhookMessage
+            //    {
+            //        Username = name,
+            //        AvatarUrl = weather.Url,
+            //        Embeds = new List<DiscordEmbed> { eb }
+            //    }.Build();
+            //    NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
+
+            //    _gyms[weather.Id] = weather;
+
+            //    //Statistics.Instance.PokemonSent++;
+            //    //Statistics.Instance.IncrementPokemonStats(pokemon.Id);
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.Error(ex);
+            //}
         }
 
         #endregion

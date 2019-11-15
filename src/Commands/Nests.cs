@@ -18,6 +18,7 @@
     using WhMgr.Extensions;
     using WhMgr.Geofence;
     using WhMgr.Net.Models;
+    using WhMgr.Osm;
     using WhMgr.Utilities;
 
     public class Nests
@@ -69,45 +70,52 @@
                 //var properties = GetProperties(ctx.Client, nest);
                 //var eb = GenerateNestMessage(ctx.Client, _dep.WhConfig, nest, "");
 
-                var pkmn = Database.Instance.Pokemon[nest.PokemonId];
-                var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, Net.Models.PokemonGender.Unset, 0);
-                var type1 = pkmn?.Types?[0];
-                var type2 = pkmn?.Types?.Count > 1 ? pkmn.Types?[1] : PokemonType.None;
-                var type1Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) ?
-                    pkmn?.Types?[0].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
-                    string.Empty;
-                var type2Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) && pkmn?.Types?.Count > 1 ?
-                    pkmn?.Types?[1].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
-                    string.Empty;
-                var typeEmojis = $"{type1Emoji} {type2Emoji}";
-                var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
-                var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
-                var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
-                var staticMapLink = Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pkmnImage, nest.Latitude, nest.Longitude);
-                var geofences = _dep.Whm.Geofences.Values.ToList();
-                var geofence = _dep.Whm.GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
-                if (geofence == null)
+                try
                 {
-                    //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
-                    continue;
-                }
-                var eb = new DiscordEmbedBuilder
-                {
-                    Title = $"{geofence?.Name ?? "Unknown"}: {nest.Name}",
-                    Color = DiscordColor.Green,
-                    Description = $"**Pokemon:** {pkmn.Name}\r\n**Average Spawns:** {nest.Average}/h | **Types:** {typeEmojis}\r\n**[[Google Maps]({gmapsLink})] [[Apple Maps]({appleMapsLink})] [[Waze Maps]({wazeMapsLink})]**",
-                    ImageUrl = staticMapLink,
-                    Url = gmapsLink,
-                    ThumbnailUrl = pkmnImage,                    
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    var pkmn = Database.Instance.Pokemon[nest.PokemonId];
+                    var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, PokemonGender.Unset, 0);
+                    var type1 = pkmn?.Types?[0];
+                    var type2 = pkmn?.Types?.Count > 1 ? pkmn.Types?[1] : PokemonType.None;
+                    var type1Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) ?
+                        pkmn?.Types?[0].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
+                        string.Empty;
+                    var type2Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) && pkmn?.Types?.Count > 1 ?
+                        pkmn?.Types?[1].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
+                        string.Empty;
+                    var typeEmojis = $"{type1Emoji} {type2Emoji}";
+                    var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
+                    var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
+                    var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
+                    var staticMapLink = Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pkmnImage, nest.Latitude, nest.Longitude, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
+                    var geofences = _dep.Whm.Geofences.Values.ToList();
+                    var geofence = _dep.Whm.GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
+                    if (geofence == null)
                     {
-                        Text = $"{ctx.Guild?.Name ?? Strings.Creator} | {DateTime.Now}",
-                        IconUrl = ctx.Guild?.IconUrl
+                        //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
+                        continue;
                     }
-                };
+                    var eb = new DiscordEmbedBuilder
+                    {
+                        Title = $"{geofence?.Name ?? "Unknown"}: {nest.Name}",
+                        Color = DiscordColor.Green,
+                        Description = $"**Pokemon:** {pkmn.Name}\r\n**Average Spawns:** {nest.Average}/h | **Types:** {typeEmojis}\r\n**[[Google Maps]({gmapsLink})] [[Apple Maps]({appleMapsLink})] [[Waze Maps]({wazeMapsLink})]**",
+                        ImageUrl = staticMapLink,
+                        Url = gmapsLink,
+                        ThumbnailUrl = pkmnImage,
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                        {
+                            Text = $"{ctx.Guild?.Name ?? Strings.Creator} | {DateTime.Now}",
+                            IconUrl = ctx.Guild?.IconUrl
+                        }
+                    };
 
-                await channel.SendMessageAsync(null, false, eb);
-                System.Threading.Thread.Sleep(100);
+                    await channel.SendMessageAsync(null, false, eb);
+                    System.Threading.Thread.Sleep(100);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                }
             }
         }
 

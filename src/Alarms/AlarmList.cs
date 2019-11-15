@@ -23,6 +23,9 @@
         [JsonProperty("enableGyms")]
         public bool EnableGyms { get; set; }
 
+        [JsonProperty("enableWeather")]
+        public bool EnableWeather { get; set; }
+
         [JsonProperty("alarms")]
         public List<AlarmObject> Alarms { get; set; }
 

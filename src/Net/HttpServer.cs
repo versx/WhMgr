@@ -36,31 +36,36 @@
 
         #endregion
 
+        //TODO: Make one single event that all data is passed through.
         #region Events
 
-        public event EventHandler<PokemonDataEventArgs> PokemonReceived;
+        public event EventHandler<DataReceivedEventArgs<PokemonData>> PokemonReceived;
 
-        private void OnPokemonReceived(PokemonData pokemon) => PokemonReceived?.Invoke(this, new PokemonDataEventArgs(pokemon));
+        private void OnPokemonReceived(PokemonData pokemon) => PokemonReceived?.Invoke(this, new DataReceivedEventArgs<PokemonData>(pokemon));
 
-        public event EventHandler<RaidDataEventArgs> RaidReceived;
+        public event EventHandler<DataReceivedEventArgs<RaidData>> RaidReceived;
 
-        private void OnRaidReceived(RaidData raid) => RaidReceived?.Invoke(this, new RaidDataEventArgs(raid));
+        private void OnRaidReceived(RaidData raid) => RaidReceived?.Invoke(this, new DataReceivedEventArgs<RaidData>(raid));
 
-        public event EventHandler<QuestDataEventArgs> QuestReceived;
+        public event EventHandler<DataReceivedEventArgs<QuestData>> QuestReceived;
 
-        private void OnQuestReceived(QuestData quest) => QuestReceived?.Invoke(this, new QuestDataEventArgs(quest));
+        private void OnQuestReceived(QuestData quest) => QuestReceived?.Invoke(this, new DataReceivedEventArgs<QuestData>(quest));
 
-        public event EventHandler<PokestopDataEventArgs> PokestopReceived;
+        public event EventHandler<DataReceivedEventArgs<PokestopData>> PokestopReceived;
 
-        private void OnPokestopReceived(PokestopData pokestop) => PokestopReceived?.Invoke(this, new PokestopDataEventArgs(pokestop));
+        private void OnPokestopReceived(PokestopData pokestop) => PokestopReceived?.Invoke(this, new DataReceivedEventArgs<PokestopData>(pokestop));
 
-        public event EventHandler<GymDataEventArgs> GymReceived;
+        public event EventHandler<DataReceivedEventArgs<GymData>> GymReceived;
 
-        private void OnGymReceived(GymData gym) => GymReceived?.Invoke(this, new GymDataEventArgs(gym));
+        private void OnGymReceived(GymData gym) => GymReceived?.Invoke(this, new DataReceivedEventArgs<GymData>(gym));
 
-        public event EventHandler<GymDetailsDataEventArgs> GymDetailsReceived;
+        public event EventHandler<DataReceivedEventArgs<GymDetailsData>> GymDetailsReceived;
 
-        private void OnGymDetailsReceived(GymDetailsData gymDetails) => GymDetailsReceived?.Invoke(this, new GymDetailsDataEventArgs(gymDetails));
+        private void OnGymDetailsReceived(GymDetailsData gymDetails) => GymDetailsReceived?.Invoke(this, new DataReceivedEventArgs<GymDetailsData>(gymDetails));
+
+        public event EventHandler<DataReceivedEventArgs<WeatherData>> WeatherReceived;
+
+        private void OnWeatherReceived(WeatherData weather) => WeatherReceived?.Invoke(this, new DataReceivedEventArgs<WeatherData>(weather));
 
         #endregion
 
@@ -219,6 +224,9 @@
                         case PokestopData.WebhookHeaderInvasion:
                             ParsePokestop(message.Message);
                             break;
+                        case WeatherData.WebHookHeader:
+                            ParseWeather(message.Message);
+                            break;
                     }
                 }
             }
@@ -353,6 +361,26 @@
                 }
 
                 OnGymDetailsReceived(gymDetails);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                _logger.Debug(Convert.ToString(message));
+            }
+        }
+
+        private void ParseWeather(dynamic message)
+        {
+            try
+            {
+                WeatherData weather = JsonConvert.DeserializeObject<WeatherData>(Convert.ToString(message));
+                if (weather == null)
+                {
+                    _logger.Error($"Failed to parse gym details webhook object: {message}");
+                    return;
+                }
+
+                OnWeatherReceived(weather);
             }
             catch (Exception ex)
             {

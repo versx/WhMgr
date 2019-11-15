@@ -27,6 +27,7 @@
         private readonly string _alarmsFilePath;
         private readonly WhConfig _config;
         private readonly Dictionary<string, GymDetailsData> _gyms;
+        private readonly Dictionary<long, WeatherType> _weather;
         private readonly IEventLogger _logger = EventLogger.GetLogger("WHM");
 
         #endregion
@@ -40,6 +41,8 @@
         public Filters Filters { get; }
 
         public IReadOnlyDictionary<string, GymDetailsData> Gyms => _gyms;
+
+        public IReadOnlyDictionary<long, WeatherType> Weather => _weather;
 
         #endregion
 
@@ -81,6 +84,12 @@
         private void OnPokestopAlarmTriggered(PokestopData pokestop, AlarmObject alarm)
         {
             PokestopAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<PokestopData>(pokestop, alarm));
+        }
+
+        public event EventHandler<AlarmEventTriggeredEventArgs<WeatherData>> WeatherAlarmTriggered;
+        private void OnWeatherAlarmTriggered(WeatherData weather, AlarmObject alarm)
+        {
+            WeatherAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<WeatherData>(weather, alarm));
         }
 
         #endregion
@@ -138,6 +147,7 @@
             _http.PokestopReceived += Http_PokestopReceived;
             _http.GymReceived += Http_GymReceived;
             _http.GymDetailsReceived += Http_GymDetailsReceived;
+            _http.WeatherReceived += Http_WeatherReceived;
             _http.IsDebug = false;
             _http.Start();
 
@@ -148,17 +158,18 @@
 
         #region HttpServer Events
 
-        private void Http_PokemonReceived(object sender, PokemonDataEventArgs e)
+        private void Http_PokemonReceived(object sender, DataReceivedEventArgs<PokemonData> e)
         {
-            if (DateTime.Now > e.Pokemon.DespawnTime)
+            var pkmn = e.Data;
+            if (DateTime.Now > pkmn.DespawnTime)
             {
-                _logger.Debug($"Pokemon {e.Pokemon.Id} already despawned at {e.Pokemon.DespawnTime}");
+                _logger.Debug($"Pokemon {pkmn.Id} already despawned at {pkmn.DespawnTime}");
                 return;
             }
 
-            if (_config.EventPokemonIds.Contains(e.Pokemon.Id) && _config.EventPokemonIds.Count > 0)
+            if (_config.EventPokemonIds.Contains(pkmn.Id) && _config.EventPokemonIds.Count > 0)
             {
-                var iv = PokemonData.GetIV(e.Pokemon.Attack, e.Pokemon.Defense, e.Pokemon.Stamina);
+                var iv = PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina);
                 if (iv < 90)
                     return;
             }
@@ -172,47 +183,58 @@
             //    e.Pokemon.FormId = 0;
             //}
 
-            ProcessPokemon(e.Pokemon);
-            OnPokemonSubscriptionTriggered(e.Pokemon);
+            ProcessPokemon(pkmn);
+            OnPokemonSubscriptionTriggered(pkmn);
         }
 
-        private void Http_RaidReceived(object sender, RaidDataEventArgs e)
+        private void Http_RaidReceived(object sender, DataReceivedEventArgs<RaidData> e)
         {
-            if (DateTime.Now > e.Raid.EndTime)
+            var raid = e.Data;
+            if (DateTime.Now > raid.EndTime)
             {
-                _logger.Debug($"Raid boss {e.Raid.PokemonId} already despawned at {e.Raid.EndTime}");
+                _logger.Debug($"Raid boss {raid.PokemonId} already despawned at {raid.EndTime}");
                 return;
             }
 
-            ProcessRaid(e.Raid);
-            OnRaidSubscriptionTriggered(e.Raid);
+            ProcessRaid(raid);
+            OnRaidSubscriptionTriggered(raid);
         }
 
-        private void Http_QuestReceived(object sender, QuestDataEventArgs e)
+        private void Http_QuestReceived(object sender, DataReceivedEventArgs<QuestData> e)
         {
-            ProcessQuest(e.Quest);
-            OnQuestSubscriptionTriggered(e.Quest);
+            var quest = e.Data;
+            ProcessQuest(quest);
+            OnQuestSubscriptionTriggered(quest);
         }
 
-        private void Http_PokestopReceived(object sender, PokestopDataEventArgs e)
+        private void Http_PokestopReceived(object sender, DataReceivedEventArgs<PokestopData> e)
         {
-            e.Pokestop.SetTimes();
+            var pokestop = e.Data;
+            pokestop.SetTimes();
 
-            if (e.Pokestop.HasLure || e.Pokestop.HasInvasion)
+            if (pokestop.HasLure || pokestop.HasInvasion)
             {
-                ProcessPokestop(e.Pokestop);
-                OnInvasionSubscriptionTriggered(e.Pokestop);
+                ProcessPokestop(pokestop);
+                OnInvasionSubscriptionTriggered(pokestop);
             }
         }
 
-        private void Http_GymReceived(object sender, GymDataEventArgs e)
+        private void Http_GymReceived(object sender, DataReceivedEventArgs<GymData> e)
         {
-            ProcessGym(e.Gym);
+            var gym = e.Data;
+            ProcessGym(gym);
         }
 
-        private void Http_GymDetailsReceived(object sender, GymDetailsDataEventArgs e)
+        private void Http_GymDetailsReceived(object sender, DataReceivedEventArgs<GymDetailsData> e)
         {
-            ProcessGymDetails(e.GymDetails);
+            var gymDetails = e.Data;
+            ProcessGymDetails(gymDetails);
+        }
+
+        private void Http_WeatherReceived(object sender, DataReceivedEventArgs<WeatherData> e)
+        {
+            var weather = e.Data;
+            ProcessWeather(weather);
         }
 
         #endregion
@@ -668,6 +690,41 @@
                 }
 
                 OnGymDetailsAlarmTriggered(gymDetails, alarm);
+            }
+        }
+
+        private void ProcessWeather(WeatherData weather)
+        {
+            if (!_alarms.EnableWeather)
+                return;
+
+            if (weather == null)
+                return;
+
+            if (_alarms.Alarms?.Count == 0)
+                return;
+
+            for (var i = 0; i < _alarms.Alarms.Count; i++)
+            {
+                var alarm = _alarms.Alarms[i];
+                var geofence = InGeofence(alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
+                if (geofence == null)
+                {
+                    //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName} because not in geofence.");
+                    continue;
+                }
+
+                if (!_weather.ContainsKey(weather.Id))
+                {
+                    _weather.Add(weather.Id, weather.GameplayCondition);
+                }
+
+                var oldWeather = _weather[weather.Id];
+                var changed = oldWeather != weather.GameplayCondition;
+                if (!changed)
+                    return;
+
+                OnWeatherAlarmTriggered(weather, alarm);
             }
         }
 

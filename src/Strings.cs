@@ -21,8 +21,10 @@
         public const string AlertsFolder = "Alerts";
         public const string FiltersFolder = "Filters";
         public const string LibrariesFolder = "Libs";
-        public static readonly string LocaleFolder = "static" + System.IO.Path.DirectorySeparatorChar + "locale";
-        public static readonly string EmojisFolder = "static" + System.IO.Path.DirectorySeparatorChar + "emojis";
+        public const string StaticFolder = "static";
+        public static readonly string LocaleFolder = StaticFolder + System.IO.Path.DirectorySeparatorChar + "locale";
+        public static readonly string EmojisFolder = StaticFolder + System.IO.Path.DirectorySeparatorChar + "emojis";
+        public static readonly string OsmNestFilePath = StaticFolder + System.IO.Path.DirectorySeparatorChar + OsmNestFileName;
         public const string StatsFolder = "Stats";
         public const string LogsFolder = "Logs";
 
@@ -31,6 +33,7 @@
 
         public const string AlarmsFileName = "alarms.json";
         public const string ConfigFileName = "config.json";
+        public const string OsmNestFileName = "nest.json";
         public const string DebugLogFileName = "debug.log";
         public const string ErrorLogFileName = "error.log";
         public const string StatsFileName = "notifications_{0}.csv";
