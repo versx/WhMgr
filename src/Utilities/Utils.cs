@@ -93,10 +93,8 @@
             if (feature != null)
             {
                 var latlng = OsmManager.MultiPolygonToLatLng(feature.Geometry?.Coordinates);
-                var pathKey = "\"path\":";
-                var pathUrl = pathKey + latlng;
                 var polygonKey = "&polygons=";
-                var polygonUrl = "[{\"fill_color\":\"rgba(100.0%,0.0%,0.0%,0.5)\",\"stroke_color\":\"black\",\"stroke_width\":1," + pathUrl + "}]";
+                var polygonUrl = "[{\"fill_color\":\"rgba(100.0%,0.0%,0.0%,0.5)\",\"stroke_color\":\"black\",\"stroke_width\":1,\"path\":" + latlng + "}]";
                 polygonUrl = Uri.EscapeDataString(polygonUrl);
                 url += polygonKey + polygonUrl;
             }

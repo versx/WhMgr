@@ -19,7 +19,7 @@
     {
         public static double DistanceTo(this Coordinates baseCoordinates, Coordinates targetCoordinates)
         {
-            return DistanceTo(baseCoordinates, targetCoordinates, UnitOfLength.Kilometers);
+            return DistanceTo(baseCoordinates, targetCoordinates, UnitOfLength.Meters);
         }
 
         public static double DistanceTo(this Coordinates baseCoordinates, Coordinates targetCoordinates, UnitOfLength unitOfLength)
