@@ -723,7 +723,7 @@
 
                     //Subtract an hour to make sure it shows yesterdays date.
                     await statsChannel.SendMessageAsync($"[**Shiny Pokemon stats for {DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()}**]\r\n----------------------------------------------");
-                    var stats = await ShinyStats.GetStats(_whConfig);
+                    var stats = await ShinyStats.GetStats(_whConfig.ConnectionStrings.Scanner);
                     var sorted = stats.Keys.ToList();
                     sorted.Sort();
 
