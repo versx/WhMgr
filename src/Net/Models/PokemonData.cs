@@ -550,8 +550,8 @@
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var pokestop = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
 
-            var greatLeagueStats = GreatLeagueStats != null ? $"**Great League:**\r\n" + GreatLeagueStats.Select(x => $"**Rank:** #{x.Rank}\t**Level:** {x.Level}\t**CP:** {x.CP}\r\n") : string.Empty;
-            var ultraLeagueStats = UltraLeagueStats != null ? $"**Ultra League:**\r\n" + UltraLeagueStats.Select(x => $"**Rank:** #{x.Rank}\t**Level:** {x.Level}\t**CP:** {x.CP}\r\n") : string.Empty;
+            var greatLeagueStats = GreatLeagueStats != null ? $"**Great League:**\r\n" + string.Join("\r\n", GreatLeagueStats.Select(x => $"**Rank:** #{x.Rank}\t**Level:** {x.Level}\t**CP:** {x.CP}")) + "\r\n" : string.Empty;
+            var ultraLeagueStats = UltraLeagueStats != null ? $"**Ultra League:**\r\n" + string.Join("\r\n", UltraLeagueStats.Select(x => $"**Rank:** #{x.Rank}\t**Level:** {x.Level}\t**CP:** {x.CP}")) : string.Empty;
             var pvpStats = MatchesGreatLeague || MatchesUltraLeague ? $"__**PvP Statistics**__\r\n{(MatchesGreatLeague ? greatLeagueStats : string.Empty)}{(MatchesUltraLeague ? ultraLeagueStats : string.Empty)}" : string.Empty;
 
             const string defaultMissingValue = "?";

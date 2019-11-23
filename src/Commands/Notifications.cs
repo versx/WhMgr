@@ -1782,13 +1782,13 @@
                 215, //Sneasel
                 216, //Teddiursa
                 218, //Slugma
-                220, //Swinub
+                //220, //Swinub
                 223, //Remoraid
                 228, //Houndour
                 231, //Phanpy
                 252, //Treecko
-                255, //Torchic
-                258, //Mudkip
+                //255, //Torchic
+                //258, //Mudkip
                 261, //Poochyena
                 263, //Zigzagoon
                 265, //Wurmple
