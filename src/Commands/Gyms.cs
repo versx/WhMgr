@@ -50,7 +50,7 @@
 
                 var eb = new DiscordEmbedBuilder
                 {
-                    Description = "List of Pokestops converted to Gyms:",
+                    Description = "**List of Pokestops converted to Gyms:**\r\n\r\n",
                     Color = DiscordColor.Blurple,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
@@ -65,7 +65,7 @@
                     var url = string.IsNullOrEmpty(gym.Url) ? "Unknown Image Url" : $"[Click here to view gym image]({gym.Url})";
                     var locationUrl = string.Format(Strings.GoogleMaps, gym.Latitude, gym.Longitude);
                     //eb.AddField($"{name} ({gym.Latitude},{gym.Longitude})", url);
-                    eb.Description += $"{name} [Directions]({locationUrl})\r\n{url}\r\n";
+                    eb.Description += $"- **{name}** [[Directions]({locationUrl})]\r\n{url}\r\n";
                 }
                 await ctx.RespondAsync(string.Empty, false, eb);
 
