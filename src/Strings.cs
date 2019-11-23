@@ -47,7 +47,7 @@
         public const int MaxRaidSubscriptions = 5;
         public const int MaxQuestSubscriptions = 2;
         public const int MaxInvasionSubscriptions = 1;
-        public const int CommonTypeMinimumIV = 95;
+        public const int CommonTypeMinimumIV = 90;
 
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";
 
