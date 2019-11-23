@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
@@ -549,6 +550,10 @@
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var pokestop = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
 
+            var greatLeagueStats = GreatLeagueStats != null ? $"**Great League:**\r\n" + GreatLeagueStats.Select(x => $"**Rank:** #{x.Rank}\t**Level:** {x.Level}\t**CP:** {x.CP}\r\n") : string.Empty;
+            var ultraLeagueStats = UltraLeagueStats != null ? $"**Ultra League:**\r\n" + UltraLeagueStats.Select(x => $"**Rank:** #{x.Rank}\t**Level:** {x.Level}\t**CP:** {x.CP}\r\n") : string.Empty;
+            var pvpStats = MatchesGreatLeague || MatchesUltraLeague ? $"__**PvP Statistics**__\r\n{(MatchesGreatLeague ? greatLeagueStats : string.Empty)}{(MatchesUltraLeague ? ultraLeagueStats : string.Empty)}" : string.Empty;
+
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
             {
@@ -581,6 +586,14 @@
                 { "iv", IV ?? defaultMissingValue },
                 { "iv_rnd", IVRounded ?? defaultMissingValue },
 
+                //PvP stat properties
+                { "is_great", Convert.ToString(MatchesGreatLeague) },
+                { "is_ultra", Convert.ToString(MatchesUltraLeague) },
+                { "is_pvp", Convert.ToString(MatchesGreatLeague || MatchesUltraLeague) },
+                { "great_league_stats", greatLeagueStats },
+                { "ultra_league_stats", ultraLeagueStats },
+                { "pvp_stats", pvpStats },
+
                 //Other properties
                 { "height", Height ?? defaultMissingValue },
                 { "weight", Weight ?? defaultMissingValue },
@@ -588,7 +601,7 @@
                 { "original_pkmn_id", Convert.ToString(DisplayPokemonId) },
                 { "original_pkmn_id_3", (DisplayPokemonId ?? 0).ToString("D3") },
                 { "original_pkmn_name", catchPokemon?.Name },
-                { "is_weather_boosted", Convert.ToString(isWeatherBoosted) }, //Weather: :dash: (Boosted)
+                { "is_weather_boosted", Convert.ToString(isWeatherBoosted) },
                 { "has_weather", Convert.ToString(hasWeather) },
                 { "weather", weather ?? defaultMissingValue },
                 { "weather_emoji", weatherEmoji ?? defaultMissingValue },

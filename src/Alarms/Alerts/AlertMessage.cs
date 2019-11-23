@@ -11,7 +11,7 @@
                 AlertMessageType.Pokemon, new AlertMessageSettings
                 {
                     AvatarUrl = "<pkmn_img_url>",
-                    Content = "<pkmn_name> <form><gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><#has_weather> | <weather_emoji><#is_weather_boosted> (Boosted)</is_weather_boosted></has_weather><br>**Moveset:** <moveset><br><#near_pokestop>**Near Pokestop:** [<pokestop_name>](<pokestop_url>)<br></near_pokestop><#is_ditto>**Catch Pokemon:** <original_pkmn_name><br></is_ditto>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)] [[Waze Maps](<wazemaps_url>)]**",
+                    Content = "<pkmn_name> <form><gender> <iv> (<atk_iv>/<def_iv>/<sta_iv>) L<lvl><br>**Despawn:** <despawn_time> (<time_left> left)<br>**Details:** CP: <cp> IV: <iv> LV: <lvl><br>**Types:** <types_emoji> | **Size:** <size><#has_weather> | <weather_emoji><#is_weather_boosted> (Boosted)</is_weather_boosted></has_weather><br>**Moveset:** <moveset><br><#near_pokestop>**Near Pokestop:** [<pokestop_name>](<pokestop_url>)<br></near_pokestop><#is_ditto>**Catch Pokemon:** <original_pkmn_name><br></is_ditto><#is_pvp><br><pvp_stats><br></is_pvp>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)] [[Waze Maps](<wazemaps_url>)]**",
                     IconUrl = "<pkmn_img_url>",
                     Title = "<geofence>",
                     Url = "<gmaps_url>",
