@@ -2,10 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
+
     using Newtonsoft.Json;
 
     using ServiceStack.DataAnnotations;
@@ -23,10 +25,17 @@
     public sealed class PokemonData
     {
         public const string WebHookHeader = "pokemon";
+        public const int TopPvPRanks = 10;
 
         //TODO: Add ditto disguises to external file
         //private static readonly List<int> DittoDisguises = new List<int> { 13, 46, 48, 163, 165, 167, 187, 223, 273, 293, 300, 316, 322, 399 };
         private static readonly IEventLogger _logger = EventLogger.GetLogger("POKEMONDATA");
+
+        private readonly PvpRankCalculator _pvpCalc = new PvpRankCalculator();
+        private List<BestPvPStat> _top100GreatLeagueRanks;
+        private List<BestPvPStat> _top100UltraLeagueRanks;
+        private List<PvPCP> _possibleGreatLeagueCPs;
+        private List<PvPCP> _possibleUltraLeagueCPs;
 
         #region Properties
 
@@ -330,42 +339,52 @@
         //    }
         //}
 
-		[
-		    JsonIgnore,
-			Ignore
-		]
-        public bool IsStatsBelow4
-        {
-            get
-            {
-                return int.TryParse(Attack, out var atk) &&
-                       int.TryParse(Defense, out var def) &&
-                       int.TryParse(Stamina, out var sta) &&
-                       (atk < 4 || def < 4 || sta < 4);
-            }
-        }
-
         [
             JsonProperty("display_pokemon_id"),
             Alias("display_pokemon_id")
         ]
         public int? DisplayPokemonId { get; set; }
 
-		[
-		    JsonIgnore,
-			Ignore
-		]
-        public bool MatchesGreatLeague
+		//[
+		//    JsonIgnore,
+		//	Ignore
+		//]
+        public bool MatchesGreatLeague()
+        {
+            //get
+            //{
+                var passes = false;
+                for (var i = 0; i < PossibleGreatLeagueCPs?.Count; i++)
+                {
+                    var pvpCP = PossibleGreatLeagueCPs[i];
+                    var best = _pvpCalc.CalculateBestPvPStat(pvpCP.PokemonId, pvpCP.FormId, pvpCP.Attack, pvpCP.Defense, pvpCP.Stamina, 1500).GetAwaiter().GetResult();
+                    if (best == null)
+                        continue;
+
+                    var rank = _pvpCalc.GetRank(pvpCP.PokemonId, pvpCP.FormId, pvpCP.CP, best, GreatLeagueRanks).GetAwaiter().GetResult();
+                    if (rank.Key <= TopPvPRanks && rank.Key > 0)
+                    {
+                        passes = true;
+                        break;
+                    }
+                }
+                return passes;
+            //}
+        }
+
+        [
+            JsonIgnore,
+            Ignore
+        ]
+        public List<BestPvPStat> GreatLeagueRanks
         {
             get
             {
-                if (!Database.Instance.PvPGreat.ContainsKey(Id))
-                    return false;
-
-                return Database.Instance.PvPGreat[Id].Exists(x =>
-                        int.TryParse(Attack, out var atk) && atk == x.IVs.Attack &&
-                        int.TryParse(Defense, out var def) && def == x.IVs.Defense &&
-                        int.TryParse(Stamina, out var sta) && sta == x.IVs.Stamina);
+                if (_top100GreatLeagueRanks == null)
+                {
+                    _top100GreatLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 1500, TopPvPRanks).GetAwaiter().GetResult();
+                }
+                return _top100GreatLeagueRanks;
             }
         }
 
@@ -373,32 +392,70 @@
             JsonIgnore,
             Ignore
         ]
-        public List<PokemonPvP> GreatLeagueStats
+        public List<PvPCP> PossibleGreatLeagueCPs
         {
             get
             {
-                return Database.Instance.PvPGreat[Id].FindAll(x =>
-                    int.TryParse(Attack, out var atk) && atk == x.IVs.Attack &&
-                    int.TryParse(Defense, out var def) && def == x.IVs.Defense &&
-                    int.TryParse(Stamina, out var sta) && sta == x.IVs.Stamina);
+                if (_possibleGreatLeagueCPs == null)
+                {
+                    if (!int.TryParse(Attack, out var atk))
+                        return null;
+
+                    if (!int.TryParse(Defense, out var def))
+                        return null;
+
+                    if (!int.TryParse(Stamina, out var sta))
+                        return null;
+
+                    if (!int.TryParse(Level, out var lvl))
+                        return null;
+
+                    _possibleGreatLeagueCPs = _pvpCalc.CalculatePossibleCPs(Id, FormId, atk, def, sta, lvl, Gender.ToString(), 1490, 1500).GetAwaiter().GetResult();
+                }
+                return _possibleGreatLeagueCPs;
             }
         }
 
-		[
-		    JsonIgnore,
-			Ignore
-		]
-        public bool MatchesUltraLeague
+        //[
+        //    JsonIgnore,
+        //    Ignore
+        //]
+        public bool MatchesUltraLeague()
+        {
+            //get
+            //{
+                var passes = false;
+                for (var i = 0; i < PossibleUltraLeagueCPs?.Count; i++)
+                {
+                    var pvpCP = PossibleUltraLeagueCPs[i];
+                    var best = _pvpCalc.CalculateBestPvPStat(pvpCP.PokemonId, pvpCP.FormId, pvpCP.Attack, pvpCP.Defense, pvpCP.Stamina, 2500).GetAwaiter().GetResult();
+                    if (best == null)
+                        continue;
+
+                    var rank = _pvpCalc.GetRank(pvpCP.PokemonId, pvpCP.FormId, pvpCP.CP, best, UltraLeagueRanks).GetAwaiter().GetResult();
+                    if (rank.Key <= TopPvPRanks && rank.Key > 0)
+                    {
+                        passes = true;
+                        break;
+                    }
+                }
+                return passes;
+            //}
+        }
+
+        [
+            JsonIgnore,
+            Ignore
+        ]
+        public List<BestPvPStat> UltraLeagueRanks
         {
             get
             {
-                if (!Database.Instance.PvPUltra.ContainsKey(Id))
-                    return false;
-
-                return Database.Instance.PvPUltra[Id].Exists(x =>
-                        int.TryParse(Attack, out var atk) && atk == x.IVs.Attack &&
-                        int.TryParse(Defense, out var def) && def == x.IVs.Defense &&
-                        int.TryParse(Stamina, out var sta) && sta == x.IVs.Stamina);
+                if (_top100UltraLeagueRanks == null)
+                {
+                    _top100UltraLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 2500, TopPvPRanks).GetAwaiter().GetResult();
+                }
+                return _top100UltraLeagueRanks;
             }
         }
 
@@ -406,14 +463,27 @@
             JsonIgnore,
             Ignore
         ]
-        public List<PokemonPvP> UltraLeagueStats
+        public List<PvPCP> PossibleUltraLeagueCPs
         {
             get
             {
-                return Database.Instance.PvPUltra[Id].FindAll(x =>
-                        int.TryParse(Attack, out var atk) && atk == x.IVs.Attack &&
-                        int.TryParse(Defense, out var def) && def == x.IVs.Defense &&
-                        int.TryParse(Stamina, out var sta) && sta == x.IVs.Stamina);
+                if (_possibleUltraLeagueCPs == null)
+                {
+                    if (!int.TryParse(Attack, out var atk))
+                        return null;
+
+                    if (!int.TryParse(Defense, out var def))
+                        return null;
+
+                    if (!int.TryParse(Stamina, out var sta))
+                        return null;
+
+                    if (!int.TryParse(Level, out var lvl))
+                        return null;
+
+                    _possibleUltraLeagueCPs = _pvpCalc.CalculatePossibleCPs(Id, FormId, atk, def, sta, lvl, Gender.ToString(), 2490, 2500).GetAwaiter().GetResult();
+                }
+                return _possibleUltraLeagueCPs;
             }
         }
 
@@ -430,6 +500,8 @@
         public PokemonData()
         {
             SetDespawnTime();
+            _top100GreatLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 1500, TopPvPRanks).GetAwaiter().GetResult();
+            _top100UltraLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 2500, TopPvPRanks).GetAwaiter().GetResult();
         }
 
         #endregion
@@ -466,22 +538,22 @@
             //}
         }
 
-        public bool IsUnderLevel(int targetLevel)
-        {
-            return int.TryParse(Level, out var level) && level < targetLevel;
-        }
+        //public bool IsUnderLevel(int targetLevel)
+        //{
+        //    return int.TryParse(Level, out var level) && level < targetLevel;
+        //}
 
-        public bool IsAboveLevel(int targetLevel)
-        {
-            return int.TryParse(Level, out var level) && level >= targetLevel;
-        }
+        //public bool IsAboveLevel(int targetLevel)
+        //{
+        //    return int.TryParse(Level, out var level) && level >= targetLevel;
+        //}
 
-        public DiscordEmbed GeneratePokemonMessage(DiscordClient client, WhConfig whConfig, PokemonData pkmn, AlarmObject alarm, string city, string pokemonImageUrl)
+        public async Task<DiscordEmbed> GeneratePokemonMessage(DiscordClient client, WhConfig whConfig, PokemonData pkmn, AlarmObject alarm, string city, string pokemonImageUrl)
         {
             //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
             var alertMessageType = pkmn.IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alertMessage = alarm?.Alerts[alertMessageType] ?? AlertMessage.Defaults[alertMessageType];
-            var properties = GetProperties(client, whConfig, city);
+            var properties = await GetProperties(client, whConfig, city);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
@@ -496,12 +568,12 @@
                     IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
                 }
             };
-            return eb.Build();
+            return await Task.FromResult(eb.Build());
         }
 
         #endregion
 
-        private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
+        private async Task<IReadOnlyDictionary<string, string>> GetProperties(DiscordClient client, WhConfig whConfig, string city)
         {
             var pkmnInfo = Database.Instance.Pokemon[Id];
             var form = Id.GetPokemonForm(FormId.ToString());
@@ -550,9 +622,10 @@
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var pokestop = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
 
-            var greatLeagueStats = GreatLeagueStats != null ? $"**Great League:**\r\n" + string.Join("\r\n", GreatLeagueStats.Select(x => $"**Rank:** #{x.Rank}\t**Level:** {x.Level}\t**CP:** {x.CP}")) + "\r\n" : string.Empty;
-            var ultraLeagueStats = UltraLeagueStats != null ? $"**Ultra League:**\r\n" + string.Join("\r\n", UltraLeagueStats.Select(x => $"**Rank:** #{x.Rank}\t**Level:** {x.Level}\t**CP:** {x.CP}")) : string.Empty;
-            var pvpStats = MatchesGreatLeague || MatchesUltraLeague ? $"__**PvP Statistics**__\r\n{(MatchesGreatLeague ? greatLeagueStats : string.Empty)}{(MatchesUltraLeague ? ultraLeagueStats : string.Empty)}" : string.Empty;
+            var matchesGreatLeague = MatchesGreatLeague();
+            var matchesUltraLeague = MatchesUltraLeague();
+            var isPvP = matchesGreatLeague || matchesUltraLeague;
+            var pvpStats = await GetPvP();
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -587,11 +660,11 @@
                 { "iv_rnd", IVRounded ?? defaultMissingValue },
 
                 //PvP stat properties
-                { "is_great", Convert.ToString(MatchesGreatLeague) },
-                { "is_ultra", Convert.ToString(MatchesUltraLeague) },
-                { "is_pvp", Convert.ToString(MatchesGreatLeague || MatchesUltraLeague) },
-                { "great_league_stats", greatLeagueStats },
-                { "ultra_league_stats", ultraLeagueStats },
+                { "is_great", Convert.ToString(matchesGreatLeague) },
+                { "is_ultra", Convert.ToString(matchesUltraLeague) },
+                { "is_pvp", Convert.ToString(isPvP) },
+                //{ "great_league_stats", greatLeagueStats },
+                //{ "ultra_league_stats", ultraLeagueStats },
                 { "pvp_stats", pvpStats },
 
                 //Other properties
@@ -637,7 +710,7 @@
                 //Misc properties
                 { "br", "\r\n" }
             };
-            return dict;
+            return await Task.FromResult(dict);
         }
 
         public static double GetIV(string attack, string defense, string stamina)
@@ -651,5 +724,128 @@
 
             return Math.Round((double)(sta + atk + def) * 100 / 45);
         }
+
+        #region PvP
+
+        private async Task<string> GetPvP()
+        {
+            var great = await GetGreatLeague();
+            var ultra = await GetUltraLeague();
+            if (!string.IsNullOrEmpty(great) || !string.IsNullOrEmpty(ultra))
+            {
+                var header = "__**PvP Rank Statistics**__\r\n";
+                return await Task.FromResult(header + great + ultra);
+            }
+            return null;
+        }
+
+        private async Task<string> GetGreatLeague()
+        {
+            if (!int.TryParse(Attack, out var atk))
+                return string.Empty;
+            if (!int.TryParse(Defense, out var def))
+                return string.Empty;
+            if (!int.TryParse(Stamina, out var sta))
+                return string.Empty;
+
+            const int MaxCP = 1500;
+            var sb = new StringBuilder();
+            foreach (var pvpCP in PossibleGreatLeagueCPs)
+            {
+                var best = await _pvpCalc.CalculateBestPvPStat(Id, FormId, atk, def, sta, MaxCP);
+                var rank = await _pvpCalc.GetRank(pvpCP.PokemonId, pvpCP.FormId, pvpCP.CP, best, GreatLeagueRanks);
+                if (rank.Key > TopPvPRanks || rank.Key == 0)
+                    continue;
+
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pvpCP.PokemonId))
+                {
+                    _logger.Warn($"Pokemon database doesn't contain pokemon id {pvpCP.PokemonId}");
+                    continue;
+                }
+                var pkmn = MasterFile.Instance.Pokedex[pvpCP.PokemonId];
+                var form = pkmn.Forms.ContainsKey(FormId) ? " (" + pkmn.Forms[pvpCP.FormId].Name + ")" : string.Empty;
+                sb.AppendLine($"Rank #{rank.Key} {pkmn.Name}{form} {pvpCP.CP}CP @ L{pvpCP.Level} {rank.Value}%");
+            }
+            var result = sb.ToString();
+            if (!string.IsNullOrEmpty(result))
+            {
+                result = "**Great League:**\r\n" + result;
+            }
+            return await Task.FromResult(result);
+        }
+
+        private async Task<string> GetUltraLeague()
+        {
+            if (!int.TryParse(Attack, out var atk))
+                return string.Empty;
+            if (!int.TryParse(Defense, out var def))
+                return string.Empty;
+            if (!int.TryParse(Stamina, out var sta))
+                return string.Empty;
+
+            const int MaxCP = 2500;
+            var sb = new StringBuilder();
+            foreach (var pvpCP in PossibleUltraLeagueCPs)
+            {
+                var best = await _pvpCalc.CalculateBestPvPStat(Id, FormId, atk, def, sta, MaxCP);
+                var rank = await _pvpCalc.GetRank(pvpCP.PokemonId, pvpCP.FormId, pvpCP.CP, best, UltraLeagueRanks);
+                if (rank.Key > TopPvPRanks || rank.Key == 0)
+                    continue;
+
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pvpCP.PokemonId))
+                {
+                    _logger.Warn($"Pokemon database doesn't contain pokemon id {pvpCP.PokemonId}");
+                    continue;
+                }
+                var pkmn = MasterFile.Instance.Pokedex[pvpCP.PokemonId];
+                var form = pkmn.Forms.ContainsKey(FormId) ? " (" + pkmn.Forms[pvpCP.FormId].Name + ")" : string.Empty;
+                sb.AppendLine($"Rank #{rank.Key} {pkmn.Name}{form} {pvpCP.CP}CP @ L{pvpCP.Level} {rank.Value}%");
+            }
+            var result = sb.ToString();
+            if (!string.IsNullOrEmpty(result))
+            {
+                result = "**Ultra League:**\r\n" + result;
+            }
+            return await Task.FromResult(result);
+        }
+
+        //private async Task<string> GetLeagueStats(int minCP = 1490, int maxCP = 2500)
+        //{
+        //    if (!int.TryParse(Attack, out var atk))
+        //        return string.Empty;
+        //    if (!int.TryParse(Defense, out var def))
+        //        return string.Empty;
+        //    if (!int.TryParse(Stamina, out var sta))
+        //        return string.Empty;
+        //    if (!int.TryParse(Level, out var lvl))
+        //        return string.Empty;
+
+        //    var sb = new StringBuilder();
+        //    var pvpCPs = await _pvpCalc.CalculatePossibleCPs(Id, FormId, atk, def, sta, lvl, Gender.ToString(), minCP, maxCP);
+        //    foreach (var pvpCP in pvpCPs)
+        //    {
+        //        var best = await _pvpCalc.CalculateBestPvPStat(Id, FormId, atk, def, sta, maxCP);
+        //        var rank = await _pvpCalc.GetRank(pvpCP.PokemonId, pvpCP.FormId, pvpCP.CP, best);
+        //        if (rank.Key > TopPvPRanks)
+        //            continue;
+
+        //        if (!MasterFile.Instance.Pokedex.ContainsKey(pvpCP.PokemonId))
+        //        {
+        //            _logger.Warn($"Pokemon database doesn't contain pokemon id {pvpCP.PokemonId}");
+        //            continue;
+        //        }
+        //        var pkmn = MasterFile.Instance.Pokedex[pvpCP.PokemonId];
+        //        var form = pkmn.Forms.ContainsKey(FormId) ? " (" + pkmn.Forms[pvpCP.FormId].Name + ")" : string.Empty;
+        //        sb.AppendLine($"Rank #{rank.Key} {pkmn.Name}{form} {pvpCP.CP}CP @ L{pvpCP.Level} {rank.Value}%");
+        //    }
+        //    var result = sb.ToString();
+        //    if (!string.IsNullOrEmpty(result))
+        //    {
+        //        result = (maxCP == 2500 ? "**Ultra League:**\r\n" : "**Great League:**\r\n") + result;
+        //    }
+        //    return await Task.FromResult(result);
+        //}
+
+        #endregion
     }
 }

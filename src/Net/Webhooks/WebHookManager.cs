@@ -370,13 +370,13 @@
                 }
 
                 //var greatLeagueRank = 25; //TODO: Make configurable
-                if (!pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague)
+                if (!pkmn.MatchesGreatLeague() && alarm.Filters.Pokemon.IsPvpGreatLeague)
                 {
                     continue;
                 }
 
                 //var ultraLeagueRank = 25; //TODO: Make configurable
-                if (!pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague)
+                if (!pkmn.MatchesUltraLeague() && alarm.Filters.Pokemon.IsPvpUltraLeague)
                 {
                     continue;
                 }

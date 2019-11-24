@@ -127,7 +127,7 @@
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(minAtk * minAtk * minDef * minSta) / 10));
         }
 
-        public static int GetLevel(this int id, int cp)
+        public static int GetLevel(this int id, int cp, int atk, int def, int sta)
         {
             if (!Database.Instance.Pokemon.ContainsKey(id))
                 return 0;
@@ -135,7 +135,7 @@
             var pkmn = Database.Instance.Pokemon[id];
             for (var i = 0; i < CpMultipliers.Length; i++)
             {
-                var spawnCP = GetCP(pkmn.BaseStats.Attack + 15, pkmn.BaseStats.Defense + 15, pkmn.BaseStats.Stamina + 15, CpMultipliers[i]);
+                var spawnCP = GetCP(pkmn.BaseStats.Attack + atk, pkmn.BaseStats.Defense + def, pkmn.BaseStats.Stamina + sta, CpMultipliers[i]);
                 if (cp == spawnCP)
                 {
                     var level = i + 1;

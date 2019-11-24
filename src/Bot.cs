@@ -339,7 +339,7 @@
 
         #region WebhookManager Events
 
-        private void OnPokemonAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokemonData> e)
+        private async void OnPokemonAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokemonData> e)
         {
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
@@ -361,7 +361,7 @@
                 //var costume = e.Pokemon.Id.GetCostume(e.Pokemon.Costume.ToString());
                 //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
                 var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.Urls.PokemonImage, pokemon.Gender, pokemon.FormId, pokemon.Costume);
-                var eb = pokemon.GeneratePokemonMessage(_client, _whConfig, pokemon, e.Alarm, loc.Name, pkmnImage);
+                var eb = await pokemon.GeneratePokemonMessage(_client, _whConfig, pokemon, e.Alarm, loc.Name, pkmnImage);
                 var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIconValue()}{form}";
                 var jsonEmbed = new DiscordWebhookMessage
                 {

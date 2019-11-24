@@ -125,6 +125,7 @@
     <Compile Include="Configuration\WhConfig.cs" />
     <Compile Include="Data\DataAccessLayer.cs" />
     <Compile Include="Data\Database.cs" />
+    <Compile Include="Data\MasterFile.cs" />
     <Compile Include="Data\Models\Discord\DiscordEmbedMessage.cs" />
     <Compile Include="Data\Models\Discord\DiscordEmbedAuthor.cs" />
     <Compile Include="Data\Models\Discord\DiscordEmbedFooter.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Data\Models\Discord\DiscordField.cs" />
     <Compile Include="Data\Models\Discord\DiscordWebhookMessage.cs" />
     <Compile Include="Data\Models\Nest.cs" />
+    <Compile Include="Data\Models\PokedexPokemon.cs" />
     <Compile Include="Data\Models\PokemonPvP.cs" />
     <Compile Include="Data\Models\Pokestop.cs" />
     <Compile Include="Data\Subscriptions\Models\InvasionSubscription.cs" />
@@ -154,6 +156,7 @@
     <Compile Include="Osm\Models\OsmFeatureGeometry.cs" />
     <Compile Include="Osm\Models\OsmFeatureProperties.cs" />
     <Compile Include="Osm\OsmManager.cs" />
+    <Compile Include="PvpRankCalculator.cs" />
     <Compile Include="UrlShortener.cs" />
     <Compile Include="Extensions\CoordinatesDistanceExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />

@@ -164,7 +164,7 @@
                     //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
                     var iconStyle = Manager.GetUserIconStyle(user);
-                    var embed = pkmn.GeneratePokemonMessage(_client, _whConfig, pkmn, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], pkmn.Id, pkmn.FormId));
+                    var embed = await pkmn.GeneratePokemonMessage(_client, _whConfig, pkmn, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], pkmn.Id, pkmn.FormId));
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 
                     //if (!Manager.AddPokemonStatistic(member.Id, pkmn))

@@ -15,8 +15,6 @@
 
         const string PokemonFileName = "pokemon.json";
         const string MovesetsFileName = "moves.json";
-        const string PvPGreatStatsFileName = "pvp_great.json";
-        const string PvPUltraStatsFileName = "pvp_ultra.json";
 
         #endregion
 
@@ -50,10 +48,6 @@
 
         public Dictionary<int, Moveset> Movesets { get; }
 
-        public Dictionary<int, List<PokemonPvP>> PvPGreat { get; set; }
-
-        public Dictionary<int, List<PokemonPvP>> PvPUltra { get; set; }
-
         #endregion
 
         #region Constructor
@@ -62,8 +56,6 @@
         {
             Pokemon = LoadInit<Dictionary<int, PokemonInfo>>(Path.Combine(Strings.DataFolder, PokemonFileName), typeof(Dictionary<int, PokemonInfo>));
             Movesets = LoadInit<Dictionary<int, Moveset>>(Path.Combine(Strings.DataFolder, MovesetsFileName), typeof(Dictionary<int, Moveset>));
-            PvPGreat = LoadInit<Dictionary<int, List<PokemonPvP>>>(Path.Combine(Strings.DataFolder, PvPGreatStatsFileName), typeof(Dictionary<int, List<PokemonPvP>>));
-            PvPUltra = LoadInit<Dictionary<int, List<PokemonPvP>>>(Path.Combine(Strings.DataFolder, PvPUltraStatsFileName), typeof(Dictionary<int, List<PokemonPvP>>));
         }
 
         #endregion

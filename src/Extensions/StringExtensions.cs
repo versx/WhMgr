@@ -53,5 +53,12 @@
                 yield return s.Substring(i, Math.Min(partLength, s.Length - 1));
             }
         }
+
+        public static string ToUppercaseFirstLetter(this string text)
+        {
+            var firstLetter = text[0].ToString().ToUpper();
+            var remainingLetters = text.Substring(1, text.Length - 1);
+            return firstLetter + remainingLetters;
+        }
     }
 }
