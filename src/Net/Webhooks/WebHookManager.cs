@@ -169,8 +169,7 @@
 
             if (_config.EventPokemonIds.Contains(pkmn.Id) && _config.EventPokemonIds.Count > 0)
             {
-                var iv = PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina);
-                if (iv < 90)
+                if (PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina) < 90)
                     return;
             }
 
@@ -370,13 +369,13 @@
                 }
 
                 //var greatLeagueRank = 25; //TODO: Make configurable
-                if (!pkmn.MatchesGreatLeague() && alarm.Filters.Pokemon.IsPvpGreatLeague)
+                if (/*!pkmn.MatchesGreatLeague() &&*/ alarm.Filters.Pokemon.IsPvpGreatLeague)
                 {
                     continue;
                 }
 
                 //var ultraLeagueRank = 25; //TODO: Make configurable
-                if (!pkmn.MatchesUltraLeague() && alarm.Filters.Pokemon.IsPvpUltraLeague)
+                if (/*!pkmn.MatchesUltraLeague() &&*/ alarm.Filters.Pokemon.IsPvpUltraLeague)
                 {
                     continue;
                 }
@@ -748,8 +747,9 @@
 
         public GeofenceItem GetGeofence(double latitude, double longitude)
         {
-            return GeofenceService.GetGeofence(
-                Geofences.Select(x => x.Value).ToList(), 
+            return GeofenceService.GetGeofence(Geofences
+                .Select(x => x.Value)
+                .ToList(),
                 new Location(latitude, longitude)
             );
         }

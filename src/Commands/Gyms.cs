@@ -73,7 +73,7 @@
                 {
                     //Gyms are updated where the ids match.
                     var rowsAffected = db.ExecuteNonQuery("UPDATE gym INNER JOIN pokestop ON pokestop.id = gym.id SET gym.name = pokestop.name, gym.url = pokestop.url;");
-                    await ctx.RespondEmbed($"{rowsAffected} converted Gyms updated in the database.", DiscordColor.Green);
+                    await ctx.RespondEmbed($"{rowsAffected} Pokedstops updated to Gyms in the database.", DiscordColor.Green);
 
                     //If no pokestops are updated.
                     if (rowsAffected == 0)
@@ -84,7 +84,7 @@
 
                     //Delete gyms from database where the ids match existing Pokestops.
                     rowsAffected = db.ExecuteNonQuery("DELETE pokestop FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id IS NOT NULL;");
-                    await ctx.RespondEmbed($"{rowsAffected.ToString("N0")} Pokestops converted to Gyms deleted from the database.", DiscordColor.Green);
+                    await ctx.RespondEmbed($"{rowsAffected.ToString("N0")} Pokestops deleted from the database.", DiscordColor.Green);
                 }
             }
         }

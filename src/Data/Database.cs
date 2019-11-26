@@ -5,6 +5,7 @@
     using System.IO;
 
     using Newtonsoft.Json;
+    using ServiceStack.DataAnnotations;
 
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
@@ -14,7 +15,8 @@
         #region Constants
 
         const string PokemonFileName = "pokemon.json";
-        const string MovesetsFileName = "moves.json";
+        const string GreatPvPLibFileName = "pvp_great_league_ranks.json";
+        const string UltraPvPLibFileName = "pvp_ultra_league_ranks.json";
 
         #endregion
 
@@ -46,7 +48,9 @@
 
         public Dictionary<int, PokemonInfo> Pokemon { get; set; }
 
-        public Dictionary<int, Moveset> Movesets { get; }
+        public GreatPvpRankLibrary GreatPvPLibrary { get; set; }
+
+        public UltraPvpRankLibrary UltraPvPLibrary { get; set; }
 
         #endregion
 
@@ -55,7 +59,8 @@
         public Database()
         {
             Pokemon = LoadInit<Dictionary<int, PokemonInfo>>(Path.Combine(Strings.DataFolder, PokemonFileName), typeof(Dictionary<int, PokemonInfo>));
-            Movesets = LoadInit<Dictionary<int, Moveset>>(Path.Combine(Strings.DataFolder, MovesetsFileName), typeof(Dictionary<int, Moveset>));
+            //GreatPvPLibrary = LoadInit<GreatPvpRankLibrary>(Path.Combine(Strings.DataFolder, GreatPvPLibFileName), typeof(GreatPvpRankLibrary));
+            //UltraPvPLibrary = LoadInit<UltraPvpRankLibrary>(Path.Combine(Strings.DataFolder, UltraPvPLibFileName), typeof(UltraPvpRankLibrary));
         }
 
         #endregion
@@ -77,4 +82,81 @@
             return (T)JsonConvert.DeserializeObject(data, type);
         }
     }
+
+    #region PvP
+
+    public abstract class PvPRank
+    {
+        [
+            JsonProperty("pokemon_id"),
+            Alias("pokemon_id")
+        ]
+        public int PokemonId { get; set; }
+
+        [
+            JsonProperty("form"),
+            Alias("form")
+        ]
+        public int FormId { get; set; }
+
+        [
+            JsonProperty("attack"),
+            Alias("attack")
+        ]
+        public int Attack { get; set; }
+
+        [
+            JsonProperty("defense"),
+            Alias("defense")
+        ]
+        public int Defense { get; set; }
+
+        [
+            JsonProperty("stamina"),
+            Alias("stamina")
+        ]
+        public int Stamina { get; set; }
+
+        [
+            JsonProperty("value"),
+            Alias("value")
+        ]
+        public int Value { get; set; }
+
+        [
+            JsonProperty("level"),
+            Alias("level")
+        ]
+        public double Level { get; set; }
+
+        [
+            JsonProperty("CP"),
+            Alias("CP")
+        ]
+        public int CP { get; set; }
+
+        [
+            JsonProperty("percent"),
+            Alias("percent")
+        ]
+        public double Percent { get; set; }
+
+        [
+            JsonProperty("rank"),
+            Alias("rank")
+        ]
+        public int Rank { get; set; }
+    }
+
+    [Alias("great_league")]
+    public class GreatPvPRank : PvPRank { }
+
+    [Alias("ultra_league")]
+    public class UltraPvPRank : PvPRank { }
+
+    public class GreatPvpRankLibrary : Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, GreatPvPRank>>>>> { }
+
+    public class UltraPvpRankLibrary : Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, UltraPvPRank>>>>> { }
+
+    #endregion
 }

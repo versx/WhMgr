@@ -17,7 +17,6 @@
     using WhMgr.Localization;
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
-    using WhMgr.Osm;
     using WhMgr.Utilities;
 
     using DSharpPlus;
@@ -723,7 +722,7 @@
 
                     //Subtract an hour to make sure it shows yesterdays date.
                     await statsChannel.SendMessageAsync($"[**Shiny Pokemon stats for {DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()}**]\r\n----------------------------------------------");
-                    var stats = await ShinyStats.GetStats(_whConfig.ConnectionStrings.Scanner);
+                    var stats = await ShinyStats.GetShinyStats(_whConfig.ConnectionStrings.Scanner);
                     var sorted = stats.Keys.ToList();
                     sorted.Sort();
 
@@ -732,10 +731,10 @@
                         if (pokemon == 0)
                             continue;
 
-                        if (!Database.Instance.Pokemon.ContainsKey(pokemon))
+                        if (!Database.Instance.Pokemon.ContainsKey((int)pokemon))
                             continue;
 
-                        var pkmn = Database.Instance.Pokemon[pokemon];
+                        var pkmn = Database.Instance.Pokemon[(int)pokemon];
                         var pkmnStats = stats[pokemon];
                         var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
                         var chanceMessage = chance == 0 ? null : $" with a **1/{chance}** ratio";

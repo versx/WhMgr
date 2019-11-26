@@ -159,13 +159,13 @@
             //}
             var move1 = string.Empty;
             var move2 = string.Empty;
-            if (Database.Instance.Movesets.ContainsKey(FastMove))
+            if (MasterFile.Instance.Movesets.ContainsKey(FastMove))
             {
-                move1 = Database.Instance.Movesets[FastMove].Name;
+                move1 = MasterFile.Instance.Movesets[FastMove].Name;
             }
-            if (Database.Instance.Movesets.ContainsKey(ChargeMove))
+            if (MasterFile.Instance.Movesets.ContainsKey(ChargeMove))
             {
-                move2 = Database.Instance.Movesets[ChargeMove].Name;
+                move2 = MasterFile.Instance.Movesets[ChargeMove].Name;
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1] : PokemonType.None;
