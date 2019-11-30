@@ -6,7 +6,6 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Utilities;

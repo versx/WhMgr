@@ -40,6 +40,12 @@
         public async Task InfoAsync(CommandContext ctx,
             [Description("Discord user mention string.")] string mention = "")
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -91,6 +97,12 @@
         ]
         public async Task EnableDisableAsync(CommandContext ctx)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -132,6 +144,12 @@
             [Description("Maximum distance in meters between the set coordinates.")] int distance,
             [Description("Coordinates in `34.00,-117.00` format."), RemainingText] string coordinates)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -176,6 +194,12 @@
         ]
         public async Task GetExpireDateAsync(CommandContext ctx)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, ctx.Guild.Id, _dep.WhConfig);
             if (!isSupporter)
             {
@@ -196,6 +220,12 @@
         public async Task GetExpireAdminAsync(CommandContext ctx,
             [Description("Discord user id to check expire date for")] string userId)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!ulong.TryParse(userId, out var realUserId))
             {
                 await ctx.RespondEmbed($"{ctx.User.Username} Failed to parse user id {userId}", DiscordColor.Red);
@@ -222,6 +252,12 @@
             [Description("Minimum level to receive notifications for, use 0 to disregard level.")] int lvl = 0,
             [Description("Specific gender the Pokemon must be, use * to disregard gender.")] string gender = "*")
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -466,6 +502,12 @@
         public async Task PokeMeNotAsync(CommandContext ctx,
             [Description("Pokemon name or id to unsubscribe from Pokemon spawn notifications.")] string poke)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -540,6 +582,12 @@
             [Description("Pokemon name or id to subscribe to raid notifications.")] string poke,
             [Description("City to send the notification if the raid appears in otherwise if null all will be sent."), RemainingText] string city = null)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -629,6 +677,12 @@
             [Description("Pokemon name or id to unsubscribe from raid notifications.")] string poke,
             [Description("City to remove the quest notifications from otherwise if null all will be sent."), RemainingText] string city = null)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
@@ -724,6 +778,12 @@
             [Description("Reward keyword to use to find field research. Example: Spinda, 1200 stardust, candy")] string rewardKeyword,
             [Description("City to send the notification if the quest appears in otherwise if null all will be sent.")] string city = null)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
@@ -776,6 +836,12 @@
             [Description("Reward keyword to remove from field research quest subscriptions. Example: Spinda, 1200 stardust, candy")] string rewardKeyword,
             [Description("City to remove the quest notifications from otherwise if null all will be sent.")] string city = null)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
@@ -854,6 +920,12 @@
         public async Task GymMeAsync(CommandContext ctx,
             [Description("Gym name to subscribed to."), RemainingText] string gymName)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -885,6 +957,12 @@
         public async Task GymMeNotAsync(CommandContext ctx,
             [Description("Gym name to unsubscribed from."), RemainingText] string gymName)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -934,6 +1012,12 @@
             [Description("Invasion type i.e. `fire-m` to add.")] string invasionType,
             [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -1008,6 +1092,12 @@
             [Description("Invasion type i.e. `water-f` to remove.")] string invasionType,
             [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(string.Format(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
@@ -1330,6 +1420,18 @@
         ]
         public async Task ImportAsync(CommandContext ctx)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
+            if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
             await ctx.RespondEmbed("Please upload your subscriptions.json file to import now within 3 minutes...");
             var xc = await _dep.Interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && x.Attachments.Count > 0, TimeSpan.FromSeconds(180));
             if (xc != null)
@@ -1362,6 +1464,18 @@
         ]
         public async Task ExportAsync(CommandContext ctx)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
+            if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
             if (subscription == null)
             {
@@ -1386,6 +1500,12 @@
         ]
         public async Task IconsAsync(CommandContext ctx)
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -1426,6 +1546,12 @@
         public async Task SetIconAsync(CommandContext ctx,
             [Description("Icon style to use.")] string iconStyle = "Default")
         {
+            if (!await ctx.Message.IsDirectMessageSupported())
+                return;
+
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             if (!_dep.WhConfig.Servers[ctx.Guild.Id].EnableSubscriptions)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);

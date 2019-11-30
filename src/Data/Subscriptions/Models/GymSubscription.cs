@@ -19,7 +19,7 @@
         public int Id { get; set; }
 
         [
-            Alias("subscription_id"), 
+            Alias("subscription_id"),
             ForeignKey(typeof(SubscriptionObject))
         ]
         public int SubscriptionId { get; set; }
@@ -33,14 +33,14 @@
 
         [
             JsonProperty("user_id"),
-            Alias("userId"), 
+            Alias("userId"),
             Required
         ]
         public ulong UserId { get; set; }
 
         [
             JsonProperty("name"),
-            Alias("name"), 
+            Alias("name"),
             Unique
         ]
         public string Name { get; set; }

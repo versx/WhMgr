@@ -57,7 +57,7 @@
 
         [
             JsonProperty("gyms"),
-            Alias("gyms"), 
+            Alias("gyms"),
             Reference
         ]
         public List<GymSubscription> Gyms { get; set; }

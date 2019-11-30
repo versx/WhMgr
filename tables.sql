@@ -5,8 +5,8 @@ CREATE TABLE `subscriptions` (
   `userId` bigint(20) DEFAULT NULL,
   `enabled` int(11) DEFAULT 1,
   `distance` int(11) DEFAULT 0,
-  `latitude` double DEFAULT NULL,
-  `longitude` double DEFAULT NULL,
+  `latitude` double DEFAULT 0,
+  `longitude` double DEFAULT 0,
   `icon_style` text DEFAULT 'Default'
 )
 
@@ -18,9 +18,9 @@ CREATE TABLE `pokemon` (
   `pokemon_id` int(11) DEFAULT NULL,
   `form` text DEFAULT NULL,
   `min_cp` int(11) DEFAULT NULL,
-  `miv_iv` int(11) DEFAULT NULL,
-  `min_lvl` int(11) DEFAULT NULL,
-  `gender` text DEFAULT NULL,
+  `miv_iv` int(11) DEFAULT 0,
+  `min_lvl` int(11) DEFAULT 0,
+  `gender` text DEFAULT '*',
   `attack` int(11) DEFAULT NULL,
   `defense` int(11) DEFAULT NULL,
   `stamina` int(11) DEFAULT NULL

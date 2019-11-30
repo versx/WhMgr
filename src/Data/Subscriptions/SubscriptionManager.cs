@@ -135,9 +135,6 @@
             try
             {
                 var conn = GetConnection();
-                //var sub = conn.LoadSingleById<SubscriptionObject>(userId);
-                //return sub ?? new SubscriptionObject { UserId = userId };
-                //var sub = conn.LoadSelect<SubscriptionObject>().FirstOrDefault(x => x.UserId == userId && x.GuildId == guildId);
                 var expression = conn?.From<SubscriptionObject>();
                 var where = expression?.Where(x => x.GuildId == guildId && x.UserId == userId);
                 var query = conn?.LoadSelect(where);
@@ -612,9 +609,9 @@
                     var pokemonId = keys[i];
                     var form = pokemonIds[pokemonId];
                     if (conn.Delete<RaidSubscription>(x => x.GuildId == guildId &&
-                                                           x.UserId == userId && 
-                                                           x.PokemonId == pokemonId && 
-                                                           //string.Compare(x.Form, form, true) == 0 && 
+                                                           x.UserId == userId &&
+                                                           x.PokemonId == pokemonId &&
+                                                           //string.Compare(x.Form, form, true) == 0 &&
                                                            x.Form == form &&
                                                            cities.Select(y => y.ToLower()).Contains(x.City.ToLower())
                                                        ) == 0)
@@ -633,9 +630,9 @@
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                var result = conn.Delete<GymSubscription>(x => 
+                var result = conn.Delete<GymSubscription>(x =>
                     x.GuildId == guildId &&
-                    x.UserId == userId && 
+                    x.UserId == userId &&
                     string.Compare(gymName, x.Name, true) == 0);
                 return result > 0;
             }
