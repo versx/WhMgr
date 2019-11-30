@@ -1490,6 +1490,14 @@
         private async Task<List<string>> BuildUserSubscriptionSettings(DiscordClient client, DiscordUser user, ulong guildId)
         {
             var author = user.Id;
+            var member = await client.GetMemberById(_dep.WhConfig.Servers[guildId].GuildId, author);
+            if (member == null)
+            {
+                var error = $"Failed to get discord member from id {author}.";
+                _logger.Error(error);
+                return new List<string> { error };
+            }
+
             var isSubbed = _dep.SubscriptionProcessor.Manager.UserExists(guildId, author);
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, user.Id);
             var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
@@ -1499,21 +1507,18 @@
             var messages = new List<string>();
             var isSupporter = client.IsSupporterOrHigher(author, guildId, _dep.WhConfig);
 
+            var feeds = member?.Roles?.Select(x => x.Name).Where(x => _dep.WhConfig.Servers[guildId].CityRoles.Contains(x))?.ToList();
+            if (feeds == null)
+                return messages;
+            feeds.Sort();
+
+            var msg = $"Enabled: **{(subscription.Enabled ? "Yes" : "No")}**\r\n";
+            msg += $"Feed Zones: ```{string.Join(", ", feeds)}```\r\n";
+            msg += $"Icon Style: **{subscription.IconStyle}**\r\n";
+            msg += $"Distance: **{(subscription.DistanceM == 0 ? "Not Set (Any Distance)" : $"{subscription.DistanceM} kilometers")}**\r\n";
+
             if (hasPokemon)
             {
-                var member = await client.GetMemberById(_dep.WhConfig.Servers[guildId].GuildId, author);
-                if (member == null)
-                {
-                    var error = $"Failed to get discord member from id {author}.";
-                    _logger.Error(error);
-                    return new List<string> { error };
-                }
-
-                var feeds = member?.Roles?.Select(x => x.Name).Where(x => _dep.WhConfig.Servers[guildId].CityRoles.Contains(x))?.ToList();
-                if (feeds == null)
-                    return messages;
-                feeds.Sort();
-
                 var pokemon = subscription.Pokemon;
                 pokemon.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
 
@@ -1530,10 +1535,6 @@
                     }
                 }
 
-                var msg = $"Enabled: **{(subscription.Enabled ? "Yes" : "No")}**\r\n";
-                msg += $"Feed Zones: ```{string.Join(", ", feeds)}```\r\n";
-                msg += $"Icon Style: **{subscription.IconStyle}**\r\n";
-                msg += $"Distance: **{(subscription.DistanceM == 0 ? "Not Set (Any Distance)" : $"{subscription.DistanceM} kilometers")}**\r\n";
                 msg += $"Pokemon Subscriptions: ({pokemon.Count}/{(isSupporter ? "∞" : Strings.MaxPokemonSubscriptions.ToString())} used)\r\n";
                 msg += "```";
 
@@ -1592,10 +1593,10 @@
                 messages.Add(msg2);
             }
 
-            if (messages.Count == 0)
-            {
-                messages.Add($"**{user.Mention}** is not subscribed to any Pokemon or Raid notifications.");
-            }
+            //if (messages.Count == 0)
+            //{
+            //    messages.Add($"**{user.Mention}** is not subscribed to any Pokemon or Raid notifications.");
+            //}
 
             return messages;
         }

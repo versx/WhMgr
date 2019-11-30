@@ -622,10 +622,10 @@
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var pokestop = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
 
-            //var matchesGreatLeague = MatchesGreatLeague();
-            //var matchesUltraLeague = MatchesUltraLeague();
-            //var isPvP = matchesGreatLeague || matchesUltraLeague;
-            //var pvpStats = await GetPvP();
+            var matchesGreatLeague = false;// MatchesGreatLeague();
+            var matchesUltraLeague = false;// MatchesUltraLeague();
+            var isPvP = matchesGreatLeague || matchesUltraLeague;
+            var pvpStats = string.Empty;// await GetPvP();
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -660,12 +660,12 @@
                 { "iv_rnd", IVRounded ?? defaultMissingValue },
 
                 //PvP stat properties
-                //{ "is_great", Convert.ToString(matchesGreatLeague) },
-                //{ "is_ultra", Convert.ToString(matchesUltraLeague) },
-                //{ "is_pvp", Convert.ToString(isPvP) },
-                ////{ "great_league_stats", greatLeagueStats },
-                ////{ "ultra_league_stats", ultraLeagueStats },
-                //{ "pvp_stats", pvpStats },
+                { "is_great", Convert.ToString(matchesGreatLeague) },
+                { "is_ultra", Convert.ToString(matchesUltraLeague) },
+                { "is_pvp", Convert.ToString(isPvP) },
+                //{ "great_league_stats", greatLeagueStats },
+                //{ "ultra_league_stats", ultraLeagueStats },
+                { "pvp_stats", pvpStats },
 
                 //Other properties
                 { "height", Height ?? defaultMissingValue },

@@ -53,14 +53,13 @@
             _lang = new Translator();
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;
+            _gyms = new Dictionary<string, GymDetailsData>();
+            _whm = new WebhookController(_whConfig);
+
             DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
             DataAccessLayer.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
 
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
-
-            _gyms = new Dictionary<string, GymDetailsData>();
-
-            _whm = new WebhookController(_whConfig);
 
             var midnight = new DandTSoftware.Timers.MidnightTimer();
             midnight.TimeReached += async (e) => await ResetQuests();
@@ -170,6 +169,7 @@
                 _logger.Info($"Attempting connection to Discord server {guildId}");
                 await client.ConnectAsync();
                 await Task.Delay(5000);
+                await CreateEmojis(guildId);
             }
 
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
@@ -240,7 +240,7 @@
             _logger.Info($"[DISCORD] Name: {e.Client.CurrentUser.Username}#{e.Client.CurrentUser.Discriminator}");
             _logger.Info($"[DISCORD] Email: {e.Client.CurrentUser.Email}");
 
-            await CreateEmojis();
+            await Task.CompletedTask;
         }
 
         //private async Task Client_MessageCreated(MessageCreateEventArgs e)
@@ -734,50 +734,46 @@
 
         #region Private Methods
 
-        private async Task CreateEmojis()
+        private async Task CreateEmojis(ulong guildId)
         {
             _logger.Trace($"CreateEmojis");
 
-            var keys = _servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            var server = _whConfig.Servers[guildId];
+            var client = _servers[guildId];
+            if (!client.Guilds?.ContainsKey(server.EmojiGuildId) ?? false)
             {
-                var guildId = keys[i];
-                var server = _whConfig.Servers[guildId];
-                var client = _servers[guildId];
-                if (!client.Guilds?.ContainsKey(server.EmojiGuildId) ?? false)
+                _logger.Warn($"Bot not in emoji server {server.EmojiGuildId}");
+                return;
+            }
+
+            var guild = client.Guilds[server.EmojiGuildId];
+            for (var j = 0; j < Strings.EmojiList.Length; j++)
+            {
+                try
                 {
-                    _logger.Warn($"Bot not in emoji server {server.EmojiGuildId}");
-                    continue;
-                }
-                var guild = client.Guilds[server.EmojiGuildId];
-                for (var j = 0; j < Strings.EmojiList.Length; j++)
-                {
-                    try
+                    var emoji = Strings.EmojiList[j];
+                    var emojis = await guild.GetEmojisAsync();
+                    var emojiExists = emojis.FirstOrDefault(x => string.Compare(x.Name, emoji, true) == 0);
+                    if (emojiExists == null)
                     {
-                        var emoji = Strings.EmojiList[j];
-                        var emojis = await guild.GetEmojisAsync();
-                        var emojiExists = emojis.FirstOrDefault(x => string.Compare(x.Name, emoji, true) == 0);
-                        if (emojiExists == null)
+                        _logger.Debug($"Emoji {emoji} doesn't exist, creating...");
+
+                        var emojiPath = Path.Combine(Strings.EmojisFolder, emoji + ".png");
+                        if (!File.Exists(emojiPath))
                         {
-                            _logger.Debug($"Emoji {emoji} doesn't exist, creating...");
-
-                            var emojiPath = Path.Combine(Strings.EmojisFolder, emoji + ".png");
-                            if (!File.Exists(emojiPath))
-                            {
-                                _logger.Error($"Failed to file emoji file at {emojiPath}, skipping...");
-                                continue;
-                            }
-
-                            var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
-                            await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
-
-                            _logger.Info($"Emoji {emoji} created successfully.");
+                            _logger.Error($"Failed to file emoji file at {emojiPath}, skipping...");
+                            continue;
                         }
+
+                        var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
+                        await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
+
+                        _logger.Info($"Emoji {emoji} created successfully.");
                     }
-                    catch (Exception ex)
-                    {
-                        _logger.Error(ex);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
                 }
             }
         }
