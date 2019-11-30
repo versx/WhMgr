@@ -90,7 +90,7 @@
 
                 await statsChannel.SendMessageAsync($"[**Shiny Pokemon stats for {DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString()}**]\r\n----------------------------------------------");
                 //var stats = await GetStats(_dep.WhConfig.ConnectionStrings.Scanner);
-                var stats = await GetShinyStats(_dep.WhConfig.ConnectionStrings.Scanner);
+                var stats = await GetShinyStats(_dep.WhConfig.Database.Scanner.ToString());
                 var sorted = stats.Keys.ToList();
                 sorted.Sort();
 

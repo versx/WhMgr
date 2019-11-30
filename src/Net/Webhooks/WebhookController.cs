@@ -288,10 +288,10 @@
                     }
                 }
 
-                _logger.Info($"Loading alerts file {x.AlertsFile}...");
+                //_logger.Info($"Loading alerts file {x.AlertsFile}...");
                 x.LoadAlerts();
 
-                _logger.Info($"Loading filters file {x.FiltersFile}...");
+                //_logger.Info($"Loading filters file {x.FiltersFile}...");
                 x.LoadFilters();
             });
 

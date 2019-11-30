@@ -331,7 +331,8 @@
                             subscription.Pokemon.Add(new PokemonSubscription {
                                 PokemonId = i,
                                 MinimumIV = (i == 201 ? 0 : realIV),
-                                MinimumLevel = (i == 201 ? 0 : lvl)
+                                MinimumLevel = (i == 201 ? 0 : lvl),
+                                SubscriptionId = subscription.Id
                             });
                             continue;
                         }
@@ -345,6 +346,7 @@
                             subscribedPokemon.MinimumIV = (i == 201 ? 0 : realIV);
                             subscribedPokemon.MinimumLevel = (i == 201 ? 0 : lvl);
                             subscribedPokemon.Gender = (i == 201 ? "*" : gender);
+                            subscribedPokemon.SubscriptionId = subscribedPokemon.Id;
                         }
                     }
 
@@ -419,6 +421,7 @@
                     defense != subscribedPokemon.Defense ||
                     stamina != subscribedPokemon.Stamina)
                 {
+                    subscribedPokemon.SubscriptionId = subscription.Id;
                     subscribedPokemon.Form = form;
                     subscribedPokemon.MinimumIV = realIV;
                     subscribedPokemon.MinimumLevel = lvl;

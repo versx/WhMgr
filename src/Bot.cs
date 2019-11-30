@@ -53,8 +53,8 @@
             _lang = new Translator();
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;
-            DataAccessLayer.ConnectionString = _whConfig.ConnectionStrings.Main;
-            DataAccessLayer.ScannerConnectionString = _whConfig.ConnectionStrings.Scanner;
+            DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
+            DataAccessLayer.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
 
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
@@ -147,24 +147,9 @@
                 {
                     _servers.Add(guildId, client);
                 }
-            }
 
-            _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
-            _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
-            _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
-            _whm.PokestopAlarmTriggered += OnPokestopAlarmTriggered;
-            _whm.GymAlarmTriggered += OnGymAlarmTriggered;
-            _whm.GymDetailsAlarmTriggered += OnGymDetailsAlarmTriggered;
-            _whm.WeatherAlarmTriggered += OnWeatherAlarmTriggered;
-            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null) //At least one server wants subscriptions
-            {
-                _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
-                _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
-                _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
-                _whm.InvasionSubscriptionTriggered += OnInvasionSubscriptionTriggered;
+                Task.Delay(3000).GetAwaiter().GetResult();
             }
-
-            _logger.Info("WebhookManager is running...");
         }
 
         #endregion
@@ -186,6 +171,57 @@
                 await client.ConnectAsync();
                 await Task.Delay(5000);
             }
+
+            _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
+            _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
+            _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
+            _whm.PokestopAlarmTriggered += OnPokestopAlarmTriggered;
+            _whm.GymAlarmTriggered += OnGymAlarmTriggered;
+            _whm.GymDetailsAlarmTriggered += OnGymDetailsAlarmTriggered;
+            _whm.WeatherAlarmTriggered += OnWeatherAlarmTriggered;
+            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null) //At least one server wants subscriptions
+            {
+                _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
+                _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
+                _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
+                _whm.InvasionSubscriptionTriggered += OnInvasionSubscriptionTriggered;
+            }
+
+            _logger.Info("WebhookManager is running...");
+        }
+
+        public async Task Stop()
+        {
+            _logger.Trace("Stop");
+            _logger.Info("Disconnecting from Discord...");
+
+            var keys = _servers.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var guildId = keys[i];
+                var client = _servers[guildId];
+
+                _logger.Info($"Attempting connection to Discord server {guildId}");
+                await client.DisconnectAsync();
+                await Task.Delay(5000);
+            }
+
+            _whm.PokemonAlarmTriggered -= OnPokemonAlarmTriggered;
+            _whm.RaidAlarmTriggered -= OnRaidAlarmTriggered;
+            _whm.QuestAlarmTriggered -= OnQuestAlarmTriggered;
+            _whm.PokestopAlarmTriggered -= OnPokestopAlarmTriggered;
+            _whm.GymAlarmTriggered -= OnGymAlarmTriggered;
+            _whm.GymDetailsAlarmTriggered -= OnGymDetailsAlarmTriggered;
+            _whm.WeatherAlarmTriggered -= OnWeatherAlarmTriggered;
+            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null) //At least one server wants subscriptions
+            {
+                _whm.PokemonSubscriptionTriggered -= OnPokemonSubscriptionTriggered;
+                _whm.RaidSubscriptionTriggered -= OnRaidSubscriptionTriggered;
+                _whm.QuestSubscriptionTriggered -= OnQuestSubscriptionTriggered;
+                _whm.InvasionSubscriptionTriggered -= OnInvasionSubscriptionTriggered;
+            }
+
+            _logger.Info("WebhookManager is stopped...");
         }
 
         #endregion
@@ -784,7 +820,7 @@
                         _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}"); 
                         //Subtract an hour to make sure it shows yesterdays date.
                         await statsChannel.SendMessageAsync($"[**Shiny Pokemon stats for {DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()}**]\r\n----------------------------------------------");
-                        var stats = await ShinyStats.GetShinyStats(_whConfig.ConnectionStrings.Scanner);
+                        var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
                         var sorted = stats.Keys.ToList();
                         sorted.Sort();
 

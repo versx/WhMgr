@@ -5,12 +5,12 @@
     public class ConnectionStringsConfig
     {
         [JsonProperty("main")]
-        public string Main { get; set; }
+        public DatabaseConfig Main { get; set; }
 
         [JsonProperty("scanner")]
-        public string Scanner { get; set; }
+        public DatabaseConfig Scanner { get; set; }
 
         [JsonProperty("nests")]
-        public string Nests { get; set; }
+        public DatabaseConfig Nests { get; set; }
     }
 }

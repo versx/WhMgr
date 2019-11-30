@@ -30,8 +30,8 @@
             _logger.Trace($"SubscriptionManager::SubscriptionManager");
 
             _whConfig = whConfig;
-            _connFactory = new OrmLiteConnectionFactory(_whConfig.ConnectionStrings.Main, MySqlDialect.Provider);
-            _scanConnFactory = new OrmLiteConnectionFactory(_whConfig.ConnectionStrings.Scanner, MySqlDialect.Provider);
+            _connFactory = new OrmLiteConnectionFactory(_whConfig.Database.Main.ToString(), MySqlDialect.Provider);
+            _scanConnFactory = new OrmLiteConnectionFactory(_whConfig.Database.Scanner.ToString(), MySqlDialect.Provider);
 
             CreateDefaultTables();
             ReloadSubscriptions();
@@ -144,9 +144,10 @@
                 var sub = query?.FirstOrDefault();
                 return sub ?? new SubscriptionObject { UserId = userId, GuildId = guildId };
             }
-            catch (MySql.Data.MySqlClient.MySqlException)
+            catch (MySql.Data.MySqlClient.MySqlException ex)
             {
-                _conn = DataAccessLayer.CreateFactory().Open();
+                _logger.Error(ex);
+                //_conn = DataAccessLayer.CreateFactory().Open();
                 return GetUserSubscriptions(guildId, userId);
             }
         }
@@ -326,8 +327,9 @@
                 _logger.Debug($"LastInsertId: {conn.LastInsertId()}");
                 return true;
             }
-            catch (MySql.Data.MySqlClient.MySqlException)
+            catch (MySql.Data.MySqlClient.MySqlException ex)
             {
+                _logger.Error(ex);
                 return AddPokemon(guildId, userId, pokemonId, form, iv, lvl, gender);
             }
             catch (Exception ex)

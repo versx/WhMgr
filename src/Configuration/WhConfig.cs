@@ -31,11 +31,11 @@
         [JsonProperty("servers")]
         public Dictionary<ulong, DiscordServerConfig> Servers { get; set; }
 
-        [JsonProperty("webhookPort")]
+        [JsonProperty("port")]
         public ushort WebhookPort { get; set; }
 
-        [JsonProperty("connectionStrings")]
-        public ConnectionStringsConfig ConnectionStrings { get; set; }
+        [JsonProperty("database")]
+        public ConnectionStringsConfig Database { get; set; }
 
         [JsonProperty("shortUrlApiUrl")]
         public string ShortUrlApiUrl { get; set; }
@@ -61,7 +61,7 @@
         public WhConfig()
         {
             Servers = new Dictionary<ulong, DiscordServerConfig>();
-            ConnectionStrings = new ConnectionStringsConfig();
+            Database = new ConnectionStringsConfig();
             EventPokemonIds = new List<int>();
             Urls = new UrlConfig();
             IconStyles = new Dictionary<string, string>();
@@ -80,7 +80,7 @@
                 throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
 
-            return Database.LoadInit<WhConfig>(filePath, typeof(WhConfig));
+            return Data.Database.LoadInit<WhConfig>(filePath, typeof(WhConfig));
         }
     }
 }

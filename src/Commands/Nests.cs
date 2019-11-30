@@ -61,7 +61,7 @@
                 }
             }
 
-            var nests = GetNests(_dep.WhConfig.ConnectionStrings.Nests);
+            var nests = GetNests(_dep.WhConfig.Database.Nests.ToString());
             if (nests == null)
             {
                 await ctx.RespondAsync($"{ctx.User.Username} Failed to get nest list.");
@@ -226,7 +226,7 @@
                     }
                 };
 
-                var nests = GetNestsByPokemon(_dep.WhConfig.ConnectionStrings.Nests);
+                var nests = GetNestsByPokemon(_dep.WhConfig.Database.Nests.ToString());
                 if (nests == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from nest database.");
@@ -281,7 +281,7 @@
                     }
                 };
 
-                var nests = GetNestsByPokemon(_dep.WhConfig.ConnectionStrings.Nests)?.Where(x => x.Key == pokeId);
+                var nests = GetNestsByPokemon(_dep.WhConfig.Database.Nests.ToString())?.Where(x => x.Key == pokeId);
                 if (nests == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from nest database.");

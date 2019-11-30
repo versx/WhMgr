@@ -118,6 +118,7 @@
     <Compile Include="Commands\Quests.cs" />
     <Compile Include="Commands\ShinyStats.cs" />
     <Compile Include="Configuration\ConnectionStringsConfig.cs" />
+    <Compile Include="Configuration\DatabaseConfig.cs" />
     <Compile Include="Configuration\DiscordServerConfig.cs" />
     <Compile Include="Configuration\ShinyStatsConfig.cs" />
     <Compile Include="Configuration\StaticMapConfig.cs" />
