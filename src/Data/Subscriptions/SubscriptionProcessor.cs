@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Data.Subscriptions
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -23,10 +24,9 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION_PROCESSOR");
 
-        private readonly DiscordClient _client;
+        private readonly Dictionary<ulong, DiscordClient> _servers;
         private readonly WhConfig _whConfig;
-        private readonly WebhookManager _whm;
-        //private readonly EmbedBuilder _embedBuilder;
+        private readonly WebhookController _whm;
         private readonly NotificationQueue _queue;
 
         #endregion
@@ -39,11 +39,11 @@
 
         #region Constructor
 
-        public SubscriptionProcessor(DiscordClient client, WhConfig config, WebhookManager whm)//, EmbedBuilder embedBuilder)
+        public SubscriptionProcessor(Dictionary<ulong, DiscordClient> servers, WhConfig config, WebhookController whm)
         {
             _logger.Trace($"SubscriptionProcessor::SubscriptionProcessor");
 
-            _client = client;
+            _servers = servers;
             _whConfig = config;
             _whm = whm;
             //_embedBuilder = embedBuilder;
@@ -60,9 +60,6 @@
 
         public async Task ProcessPokemonSubscription(PokemonData pkmn)
         {
-            if (!_whConfig.Discord.EnableSubscriptions)
-                return;
-
             var db = Database.Instance;
             if (!db.Pokemon.ContainsKey(pkmn.Id))
                 return;
@@ -102,9 +99,20 @@
                     if (!user.Enabled)
                         continue;
 
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
                     try
                     {
-                        member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
+                        member = await client.GetMemberById(user.GuildId, user.UserId);
                     }
                     catch (Exception ex)
                     {
@@ -113,7 +121,7 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.Discord.DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pokemon.Name}...");
                         continue;
@@ -164,7 +172,7 @@
                     //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
 
                     var iconStyle = Manager.GetUserIconStyle(user);
-                    var embed = await pkmn.GeneratePokemonMessage(_client, _whConfig, pkmn, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], pkmn.Id, pkmn.FormId));
+                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, pkmn, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], pkmn.Id, pkmn.FormId));
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 
                     //if (!Manager.AddPokemonStatistic(member.Id, pkmn))
@@ -193,9 +201,6 @@
 
         public async Task ProcessRaidSubscription(RaidData raid)
         {
-            if (!_whConfig.Discord.EnableSubscriptions)
-                return;
-
             var db = Database.Instance;
             if (!db.Pokemon.ContainsKey(raid.PokemonId))
                 return;
@@ -227,14 +232,25 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
+                    var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.Discord.DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
                         continue;
@@ -281,7 +297,7 @@
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
                     var iconStyle = Manager.GetUserIconStyle(user);
-                    var embed = raid.GenerateRaidMessage(_client, _whConfig, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], raid.PokemonId, raid.Form));
+                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], raid.PokemonId, raid.Form));
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
 
                     //if (!Manager.AddRaidStatistic(member.Id, raid))
@@ -308,9 +324,6 @@
 
         public async Task ProcessQuestSubscription(QuestData quest)
         {
-            if (!_whConfig.Discord.EnableSubscriptions)
-                return;
-
             var db = Database.Instance;
             var reward = quest.Rewards[0].Info;
             var rewardKeyword = quest.GetReward();
@@ -332,8 +345,6 @@
 
             bool isSupporter;
             SubscriptionObject user;
-            //var embed = _embedBuilder.BuildQuestMessage(quest, loc.Name);
-            var embed = quest.GenerateQuestMessage(_client, _whConfig, null, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -345,14 +356,25 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
+                    var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
-                    isSupporter = member.HasSupporterRole(_whConfig.Discord.DonorRoleIds);
+                    isSupporter = member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds);
                     if (!isSupporter)
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping quest {questName}...");
@@ -380,6 +402,8 @@
                         }
                     }
 
+                    //var embed = _embedBuilder.BuildQuestMessage(quest, loc.Name);
+                    var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     //_logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
 
@@ -399,9 +423,6 @@
 
         public async Task ProcessInvasionSubscription(PokestopData pokestop)
         {
-            if (!_whConfig.Discord.EnableSubscriptions)
-                return;
-
             var loc = _whm.GetGeofence(pokestop.Latitude, pokestop.Longitude);
             if (loc == null)
             {
@@ -417,8 +438,6 @@
             }
 
             SubscriptionObject user;
-            //var embed = _embedBuilder.BuildPokestopMessage(pokestop, loc.Name);
-            var embed = pokestop.GeneratePokestopMessage(_client, _whConfig, null, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -430,14 +449,25 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
+                    var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.Discord.DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
                         continue;
@@ -466,6 +496,8 @@
 
                     //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
 
+                    //var embed = _embedBuilder.BuildPokestopMessage(pokestop, loc.Name);
+                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokestop.Name, embed));
 
                     //if (!Manager.AddRaidStatistic(member.Id, raid))
@@ -483,7 +515,7 @@
 
             subscriptions.Clear();
             subscriptions = null;
-            embed = null;
+            //embed = null;
             user = null;
             loc = null;
 
@@ -529,6 +561,9 @@
                         _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
                         if (!user.RateLimitNotificationSent)
                         {
+                            var guildName = _servers.ContainsKey(user.GuildId) ? _servers[user.GuildId].Guilds[user.GuildId]?.Name : Strings.Creator;
+                            var guildIconUrl = _servers.ContainsKey(user.GuildId) ? _servers[user.GuildId].Guilds[user.GuildId]?.IconUrl : string.Empty;
+
                             var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of {NotificationLimiter.MaxNotificationsPerMinute} notifications within a 60 second time span.";
                             var eb = new DiscordEmbedBuilder
                             {
@@ -537,11 +572,14 @@
                                 Color = DiscordColor.Red,
                                 Footer = new DiscordEmbedBuilder.EmbedFooter
                                 {
-                                    Text = $"{(_client.Guilds.ContainsKey(_whConfig.Discord.GuildId) ? _client.Guilds[_whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.Discord.GuildId) ? _client.Guilds[_whConfig.Discord.GuildId]?.IconUrl : string.Empty
+                                    Text = $"{guildName} | {DateTime.Now}",
+                                    IconUrl = guildIconUrl
                                 }
                             };
-                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
+                            if (!_servers.ContainsKey(user.GuildId))
+                                continue;
+
+                            await _servers[user.GuildId].SendDirectMessage(member, string.Empty, eb.Build());
                             user.RateLimitNotificationSent = true;
                         }
                         continue;
@@ -549,7 +587,10 @@
 
                     user.RateLimitNotificationSent = false;
 
-                    await _client.SendDirectMessage(item.Item1, item.Item3);
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    await _servers[user.GuildId].SendDirectMessage(item.Item1, item.Item3);
                     _logger.Info($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
                     Thread.Sleep(10);
                 }

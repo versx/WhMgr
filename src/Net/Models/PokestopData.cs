@@ -187,11 +187,11 @@
             }
         }
 
-        public DiscordEmbed GeneratePokestopMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbed GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(client, whConfig, city);
+            var properties = GetProperties(guildId, client, whConfig, city);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -207,8 +207,8 @@
                     : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
                 }
             };
             return eb.Build();
@@ -244,7 +244,7 @@
 
         #region Private Methods
 
-        private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city)
         {
             string icon;
             if (HasInvasion)
@@ -282,8 +282,8 @@
                 { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
                 { "has_invasion", Convert.ToString(HasInvasion) },
                 { "grunt_type", invasion.Type == PokemonType.None ? leaderString : invasion?.Type.ToString() },
-                { "grunt_type_emoji", invasion.Type == PokemonType.None ? leaderString : client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ?
-                    invasion.Type.GetTypeEmojiIcons(client.Guilds[whConfig.Discord.GuildId]) :
+                { "grunt_type_emoji", invasion.Type == PokemonType.None ? leaderString : client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
+                    invasion.Type.GetTypeEmojiIcons(client.Guilds[guildId]) :
                     string.Empty
                 },
                 { "grunt_gender", invasion.Gender.ToString() },

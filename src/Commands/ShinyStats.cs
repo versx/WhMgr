@@ -7,6 +7,7 @@
 
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
+    using DSharpPlus.Entities;
     using ServiceStack.DataAnnotations;
     using ServiceStack.OrmLite;
 
@@ -60,24 +61,31 @@
         ]
         public async Task GetShinyStatsAsync(CommandContext ctx)
         {
-            if (!_dep.WhConfig.ShinyStats.Enabled)
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+            {
+                await ctx.RespondEmbed("Must be in Discord server.", DiscordColor.Red);
+                return;
+            }
+
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            if (!server.ShinyStats.Enabled)
                 return;
 
-            if (_dep.WhConfig.ShinyStats.ClearMessages)
+            if (server.ShinyStats.ClearMessages)
             {
                 await ctx.Message.DeleteAsync();
             }
 
-            var statsChannel = await ctx.Client.GetChannelAsync(_dep.WhConfig.ShinyStats.ChannelId);
+            var statsChannel = await ctx.Client.GetChannelAsync(server.ShinyStats.ChannelId);
             if (statsChannel == null)
             {
-                _logger.Warn($"Failed to get channel id {_dep.WhConfig.ShinyStats.ChannelId} to post shiny stats.");
+                _logger.Warn($"Failed to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
             }
             else
             {
-                if (_dep.WhConfig.ShinyStats.ClearMessages)
+                if (server.ShinyStats.ClearMessages)
                 {
-                    await ctx.Client.DeleteMessages(_dep.WhConfig.ShinyStats.ChannelId);
+                    await ctx.Client.DeleteMessages(server.ShinyStats.ChannelId);
                 }
 
                 await statsChannel.SendMessageAsync($"[**Shiny Pokemon stats for {DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString()}**]\r\n----------------------------------------------");

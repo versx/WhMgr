@@ -33,17 +33,20 @@
             if (!await ctx.Message.IsDirectMessageSupported())
                 return;
 
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
             var eb = new DiscordEmbedBuilder
             {
                 Color = DiscordColor.Red,
                 Description = 
                     "**Available City Roles:**\r\n" +
-                    $"- {string.Join($"{Environment.NewLine}- ", _dep.WhConfig.Discord.CityRoles)}" +
+                    $"- {string.Join($"{Environment.NewLine}- ", _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles)}" +
                     Environment.NewLine +
                     $"- {Strings.All}" +
                     Environment.NewLine +
                     Environment.NewLine +
-                    $"*Type `{_dep.WhConfig.Discord.CommandPrefix}feedme cityname` to assign yourself to that city role.*",
+                    $"*Type `{_dep.WhConfig.Servers[ctx.Guild.Id].CommandPrefix}feedme cityname` to assign yourself to that city role.*",
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
@@ -65,8 +68,8 @@
             if (!await ctx.Message.IsDirectMessageSupported())
                 return;
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
-            if (_dep.WhConfig.Discord.CitiesRequireSupporterRole && !isSupporter)
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, ctx.Guild.Id, _dep.WhConfig);
+            if (_dep.WhConfig.Servers[ctx.Guild.Id].CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
@@ -92,8 +95,7 @@
                 var cityNames = cityName.Replace(" ", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var city in cityNames)
                 {
-                    var roles = new List<string>();
-                    roles.AddRange(_dep.WhConfig.Discord.CityRoles);
+                    var roles = _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles;
                     if (roles.FirstOrDefault(x => string.Compare(city, x, true) == 0) == null)
                     {
                         await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} {city} is not a valid city name, type `.cities` to see a list of available cities.");
@@ -117,7 +119,7 @@
                         alreadyAssigned.Add(cityRole.Name);
                     }
 
-                    if (_dep.WhConfig.Discord.CityRoles.FirstOrDefault(x => string.Compare(x, city, true) == 0) != null)
+                    if (_dep.WhConfig.Servers[ctx.Guild.Id].CityRoles.FirstOrDefault(x => string.Compare(x, city, true) == 0) != null)
                     {
                         var cityRaidRole = ctx.Client.GetRoleFromName($"{city}Raids");
                         if (cityRaidRole != null)
@@ -168,8 +170,8 @@
             if (!await ctx.Message.IsDirectMessageSupported())
                 return;
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
-            if (_dep.WhConfig.Discord.CitiesRequireSupporterRole && !isSupporter)
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, ctx.Guild.Id, _dep.WhConfig);
+            if (_dep.WhConfig.Servers[ctx.Guild.Id].CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
@@ -190,7 +192,7 @@
                 foreach (var city in cityNames)
                 {
                     var roles = new List<string>();
-                    roles.AddRange(_dep.WhConfig.Discord.CityRoles);
+                    roles.AddRange(_dep.WhConfig.Servers[ctx.Guild.Id].CityRoles);
                     if (!roles.Exists(x => string.Compare(city, x, true) == 0))
                     {
                         await ctx.RespondAsync($"{ctx.User.Username}#{ctx.User.Discriminator} {city} is not a valid city name, type `.cities` to see a list of available cities.");
@@ -247,13 +249,13 @@
 
         private async Task AssignAllDefaultFeedRoles(CommandContext ctx)
         {
-            if (_dep.WhConfig.Discord.CityRoles == null)
+            if (_dep.WhConfig.Servers[ctx.Guild.Id].CityRoles == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
             }
 
-            foreach (var city in _dep.WhConfig.Discord.CityRoles)
+            foreach (var city in _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles)
             {
                 var cityRole = ctx.Client.GetRoleFromName(city);
                 if (cityRole == null)
@@ -274,7 +276,7 @@
 
         private async Task RemoveAllDefaultFeedRoles(CommandContext ctx)
         {
-            foreach (var city in _dep.WhConfig.Discord.CityRoles)
+            foreach (var city in _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles)
             {
                 var cityRole = ctx.Client.GetRoleFromName(city);
                 if (cityRole == null)

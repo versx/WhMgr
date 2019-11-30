@@ -48,11 +48,11 @@
 
         #endregion
 
-        public DiscordEmbed GenerateGymMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, GymDetailsData oldGym, string city)
+        public DiscordEmbed GenerateGymMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, GymDetailsData oldGym, string city)
         {
             var alertType = AlertMessageType.Gyms;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(client, whConfig, city, oldGym);
+            var properties = GetProperties(guildId, client, whConfig, city, oldGym);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -66,20 +66,20 @@
                     DiscordColor.LightGray,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds.ContainsKey(whConfig.Servers[guildId].GuildId) ? client.Guilds[whConfig.Servers[guildId].GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(whConfig.Servers[guildId].GuildId) ? client.Guilds[whConfig.Servers[guildId].GuildId]?.IconUrl : string.Empty
                 }
             };
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city, GymDetailsData oldGym)
+        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city, GymDetailsData oldGym)
         {
-            var exEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId("ex") : 0;
+            var exEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId("ex") : 0;
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 0;
+            var teamEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 0;
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
-            var oldTeamEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId(oldGym.Team.ToString().ToLower()) : 0;
+            var oldTeamEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId(oldGym.Team.ToString().ToLower()) : 0;
             var oldTeamEmoji = oldTeamEmojiId > 0 ? $"<:{oldGym.Team.ToString().ToLower()}:{oldTeamEmojiId}>" : oldGym.Team.ToString();
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);

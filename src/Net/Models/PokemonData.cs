@@ -548,12 +548,12 @@
         //    return int.TryParse(Level, out var level) && level >= targetLevel;
         //}
 
-        public async Task<DiscordEmbed> GeneratePokemonMessage(DiscordClient client, WhConfig whConfig, PokemonData pkmn, AlarmObject alarm, string city, string pokemonImageUrl)
+        public async Task<DiscordEmbed> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, PokemonData pkmn, AlarmObject alarm, string city, string pokemonImageUrl)
         {
             //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
             var alertMessageType = pkmn.IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alertMessage = alarm?.Alerts[alertMessageType] ?? AlertMessage.Defaults[alertMessageType];
-            var properties = await GetProperties(client, whConfig, city);
+            var properties = await GetProperties(guildId, client, whConfig, city);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
@@ -564,8 +564,8 @@
                 Color = pkmn.IV.BuildColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
                 }
             };
             return await Task.FromResult(eb.Build());
@@ -573,7 +573,7 @@
 
         #endregion
 
-        private async Task<IReadOnlyDictionary<string, string>> GetProperties(DiscordClient client, WhConfig whConfig, string city)
+        private async Task<IReadOnlyDictionary<string, string>> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city)
         {
             var pkmnInfo = Database.Instance.Pokemon[Id];
             var form = Id.GetPokemonForm(FormId.ToString());
@@ -588,7 +588,7 @@
             if (Weather.HasValue && Strings.WeatherEmojis.ContainsKey(Weather.Value) && Weather != WeatherType.None)
             {
                 //TODO: Security check
-                weatherEmoji = Weather.Value.GetWeatherEmojiIcon(client.Guilds[whConfig.Discord.EmojiGuildId]);//Strings.WeatherEmojis[Weather.Value];
+                weatherEmoji = Weather.Value.GetWeatherEmojiIcon(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]);//Strings.WeatherEmojis[Weather.Value];
             }
             var move1 = string.Empty;
             var move2 = string.Empty;
@@ -602,11 +602,11 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
-                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
+            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? 
+                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) : 
                 string.Empty;
-            var type2Emoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
-                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
+            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
+                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) : 
                 string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? Database.Instance.Pokemon[DisplayPokemonId ?? Id] : Database.Instance.Pokemon[Id];

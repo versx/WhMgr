@@ -133,19 +133,24 @@
             return true;
         }
 
-        public static bool IsSupporterOrHigher(this DiscordClient client, ulong userId, WhConfig config)
+        public static bool IsSupporterOrHigher(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)
         {
             try
             {
-                var isAdmin = userId == config.Discord.OwnerId;
+                if (!config.Servers.ContainsKey(guildId))
+                    return false;
+
+                var server = config.Servers[guildId];
+
+                var isAdmin = userId == server.OwnerId;
                 if (isAdmin)
                     return true;
 
-                var isModerator = config.Discord.Moderators.Contains(userId);
+                var isModerator = server.Moderators.Contains(userId);
                 if (isModerator)
                     return true;
 
-                var isSupporter = client.HasSupporterRole(config.Discord.GuildId, userId, config.Discord.DonorRoleIds);
+                var isSupporter = client.HasSupporterRole(server.GuildId, userId, server.DonorRoleIds);
                 if (isSupporter)
                     return true;
             }
@@ -157,22 +162,30 @@
             return false;
         }
 
-        public static bool IsModeratorOrHigher(this ulong userId, WhConfig config)
+        public static bool IsModeratorOrHigher(this ulong userId, ulong guildId, WhConfig config)
         {
-            var isAdmin = IsAdmin(userId, config.Discord.OwnerId);
+            if (!config.Servers.ContainsKey(guildId))
+                return false;
+
+            var server = config.Servers[guildId];
+
+            var isAdmin = IsAdmin(userId, server.OwnerId);
             if (isAdmin)
                 return true;
 
-            var isModerator = config.Discord.Moderators.Contains(userId);
+            var isModerator = server.Moderators.Contains(userId);
             if (isModerator)
                 return true;
 
             return false;
         }
 
-        public static bool IsModerator(this ulong userId, WhConfig config)
+        public static bool IsModerator(this ulong userId, ulong guildId, WhConfig config)
         {
-            return config.Discord.Moderators.Contains(userId);
+            if (!config.Servers.ContainsKey(guildId))
+                return false;
+
+            return config.Servers[guildId].Moderators.Contains(userId);
         }
 
         public static bool IsAdmin(this ulong userId, ulong ownerId)

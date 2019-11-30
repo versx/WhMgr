@@ -12,16 +12,29 @@
     {
         [
             JsonIgnore,
-            Alias("id"), 
-            PrimaryKey, 
+            Alias("id"),
+            PrimaryKey,
             AutoIncrement
         ]
         public int Id { get; set; }
 
         [
+            Alias("subscription_id"), 
+            ForeignKey(typeof(SubscriptionObject))
+        ]
+        public int SubscriptionId { get; set; }
+
+        [
+             JsonProperty("guild_id"),
+             Alias("guild_id"),
+             Required
+        ]
+        public ulong GuildId { get; set; }
+
+        [
             JsonProperty("user_id"),
             Alias("userId"), 
-            ForeignKey(typeof(SubscriptionObject))
+            Required
         ]
         public ulong UserId { get; set; }
 

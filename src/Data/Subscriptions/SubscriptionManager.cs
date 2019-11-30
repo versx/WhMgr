@@ -52,32 +52,32 @@
             conn.Save(subscription, true);
         }
 
-        public bool Set(ulong userId, bool enabled)
+        public bool Set(ulong guildId, ulong userId, bool enabled)
         {
-            _logger.Trace($"SubscriptionManager::Set [UserId={userId}, Enabled={enabled}]");
+            _logger.Trace($"SubscriptionManager::Set [GuildId={guildId}, UserId={userId}, Enabled={enabled}]");
 
             if (!IsDbConnectionOpen())
             {
                 throw new Exception("Not connected to database.");
             }
 
-            var subscription = GetUserSubscriptions(userId);
+            var subscription = GetUserSubscriptions(guildId, userId);
             subscription.Enabled = enabled;
             _conn.Save(subscription, true);
 
             return subscription.Enabled == enabled;
         }
 
-        public bool SetDistance(ulong userId, int distance, double latitude, double longitude)
+        public bool SetDistance(ulong guildId, ulong userId, int distance, double latitude, double longitude)
         {
-            _logger.Trace($"SubscriptionManager::SetDistance [UserId={userId}, Distance={distance}, Latitude={latitude}, Longitude={longitude}]");
+            _logger.Trace($"SubscriptionManager::SetDistance [GuildId={guildId}, UserId={userId}, Distance={distance}, Latitude={latitude}, Longitude={longitude}]");
 
             if (!IsDbConnectionOpen())
             {
                 throw new Exception("Not connected to database.");
             }
 
-            var subscription = GetUserSubscriptions(userId);
+            var subscription = GetUserSubscriptions(guildId, userId);
             subscription.DistanceM = distance;
             subscription.Latitude = latitude;
             subscription.Longitude = longitude;
@@ -88,16 +88,16 @@
                 Math.Abs(subscription.Longitude - longitude) < double.Epsilon;
         }
 
-        public bool SetIconStyle(ulong userId, string iconStyle)
+        public bool SetIconStyle(ulong guildId, ulong userId, string iconStyle)
         {
-            _logger.Trace($"SubscriptionManager::Set [UserId={userId}, IconStyle={iconStyle}]");
+            _logger.Trace($"SubscriptionManager::Set [GuildId={guildId}, UserId={userId}, IconStyle={iconStyle}]");
 
             if (!IsDbConnectionOpen())
             {
                 throw new Exception("Not connected to database.");
             }
 
-            var subscription = GetUserSubscriptions(userId);
+            var subscription = GetUserSubscriptions(guildId, userId);
             subscription.IconStyle = iconStyle;
             _conn.Save(subscription, true);
 
@@ -106,7 +106,7 @@
 
         #region User
 
-        public bool UserExists(ulong userId)
+        public bool UserExists(ulong guildId, ulong userId)
         {
             if (!IsDbConnectionOpen())
             {
@@ -116,16 +116,16 @@
             try
             {
                 var conn = GetConnection();
-                return conn.LoadSingleById<SubscriptionObject>(userId) != null;
+                return conn.Exists<SubscriptionObject>(x => x.GuildId == guildId && x.UserId == userId);
             }
             catch (MySql.Data.MySqlClient.MySqlException)
             {
                 _conn = DataAccessLayer.CreateFactory().Open();
-                return UserExists(userId);
+                return UserExists(guildId, userId);
             }
         }
 
-        public SubscriptionObject GetUserSubscriptions(ulong userId)
+        public SubscriptionObject GetUserSubscriptions(ulong guildId, ulong userId)
         {
             if (!IsDbConnectionOpen())
             {
@@ -135,13 +135,19 @@
             try
             {
                 var conn = GetConnection();
-                var sub = conn.LoadSingleById<SubscriptionObject>(userId);
-                return sub ?? new SubscriptionObject { UserId = userId };
+                //var sub = conn.LoadSingleById<SubscriptionObject>(userId);
+                //return sub ?? new SubscriptionObject { UserId = userId };
+                //var sub = conn.LoadSelect<SubscriptionObject>().FirstOrDefault(x => x.UserId == userId && x.GuildId == guildId);
+                var expression = conn?.From<SubscriptionObject>();
+                var where = expression?.Where(x => x.GuildId == guildId && x.UserId == userId);
+                var query = conn?.LoadSelect(where);
+                var sub = query?.FirstOrDefault();
+                return sub ?? new SubscriptionObject { UserId = userId, GuildId = guildId };
             }
             catch (MySql.Data.MySqlClient.MySqlException)
             {
                 _conn = DataAccessLayer.CreateFactory().Open();
-                return GetUserSubscriptions(userId);
+                return GetUserSubscriptions(guildId, userId);
             }
         }
 
@@ -255,16 +261,16 @@
 
         #region Add
 
-        public bool AddPokemon(ulong userId, int pokemonId, string form = null, int iv = 0, int lvl = 0, string gender = "*", int attack = 0, int defense = 0, int stamina = 0)
+        public bool AddPokemon(ulong guildId, ulong userId, int pokemonId, string form = null, int iv = 0, int lvl = 0, string gender = "*", int attack = 0, int defense = 0, int stamina = 0)
         {
-            _logger.Trace($"SubscriptionManager::AddPokemon [UserId={userId}, PokemonId={pokemonId}, Form={form}, IV={iv}, Level={lvl}, Gender={gender}, Attack={attack}, Defense={defense}, Stamina={stamina}]");
+            _logger.Trace($"SubscriptionManager::AddPokemon [GuildId={guildId}, UserId={userId}, PokemonId={pokemonId}, Form={form}, IV={iv}, Level={lvl}, Gender={gender}, Attack={attack}, Defense={defense}, Stamina={stamina}]");
 
             if (!IsDbConnectionOpen())
             {
                 throw new Exception("Not connected to database.");
             }
 
-            var subscription = GetUserSubscriptions(userId);
+            var subscription = GetUserSubscriptions(guildId, userId);
             var pkmnSub = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
             if (pkmnSub == null)
             {
@@ -273,6 +279,7 @@
                 {
                     PokemonId = pokemonId,
                     Form = form,
+                    GuildId = guildId,
                     UserId = userId,
                     MinimumIV = iv,
                     MinimumLevel = lvl,
@@ -321,7 +328,7 @@
             }
             catch (MySql.Data.MySqlClient.MySqlException)
             {
-                return AddPokemon(userId, pokemonId, form, iv, lvl, gender);
+                return AddPokemon(guildId, userId, pokemonId, form, iv, lvl, gender);
             }
             catch (Exception ex)
             {
@@ -331,13 +338,13 @@
             return false;
         }
 
-        public bool AddRaid(ulong userId, int pokemonId, string form, List<string> cities)
+        public bool AddRaid(ulong guildId, ulong userId, int pokemonId, string form, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::AddRaid [UserId={userId}, PokemonId={pokemonId}, Form={form}, Cities={cities}]");
+            _logger.Trace($"SubscriptionManager::AddRaid [GuildId={guildId}, UserId={userId}, PokemonId={pokemonId}, Form={form}, Cities={cities}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                var subscription = GetUserSubscriptions(userId);
+                var subscription = GetUserSubscriptions(guildId, userId);
                 for (var i = 0; i < cities.Count; i++)
                 {
                     var city = cities[i];
@@ -353,6 +360,7 @@
                     {
                         PokemonId = pokemonId,
                         Form = form,
+                        GuildId = guildId,
                         UserId = userId,
                         City = city
                     };
@@ -372,7 +380,7 @@
                 }
                 catch (MySql.Data.MySqlClient.MySqlException)
                 {
-                    return AddRaid(userId, pokemonId, form, cities);
+                    return AddRaid(guildId, userId, pokemonId, form, cities);
                 }
                 catch (Exception ex)
                 {
@@ -383,13 +391,13 @@
             return true;
         }
 
-        public bool AddQuest(ulong userId, string rewardKeyword, List<string> cities)
+        public bool AddQuest(ulong guildId, ulong userId, string rewardKeyword, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::AddQuest [UserId={userId}, RewardKeyword={rewardKeyword}, Cities={cities}]");
+            _logger.Trace($"SubscriptionManager::AddQuest [GuildId={guildId}, UserId={userId}, RewardKeyword={rewardKeyword}, Cities={cities}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                var subscription = GetUserSubscriptions(userId);
+                var subscription = GetUserSubscriptions(guildId, userId);
                 for (var i = 0; i < cities.Count; i++)
                 {
                     var city = cities[i];
@@ -400,6 +408,7 @@
                     //Create new raid subscription object.
                     questSub = new QuestSubscription
                     {
+                        GuildId = guildId,
                         UserId = userId,
                         RewardKeyword = rewardKeyword,
                         City = city
@@ -420,7 +429,7 @@
                 }
                 catch (MySql.Data.MySqlClient.MySqlException)
                 {
-                    return AddQuest(userId, rewardKeyword, cities);
+                    return AddQuest(guildId, userId, rewardKeyword, cities);
                 }
                 catch (Exception ex)
                 {
@@ -431,13 +440,13 @@
             return true;
         }
 
-        public bool AddInvasion(ulong userId, InvasionGruntType gruntType, List<string> cities)
+        public bool AddInvasion(ulong guildId, ulong userId, InvasionGruntType gruntType, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::AddInvasion [UserId={userId}, GruntType={gruntType}, Cities={cities}]");
+            _logger.Trace($"SubscriptionManager::AddInvasion [GuildId={guildId}, UserId={userId}, GruntType={gruntType}, Cities={cities}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                var subscription = GetUserSubscriptions(userId);
+                var subscription = GetUserSubscriptions(guildId, userId);
                 for (var i = 0; i < cities.Count; i++)
                 {
                     var city = cities[i];
@@ -448,6 +457,7 @@
                     //Create new Team Rocket invasion subscription object.
                     invasionSub = new InvasionSubscription
                     {
+                        GuildId = guildId,
                         UserId = userId,
                         GruntType = gruntType,
                         City = city
@@ -468,7 +478,7 @@
                 }
                 catch (MySql.Data.MySqlClient.MySqlException)
                 {
-                    return AddInvasion(userId, gruntType, cities);
+                    return AddInvasion(guildId, userId, gruntType, cities);
                 }
                 catch (Exception ex)
                 {
@@ -479,13 +489,13 @@
             return true;
         }
 
-        public bool AddGym(ulong userId, string gymName)
+        public bool AddGym(ulong guildId, ulong userId, string gymName)
         {
-            _logger.Trace($"SubscriptionManager::AddGym [UserId={userId}, GymName={gymName}]");
+            _logger.Trace($"SubscriptionManager::AddGym [GuildId={guildId}, UserId={userId}, GymName={gymName}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                var subscription = GetUserSubscriptions(userId);
+                var subscription = GetUserSubscriptions(guildId, userId);
 
                 //Gym exists
                 var gymSub = subscription.Gyms.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
@@ -494,6 +504,7 @@
                     //Create new gym subscription object.
                     gymSub = new GymSubscription
                     {
+                        GuildId = guildId,
                         UserId = userId,
                         Name = gymName
                     };
@@ -521,7 +532,7 @@
                 }
                 catch (MySql.Data.MySqlClient.MySqlException)
                 {
-                    return AddGym(userId, gymName);
+                    return AddGym(guildId, userId, gymName);
                 }
                 catch (Exception ex)
                 {
@@ -531,9 +542,9 @@
             }
         }
 
-        public bool AddRaid(ulong userId, Dictionary<int, string> pokemonIds, List<string> cities)
+        public bool AddRaid(ulong guildId, ulong userId, Dictionary<int, string> pokemonIds, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::AddRaid [UserId={userId}, PokemonIds={string.Join(", ", pokemonIds)}, Cities={cities}]");
+            _logger.Trace($"SubscriptionManager::AddRaid [Guild={guildId}, UserId={userId}, PokemonIds={string.Join(", ", pokemonIds)}, Cities={cities}]");
 
             if (!IsDbConnectionOpen())
             {
@@ -546,7 +557,7 @@
             {
                 var pokemonId = keys[i];
                 var form = pokemonIds[pokemonId];
-                if (!AddRaid(userId, pokemonId, form, cities))
+                if (!AddRaid(guildId, userId, pokemonId, form, cities))
                 {
                     errors++;
                 }
@@ -559,9 +570,9 @@
 
         #region Remove
 
-        public bool RemovePokemon(ulong userId, Dictionary<int, string> pokemonIds)
+        public bool RemovePokemon(ulong guildId, ulong userId, Dictionary<int, string> pokemonIds)
         {
-            _logger.Trace($"SubscriptionManager::RemovePokemon [UserId={userId}, PokemonIds={pokemonIds}]");
+            _logger.Trace($"SubscriptionManager::RemovePokemon [GuildId={guildId}, UserId={userId}, PokemonIds={pokemonIds}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
@@ -571,7 +582,11 @@
                     var pokemonId = keys[i];
                     var form = pokemonIds[pokemonId];
                     var expression = conn?.From<PokemonSubscription>();
-                    var where = expression?.Where(x => x.UserId == userId && x.PokemonId == pokemonId && (string.IsNullOrEmpty(form) && (x.Form == null || x.Form == string.Empty)) || string.Compare(x.Form, form, true) == 0);
+                    var where = expression?.Where(x => x.GuildId == guildId
+                                                       && x.UserId == userId
+                                                       && x.PokemonId == pokemonId
+                                                       && (string.IsNullOrEmpty(form) && (x.Form == null || x.Form == string.Empty))
+                                                       || string.Compare(x.Form, form, true) == 0);
                     var result = conn.Delete(where);
                     if (result == 0)
                     {
@@ -583,9 +598,9 @@
             return true;
         }
 
-        public bool RemoveRaid(ulong userId, Dictionary<int, string> pokemonIds, List<string> cities)
+        public bool RemoveRaid(ulong guildId, ulong userId, Dictionary<int, string> pokemonIds, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::RemoveRaid [UserId={userId}, PokemonId={pokemonIds}, Cities={cities}]");
+            _logger.Trace($"SubscriptionManager::RemoveRaid [GuildId={guildId}, UserId={userId}, PokemonId={pokemonIds}, Cities={cities}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
@@ -594,7 +609,8 @@
                 {
                     var pokemonId = keys[i];
                     var form = pokemonIds[pokemonId];
-                    if (conn.Delete<RaidSubscription>(x => x.UserId == userId && 
+                    if (conn.Delete<RaidSubscription>(x => x.GuildId == guildId &&
+                                                           x.UserId == userId && 
                                                            x.PokemonId == pokemonId && 
                                                            //string.Compare(x.Form, form, true) == 0 && 
                                                            x.Form == form &&
@@ -609,28 +625,30 @@
             return true;
         }
 
-        public bool RemoveGym(ulong userId, string gymName)
+        public bool RemoveGym(ulong guildId, ulong userId, string gymName)
         {
-            _logger.Trace($"SubscriptionManager::RemoveGym [UserId={userId}, GymName={gymName}]");
+            _logger.Trace($"SubscriptionManager::RemoveGym [GuildId={guildId}, UserId={userId}, GymName={gymName}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
                 var result = conn.Delete<GymSubscription>(x => 
+                    x.GuildId == guildId &&
                     x.UserId == userId && 
                     string.Compare(gymName, x.Name, true) == 0);
                 return result > 0;
             }
         }
 
-        public bool RemoveQuest(ulong userId, string rewardKeyword, List<string> cities)
+        public bool RemoveQuest(ulong guildId, ulong userId, string rewardKeyword, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::RemoveQuest [UserId={userId}, RewardKeyword={rewardKeyword}, Cities={cities}]");
+            _logger.Trace($"SubscriptionManager::RemoveQuest [GuildId={guildId}, UserId={userId}, RewardKeyword={rewardKeyword}, Cities={cities}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
                 for (var i = 0; i < cities.Count; i++)
                 {
                     if (conn.Delete<QuestSubscription>(x => 
+                        x.GuildId == guildId &&
                         x.UserId == userId && 
                         string.Compare(rewardKeyword.ToLower(), x.RewardKeyword.ToLower(), true) == 0 &&
                         string.Compare(cities[i], x.City, true) == 0) == 0)
@@ -643,15 +661,16 @@
             return true;
         }
 
-        public bool RemoveInvasion(ulong userId, InvasionGruntType gruntType, List<string> cities)
+        public bool RemoveInvasion(ulong guildId, ulong userId, InvasionGruntType gruntType, List<string> cities)
         {
-            _logger.Trace($"SubscriptionManager::RemoveInvasion [UserId={userId}, GruntType={gruntType}, Cities={cities}]");
+            _logger.Trace($"SubscriptionManager::RemoveInvasion [GuildId={guildId}, UserId={userId}, GruntType={gruntType}, Cities={cities}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
                 for (var i = 0; i < cities.Count; i++)
                 {
                     if (conn.Delete<InvasionSubscription>(x =>
+                        x.GuildId == guildId &&
                         x.UserId == userId &&
                         x.GruntType == gruntType &&
                         string.Compare(cities[i], x.City, true) == 0) == 0)
@@ -668,20 +687,20 @@
 
         #region Remove All
 
-        public bool RemoveAllUserSubscriptions(ulong userId)
+        public bool RemoveAllUserSubscriptions(ulong guildId, ulong userId)
         {
-            _logger.Trace($"SubscriptionManager::RemoveAllUserSubscription [UserId={userId}]");
+            _logger.Trace($"SubscriptionManager::RemoveAllUserSubscription [GuildId={guildId}, UserId={userId}]");
 
             try
             {
                 using (var conn = DataAccessLayer.CreateFactory().Open())
                 {
-                    conn.Delete<PokemonSubscription>(x => x.UserId == userId);
-                    conn.Delete<RaidSubscription>(x => x.UserId == userId);
-                    conn.Delete<QuestSubscription>(x => x.UserId == userId);
-                    conn.Delete<GymSubscription>(x => x.UserId == userId);
-                    conn.Delete<InvasionSubscription>(x => x.UserId == userId);
-                    conn.Delete<SubscriptionObject>(x => x.UserId == userId);
+                    conn.Delete<PokemonSubscription>(x => x.GuildId == guildId && x.UserId == userId);
+                    conn.Delete<RaidSubscription>(x => x.GuildId == guildId && x.UserId == userId);
+                    conn.Delete<QuestSubscription>(x => x.GuildId == guildId && x.UserId == userId);
+                    conn.Delete<GymSubscription>(x => x.GuildId == guildId && x.UserId == userId);
+                    conn.Delete<InvasionSubscription>(x => x.GuildId == guildId && x.UserId == userId);
+                    conn.Delete<SubscriptionObject>(x => x.GuildId == guildId && x.UserId == userId);
                 }
 
                 return true;
@@ -694,13 +713,13 @@
             return false;
         }
 
-        public bool RemoveAllPokemon(ulong userId)
+        public bool RemoveAllPokemon(ulong guildId, ulong userId)
         {
-            _logger.Trace($"SubscriptionManager::RemoveAllPokemon [UserId={userId}]");
+            _logger.Trace($"SubscriptionManager::RemoveAllPokemon [GuildId={guildId}, UserId={userId}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                var subscription = conn.LoadSingleById<SubscriptionObject>(userId);
+                var subscription = GetUserSubscriptions(guildId, userId);
                 if (subscription == null)
                 {
                     //Not subscribed.
@@ -712,13 +731,13 @@
             }
         }
 
-        public bool RemoveAllRaids(ulong userId)
+        public bool RemoveAllRaids(ulong guildId, ulong userId)
         {
-            _logger.Trace($"SubscriptionManager::RemoveAllRaids [UserId={userId}]");
+            _logger.Trace($"SubscriptionManager::RemoveAllRaids [GuildId={guildId}, UserId={userId}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                var subscription = conn.LoadSingleById<SubscriptionObject>(userId);
+                var subscription = GetUserSubscriptions(guildId, userId);
                 if (subscription == null)
                 {
                     //Not subscribed.
@@ -730,13 +749,13 @@
             }
         }
 
-        public bool RemoveAllQuests(ulong userId)
+        public bool RemoveAllQuests(ulong guildId, ulong userId)
         {
-            _logger.Info($"SubscriptionManager::RemoveAllQuests [UserId={userId}]");
+            _logger.Info($"SubscriptionManager::RemoveAllQuests [GuildId={guildId}, UserId={userId}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                var subscription = conn.LoadSingleById<SubscriptionObject>(userId);
+                var subscription = GetUserSubscriptions(guildId, userId);
                 if (subscription == null)
                 {
                     //Not subscribed.
@@ -748,13 +767,13 @@
             }
         }
 
-        public bool RemoveAllInvasions(ulong userId)
+        public bool RemoveAllInvasions(ulong guildId, ulong userId)
         {
-            _logger.Info($"SubscriptionManager::RemoveAllInvasions [UserId={userId}]");
+            _logger.Info($"SubscriptionManager::RemoveAllInvasions [GuildId={guildId}, UserId={userId}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                var subscription = conn.LoadSingleById<SubscriptionObject>(userId);
+                var subscription = GetUserSubscriptions(guildId, userId);
                 if (subscription == null)
                 {
                     //Not subscribed.
@@ -766,13 +785,13 @@
             }
         }
 
-        public bool RemoveAllGyms(ulong userId)
+        public bool RemoveAllGyms(ulong guildId, ulong userId)
         {
-            _logger.Info($"SubscriptionManager::RemoveAllGyms [UserId={userId}]");
+            _logger.Info($"SubscriptionManager::RemoveAllGyms [GuildId={guildId}, UserId={userId}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
-                var subscription = conn.LoadSingleById<SubscriptionObject>(userId);
+                var subscription = GetUserSubscriptions(guildId, userId);
                 if (subscription == null)
                 {
                     //Not subscribed.
@@ -890,12 +909,30 @@
             try
             {
                 var conn = GetConnection();
-                conn.CreateTable<SubscriptionObject>();
-                conn.CreateTable<PokemonSubscription>();
-                conn.CreateTable<RaidSubscription>();
-                conn.CreateTable<GymSubscription>();
-                conn.CreateTable<QuestSubscription>();
-                conn.CreateTable<InvasionSubscription>();
+                if (!conn.CreateTableIfNotExists<SubscriptionObject>())
+                {
+                    _logger.Info($"Table SubscriptionObject already exists.");
+                }
+                if (!conn.CreateTableIfNotExists<PokemonSubscription>())
+                {
+                    _logger.Info($"Table PokemonSubscription already exists.");
+                }
+                if (!conn.CreateTableIfNotExists<RaidSubscription>())
+                {
+                    _logger.Info($"Table RaidSubscription already exists.");
+                }
+                if (!conn.CreateTableIfNotExists<GymSubscription>())
+                {
+                    _logger.Info($"Table GymSubscription already exists.");
+                }
+                if (!conn.CreateTableIfNotExists<QuestSubscription>())
+                {
+                    _logger.Info($"Table QuestSubscription already exists.");
+                }
+                if (!conn.CreateTableIfNotExists<InvasionSubscription>())
+                {
+                    _logger.Info($"Table InvasionSubscription already exists.");
+                }
                 //conn.CreateTable<SnoozedQuest>();
                 //conn.CreateTable<PokemonStatistics>();
                 //conn.CreateTable<RaidStatistics>();

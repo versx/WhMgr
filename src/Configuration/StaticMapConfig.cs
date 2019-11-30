@@ -5,7 +5,7 @@
 
     using Newtonsoft.Json;
 
-    public class StaticMapConfiguration
+    public class StaticMapConfig
     {
         [JsonProperty("pokemon")]
         public StaticMap Pokemon { get; set; }

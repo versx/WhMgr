@@ -64,12 +64,12 @@
             for (var i = 0; i < users.Count; i++)
             {
                 var user = users[i];
-                var discordUser = ctx.Client.GetMemberById(_dep.WhConfig.Discord.GuildId, user.UserId);
-                var isSupporter = ctx.Client.HasSupporterRole(_dep.WhConfig.Discord.GuildId, user.UserId, _dep.WhConfig.Discord.DonorRoleIds);
+                var discordUser = ctx.Client.GetMemberById(ctx.Guild.Id, user.UserId);
+                var isSupporter = ctx.Client.HasSupporterRole(ctx.Guild.Id, user.UserId, _dep.WhConfig.Servers[ctx.Guild.Id].DonorRoleIds);
                 if (discordUser == null || !isSupporter)
                 {
                     _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
-                    if (!_dep.SubscriptionProcessor.Manager.RemoveAllUserSubscriptions(user.UserId))
+                    if (!_dep.SubscriptionProcessor.Manager.RemoveAllUserSubscriptions(ctx.Guild.Id, user.UserId))
                     {
                         _logger.Warn($"Could not remove user {user.UserId} subscription settings from the database.");
                         continue;

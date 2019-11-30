@@ -121,11 +121,11 @@
             //}
         }
 
-        public DiscordEmbed GenerateRaidMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string raidImageUrl)
+        public DiscordEmbed GenerateRaidMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string raidImageUrl)
         {
             var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(client, whConfig, city);
+            var properties = GetProperties(guildId, client, whConfig, city);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -136,14 +136,14 @@
                 Color = Level.BuildRaidColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
                 }
             };
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city)
         {
             var pkmnInfo = Database.Instance.Pokemon[PokemonId];
             var form = PokemonId.GetPokemonForm(Form.ToString());
@@ -169,28 +169,28 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1] : PokemonType.None;
-            var type1Emoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
-                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
+            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? 
+                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) : 
                 string.Empty;
-            var type2Emoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
-                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
+            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
+                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) : 
                 string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
-            var weaknessesEmoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
-                Weaknesses.GetWeaknessEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
+            var weaknessesEmoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? 
+                Weaknesses.GetWeaknessEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) : 
                 string.Empty;
             var weaknessesEmojiFormatted = weaknessesEmoji;
             var perfectRange = PokemonId.MaxCpAtLevel(20);
             var boostedRange = PokemonId.MaxCpAtLevel(25);
             var worstRange = PokemonId.MinCpAtLevel(20);
             var worstBoosted = PokemonId.MinCpAtLevel(25);
-            var exEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
-                client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId("ex") : 
+            var exEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? 
+                client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId("ex") : 
                 0;
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
-                client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 
+            var teamEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? 
+                client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 
                 0;
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
 

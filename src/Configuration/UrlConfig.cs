@@ -2,7 +2,7 @@
 {
     using Newtonsoft.Json;
 
-    public class UrlConfiguration
+    public class UrlConfig
     {
         [JsonProperty("pokemonImage")]
         public string PokemonImage { get; set; }

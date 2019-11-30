@@ -3,12 +3,15 @@
     using System;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
 
     class Program
     {
         public static string ManagerName { get; set; }
 
-        static void Main(string[] args)
+        static void Main(string[] args) => MainAsync(args).GetAwaiter().GetResult();
+
+        static async Task MainAsync(string[] args)
         {
             var arguments = CommandLine.ParseArgs(new string[] { "--", "-" }, args);
             var alarmsFilePath = string.Empty;
@@ -46,8 +49,8 @@
             }
             whConfig.FileName = configFilePath;
 
-            var bot = new Bot(whConfig, alarmsFilePath);
-            bot.Start();
+            var bot = new Bot(whConfig);
+            await bot.Start();
 
             System.Diagnostics.Process.GetCurrentProcess().WaitForExit();
         }

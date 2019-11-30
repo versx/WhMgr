@@ -12,7 +12,7 @@
     {
         public InteractivityModule Interactivity;
 
-        public WebhookManager Whm { get; }
+        public WebhookController Whm { get; }
 
         public SubscriptionProcessor SubscriptionProcessor { get; }
 
@@ -24,7 +24,7 @@
 
         public OsmManager OsmManager { get; }
 
-        public Dependencies(InteractivityModule interactivity, WebhookManager whm, SubscriptionProcessor subProcessor, WhConfig whConfig, Translator language, StripeService stripe)
+        public Dependencies(InteractivityModule interactivity, WebhookController whm, SubscriptionProcessor subProcessor, WhConfig whConfig, Translator language, StripeService stripe)
         {
             Interactivity = interactivity;
             Whm = whm;

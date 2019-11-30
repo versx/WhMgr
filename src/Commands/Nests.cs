@@ -38,7 +38,14 @@
         ]
         public async Task PostNestsAsync(CommandContext ctx)
         {
-            var channel = await ctx.Client.GetChannelAsync(_dep.WhConfig.NestsChannelId);
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+            {
+                await ctx.RespondEmbed("Must be in Discord server.", DiscordColor.Red);
+                return;
+            }
+
+            var channelId = _dep.WhConfig.Servers[ctx.Guild.Id].NestsChannelId;
+            var channel = await ctx.Client.GetChannelAsync(channelId);
             if (channel == null)
             {
                 await ctx.RespondAsync($"{ctx.User.Username} Nests disabled.");
@@ -47,10 +54,10 @@
 
             if (true) //TODO: Config ClearMessages
             {
-                var deleted = await ctx.Client.DeleteMessages(_dep.WhConfig.NestsChannelId);
+                var deleted = await ctx.Client.DeleteMessages(channelId);
                 if (deleted.Item2 == 0)
                 {
-                    _logger.Warn($"Failed to delete messages in channel: {_dep.WhConfig.NestsChannelId}");
+                    _logger.Warn($"Failed to delete messages in channel: {channelId}");
                 }
             }
 
@@ -76,11 +83,11 @@
                     var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, PokemonGender.Unset, 0);
                     var type1 = pkmn?.Types?[0];
                     var type2 = pkmn?.Types?.Count > 1 ? pkmn.Types?[1] : PokemonType.None;
-                    var type1Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) ?
-                        pkmn?.Types?[0].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
+                    var type1Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Servers[ctx.Guild.Id].EmojiGuildId) ?
+                        pkmn?.Types?[0].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Servers[ctx.Guild.Id].EmojiGuildId]) :
                         string.Empty;
-                    var type2Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) && pkmn?.Types?.Count > 1 ?
-                        pkmn?.Types?[1].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
+                    var type2Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Servers[ctx.Guild.Id].EmojiGuildId) && pkmn?.Types?.Count > 1 ?
+                        pkmn?.Types?[1].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Servers[ctx.Guild.Id].EmojiGuildId]) :
                         string.Empty;
                     var typeEmojis = $"{type1Emoji} {type2Emoji}";
                     var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);

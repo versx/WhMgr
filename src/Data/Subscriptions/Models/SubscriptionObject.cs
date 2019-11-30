@@ -16,14 +16,22 @@
         [
             JsonIgnore,
             Alias("id"),
-            AutoIncrement
+            AutoIncrement,
+            PrimaryKey
         ]
         public int Id { get; set; }
 
         [
+             JsonProperty("guild_id"),
+             Alias("guild_id"),
+             Required
+         ]
+        public ulong GuildId { get; set; }
+
+        [
             JsonProperty("user_id"),
             Alias("userId"), 
-            PrimaryKey
+            Required
         ]
         public ulong UserId { get; set; }
 

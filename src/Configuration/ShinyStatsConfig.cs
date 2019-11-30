@@ -2,7 +2,7 @@
 {
     using Newtonsoft.Json;
 
-    public class ShinyStatsConfiguration
+    public class ShinyStatsConfig
     {
         [JsonProperty("enabled")]
         public bool Enabled { get; set; }
