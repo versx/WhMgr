@@ -9,10 +9,11 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 
 
 ## Features:  
+- Supports multiple Discord servers.  
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, and invasions.  
 - Per user custom Discord notifications for Pokemon, raids, quests, and invasions.  
 - Customizable alert messages with dynamic text replacement.  
-- Support for multiple cities/areas using roles and geofences.  
+- Support for multiple cities/areas using roles and geofences per server.  
 - Daily shiny stats reporting.  
 - Automatic quest message purge at midnight.  
 - Support for Donors/Supporters only notifications.  
