@@ -415,14 +415,14 @@
                 var pokemonId = pokeId.Key;
                 var form = pokeId.Value;
 
-                if (!Database.Instance.Pokemon.ContainsKey(pokemonId))
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed($"{ctx.User.Username} {pokeId} is not a valid Pokemon id.", DiscordColor.Red);
                     continue;
                 }
 
-                var pokemon = Database.Instance.Pokemon[pokemonId];
+                var pokemon = MasterFile.Instance.Pokedex[pokemonId];
 
                 //Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
                 if (IsCommonPokemon(pokemonId) && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
@@ -545,7 +545,7 @@
             var validation = ValidatePokemonList(poke);
             if (validation.Valid != null && validation.Valid.Count > 0)
             {
-                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
+                var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
                 var result = _dep.SubscriptionProcessor.Manager.RemovePokemon(ctx.Guild.Id, ctx.User.Id, validation.Valid);
                 if (!result)
                 {
@@ -628,7 +628,7 @@
                 await ctx.TriggerTypingAsync();
                 for (var i = 1; i < Strings.MaxPokemonIds; i++)
                 {
-                    var pokemon = Database.Instance.Pokemon[i];
+                    var pokemon = MasterFile.Instance.Pokedex[i];
                     var result = _dep.SubscriptionProcessor.Manager.AddRaid(ctx.Guild.Id, ctx.User.Id, i, string.Empty/*TODO: Add all forms support*/, string.IsNullOrEmpty(city) ? _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles : new List<string> { city });
                 }
 
@@ -650,7 +650,7 @@
                         ? _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles
                         : new List<string> { city });
 
-                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
+                var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
                 var msg = $"{ctx.User.Username} has subscribed to **{string.Join("**, **", pokemonNames)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.";
                 if (validation.Invalid != null && validation.Invalid.Count > 0)
                 {
@@ -748,7 +748,7 @@
                         ? _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles 
                         : new List<string> { city });
 
-                var pokemonNames = validation.Valid.Select(x => Database.Instance.Pokemon[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
+                var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
                 var msg = $"{ctx.User.Username} has unsubscribed from **{string.Join("**, **", pokemonNames)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}.";
                 if (validation.Invalid != null && validation.Invalid.Count > 0)
                 {
@@ -1256,161 +1256,42 @@
         }
         #endregion
 
-        #region No Longer Used
-        //[
-        //    Command("history"),
-        //    Aliases("h")
-        //]
-        //public async Task HistoryAsync(CommandContext ctx)
-        //{
-        //    var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
-        //    var eb = new DiscordEmbedBuilder
-        //    {
-        //        Title = $"{ctx.User.Username}#{ctx.User.Discriminator} Notification History for {DateTime.Now.ToLongDateString()}",
-        //        Color = DiscordColor.Blurple,
-        //        Footer = new DiscordEmbedBuilder.EmbedFooter
-        //        {
-        //            Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-        //            IconUrl = ctx.Guild?.IconUrl
-        //        }
-        //    };
+        [
+            Command("stats"),
+            Description("Notification statistics for alarms and subscriptions of Pokemon, Raids, and Quests.")
+        ]
+        public async Task StatsAsync(CommandContext ctx)
+        {
+            var stats = Statistics.Instance;
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = $"{DateTime.Now.ToLongDateString()} Notification Statistics",
+                Color = DiscordColor.Blurple,
+                ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
+            };
+            eb.AddField("Pokemon", stats.PokemonSent.ToString("N0"), true);
+            eb.AddField("Pokemon Subscriptions", stats.SubscriptionPokemonSent.ToString("N0"), true);
+            eb.AddField("Raids", stats.RaidsSent.ToString("N0"), true);
+            eb.AddField("Raid Subscriptions", stats.SubscriptionRaidsSent.ToString("N0"), true);
+            eb.AddField("Quests", stats.QuestsSent.ToString("N0"), true);
+            eb.AddField("Quest Subscriptions", stats.SubscriptionQuestsSent.ToString("N0"), true);
 
-        //    var pkmnStats = string.Join(Environment.NewLine, subscription.PokemonStatistics.Where(x => x.Date.Date == DateTime.Now.Date).Select(x => $"{x.Date.ToShortTimeString()}: {Database.Instance.Pokemon[(int)x.PokemonId].Name} {x.IV} IV {x.CP} CP"));
-        //    var raidStats = string.Join(Environment.NewLine, subscription.RaidStatistics.Where(x => x.Date.Date == DateTime.Now.Date).Select(x => $"{x.Date.ToShortTimeString()}: {Database.Instance.Pokemon[(int)x.PokemonId].Name}"));
-        //    var questStats = string.Join(Environment.NewLine, subscription.QuestStatistics.Where(x => x.Date.Date == DateTime.Now.Date).Select(x => $"{x.Date.ToShortTimeString()}: {x.Reward}"));
+            var pkmnMsg = string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{MasterFile.Instance.Pokedex[x.Key].Name}: {x.Value.ToString("N0")}"));
+            var raidMsg = string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{MasterFile.Instance.Pokedex[x.Key].Name}: {x.Value.ToString("N0")}"));
 
-        //    var interactivity = _dep.Interactivity;
-        //    if (interactivity == null)
-        //    {
-        //        _logger.Warn("Failed to get 'InteractivityModel'.");
-        //        return;
-        //    }
+            eb.AddField("Top 25 Pokemon Stats", pkmnMsg.Substring(0, Math.Min(pkmnMsg.Length, 1500)) + "\r\n...", true);
+            eb.AddField("Top 25 Raid Stats", raidMsg.Substring(0, Math.Min(raidMsg.Length, 1500)) + "\r\n...", true);
 
-        //    var timeout = System.Threading.Timeout.InfiniteTimeSpan;
-        //    var msg = $"**Pokemon Notifications**\r\n{(string.IsNullOrEmpty(pkmnStats) ? "None" : pkmnStats)}\r\n\r\n" +
-        //              $"**Raid Notifications**\r\n{(string.IsNullOrEmpty(raidStats) ? "None" : raidStats)}\r\n\r\n" +
-        //              $"**Quest Notifications**\r\n{(string.IsNullOrEmpty(questStats) ? "None" : questStats)}\r\n";
-        //    await interactivity.SendPaginatedMessage(ctx.Channel, ctx.User, interactivity.GeneratePagesInEmbeds(msg), timeout, TimeoutBehaviour.Ignore);
+            var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {MasterFile.Instance.Pokedex[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
+            eb.AddField("Recent 100% Spawns", string.IsNullOrEmpty(hundos) ? "None" : hundos);
 
-        //    //eb.AddField("Pokemon Notifications", string.IsNullOrEmpty(pkmnStats) ? "None" : pkmnStats, true);
-        //    //eb.AddField("Raid Notifications", string.IsNullOrEmpty(raidStats) ? "None" : raidStats, true);
-        //    //eb.AddField("Quest Notifications", string.IsNullOrEmpty(questStats) ? "None" : questStats, true);
-
-        //    //await ctx.RespondAsync(embed: eb);
-        //}
-
-        //[
-        //    Command("quests"),
-        //    Description("Display a list of your field research quests for the day.")
-        //]
-        //public async Task QuestsAsync(CommandContext ctx,
-        //    [Description("Filter by reward or leave empty for all.")] string reward,
-        //    [Description("City")] string city)
-        //{
-        //    if (!_dep.WhConfig.EnableSubscriptions)
-        //    {
-        //        await ctx.RespondEmbed(_dep.Language.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(ctx.User.Username), DiscordColor.Red);
-        //        return;
-        //    }
-
-        //    if (!_dep.SubscriptionProcessor.Manager.UserExists(ctx.User.Id))
-        //    {
-        //        await ctx.RespondEmbed(_dep.Language.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
-        //        return;
-        //    }
-
-        //    var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.User.Id);
-        //    if (subscription.Quests.Count == 0)
-        //    {
-        //        await ctx.RespondEmbed($"{ctx.User.Username} does not have any field research quest subscriptions.");
-        //        return;
-        //    }
-
-        //    /**
-        //     * .quests - Return all quests based on their subscriptions.
-        //     * .quests reward - Return all quests based on keyword.
-        //     */
-
-        //    //TODO: Check date
-        //    var rewardKeywords = subscription.Quests.Select(x => x.RewardKeyword).ToList();
-        //    var quests = _dep.SubscriptionProcessor.Manager.GetQuests(
-        //        string.IsNullOrEmpty(reward)
-        //        ? rewardKeywords
-        //        : new List<string> { reward });
-
-        //    quests = quests.Where(x => x.QuestTimestamp.FromUnix().Date == DateTime.Now.Date).ToList();
-        //    /*
-        //    var eb = new DiscordEmbedBuilder
-        //    {
-        //        Title = string.IsNullOrEmpty(reward) ? "All Field Research Quests" : $"{reward} Field Research Quests",
-        //        Color = DiscordColor.Orange,
-        //        Footer = new DiscordEmbedBuilder.EmbedFooter
-        //        {
-        //            Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-        //            IconUrl = ctx.Guild?.IconUrl
-        //        }
-        //    };
-        //    */
-
-        //    var grouped = quests.GroupBy(x => GetGeofence(x.Latitude, x.Longitude)?.Name).ToList();
-        //    var pagesData = (string.IsNullOrEmpty(reward) ? "All Field Research Quests" : $"{reward} Field Research Quests") + "\r\n";
-        //    for (var i = 0; i < Math.Min(25, grouped.Count); i++)
-        //    {
-        //        if (string.Compare(grouped[i].Key, city, true) != 0)
-        //            continue;
-
-        //        var rewardsWithCities = grouped[i].Select(x => $"• [{x.Name}]({string.Format(Strings.GoogleMaps, x.Latitude, x.Longitude)})");
-        //        var value = string.Join(Environment.NewLine, rewardsWithCities);
-
-        //        _logger.Debug($"REWARD: {grouped[i].Key} => {value}");
-        //        pagesData += $"{grouped[i].Key}\r\n{value}";
-        //        //eb.AddField(grouped[i].Key, value.Substring(0, Math.Min(1024, value.Length)), true);
-        //    }
-        //    var pages = _dep.Interactivity.GeneratePagesInEmbeds(pagesData);
-        //    var dm = await ctx.Client.CreateDmAsync(ctx.User);
-        //    await _dep.Interactivity.SendPaginatedMessage(dm, ctx.User, pages, System.Threading.Timeout.InfiniteTimeSpan);
-
-        //    //await ctx.Client.SendDirectMessage(ctx.User, eb);
-        //}
-
-        //[
-        //    Command("stats"),
-        //    Description("Notification statistics for alarms and subscriptions of Pokemon, Raids, and Quests.")
-        //]
-        //public async Task StatsAsync(CommandContext ctx)
-        //{
-        //    var stats = Statistics.Instance;
-        //    var eb = new DiscordEmbedBuilder
-        //    {
-        //        Title = $"{DateTime.Now.ToLongDateString()} Notification Statistics",
-        //        Color = DiscordColor.Blurple,
-        //        ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
-        //    };
-        //    eb.AddField("Pokemon", stats.PokemonSent.ToString("N0"), true);
-        //    eb.AddField("Pokemon Subscriptions", stats.SubscriptionPokemonSent.ToString("N0"), true);
-        //    eb.AddField("Raids", stats.RaidsSent.ToString("N0"), true);
-        //    eb.AddField("Raid Subscriptions", stats.SubscriptionRaidsSent.ToString("N0"), true);
-        //    eb.AddField("Quests", stats.QuestsSent.ToString("N0"), true);
-        //    eb.AddField("Quest Subscriptions", stats.SubscriptionQuestsSent.ToString("N0"), true);
-
-        //    var pkmnMsg = string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}"));
-        //    var raidMsg = string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}"));
-
-        //    eb.AddField("Top 25 Pokemon Stats", pkmnMsg.Substring(0, Math.Min(pkmnMsg.Length, 1500)) + "\r\n...", true);
-        //    eb.AddField("Top 25 Raid Stats", raidMsg.Substring(0, Math.Min(raidMsg.Length, 1500)) + "\r\n...", true);
-
-        //    var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {Database.Instance.Pokemon[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
-        //    eb.AddField("Recent 100% Spawns", string.IsNullOrEmpty(hundos) ? "None" : hundos);
-
-        //    eb.Footer = new DiscordEmbedBuilder.EmbedFooter
-        //    {
-        //        Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-        //        IconUrl = ctx.Guild?.IconUrl
-        //    };
-        //    await ctx.RespondAsync(embed: eb);
-        //}
-
-        #endregion
+            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
+            {
+                Text = $"{(ctx.Guild?.Name ?? Strings.Creator)} | {DateTime.Now}",
+                IconUrl = ctx.Guild?.IconUrl
+            };
+            await ctx.RespondAsync(embed: eb);
+        }
 
         #region Import / Export
 
@@ -1676,10 +1557,10 @@
 
                     foreach (var poke in sub.Pokes)
                     {
-                        if (!Database.Instance.Pokemon.ContainsKey(poke.PokemonId))
+                        if (!MasterFile.Instance.Pokedex.ContainsKey(poke.PokemonId))
                             continue;
 
-                        var pkmn = Database.Instance.Pokemon[poke.PokemonId];
+                        var pkmn = MasterFile.Instance.Pokedex[poke.PokemonId];
                         var form = string.IsNullOrEmpty(poke.Form) ? string.Empty : $" ({poke.Form})";
                         msg += $"{poke.PokemonId}: {pkmn.Name}{form} {(poke.HasStats ? $"{poke.Attack}/{poke.Defense}/{poke.Stamina}" : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}\r\n";
                     }
@@ -1739,10 +1620,10 @@
 
         //    foreach (var poke in subscribedPokemon)
         //    {
-        //        if (!Database.Instance.Pokemon.ContainsKey(poke.PokemonId))
+        //        if (!MasterFile.Instance.Pokedex.ContainsKey(poke.PokemonId))
         //            continue;
 
-        //        var pokemon = Database.Instance.Pokemon[poke.PokemonId];
+        //        var pokemon = MasterFile.Instance.Pokedex[poke.PokemonId];
         //        if (pokemon == null)
         //            continue;
 
@@ -1766,10 +1647,10 @@
             var results = subscribedRaids.GroupBy(x => x.PokemonId, (key, g) => new { PokemonId = key, Cities = g.ToList() });
             foreach (var raid in results)
             {
-                if (!Database.Instance.Pokemon.ContainsKey(raid.PokemonId))
+                if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
                     continue;
 
-                var pokemon = Database.Instance.Pokemon[raid.PokemonId];
+                var pokemon = MasterFile.Instance.Pokedex[raid.PokemonId];
                 if (pokemon == null)
                     continue;
 

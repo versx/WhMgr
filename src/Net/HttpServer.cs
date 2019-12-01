@@ -36,7 +36,6 @@
 
         #endregion
 
-        //TODO: Make one single event that all data is passed through.
         #region Events
 
         public event EventHandler<DataReceivedEventArgs<PokemonData>> PokemonReceived;

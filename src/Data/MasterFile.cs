@@ -5,13 +5,20 @@
     using System.IO;
 
     using Newtonsoft.Json;
+    using ServiceStack.DataAnnotations;
 
     using WhMgr.Data.Models;
+    using WhMgr.Diagnostics;
+    using WhMgr.Net.Models;
 
     public class MasterFile
     {
         const string MasterFileName = "masterfile.json";
         const string CpMultipliersFileName = "cpMultipliers.json";
+        const string GreatPvPLibFileName = "pvp_great_league_ranks.json";
+        const string UltraPvPLibFileName = "pvp_ultra_league_ranks.json";
+
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");
 
         #region Properties
 
@@ -25,7 +32,7 @@
         public IReadOnlyDictionary<string, string> ItemsText { get; set; }
 
         [JsonProperty("types")]
-        public IReadOnlyDictionary<int, Net.Models.PokemonType> Types { get; set; }
+        public IReadOnlyDictionary<int, PokemonType> Types { get; set; }
 
         [JsonProperty("quest_condition")]
         public IReadOnlyDictionary<string, string> QuestConditions { get; set; }
@@ -49,6 +56,12 @@
 
         public IReadOnlyDictionary<double, double> CpMultipliers { get; }
 
+        [JsonIgnore]
+        public GreatPvpRankLibrary GreatPvPLibrary { get; set; }
+
+        [JsonIgnore]
+        public UltraPvpRankLibrary UltraPvPLibrary { get; set; }
+
         #region Singletons
 
         private static MasterFile _instance;
@@ -58,7 +71,7 @@
             {
                 if (_instance == null)
                 {
-                    _instance = Database.LoadInit<MasterFile>(Path.Combine(Strings.DataFolder, MasterFileName), typeof(MasterFile));
+                    _instance = LoadInit<MasterFile>(Path.Combine(Strings.DataFolder, MasterFileName), typeof(MasterFile));
                 }
 
                 return _instance;
@@ -71,10 +84,134 @@
 
         public MasterFile()
         {
-            if (File.Exists(Path.Combine(Strings.DataFolder, CpMultipliersFileName)))
+            var cpMultipliersPath = Path.Combine(Strings.DataFolder, CpMultipliersFileName);
+            if (!File.Exists(cpMultipliersPath))
             {
-                CpMultipliers = Database.LoadInit<Dictionary<double, double>>(Path.Combine(Strings.DataFolder, CpMultipliersFileName), typeof(Dictionary<double, double>));
+                var err = $"Failed to load {cpMultipliersPath}, file does not exist";
+                _logger.Error(err);
+                throw new FileNotFoundException(err, cpMultipliersPath);
             }
+            CpMultipliers = LoadInit<Dictionary<double, double>>(cpMultipliersPath, typeof(Dictionary<double, double>));
+
+            var greatLeagueLibraryPath = Path.Combine(Strings.DataFolder, GreatPvPLibFileName);
+            if (!File.Exists(greatLeagueLibraryPath))
+            {
+                var err = $"Failed to load {greatLeagueLibraryPath}, file does not exist";
+                _logger.Error(err);
+                throw new FileNotFoundException(err, greatLeagueLibraryPath);
+            }
+            GreatPvPLibrary = LoadInit<GreatPvpRankLibrary>(greatLeagueLibraryPath, typeof(GreatPvpRankLibrary));
+
+            var ultraLeagueLibraryPath = Path.Combine(Strings.DataFolder, UltraPvPLibFileName);
+            if (!File.Exists(ultraLeagueLibraryPath))
+            {
+                var err = $"Failed to load {ultraLeagueLibraryPath}, file does not exist";
+                _logger.Error(err);
+                throw new FileNotFoundException(err, ultraLeagueLibraryPath);
+            }
+            UltraPvPLibrary = LoadInit<UltraPvpRankLibrary>(ultraLeagueLibraryPath, typeof(UltraPvpRankLibrary));
+        }
+
+        public static PokedexPokemon GetPokemon(int pokemonId, int formId)
+        {
+            var pkmn = Instance.Pokedex.ContainsKey(pokemonId) ?
+                (Instance.Pokedex[pokemonId].Forms.ContainsKey(formId) ? Instance.Pokedex[pokemonId].Forms[formId] : Instance.Pokedex[pokemonId]) :
+                null;
+            return pkmn;
+        }
+
+        public static T LoadInit<T>(string filePath, Type type)
+        {
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"{filePath} file not found.", filePath);
+            }
+
+            var data = File.ReadAllText(filePath);
+            if (string.IsNullOrEmpty(data))
+            {
+                _logger.Error($"{filePath} database is empty.");
+                return default;
+            }
+
+            return (T)JsonConvert.DeserializeObject(data, type);
         }
     }
+
+    #region PvP
+
+    public abstract class PvPRank
+    {
+        [
+            JsonProperty("pokemon_id"),
+            Alias("pokemon_id")
+        ]
+        public int PokemonId { get; set; }
+
+        [
+            JsonProperty("form"),
+            Alias("form")
+        ]
+        public int FormId { get; set; }
+
+        [
+            JsonProperty("attack"),
+            Alias("attack")
+        ]
+        public int Attack { get; set; }
+
+        [
+            JsonProperty("defense"),
+            Alias("defense")
+        ]
+        public int Defense { get; set; }
+
+        [
+            JsonProperty("stamina"),
+            Alias("stamina")
+        ]
+        public int Stamina { get; set; }
+
+        [
+            JsonProperty("value"),
+            Alias("value")
+        ]
+        public int Value { get; set; }
+
+        [
+            JsonProperty("level"),
+            Alias("level")
+        ]
+        public double Level { get; set; }
+
+        [
+            JsonProperty("CP"),
+            Alias("CP")
+        ]
+        public int CP { get; set; }
+
+        [
+            JsonProperty("percent"),
+            Alias("percent")
+        ]
+        public double Percent { get; set; }
+
+        [
+            JsonProperty("rank"),
+            Alias("rank")
+        ]
+        public int Rank { get; set; }
+    }
+
+    [Alias("great_league")]
+    public class GreatPvPRank : PvPRank { }
+
+    [Alias("ultra_league")]
+    public class UltraPvPRank : PvPRank { }
+
+    public class GreatPvpRankLibrary : Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, GreatPvPRank>>>>> { }
+
+    public class UltraPvpRankLibrary : Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, UltraPvPRank>>>>> { }
+
+    #endregion
 }

@@ -2,10 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using WhMgr.Data;
+    using WhMgr.Net.Models;
 
     public class PvpRankCalculator
     {
@@ -89,10 +89,10 @@
         //    return await Task.FromResult(arrayToSort.FindAll(x => x.Rank <= topRanks));
         //}
 
-        public async Task<List<PvPCP>> CalculatePossibleCPs(int pokemonId, int formId, int atk, int def, int sta, double level, string gender, int minCP, int maxCP) //TODO: Change gender to PokemonGender and below from gender to gender.ToString()
+        public async Task<List<PvPCP>> CalculatePossibleCPs(int pokemonId, int formId, int atk, int def, int sta, double level, PokemonGender gender, int minCP, int maxCP)
         {
             var possibleCPs = new List<PvPCP>();
-            if (!string.IsNullOrEmpty(MasterFile.Instance.Pokedex[pokemonId].GenderRequirement) && MasterFile.Instance.Pokedex[pokemonId].GenderRequirement != gender)
+            if (!string.IsNullOrEmpty(MasterFile.Instance.Pokedex[pokemonId].GenderRequirement) && MasterFile.Instance.Pokedex[pokemonId].GenderRequirement != gender.ToString())
             {
                 return possibleCPs;
             }
@@ -160,16 +160,13 @@
             return await Task.FromResult(possibleCPs);
         }
 
-        public async Task<KeyValuePair<int, double>> GetRank(int pokemonId, int formId, int maxCP, BestPvPStat bestPvPStat)//, List<BestPvPStat> topRanks)
+        public async Task<KeyValuePair<int, double>> GetRank(int pokemonId, int formId, int maxCP, BestPvPStat bestPvPStat)
         {
-            //var topRanks = await CalculateTopRanks(pokemonId, formId, maxCP, Net.Models.PokemonData.TopPvPRanks);
-            //var topRank = topRanks?.Where(x => x.Attack == bestPvPStat.Attack && x.Defense == bestPvPStat.Defense && x.Stamina == bestPvPStat.Stamina);
-            //var myRank = topRank.FirstOrDefault();
             try
             {
                 var myRank = maxCP == 2500 ?
-                    (PvPRank)Database.Instance.UltraPvPLibrary[pokemonId][formId][bestPvPStat.Attack][bestPvPStat.Defense][bestPvPStat.Stamina] :
-                    (PvPRank)Database.Instance.GreatPvPLibrary[pokemonId][formId][bestPvPStat.Attack][bestPvPStat.Defense][bestPvPStat.Stamina];
+                    (PvPRank)MasterFile.Instance.UltraPvPLibrary[pokemonId][formId][bestPvPStat.Attack][bestPvPStat.Defense][bestPvPStat.Stamina] :
+                    (PvPRank)MasterFile.Instance.GreatPvPLibrary[pokemonId][formId][bestPvPStat.Attack][bestPvPStat.Defense][bestPvPStat.Stamina];
                 var rank = myRank?.Rank ?? 4096;
                 var percent = myRank?.Percent ?? 0;
 
@@ -203,11 +200,11 @@
             return product;
         }
 
-        private double PrecisionRound(double number, int precision)
-        {
-            var factor = Math.Pow(10, precision);
-            return Math.Round(number * factor) / factor;
-        }
+        //private double PrecisionRound(double number, int precision)
+        //{
+        //    var factor = Math.Pow(10, precision);
+        //    return Math.Round(number * factor) / factor;
+        //}
 
 
         public static int GetCP(int attack, int defense, int stamina, double cpm)

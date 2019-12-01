@@ -99,10 +99,10 @@
                     if (pokemon == 0)
                         continue;
 
-                    if (!Database.Instance.Pokemon.ContainsKey((int)pokemon))
+                    if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
                         continue;
 
-                    var pkmn = Database.Instance.Pokemon[(int)pokemon];
+                    var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
                     var pkmnStats = stats[pokemon];
                     var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
                     var chanceMessage = chance == 0 ? null : $" with a **1/{chance}** ratio";

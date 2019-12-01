@@ -384,7 +384,7 @@
             _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
 
             var pokemon = e.Data;
-            var pkmn = Database.Instance.Pokemon[pokemon.Id];
+            var pkmn = MasterFile.Instance.Pokedex[pokemon.Id];
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude));
             if (loc == null)
             {
@@ -399,12 +399,11 @@
                 //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
                 var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.Urls.PokemonImage, pokemon.Gender, pokemon.FormId, pokemon.Costume);
 
-                var guildId = _whConfig.Servers.Values?.FirstOrDefault(x => x.CityRoles.Select(y => y.ToLower()).Contains(loc?.Name.ToLower()))?.GuildId ?? 0;
-                if (!_servers.ContainsKey(guildId))
+                if (!_servers.ContainsKey(e.GuildId))
                     return;
 
-                var client = _servers[guildId];
-                var eb = await pokemon.GeneratePokemonMessage(guildId, client, _whConfig, pokemon, e.Alarm, loc.Name, pkmnImage);
+                var client = _servers[e.GuildId];
+                var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, pokemon, e.Alarm, loc.Name, pkmnImage);
                 var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIconValue()}{form}";
                 var jsonEmbed = new DiscordWebhookMessage
                 {
@@ -445,16 +444,15 @@
 
             try
             {
-                var pkmn = Database.Instance.Pokemon[raid.PokemonId];
+                var pkmn = MasterFile.Instance.Pokedex[raid.PokemonId];
                 var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                 var pkmnImage = raid.IsEgg ? string.Format(_whConfig.Urls.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(_whConfig.Urls.PokemonImage, PokemonGender.Unset, raid.Form);
 
-                var guildId = _whConfig.Servers.Values?.FirstOrDefault(x => x.CityRoles.Select(y => y.ToLower()).Contains(loc?.Name.ToLower()))?.GuildId ?? 0;
-                if (!_servers.ContainsKey(guildId))
+                if (!_servers.ContainsKey(e.GuildId))
                     return;
 
-                var client = _servers[guildId];
-                var eb = raid.GenerateRaidMessage(guildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
+                var client = _servers[e.GuildId];
+                var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
                 var name = raid.IsEgg ? $"Level {raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
                 var jsonEmbed = new DiscordWebhookMessage
                 {
@@ -493,12 +491,11 @@
 
             try
             {
-                var guildId = _whConfig.Servers.Values?.FirstOrDefault(x => x.CityRoles.Select(y => y.ToLower()).Contains(loc?.Name.ToLower()))?.GuildId ?? 0;
-                if (!_servers.ContainsKey(guildId))
+                if (!_servers.ContainsKey(e.GuildId))
                     return;
 
-                var client = _servers[guildId];
-                var eb = quest.GenerateQuestMessage(guildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var client = _servers[e.GuildId];
+                var eb = quest.GenerateQuestMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = quest.GetQuestMessage(),
@@ -538,7 +535,7 @@
             }
             else if (pokestop.HasLure)
             {
-                icon = string.Format(_whConfig.Urls.QuestImage, Convert.ToInt32(pokestop.LureType));//"https://serebii.net/pokemongo/items/luremodule.png";
+                icon = string.Format(_whConfig.Urls.QuestImage, Convert.ToInt32(pokestop.LureType));
             }
             else
             {
@@ -547,12 +544,11 @@
 
             try
             {
-                var guildId = _whConfig.Servers.Values?.FirstOrDefault(x => x.CityRoles.Select(y => y.ToLower()).Contains(loc?.Name.ToLower()))?.GuildId ?? 0;
-                if (!_servers.ContainsKey(guildId))
+                if (!_servers.ContainsKey(e.GuildId))
                     return;
 
-                var client = _servers[guildId];
-                var eb = pokestop.GeneratePokestopMessage(guildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var client = _servers[e.GuildId];
+                var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = pokestop.Name ?? "Unknown Pokestop",
@@ -608,12 +604,11 @@
                 if (!changed)
                     return;
 
-                var guildId = _whConfig.Servers.Values?.FirstOrDefault(x => x.CityRoles.Select(y => y.ToLower()).Contains(loc?.Name.ToLower()))?.GuildId ?? 0;
-                if (!_servers.ContainsKey(guildId))
+                if (!_servers.ContainsKey(e.GuildId))
                     return;
 
-                var client = _servers[guildId];
-                var eb = gymDetails.GenerateGymMessage(guildId, client, _whConfig, e.Alarm, oldGym, loc?.Name ?? e.Alarm.Name);
+                var client = _servers[e.GuildId];
+                var eb = gymDetails.GenerateGymMessage(e.GuildId, client, _whConfig, e.Alarm, oldGym, loc?.Name ?? e.Alarm.Name);
                 var name = gymDetails.GymName;
                 var jsonEmbed = new DiscordWebhookMessage
                 {
@@ -747,6 +742,7 @@
             }
 
             var guild = client.Guilds[server.EmojiGuildId];
+            var list = new Dictionary<string, ulong>();
             for (var j = 0; j < Strings.EmojiList.Length; j++)
             {
                 try
@@ -766,9 +762,20 @@
                         }
 
                         var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
-                        await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
+                        var discordEmoji = await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
+                        if (!list.ContainsKey(discordEmoji.Name))
+                        {
+                            list.Add(discordEmoji.Name, discordEmoji.Id);
+                        }
 
                         _logger.Info($"Emoji {emoji} created successfully.");
+                    }
+                    else
+                    {
+                        if (!list.ContainsKey(emojiExists.Name))
+                        {
+                            list.Add(emojiExists.Name, emojiExists.Id);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -828,10 +835,10 @@
                         if (pokemon == 0)
                             continue;
 
-                        if (!Database.Instance.Pokemon.ContainsKey((int)pokemon))
+                        if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
                             continue;
 
-                        var pkmn = Database.Instance.Pokemon[(int)pokemon];
+                        var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
                         var pkmnStats = stats[pokemon];
                         var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
                         var chanceMessage = chance == 0 ? null : $" with a **1/{chance}** ratio";

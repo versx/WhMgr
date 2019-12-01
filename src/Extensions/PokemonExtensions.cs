@@ -101,41 +101,41 @@
 
         public static int MaxCpAtLevel(this int id, int level)
         {
-            if (!Database.Instance.Pokemon.ContainsKey(id) || id == 0)
+            if (!MasterFile.Instance.Pokedex.ContainsKey(id) || id == 0)
                 return 0;
 
-            var pkmn = Database.Instance.Pokemon[id];
+            var pkmn = MasterFile.Instance.Pokedex[id];
             var multiplier = CpMultipliers[level - 1];
-            var maxAtk = (pkmn.BaseStats.Attack + 15) * multiplier;
-            var maxDef = (pkmn.BaseStats.Defense + 15) * multiplier;
-            var maxSta = (pkmn.BaseStats.Stamina + 15) * multiplier;
+            var maxAtk = ((pkmn.Attack + 15) * multiplier) ?? 0;
+            var maxDef = ((pkmn.Defense + 15) * multiplier) ?? 0;
+            var maxSta = ((pkmn.Stamina + 15) * multiplier) ?? 0;
 
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(maxAtk * maxAtk * maxDef * maxSta) / 10));
         }
 
         public static int MinCpAtLevel(this int id, int level)
         {
-            if (!Database.Instance.Pokemon.ContainsKey(id) || id == 0)
+            if (!MasterFile.Instance.Pokedex.ContainsKey(id) || id == 0)
                 return 0;
 
-            var pkmn = Database.Instance.Pokemon[id];
+            var pkmn = MasterFile.Instance.Pokedex[id];
             var multiplier = CpMultipliers[level - 1];
-            var minAtk = (pkmn.BaseStats.Attack + 10) * multiplier;
-            var minDef = (pkmn.BaseStats.Defense + 10) * multiplier;
-            var minSta = (pkmn.BaseStats.Stamina + 10) * multiplier;
+            var minAtk = ((pkmn.Attack + 10) * multiplier) ?? 0;
+            var minDef = ((pkmn.Defense + 10) * multiplier) ?? 0;
+            var minSta = ((pkmn.Stamina + 10) * multiplier) ?? 0;
 
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(minAtk * minAtk * minDef * minSta) / 10));
         }
 
         public static int GetLevel(this int id, int cp, int atk, int def, int sta)
         {
-            if (!Database.Instance.Pokemon.ContainsKey(id))
+            if (!MasterFile.Instance.Pokedex.ContainsKey(id))
                 return 0;
 
-            var pkmn = Database.Instance.Pokemon[id];
+            var pkmn = MasterFile.Instance.Pokedex[id];
             for (var i = 0; i < CpMultipliers.Length; i++)
             {
-                var spawnCP = GetCP(pkmn.BaseStats.Attack + atk, pkmn.BaseStats.Defense + def, pkmn.BaseStats.Stamina + sta, CpMultipliers[i]);
+                var spawnCP = GetCP(pkmn.Attack ?? 0 + atk, pkmn.Defense ?? 0 + def, pkmn.Stamina ?? 0 + sta, CpMultipliers[i]);
                 if (cp == spawnCP)
                 {
                     var level = i + 1;
@@ -154,12 +154,12 @@
 
         public static PokemonSize GetSize(this int id, float height, float weight)
         {
-            if (!Database.Instance.Pokemon.ContainsKey(id))
+            if (!MasterFile.Instance.Pokedex.ContainsKey(id))
                 return PokemonSize.Normal;
 
-            var stats = Database.Instance.Pokemon[id];
-            var weightRatio = weight / (float)stats.BaseStats.Weight;
-            var heightRatio = height / (float)stats.BaseStats.Height;
+            var stats = MasterFile.Instance.Pokedex[id];
+            var weightRatio = weight / Convert.ToDouble(stats?.Weight ?? 0);
+            var heightRatio = height / Convert.ToDouble(stats?.Height ?? 0);
             var size = heightRatio + weightRatio;
 
             if (size < 1.5)   return PokemonSize.Tiny;
@@ -1357,20 +1357,19 @@
             if (string.IsNullOrEmpty(name))
                 return 0;
 
-            var db = Database.Instance;
-            var pkmn = db.Pokemon.FirstOrDefault(x => string.Compare(x.Value.Name, name, true) == 0);
+            var pkmn = MasterFile.Instance.Pokedex.FirstOrDefault(x => string.Compare(x.Value.Name, name, true) == 0);
 
             if (pkmn.Key > 0)
                 return pkmn.Key;
 
-            foreach (var p in db.Pokemon)
+            foreach (var p in MasterFile.Instance.Pokedex)
                 if (p.Value.Name.ToLower().Contains(name.ToLower()))
                     return p.Key;
 
             if (!int.TryParse(name, out var pokeId))
                 return 0;
 
-            if (db.Pokemon.ContainsKey(pokeId))
+            if (MasterFile.Instance.Pokedex.ContainsKey(pokeId))
                 return pokeId;
 
             return 0;
@@ -1428,7 +1427,7 @@
                     continue;
                 }
 
-                if (!Database.Instance.Pokemon.ContainsKey(pokeId))
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pokeId))
                 {
                     invalid.Add(poke);
                     continue;
@@ -1440,10 +1439,10 @@
             return new PokemonValidation { Valid = valid, Invalid = invalid };
         }
 
-        public static bool IsWeatherBoosted(this PokemonInfo pkmn, WeatherType weather)
+        public static bool IsWeatherBoosted(this PokedexPokemon pkmn, WeatherType weather)
         {
-            var types = pkmn.Types;
-            for (var i = 0; i < types.Count; i++)
+            var types = pkmn?.Types;
+            for (var i = 0; i < types?.Count; i++)
             {
                 if (Strings.WeatherBoosts[weather].Contains(types[i]))
                     return true;

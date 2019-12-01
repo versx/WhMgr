@@ -6,6 +6,8 @@
 
     using Newtonsoft.Json;
 
+    using WhMgr.Data;
+
     public class WhConfig
     {
         [JsonProperty("port")]
@@ -60,7 +62,7 @@
                 throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
 
-            return Data.Database.LoadInit<WhConfig>(filePath, typeof(WhConfig));
+            return MasterFile.LoadInit<WhConfig>(filePath, typeof(WhConfig));
         }
     }
 }

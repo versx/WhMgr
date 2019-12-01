@@ -79,7 +79,7 @@
 
                 try
                 {
-                    var pkmn = Database.Instance.Pokemon[nest.PokemonId];
+                    var pkmn = MasterFile.GetPokemon(nest.PokemonId, 0);
                     var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, PokemonGender.Unset, 0);
                     var type1 = pkmn?.Types?[0];
                     var type2 = pkmn?.Types?.Count > 1 ? pkmn.Types?[1] : PokemonType.None;
@@ -211,8 +211,6 @@
         ]
         public async Task ListNestsAsync(CommandContext ctx, string pokemon = null)
         {
-            var db = Database.Instance;
-
             if (string.IsNullOrEmpty(pokemon))
             {
                 var eb = new DiscordEmbedBuilder
@@ -242,7 +240,7 @@
                         if (gn.Average == 0)
                             continue;
 
-                        var pkmn = db.Pokemon[gn.PokemonId];
+                        var pkmn = MasterFile.GetPokemon(gn.PokemonId, 0);
                         sb.AppendLine($"{pkmn.Name} [{gn.Name}]({string.Format(Strings.GoogleMaps, gn.Latitude, gn.Longitude)}) Avg/h: {gn.Average.ToString("N0")}");
                     }
                     var total = sb.ToString();
@@ -269,7 +267,7 @@
                     return;
                 }
 
-                var pkmn = db.Pokemon[pokeId];
+                var pkmn = MasterFile.GetPokemon(pokeId, 0);
                 var eb = new DiscordEmbedBuilder
                 {
                     Title = $"Local {pkmn.Name} Nests",

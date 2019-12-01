@@ -123,9 +123,9 @@
             sb.Append(",");
             sb.Append(stats.SubscriptionQuestsSent);
             sb.Append(",");
-            sb.Append(string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}")));
+            sb.Append(string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{MasterFile.GetPokemon(x.Key, 0)?.Name}: {x.Value.ToString("N0")}")));
             sb.Append(",");
-            sb.Append(string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{Database.Instance.Pokemon[x.Key].Name}: {x.Value.ToString("N0")}")));
+            sb.Append(string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{MasterFile.GetPokemon(x.Key, 0)?.Name}: {x.Value.ToString("N0")}")));
 
             try
             {

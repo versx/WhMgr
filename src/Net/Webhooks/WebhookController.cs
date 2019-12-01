@@ -51,45 +51,45 @@
         #region Alarms
 
         public event EventHandler<AlarmEventTriggeredEventArgs<PokemonData>> PokemonAlarmTriggered;
-        private void OnPokemonAlarmTriggered(PokemonData pkmn, AlarmObject alarm)
+        private void OnPokemonAlarmTriggered(PokemonData pkmn, AlarmObject alarm, ulong guildId)
         {
-            PokemonAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<PokemonData>(pkmn, alarm));
+            PokemonAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<PokemonData>(pkmn, alarm, guildId));
         }
 
         public event EventHandler<AlarmEventTriggeredEventArgs<RaidData>> RaidAlarmTriggered;
-        private void OnRaidAlarmTriggered(RaidData raid, AlarmObject alarm)
+        private void OnRaidAlarmTriggered(RaidData raid, AlarmObject alarm, ulong guildId)
         {
-            RaidAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<RaidData>(raid, alarm));
+            RaidAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<RaidData>(raid, alarm, guildId));
         }
 
         public event EventHandler<AlarmEventTriggeredEventArgs<QuestData>> QuestAlarmTriggered;
-        private void OnQuestAlarmTriggered(QuestData quest, AlarmObject alarm)
+        private void OnQuestAlarmTriggered(QuestData quest, AlarmObject alarm, ulong guildId)
         {
-            QuestAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<QuestData>(quest, alarm));
+            QuestAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<QuestData>(quest, alarm, guildId));
         }
 
         public event EventHandler<AlarmEventTriggeredEventArgs<GymData>> GymAlarmTriggered;
-        private void OnGymAlarmTriggered(GymData gym, AlarmObject alarm)
+        private void OnGymAlarmTriggered(GymData gym, AlarmObject alarm, ulong guildId)
         {
-            GymAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<GymData>(gym, alarm));
+            GymAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<GymData>(gym, alarm, guildId));
         }
 
         public event EventHandler<AlarmEventTriggeredEventArgs<GymDetailsData>> GymDetailsAlarmTriggered;
-        private void OnGymDetailsAlarmTriggered(GymDetailsData gymDetails, AlarmObject alarm)
+        private void OnGymDetailsAlarmTriggered(GymDetailsData gymDetails, AlarmObject alarm, ulong guildId)
         {
-            GymDetailsAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<GymDetailsData>(gymDetails, alarm));
+            GymDetailsAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<GymDetailsData>(gymDetails, alarm, guildId));
         }
 
         public event EventHandler<AlarmEventTriggeredEventArgs<PokestopData>> PokestopAlarmTriggered;
-        private void OnPokestopAlarmTriggered(PokestopData pokestop, AlarmObject alarm)
+        private void OnPokestopAlarmTriggered(PokestopData pokestop, AlarmObject alarm, ulong guildId)
         {
-            PokestopAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<PokestopData>(pokestop, alarm));
+            PokestopAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<PokestopData>(pokestop, alarm, guildId));
         }
 
         public event EventHandler<AlarmEventTriggeredEventArgs<WeatherData>> WeatherAlarmTriggered;
-        private void OnWeatherAlarmTriggered(WeatherData weather, AlarmObject alarm)
+        private void OnWeatherAlarmTriggered(WeatherData weather, AlarmObject alarm, ulong guildId)
         {
-            WeatherAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<WeatherData>(weather, alarm));
+            WeatherAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<WeatherData>(weather, alarm, guildId));
         }
 
         #endregion
@@ -397,13 +397,13 @@
                     }
 
                     //var greatLeagueRank = 25; //TODO: Make configurable
-                    if (/*!pkmn.MatchesGreatLeague() &&*/ alarm.Filters.Pokemon.IsPvpGreatLeague)
+                    if (!pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague)
                     {
                         continue;
                     }
 
                     //var ultraLeagueRank = 25; //TODO: Make configurable
-                    if (/*!pkmn.MatchesUltraLeague() &&*/ alarm.Filters.Pokemon.IsPvpUltraLeague)
+                    if (!pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague)
                     {
                         continue;
                     }
@@ -421,7 +421,7 @@
                         continue;
                     }
 
-                    OnPokemonAlarmTriggered(pkmn, alarm);
+                    OnPokemonAlarmTriggered(pkmn, alarm, guildId);
                 }
             }
         }
@@ -489,7 +489,7 @@
                             continue;
                         }
 
-                        OnRaidAlarmTriggered(raid, alarm);
+                        OnRaidAlarmTriggered(raid, alarm, guildId);
                     }
                     else
                     {
@@ -516,13 +516,13 @@
 
                         if (alarm.Filters.Raids.OnlyEx && !raid.IsExEligible)
                         {
-                            _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: only ex {alarm.Filters.Raids.OnlyEx}.");
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: only ex {alarm.Filters.Raids.OnlyEx}.");
                             continue;
                         }
 
                         if (alarm.Filters.Raids.Team != PokemonTeam.All && alarm.Filters.Raids.Team != raid.Team)
                         {
-                            _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: '{raid.Team}' does not meet Team={alarm.Filters.Raids.Team} filter.");
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: '{raid.Team}' does not meet Team={alarm.Filters.Raids.Team} filter.");
                             continue;
                         }
 
@@ -532,7 +532,7 @@
                             continue;
                         }
 
-                        OnRaidAlarmTriggered(raid, alarm);
+                        OnRaidAlarmTriggered(raid, alarm, guildId);
                     }
                 }
             }
@@ -601,7 +601,7 @@
                         continue;
                     }
 
-                    OnQuestAlarmTriggered(quest, alarm);
+                    OnQuestAlarmTriggered(quest, alarm, guildId);
                 }
             }
         }
@@ -658,7 +658,7 @@
                         continue;
                     }
 
-                    OnPokestopAlarmTriggered(pokestop, alarm);
+                    OnPokestopAlarmTriggered(pokestop, alarm, guildId);
                 }
             }
         }
@@ -700,7 +700,7 @@
                         continue;
                     }
 
-                    OnGymAlarmTriggered(gym, alarm);
+                    OnGymAlarmTriggered(gym, alarm, guildId);
                 }
             }
         }
@@ -755,7 +755,7 @@
                         continue;
                     }
 
-                    OnGymDetailsAlarmTriggered(gymDetails, alarm);
+                    OnGymDetailsAlarmTriggered(gymDetails, alarm, guildId);
                 }
             }
         }
@@ -798,7 +798,7 @@
                     if (!changed)
                         return;
 
-                    OnWeatherAlarmTriggered(weather, alarm);
+                    OnWeatherAlarmTriggered(weather, alarm, guildId);
                 }
             }
         }

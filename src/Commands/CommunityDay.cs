@@ -53,9 +53,9 @@
             for (var i = 0; i < _dep.WhConfig.EventPokemonIds.Count; i++)
             {
                 var pkmnId = _dep.WhConfig.EventPokemonIds[i];
-                if (Database.Instance.Pokemon.ContainsKey(pkmnId))
+                if (MasterFile.Instance.Pokedex.ContainsKey(pkmnId))
                 {
-                    pkmnNames.Add(pkmnId + ":" + Database.Instance.Pokemon[pkmnId].Name);
+                    pkmnNames.Add(pkmnId + ":" + MasterFile.Instance.Pokedex[pkmnId].Name);
                 }
             }
 
@@ -77,7 +77,7 @@
             for (var i = 0; i < eventPokemonSplit.Length; i++)
             {
                 var eventPokemonId = eventPokemonSplit[i];
-                if (int.TryParse(eventPokemonId, out var pokemonId) && (pokemonId == 0 || Database.Instance.Pokemon.ContainsKey(pokemonId)))
+                if (int.TryParse(eventPokemonId, out var pokemonId) && (pokemonId == 0 || MasterFile.Instance.Pokedex.ContainsKey(pokemonId)))
                 {
                     pkmnToAdd.Add(pokemonId);
                     continue;
@@ -93,9 +93,9 @@
             for (var i = 0; i < pkmnToAdd.Count; i++)
             {
                 var pkmnId = pkmnToAdd[i];
-                if (Database.Instance.Pokemon.ContainsKey(pkmnId))
+                if (MasterFile.Instance.Pokedex.ContainsKey(pkmnId))
                 {
-                    pkmnNames.Add(pkmnId + ":" + Database.Instance.Pokemon[pkmnId].Name);
+                    pkmnNames.Add(pkmnId + ":" + MasterFile.Instance.Pokedex[pkmnId].Name);
                 }
             }
 

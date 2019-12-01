@@ -37,7 +37,7 @@
                         var isCommand = !isEnd && args[i + 1].Contains(prefix);
                         if (isCommand || isEnd)
                         {
-                            dict.Add(key, true); //TODO: Provide better solution.
+                            dict.Add(key, true);
                             continue;
                         }
 

@@ -46,7 +46,6 @@
             _servers = servers;
             _whConfig = config;
             _whm = whm;
-            //_embedBuilder = embedBuilder;
             _queue = new NotificationQueue();
 
             Manager = new SubscriptionManager(_whConfig);
@@ -60,8 +59,7 @@
 
         public async Task ProcessPokemonSubscription(PokemonData pkmn)
         {
-            var db = Database.Instance;
-            if (!db.Pokemon.ContainsKey(pkmn.Id))
+            if (!MasterFile.Instance.Pokedex.ContainsKey(pkmn.Id))
                 return;
 
             var loc = _whm.GetGeofence(pkmn.Latitude, pkmn.Longitude);
@@ -81,7 +79,7 @@
             SubscriptionObject user;
             PokemonSubscription subscribedPokemon;
             DiscordMember member = null;
-            var pokemon = db.Pokemon[pkmn.Id];
+            var pokemon = MasterFile.GetPokemon(pkmn.Id, pkmn.FormId);
             var matchesIV = false;
             var matchesLvl = false;
             var matchesGender = false;
@@ -164,7 +162,7 @@
                     matchesStamina = _whm.Filters.MatchesStamina(pkmn.Stamina, subscribedPokemon.Stamina);
 
                     if (!(
-                        (!subscribedPokemon.HasStats && matchesIV && matchesLvl && matchesGender) || 
+                        (subscribedPokemon.HasStats && matchesIV && matchesLvl && matchesGender) || 
                         (subscribedPokemon.HasStats && matchesAttack && matchesDefense && matchesStamina)
                          ))
                         continue;
@@ -194,15 +192,13 @@
             user = null;
             loc = null;
             pokemon = null;
-            db = null;
 
             await Task.CompletedTask;
         }
 
         public async Task ProcessRaidSubscription(RaidData raid)
         {
-            var db = Database.Instance;
-            if (!db.Pokemon.ContainsKey(raid.PokemonId))
+            if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
                 return;
 
             var loc = _whm.GetGeofence(raid.Latitude, raid.Longitude);
@@ -220,7 +216,8 @@
             }
 
             SubscriptionObject user;
-            var pokemon = db.Pokemon[raid.PokemonId];
+            //var pokemon = MasterFile.Instance.Pokedex[raid.PokemonId];
+            var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -317,14 +314,12 @@
             subscriptions = null;
             user = null;
             loc = null;
-            db = null;
 
             await Task.CompletedTask;
         }
 
         public async Task ProcessQuestSubscription(QuestData quest)
         {
-            var db = Database.Instance;
             var reward = quest.Rewards[0].Info;
             var rewardKeyword = quest.GetReward();
             var questName = quest.GetQuestMessage();

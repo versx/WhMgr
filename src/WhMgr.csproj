@@ -125,7 +125,6 @@
     <Compile Include="Configuration\UrlConfig.cs" />
     <Compile Include="Configuration\WhConfig.cs" />
     <Compile Include="Data\DataAccessLayer.cs" />
-    <Compile Include="Data\Database.cs" />
     <Compile Include="Data\MasterFile.cs" />
     <Compile Include="Data\Models\Discord\DiscordEmbedMessage.cs" />
     <Compile Include="Data\Models\Discord\DiscordEmbedAuthor.cs" />

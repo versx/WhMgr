@@ -137,7 +137,7 @@
                 case QuestConditionType.PlayerLevel:
                     return "Reach level";
                 case QuestConditionType.PokemonCategory:
-                    return string.Join(", ", condition.Info.PokemonIds?.Select(x => Database.Instance.Pokemon[x].Name).ToList());
+                    return string.Join(", ", condition.Info.PokemonIds?.Select(x => MasterFile.GetPokemon(x, 0)?.Name).ToList());
                 case QuestConditionType.PokemonType:
                     return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((PokemonType)x))) + "-type";
                 case QuestConditionType.QuestContext:
@@ -236,7 +236,7 @@
                 case QuestRewardType.Item:
                     return $"{amount.ToString("N0")} {item.ToString().Replace("_", " ")}";
                 case QuestRewardType.PokemonEncounter:
-                    return (isShiny ? $"**SHINY** " : "") + Database.Instance.Pokemon[isDitto ? 132 : pokemonId].Name;
+                    return (isShiny ? $"**SHINY** " : "") + MasterFile.GetPokemon(isDitto ? 132 : pokemonId, 0)?.Name;
                 case QuestRewardType.Quest:
                     return "Quest";
                 case QuestRewardType.Stardust:

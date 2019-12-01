@@ -85,10 +85,10 @@
         {
             get
             {
-                if (Database.Instance.Pokemon.ContainsKey(PokemonId) && !IsEgg)
+                if (MasterFile.Instance.Pokedex.ContainsKey(PokemonId) && !IsEgg)
                 {
                     var list = new List<PokemonType>();
-                    Database.Instance.Pokemon[PokemonId].Types.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
+                    MasterFile.Instance.Pokedex[PokemonId]?.Types?.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
                     return list;
                 }
 
@@ -145,7 +145,7 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city)
         {
-            var pkmnInfo = Database.Instance.Pokemon[PokemonId];
+            var pkmnInfo = MasterFile.Instance.Pokedex[PokemonId];
             var form = PokemonId.GetPokemonForm(Form.ToString());
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
