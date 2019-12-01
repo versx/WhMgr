@@ -72,41 +72,6 @@
 	  "botChannelIds": [
 	  	000000000000000000
 	  ]
-	},
-	"000000000000000003": {
-	  "commandPrefix": ".",
-	  "guildId": 000000000000000001,
-	  "emojiGuildId": 000000000000000001,
-	  "ownerId": 000000000000000000,
-	  "donorRoleIds": [
-	  	000000000000000000
-	  ],
-	  "moderatorIds": [
-	  	000000000000000000
-	  ],
-	  "token": "<DISCORD_BOT_TOKEN>",
-	  "alarms": "alarms3.json",
-	  "enableSubscriptions": false,
-	  "enableCities": false,
-	  "cityRoles": [
-	  	"City5",
-	  	"City6"
-	  ],
-	  "citiesRequireSupporterRole": true,
-	  "pruneQuestChannels": true,
-	  "questChannelIds": [
-	  	000000000000000000
-	  ],
-	  "nestsChannelId": 000000000000000000,
-	  "shinyStats": {
-          "enabled": true,
-          "clearMessages": false,
-          "channelId": 000000000000000000
-	  },
-	  "iconStyle": "Default",
-	  "botChannelIds": [
-	  	000000000000000000
-	  ]
 	}
   },
   "database": {
