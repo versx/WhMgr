@@ -1,31 +1,150 @@
 {
-  "token": "<DISCORD_BOT_TOKEN>",
-  "ownerId": 000000000000,
-  "supporterRoleId": 000000000000,
-  "moderators": [
-	000000000000
+  "port": 8008,
+  "shortUrlApiUrl": null,
+  "stripeApiKey": ""
+  "servers": {
+	"000000000000000001": {
+	  "commandPrefix": ".",
+	  "guildId": 000000000000000001,
+	  "emojiGuildId": 000000000000000001,
+	  "ownerId": 000000000000000000,
+	  "donorRoleIds": [
+	  	000000000000000000
+	  ],
+	  "moderatorIds": [
+	  	000000000000000000
+	  ],
+	  "token": "<DISCORD_BOT_TOKEN>",
+	  "alarms": "alarms.json",
+	  "enableSubscriptions": false,
+	  "enableCities": false,
+	  "cityRoles": [
+	  	"City1",
+	  	"City2"
+	  ],
+	  "citiesRequireSupporterRole": true,
+	  "pruneQuestChannels": true,
+	  "questChannelIds": [
+	  	000000000000000000
+	  ],
+	  "nestsChannelId": 000000000000000000,
+	  "shinyStats": {
+          "enabled": true,
+          "clearMessages": false,
+          "channelId": 000000000000000000
+	  },
+	  "iconStyle": "Default",
+	  "botChannelIds": [
+	  	000000000000000000
+	  ]
+	},
+	"000000000000000002": {
+	  "commandPrefix": ".",
+	  "guildId": 000000000000000001,
+	  "emojiGuildId": 000000000000000001,
+	  "ownerId": 000000000000000000,
+	  "donorRoleIds": [
+	  	000000000000000000
+	  ],
+	  "moderatorIds": [
+	  	000000000000000000
+	  ],
+	  "token": "<DISCORD_BOT_TOKEN>",
+	  "alarms": "alarms2.json",
+	  "enableSubscriptions": false,
+	  "enableCities": false,
+	  "cityRoles": [
+	  	"City3",
+	  	"City4"
+	  ],
+	  "citiesRequireSupporterRole": true,
+	  "pruneQuestChannels": true,
+	  "questChannelIds": [
+	  	000000000000000000
+	  ],
+	  "nestsChannelId": 000000000000000000,
+	  "shinyStats": {
+          "enabled": true,
+          "clearMessages": false,
+          "channelId": 000000000000000000
+	  },
+	  "iconStyle": "Default",
+	  "botChannelIds": [
+	  	000000000000000000
+	  ]
+	},
+	"000000000000000003": {
+	  "commandPrefix": ".",
+	  "guildId": 000000000000000001,
+	  "emojiGuildId": 000000000000000001,
+	  "ownerId": 000000000000000000,
+	  "donorRoleIds": [
+	  	000000000000000000
+	  ],
+	  "moderatorIds": [
+	  	000000000000000000
+	  ],
+	  "token": "<DISCORD_BOT_TOKEN>",
+	  "alarms": "alarms3.json",
+	  "enableSubscriptions": false,
+	  "enableCities": false,
+	  "cityRoles": [
+	  	"City5",
+	  	"City6"
+	  ],
+	  "citiesRequireSupporterRole": true,
+	  "pruneQuestChannels": true,
+	  "questChannelIds": [
+	  	000000000000000000
+	  ],
+	  "nestsChannelId": 000000000000000000,
+	  "shinyStats": {
+          "enabled": true,
+          "clearMessages": false,
+          "channelId": 000000000000000000
+	  },
+	  "iconStyle": "Default",
+	  "botChannelIds": [
+	  	000000000000000000
+	  ]
+	}
+  },
+  "database": {
+    "main": {
+	  "host": "127.0.0.1",
+	  "port": 3306,
+	  "username": "root",
+	  "password": "password",
+	  "database": "brock3"
+	},
+    "scanner": {
+	  "host": "127.0.0.1",
+	  "port": 3306,
+	  "username": "root",
+	  "password": "password",
+	  "database": "brock3"
+	},
+    "nests": {
+	  "host": "127.0.0.1",
+	  "port": 3306,
+	  "username": "root",
+	  "password": "password",
+	  "database": "brock3"
+	}
+  },
+  "eventPokemonIds": [
+    129,
+    456,
+    320
   ],
-  "guildId": 000000000000,
-  "webhookPort": 8002,
-  "enableSubscriptions": false,
-  "enableCities": false,
-  "citiesRequireSupporterRole": false,
-  "connectionString": "Uid=user;Password=pass123;Server=127.0.0.1;Port=3306;Database=brock;",
-  "scannerConnectionString": "Uid=user;Password=pass123;Server=127.0.0.1;Port=3306;Database=rdm;",
-  "cityRoles": [
-	"City1",
-	"City2"
-  ],
-  "commandPrefix": ".",
-  "questChannelIds": [
-      000000000000,
-      000000000001
-  ],
-  "eventPokemonIds": [],
-  "shortUrlApiUrl": "",
-  "shinyStats": {
-      "enabled": true,
-	  "clearMessages": false,
-	  "channelId": 000000000000
-  }
+  "urls": {
+    "pokemonImage": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png",
+    "eggImage": "https://cdn.example.com/images/shuffle/eggs/{0}.png",
+    "questImage": "https://cdn.example.com/images/shuffle/quests/{0}.png",
+    "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png"
+  },
+  "iconStyles": {
+    "Default": "https://cdn.example.com/images/original/monsters/{0:D3}_{1:D3}.png",
+    "Shuffle": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png"
+  },
 }

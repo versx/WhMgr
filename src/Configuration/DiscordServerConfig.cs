@@ -69,4 +69,19 @@
             ShinyStats = new ShinyStatsConfig();
         }
     }
+
+    public class SubscriptionsConfiguration
+    {
+        [JsonProperty("enableSubscriptions")]
+        public bool EnableSubscriptions { get; set; }
+
+        [JsonProperty("enableCities")]
+        public bool EnableCities { get; set; }
+
+        [JsonProperty("citiesRequireSupporterRole")]
+        public bool CitiesRequireSupporterRole { get; set; }
+
+        [JsonProperty("iconStyle")]
+        public string IconStyle { get; set; }
+    }
 }

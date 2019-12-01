@@ -6,26 +6,6 @@
 
     using Newtonsoft.Json;
 
-    using WhMgr.Data;
-
-    //public class SubscriptionsConfiguration
-    //{
-    //    [JsonProperty("enableSubscriptions")]
-    //    public bool EnableSubscriptions { get; set; }
-
-    //    [JsonProperty("enableCities")]
-    //    public bool EnableCities { get; set; }
-
-    //    [JsonProperty("citiesRequireSupporterRole")]
-    //    public bool CitiesRequireSupporterRole { get; set; }
-
-    //    [JsonProperty("iconStyle")]
-    //    public string IconStyle { get; set; }
-
-    //    [JsonProperty("iconStyles")]
-    //    public Dictionary<string, string> IconStyles { get; set; }
-    //}
-
     public class WhConfig
     {
         [JsonProperty("port")]
