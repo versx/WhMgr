@@ -22,6 +22,28 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("DISCORD_EXTENSIONS");
 
+        public static async Task<List<DiscordMessage>> RespondEmbed(this DiscordMessage msg, string message)
+        {
+            return await msg.RespondEmbed(message, DiscordColor.Green);
+        }
+
+        public static async Task<List<DiscordMessage>> RespondEmbed(this DiscordMessage discordMessage, string message, DiscordColor color)
+        {
+            var messagesSent = new List<DiscordMessage>();
+            var messages = message.SplitInParts(2048);
+            foreach (var msg in messages)
+            {
+                var eb = new DiscordEmbedBuilder
+                {
+                    Color = color,
+                    Description = msg
+                };
+
+                messagesSent.Add(await discordMessage.RespondAsync(string.Empty, false, eb));
+            }
+            return messagesSent;
+        }
+
         public static async Task<List<DiscordMessage>> RespondEmbed(this CommandContext ctx, string message)
         {
             return await RespondEmbed(ctx, message, DiscordColor.Green);
@@ -115,18 +137,14 @@
                 await ctx.TriggerTypingAsync();
             }
             var message = await ctx.RespondEmbed($"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\nDonation information can be found by typing the `donate` command.");
-            if (message.Count > 0)
-            {
-                return message[0];
-            }
-            return null;
+            return message.FirstOrDefault();
         }
 
         internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message)
         {
-            if (message.Channel.Guild == null)
+            if (message?.Channel?.Guild == null)
             {
-                await message.RespondAsync($"{message.Author.Mention} DM is not supported for this command yet.");
+                await message.RespondEmbed($"{message.Author.Mention} DM is not supported for this command.", DiscordColor.Yellow);
                 return false;
             }
 

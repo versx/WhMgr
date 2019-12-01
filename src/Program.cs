@@ -14,7 +14,6 @@
         static async Task MainAsync(string[] args)
         {
             var arguments = CommandLine.ParseArgs(new string[] { "--", "-" }, args);
-            var alarmsFilePath = string.Empty;
             var configFilePath = string.Empty;
             var managerName = string.Empty;
             var keys = arguments.Keys.ToList();
@@ -22,10 +21,6 @@
             {
                 switch (keys[i])
                 {
-                    case "alarms":
-                    case "a":
-                        alarmsFilePath = arguments.ContainsKey(keys[i]) ? arguments[keys[i]]?.ToString() : Strings.AlarmsFileName;
-                        break;
                     case "config":
                     case "c":
                         configFilePath = arguments.ContainsKey(keys[i]) ? arguments[keys[i]]?.ToString() : Strings.ConfigFileName;
@@ -37,7 +32,6 @@
                 }
             }
 
-            alarmsFilePath = Path.Combine(Environment.CurrentDirectory, string.IsNullOrEmpty(alarmsFilePath) ? Strings.AlarmsFileName : alarmsFilePath);
             configFilePath = Path.Combine(Environment.CurrentDirectory, string.IsNullOrEmpty(configFilePath) ? Strings.ConfigFileName : configFilePath);
             ManagerName = managerName;
             var logger = Diagnostics.EventLogger.GetLogger();
