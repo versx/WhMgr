@@ -29,120 +29,224 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
   b.) Input your bot token and config options. [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
 ```
 {
-  "servers": [{
-  }
-  //Discord bot token with user.
-  "token": "<DISCORD_BOT_TOKEN>",
-  
-  //Discord server owner id.
-  "ownerId": 000000000000,
-  
-  //Discord server donator role id.
-  "donorRoleIds": [000000000000, 000000000001],
-  
-  //List of Discord server moderator role ids.
-  "moderators": [000000000000],
-  
-  //Discord server guild id.
-  "guildId": 000000000000,
-  
-  //Listening port to accept webhook data.
-  "webhookPort": 8002,
-  
-  //Enable discord user subscriptions for custom notifications to Quests/Raids/Pokemon, if enabled database information is required below.
-  "enableSubscriptions": false,
-  
-  //MySQL database connection string.
-  "connectionString": "Uid=user;Password=password;Server=127.0.0.1;Port=3306;Database=brockdb",
-  
-  //MySQL database connection string for RealDeviceMap scanner.
-  "scannerConnectionString": "Uid=user;Password=password;Server=127.0.0.1;Port=3306;Database=brockdb",
-  
-  //City roles to filter by geofence.
-  "cityRoles": [
-    "City1",
-    "City2"
-  ],
-  
-  //Assigning city roles require a donor role.
-  "citiesRequireSupporterRole": false,
-  
-  //Bot command prefix, if empty/null the bot's mention prefix is set as default.
-  "commandPrefix": null,
-  
-  //Channel IDs of quest channels to clear messages at midnight.
-  "questChannelIds": [
-    000000000000,
-	000000000001
-  ],
-  
-  //Shiny statistics
-  "shinyStats": {
-    //Enables or disables shiny statistics posting.
-    "enabled": false,
-	
-	//Clear all old shiny statistic reports.
-    "clearMessages": true,
-	
-	//Channel ID to post the shiny statistics to.
-    "channelId": 000000000000
-  },
-  
-  //Image URLs
-  "urls": {
-    //Pokemon images repository path.
-    "pokemonImage": "https://example.com/pogo/monsters/{0:D3}_{1:D3}.png",
-	
-	//Raid egg images repository path.
-	"eggImage": "https://example.com/pogo/eggs/{0}.png",
-	
-	//Field research quest images repository path.
-	"questImage": "https://example.com/pogo/quests/{0}.png",
-	
-	//Static map images template.
-	"staticMap": "https://example.com/staticmap.php?center={0},{1}&markers={0},{1},red-pushpin&zoom=14&size=300x175&maptype=mapnik",
-  }
+    // Http listener port for raw webhook data.
+    "port": 8008,
+    // ShortURL API (yourls.org API)
+    "shortUrlApiUrl": null,
+    // Stripe API key
+    "stripeApiKey": ""
+    // List of Discord servers to connect and post webhook messages to.
+    "servers": {
+        // Discord server #1
+        "000000000000000001": {
+            // Bot command prefix, leave blank to use @mention <command>
+            "commandPrefix": ".",
+            // Discord server owner ID.
+            "guildId": 000000000000000001,
+            // Discord Emoji server ID. (Can be same as `guildId`)
+            "emojiGuildId": 000000000000000001,
+            // Discord server owner ID.
+            "ownerId": 000000000000000000,
+            // Donor/Supporter role ID(s).
+            "donorRoleIds": [
+                000000000000000000
+            ],
+            // Moderator Discord ID(s).
+            "moderatorIds": [
+                000000000000000000
+            ],
+            // Discord bot token with user.
+            "token": "<DISCORD_BOT_TOKEN>",
+            // Alarms file path.
+            "alarms": "alarms.json",
+            // Enable custom direct message notification subscriptions.
+            "enableSubscriptions": false,
+            // Enable city role assignments.
+            "enableCities": false,
+            // City/geofence role(s)
+            "cityRoles": [
+                "City1",
+                "City2"
+            ],
+            // Assigning city roles requires Donor/Supporter role.
+            "citiesRequireSupporterRole": true,
+            // Prune old field research quests at midnight.
+            "pruneQuestChannels": true,
+            // Channel ID(s) of quest channels to prune at midnight.
+            "questChannelIds": [
+                000000000000000000
+            ],
+            // Channel ID to post nests.
+            "nestsChannelId": 000000000000000000,
+            // Shiny stats configuration
+            "shinyStats": {
+                // Enable shiny stats posting.
+                "enabled": true,
+                // Clear previous shiny stat messages.
+                "clearMessages": false,
+                // Channel ID to post shiny stats.
+                "channelId": 000000000000000000
+            },
+            // Icon style to use.
+            "iconStyle": "Default",
+            // Channel ID(s) bot commands can be executed in.
+            "botChannelIds": [
+                000000000000000000
+            ]
+        },
+        "000000000000000002": {
+            "commandPrefix": ".",
+            "guildId": 000000000000000001,
+            "emojiGuildId": 000000000000000001,
+            "ownerId": 000000000000000000,
+            "donorRoleIds": [
+                000000000000000000
+            ],
+            "moderatorIds": [
+                000000000000000000
+            ],
+            "token": "<DISCORD_BOT_TOKEN>",
+            "alarms": "alarms2.json",
+            "enableSubscriptions": false,
+            "enableCities": false,
+            "cityRoles": [
+                "City3",
+                "City4"
+            ],
+            "citiesRequireSupporterRole": true,
+            "pruneQuestChannels": true,
+            "questChannelIds": [
+                000000000000000000
+            ],
+            "nestsChannelId": 000000000000000000,
+            "shinyStats": {
+                "enabled": true,
+                "clearMessages": false,
+                "channelId": 000000000000000000
+            },
+            "iconStyle": "Default",
+            "botChannelIds": [
+                000000000000000000
+            ]
+        }
+    },
+    // Database configuration
+    "database": {
+        // Database to store notification subscriptions.
+        "main": {
+            // Database hostname or IP address.
+            "host": "127.0.0.1",
+            // Database connection port.
+            "port": 3306,
+            // Database user account name.
+            "username": "root",
+            // Database user account password.
+            "password": "password",
+            // Brock database name.
+            "database": "brock3"
+        },
+        // Scanner databse config
+        "scanner": {
+            // Database hostname or IP address.
+            "host": "127.0.0.1",
+            // Database connection port.
+            "port": 3306,
+            // Database user account name.
+            "username": "root",
+            // Database user account password.
+            "password": "password",
+            // RDM database name.
+            "database": "rdmdb"
+        },
+        // PMSF Nests database config
+        "nests": {
+            // Database hostname or IP address.
+            "host": "127.0.0.1",
+            // Database connection port.
+            "port": 3306,
+            // Database user account name.
+            "username": "root",
+            // Database user account password.
+            "password": "password",
+            // PMSF nests database name.
+            "database": "manualdb"
+        }
+    },
+    // List of Pokemon IDs to treat as event and restrict postings and subscriptions to 90% IV or higher.
+    "eventPokemonIds": [
+        129,
+        456,
+        320
+    ],
+    // Image URL config
+    "urls": {
+        //Pokemon images repository path.
+        "pokemonImage": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png",
+        //Raid egg images repository path.
+        "eggImage": "https://cdn.example.com/images/shuffle/eggs/{0}.png",
+        //Field research quest images repository path.
+        "questImage": "https://cdn.example.com/images/shuffle/quests/{0}.png",
+        //Static tile map images template.
+        "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png"
+    },
+    // Available icon styles
+    "iconStyles": {
+        "Default": "https://cdn.example.com/images/original/monsters/{0:D3}_{1:D3}.png",
+        "Shuffle": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png"
+    }
 }
 ```
 2.) Copy `alarms.example.json` to `alarms.json`.  
 3.) Fill out the alarms file.  
 ```
 {
-  //Global switch for Pokemon notifications.
-  "enablePokemon": false,
+    //Global switch for Pokemon notifications.
+    "enablePokemon": false,
   
-  //Global switch for Raid/Egg notifications.
-  "enableRaids": false,
+    //Global switch for Raid/Egg notifications.
+    "enableRaids": false,
   
-  //Global switch for Quest notifications.
-  "enableQuests": false,
+    //Global switch for Quest notifications.
+    "enableQuests": false,
   
-  //Global switch for Pokestop notifications.
-  "enablePokestops": false,
+    //Global switch for Pokestop notifications.
+    "enablePokestops": false,
   
-  //Global switch for Gym notifications.
-  "enableGyms": false,
+    //Global switch for Gym notifications.
+    "enableGyms": false,
   
-  //List of alarms
-  "alarms": 
-  [
-    {
-      //Alarm name.
-      "name":"Alarm1",
+    //List of alarms
+    "alarms": [{
+        //Alarm name.
+        "name":"Alarm1",
 	  
-      //Alerts file.
-      "alerts":"default.json",
+        //Alerts file.
+        "alerts":"default.json",
 	  
-      //Alarm filters.
-      "filters":"default.json",
+        //Alarm filters.
+        "filters":"default.json",
 	  
-      //Path to geofence file.
-      "geofence":"geofence1.txt",
+        //Path to geofence file.
+        "geofence":"geofence1.txt",
       
-      //Discord webhook url address.
-      "webhook":"<DISCORD_WEBHOOK_URL>"
-    }
-  ]
+        //Discord webhook url address.
+        "webhook":"<DISCORD_WEBHOOK_URL>"
+    },{
+        //Alarm name.
+        "name":"Alarm2",
+	  
+        //Alerts file.
+        "alerts":"default.json",
+	  
+        //Alarm filters.
+        "filters":"100iv.json",
+	  
+        //Path to geofence file.
+        "geofence":"geofence1.txt",
+      
+        //Discord webhook url address.
+        "webhook":"<DISCORD_WEBHOOK_URL>"
+    }]
 }
 ```
 4.) Create directory `Geofences` in root directory of executable file.  
@@ -168,17 +272,67 @@ Upload Discord emojis that are in the emojis folder.
 *Notes:  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.*  
 - DM notifications can be sent to users based on:
+    - Pokemon ID
+    - Pokemon Form
     - Pokemon IV
     - Pokemon Level
     - Pokemon Attack/Defense/Stamina values
     - Pokemon Gender
     - Raid Boss
     - Raid City
-    - Raid Distance
     - Gym Name
     - Quest Reward
-    - Invasion Type  
-	
+    - Invasion Grunt Type  
+    - Distance
+
+## Notification Commands
+**General Subscription Commands**  
+
+* `enable` Enable direct message subscriptions  
+* `disable` Disable direct message subscriptions  
+* `info` List all Pokemon, Raid, Quest, Invasion, and Gym subscriptions and settings  
+* `set-distance`  Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in kilometers)  
+* `expire` / `expires` Check stripe API when Donor/Supporter subscription expires  
+
+**Pokemon Subscriptions**  
+* `pokeme` Subscribe to specific Pokemon notifications  
+* `pokemenot` Unsubscribe from specific Pokemon notifications
+
+**Raid Subscriptions**  
+* `raidme` Subscribe to specific Raid notifications
+* `raidmenot` Unsubscribe from specific Raid notifications
+
+**Quest Subscriptions**  
+* `questme` Subscribe to specific field research quest notifications
+* `questmenot` Unsubscribe from specific field research quest notifications
+
+**Team Rocket Invasion Subscriptions**  
+* `invme` Subscribe to specific Team Rocket invasion notifications
+* `invmenot` Unsubscribe from specific Team Rocket invasion notifications
+
+**Subscriptions Management**  
+* `import`  Import saved subscriptions file  
+* `export`  Export subscriptions config file  
+
+**Icon Style Selection**  
+* `icons`  List available icon styles to choose from  
+* `set-icons` Set icon style to use for direct message notifications  
+
+**City Role Assignment**  
+* `cities` / `feeds` List all available city roles  
+* `feedme` Assign city role   
+* `feedmenot` Unassign city role  
+
+## Owner Only Commands  
+* `gyms convert` Check for any pokestops that have converted to gyms and delete them from the database.  
+* `nests` Post nests in channels.  
+* `event list` List Pokemon set as event Pokemon  
+* `event set <pokemon_id_list>` Set Pokemon as event Pokemon (overwrites current list)  
+* `isbanned` Check if IP banned from PTC or NIA  
+* `clean-departed` Clean departed Discord member subscriptions  
+* `reset-quests` Reset and delete quest channels  
+* `shiny-stats` Manually post shiny stats  
+
 ## Dynamic Text Replacement  
 __**Pokemon**__  
 

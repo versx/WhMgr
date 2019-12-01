@@ -3,99 +3,99 @@
   "shortUrlApiUrl": null,
   "stripeApiKey": ""
   "servers": {
-	"000000000000000001": {
-	  "commandPrefix": ".",
-	  "guildId": 000000000000000001,
-	  "emojiGuildId": 000000000000000001,
-	  "ownerId": 000000000000000000,
-	  "donorRoleIds": [
-	  	000000000000000000
-	  ],
-	  "moderatorIds": [
-	  	000000000000000000
-	  ],
-	  "token": "<DISCORD_BOT_TOKEN>",
-	  "alarms": "alarms.json",
-	  "enableSubscriptions": false,
-	  "enableCities": false,
-	  "cityRoles": [
-	  	"City1",
-	  	"City2"
-	  ],
-	  "citiesRequireSupporterRole": true,
-	  "pruneQuestChannels": true,
-	  "questChannelIds": [
-	  	000000000000000000
-	  ],
-	  "nestsChannelId": 000000000000000000,
-	  "shinyStats": {
-          "enabled": true,
-          "clearMessages": false,
-          "channelId": 000000000000000000
-	  },
-	  "iconStyle": "Default",
-	  "botChannelIds": [
-	  	000000000000000000
-	  ]
-	},
-	"000000000000000002": {
-	  "commandPrefix": ".",
-	  "guildId": 000000000000000001,
-	  "emojiGuildId": 000000000000000001,
-	  "ownerId": 000000000000000000,
-	  "donorRoleIds": [
-	  	000000000000000000
-	  ],
-	  "moderatorIds": [
-	  	000000000000000000
-	  ],
-	  "token": "<DISCORD_BOT_TOKEN>",
-	  "alarms": "alarms2.json",
-	  "enableSubscriptions": false,
-	  "enableCities": false,
-	  "cityRoles": [
-	  	"City3",
-	  	"City4"
-	  ],
-	  "citiesRequireSupporterRole": true,
-	  "pruneQuestChannels": true,
-	  "questChannelIds": [
-	  	000000000000000000
-	  ],
-	  "nestsChannelId": 000000000000000000,
-	  "shinyStats": {
-          "enabled": true,
-          "clearMessages": false,
-          "channelId": 000000000000000000
-	  },
-	  "iconStyle": "Default",
-	  "botChannelIds": [
-	  	000000000000000000
-	  ]
-	}
+    "000000000000000001": {
+      "commandPrefix": ".",
+      "guildId": 000000000000000001,
+      "emojiGuildId": 000000000000000001,
+      "ownerId": 000000000000000000,
+      "donorRoleIds": [
+        000000000000000000
+      ],
+      "moderatorIds": [
+        000000000000000000
+      ],
+      "token": "<DISCORD_BOT_TOKEN>",
+      "alarms": "alarms.json",
+      "enableSubscriptions": false,
+      "enableCities": false,
+      "cityRoles": [
+        "City1",
+        "City2"
+      ],
+      "citiesRequireSupporterRole": true,
+      "pruneQuestChannels": true,
+      "questChannelIds": [
+        000000000000000000
+      ],
+      "nestsChannelId": 000000000000000000,
+      "shinyStats": {
+        "enabled": true,
+        "clearMessages": false,
+        "channelId": 000000000000000000
+      },
+      "iconStyle": "Default",
+      "botChannelIds": [
+        000000000000000000
+      ]
+    },
+    "000000000000000002": {
+      "commandPrefix": ".",
+      "guildId": 000000000000000001,
+      "emojiGuildId": 000000000000000001,
+      "ownerId": 000000000000000000,
+      "donorRoleIds": [
+        000000000000000000
+      ],
+      "moderatorIds": [
+        000000000000000000
+      ],
+      "token": "<DISCORD_BOT_TOKEN>",
+      "alarms": "alarms2.json",
+      "enableSubscriptions": false,
+      "enableCities": false,
+      "cityRoles": [
+        "City3",
+        "City4"
+      ],
+      "citiesRequireSupporterRole": true,
+      "pruneQuestChannels": true,
+      "questChannelIds": [
+        000000000000000000
+      ],
+      "nestsChannelId": 000000000000000000,
+      "shinyStats": {
+        "enabled": true,
+        "clearMessages": false,
+        "channelId": 000000000000000000
+      },
+      "iconStyle": "Default",
+      "botChannelIds": [
+        000000000000000000
+      ]
+    }
   },
   "database": {
     "main": {
-	  "host": "127.0.0.1",
-	  "port": 3306,
-	  "username": "root",
-	  "password": "password",
-	  "database": "brock3"
-	},
+      "host": "127.0.0.1",
+      "port": 3306,
+      "username": "root",
+      "password": "password",
+      "database": "brock3"
+  },
     "scanner": {
-	  "host": "127.0.0.1",
-	  "port": 3306,
-	  "username": "root",
-	  "password": "password",
-	  "database": "brock3"
-	},
+      "host": "127.0.0.1",
+      "port": 3306,
+      "username": "root",
+      "password": "password",
+      "database": "brock3"
+  },
     "nests": {
-	  "host": "127.0.0.1",
-	  "port": 3306,
-	  "username": "root",
-	  "password": "password",
-	  "database": "brock3"
-	}
+      "host": "127.0.0.1",
+      "port": 3306,
+      "username": "root",
+      "password": "password",
+      "database": "brock3"
+    }
   },
   "eventPokemonIds": [
     129,
@@ -111,5 +111,5 @@
   "iconStyles": {
     "Default": "https://cdn.example.com/images/original/monsters/{0:D3}_{1:D3}.png",
     "Shuffle": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png"
-  },
+  }
 }
