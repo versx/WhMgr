@@ -28,17 +28,20 @@
 
     public class WhConfig
     {
-        [JsonProperty("servers")]
-        public Dictionary<ulong, DiscordServerConfig> Servers { get; set; }
-
         [JsonProperty("port")]
         public ushort WebhookPort { get; set; }
 
-        [JsonProperty("database")]
-        public ConnectionStringsConfig Database { get; set; }
-
         [JsonProperty("shortUrlApiUrl")]
         public string ShortUrlApiUrl { get; set; }
+
+        [JsonProperty("stripeApiKey")]
+        public string StripeApiKey { get; set; }
+
+        [JsonProperty("servers")]
+        public Dictionary<ulong, DiscordServerConfig> Servers { get; set; }
+
+        [JsonProperty("database")]
+        public ConnectionStringsConfig Database { get; set; }
 
         [JsonProperty("urls")]
         public UrlConfig Urls { get; set; }
@@ -51,9 +54,6 @@
 
         [JsonProperty("iconStyles")]
         public Dictionary<string, string> IconStyles { get; set; }
-
-        [JsonProperty("stripeApiKey")]
-        public string StripeApiKey { get; set; }
 
         [JsonIgnore]
         public string FileName { get; set; }
