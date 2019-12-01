@@ -27,7 +27,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 1.) Copy `config.example.json` to `config.json`.  
   a.) Create bot token.  
   b.) Input your bot token and config options. [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
-```
+```js
 {
     // Http listener port for raw webhook data.
     "port": 8008,
@@ -198,7 +198,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 ```
 2.) Copy `alarms.example.json` to `alarms.json`.  
 3.) Fill out the alarms file.  
-```
+```js
 {
     //Global switch for Pokemon notifications.
     "enablePokemon": false,
@@ -253,7 +253,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 5.) Create/copy geofence files to `Geofences` folder.  
 
 *Note:* Geofence file format is the following:  
-```
+```ini
 [City1]
 34.00,-117.00
 34.01,-117.01
@@ -536,9 +536,11 @@ __**Quests**__
 
 
 ## TODO:  
-- Allow Pokemon id and name in Pokemon filter lists. 
+- Allow Pokemon id and name in Pokemon filter lists.  
+- Individual filters per Pokemon. (PA style, maybe)  
 - Finish Localization.  
 - Wiki.  
+- 
 
 
 ## Examples:
@@ -568,3 +570,7 @@ Discord Lure (Magnetic) Notifications:
 
 Discord Team Rocket Invasion Notifications:  
 ![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
+
+## Credits:  
+[versx](https://github.com/versx) - Developer  
+[PokeAlarm](https://github.com/PokeAlarm/PokeAlarm) - Dynamic Text Substitution idea  
