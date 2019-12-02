@@ -554,12 +554,12 @@
         //    return int.TryParse(Level, out var level) && level >= targetLevel;
         //}
 
-        public async Task<DiscordEmbed> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, PokemonData pkmn, AlarmObject alarm, string city, string pokemonImageUrl)
+        public async Task<DiscordEmbed> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string pokemonImageUrl)
         {
             //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
-            var alertMessageType = pkmn.IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
+            var alertMessageType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alertMessage = alarm?.Alerts[alertMessageType] ?? AlertMessage.Defaults[alertMessageType];
-            var properties = await GetProperties(guildId, client, whConfig, city);
+            var properties = await GetProperties(guildId, client, whConfig, city, pokemonImageUrl);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
@@ -567,7 +567,7 @@
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alertMessage.ImageUrl, properties),
                 ThumbnailUrl = pokemonImageUrl,
                 Description = DynamicReplacementEngine.ReplaceText(alertMessage.Content, properties),
-                Color = pkmn.IV.BuildColor(),
+                Color = IV.BuildColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
@@ -579,12 +579,14 @@
 
         #endregion
 
-        private async Task<IReadOnlyDictionary<string, string>> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city)
+        private async Task<IReadOnlyDictionary<string, string>> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city, string pokemonImageUrl)
         {
+            //TODO: Check whConfig.Servers[guildId]
+
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
             var form = Id.GetPokemonForm(FormId.ToString());
             var costume = Id.GetCostume(Costume.ToString());
-            var gender = Gender.GetPokemonGenderIconValue();
+            var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
             var size = Size?.ToString();
             var weather = Weather?.ToString();
@@ -610,20 +612,19 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? 
-                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) : 
+            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
+                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
                 string.Empty;
-            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
-                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) : 
+            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ?
+                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
                 string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? MasterFile.Instance.Pokedex[DisplayPokemonId ?? Id] : pkmnInfo;
 
-            var pkmnImage = Id.GetPokemonImage(whConfig.Urls.PokemonImage, Gender, FormId, Costume);
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, pkmnImage, Latitude, Longitude);
+            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, pokemonImageUrl, Latitude, Longitude);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
@@ -641,7 +642,7 @@
                 //Main properties
                 { "pkmn_id", Convert.ToString(Id) },
                 { "pkmn_name", pkmnInfo.Name },
-                { "pkmn_img_url", pkmnImage },
+                { "pkmn_img_url", pokemonImageUrl },
                 { "form", form },
                 { "form_id", Convert.ToString(FormId) },
                 { "form_id_3", FormId.ToString("D3") },

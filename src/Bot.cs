@@ -49,7 +49,7 @@
 
         public Bot(WhConfig whConfig)
         {
-            _logger.Trace($"WhConfig={whConfig.Servers.Count}, WebhookPort={whConfig.WebhookPort}");
+            _logger.Trace($"WhConfig [Servers={whConfig.Servers.Count}, Port={whConfig.WebhookPort}]");
             _lang = new Translator();
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;
@@ -84,7 +84,27 @@
                     TokenType = TokenType.Bot,
                     UseInternalLogHandler = true
                 });
+
+                // If you are on Windows 7 and using .NETFX, install 
+                // DSharpPlus.WebSocket.WebSocket4Net from NuGet,
+                // add appropriate usings, and uncomment the following
+                // line
+                //client.SetWebSocketClient<WebSocket4NetClient>();
+
+                // If you are on Windows 7 and using .NET Core, install 
+                // DSharpPlus.WebSocket.WebSocket4NetCore from NuGet,
+                // add appropriate usings, and uncomment the following
+                // line
+                //client.SetWebSocketClient<WebSocket4NetCoreClient>();
+
+                // If you are using Mono, install 
+                // DSharpPlus.WebSocket.WebSocketSharp from NuGet,
+                // add appropriate usings, and uncomment the following
+                // line
+                //client.SetWebSocketClient<WebSocketSharpClient>();
+
                 client.Ready += Client_Ready;
+                client.GuildAvailable += Client_GuildAvailable;
                 //_client.MessageCreated += Client_MessageCreated;
                 client.ClientErrored += Client_ClientErrored;
                 client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
@@ -168,8 +188,7 @@
 
                 _logger.Info($"Attempting connection to Discord server {guildId}");
                 await client.ConnectAsync();
-                await Task.Delay(5000);
-                await CreateEmojis(guildId);
+                await Task.Delay(1000);
             }
 
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
@@ -203,7 +222,7 @@
 
                 _logger.Info($"Attempting connection to Discord server {guildId}");
                 await client.DisconnectAsync();
-                await Task.Delay(5000);
+                await Task.Delay(1000);
             }
 
             _whm.PokemonAlarmTriggered -= OnPokemonAlarmTriggered;
@@ -213,7 +232,7 @@
             _whm.GymAlarmTriggered -= OnGymAlarmTriggered;
             _whm.GymDetailsAlarmTriggered -= OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered -= OnWeatherAlarmTriggered;
-            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null) //At least one server wants subscriptions
+            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null) //At least one server wanted subscriptions
             {
                 _whm.PokemonSubscriptionTriggered -= OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered -= OnRaidSubscriptionTriggered;
@@ -240,7 +259,17 @@
             _logger.Info($"[DISCORD] Name: {e.Client.CurrentUser.Username}#{e.Client.CurrentUser.Discriminator}");
             _logger.Info($"[DISCORD] Email: {e.Client.CurrentUser.Email}");
 
-            await Task.CompletedTask;
+            if (!(e.Client is DiscordClient client))
+            {
+                _logger.Error($"DiscordClient is null, failed to update status.");
+                return;
+            }
+            await client.UpdateStatusAsync(new DiscordGame($"v{Strings.Version}"), UserStatus.Online);
+        }
+
+        private async Task Client_GuildAvailable(GuildCreateEventArgs e)
+        {
+            await CreateEmojis(e.Guild.Id);
         }
 
         //private async Task Client_MessageCreated(MessageCreateEventArgs e)
@@ -384,7 +413,7 @@
             _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
 
             var pokemon = e.Data;
-            var pkmn = MasterFile.Instance.Pokedex[pokemon.Id];
+            var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
             var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude));
             if (loc == null)
             {
@@ -392,19 +421,23 @@
                 return;
             }
 
+            if (!_servers.ContainsKey(e.GuildId))
+                return;
+
+            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+                return;
+
             try
             {
+                var server = _whConfig.Servers[e.GuildId];
                 var form = pokemon.Id.GetPokemonForm(pokemon.FormId.ToString());
                 //var costume = e.Pokemon.Id.GetCostume(e.Pokemon.Costume.ToString());
                 //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
-                var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.Urls.PokemonImage, pokemon.Gender, pokemon.FormId, pokemon.Costume);
-
-                if (!_servers.ContainsKey(e.GuildId))
-                    return;
+                var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.IconStyles[server.IconStyle], pokemon.Gender, pokemon.FormId, pokemon.Costume);
 
                 var client = _servers[e.GuildId];
-                var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, pokemon, e.Alarm, loc.Name, pkmnImage);
-                var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIconValue()}{form}";
+                var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
+                var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIcon()}{form}";
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = name,
@@ -442,14 +475,20 @@
                 return;
             }
 
+            if (!_servers.ContainsKey(e.GuildId))
+                return;
+
+            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+                return;
+
             try
             {
-                var pkmn = MasterFile.Instance.Pokedex[raid.PokemonId];
+                var server = _whConfig.Servers[e.GuildId];
+                var pkmn = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
                 var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
-                var pkmnImage = raid.IsEgg ? string.Format(_whConfig.Urls.EggImage, raid.Level) : raid.PokemonId.GetPokemonImage(_whConfig.Urls.PokemonImage, PokemonGender.Unset, raid.Form);
-
-                if (!_servers.ContainsKey(e.GuildId))
-                    return;
+                var pkmnImage = raid.IsEgg ? 
+                    string.Format(_whConfig.Urls.EggImage, raid.Level) : 
+                    raid.PokemonId.GetPokemonImage(_whConfig.IconStyles[server.IconStyle], PokemonGender.Unset, raid.Form);
 
                 var client = _servers[e.GuildId];
                 var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
@@ -489,11 +528,14 @@
                 return;
             }
 
+            if (!_servers.ContainsKey(e.GuildId))
+                return;
+
+            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+                return;
+
             try
             {
-                if (!_servers.ContainsKey(e.GuildId))
-                    return;
-
                 var client = _servers[e.GuildId];
                 var eb = quest.GenerateQuestMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
@@ -527,6 +569,13 @@
                 return;
             }
 
+            if (!_servers.ContainsKey(e.GuildId))
+                return;
+
+            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+                return;
+
+            //var server = _whConfig.Servers[e.GuildId];
             string icon;
             if (pokestop.HasInvasion)
             {
@@ -544,9 +593,6 @@
 
             try
             {
-                if (!_servers.ContainsKey(e.GuildId))
-                    return;
-
                 var client = _servers[e.GuildId];
                 var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
@@ -567,8 +613,6 @@
 
         private void OnGymAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<GymData> e)
         {
-            //if (!_whm.WebHooks.ContainsKey(e.Alarm.Name))
-            //    return;
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
 
@@ -592,6 +636,12 @@
                 return;
             }
 
+            if (!_servers.ContainsKey(e.GuildId))
+                return;
+
+            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+                return;
+
             try
             {
                 if (!_gyms.ContainsKey(gymDetails.GymId))
@@ -602,9 +652,6 @@
                 var oldGym = _gyms[gymDetails.GymId];
                 var changed = oldGym.Team != gymDetails.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
                 if (!changed)
-                    return;
-
-                if (!_servers.ContainsKey(e.GuildId))
                     return;
 
                 var client = _servers[e.GuildId];
@@ -683,9 +730,6 @@
 
         private void OnPokemonSubscriptionTriggered(object sender, PokemonData e)
         {
-            //if (!_whConfig.Discord.EnableSubscriptions)
-            //    return;
-
             if (_subProcessor == null)
                 return;
 
@@ -694,9 +738,6 @@
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
         {
-            //if (!_whConfig.Discord.EnableSubscriptions)
-            //    return;
-
             if (_subProcessor == null)
                 return;
 
@@ -705,9 +746,6 @@
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
         {
-            //if (!_whConfig.Discord.EnableSubscriptions)
-            //    return;
-
             if (_subProcessor == null)
                 return;
 
@@ -716,9 +754,6 @@
 
         private void OnInvasionSubscriptionTriggered(object sender, PokestopData e)
         {
-            //if (!_whConfig.Discord.EnableSubscriptions)
-            //    return;
-
             if (_subProcessor == null)
                 return;
 
@@ -733,6 +768,12 @@
         {
             _logger.Trace($"CreateEmojis");
 
+            if (!_whConfig.Servers.ContainsKey(guildId))
+            {
+                _logger.Warn($"No config set for guild {guildId}");
+                return;
+            }
+
             var server = _whConfig.Servers[guildId];
             var client = _servers[guildId];
             if (!client.Guilds?.ContainsKey(server.EmojiGuildId) ?? false)
@@ -742,7 +783,6 @@
             }
 
             var guild = client.Guilds[server.EmojiGuildId];
-            var list = new Dictionary<string, ulong>();
             for (var j = 0; j < Strings.EmojiList.Length; j++)
             {
                 try
@@ -762,20 +802,9 @@
                         }
 
                         var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
-                        var discordEmoji = await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
-                        if (!list.ContainsKey(discordEmoji.Name))
-                        {
-                            list.Add(discordEmoji.Name, discordEmoji.Id);
-                        }
+                        await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
 
                         _logger.Info($"Emoji {emoji} created successfully.");
-                    }
-                    else
-                    {
-                        if (!list.ContainsKey(emojiExists.Name))
-                        {
-                            list.Add(emojiExists.Name, emojiExists.Id);
-                        }
                     }
                 }
                 catch (Exception ex)
@@ -784,6 +813,8 @@
                 }
             }
         }
+
+
 
         private async Task ResetQuests()
         {

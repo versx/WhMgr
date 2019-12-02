@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
 
     using WhMgr.Data;
+    using WhMgr.Extensions;
     using WhMgr.Net.Models;
 
     public class PvpRankCalculator
@@ -17,18 +18,8 @@
             var level = 0d;
             for (var i = 1d; i <= 40; i += .5)
             {
-                var useForm = MasterFile.Instance.Pokedex[pokemonId].Attack == null;
-                var pkmnAtk = (useForm ?
-                    MasterFile.Instance.Pokedex[pokemonId].Forms[formId].Attack :
-                    MasterFile.Instance.Pokedex[pokemonId].Attack) ?? 0;
-                var pkmnDef = (useForm ?
-                    MasterFile.Instance.Pokedex[pokemonId].Forms[formId].Defense :
-                    MasterFile.Instance.Pokedex[pokemonId].Defense) ?? 0;
-                var pkmnSta = (useForm ?
-                    MasterFile.Instance.Pokedex[pokemonId].Forms[formId].Stamina :
-                    MasterFile.Instance.Pokedex[pokemonId].Stamina) ?? 0;
-                var cp = GetCP(pkmnAtk + atk, pkmnDef + def, pkmnSta + sta, MasterFile.Instance.CpMultipliers[i]);
-                //var cp = CalculateCP(pokemonId, formId, atk, def, sta, i);
+                var pkmn = MasterFile.GetPokemon(pokemonId, formId);
+                var cp = PokemonExtensions.GetCP(pkmn.Attack ?? 0 + atk, pkmn.Defense ?? 0 + def, pkmn.Stamina ?? 0 + sta, MasterFile.Instance.CpMultipliers[i]);
                 if (cp <= cap)
                 {
                     var stat = CalculatePvPStat(pokemonId, formId, atk, def, sta, i);
@@ -99,18 +90,8 @@
 
             for (var i = level; i <= 40; i += .5)
             {
-                var useForm = MasterFile.Instance.Pokedex[pokemonId].Attack == null;
-                var pkmnAtk = (useForm ?
-                    MasterFile.Instance.Pokedex[pokemonId].Forms[formId].Attack :
-                    MasterFile.Instance.Pokedex[pokemonId].Attack) ?? 0;
-                var pkmnDef = (useForm ?
-                    MasterFile.Instance.Pokedex[pokemonId].Forms[formId].Defense :
-                    MasterFile.Instance.Pokedex[pokemonId].Defense) ?? 0;
-                var pkmnSta = (useForm ?
-                    MasterFile.Instance.Pokedex[pokemonId].Forms[formId].Stamina :
-                    MasterFile.Instance.Pokedex[pokemonId].Stamina) ?? 0;
-                //var currentCP = CalculateCP(pokemonId, formId, atk, def, sta, i);
-                var currentCP = GetCP(pkmnAtk + atk, pkmnDef + def, pkmnSta + sta, MasterFile.Instance.CpMultipliers[i]);
+                var pkmn = MasterFile.GetPokemon(pokemonId, formId);
+                var currentCP = PokemonExtensions.GetCP(pkmn.Attack ?? 0 + atk, pkmn.Defense ?? 0 + def, pkmn.Stamina ?? 0 + sta, MasterFile.Instance.CpMultipliers[i]);
                 if (currentCP >= minCP && currentCP <= maxCP)
                 {
                     possibleCPs.Add(new PvPCP
@@ -123,7 +104,8 @@
                         Level = i,
                         CP = currentCP
                     });
-                    if (currentCP > maxCP) { i = 41; }
+                    if (currentCP > maxCP)
+                        i = 41;
                 }
             }
 
@@ -164,11 +146,12 @@
         {
             try
             {
-                var myRank = maxCP == 2500 ?
+                var isUltra = maxCP > 1500;
+                var myStat = isUltra ?
                     (PvPRank)MasterFile.Instance.UltraPvPLibrary[pokemonId][formId][bestPvPStat.Attack][bestPvPStat.Defense][bestPvPStat.Stamina] :
                     (PvPRank)MasterFile.Instance.GreatPvPLibrary[pokemonId][formId][bestPvPStat.Attack][bestPvPStat.Defense][bestPvPStat.Stamina];
-                var rank = myRank?.Rank ?? 4096;
-                var percent = myRank?.Percent ?? 0;
+                var rank = myStat?.Rank ?? 4096;
+                var percent = myStat?.Percent ?? 0;
 
                 return await Task.FromResult(new KeyValuePair<int, double>(rank, percent));
             }
@@ -183,20 +166,11 @@
         private double CalculatePvPStat(int pokemonId, int formId, int atk, int def, int sta, double level)
         {
             var cpMultiplier = MasterFile.Instance.CpMultipliers[level];
-            if (MasterFile.Instance.Pokedex[pokemonId].Attack == null)
-            {
-                atk = Convert.ToInt32((atk + MasterFile.Instance.Pokedex[pokemonId].Forms[formId].Attack) * cpMultiplier);
-                def = Convert.ToInt32((def + MasterFile.Instance.Pokedex[pokemonId].Forms[formId].Defense) * cpMultiplier);
-                sta = Convert.ToInt32((sta + MasterFile.Instance.Pokedex[pokemonId].Forms[formId].Stamina) * cpMultiplier);
-            }
-            else
-            {
-                atk = Convert.ToInt32((atk + MasterFile.Instance.Pokedex[pokemonId].Attack) * cpMultiplier);
-                def = Convert.ToInt32((def + MasterFile.Instance.Pokedex[pokemonId].Defense) * cpMultiplier);
-                sta = Convert.ToInt32((sta + MasterFile.Instance.Pokedex[pokemonId].Stamina) * cpMultiplier);
-            }
-            var product = atk * def * Math.Floor((double)sta);
-            product = Math.Round(product);
+            var pkmn = MasterFile.GetPokemon(pokemonId, formId);
+            var attack = Convert.ToInt32((atk + pkmn.Attack) * cpMultiplier);
+            var defense = Convert.ToInt32((def + pkmn.Defense) * cpMultiplier);
+            var stamina = Convert.ToInt32((sta + pkmn.Stamina) * cpMultiplier);
+            var product = Math.Round(attack * defense * Math.Floor(Convert.ToDouble(stamina)));
             return product;
         }
 
@@ -205,13 +179,6 @@
         //    var factor = Math.Pow(10, precision);
         //    return Math.Round(number * factor) / factor;
         //}
-
-
-        public static int GetCP(int attack, int defense, int stamina, double cpm)
-        {
-            var cp = Math.Floor(attack * Math.Pow(defense, 0.5) * Math.Pow(stamina, 0.5) * Math.Pow(cpm, 2) / 10);
-            return Convert.ToInt32(cp < 10 ? 10 : cp);
-        }
     }
 
     public class PvPCP

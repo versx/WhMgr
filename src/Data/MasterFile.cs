@@ -17,6 +17,7 @@
         const string CpMultipliersFileName = "cpMultipliers.json";
         const string GreatPvPLibFileName = "pvp_great_league_ranks.json";
         const string UltraPvPLibFileName = "pvp_ultra_league_ranks.json";
+        const string EmojisFileName = "emojis.json";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");
 
@@ -57,6 +58,9 @@
         public IReadOnlyDictionary<double, double> CpMultipliers { get; }
 
         [JsonIgnore]
+        public IReadOnlyDictionary<string, ulong> Emojis { get; set; }
+
+        [JsonIgnore]
         public GreatPvpRankLibrary GreatPvPLibrary { get; set; }
 
         [JsonIgnore]
@@ -84,40 +88,37 @@
 
         public MasterFile()
         {
-            var cpMultipliersPath = Path.Combine(Strings.DataFolder, CpMultipliersFileName);
-            if (!File.Exists(cpMultipliersPath))
-            {
-                var err = $"Failed to load {cpMultipliersPath}, file does not exist";
-                _logger.Error(err);
-                throw new FileNotFoundException(err, cpMultipliersPath);
-            }
-            CpMultipliers = LoadInit<Dictionary<double, double>>(cpMultipliersPath, typeof(Dictionary<double, double>));
+            CpMultipliers = LoadInit<Dictionary<double, double>>(
+                Path.Combine(Strings.DataFolder, CpMultipliersFileName),
+                typeof(Dictionary<double, double>)
+            );
 
-            var greatLeagueLibraryPath = Path.Combine(Strings.DataFolder, GreatPvPLibFileName);
-            if (!File.Exists(greatLeagueLibraryPath))
-            {
-                var err = $"Failed to load {greatLeagueLibraryPath}, file does not exist";
-                _logger.Error(err);
-                throw new FileNotFoundException(err, greatLeagueLibraryPath);
-            }
-            GreatPvPLibrary = LoadInit<GreatPvpRankLibrary>(greatLeagueLibraryPath, typeof(GreatPvpRankLibrary));
+            GreatPvPLibrary = LoadInit<GreatPvpRankLibrary>(
+                Path.Combine(Strings.DataFolder, GreatPvPLibFileName), 
+                typeof(GreatPvpRankLibrary)
+            );
 
-            var ultraLeagueLibraryPath = Path.Combine(Strings.DataFolder, UltraPvPLibFileName);
-            if (!File.Exists(ultraLeagueLibraryPath))
-            {
-                var err = $"Failed to load {ultraLeagueLibraryPath}, file does not exist";
-                _logger.Error(err);
-                throw new FileNotFoundException(err, ultraLeagueLibraryPath);
-            }
-            UltraPvPLibrary = LoadInit<UltraPvpRankLibrary>(ultraLeagueLibraryPath, typeof(UltraPvpRankLibrary));
+            UltraPvPLibrary = LoadInit<UltraPvpRankLibrary>(
+                Path.Combine(Strings.DataFolder, UltraPvPLibFileName), 
+                typeof(UltraPvpRankLibrary)
+            );
+
+            Emojis = LoadInit<Dictionary<string, ulong>>(
+                Path.Combine(Strings.DataFolder, EmojisFileName), 
+                typeof(Dictionary<string, ulong>)
+            );
         }
 
         public static PokedexPokemon GetPokemon(int pokemonId, int formId)
         {
-            var pkmn = Instance.Pokedex.ContainsKey(pokemonId) ?
-                (Instance.Pokedex[pokemonId].Forms.ContainsKey(formId) ? Instance.Pokedex[pokemonId].Forms[formId] : Instance.Pokedex[pokemonId]) :
-                null;
-            return pkmn;
+            if (!Instance.Pokedex.ContainsKey(pokemonId))
+                return null;
+
+            var pkmn = Instance.Pokedex[pokemonId];
+            var useForm = pkmn.Attack == null && formId > 0;
+            var pkmnForm = useForm ? pkmn.Forms[formId] : pkmn;
+            pkmnForm.Name = pkmn.Name;
+            return pkmnForm;
         }
 
         public static T LoadInit<T>(string filePath, Type type)

@@ -246,6 +246,7 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city)
         {
+            //var server = whConfig.Servers[guildId];
             string icon;
             if (HasInvasion)
             {

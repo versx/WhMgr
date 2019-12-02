@@ -22,7 +22,7 @@
 
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION_PROCESSOR");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION");
 
         private readonly Dictionary<ulong, DiscordClient> _servers;
         private readonly WhConfig _whConfig;
@@ -162,16 +162,15 @@
                     matchesStamina = _whm.Filters.MatchesStamina(pkmn.Stamina, subscribedPokemon.Stamina);
 
                     if (!(
-                        (subscribedPokemon.HasStats && matchesIV && matchesLvl && matchesGender) || 
+                        (!subscribedPokemon.HasStats && matchesIV && matchesLvl && matchesGender) ||
                         (subscribedPokemon.HasStats && matchesAttack && matchesDefense && matchesStamina)
                          ))
                         continue;
 
-                    //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
-
-                    var iconStyle = Manager.GetUserIconStyle(user);
-                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, pkmn, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], pkmn.Id, pkmn.FormId));
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
+                    var iconStyle = string.IsNullOrEmpty(user.IconStyle) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle;
+                    var pkmnImage = string.Format(_whConfig.IconStyles[iconStyle], pkmn.Id, pkmn.FormId);
+                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name, pkmnImage);
+                    _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
 
                     //if (!Manager.AddPokemonStatistic(member.Id, pkmn))
                     //{
@@ -216,7 +215,6 @@
             }
 
             SubscriptionObject user;
-            //var pokemon = MasterFile.Instance.Pokedex[raid.PokemonId];
             var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
             for (int i = 0; i < subscriptions.Count; i++)
             {
@@ -291,11 +289,10 @@
                         continue;
                     }
 
-                    //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
-
-                    var iconStyle = Manager.GetUserIconStyle(user);
-                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], raid.PokemonId, raid.Form));
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
+                    var iconStyle = string.IsNullOrEmpty(user.IconStyle) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle;
+                    var raidImage = string.Format(_whConfig.IconStyles[iconStyle], raid.PokemonId, raid.Form);
+                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name, raidImage);
+                    _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
 
                     //if (!Manager.AddRaidStatistic(member.Id, raid))
                     //{
@@ -397,10 +394,8 @@
                         }
                     }
 
-                    //var embed = _embedBuilder.BuildQuestMessage(quest, loc.Name);
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
-                    //_logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
+                    _queue.Enqueue(new NotificationItem(user, member, embed, questName));
 
                     //if (!Manager.AddQuestStatistic(member.Id, quest))
                     //{
@@ -414,6 +409,13 @@
                     _logger.Error(ex);
                 }
             }
+
+            subscriptions.Clear();
+            subscriptions = null;
+            user = null;
+            loc = null;
+
+            await Task.CompletedTask;
         }
 
         public async Task ProcessInvasionSubscription(PokestopData pokestop)
@@ -489,11 +491,8 @@
                         }
                     }
 
-                    //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
-
-                    //var embed = _embedBuilder.BuildPokestopMessage(pokestop, loc.Name);
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc.Name);
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokestop.Name, embed));
+                    _queue.Enqueue(new NotificationItem(user, member, embed, pokestop.Name));
 
                     //if (!Manager.AddRaidStatistic(member.Id, raid))
                     //{
@@ -510,7 +509,6 @@
 
             subscriptions.Clear();
             subscriptions = null;
-            //embed = null;
             user = null;
             loc = null;
 
@@ -543,23 +541,18 @@
                     }
 
                     var item = _queue.Dequeue();
-                    if (item == null || item?.Item1 == null || item?.Item3 == null)
+                    if (item == null || item?.Subscription == null || item?.Member == null || item?.Embed == null)
                         continue;
 
-                    var member = item.Item1;
-                    var user = Manager.Subscriptions.FirstOrDefault(x => x.UserId == item.Item1.Id);
-                    if (user == null)
-                        continue;
-
-                    if (user.Limiter.IsLimited())
+                    if (item.Subscription.Limiter.IsLimited())
                     {
-                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
-                        if (!user.RateLimitNotificationSent)
+                        _logger.Warn($"{item.Member.Username} notifications rate limited, waiting {(60 - item.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", item.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+                        if (!item.Subscription.RateLimitNotificationSent)
                         {
-                            var guildName = _servers.ContainsKey(user.GuildId) ? _servers[user.GuildId].Guilds[user.GuildId]?.Name : Strings.Creator;
-                            var guildIconUrl = _servers.ContainsKey(user.GuildId) ? _servers[user.GuildId].Guilds[user.GuildId]?.IconUrl : string.Empty;
-
-                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of {NotificationLimiter.MaxNotificationsPerMinute} notifications within a 60 second time span.";
+                            var guildName = _servers.ContainsKey(item.Subscription.GuildId) ? _servers[item.Subscription.GuildId].Guilds[item.Subscription.GuildId]?.Name : Strings.Creator;
+                            var guildIconUrl = _servers.ContainsKey(item.Subscription.GuildId) ? _servers[item.Subscription.GuildId].Guilds[item.Subscription.GuildId]?.IconUrl : string.Empty;
+                            var rateLimitMessage = $"Your notification subscriptions have exceeded the {NotificationLimiter.MaxNotificationsPerMinute.ToString("N0")} per minute and you are now being rate limited." +
+                                                   $"Please adjust your subscriptions to receive a maximum of {NotificationLimiter.MaxNotificationsPerMinute.ToString("N0")} notifications within a 60 second time span.";
                             var eb = new DiscordEmbedBuilder
                             {
                                 Title = "Rate Limited",
@@ -571,22 +564,26 @@
                                     IconUrl = guildIconUrl
                                 }
                             };
-                            if (!_servers.ContainsKey(user.GuildId))
+                            if (!_servers.ContainsKey(item.Subscription.GuildId))
                                 continue;
 
-                            await _servers[user.GuildId].SendDirectMessage(member, string.Empty, eb.Build());
-                            user.RateLimitNotificationSent = true;
+                            await _servers[item.Subscription.GuildId].SendDirectMessage(item.Member, string.Empty, eb.Build());
+                            item.Subscription.RateLimitNotificationSent = true;
                         }
                         continue;
                     }
 
-                    user.RateLimitNotificationSent = false;
+                    item.Subscription.RateLimitNotificationSent = false;
 
-                    if (!_servers.ContainsKey(user.GuildId))
+                    if (!_servers.ContainsKey(item.Subscription.GuildId))
+                    {
+                        _logger.Error($"User subscription for guild that's not configured. UserId={item.Subscription.UserId} GuildId={item.Subscription.GuildId}");
                         continue;
+                    }
 
-                    await _servers[user.GuildId].SendDirectMessage(item.Item1, item.Item3);
-                    _logger.Info($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
+                    var client = _servers[item.Subscription.GuildId];
+                    await client.SendDirectMessage(item.Member, item.Embed);
+                    _logger.Info($"[WEBHOOK] Notified user {item.Member.Username} of {item.Description}.");
                     Thread.Sleep(10);
                 }
             })

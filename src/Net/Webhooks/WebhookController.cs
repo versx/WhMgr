@@ -22,13 +22,14 @@
     {
         #region Variables
 
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("WHM");
+
         private readonly HttpServer _http;
         private readonly Dictionary<ulong, AlarmList> _alarms;
         private readonly IReadOnlyDictionary<ulong, DiscordServerConfig> _servers;
         private readonly WhConfig _config;
         private readonly Dictionary<string, GymDetailsData> _gyms;
         private readonly Dictionary<long, WeatherType> _weather;
-        private readonly IEventLogger _logger = EventLogger.GetLogger("WHM");
 
         #endregion
 

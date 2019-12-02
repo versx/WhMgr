@@ -174,7 +174,7 @@
         {
             var alertType = AlertMessageType.Quests;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(whConfig, city);
+            var properties = GetProperties(guildId, whConfig, city);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -192,8 +192,11 @@
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, WhConfig whConfig, string city)
         {
+            //TODO: Check whConfig.Servers[guildId]
+
+            var server = whConfig.Servers[guildId];
             var questMessage = this.GetQuestMessage();
             var questConditions = this.GetConditions();
             var questReward = this.GetReward();

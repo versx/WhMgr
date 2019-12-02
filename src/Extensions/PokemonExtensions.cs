@@ -3,9 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Net;
 
-    using DSharpPlus;
     using DSharpPlus.Entities;
 
     using WhMgr.Data;
@@ -45,67 +43,13 @@
 
         //private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
-        public static readonly double[] CpMultipliers =
-        {
-            0.094, 0.16639787, 0.21573247, 0.25572005, 0.29024988,
-            0.3210876, 0.34921268, 0.37523559, 0.39956728, 0.42250001,
-            0.44310755, 0.46279839, 0.48168495, 0.49985844, 0.51739395,
-            0.53435433, 0.55079269, 0.56675452, 0.58227891, 0.59740001,
-            0.61215729, 0.62656713, 0.64065295, 0.65443563, 0.667934,
-            0.68116492, 0.69414365, 0.70688421, 0.71939909, 0.7317,
-            0.73776948, 0.74378943, 0.74976104, 0.75568551, 0.76156384,
-            0.76739717, 0.7731865, 0.77893275, 0.78463697, 0.79030001
-        };
-        /**Game Master
-- 0.094,
-- 0.16639787,
-- 0.21573247,
-- 0.255720049,
-- 0.290249884,
-- 0.321087599,
-- 0.349212676,
-- 0.375235587,
-- 0.399567276,
-- 0.4225,
-- 0.443107545,
-- 0.462798387,
-- 0.481684953,
-- 0.499858439,
-- 0.517393947,
-- 0.534354329,
-- 0.550792694,
-- 0.56675452,
-- 0.582278907,
-- 0.5974,
-- 0.612157285,
-- 0.626567125,
-- 0.640652955,
-- 0.654435635,
-- 0.667934,
-- 0.68116492,
-- 0.694143653,
-- 0.706884205,
-- 0.719399095,
-- 0.7317,
-- 0.737769485,
-- 0.743789434,
-- 0.749761045,
-- 0.755685508,
-- 0.761563838,
-- 0.767397165,
-- 0.773186505,
-- 0.77893275,
-- 0.784637,
-- 0.7903
-         */
-
         public static int MaxCpAtLevel(this int id, int level)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id) || id == 0)
                 return 0;
 
             var pkmn = MasterFile.Instance.Pokedex[id];
-            var multiplier = CpMultipliers[level - 1];
+            var multiplier = MasterFile.Instance.CpMultipliers[level];
             var maxAtk = ((pkmn.Attack + 15) * multiplier) ?? 0;
             var maxDef = ((pkmn.Defense + 15) * multiplier) ?? 0;
             var maxSta = ((pkmn.Stamina + 15) * multiplier) ?? 0;
@@ -119,7 +63,7 @@
                 return 0;
 
             var pkmn = MasterFile.Instance.Pokedex[id];
-            var multiplier = CpMultipliers[level - 1];
+            var multiplier = MasterFile.Instance.CpMultipliers[level];
             var minAtk = ((pkmn.Attack + 10) * multiplier) ?? 0;
             var minDef = ((pkmn.Defense + 10) * multiplier) ?? 0;
             var minSta = ((pkmn.Stamina + 10) * multiplier) ?? 0;
@@ -133,9 +77,9 @@
                 return 0;
 
             var pkmn = MasterFile.Instance.Pokedex[id];
-            for (var i = 0; i < CpMultipliers.Length; i++)
+            for (var i = 0; i < MasterFile.Instance.CpMultipliers.Count; i++)
             {
-                var spawnCP = GetCP(pkmn.Attack ?? 0 + atk, pkmn.Defense ?? 0 + def, pkmn.Stamina ?? 0 + sta, CpMultipliers[i]);
+                var spawnCP = GetCP(pkmn.Attack ?? 0 + atk, pkmn.Defense ?? 0 + def, pkmn.Stamina ?? 0 + sta, MasterFile.Instance.CpMultipliers[i + 1]);
                 if (cp == spawnCP)
                 {
                     var level = i + 1;
@@ -1154,24 +1098,11 @@
             switch (gender)
             {
                 case PokemonGender.Male:
-                    return "♂";//\u2642
+                    return "-m";// ♂ \u2642
                 case PokemonGender.Female:
-                    return "♀";//\u2640
+                    return "-f";// ♀ \u2640
                 default:
-                    return "⚲";//?
-            }
-        }
-
-        public static string GetPokemonGenderIconValue(this PokemonGender gender)
-        {
-            switch (gender)
-            {
-                case PokemonGender.Male:
-                    return "-m";//"\u2642";//♂
-                case PokemonGender.Female:
-                    return "-f";//"\u2640";//♀
-                default:
-                    return "";//⚲
+                    return "";// ⚲
             }
         }
 
@@ -1375,32 +1306,6 @@
             return 0;
         }
 
-        private static bool UrlExist(string url)
-        {
-            try
-            {
-                //Creating the HttpWebRequest
-                var request = WebRequest.Create(url) as HttpWebRequest;
-
-                //Setting the Request method HEAD, you can also use GET too.
-                request.Method = "HEAD";
-
-                //Getting the Web Response.
-                using (var response = request.GetResponse() as HttpWebResponse)
-                {
-                    //Returns TRUE if the Status code == 200
-                    response.Close();
-
-                    return response.StatusCode == HttpStatusCode.OK;
-                }
-            }
-            catch
-            {
-                //Any exception will returns false.
-                return false;
-            }
-        }
-
         public static PokemonValidation ValidatePokemon(this IEnumerable<string> pokemon)
         {
             var valid = new Dictionary<int, string>();
@@ -1442,13 +1347,8 @@
         public static bool IsWeatherBoosted(this PokedexPokemon pkmn, WeatherType weather)
         {
             var types = pkmn?.Types;
-            for (var i = 0; i < types?.Count; i++)
-            {
-                if (Strings.WeatherBoosts[weather].Contains(types[i]))
-                    return true;
-            }
-
-            return false;
+            var isBoosted = types?.Exists(x => Strings.WeatherBoosts[weather].Contains(x)) ?? false;
+            return isBoosted;
         }
     }
 

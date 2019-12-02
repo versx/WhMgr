@@ -12,6 +12,7 @@
     using DSharpPlus.Interactivity;
 
     using WhMgr.Configuration;
+    using WhMgr.Data;
     using WhMgr.Diagnostics;
 
     public static class DiscordExtensions
@@ -347,6 +348,15 @@
         public static ulong? GetEmojiId(this DiscordGuild guild, string emojiName)
         {
             return guild.Emojis.FirstOrDefault(x => string.Compare(x.Name, emojiName, true) == 0)?.Id;
+        }
+
+        public static string GetEmoji(this string emojiName)
+        {
+            if (!MasterFile.Instance.Emojis.ContainsKey(emojiName))
+            {
+                return null;
+            }
+            return string.Format(Strings.EmojiSchema, emojiName, MasterFile.Instance.Emojis[emojiName]);
         }
 
         public static async Task<bool> Confirm(this CommandContext ctx, string message)

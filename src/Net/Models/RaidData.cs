@@ -125,7 +125,7 @@
         {
             var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(guildId, client, whConfig, city);
+            var properties = GetProperties(guildId, client, whConfig, city, raidImageUrl);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -143,8 +143,11 @@
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city, string raidImageUrl)
         {
+            //TODO: Check whConfig.Servers[guildId]
+
+            //var server = whConfig.Servers[guildId];
             var pkmnInfo = MasterFile.Instance.Pokedex[PokemonId];
             var form = PokemonId.GetPokemonForm(Form.ToString());
             var gender = Gender.GetPokemonGenderIcon();
@@ -169,36 +172,34 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1] : PokemonType.None;
-            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? 
-                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) : 
+            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
+                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
                 string.Empty;
-            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
-                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) : 
+            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ?
+                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
                 string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
-            var weaknessesEmoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? 
-                Weaknesses.GetWeaknessEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) : 
+            var weaknessesEmoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
+                Weaknesses.GetWeaknessEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
                 string.Empty;
-            var weaknessesEmojiFormatted = weaknessesEmoji;
             var perfectRange = PokemonId.MaxCpAtLevel(20);
             var boostedRange = PokemonId.MaxCpAtLevel(25);
             var worstRange = PokemonId.MinCpAtLevel(20);
             var worstBoosted = PokemonId.MinCpAtLevel(25);
-            var exEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? 
-                client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId("ex") : 
+            var exEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
+                client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId("ex") :
                 0;
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? 
-                client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 
+            var teamEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
+                client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) :
                 0;
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
 
-            var pkmnImage = IsEgg ? string.Format(whConfig.Urls.EggImage, Level) : PokemonId.GetPokemonImage(whConfig.Urls.PokemonImage, PokemonGender.Unset, Form);
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, pkmnImage, Latitude, Longitude);
+            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, raidImageUrl, Latitude, Longitude);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
@@ -210,7 +211,7 @@
                 //Raid boss properties
                 { "pkmn_id", PokemonId.ToString() },
                 { "pkmn_name", pkmnInfo.Name },
-                { "pkmn_img_url", pkmnImage },
+                { "pkmn_img_url", raidImageUrl },
                 { "form", form },
                 { "form_id", Form.ToString() },
                 { "form_id_3", Form.ToString("D3") },
@@ -232,7 +233,7 @@
                 { "types", $"{type1}/{type2}" },
                 { "types_emoji", typeEmojis },
                 { "weaknesses", weaknesses },
-                { "weaknesses_emoji", weaknessesEmojiFormatted },
+                { "weaknesses_emoji", weaknessesEmoji },
                 { "perfect_cp", perfectRange.ToString() },
                 { "perfect_cp_boosted", boostedRange.ToString() },
                 { "worst_cp", worstRange.ToString() },

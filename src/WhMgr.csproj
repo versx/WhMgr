@@ -138,7 +138,6 @@
     <Compile Include="Data\Subscriptions\Models\InvasionSubscription.cs" />
     <Compile Include="Data\Subscriptions\Models\GymSubscription.cs" />
     <Compile Include="Data\Models\Moveset.cs" />
-    <Compile Include="Data\Models\PokemonInfo.cs" />
     <Compile Include="Data\Subscriptions\Models\PokemonSubscription.cs" />
     <Compile Include="Data\Subscriptions\Models\QuestSubscription.cs" />
     <Compile Include="Data\Subscriptions\Models\RaidSubscription.cs" />

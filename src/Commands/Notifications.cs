@@ -361,10 +361,12 @@
                         }
 
                         //User has already subscribed before, check if their new requested sub already exists.
-                        if (!subscription.Pokemon.Exists(x => x.PokemonId == i))
+                        if (!subscription.Pokemon.Exists(x => x.UserId == ctx.User.Id && x.GuildId == ctx.Guild.Id && x.PokemonId == i))
                         {
                             //Always ignore the user's input for Unown and set it to 0 by default.
                             subscription.Pokemon.Add(new PokemonSubscription {
+                                GuildId = ctx.Guild.Id,
+                                UserId = ctx.User.Id,
                                 PokemonId = i,
                                 MinimumIV = (i == 201 ? 0 : realIV),
                                 MinimumLevel = (i == 201 ? 0 : lvl),
@@ -374,7 +376,7 @@
                         }
 
                         //Check if minimum IV value is different from value in database, if not add it to the already subscribed list.
-                        var subscribedPokemon = subscription.Pokemon.Find(x => x.PokemonId == i);
+                        var subscribedPokemon = subscription.Pokemon.Find(x => x.UserId == ctx.User.Id && x.GuildId == ctx.Guild.Id && x.PokemonId == i);
                         if (realIV != subscribedPokemon.MinimumIV ||
                             lvl != subscribedPokemon.MinimumLevel ||
                             gender != subscribedPokemon.Gender)
@@ -1329,6 +1331,11 @@
                 }
 
                 var subscription = JsonConvert.DeserializeObject<SubscriptionObject>(data);
+                //subscription?.Pokemon?.ForEach(x => x.SubscriptionId = 0);
+                //subscription?.Raids?.ForEach(x => x.SubscriptionId = 0);
+                //subscription?.Quests?.ForEach(x => x.SubscriptionId = 0);
+                //subscription?.Invasions?.ForEach(x => x.SubscriptionId = 0);
+                //subscription?.Gyms?.ForEach(x => x.SubscriptionId = 0);
                 if (subscription == null)
                 {
                     await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} Malformed subscription data, failed to import.", DiscordColor.Red);
@@ -1496,23 +1503,22 @@
 
         private async Task<List<string>> BuildUserSubscriptionSettings(DiscordClient client, DiscordUser user, ulong guildId)
         {
-            var author = user.Id;
-            var member = await client.GetMemberById(_dep.WhConfig.Servers[guildId].GuildId, author);
+            var member = await client.GetMemberById(_dep.WhConfig.Servers[guildId].GuildId, user.Id);
             if (member == null)
             {
-                var error = $"Failed to get discord member from id {author}.";
+                var error = $"Failed to get discord member from id {user.Id}.";
                 _logger.Error(error);
                 return new List<string> { error };
             }
 
-            var isSubbed = _dep.SubscriptionProcessor.Manager.UserExists(guildId, author);
+            var isSubbed = _dep.SubscriptionProcessor.Manager.UserExists(guildId, user.Id);
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, user.Id);
             var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
             var hasRaids = isSubbed && subscription?.Raids.Count > 0;
             var hasQuests = isSubbed && subscription?.Quests.Count > 0;
             var hasInvasions = isSubbed && subscription?.Invasions.Count > 0;
             var messages = new List<string>();
-            var isSupporter = client.IsSupporterOrHigher(author, guildId, _dep.WhConfig);
+            var isSupporter = client.IsSupporterOrHigher(user.Id, guildId, _dep.WhConfig);
 
             var feeds = member?.Roles?.Select(x => x.Name).Where(x => _dep.WhConfig.Servers[guildId].CityRoles.Contains(x))?.ToList();
             if (feeds == null)
@@ -1574,7 +1580,7 @@
             {
                 msg2 += $"Raid Subscriptions: ({subscription.Raids.Count.ToString("N0")}/{(isSupporter ? "∞" : Strings.MaxRaidSubscriptions.ToString())} used)\r\n";
                 msg2 += "```";
-                msg2 += string.Join(Environment.NewLine, GetRaidSubscriptionNames(guildId, author));
+                msg2 += string.Join(Environment.NewLine, GetRaidSubscriptionNames(guildId, user.Id));
                 msg2 += "```" + Environment.NewLine + Environment.NewLine;
             }
 
@@ -1583,7 +1589,7 @@
                 msg2 += $"Quest Subscriptions: ({subscription.Quests.Count.ToString("N0")}/{(isSupporter ? "∞" : Strings.MaxQuestSubscriptions.ToString())} used)\r\n";
                 //msg += $"Alert Time: {(subscription.AlertTime.HasValue ? subscription.AlertTime.Value.ToString("hh:mm:ss") : "Not set")}\r\n";
                 msg2 += "```";
-                msg2 += string.Join(Environment.NewLine, GetQuestSubscriptionNames(guildId, author));
+                msg2 += string.Join(Environment.NewLine, GetQuestSubscriptionNames(guildId, user.Id));
                 msg2 += "```";
             }
 
@@ -1591,7 +1597,7 @@
             {
                 msg2 += $"Invasion Subscriptions: ({subscription.Invasions.Count.ToString("N0")}/{(isSupporter ? "" : Strings.MaxInvasionSubscriptions.ToString())} used)\r\n";
                 msg2 += "```";
-                msg2 += string.Join(Environment.NewLine, GetInvasionSubscriptionNames(guildId, author));
+                msg2 += string.Join(Environment.NewLine, GetInvasionSubscriptionNames(guildId, user.Id));
                 msg2 += "```";
             }
 
@@ -1703,12 +1709,6 @@
             return list;
         }
 
-        //private Geofence.GeofenceItem GetGeofence(double latitude, double longitude)
-        //{
-        //    var loc = _dep.Whm.GeofenceService.GetGeofence(_dep.Whm.Geofences.Select(x => x.Value).ToList(), new Geofence.Location(latitude, longitude));
-        //    return loc;
-        //}
-
         //TODO: Add common Pokemon list to external file
         private bool IsCommonPokemon(int pokeId)
         {
@@ -1767,7 +1767,7 @@
                 127, //Pinsir
                 128, //Tauros
                 129, //Magikarp
-                133, //Eevee
+                //133, //Eevee
                 138, //Omanyte
                 140, //Kabuto
                 152, //Chikorita

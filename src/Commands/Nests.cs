@@ -79,8 +79,9 @@
 
                 try
                 {
+                    var server = _dep.WhConfig.Servers[ctx.Guild.Id];
                     var pkmn = MasterFile.GetPokemon(nest.PokemonId, 0);
-                    var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, PokemonGender.Unset, 0);
+                    var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.IconStyles[server.IconStyle], PokemonGender.Unset, 0);
                     var type1 = pkmn?.Types?[0];
                     var type2 = pkmn?.Types?.Count > 1 ? pkmn.Types?[1] : PokemonType.None;
                     var type1Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Servers[ctx.Guild.Id].EmojiGuildId) ?

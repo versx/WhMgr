@@ -28,8 +28,8 @@
         [JsonProperty("urls")]
         public UrlConfig Urls { get; set; }
 
-        [JsonProperty("staticMap")]
-        public StaticMapConfig StaticMap { get; set; }
+        //[JsonProperty("staticMap")]
+        //public StaticMapConfig StaticMap { get; set; }
 
         [JsonProperty("eventPokemonIds")]
         public List<int> EventPokemonIds { get; set; }
@@ -44,8 +44,8 @@
         {
             Servers = new Dictionary<ulong, DiscordServerConfig>();
             Database = new ConnectionStringsConfig();
-            EventPokemonIds = new List<int>();
             Urls = new UrlConfig();
+            EventPokemonIds = new List<int>();
             IconStyles = new Dictionary<string, string>();
         }
 

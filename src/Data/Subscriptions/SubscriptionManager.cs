@@ -15,27 +15,54 @@
 
     public class SubscriptionManager
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION_MANAGER");
+        #region Variables
+
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("MANAGER");
+
         private readonly WhConfig _whConfig;
         private List<SubscriptionObject> _subscriptions;
 
-        public IReadOnlyList<SubscriptionObject> Subscriptions => _subscriptions;
-        private System.Data.IDbConnection _conn;
-
         private readonly OrmLiteConnectionFactory _connFactory;
         private readonly OrmLiteConnectionFactory _scanConnFactory;
+
+        #endregion
+
+        #region Properties
+
+        public IReadOnlyList<SubscriptionObject> Subscriptions => _subscriptions;
+
+        #endregion
+
+        #region Constructor
 
         public SubscriptionManager(WhConfig whConfig)
         {
             _logger.Trace($"SubscriptionManager::SubscriptionManager");
 
             _whConfig = whConfig;
+
+            if (_whConfig?.Database?.Main == null)
+            {
+                var err = "Main database is not configured in config.json file.";
+                _logger.Error(err);
+                throw new NullReferenceException(err);
+            }
+
+            if (_whConfig?.Database?.Scanner == null)
+            {
+                var err = "Scanner database is not configured in config.json file.";
+                _logger.Error(err);
+                throw new NullReferenceException(err);
+            }
+
             _connFactory = new OrmLiteConnectionFactory(_whConfig.Database.Main.ToString(), MySqlDialect.Provider);
             _scanConnFactory = new OrmLiteConnectionFactory(_whConfig.Database.Scanner.ToString(), MySqlDialect.Provider);
 
             CreateDefaultTables();
             ReloadSubscriptions();
         }
+
+        #endregion
 
         /// <summary>
         /// Saves the subscription to the database.
@@ -63,7 +90,7 @@
 
             var subscription = GetUserSubscriptions(guildId, userId);
             subscription.Enabled = enabled;
-            _conn.Save(subscription, true);
+            Save(subscription);
 
             return subscription.Enabled == enabled;
         }
@@ -81,7 +108,7 @@
             subscription.DistanceM = distance;
             subscription.Latitude = latitude;
             subscription.Longitude = longitude;
-            _conn.Save(subscription, true);
+            Save(subscription);
 
             return subscription.DistanceM == distance &&
                 Math.Abs(subscription.Latitude - latitude) < double.Epsilon &&
@@ -99,7 +126,7 @@
 
             var subscription = GetUserSubscriptions(guildId, userId);
             subscription.IconStyle = iconStyle;
-            _conn.Save(subscription, true);
+            Save(subscription);
 
             return subscription.IconStyle == iconStyle;
         }
@@ -118,9 +145,9 @@
                 var conn = GetConnection();
                 return conn.Exists<SubscriptionObject>(x => x.GuildId == guildId && x.UserId == userId);
             }
-            catch (MySql.Data.MySqlClient.MySqlException)
+            catch (MySql.Data.MySqlClient.MySqlException ex)
             {
-                _conn = DataAccessLayer.CreateFactory().Open();
+                _logger.Error(ex);
                 return UserExists(guildId, userId);
             }
         }
@@ -144,7 +171,6 @@
             catch (MySql.Data.MySqlClient.MySqlException ex)
             {
                 _logger.Error(ex);
-                //_conn = DataAccessLayer.CreateFactory().Open();
                 return GetUserSubscriptions(guildId, userId);
             }
         }
@@ -804,96 +830,6 @@
 
         #endregion
 
-        public string GetUserIconStyle(SubscriptionObject user)
-        {
-            var styles = _whConfig.IconStyles;
-            var keys = styles.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
-            {
-                var key = keys[i];
-                if (string.Compare(key, user.IconStyle, true) == 0)
-                {
-                    return key;
-                }
-            }
-            return "Default";
-        }
-
-        #region Add Statistics
-
-        //public bool AddPokemonStatistic(ulong userId, PokemonData pokemon)
-        //{
-        //    var subscription = GetUserSubscriptions(userId);
-        //    if (subscription == null)
-        //        return false;
-
-        //    subscription.PokemonStatistics.Add(new PokemonStatistics
-        //    {
-        //        UserId = userId,
-        //        PokemonId = (uint)pokemon.Id,
-        //        IV = pokemon.IV,
-        //        CP = int.Parse(pokemon.CP ?? "0"),
-        //        Date = DateTime.Now,
-        //        Latitude = pokemon.Latitude,
-        //        Longitude = pokemon.Longitude
-        //    });
-
-        //    if (!IsDbConnectionOpen())
-        //    {
-        //        _conn = DataAccessLayer.CreateFactory().Open();
-        //    }
-
-        //    return _conn.Save(subscription, true);
-        //}
-
-        //public bool AddRaidStatistic(ulong userId, RaidData raid)
-        //{
-        //    var subscription = GetUserSubscriptions(userId);
-        //    if (subscription == null)
-        //        return false;
-
-        //    subscription.RaidStatistics.Add(new RaidStatistics
-        //    {
-        //        UserId = userId,
-        //        PokemonId = (uint)raid.PokemonId,
-        //        Date = DateTime.Now,
-        //        Latitude = raid.Latitude,
-        //        Longitude = raid.Longitude
-        //    });
-
-        //    if (!IsDbConnectionOpen())
-        //    {
-        //        _conn = DataAccessLayer.CreateFactory().Open();
-        //    }
-
-        //    return _conn.Save(subscription, true);
-        //}
-
-        //public bool AddQuestStatistic(ulong userId, QuestData quest)
-        //{
-        //    var subscription = GetUserSubscriptions(userId);
-        //    if (subscription == null)
-        //        return false;
-
-        //    subscription.QuestStatistics.Add(new QuestStatistics
-        //    {
-        //        UserId = userId,
-        //        Reward = quest.GetReward(),
-        //        Date = DateTime.Now,
-        //        Latitude = quest.Latitude,
-        //        Longitude = quest.Longitude
-        //    });
-
-        //    if (!IsDbConnectionOpen())
-        //    {
-        //        _conn = DataAccessLayer.CreateFactory().Open();
-        //    }
-
-        //    return _conn.Save(subscription, true);
-        //}
-
-        #endregion
-
         #region Private Methods
 
         private void CreateDefaultTables()
@@ -933,9 +869,6 @@
                     _logger.Info($"Table InvasionSubscription already exists.");
                 }
                 //conn.CreateTable<SnoozedQuest>();
-                //conn.CreateTable<PokemonStatistics>();
-                //conn.CreateTable<RaidStatistics>();
-                //conn.CreateTable<QuestStatistics>();
 
                 _logger.Info($"Database tables created.");
             }
@@ -952,10 +885,7 @@
 
         private bool IsDbConnectionOpen()
         {
-            if (_conn == null || _conn?.State != System.Data.ConnectionState.Open)
-                _conn = DataAccessLayer.CreateFactory().Open();
-
-            return _conn != null && _conn.State == System.Data.ConnectionState.Open;
+            return _connFactory != null;// && _conn.State == System.Data.ConnectionState.Open;
         }
 
         #endregion
