@@ -60,7 +60,7 @@
 
         [
             Command("feedme"),
-            Description("Joins a city feed.\r\n\r\n**Example:** `.feedme Upland,Ontario`")
+            Description("Joins a city feed.\r\n\r\n**Example:** `.feedme City1,City2`")
         ]
         public async Task FeedMeAsync(CommandContext ctx,
             [Description("City name to join or all."), RemainingText] string cityName = null)

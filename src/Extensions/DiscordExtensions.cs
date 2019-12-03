@@ -137,7 +137,11 @@
             {
                 await ctx.TriggerTypingAsync();
             }
-            var message = await ctx.RespondEmbed($"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\nDonation information can be found by typing the `donate` command.");
+            var message = await ctx.RespondEmbed(
+                $"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\n" +
+                $"Donation information can be found by typing the `donate` command.\r\n\r\n" +
+                $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*"
+            );
             return message.FirstOrDefault();
         }
 
