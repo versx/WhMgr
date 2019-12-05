@@ -1079,6 +1079,166 @@
             else
                 return PokemonType.None;
         }
+        #endregion
+
+        #region Pvpme / Pvpmenot
+
+        [
+            Command("pvpme"),
+            Description("")
+        ]
+        public async Task PvpMeAsync(CommandContext ctx,
+            [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to Pokemon spawn notifications.")] string poke,
+            [Description("Minimum PvP ranking.")] int rank)
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            if (rank < 0 || rank > 4096)
+            {
+                await ctx.TriggerTypingAsync();
+                await ctx.RespondEmbed($"{ctx.User.Username} {rank} must be within the range of `0-4096`.", DiscordColor.Red);
+                return;
+            }
+
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
+            var alreadySubscribed = new List<string>();
+            var subscribed = new List<string>();
+            var validation = ValidatePokemonList(poke);
+            if (validation == null || validation.Valid.Count == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon `{poke}`", DiscordColor.Red);
+                return;
+            }
+
+            var keys = validation.Valid.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var pokemonId = keys[i];
+                var form = validation.Valid[pokemonId];
+
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
+                {
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondEmbed($"{ctx.User.Username} {pokemonId} is not a valid Pokemon id.", DiscordColor.Red);
+                    continue;
+                }
+
+                var pokemon = MasterFile.Instance.Pokedex[pokemonId];
+                var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
+                var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
+                if (subPkmn == null)
+                {
+                    //Does not exist, create.
+                    subscription.Pokemon.Add(new PokemonSubscription
+                    {
+                        GuildId = ctx.Guild.Id,
+                        UserId = ctx.User.Id,
+                        PokemonId = pokemonId,
+                        Form = form,
+                        MinimumRank = rank
+                    });
+                    subscribed.Add(name);
+                    continue;
+                }
+
+                //Exists, check if anything changed.
+                if (rank != subPkmn.MinimumRank)
+                {
+                    subPkmn.MinimumRank = rank;
+                    subscribed.Add(name);
+                    continue;
+                }
+
+                //Already subscribed to the same Pokemon and form
+                alreadySubscribed.Add(name);
+            }
+
+            var result = subscription.Save();
+
+            await ctx.TriggerTypingAsync();
+            if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} I don't recognize any of the Pokemon you specified.");
+                return;
+            }
+
+            await ctx.RespondEmbed
+            (
+                (subscribed.Count > 0
+                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a minimum PvP ranking of {rank} or lower."
+                    : string.Empty) +
+                (alreadySubscribed.Count > 0
+                    ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a minimum PvP ranking of '{rank}' or lower."
+                    : string.Empty)
+            );
+
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        [
+            Command("pvpmenot"),
+            Description("")
+        ]
+        public async Task PvpMeNotAsync(CommandContext ctx,
+            [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to Pokemon spawn notifications.")] string poke)
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
+            if (subscription == null || subscription?.Pokemon?.Count == 0)
+            {
+                await ctx.TriggerTypingAsync();
+                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any Pokemon notifications.", DiscordColor.Red);
+                return;
+            }
+            /*
+            if (string.Compare(poke, Strings.All, true) == 0)
+            {
+                var confirm = await ctx.Confirm($"{ctx.User.Username} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.");
+                if (!confirm)
+                    return;
+
+                await ctx.TriggerTypingAsync();
+                if (!_dep.SubscriptionProcessor.Manager.RemoveAllPokemon(ctx.Guild.Id, ctx.User.Id))
+                {
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondEmbed($"Could not remove all Pokemon subscriptions for {ctx.User.Username}.", DiscordColor.Red);
+                    return;
+                }
+
+                await ctx.TriggerTypingAsync();
+                await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **all** Pokemon notifications.");
+                _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                return;
+            }
+            */
+
+            var validation = ValidatePokemonList(poke);
+            if (validation.Valid == null || validation.Valid.Count == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} {string.Join(", ", validation.Invalid)} are not a valid Pokemon.", DiscordColor.Red);
+                return;
+            }
+
+            var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
+            subscription.Pokemon
+                .Where(x => 
+                    validation.Valid.ContainsKey(x.PokemonId) && 
+                    string.Compare(x.Form, validation.Valid[x.PokemonId], true) == 0)?
+                .ToList()?
+                .ForEach(x => x.MinimumRank = 0);
+            var result = subscription.Save();
+            //if (!result)
+            //{
+            //    await ctx.RespondEmbed($"{ctx.User.Username} Could not remove {string.Join(", ", pokemonNames)} PvP subscriptions.", DiscordColor.Red);
+            //    return;
+            //}
+
+            await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **{string.Join("**, **", pokemonNames)}** PvP notifications.");
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
 
         #endregion
 
