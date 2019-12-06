@@ -331,6 +331,7 @@
         public List<int> RaidLevels { get; set; }
     }
 
+    //TODO: Use external files for easier updates.
     public enum QuestType
     {
         Unknown = 0,
@@ -475,6 +476,8 @@
         Metal_Coat = 1103,
         Dragon_Scale = 1104,
         Upgrade = 1105,
+        Sinnoh_Stone = 1106,
+        Unova_Stone = 1107,
         Move_Reroll_Fast_Attack = 1201,
         Move_Reroll_Special_Attack = 1202,
         Rare_Candy = 1301,
