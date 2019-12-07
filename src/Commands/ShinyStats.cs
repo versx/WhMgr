@@ -8,6 +8,8 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
+
+    using ServiceStack;
     using ServiceStack.DataAnnotations;
     using ServiceStack.OrmLite;
 
@@ -42,7 +44,7 @@
             //3rd Generation
             252, 255, 258, 261, 263, 270, 276, 278, 280, 287, 296, 302, 303, 304, 307, 309, 311, 312, 315, 318, 320, 325, 327, 328, 333, 336, 337, 338, 339, 345, 347, 349, 351, 353, 355, 359, 361, 366, 370, 371, 374,
             //4rd Generation
-            387, 403, 425, 427, 436,
+            387, 403, 412, 425, 427, 436,
             //5th Generation
             504, 506, 562
         };
