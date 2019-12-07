@@ -68,6 +68,7 @@
                 return;
             }
 
+            var cities = _dep.WhConfig.Servers[ctx.Guild.Id]?.CityRoles.Select(x => x.ToLower());
             for (var i = 0; i < nests.Count; i++)
             {
                 var nest = nests[i];
@@ -102,6 +103,10 @@
                         //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
                         continue;
                     }
+                    if (!cities.Contains(geofence.Name.ToLower()))
+                        continue;
+
+
                     var eb = new DiscordEmbedBuilder
                     {
                         Title = $"{geofence?.Name ?? "Unknown"}: {nest.Name}",
