@@ -324,6 +324,12 @@
             if (pkmn == null)
                 return;
 
+            Statistics.Instance.TotalReceivedPokemon++;
+            if (pkmn.IsMissingStats)
+                Statistics.Instance.TotalReceivedPokemonMissingStats++;
+            else
+                Statistics.Instance.TotalReceivedPokemonWithStats++;
+
             var keys = _alarms.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -431,6 +437,11 @@
         {
             if (raid == null)
                 return;
+
+            if (raid.IsEgg)
+                Statistics.Instance.TotalReceivedEggs++;
+            else
+                Statistics.Instance.TotalReceivedRaids++;
 
             var keys = _alarms.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
@@ -544,6 +555,8 @@
             if (quest == null)
                 return;
 
+            Statistics.Instance.TotalReceivedQuests++;
+
             var keys = _alarms.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -613,6 +626,8 @@
             if (pokestop == null)
                 return;
 
+            Statistics.Instance.TotalReceivedPokestops++;
+
             var keys = _alarms.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -668,6 +683,8 @@
         {
             if (gym == null)
                 return;
+
+            Statistics.Instance.TotalReceivedGyms++;
 
             var keys = _alarms.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
@@ -765,6 +782,8 @@
         {
             if (weather == null)
                 return;
+
+            Statistics.Instance.TotalReceivedWeathers++;
 
             var keys = _alarms.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)

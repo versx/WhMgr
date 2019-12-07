@@ -249,6 +249,7 @@
 
         private async Task Client_Ready(ReadyEventArgs e)
         {
+            _logger.Info($"------------------------------------------");
             _logger.Info($"[DISCORD] Connected.");
             _logger.Info($"[DISCORD] Current Application:");
             _logger.Info($"[DISCORD] Name: {e.Client.CurrentApplication.Name}");
@@ -258,6 +259,7 @@
             _logger.Info($"[DISCORD] Id: {e.Client.CurrentUser.Id}");
             _logger.Info($"[DISCORD] Name: {e.Client.CurrentUser.Username}#{e.Client.CurrentUser.Discriminator}");
             _logger.Info($"[DISCORD] Email: {e.Client.CurrentUser.Email}");
+            _logger.Info($"------------------------------------------");
 
             if (!(e.Client is DiscordClient client))
             {
@@ -445,9 +447,7 @@
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
-
-                Statistics.Instance.PokemonSent++;
-                Statistics.Instance.IncrementPokemonStats(pokemon.Id);
+                Statistics.Instance.PokemonAlarmsSent++;
 
                 if (pokemon.IV == "100%")
                 {
@@ -500,12 +500,10 @@
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
-
-                Statistics.Instance.RaidsSent++;
-                if (raid.PokemonId > 0)
-                {
-                    Statistics.Instance.IncrementRaidStats(raid.PokemonId);
-                }
+                if (raid.IsEgg)
+                    Statistics.Instance.EggAlarmsSent++;
+                else
+                    Statistics.Instance.RaidAlarmsSent++;
             }
             catch (Exception ex)
             {
@@ -545,8 +543,7 @@
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
-
-                Statistics.Instance.QuestsSent++;
+                Statistics.Instance.QuestAlarmsSent++;
             }
             catch (Exception ex)
             {
@@ -602,8 +599,10 @@
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
-
-                //Statistics.Instance.QuestsSent++;
+                if (pokestop.HasInvasion)
+                    Statistics.Instance.InvasionAlarmsSent++;
+                else if (pokestop.HasLure)
+                    Statistics.Instance.LureAlarmsSent++;
             }
             catch (Exception ex)
             {
@@ -664,7 +663,7 @@
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
-
+                Statistics.Instance.GymAlarmsSent++;
                 _gyms[gymDetails.GymId] = gymDetails;
 
                 //Statistics.Instance.PokemonSent++;
@@ -678,10 +677,10 @@
 
         private void OnWeatherAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<WeatherData> e)
         {
-            //if (string.IsNullOrEmpty(e.Alarm.Webhook))
-            //    return;
+            if (string.IsNullOrEmpty(e.Alarm.Webhook))
+                return;
 
-            //_logger.Info($"Weather Found [Alarm: {e.Alarm.Name}, S2CellId: {e.Data.Id}, Condition={e.Data.GameplayCondition}, Severity={e.Data.Severity}]");
+            _logger.Info($"Weather Found [Alarm: {e.Alarm.Name}, S2CellId: {e.Data.Id}, Condition={e.Data.GameplayCondition}, Severity={e.Data.Severity}]");
 
             //var weather = e.Data;
             //var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
@@ -691,37 +690,36 @@
             //    return;
             //}
 
-            //try
-            //{
-            //    if (!_gyms.ContainsKey(weather.Id))
-            //    {
-            //        _gyms.Add(weather.Id, weather);
-            //    }
+            try
+            {
+                //if (!_gyms.ContainsKey(weather.Id))
+                //{
+                //    _gyms.Add(weather.Id, weather);
+                //}
 
-            //    var oldGym = _gyms[weather.Id];
-            //    var changed = oldGym.Team != weather.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
-            //    if (!changed)
-            //        return;
+                //var oldGym = _gyms[weather.Id];
+                //var changed = oldGym.Team != weather.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
+                //if (!changed)
+                //    return;
 
-            //    var eb = weather.GenerateGymMessage(_client, _whConfig, e.Alarm, oldGym, loc?.Name ?? e.Alarm.Name);
-            //    var name = weather.GymName;
-            //    var jsonEmbed = new DiscordWebhookMessage
-            //    {
-            //        Username = name,
-            //        AvatarUrl = weather.Url,
-            //        Embeds = new List<DiscordEmbed> { eb }
-            //    }.Build();
-            //    NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
+                //var eb = weather.GenerateGymMessage(_client, _whConfig, e.Alarm, oldGym, loc?.Name ?? e.Alarm.Name);
+                //var name = weather.GymName;
+                //var jsonEmbed = new DiscordWebhookMessage
+                //{
+                //    Username = name,
+                //    AvatarUrl = weather.Url,
+                //    Embeds = new List<DiscordEmbed> { eb }
+                //}.Build();
+                //NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
 
-            //    _gyms[weather.Id] = weather;
+                //_gyms[weather.Id] = weather;
 
-            //    //Statistics.Instance.PokemonSent++;
-            //    //Statistics.Instance.IncrementPokemonStats(pokemon.Id);
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.Error(ex);
-            //}
+                Statistics.Instance.WeatherAlarmsSent++;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
         }
 
         #endregion
@@ -814,14 +812,12 @@
             }
         }
 
-
-
         private async Task ResetQuests()
         {
             _logger.Debug($"MIDNIGHT {DateTime.Now}");
             _logger.Debug($"Starting automatic quest messages cleanup...");
 
-            Statistics.Instance.WriteOut();
+            Statistics.WriteOut();
             Statistics.Instance.Reset();
 
             var keys = _whConfig.Servers.Keys.ToList();
@@ -841,7 +837,8 @@
                     _logger.Debug($"Shiny stats not enabled for guild with id {guildId}.");
                     continue;
                 }
-                    var statsChannel = await client.GetChannelAsync(server.ShinyStats.ChannelId);
+                
+                var statsChannel = await client.GetChannelAsync(server.ShinyStats.ChannelId);
                 if (statsChannel == null)
                 {
                     _logger.Warn($"Failed to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");

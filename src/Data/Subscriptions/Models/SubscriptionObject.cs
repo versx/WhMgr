@@ -11,30 +11,8 @@
         JsonObject("subscriptions"),
         Alias("subscriptions")
     ]
-    public class SubscriptionObject
+    public class SubscriptionObject : SubscriptionItem<SubscriptionObject>
     {
-        [
-            JsonIgnore,
-            Alias("id"),
-            AutoIncrement,
-            PrimaryKey
-        ]
-        public int Id { get; set; }
-
-        [
-             JsonProperty("guild_id"),
-             Alias("guild_id"),
-             Required
-         ]
-        public ulong GuildId { get; set; }
-
-        [
-            JsonProperty("user_id"),
-            Alias("userId"), 
-            Required
-        ]
-        public ulong UserId { get; set; }
-
         [
             JsonProperty("enabled"),
             Alias("enabled"), 
@@ -75,9 +53,6 @@
             Reference
         ]
         public List<InvasionSubscription> Invasions { get; set; }
-
-        //[Alias("snoozed_quests"), Reference]
-        //public List<SnoozedQuest> SnoozedQuests { get; set; }
 
         [
             JsonProperty("distance"),
@@ -136,7 +111,6 @@
             Gyms = new List<GymSubscription>();
             Quests = new List<QuestSubscription>();
             Invasions = new List<InvasionSubscription>();
-            //SnoozedQuests = new List<SnoozedQuest>();
             //PokemonStatistics = new List<PokemonStatistics>();
             //RaidStatistics = new List<RaidStatistics>();
             //QuestStatistics = new List<QuestStatistics>();

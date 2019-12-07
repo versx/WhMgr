@@ -6,7 +6,6 @@
     using System.Linq;
 
     using WhMgr.Data;
-    using WhMgr.Extensions;
     using WhMgr.Net.Models;
 
     public class Statistics
@@ -31,11 +30,21 @@
 
         #region Properties
 
-        public long PokemonSent { get; set; }
+        public long PokemonAlarmsSent { get; set; }
 
-        public long RaidsSent { get; set; }
+        public long RaidAlarmsSent { get; set; }
 
-        public long QuestsSent { get; set; }
+        public long EggAlarmsSent { get; set; }
+
+        public long QuestAlarmsSent { get; set; }
+
+        public long LureAlarmsSent { get; set; }
+
+        public long InvasionAlarmsSent { get; set; }
+
+        public long GymAlarmsSent { get; set; }
+
+        public long WeatherAlarmsSent { get; set; }
 
         public long SubscriptionPokemonSent { get; set; }
 
@@ -45,15 +54,29 @@
 
         public long SubscriptionInvasionsSent { get; set; }
 
-        public Dictionary<int, int> PokemonStats { get; }
-
-        public Dictionary<int, int> RaidStats { get; }
-
-        public IEnumerable<KeyValuePair<int, int>> Top25Pokemon => PokemonStats.GroupWithCount(25);
-
-        public IEnumerable<KeyValuePair<int, int>> Top25Raids => RaidStats.GroupWithCount(25);
-
         public Dictionary<DateTime, PokemonData> Hundos { get; }
+
+        public long TotalReceivedPokemon { get; set; }
+
+        public long TotalReceivedPokemonMissingStats { get; set; }
+
+        public long TotalReceivedPokemonWithStats { get; set; }
+
+        public long TotalReceivedRaids { get; set; }
+
+        public long TotalReceivedEggs { get; set; }
+
+        public long TotalReceivedGyms { get; set; }
+
+        public long TotalReceivedPokestops { get; set; }
+
+        public long TotalReceivedQuests { get; set; }
+
+        public long TotalReceivedInvasions { get; set; }
+
+        public long TotalReceivedLures { get; set; }
+
+        public long TotalReceivedWeathers { get; set; }
 
         #endregion
 
@@ -61,8 +84,6 @@
 
         public Statistics()
         {
-            PokemonStats = new Dictionary<int, int>();
-            RaidStats = new Dictionary<int, int>();
             Hundos = new Dictionary<DateTime, PokemonData>();
         }
 
@@ -75,31 +96,7 @@
             Hundos.Add(DateTime.Now, pokemon);
         }
 
-        public void IncrementPokemonStats(int pokemonId)
-        {
-            if (PokemonStats.ContainsKey(pokemonId))
-            {
-                PokemonStats[pokemonId]++;
-            }
-            else
-            {
-                PokemonStats.Add(pokemonId, 1);
-            }
-        }
-
-        public void IncrementRaidStats(int pokemonId)
-        {
-            if (RaidStats.ContainsKey(pokemonId))
-            {
-                RaidStats[pokemonId]++;
-            }
-            else
-            {
-                RaidStats.Add(pokemonId, 1);
-            }
-        }
-
-        public void WriteOut()
+        public static void WriteOut()
         {
             if (!Directory.Exists(Strings.StatsFolder))
             {
@@ -110,22 +107,46 @@
             var sb = new System.Text.StringBuilder();
             var header = "Pokemon Alarms,Raid Alarms,Quest Alarms,Pokemon Subscriptions,Raid Subscriptions,Quest Subscriptions,Top 25 Pokemon,Top 25 Raids";
             sb.AppendLine(header);
-
-            sb.Append(stats.PokemonSent);
-            sb.Append(",");
-            sb.Append(stats.RaidsSent);
-            sb.Append(",");
-            sb.Append(stats.QuestsSent);
-            sb.Append(",");
-            sb.Append(stats.SubscriptionPokemonSent);
-            sb.Append(",");
-            sb.Append(stats.SubscriptionRaidsSent);
-            sb.Append(",");
-            sb.Append(stats.SubscriptionQuestsSent);
-            sb.Append(",");
-            sb.Append(string.Join(Environment.NewLine, stats.Top25Pokemon.Select(x => $"{MasterFile.GetPokemon(x.Key, 0)?.Name}: {x.Value.ToString("N0")}")));
-            sb.Append(",");
-            sb.Append(string.Join(Environment.NewLine, stats.Top25Raids.Select(x => $"{MasterFile.GetPokemon(x.Key, 0)?.Name}: {x.Value.ToString("N0")}")));
+            sb.AppendLine(DateTime.Now.ToString());
+            sb.AppendLine($"__**Pokemon**__");
+            sb.AppendLine($"Alarms Sent: {stats.PokemonAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedPokemon.ToString("N0")}");
+            sb.AppendLine($"With IV Stats: {stats.TotalReceivedPokemonWithStats.ToString("N0")}");
+            sb.AppendLine($"Missing IV Stats: {stats.TotalReceivedPokemonMissingStats.ToString("N0")}");
+            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionPokemonSent.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine("__**Raids**__");
+            sb.AppendLine($"Egg Alarms Sent: {stats.EggAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Raids Alarms Sent: {stats.RaidAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Eggs Received: {stats.TotalReceivedRaids.ToString("N0")}");
+            sb.AppendLine($"Total Raids Received: {stats.TotalReceivedRaids.ToString("N0")}");
+            sb.AppendLine($"Raid Subscriptions Sent: {stats.SubscriptionRaidsSent.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine($"__**Quests**__");
+            sb.AppendLine($"Alarms Sent: {stats.QuestAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedQuests.ToString("N0")}");
+            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionQuestsSent.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine($"__**Invasions**__");
+            sb.AppendLine($"Alarms Sent: {stats.InvasionAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedInvasions.ToString("N0")}");
+            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionInvasionsSent.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine($"__**Lures**__");
+            sb.AppendLine($"Alarms Sent: {stats.LureAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedLures.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine($"__**Gyms**__");
+            sb.AppendLine($"Alarms Sent: {stats.GymAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedGyms.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine($"__**Weather**__");
+            sb.AppendLine($"Alarms Sent: {stats.WeatherAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedWeathers.ToString("N0")}");
+            sb.AppendLine();
+            var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {MasterFile.Instance.Pokedex[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
+            sb.AppendLine($"**Recent 100% Spawns**");
+            sb.AppendLine(string.IsNullOrEmpty(hundos) ? "None" : hundos);
 
             try
             {
@@ -139,15 +160,31 @@
 
         public void Reset()
         {
-            PokemonStats.Clear();
-            RaidStats.Clear();
-            PokemonSent = 0;
-            RaidsSent = 0;
-            QuestsSent = 0;
+            PokemonAlarmsSent = 0;
+            RaidAlarmsSent = 0;
+            EggAlarmsSent = 0;
+            QuestAlarmsSent = 0;
+            LureAlarmsSent = 0;
+            InvasionAlarmsSent = 0;
+            GymAlarmsSent = 0;
+            WeatherAlarmsSent = 0;
+
             SubscriptionPokemonSent = 0;
             SubscriptionRaidsSent = 0;
             SubscriptionQuestsSent = 0;
             SubscriptionInvasionsSent = 0;
+
+            TotalReceivedPokemon = 0;
+            TotalReceivedPokemonMissingStats = 0;
+            TotalReceivedPokemonWithStats = 0;
+            TotalReceivedRaids = 0;
+            TotalReceivedEggs = 0;
+            TotalReceivedQuests = 0;
+            TotalReceivedPokestops = 0;
+            TotalReceivedLures = 0;
+            TotalReceivedInvasions = 0;
+            TotalReceivedGyms = 0;
+            TotalReceivedWeathers = 0;
         }
 
         #endregion
