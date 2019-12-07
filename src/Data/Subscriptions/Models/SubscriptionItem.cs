@@ -42,7 +42,7 @@
 
         public virtual bool Remove()
         {
-            _logger.Trace($"PokemonSubscription::Remove [GuildId={GuildId}, UserId={UserId}]");
+            _logger.Trace($"SubscriptionItem::Remove [GuildId={GuildId}, UserId={UserId}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
@@ -53,7 +53,7 @@
 
         public virtual bool Save()
         {
-            _logger.Trace($"$PokemonSubscription::Update [GuildId={GuildId}, UserId={UserId}]");
+            _logger.Trace($"SubscriptionItem::Update [GuildId={GuildId}, UserId={UserId}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
@@ -64,7 +64,7 @@
 
         public virtual bool Update()
         {
-            _logger.Trace($"$PokemonSubscription::Update [GuildId={GuildId}, UserId={UserId}]");
+            _logger.Trace($"SubscriptionItem::Update [GuildId={GuildId}, UserId={UserId}]");
 
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {

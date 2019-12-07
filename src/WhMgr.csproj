@@ -152,7 +152,6 @@
     <Compile Include="Data\Subscriptions\Models\PokemonSubscription.cs" />
     <Compile Include="Data\Subscriptions\Models\QuestSubscription.cs" />
     <Compile Include="Data\Subscriptions\Models\RaidSubscription.cs" />
-    <Compile Include="Data\Subscriptions\Models\SnoozedQuest.cs" />
     <Compile Include="Data\Subscriptions\Models\SubscriptionItem.cs" />
     <Compile Include="Data\Subscriptions\Models\SubscriptionObject.cs" />
     <Compile Include="Data\Subscriptions\SubscriptionManager.cs" />
