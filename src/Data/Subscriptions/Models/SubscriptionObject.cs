@@ -82,15 +82,6 @@
         ]
         public string IconStyle { get; set; }
 
-        //[Alias("pokemon_stats"), Reference]
-        //public List<PokemonStatistics> PokemonStatistics { get; set; }
-
-        //[Alias("raid_stats"), Reference]
-        //public List<RaidStatistics> RaidStatistics { get; set; }
-
-        //[Alias("quest_stats"), Reference]
-        //public List<QuestStatistics> QuestStatistics { get; set; }
-
         [
             JsonIgnore,
             Ignore
@@ -111,10 +102,11 @@
             Gyms = new List<GymSubscription>();
             Quests = new List<QuestSubscription>();
             Invasions = new List<InvasionSubscription>();
-            //PokemonStatistics = new List<PokemonStatistics>();
-            //RaidStatistics = new List<RaidStatistics>();
-            //QuestStatistics = new List<QuestStatistics>();
             Limiter = new NotificationLimiter();
+            DistanceM = 0;
+            Latitude = 0;
+            Longitude = 0;
+            IconStyle = "Default";
         }
     }
 }
