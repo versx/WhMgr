@@ -558,7 +558,7 @@
                 var msg = $"{ctx.User.Username} has unsubscribed from **{string.Join("**, **", pokemonNames)}** Pokemon notifications.";
                 if (validation.Invalid != null && validation.Invalid.Count > 0)
                 {
-                    msg += $"\r\n{string.Join(", ", validation.Invalid)} are not a valid Pokemon.";
+                    msg += $"\r\n{string.Join(", ", validation.Invalid)} are not valid Pokemon names or IDs.";
                 }
 
                 await ctx.RespondEmbed(msg);

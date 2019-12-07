@@ -10,9 +10,11 @@
     ]
     public class PokemonSubscription
     {
+        #region Properties
+
         [
             JsonIgnore,//JsonProperty("id"),
-            Alias("id"), 
+            Alias("id"),
             PrimaryKey,
             AutoIncrement
         ]
@@ -33,14 +35,14 @@
 
         [
             JsonProperty("user_id"),
-            Alias("userId"), 
+            Alias("userId"),
             Required
         ]
         public ulong UserId { get; set; }
 
         [
             JsonProperty("pokemon_id"),
-            Alias("pokemon_id"), 
+            Alias("pokemon_id"),
             Required
         ]
         public int PokemonId { get; set; }
@@ -102,6 +104,10 @@
         ]
         public bool HasStats => Attack > 0 || Defense > 0 || Stamina > 0;
 
+        #endregion
+
+        #region Constructor
+
         public PokemonSubscription()
         {
             MinimumCP = 0;
@@ -113,5 +119,7 @@
             Stamina = 0;
             Form = string.Empty;
         }
+
+        #endregion
     }
 }

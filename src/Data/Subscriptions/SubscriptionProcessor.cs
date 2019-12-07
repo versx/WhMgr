@@ -167,7 +167,7 @@
                          ))
                         continue;
 
-                    var iconStyle = string.IsNullOrEmpty(user.IconStyle) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle;
+                    var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
                     var pkmnImage = string.Format(_whConfig.IconStyles[iconStyle], pkmn.Id, pkmn.FormId);
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name, pkmnImage);
                     _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
