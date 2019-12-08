@@ -21,7 +21,7 @@
         private List<SubscriptionObject> _subscriptions;
 
         private readonly OrmLiteConnectionFactory _connFactory;
-        private readonly OrmLiteConnectionFactory _scanConnFactory;
+        //private readonly OrmLiteConnectionFactory _scanConnFactory;
 
         #endregion
 
@@ -54,7 +54,7 @@
             }
 
             _connFactory = new OrmLiteConnectionFactory(_whConfig.Database.Main.ToString(), MySqlDialect.Provider);
-            _scanConnFactory = new OrmLiteConnectionFactory(_whConfig.Database.Scanner.ToString(), MySqlDialect.Provider);
+            //_scanConnFactory = new OrmLiteConnectionFactory(_whConfig.Database.Scanner.ToString(), MySqlDialect.Provider);
 
             CreateDefaultTables();
             ReloadSubscriptions();

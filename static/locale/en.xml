@@ -102,8 +102,8 @@
 	<string name="GYM_UNKNOWN_IMAGE">Unknown Image Url</string>
 	<string name="GYM_POKESTOPS_CONVERTED">{0} {1} Pokestops updated to Gyms.</string>
 	<string name="GYM_POKESTOPS_DELETED">{0} {1} Pokestops deleted.</string>
-	<string name="GYM_IMAGE_LINK_FORMAT">[Click here to view gym image]({0})</string>
-	<string name="GYM_DIRECTIONS">- **{0}** [[Directions]({1})]</string>
+	<string name="GYM_NAME">- **{0}**</string>
+	<string name="GYM_DIRECTIONS_IMAGE_LINK">[[Directions]({1})] [[Gym Image]({0})]</string>
 	
 	<string name="SHINY_STATS_INVALID_CHANNEL">{0} Shiny stats channel does not exist.</string>
 	<string name="SHINY_STATS_TITLE">[**Shiny Pokemon stats for {0}**]\r\n----------------------------------------------</string>

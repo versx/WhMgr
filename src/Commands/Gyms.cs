@@ -65,11 +65,11 @@
                 {
                     var gym = convertedGyms[i];
                     var name = string.IsNullOrEmpty(gym.Name) ? _dep.Language.Translate("GYM_UNKNOWN_NAME") : gym.Name;
-                    var url = string.IsNullOrEmpty(gym.Url) ? _dep.Language.Translate("GYM_UNKNOWN_IMAGE") : _dep.Language.Translate("GYM_IMAGE_LINK_FORMAT").FormatText(gym.Url);
+                    var imageUrl = string.IsNullOrEmpty(gym.Url) ? _dep.Language.Translate("GYM_UNKNOWN_IMAGE") : gym.Url;
                     var locationUrl = string.Format(Strings.GoogleMaps, gym.Latitude, gym.Longitude);
                     //eb.AddField($"{name} ({gym.Latitude},{gym.Longitude})", url);
-                    sb.AppendLine(_dep.Language.Translate("GYM_DIRECTIONS").FormatText(name, locationUrl));
-                    sb.AppendLine(url);
+                    sb.AppendLine(_dep.Language.Translate("GYM_NAME").FormatText(name));
+                    sb.AppendLine(_dep.Language.Translate("GYM_DIRECTIONS_IMAGE_LINK").FormatText(locationUrl, imageUrl));
                 }
                 eb.Description = sb.ToString();
                 await ctx.RespondAsync(string.Empty, false, eb);

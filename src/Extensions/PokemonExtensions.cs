@@ -1063,7 +1063,7 @@
                 return string.Format(pokemonImageUrl, pokemonId, costume);
             }
 
-            var genderId = gender == PokemonGender.Female ? 1 : 0;
+            var genderId = 0;// gender == PokemonGender.Female ? 1 : 0;
             return string.Format(pokemonImageUrl, pokemonId, genderId);
         }
 
@@ -1095,15 +1095,12 @@
 
         public static string GetPokemonGenderIcon(this PokemonGender gender)
         {
-            switch (gender)
+            return gender switch
             {
-                case PokemonGender.Male:
-                    return "-m";// ♂ \u2642
-                case PokemonGender.Female:
-                    return "-f";// ♀ \u2640
-                default:
-                    return "";// ⚲
-            }
+                PokemonGender.Male => "-m", //♂ \u2642
+                PokemonGender.Female => "-f", //♀ \u2640
+                _ => "" //⚲
+            };
         }
 
         public static List<PokemonType> GetStrengths(this PokemonType type)
