@@ -32,6 +32,8 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 {
     // Http listener port for raw webhook data.
     "port": 8008,
+    // Locale language translation
+    "locale": "en",
     // ShortURL API (yourls.org API)
     "shortUrlApiUrl": null,
     // Stripe API key
