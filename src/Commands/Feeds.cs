@@ -40,13 +40,13 @@
             var server = _dep.WhConfig.Servers[ctx.Guild.Id];
 
             var sb = new StringBuilder();
-            sb.AppendLine("**Available City Roles:**");
+            sb.AppendLine(_dep.Language.Translate("FEEDS_AVAILABLE_CITY_ROLES"));
             sb.AppendLine($"- {string.Join($"{Environment.NewLine}- ", server.CityRoles)}");
             sb.AppendLine();
             sb.AppendLine($"- {Strings.All}");
             sb.AppendLine();
             sb.AppendLine();
-            sb.AppendLine($"*Type `{server.CommandPrefix}feedme cityname` to assign yourself to that city role.*");
+            sb.AppendLine(_dep.Language.Translate("FEEDS_TYPE_COMMAND_ASSIGN_ROLE"));
             var eb = new DiscordEmbedBuilder
             {
                 Color = DiscordColor.Red,
@@ -79,12 +79,6 @@
                 return;
             }
 
-            if (string.IsNullOrEmpty(cityName))
-            {
-                await ctx.RespondEmbed($"{ctx.User.Username} Please specific a city role name to assign.");
-                //TODO: Show message with reactions to assign.
-            }
-
             if (string.Compare(cityName, Strings.All, true) == 0)
             {
                 await AssignAllDefaultFeedRoles(ctx);
@@ -106,14 +100,14 @@
                 {
                     if (!cityRoles.Contains(city.ToLower()))
                     {
-                        await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city name, type `{server.CommandPrefix}cities` to see a list of available cities.");
+                        await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(ctx.User.Username, city, server.CommandPrefix), DiscordColor.Red);
                         continue;
                     }
 
                     var cityRole = ctx.Client.GetRoleFromName(city);
                     if (cityRole == null)
                     {
-                        await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city name.");
+                        await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_INVALID_CITY_NAME").FormatText(ctx.User.Username, city), DiscordColor.Red);
                         continue;
                     }
 
@@ -202,14 +196,14 @@
                 {
                     if (!cityRoles.Exists(x => string.Compare(city, x, true) == 0))
                     {
-                        await ctx.RespondAsync($"{ctx.User.Username} {city} is not a valid city name, type `{server.CommandPrefix}cities` to see a list of available cities.");
+                        await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(ctx.User.Username, city, server.CommandPrefix), DiscordColor.Red);
                         continue;
                     }
 
                     var cityRole = ctx.Client.GetRoleFromName(city);
                     if (cityRole == null)
                     {
-                        await ctx.RespondEmbed($"{ctx.User.Username} {city} is not a valid city role name.");
+                        await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_INVALID_CITY_NAME").FormatText(ctx.User.Username, city), DiscordColor.Red);
                         continue;
                     }
 
@@ -277,11 +271,17 @@
                 }
             }
 
-            await ctx.RespondAsync($"{ctx.User.Username} was assigned all city feed roles.");
+            await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_ASSIGNED_ALL_ROLES"));
         }
 
         private async Task RemoveAllDefaultFeedRoles(CommandContext ctx)
         {
+            if (_dep.WhConfig.Servers[ctx.Guild.Id].CityRoles == null)
+            {
+                _logger.Warn($"City roles empty.");
+                return;
+            }
+
             var server = _dep.WhConfig.Servers[ctx.Guild.Id];
             foreach (var city in server.CityRoles)
             {
@@ -299,7 +299,7 @@
                 }
             }
 
-            await ctx.RespondAsync($"{ctx.User.Username} was unassigned all city feed roles.");
+            await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_UNASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));
         }
 
         private async Task<bool> AddFeedRole(DiscordMember member, DiscordRole city)

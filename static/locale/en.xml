@@ -85,4 +85,30 @@
 	
 	<string name="NOTIFY_FROM">{0} (From: {1})</string>
 	<string name="ALL_AREAS">All Areas</string>
+	
+	<string name="FEEDS_AVAILABLE_CITY_ROLES">**Available City Roles:**</string>
+	<string name="FEEDS_TYPE_COMMAND_ASSIGN_ROLE">*Type `{0}feedme cityname` to assign yourself to that city role.*</string>
+	<string name="FEEDS_INVALID_CITY_NAME_TYPE_COMMAND">{0} {1} is not a valid city name, type `{2}cities` to see a list of available cities.</string>
+	<string name="FEEDS_INVALID_CITY_NAME">{0} {1} is not a valid city name.</string>
+	<string name="FEEDS_ASSIGNED_ALL_ROLES">{0} was assigned all city feed roles.</string>
+	<string name="FEEDS_UNASSIGNED_ALL_ROLES">{0} was unassigned all city feed roles.</string>
+
+	<string name="CHANNEL_MESSAGES_DELETED">{0} Channel {1} messages have been deleted.</string>
+	
+	<string name="GYM_NO_POKESTOPS_CONVERTED">{0} No Pokestops have been converted to Gyms.</string>
+	<string name="GYM_NO_POKESTOPS_UPDATED">{0} No Pokestops have been updated.</string>
+	<string name="GYM_POKESTOPS_EMBED_TITLE">**List of Pokestops converted to Gyms:**</string>
+	<string name="GYM_UNKNOWN_NAME">Unknown Gym Name</string>
+	<string name="GYM_UNKNOWN_IMAGE">Unknown Image Url</string>
+	<string name="GYM_POKESTOPS_CONVERTED">{0} {1} Pokestops updated to Gyms.</string>
+	<string name="GYM_POKESTOPS_DELETED">{0} {1} Pokestops deleted.</string>
+	<string name="GYM_IMAGE_LINK_FORMAT">[Click here to view gym image]({0})</string>
+	<string name="GYM_DIRECTIONS">- **{0}** [[Directions]({1})]</string>
+	
+	<string name="SHINY_STATS_INVALID_CHANNEL">{0} Shiny stats channel does not exist.</string>
+	<string name="SHINY_STATS_TITLE">[**Shiny Pokemon stats for {0}**]\r\n----------------------------------------------</string>
+	<string name="SHINY_STATS_MESSAGE">**{0} (#{1})**  |  **{2}** shiny out of **{3}** total seen in the last 24 hours.</string>
+	<string name="SHINY_STATS_MESSAGE_WITH_RATIO">**{0} (#{1})**  |  **{2}** shiny out of **{3}** total seen in the last 24 hours with a **1/{4}** ratio.</string>
+	<string name="SHINY_STATS_TOTAL_MESSAGE">Found **{0}** total shinies out of **{1}** possiblities.</string>
+	<string name="SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO">Found **{0}** total shinies out of **{1}** possiblities with a **1/{2}** ratio in total.</string>
 </resources>

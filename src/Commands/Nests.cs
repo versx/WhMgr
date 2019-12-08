@@ -64,7 +64,7 @@
             var nests = GetNests(_dep.WhConfig.Database.Nests.ToString());
             if (nests == null)
             {
-                await ctx.RespondAsync($"{ctx.User.Username} Failed to get nest list.");
+                await ctx.RespondAsync($"{ctx.User.Username} Failed to get nest list from database.");
                 return;
             }
 

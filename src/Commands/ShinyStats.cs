@@ -61,7 +61,7 @@
             if (statsChannel == null)
             {
                 _logger.Warn($"Failed to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
-                await ctx.RespondAsync($"{ctx.User.Username} Shiny stats channel does not exist.");
+                await ctx.RespondEmbed(_dep.Language.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(ctx.User.Username), DiscordColor.Yellow);
                 return;
             }
 
@@ -70,7 +70,7 @@
                 await ctx.Client.DeleteMessages(server.ShinyStats.ChannelId);
             }
 
-            await statsChannel.SendMessageAsync($"[**Shiny Pokemon stats for {DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString()}**]\r\n----------------------------------------------");
+            await statsChannel.SendMessageAsync(_dep.Language.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString()));
             var stats = await GetShinyStats(_dep.WhConfig.Database.Scanner.ToString());
             var sorted = stats.Keys.ToList();
             sorted.Sort();
@@ -86,13 +86,30 @@
                 var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
                 var pkmnStats = stats[pokemon];
                 var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
-                var chanceMessage = chance == 0 ? null : $" with a **1/{chance}** ratio";
-                await statsChannel.SendMessageAsync($"**{pkmn.Name} (#{pokemon})**  |  **{pkmnStats.Shiny.ToString("N0")}** shiny out of **{pkmnStats.Total.ToString("N0")}** total seen in the last 24 hours{chanceMessage}.");
+                if (chance == 0)
+                {
+                    await statsChannel.SendMessageAsync(_dep.Language.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
+                }
+                else
+                {
+                    await statsChannel.SendMessageAsync(_dep.Language.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
+                }
+                //var chanceMessage = chance == 0 ? null : $" with a **1/{chance}** ratio";
+                //await statsChannel.SendMessageAsync($"**{pkmn.Name} (#{pokemon})**  |  **{pkmnStats.Shiny.ToString("N0")}** shiny out of **{pkmnStats.Total.ToString("N0")}** total seen in the last 24 hours{chanceMessage}.");
             }
 
             var total = stats[0];
-            var ratio = total.Shiny == 0 || total.Total == 0 ? null : $" with a **1/{Convert.ToInt32(total.Total / total.Shiny)}** ratio in total";
-            await statsChannel.SendMessageAsync($"Found **{total.Shiny.ToString("N0")}** total shinies out of **{total.Total.ToString("N0")}** possiblities{ratio}.");
+            var totalRatio = total.Shiny == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Shiny);
+            if (totalRatio == 0)
+            {
+                await statsChannel.SendMessageAsync(_dep.Language.Translate("SHINY_STATS_TOTAL_MESSAGE").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0")));
+            }
+            else
+            {
+                await statsChannel.SendMessageAsync(_dep.Language.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
+            }
+            //var ratio = total.Shiny == 0 || total.Total == 0 ? null : $" with a **1/{Convert.ToInt32(total.Total / total.Shiny)}** ratio in total";
+            //await statsChannel.SendMessageAsync($"Found **{total.Shiny.ToString("N0")}** total shinies out of **{total.Total.ToString("N0")}** possiblities{ratio}.");
         }
 
         public static Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStats(string scannerConnectionString)

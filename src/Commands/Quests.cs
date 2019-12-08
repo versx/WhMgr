@@ -64,7 +64,7 @@
 
                 messages = await channel.GetMessagesAsync();
             }
-            await ctx.RespondEmbed($"{ctx.User.Username} Channel {channel.Mention} messages have been deleted.");
+            await ctx.RespondEmbed(_dep.Language.Translate("CHANNEL_MESSAGES_DELETED").FormatText(ctx.User.Username, channel.Mention));
         }
     }
 }
