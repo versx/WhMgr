@@ -2,55 +2,86 @@
 <resources>
 	<string name="UNKNOWN_POKESTOP">Unknown Pokestop</string>
 	<string name="EMBED_DIRECTIONS">DIRECTIONS</string>
-	
-	<string name="EMBED_POKEMON_TITLE">{0} {1}{2} {3} ({4}/{5}/{6}) L{7}</string>
-	<string name="EMBED_POKEMON_TITLE_WITHOUT_DETAILS">{0} {1}{2}</string>
-	<string name="EMBED_POKEMON_DESPAWN">**Despawn:** {0} ({1} left)</string>
-	<string name="EMBED_POKEMON_DETAILS">**Details:** CP: {0} IV: {1} LV: {2}</string>
-	<string name="EMBED_POKEMON_STATS">**IV Stats:** Atk: {0}/Def: {1}/Sta: {2}</string>
-	<string name="EMBED_POKEMON_FORM">**Form:** {0}</string>
-	<string name="EMBED_POKEMON_WEATHER_BOOSTED">:white_sun_rain_cloud: Boosted</string>
-	<string name="EMBED_POKEMON_WEATHER">**Weather:** {0}</string>
-	<string name="EMBED_POKEMON_SIZE">**Size:** {0}</string>
-	
-	<string name="EMBED_EGG_HATCHES">Hatches: {0} ({1} left)</string>
-	<string name="EMBED_EGG_ENDS">**Ends:** {0} ({1} left)</string>
-	
-	<string name="EMBED_RAID_ENDS">{0} Raid Ends: {1}</string>
-	<string name="EMBED_RAID_ENDS_WITH_TIME_LEFT">**Ends:** {0} ({1} left)</string>
-	<string name="EMBED_RAID_STARTED">**Started:** {0}</string>
-	<string name="EMBED_RAID_PERFECT_CP">**Perfect CP:** {0} / :white_sun_rain_cloud: {1}</string>
-	<string name="EMBED_RAID_WORST_CP">**Worst CP:** {0} / :white_sun_rain_cloud: {1}</string>
-	<string name="EMBED_RAID_WEAKNESSES">**Weaknesses:** {0}</string>
-	<string name="EMBED_RAID_EX_GYM">{0} **Gym!**</string>
-	
-	<string name="EMBED_QUEST_QUEST">**Quest:** {0}</string>
-	<string name="EMBED_QUEST_CONDITION">**Condition:** {0}</string>
-	<string name="EMBED_QUEST_REWARD">**Reward:** {0}</string>
-	
-	<string name="EMBED_TYPES">**Types:** {0}</string>
-	<string name="EMBED_MOVE_FAST">**Moveset:** {0}</string>
-	<string name="EMBED_MOVE_CHARGE">**Charge Move:** {0}</string>
-	<string name="EMBED_TEAM">**Team:** {0}</string>
-	<string name="EMBED_TIME_REMAINING">**Time Remaining:** {0}</string>
-	<string name="EMBED_LOCATION">**Location:** {0},{1}</string>
-	<string name="EMBED_GMAPS">**[[Google Maps]({0})]**</string>
-	<string name="EMBED_APPLEMAPS">**[[Apple Maps]({0})]**</string>
-	
+
 	<string name="MSG_SUBSCRIPTIONS_NOT_ENABLED">{0} Subscriptions are not enabled in the config.</string>
 	<string name="MSG_NOT_MODERATOR_OR_HIGHER">{0} is not a moderator or higher thus you may not see other's subscription settings.</string>
 	<string name="MSG_INVALID_USER_MENTION">{0} Failed to retrieve user with mention tag {1}.</string>
 	<string name="MSG_USER_NOT_SUBSCRIBED">{0} is not currently subscribed to any Pokemon or Raid notifications.</string>
-	
-	<string name="EMOJI_EX">ex</string>
-	<string name="EMOJI_VALOR">valor</string>
-	<string name="EMOJI_MYSTIC">mystic</string>
-	<string name="EMOJI_INSTINCT">instinct</string>
-	<string name="EMOJI_TYPES_ROCK">types_rock</string>
 
     <string name="TIME_YEARS">years</string>
     <string name="TIME_DAYS">days</string>
     <string name="TIME_HOURS">hours</string>
     <string name="TIME_MINUTES">minutes</string>
     <string name="TIME_SECONDS">seconds</string>
+	
+	<string name="BOT_CRASH_MESSAGE">WHM JUST CRASHED!</string>
+	
+	<string name="NOTIFY_ENABLE_DISABLE">{0} has **{1}d** Pokemon, Raid, Quest, and Invasion notifications."</string>
+	
+	<string name="NOTIFY_INVALID_COORDINATES">{0} Unable not parse {1} as valid coordinates.</string>
+	<string name="NOTIFY_DISTANCE_SET">{0} Notifications only within a {1} meter radius of location {2},{3} will be sent.</string>
+	
+	<string name="NOTIFY_INVALID_IV_VALUES">{0} {1} is not a valid value. (Example: `0-15-6`)</string>
+	<string name="NOTIFY_INVALID_ATTACK_VALUE">{0} {1} is not a valid attack value. Must be between `0-15`.</string>
+	<string name="NOTIFY_INVALID_DEFENSE_VALUE">{0} {1} is not a valid defense value. Must be between `0-15`.</string>
+	<string name="NOTIFY_INVALID_STAMINA_VALUE">{0} {1} is not a valid stamina value. Must be between `0-15`.</string>
+	<string name="NOTIFY_INVALID_IV_RANGE">{0} {1} must be within the range of `0-100`.</string>
+	<string name="NOTIFY_INVALID_GENDER">{0} {1} is not a valid gender. (i.e. `m`, `f`, `*`)</string>
+	<string name="NOTIFY_INVALID_LEVEL">{0} {1} must be within the range of `0-35`.</string>
+	<string name="NOTIFY_INVALID_MINIMUM_IV">{0} may not subscribe to **all** Pokemon with a minimum IV less than 90, please set something higher.</string>
+	<string name="NOTIFY_INVALID_POKEMON_IDS_OR_NAMES">{0} {1} are not valid Pokemon names or IDs.</string>
+	<string name="NOTIFY_INVALID_POKEMON_ID">{0} {1} is not a valid Pokemon id.</string>
+	<string name="NOTIFY_COMMON_TYPE_POKEMON">{0} {1} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {2}% or higher.</string>
+	<string name="NOTIFY_INVALID_POKEMON_SPECIFIED">{0} Unable to recognize any of the Pokemon you specified.</string>
+	<string name="NOTIFY_NO_POKEMON_SUBSCRIPTIONS">{0} is not subscribed to any Pokemon notifications.</string>
+	
+	<string name="NOTIFY_CONFIRM_REMOVE_ALL_POKEMON_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.</string>
+	<string name="NOTIFY_SUCCESS_REMOVE_ALL_POKEMON_SUBSCRIPTIONS">{0} has unsubscribed from **all** Pokemon notifications.</string>
+	<string name="NOTIFY_FAILED_REMOVE_POKEMON_SUBSCRIPTIONS">{0} Unable to remove {1} Pokemon subscriptions."</string>
+	<string name="NOTIFY_SUCCESS_REMOVE_POKEMON_SUBSCRIPTIONS">{0} has unsubscribed from **{1}** Pokemon notifications.</string>
+	<string name="NOTIFY_INVALID_CITY_ROLE">{0} {1} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.</string>
+
+	<string name="NOTIFY_CONFIRM_REMOVE_ALL_RAID_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.</string>
+	<string name="NOTIFY_SUCCESS_REMOVE_ALL_RAID_SUBSCRIPTIONS">{0} has unsubscribed from **all** raid boss notifications.</string>	
+	
+	<string name="NOTIFY_CONFIRM_REMOVE_ALL_QUEST_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your field research quest subscriptions? Please reply back with `y` or `yes` to confirm.</string>
+	<string name="NOTIFY_SUCCESS_REMOVE_ALL_QUEST_SUBSCRIPTIONS">{0} has unsubscribed from **all** quest notifications.</string>
+	
+	<string name="NOTIFY_INVALID_INVASION_GENDER">{0} Please specify a gender. i.e. `.invmenot fire-m` or `.invmenot water-f ontario or `.invmenot giovanni`</string>
+	<string name="NOTIFY_CONFIRM_REMOVE_ALL_INVASION_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your Team Rocket invasion subscriptions? Please reply back with `y` or `yes` to confirm.</string>
+	<string name="NOTIFY_SUCCESS_REMOVE_ALL_INVASION_SUBSCRIPTIONS">{0} has unsubscribed from **all** Team Rocket invasion notifications.</string>
+	
+	<string name="NOTIFY_GYM_SUBSCRIPTION_EXISTS">{0} already subscribed to gym notifications from {1}.</string>
+	<string name="NOTIFY_GYM_SUBSCRIPTION_ADDED">{0} added gym subscription '{1}' to your list of gyms to receive notifications from.</string>
+	<string name="NOTIFY_GYM_SUBSCRIPTION_REMOVED">{0} Removed gym subscription '{1}' from your list of gyms to receive notifications from.</string>
+	<string name="NOTIFY_CONFIRM_REMOVE_ALL_GYM_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your gym subscriptions? Please reply back with `y` or `yes` to confirm.</string>
+	<string name="NOTIFY_SUCCESS_REMOVE_ALL_GYM_SUBSCRIPTIONS">{0} has unsubscribed from **all** gym notifications.</string>
+	
+	<string name="NOTIFY_INVALID_ICON_STYLE">{0} invalid icon style, type `{1}icons` to see a list of valid options.</string>
+	<string name="NOTIFY_ICON_STYLE_CHANGE">{0} Icon style changed to **{1}**.</string>
+	
+	<string name="NOTIFY_IMPORT_UPLOAD_FILE">{0} Please upload your subscriptions.json file to import now within 3 minutes...</string>
+	<string name="NOTIFY_IMPORT_MALFORMED_DATA">{0} Malformed subscription data, unable to import.</string>
+	<string name="NOTIFY_IMPORT_INVALID_ATTACHMENT">{0} Unable to get uploaded attachment.</string>
+	<string name="NOTIFY_IMPORT_SUCCESS">{0} subscriptions were imported successfully.</string>
+	
+	<string name="NOTIFY_EXPORT_NO_SUBSCRIPTIONS">{0} does not have any subscriptions to export.</string>
+	<string name="NOTIFY_EXPORT_SUCCESS">{0} Download your subscription settings here.</string>
+	
+	<string name="NOTIFY_SETTINGS_EMBED_TITLE">**{0} Notification Settings (Page: {1}/{2}):**</string>
+	<string name="NOTIFY_SETTINGS_EMBED_ENABLED">Enabled: **{0}**</string>
+	<string name="NOTIFY_SETTINGS_EMBED_CITIES">Feed Zones: ```{0}```</string>
+	<string name="NOTIFY_SETTINGS_EMBED_ICON_STYLE">Icon Style: **{0}**</string>
+	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE">Distance: **{0}**</string>
+	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET">Not Set (Any Distance)</string>
+	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_KM">{0} kilometers</string>
+	
+	<string name="NOTIFY_SETTINGS_EMBED_POKEMON">Pokemon Subscriptions: ({0}/{1} used)</string>
+	<string name="NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED">Default: {0}% ({1} unlisted)</string>
+	<string name="NOTIFY_SETTINGS_EMBED_RAIDS">Raid Subscriptions: ({0}/{1} used)</string>
+	<string name="NOTIFY_SETTINGS_EMBED_QUESTS">Quest Subscriptions: ({0}/{1} used)</string>
+	<string name="NOTIFY_SETTINGS_EMBED_INVASIONS">Invasion Subscriptions: ({0}/{1} used)</string>
+	
+	<string name="NOTIFY_FROM">{0} (From: {1})</string>
+	<string name="ALL_AREAS">All Areas</string>
 </resources>

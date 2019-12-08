@@ -53,8 +53,6 @@
         public const string EmojiSchema = "<:{0}:{1}>";
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";
 
-        public const string CrashMessage = "WHM JUST CRASHED!";
-
         public static readonly Dictionary<int, PokemonGenerationRange> PokemonGenerationRanges = new Dictionary<int, PokemonGenerationRange>
         {
             { 1, new PokemonGenerationRange { Generation = 1, Start = 1, End = 151 } },

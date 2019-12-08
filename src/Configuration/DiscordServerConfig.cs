@@ -18,6 +18,9 @@
         [JsonProperty("ownerId")]
         public ulong OwnerId { get; set; }
 
+        [JsonProperty("locale")]
+        public string Locale { get; set; }
+
         [JsonProperty("donorRoleIds")]
         public List<ulong> DonorRoleIds { get; set; }
 
@@ -62,6 +65,7 @@
 
         public DiscordServerConfig()
         {
+            Locale = "en";
             Moderators = new List<ulong>();
             CityRoles = new List<string>();
             IconStyle = "Default";

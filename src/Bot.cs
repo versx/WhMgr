@@ -957,7 +957,7 @@
                             return;
                         }
 
-                        await client.SendDirectMessage(owner, Strings.CrashMessage, null);
+                        await client.SendDirectMessage(owner, _lang.Translate("BOT_CRASH_MESSAGE"), null);
                     }
                 }
             }
