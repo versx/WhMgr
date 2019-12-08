@@ -1373,7 +1373,7 @@
 
                         var pkmn = MasterFile.Instance.Pokedex[poke.PokemonId];
                         var form = string.IsNullOrEmpty(poke.Form) ? string.Empty : $" ({poke.Form})";
-                        msg += $"{poke.PokemonId}: {pkmn.Name}{form} {(poke.HasStats ? $"{poke.Attack}/{poke.Defense}/{poke.Stamina}" : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}\r\n";
+                        msg += $"{poke.PokemonId}: {pkmn.Name}{form} {(poke.HasStats ? $"{poke.Attack}/{poke.Defense}/{poke.Stamina}" : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}\r\n";
                     }
                 }
                 msg += "```" + Environment.NewLine + Environment.NewLine;
@@ -1675,8 +1675,6 @@
             return list;
         }
 
-        #endregion
-
         private DiscordEmbedBuilder BuildExpirationMessage(ulong guildId, DiscordUser user)
         {
             var customerData = _dep.Stripe.GetCustomerData(guildId, user.Id);
@@ -1773,5 +1771,7 @@
 
             return true;
         }
+
+        #endregion
     }
 }
