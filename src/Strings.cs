@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     using WhMgr.Net.Models;
 
@@ -23,9 +24,9 @@
         public const string FiltersFolder = "Filters";
         public const string LibrariesFolder = "Libs";
         public const string StaticFolder = "static";
-        public static readonly string LocaleFolder = StaticFolder + System.IO.Path.DirectorySeparatorChar + "locale";
-        public static readonly string EmojisFolder = StaticFolder + System.IO.Path.DirectorySeparatorChar + "emojis";
-        public static readonly string OsmNestFilePath = StaticFolder + System.IO.Path.DirectorySeparatorChar + OsmNestFileName;
+        public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locale";
+        public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
+        public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
         public const string StatsFolder = "Stats";
         public const string LogsFolder = "Logs";
 

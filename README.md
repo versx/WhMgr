@@ -270,7 +270,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 ```
 6.)
 Upload Discord emojis that are in the emojis folder.  
-7.) Start WhMgr.exe as Administrator privileges.  
+7.) Start WhMgr.exe with Administrator privileges.  
 
 *Notes:  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.*  
@@ -282,7 +282,7 @@ Upload Discord emojis that are in the emojis folder.
     - Pokemon Attack/Defense/Stamina values
     - Pokemon Gender
     - Raid Boss
-    - Raid City
+    - City
     - Gym Name
     - Quest Reward
     - Invasion Grunt Type  
@@ -543,7 +543,7 @@ __**Quests**__
 - Individual filters per Pokemon. (PA style, maybe)  
 - Finish Localization.  
 - Wiki.  
-- 
+- Telegram support.  
 
 
 ## Examples:
