@@ -11,6 +11,7 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
+    using WhMgr.Data.Subscriptions;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Utilities;
@@ -73,7 +74,7 @@
                 if (discordUser == null || !isSupporter)
                 {
                     _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
-                    if (!_dep.SubscriptionProcessor.Manager.RemoveAllUserSubscriptions(ctx.Guild.Id, user.UserId))
+                    if (!SubscriptionManager.RemoveAllUserSubscriptions(ctx.Guild.Id, user.UserId))
                     {
                         _logger.Warn($"Could not remove user {user.UserId} subscription settings from the database.");
                         continue;

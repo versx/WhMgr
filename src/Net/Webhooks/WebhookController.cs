@@ -371,7 +371,7 @@
                         continue;
                     }
 
-                    if (alarm.Filters.Pokemon.FilterType == FilterType.Include && (!alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id) && alarm.Filters.Pokemon.Pokemon?.Count > 0))
+                    if (alarm.Filters.Pokemon.FilterType == FilterType.Include && alarm.Filters.Pokemon.Pokemon?.Count > 0 && !alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
                     {
                         //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: filter {alarm.Filters.Pokemon.FilterType}.");
                         continue;
@@ -402,12 +402,12 @@
                     }
 
                     //TODO: Get PvP rank
-                    if (!pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague && !Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank))
+                    if (!(pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague && Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)))
                     {
                         continue;
                     }
 
-                    if (!pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague && !Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank))
+                    if (!(pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague && Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)))
                     {
                         continue;
                     }
