@@ -1081,70 +1081,6 @@
 
         #endregion
 
-        [
-            Command("stats"),
-            Description("Notification statistics for alarms and subscriptions of Pokemon, Raids, and Quests.")
-        ]
-        public async Task StatsAsync(CommandContext ctx)
-        {
-            var stats = Statistics.Instance;
-            var eb = new DiscordEmbedBuilder
-            {
-                Title = $"{DateTime.Now.ToLongDateString()} Statistics",
-                Color = DiscordColor.Blurple,
-                ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
-            };
-
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine($"__**Pokemon**__");
-            sb.AppendLine($"Alarms Sent: {stats.PokemonAlarmsSent.ToString("N0")}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedPokemon.ToString("N0")}");
-            sb.AppendLine($"With IV Stats: {stats.TotalReceivedPokemonWithStats.ToString("N0")}");
-            sb.AppendLine($"Missing IV Stats: {stats.TotalReceivedPokemonMissingStats.ToString("N0")}");
-            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionPokemonSent.ToString("N0")}");
-            sb.AppendLine();
-            sb.AppendLine("__**Raids**__");
-            sb.AppendLine($"Egg Alarms Sent: {stats.EggAlarmsSent.ToString("N0")}");
-            sb.AppendLine($"Raids Alarms Sent: {stats.RaidAlarmsSent.ToString("N0")}");
-            sb.AppendLine($"Total Eggs Received: {stats.TotalReceivedRaids.ToString("N0")}");
-            sb.AppendLine($"Total Raids Received: {stats.TotalReceivedRaids.ToString("N0")}");
-            sb.AppendLine($"Raid Subscriptions Sent: {stats.SubscriptionRaidsSent.ToString("N0")}");
-            sb.AppendLine();
-            sb.AppendLine($"__**Quests**__");
-            sb.AppendLine($"Alarms Sent: {stats.QuestAlarmsSent.ToString("N0")}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedQuests.ToString("N0")}");
-            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionQuestsSent.ToString("N0")}");
-            sb.AppendLine();
-            sb.AppendLine($"__**Invasions**__");
-            sb.AppendLine($"Alarms Sent: {stats.InvasionAlarmsSent.ToString("N0")}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedInvasions.ToString("N0")}");
-            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionInvasionsSent.ToString("N0")}");
-            sb.AppendLine();
-            sb.AppendLine($"__**Lures**__");
-            sb.AppendLine($"Alarms Sent: {stats.LureAlarmsSent.ToString("N0")}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedLures.ToString("N0")}");
-            sb.AppendLine();
-            sb.AppendLine($"__**Gyms**__");
-            sb.AppendLine($"Alarms Sent: {stats.GymAlarmsSent.ToString("N0")}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedGyms.ToString("N0")}");
-            sb.AppendLine();
-            sb.AppendLine($"__**Weather**__");
-            sb.AppendLine($"Alarms Sent: {stats.WeatherAlarmsSent.ToString("N0")}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedWeathers.ToString("N0")}");
-            sb.AppendLine();
-            var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {MasterFile.Instance.Pokedex[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
-            sb.AppendLine($"**Recent 100% Spawns**");
-            sb.AppendLine(string.IsNullOrEmpty(hundos) ? "None" : hundos);
-
-            eb.Description = sb.ToString();
-            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
-            {
-                Text = $"{(ctx.Guild?.Name ?? Strings.Creator)} | {DateTime.Now}",
-                IconUrl = ctx.Guild?.IconUrl
-            };
-            await ctx.RespondAsync(embed: eb);
-        }
-
         #region Import / Export
 
         [
@@ -1280,6 +1216,70 @@
         }
 
         #endregion
+
+        [
+            Command("stats"),
+            Description("Notification statistics for alarms and subscriptions of Pokemon, Raids, and Quests.")
+        ]
+        public async Task StatsAsync(CommandContext ctx)
+        {
+            var stats = Statistics.Instance;
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = $"{DateTime.Now.ToLongDateString()} Statistics",
+                Color = DiscordColor.Blurple,
+                ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
+            };
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"__**Pokemon**__");
+            sb.AppendLine($"Alarms Sent: {stats.PokemonAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedPokemon.ToString("N0")}");
+            sb.AppendLine($"With IV Stats: {stats.TotalReceivedPokemonWithStats.ToString("N0")}");
+            sb.AppendLine($"Missing IV Stats: {stats.TotalReceivedPokemonMissingStats.ToString("N0")}");
+            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionPokemonSent.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine("__**Raids**__");
+            sb.AppendLine($"Egg Alarms Sent: {stats.EggAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Raids Alarms Sent: {stats.RaidAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Eggs Received: {stats.TotalReceivedRaids.ToString("N0")}");
+            sb.AppendLine($"Total Raids Received: {stats.TotalReceivedRaids.ToString("N0")}");
+            sb.AppendLine($"Raid Subscriptions Sent: {stats.SubscriptionRaidsSent.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine($"__**Quests**__");
+            sb.AppendLine($"Alarms Sent: {stats.QuestAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedQuests.ToString("N0")}");
+            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionQuestsSent.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine($"__**Invasions**__");
+            sb.AppendLine($"Alarms Sent: {stats.InvasionAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedInvasions.ToString("N0")}");
+            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionInvasionsSent.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine($"__**Lures**__");
+            sb.AppendLine($"Alarms Sent: {stats.LureAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedLures.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine($"__**Gyms**__");
+            sb.AppendLine($"Alarms Sent: {stats.GymAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedGyms.ToString("N0")}");
+            sb.AppendLine();
+            sb.AppendLine($"__**Weather**__");
+            sb.AppendLine($"Alarms Sent: {stats.WeatherAlarmsSent.ToString("N0")}");
+            sb.AppendLine($"Total Received: {stats.TotalReceivedWeathers.ToString("N0")}");
+            sb.AppendLine();
+            var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {MasterFile.Instance.Pokedex[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
+            sb.AppendLine($"**Recent 100% Spawns**");
+            sb.AppendLine(string.IsNullOrEmpty(hundos) ? "None" : hundos);
+
+            eb.Description = sb.ToString();
+            eb.Footer = new DiscordEmbedBuilder.EmbedFooter
+            {
+                Text = $"{(ctx.Guild?.Name ?? Strings.Creator)} | {DateTime.Now}",
+                IconUrl = ctx.Guild?.IconUrl
+            };
+            await ctx.RespondAsync(embed: eb);
+        }
 
         #region Private Methods
 

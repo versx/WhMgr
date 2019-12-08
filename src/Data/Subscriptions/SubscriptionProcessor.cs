@@ -8,6 +8,7 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
+    using ServiceStack.OrmLite;
 
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions.Models;

@@ -89,24 +89,24 @@
 
         public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(int pokeId)
         {
-            return _subscriptions?.Where(x => 
-                x.Enabled && x.Pokemon != null && 
+            return _subscriptions?.Where(x =>
+                x.Enabled && x.Pokemon != null &&
                 x.Pokemon.Exists(y => y.PokemonId == pokeId)
             )?.ToList();
         }
 
         public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
-            return _subscriptions?.Where(x => 
-                x.Enabled && x.Raids != null && 
+            return _subscriptions?.Where(x =>
+                x.Enabled && x.Raids != null &&
                 x.Raids.Exists(y => y.PokemonId == pokeId)
             )?.ToList();
         }
 
         public List<SubscriptionObject> GetUserSubscriptionsByGruntType(InvasionGruntType gruntType)
         {
-            return _subscriptions?.Where(x => 
-                x.Enabled && x.Invasions != null && 
+            return _subscriptions?.Where(x =>
+                x.Enabled && x.Invasions != null &&
                 x.Invasions.Exists(y => y.GruntType == gruntType)
             )?.ToList();
         }
