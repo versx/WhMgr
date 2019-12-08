@@ -29,6 +29,7 @@
     //TODO: Reload config on change
     //TODO: PvP ranks dts
     //TODO: Separate subscriptions dts
+    //TODO: Translator singleton
 
     public class Bot
     {
@@ -321,7 +322,7 @@
                     Description = $"{emoji} You do not have the permissions required to execute this command.",
                     Color = new DiscordColor(0xFF0000) // red
                 };
-                await e.Context.RespondAsync(string.Empty, embed: embed);
+                await e.Context.RespondAsync(embed: embed);
             }
             else if (e.Exception is ArgumentException)
             {
@@ -338,7 +339,7 @@
                     Description = $"{string.Join(Environment.NewLine, e.Command.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type}.**"))}.\r\n\r\n{example}",
                     Color = new DiscordColor(0xFF0000) // red
                 };
-                await e.Context.RespondAsync(string.Empty, embed: embed);
+                await e.Context.RespondAsync(embed: embed);
             }
             else if (e.Exception is DSharpPlus.CommandsNext.Exceptions.CommandNotFoundException)
             {

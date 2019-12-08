@@ -42,7 +42,7 @@
             using (var db = Data.DataAccessLayer.CreateFactory(_dep.WhConfig.Database.Scanner.ToString()).Open())
             {
                 //Select query where ids match for pokestops and gyms
-                var convertedGyms = db.Select<Data.Models.Pokestop>("SELECT pokestop.id, pokestop.lat, pokestop.lon, pokestop.name, pokestop.url FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id = gym.id;");
+                var convertedGyms = db.Select<Data.Models.Pokestop>(Strings.SQL_SELECT_CONVERTED_POKESTOPS);
                 if (convertedGyms?.Count == 0)
                 {
                     await ctx.RespondEmbed(_dep.Language.Translate("GYM_NO_POKESTOPS_CONVERTED").FormatText(ctx.User.Username), DiscordColor.Yellow);
@@ -72,12 +72,12 @@
                     sb.AppendLine(_dep.Language.Translate("GYM_DIRECTIONS_IMAGE_LINK").FormatText(locationUrl, imageUrl));
                 }
                 eb.Description = sb.ToString();
-                await ctx.RespondAsync(string.Empty, false, eb);
+                await ctx.RespondAsync(embed: eb);
 
                 if (Regex.IsMatch(yesNo, DiscordExtensions.YesRegex))
                 {
                     //Gyms are updated where the ids match.
-                    var rowsAffected = db.ExecuteNonQuery("UPDATE gym INNER JOIN pokestop ON pokestop.id = gym.id SET gym.name = pokestop.name, gym.url = pokestop.url;");
+                    var rowsAffected = db.ExecuteNonQuery(Strings.SQL_UPDATE_CONVERTED_POKESTOPS);
                     await ctx.RespondEmbed(_dep.Language.Translate("GYM_POKESTOPS_CONVERTED").FormatText(ctx.User.Username, rowsAffected.ToString("N0")));
 
                     //If no pokestops are updated.
@@ -88,7 +88,7 @@
                     }
 
                     //Delete gyms from database where the ids match existing Pokestops.
-                    rowsAffected = db.ExecuteNonQuery("DELETE pokestop FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id IS NOT NULL;");
+                    rowsAffected = db.ExecuteNonQuery(Strings.SQL_DELETE_CONVERTED_POKESTOPS);
                     await ctx.RespondEmbed(_dep.Language.Translate("GYM_POKESTOPS_DELETED").FormatText(ctx.User.Username, rowsAffected.ToString("N0")));
                 }
             }

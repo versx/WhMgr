@@ -49,7 +49,7 @@
         {
             if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
             {
-                await ctx.RespondEmbed("Must be in Discord server.", DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 

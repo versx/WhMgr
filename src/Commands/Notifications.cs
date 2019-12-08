@@ -167,7 +167,7 @@
 
             if (!ulong.TryParse(userId, out var realUserId))
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} Failed to parse user id {userId}", DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_PARSING_USER_ID").FormatText(ctx.User.Username, userId), DiscordColor.Red);
                 return;
             }
 
@@ -196,7 +196,7 @@
 
             //if (!int.TryParse(cpArg, out int cp))
             //{
-            //    await message.RespondAsync($"'{cpArg}' is not a valid value for CP.");
+            //    await message.RespondEmbed($"'{cpArg}' is not a valid value for CP.", DiscordColor.Red);
             //    return;
             //}
 
@@ -321,7 +321,7 @@
             var validation = ValidatePokemonList(poke);
             if (validation == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)));
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
@@ -449,7 +449,7 @@
             var validation = ValidatePokemonList(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)));
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
@@ -482,11 +482,11 @@
 
             if (error)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_FAILED_REMOVE_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.Join(", ", pokemonNames)), DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join(", ", pokemonNames)), DiscordColor.Red);
                 return;
             }
 
-            await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_SUCCESS_REMOVE_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.Join("**, **", pokemonNames)));
+            await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join("**, **", pokemonNames)));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -524,7 +524,7 @@
             var validation = ValidatePokemonList(poke);
             if (validation.Valid != null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)));
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
@@ -556,7 +556,13 @@
             }
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
-            await ctx.RespondEmbed($"{ctx.User.Username} has subscribed to **{string.Join("**, **", pokemonNames)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+            await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
+                ctx.User.Username, 
+                string.Join("**, **", pokemonNames),
+                string.IsNullOrEmpty(city) ? 
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") : 
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+            );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -590,8 +596,11 @@
             if (subscription == null || subscription?.Raids.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any raid notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
-                return;
+                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NO_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city) ?
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
+                    DiscordColor.Red
+                );
             }
 
             if (string.Compare(poke, Strings.All, true) == 0)
@@ -611,7 +620,7 @@
             var validation = ValidatePokemonList(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)));
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
@@ -640,8 +649,13 @@
             }
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
-            await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **{string.Join("**, **", pokemonNames)}** raid notifications{(string.IsNullOrEmpty(city) ? " from **all** cities" : $" from city **{city}**")}.");
-
+            await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
+                ctx.User.Username,
+                string.Join("**, **", pokemonNames),
+                string.IsNullOrEmpty(city) ?
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+            );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -690,15 +704,15 @@
                 });
             }
 
-            var result = subscription.Save();
-            //if (result)
-            //{
-                await ctx.RespondEmbed($"{ctx.User.Username} has subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
-            //}
-            //else
-            //{
-            //    await ctx.RespondEmbed($"{ctx.User.Username} is already subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
-            //}
+            subscription.Save();
+            //await ctx.RespondEmbed($"{ctx.User.Username} is already subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
+            await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
+                ctx.User.Username,
+                rewardKeyword,
+                string.IsNullOrEmpty(city) ?
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+            );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -726,7 +740,14 @@
             if (subscription == null || subscription?.Quests.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NO_QUEST_SUBSCRIPTIONS").FormatText(
+                    ctx.User.Username,
+                    rewardKeyword,
+                    string.IsNullOrEmpty(city) ?
+                        _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                        _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
+                    DiscordColor.Red
+                );
                 return;
             }
 
@@ -757,10 +778,16 @@
                        cities.Contains(x.City.ToLower()))?
                 .ToList()?
                 .ForEach(x => x.Id.Remove<QuestSubscription>());
-            var result = subscription.Save();
+            subscription.Save();
 
-            await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
             //await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
+            await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
+                ctx.User.Username,
+                rewardKeyword,
+                string.IsNullOrEmpty(city) ?
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+            );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -897,7 +924,14 @@
             }
 
             subscription.Save();
-            await ctx.RespondEmbed($"{ctx.User.Username} has subscribed to **{(pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType))} {(leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender))}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
+            await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
+                ctx.User.Username,
+                pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType),
+                leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender),
+                string.IsNullOrEmpty(city) ?
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+            );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -925,7 +959,13 @@
             if (subscription == null || subscription?.Invasions.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NO_INVASION_SUBSCRIPTIONS").FormatText(
+                    ctx.User.Username,
+                    string.IsNullOrEmpty(city) ?
+                        _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                        _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
+                        DiscordColor.Red
+                );
                 return;
             }
 
@@ -974,8 +1014,15 @@
                 .ToList()
                 .ForEach(x => x.Id.Remove<InvasionSubscription>());
 
-            await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **{(pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType))} {(leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender))}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.");
-            await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{(pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType))} {(leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender))}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
+            //await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{(pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType))} {(leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender))}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
+            await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
+                ctx.User.Username,
+                pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType),
+                leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender),
+                string.IsNullOrEmpty(city) ?
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+            );
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -1061,7 +1108,7 @@
             if (rank < 0 || rank > 4096)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} {rank} must be within the range of `0-4096`.", DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, rank), DiscordColor.Red);
                 return;
             }
 
@@ -1071,7 +1118,7 @@
             var validation = ValidatePokemonList(poke);
             if (validation == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon `{poke}`", DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
@@ -1123,7 +1170,7 @@
             await ctx.TriggerTypingAsync();
             if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} Unable to recognize any of the Pokemon you specified.");
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -1153,13 +1200,13 @@
             if (subscription == null || subscription?.Pokemon?.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any Pokemon notifications.", DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var confirm = await ctx.Confirm($"{ctx.User.Username} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your PvP Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.");
+                var confirm = await ctx.Confirm(_dep.Language.Translate("NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Pokemon.Count(x => x.MinimumRank > 0).ToString("N0")));
                 if (!confirm)
                     return;
 
@@ -1167,7 +1214,7 @@
                 subscription.Save();
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **all** PvP Pokemon notifications.");
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
             }
@@ -1175,7 +1222,7 @@
             var validation = ValidatePokemonList(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} {string.Join(", ", validation.Invalid)} are not a valid Pokemon.", DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
@@ -1188,7 +1235,7 @@
                 .ForEach(x => x.MinimumRank = 0);
             subscription.Save();
 
-            await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **{string.Join("**, **", pokemonNames)}** PvP notifications.");
+            await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join("**, **", pokemonNames)));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -1851,7 +1898,6 @@
                     var keys = Strings.PokemonGenerationRanges.Keys.ToList();
                     var minValue = keys[0];
                     var maxValue = keys[keys.Count - 1];
-                    //await ctx.RespondEmbed($"{ctx.User.Username} Invalid Pokemon generation number, valid values are between `{minValue}-{maxValue}`. i.e. `{_dep.WhConfig.CommandPrefix}pokeme gen3`");
                     return null;
                 }
 
@@ -1864,12 +1910,6 @@
                 //If `poke` param is a list
                 validation = pokemonList.Replace(" ", "").Split(',').ValidatePokemon();
             }
-
-            //if (validation.Valid.Count == 0)
-            //{
-            //    //await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} Invalid Pokemon: `{poke}`");
-            //    return null;
-            //}
 
             return validation;
         }

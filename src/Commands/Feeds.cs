@@ -148,10 +148,10 @@
                 await ctx.RespondEmbed
                 (
                     (assigned.Count > 0
-                        ? $"{ctx.User.Username} has joined role{(assigned.Count > 1 ? "s" : null)} **{string.Join("**, **", assigned)}**."
+                        ? _dep.Language.Translate("FEEDS_ASSIGNED_ROLES").FormatText(ctx.User.Username, string.Join("**, **", assigned))
                         : string.Empty) +
                     (alreadyAssigned.Count > 0
-                        ? $"\r\n{ctx.User.Username} is already assigned to **{string.Join("**, **", alreadyAssigned)}** role{(alreadyAssigned.Count > 1 ? "s" : null)}."
+                        ? _dep.Language.Translate("FEEDS_UNASSIGNED_ROLES").FormatText(ctx.User.Username, string.Join("**, **", alreadyAssigned))
                         : string.Empty)
                 );
             }
@@ -233,10 +233,10 @@
                 await ctx.RespondEmbed
                 (
                     (unassigned.Count > 0
-                        ? $"{ctx.User.Username} has been removed from role{(unassigned.Count > 1 ? "s" : null)} **{string.Join("**, **", unassigned)}**."
+                        ? _dep.Language.Translate("FEEDS_UNASSIGNED_ROLES").FormatText(ctx.User.Username, string.Join("**, **", unassigned))
                         : string.Empty) +
                     (alreadyUnassigned.Count > 0
-                        ? $"\r\n{ctx.User.Username} is not assigned to **{string.Join("**, **", alreadyUnassigned)}** roles{(alreadyUnassigned.Count > 1 ? "s" : null)}."
+                        ? _dep.Language.Translate("FEEDS_UNASSIGNED_ROLES_ALREADY").FormatText(ctx.User.Username, string.Join("**, **", alreadyUnassigned))
                         : string.Empty)
                 );
             }

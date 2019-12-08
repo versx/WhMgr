@@ -54,6 +54,10 @@
         public const string EmojiSchema = "<:{0}:{1}>";
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";
 
+        public const string SQL_SELECT_CONVERTED_POKESTOPS = "SELECT pokestop.id, pokestop.lat, pokestop.lon, pokestop.name, pokestop.url FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id = gym.id;";
+        public const string SQL_UPDATE_CONVERTED_POKESTOPS = "UPDATE gym INNER JOIN pokestop ON pokestop.id = gym.id SET gym.name = pokestop.name, gym.url = pokestop.url;";
+        public const string SQL_DELETE_CONVERTED_POKESTOPS = "DELETE pokestop FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id IS NOT NULL;";
+
         public static readonly Dictionary<int, PokemonGenerationRange> PokemonGenerationRanges = new Dictionary<int, PokemonGenerationRange>
         {
             { 1, new PokemonGenerationRange { Generation = 1, Start = 1, End = 151 } },

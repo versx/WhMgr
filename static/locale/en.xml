@@ -35,11 +35,12 @@
 	<string name="NOTIFY_COMMON_TYPE_POKEMON">{0} {1} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {2}% or higher.</string>
 	<string name="NOTIFY_INVALID_POKEMON_SPECIFIED">{0} Unable to recognize any of the Pokemon you specified.</string>
 	<string name="NOTIFY_NO_POKEMON_SUBSCRIPTIONS">{0} is not subscribed to any Pokemon notifications.</string>
+	<string name="NOTIFY_INVALID_PVP_RANK_RANGE">{0} {1} must be within the range of `0-4096`.</string>
 	
 	<string name="NOTIFY_CONFIRM_REMOVE_ALL_POKEMON_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.</string>
 	<string name="NOTIFY_SUCCESS_REMOVE_ALL_POKEMON_SUBSCRIPTIONS">{0} has unsubscribed from **all** Pokemon notifications.</string>
-	<string name="NOTIFY_FAILED_REMOVE_POKEMON_SUBSCRIPTIONS">{0} Unable to remove {1} Pokemon subscriptions."</string>
-	<string name="NOTIFY_SUCCESS_REMOVE_POKEMON_SUBSCRIPTIONS">{0} has unsubscribed from **{1}** Pokemon notifications.</string>
+	<string name="FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE">{0} Unable to remove {1} Pokemon subscriptions."</string>
+	<string name="SUCCESS_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** Pokemon notifications.</string>
 	<string name="NOTIFY_INVALID_CITY_ROLE">{0} {1} is not a valid city role. To see a list of valid city roles type the command `.cities` or `.feeds`.</string>
 
 	<string name="NOTIFY_CONFIRM_REMOVE_ALL_RAID_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.</string>
@@ -92,6 +93,10 @@
 	<string name="FEEDS_INVALID_CITY_NAME">{0} {1} is not a valid city name.</string>
 	<string name="FEEDS_ASSIGNED_ALL_ROLES">{0} was assigned all city feed roles.</string>
 	<string name="FEEDS_UNASSIGNED_ALL_ROLES">{0} was unassigned all city feed roles.</string>
+	<string name="FEEDS_ASSIGNED_ROLES">{0} has joined role(s) **{1}**.</string>
+	<string name="FEEDS_ASSIGNED_ROLES_ALREADY">\r\n{0} is already assigned to role(s) **{1}**.</string>
+	<string name="FEEDS_UNASSIGNED_ROLES">{0} has been removed from role(s) **{1}**.</string>
+	<string name="FEEDS_UNASSIGNED_ROLES_ALREADY">\r\n{0} is not assigned to role(s) **{1}**.</string>
 
 	<string name="CHANNEL_MESSAGES_DELETED">{0} Channel {1} messages have been deleted.</string>
 	
@@ -111,4 +116,33 @@
 	<string name="SHINY_STATS_MESSAGE_WITH_RATIO">**{0} (#{1})**  |  **{2}** shiny out of **{3}** total seen in the last 24 hours with a **1/{4}** ratio.</string>
 	<string name="SHINY_STATS_TOTAL_MESSAGE">Found **{0}** total shinies out of **{1}** possiblities.</string>
 	<string name="SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO">Found **{0}** total shinies out of **{1}** possiblities with a **1/{2}** ratio in total.</string>
+	
+	<string name="ERROR_NOT_IN_DISCORD_SERVER">Not in discord server.</string>
+	<string name="ERROR_NESTS_DISABLED">{0} Nests disabled.</string>
+	<string name="ERROR_NESTS_LIST">{0} Unable to retrieve nest list.</string>
+	<string name="REMOVED_TOTAL_DEPARTED_MEMBERS">Removed {0} of {1} total members.</string>
+	<string name="ERROR_PARSING_USER_ID">{0} Unable to recognize user id {1}.</string>
+	
+	<string name="DONATE_MESSAGE">{0} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\nDonation information can be found by typing the `donate` command.\r\n\r\n*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*</string>
+	
+	<string name="SUBSCRIPTIONS_FROM_ALL_CITIES"> from **all** areas</string>
+	<string name="SUBSCRIPTIONS_FROM_CITY"> from city **{0}**</string>
+	
+	<string name="SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE">{0} has subscribed to **{1}** raid notifications{2}.</string>
+	<string name="SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** raid notifications{2}.</string>
+	<string name="ERROR_NO_RAID_SUBSCRIPTIONS">{0} is not subscribed to any raid notifications{1}.</string>
+	
+	<string name="SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE">{0} has subscribed to **{1}** quest notifications{2}.</string>
+	<string name="SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** quest notifications{2}.</string>
+	<string name="ERROR_NO_QUEST_SUBSCRIPTIONS">{0} is not subscribed to any quest notifications{1}.</string>
+	
+	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE">{0} has subscribed to **{1} {2}** Team Rocket invasion notifications{3}.</string>
+	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1} {2}** Team Rocket invasion notifications{3}.</string>
+	<string name="ERROR_NO_INVASION_SUBSCRIPTIONS">{0} is not subscribed to any Team Rocket invasion notifications{1}.</string>
+	
+	<string name="SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** PvP notifications.</string>
+	<string name="NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your PvP Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.</string>
+	<string name="NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS">{0} has unsubscribed from **all** PvP Pokemon notifications.</string>
+	
+	<string name="EVENT_POKEMON_SET">{0} event Pokemon set to `{1}`, feeds will adjust to only show in channels that are 90% or higher.</string>
 </resources>

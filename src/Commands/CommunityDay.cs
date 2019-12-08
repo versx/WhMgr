@@ -13,6 +13,8 @@
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
 
+    //TODO: Expand with add/remove commands
+
     [
         Group("event"),
         Aliases("ev"),
@@ -99,7 +101,12 @@
                 }
             }
 
-            await ctx.RespondEmbed($"Event Pokemon set to `{string.Join(", ", pkmnNames)}`, feeds will adjust according and only show in channels that are 90% or higher.{(pkmnFailed.Count == 0 ? "" : $"\r\nFailed to parse the following Pokemon IDs: `{string.Join(", ", pkmnFailed)}`")}");
+            var message = _dep.Language.Translate("EVENT_POKEMON_SET").FormatText(ctx.User.Username, string.Join(", ", pkmnNames));
+            if (pkmnFailed.Count > 0)
+            {
+                message += "\r\n" + _dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", pkmnFailed));
+            }
+            await ctx.RespondEmbed(message);
         }
     }
 }

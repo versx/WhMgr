@@ -14,6 +14,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Diagnostics;
+    using WhMgr.Localization;
 
     public static class DiscordExtensions
     {
@@ -22,6 +23,8 @@
         //private const string NoRegex = "[Nn][Oo]?";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("DISCORD_EXTENSIONS");
+
+        #region Messages
 
         public static async Task<List<DiscordMessage>> RespondEmbed(this DiscordMessage msg, string message)
         {
@@ -40,7 +43,7 @@
                     Description = msg
                 };
 
-                messagesSent.Add(await discordMessage.RespondAsync(string.Empty, false, eb));
+                messagesSent.Add(await discordMessage.RespondAsync(embed: eb));
             }
             return messagesSent;
         }
@@ -63,7 +66,7 @@
                 };
 
                 await ctx.TriggerTypingAsync();
-                messagesSent.Add(await ctx.RespondAsync(string.Empty, false, eb));
+                messagesSent.Add(await ctx.RespondAsync(embed: eb));
             }
             return messagesSent;
         }
@@ -96,6 +99,8 @@
 
             return null;
         }
+
+        #endregion
 
         public static async Task<DiscordMember> GetMemberById(this DiscordClient client, ulong guildId, ulong id)
         {
@@ -137,24 +142,30 @@
             {
                 await ctx.TriggerTypingAsync();
             }
-            var message = await ctx.RespondEmbed(
-                $"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\n" +
-                $"Donation information can be found by typing the `donate` command.\r\n\r\n" +
-                $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*"
-            );
-            return message.FirstOrDefault();
+
+            var lang = ctx.Dependencies?.GetDependency<Translator>();
+            var message = lang != null ? 
+                    lang.Translate("DONATE_MESSAGE").FormatText(ctx.User.Username) :
+                    $"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\n" +
+                    $"Donation information can be found by typing the `donate` command.\r\n\r\n" +
+                    $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
+            var eb = await ctx.RespondEmbed(message);
+            return eb.FirstOrDefault();
         }
 
         internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message)
         {
             if (message?.Channel?.Guild == null)
             {
+                //TODO: Localize
                 await message.RespondEmbed($"{message.Author.Mention} DM is not supported for this command.", DiscordColor.Yellow);
                 return false;
             }
 
             return true;
         }
+
+        #region Roles
 
         public static bool IsSupporterOrHigher(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)
         {
@@ -295,6 +306,8 @@
             return null;
         }
 
+        #endregion
+
         public static async Task<Tuple<DiscordChannel, long>> DeleteMessages(this DiscordClient client, ulong channelId)
         {
             var deleted = 0L;
@@ -349,6 +362,8 @@
             return Tuple.Create(channel, deleted);
         }
 
+        #region Emojis
+
         public static ulong? GetEmojiId(this DiscordGuild guild, string emojiName)
         {
             return guild.Emojis.FirstOrDefault(x => string.Compare(x.Name, emojiName, true) == 0)?.Id;
@@ -362,6 +377,8 @@
             }
             return string.Format(Strings.EmojiSchema, emojiName, MasterFile.Instance.Emojis[emojiName]);
         }
+
+        #endregion
 
         public static async Task<bool> Confirm(this CommandContext ctx, string message)
         {
@@ -381,6 +398,8 @@
 
             return Regex.IsMatch(m.Message.Content, YesRegex);
         }
+
+        #region Colors
 
         public static DiscordColor BuildColor(this string iv)
         {
@@ -421,5 +440,7 @@
 
             return DiscordColor.White;
         }
+
+        #endregion
     }
 }

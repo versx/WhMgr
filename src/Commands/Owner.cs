@@ -53,7 +53,7 @@
             };
             eb.AddField("Pokemon.com", isPtcBanned ? "Banned" : "Good", true);
             eb.AddField("NianticLabs.com", isNiaBanned ? "Banned" : "Good", true);
-            await ctx.RespondAsync(string.Empty, false, eb.Build());
+            await ctx.RespondAsync(embed: eb.Build());
         }
 
         [
@@ -65,7 +65,7 @@
             _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
             var removed = 0;
-            var users = _dep.SubscriptionProcessor?.Manager?.Subscriptions;// GetUserSubscriptions();
+            var users = _dep.SubscriptionProcessor?.Manager?.Subscriptions;
             for (var i = 0; i < users.Count; i++)
             {
                 var user = users[i];
@@ -85,7 +85,7 @@
                 }
             }
 
-            await ctx.RespondEmbed($"Removed {removed.ToString("N0")} of {users.Count.ToString("N0")} total members.");
+            await ctx.RespondEmbed(_dep.Language.Translate("REMOVED_TOTAL_DEPARTED_MEMBERS").FormatText(removed.ToString("N0"), users.Count.ToString("N0")));
         }
 
         [
@@ -117,7 +117,7 @@
                 Title = title,
                 Description = $"{emoji}"
             };
-            await ctx.RespondAsync(string.Empty, false, eb);
+            await ctx.RespondAsync(embed: eb);
         }
 
         [
@@ -128,7 +128,6 @@
             [Description("")] ulong guildId)
         {
             await SaveEmojis(ctx.Client, guildId);
-            await ctx.RespondEmbed("Emojis saved.", DiscordColor.Green);
         }
 
 

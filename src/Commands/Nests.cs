@@ -39,7 +39,7 @@
         {
             if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
             {
-                await ctx.RespondEmbed("Must be in Discord server.", DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 
@@ -48,7 +48,7 @@
             var channel = await ctx.Client.GetChannelAsync(channelId);
             if (channel == null)
             {
-                await ctx.RespondAsync($"{ctx.User.Username} Nests disabled.");
+                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NESTS_DISABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -64,7 +64,7 @@
             var nests = GetNests(_dep.WhConfig.Database.Nests.ToString());
             if (nests == null)
             {
-                await ctx.RespondAsync($"{ctx.User.Username} Failed to get nest list from database.");
+                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username));
                 return;
             }
 
@@ -238,7 +238,7 @@
             var nests = GetNestsByPokemon(_dep.WhConfig.Database.Nests.ToString())?.Where(x => x.Key == pokeId);
             if (nests == null)
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} Unable to get list of nests from nest database.");
+                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -266,7 +266,7 @@
                 eb.Color = DiscordColor.Yellow;
             }
 
-            await ctx.RespondAsync(string.Empty, false, eb);
+            await ctx.RespondAsync(embed: eb);
         }
 
         private Dictionary<string, List<Nest>> GroupNests(IEnumerable<KeyValuePair<int, List<Nest>>> nests)
