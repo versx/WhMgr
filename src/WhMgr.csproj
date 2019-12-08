@@ -159,6 +159,7 @@
     <Compile Include="Diagnostics\IEventLogger.cs" />
     <Compile Include="Diagnostics\LogType.cs" />
     <Compile Include="Extensions\SqlExtensions.cs" />
+    <Compile Include="Localization\Translator.cs" />
     <Compile Include="Net\EventArgs\DataReceivedEventArgs.cs" />
     <Compile Include="Net\Models\WeatherData.cs" />
     <Compile Include="Osm\Models\OsmFeature.cs" />

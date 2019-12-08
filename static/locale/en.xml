@@ -30,6 +30,7 @@
 	<string name="NOTIFY_INVALID_LEVEL">{0} {1} must be within the range of `0-35`.</string>
 	<string name="NOTIFY_INVALID_MINIMUM_IV">{0} may not subscribe to **all** Pokemon with a minimum IV less than 90, please set something higher.</string>
 	<string name="NOTIFY_INVALID_POKEMON_IDS_OR_NAMES">{0} {1} are not valid Pokemon names or IDs.</string>
+	<string name="NOTIFY_INVALID_POKEMON_ID_OR_NAME">{0} {1} are not valid Pokemon name or ID.</string>
 	<string name="NOTIFY_INVALID_POKEMON_ID">{0} {1} is not a valid Pokemon id.</string>
 	<string name="NOTIFY_COMMON_TYPE_POKEMON">{0} {1} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {2}% or higher.</string>
 	<string name="NOTIFY_INVALID_POKEMON_SPECIFIED">{0} Unable to recognize any of the Pokemon you specified.</string>

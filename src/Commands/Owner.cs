@@ -76,7 +76,7 @@
                     _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
                     if (!SubscriptionManager.RemoveAllUserSubscriptions(ctx.Guild.Id, user.UserId))
                     {
-                        _logger.Warn($"Could not remove user {user.UserId} subscription settings from the database.");
+                        _logger.Warn($"Unable to remove user {user.UserId} subscription settings from the database.");
                         continue;
                     }
 

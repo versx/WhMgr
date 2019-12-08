@@ -8,14 +8,6 @@
     using System.IO;
     using System.Xml;
 
-    public class Translator : Language<string, string, Dictionary<string, string>>
-    {
-        public override string Translate(string value)
-        {
-            return base.Translate(value);
-        }
-    }
-
     public class Language<TFrom, TTo, TDictionary> : IEnumerable<KeyValuePair<TFrom, TTo>>
         where TDictionary : IDictionary<TFrom, TTo>, new()
     {

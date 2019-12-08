@@ -43,7 +43,8 @@
                 return;
             }
 
-            var channelId = _dep.WhConfig.Servers[ctx.Guild.Id].NestsChannelId;
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            var channelId = server.NestsChannelId;
             var channel = await ctx.Client.GetChannelAsync(channelId);
             if (channel == null)
             {
@@ -67,7 +68,7 @@
                 return;
             }
 
-            var cities = _dep.WhConfig.Servers[ctx.Guild.Id]?.CityRoles.Select(x => x.ToLower());
+            var cities = server.CityRoles.Select(x => x.ToLower());
             for (var i = 0; i < nests.Count; i++)
             {
                 var nest = nests[i];
@@ -79,16 +80,15 @@
 
                 try
                 {
-                    var server = _dep.WhConfig.Servers[ctx.Guild.Id];
                     var pkmn = MasterFile.GetPokemon(nest.PokemonId, 0);
                     var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.IconStyles[server.IconStyle], PokemonGender.Unset, 0);
                     var type1 = pkmn?.Types?[0];
                     var type2 = pkmn?.Types?.Count > 1 ? pkmn.Types?[1] : PokemonType.None;
-                    var type1Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Servers[ctx.Guild.Id].EmojiGuildId) ?
-                        pkmn?.Types?[0].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Servers[ctx.Guild.Id].EmojiGuildId]) :
+                    var type1Emoji = ctx.Client.Guilds.ContainsKey(server.EmojiGuildId) ?
+                        pkmn?.Types?[0].GetTypeEmojiIcons(ctx.Client.Guilds[server.EmojiGuildId]) :
                         string.Empty;
-                    var type2Emoji = ctx.Client.Guilds.ContainsKey(_dep.WhConfig.Servers[ctx.Guild.Id].EmojiGuildId) && pkmn?.Types?.Count > 1 ?
-                        pkmn?.Types?[1].GetTypeEmojiIcons(ctx.Client.Guilds[_dep.WhConfig.Servers[ctx.Guild.Id].EmojiGuildId]) :
+                    var type2Emoji = ctx.Client.Guilds.ContainsKey(server.EmojiGuildId) && pkmn?.Types?.Count > 1 ?
+                        pkmn?.Types?[1].GetTypeEmojiIcons(ctx.Client.Guilds[server.EmojiGuildId]) :
                         string.Empty;
                     var typeEmojis = $"{type1Emoji} {type2Emoji}";
                     var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
@@ -121,7 +121,7 @@
                         }
                     };
 
-                    await channel.SendMessageAsync(null, false, eb);
+                    await channel.SendMessageAsync(embed: eb);
                     System.Threading.Thread.Sleep(100);
                 }
                 catch (Exception ex)
@@ -219,7 +219,7 @@
             var pokeId = pokemon.PokemonIdFromName();
             if (pokeId == 0)
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} {pokemon} is not a valid Pokemon id or name.");
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_ID_OR_NAME").FormatText(ctx.User.Username, pokemon), DiscordColor.Red);
                 return;
             }
 
@@ -238,7 +238,7 @@
             var nests = GetNestsByPokemon(_dep.WhConfig.Database.Nests.ToString())?.Where(x => x.Key == pokeId);
             if (nests == null)
             {
-                await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from nest database.");
+                await ctx.RespondEmbed($"{ctx.User.Username} Unable to get list of nests from nest database.");
                 return;
             }
 

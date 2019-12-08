@@ -13,6 +13,9 @@
         [JsonProperty("port")]
         public ushort WebhookPort { get; set; }
 
+        [JsonProperty("locale")]
+        public string Locale { get; set; }
+
         [JsonProperty("shortUrlApiUrl")]
         public string ShortUrlApiUrl { get; set; }
 
@@ -42,6 +45,7 @@
 
         public WhConfig()
         {
+            Locale = "en";
             Servers = new Dictionary<ulong, DiscordServerConfig>();
             Database = new ConnectionStringsConfig();
             Urls = new UrlConfig();

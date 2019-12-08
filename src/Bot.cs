@@ -50,11 +50,12 @@
         public Bot(WhConfig whConfig)
         {
             _logger.Trace($"WhConfig [Servers={whConfig.Servers.Count}, Port={whConfig.WebhookPort}]");
-            _lang = new Translator();
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;
             _gyms = new Dictionary<string, GymDetailsData>();
             _whm = new WebhookController(_whConfig);
+            _lang = new Translator();
+            _lang.SetLocale(_whConfig.Locale);
 
             DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
             DataAccessLayer.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
@@ -263,7 +264,7 @@
 
             if (!(e.Client is DiscordClient client))
             {
-                _logger.Error($"DiscordClient is null, failed to update status.");
+                _logger.Error($"DiscordClient is null, Unable to update status.");
                 return;
             }
             await client.UpdateStatusAsync(new DiscordGame($"v{Strings.Version}"), UserStatus.Online);
@@ -795,7 +796,7 @@
                         var emojiPath = Path.Combine(Strings.EmojisFolder, emoji + ".png");
                         if (!File.Exists(emojiPath))
                         {
-                            _logger.Error($"Failed to file emoji file at {emojiPath}, skipping...");
+                            _logger.Error($"Unable to find emoji file at {emojiPath}, skipping...");
                             continue;
                         }
 
@@ -841,7 +842,7 @@
                 var statsChannel = await client.GetChannelAsync(server.ShinyStats.ChannelId);
                 if (statsChannel == null)
                 {
-                    _logger.Warn($"Failed to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
+                    _logger.Warn($"Unable to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
                 }
                 else
                 {
@@ -917,7 +918,7 @@
                         _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
                         if (!SubscriptionManager.RemoveAllUserSubscriptions(user.GuildId, user.UserId))
                         {
-                            _logger.Warn($"Could not remove user {user.UserId} subscription settings from the database.");
+                            _logger.Warn($"Unable to remove user {user.UserId} subscription settings from the database.");
                         }
                     }
                 }
@@ -937,14 +938,14 @@
                     var guildId = keys[i];
                     if (!_whConfig.Servers.ContainsKey(guildId))
                     {
-                        _logger.Error($"Failed to find guild id {guildId} in server config list.");
+                        _logger.Error($"Unable to find guild id {guildId} in server config list.");
                         continue;
                     }
                     var server = _whConfig.Servers[guildId];
 
                     if (!_servers.ContainsKey(guildId))
                     {
-                        _logger.Error($"Failed to find guild id {guildId} in Discord server client list.");
+                        _logger.Error($"Unable to find guild id {guildId} in Discord server client list.");
                         continue;
                     }
                     var client = _servers[guildId];
@@ -953,7 +954,7 @@
                         var owner = await client.GetUserAsync(server.OwnerId);
                         if (owner == null)
                         {
-                            _logger.Warn($"Failed to get owner from id {server.OwnerId}.");
+                            _logger.Warn($"Unable to get owner from id {server.OwnerId}.");
                             return;
                         }
 
@@ -964,21 +965,5 @@
         }
 
         #endregion
-
-        //private void ParseLogs()
-        //{
-        //    var logsFile = "logs.log";
-        //    var logLines = System.IO.File.ReadAllLines(logsFile);
-        //    for (var i = 0; i < logLines.Length; i++)
-        //    {
-        //        var logLine = logLines[i];
-        //        var logData = logLine.Split(' ');
-        //        var dateTime = $"{logData[0]} {logData[1]}";
-        //        var logType = logData[2];
-        //        var logMessage = string.Join(" ", logData.Skip(3));
-
-        //        Console.WriteLine($"{dateTime} {logType} {logMessage}");
-        //    }
-        //}
     }
 }

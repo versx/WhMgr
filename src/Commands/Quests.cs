@@ -36,7 +36,7 @@
                     var qChannel = await ctx.Client.GetChannelAsync(channelIds[i]);
                     if (qChannel == null)
                     {
-                        _logger.Warn($"Could not get quest channel from id '{channelIds[i]}'.");
+                        _logger.Warn($"Unable to get quest channel from id '{channelIds[i]}'.");
                         continue;
                     }
 
