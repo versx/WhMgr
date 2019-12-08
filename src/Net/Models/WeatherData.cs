@@ -4,7 +4,6 @@
     using System.Collections.Generic;
 
     using Newtonsoft.Json;
-
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Diagnostics;

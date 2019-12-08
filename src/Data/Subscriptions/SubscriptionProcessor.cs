@@ -8,6 +8,7 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
+    using ServiceStack.OrmLite;
 
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions.Models;
@@ -172,10 +173,6 @@
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name, pkmnImage);
                     _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
 
-                    //if (!Manager.AddPokemonStatistic(member.Id, pkmn))
-                    //{
-                    //    _logger.Warn($"Failed to add {pokemon.Name} Pokemon statistic for user {user.Id}.");
-                    //}
                     Statistics.Instance.SubscriptionPokemonSent++;
                     Thread.Sleep(5);
                 }
@@ -294,10 +291,6 @@
                     var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name, raidImage);
                     _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
 
-                    //if (!Manager.AddRaidStatistic(member.Id, raid))
-                    //{
-                    //    _logger.Warn($"Failed to add {pokemon.Name} raid statistic for user {user.Id}.");
-                    //}
                     Statistics.Instance.SubscriptionRaidsSent++;
                     Thread.Sleep(5);
                 }
@@ -397,10 +390,6 @@
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     _queue.Enqueue(new NotificationItem(user, member, embed, questName));
 
-                    //if (!Manager.AddQuestStatistic(member.Id, quest))
-                    //{
-                    //    _logger.Warn($"Failed to add {quest.GetRewardString()} quest statistic for user {user.Id}.");
-                    //}
                     Statistics.Instance.SubscriptionQuestsSent++;
                     Thread.Sleep(5);
                 }
@@ -494,10 +483,6 @@
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     _queue.Enqueue(new NotificationItem(user, member, embed, pokestop.Name));
 
-                    //if (!Manager.AddRaidStatistic(member.Id, raid))
-                    //{
-                    //    _logger.Warn($"Failed to add {pokemon.Name} raid statistic for user {user.Id}.");
-                    //}
                     Statistics.Instance.SubscriptionInvasionsSent++;
                     Thread.Sleep(5);
                 }

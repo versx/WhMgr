@@ -9,7 +9,7 @@
     {
         public const string BotName = "Brock";
         public const string Creator = "versx";
-        public const string Version = "3.0.1";
+        public const string Version = "3.0.4";
 
         public const string GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
