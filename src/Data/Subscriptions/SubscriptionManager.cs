@@ -154,7 +154,7 @@
 
         #region Remove
 
-        public bool RemoveAllUserSubscriptions(ulong guildId, ulong userId)
+        public static bool RemoveAllUserSubscriptions(ulong guildId, ulong userId)
         {
             _logger.Trace($"SubscriptionManager::RemoveAllUserSubscription [GuildId={guildId}, UserId={userId}]");
 

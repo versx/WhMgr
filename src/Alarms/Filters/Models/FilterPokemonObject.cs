@@ -46,6 +46,12 @@
         [JsonProperty("ultra_league")]
         public bool IsPvpUltraLeague { get; set; }
 
+        [JsonProperty("min_rank")]
+        public uint MinimumRank { get; set; }
+
+        [JsonProperty("max_rank")]
+        public uint MaximumRank { get; set; }
+
         //TODO: Filter by move?
 
         [JsonProperty("type")]
@@ -53,12 +59,6 @@
 
         [JsonProperty("ignoreMissing")]
         public bool IgnoreMissing { get; set; }
-
-        //[JsonProperty("geofence")]
-        //public string Geofence { get; set; }
-
-        //[JsonProperty("webhook")]
-        //public string Webhook { get; set; }
 
         public FilterPokemonObject()
         {
@@ -68,6 +68,8 @@
             MaximumCP = 999999;
             MinimumLevel = 0;
             MaximumLevel = 100; //Support for when they increase level cap. :wink:
+            MinimumRank = 0;
+            MaximumRank = 100;
             Gender = '*';
             Size = null;
         }

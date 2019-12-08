@@ -27,11 +27,15 @@
         public const string WebHookHeader = "pokemon";
         public const int TopPvPRanks = 25;
 
+        #region Variables
+
         private static readonly IEventLogger _logger = EventLogger.GetLogger("POKEMONDATA");
 
         private readonly PvpRankCalculator _pvpCalc = new PvpRankCalculator();
         private List<PvPCP> _possibleGreatLeagueCPs;
         private List<PvPCP> _possibleUltraLeagueCPs;
+
+        #endregion
 
         #region Properties
 
@@ -373,22 +377,6 @@
             }
         }
 
-        //[
-        //    JsonIgnore,
-        //    Ignore
-        //]
-        //public List<BestPvPStat> GreatLeagueRanks
-        //{
-        //    get
-        //    {
-        //        if (_top100GreatLeagueRanks == null)
-        //        {
-        //            _top100GreatLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 1500, TopPvPRanks).GetAwaiter().GetResult();
-        //        }
-        //        return _top100GreatLeagueRanks;
-        //    }
-        //}
-
         [
             JsonIgnore,
             Ignore
@@ -448,22 +436,6 @@
                 return _matchesUltraLeague.Value;
             }
         }
-
-        //[
-        //    JsonIgnore,
-        //    Ignore
-        //]
-        //public List<BestPvPStat> UltraLeagueRanks
-        //{
-        //    get
-        //    {
-        //        if (_top100UltraLeagueRanks == null)
-        //        {
-        //            _top100UltraLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 2500, TopPvPRanks).GetAwaiter().GetResult();
-        //        }
-        //        return _top100UltraLeagueRanks;
-        //    }
-        //}
 
         [
             JsonIgnore,
