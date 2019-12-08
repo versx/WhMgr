@@ -374,6 +374,7 @@
                         MinimumLevel = minLvl,
                         Gender = gender
                     });
+                    subscribed.Add(name);
                     continue;
                 }
 
