@@ -342,9 +342,7 @@
                 if (alarms.Alarms?.Count == 0)
                     return;
 
-                var pokemonAlarms = alarms.Alarms?.FindAll(x =>
-                    x.Filters?.Pokemon?.Pokemon != null);// || TODO: Check if enabled
-                    //(x.Filters?.Pokemon?.Pokemon?.Contains(pkmn.Id) && x.Filters?.Pokemon?.FilterType == FilterType.Include));
+                var pokemonAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Pokemon?.Pokemon != null);
                 if (pokemonAlarms == null)
                     continue;
 
@@ -403,14 +401,13 @@
                         continue;
                     }
 
-                    //var greatLeagueRank = 25; //TODO: Make configurable
-                    if (!pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague)
+                    //TODO: Get PvP rank
+                    if (!pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague && !Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank))
                     {
                         continue;
                     }
 
-                    //var ultraLeagueRank = 25; //TODO: Make configurable
-                    if (!pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague)
+                    if (!pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague && !Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank))
                     {
                         continue;
                     }
@@ -455,7 +452,7 @@
                 if (alarms.Alarms?.Count == 0)
                     return;
 
-                var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null);// && x.Filters.Raids.Pokemon.Contains(raid.PokemonId)).ToList();
+                var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null);
                 for (var j = 0; j < raidAlarms.Count; j++)
                 {
                     var alarm = raidAlarms[j];
@@ -570,7 +567,7 @@
                     return;
 
                 var rewardKeyword = quest.GetReward();
-                var questAlarms = alarms.Alarms.FindAll(x => x.Filters?.Quests?.RewardKeywords != null);// && x.Filters.Quests.RewardKeywords.Select(y => y.ToLower()).Contains(rewardKeyword.ToLower())).ToList();
+                var questAlarms = alarms.Alarms.FindAll(x => x.Filters?.Quests?.RewardKeywords != null);
                 for (var j = 0; j < questAlarms.Count; j++)
                 {
                     var alarm = questAlarms[j];

@@ -1193,27 +1193,21 @@
                 await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to any Pokemon notifications.", DiscordColor.Red);
                 return;
             }
-            /*
+
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var confirm = await ctx.Confirm($"{ctx.User.Username} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.");
+                var confirm = await ctx.Confirm($"{ctx.User.Username} are you sure you want to remove **all** {subscription.Pokemon.Count.ToString("N0")} of your PvP Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.");
                 if (!confirm)
                     return;
 
-                await ctx.TriggerTypingAsync();
-                if (!_dep.SubscriptionProcessor.Manager.RemoveAllPokemon(ctx.Guild.Id, ctx.User.Id))
-                {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"Could not remove all Pokemon subscriptions for {ctx.User.Username}.", DiscordColor.Red);
-                    return;
-                }
+                subscription.Pokemon.ForEach(x => x.MinimumRank = 0);
+                subscription.Save();
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **all** Pokemon notifications.");
+                await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **all** PvP Pokemon notifications.");
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
             }
-            */
 
             var validation = ValidatePokemonList(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
@@ -1229,13 +1223,7 @@
                     string.Compare(x.Form, validation.Valid[x.PokemonId], true) == 0)?
                 .ToList()?
                 .ForEach(x => x.MinimumRank = 0);
-            var result = subscription.Save();
-            //if (!result)
-            //{
-            //    await ctx.RespondEmbed($"{ctx.User.Username} Could not remove {string.Join(", ", pokemonNames)} PvP subscriptions.", DiscordColor.Red);
-            //    return;
-            //}
-
+            subscription.Save();
             await ctx.RespondEmbed($"{ctx.User.Username} has unsubscribed from **{string.Join("**, **", pokemonNames)}** PvP notifications.");
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }

@@ -75,6 +75,20 @@
             return matchesLvl;
         }
 
+        public bool MatchesPvPRank(int rank, uint minimumRank, uint maximumRank)
+        {
+            var matchesRank = false;
+            var missing = rank == 0;
+            if (!missing)
+            {
+                matchesRank |= rank >= minimumRank && rank <= maximumRank;
+            }
+
+            matchesRank |= (missing && minimumRank == 0);
+
+            return matchesRank;
+        }
+
         public bool MatchesIV(string iv, int minimumIV)
         {
             var matchesIV = false;
