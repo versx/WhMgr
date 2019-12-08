@@ -11,7 +11,7 @@
         JsonObject("subscriptions"),
         Alias("subscriptions")
     ]
-    public class SubscriptionObject : SubscriptionItem<SubscriptionObject>
+    public class SubscriptionObject : SubscriptionItem
     {
         [
             JsonProperty("enabled"),

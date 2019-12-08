@@ -8,7 +8,7 @@
         JsonObject("gyms"),
         Alias("gyms")
     ]
-    public class GymSubscription : SubscriptionItem<GymSubscription>
+    public class GymSubscription : SubscriptionItem
     {
         [
             Alias("subscription_id"),

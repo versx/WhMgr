@@ -3,17 +3,9 @@
     using Newtonsoft.Json;
 
     using ServiceStack.DataAnnotations;
-    using ServiceStack.OrmLite;
 
-    using WhMgr.Data.Subscriptions.Interfaces;
-    using WhMgr.Diagnostics;
-
-    public abstract class SubscriptionItem<T> : ISubscriptionItem
+    public abstract class SubscriptionItem
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBITEM");
-
-        #region Properties
-
         [
             JsonIgnore,//JsonProperty("id"),
             Alias("id"),
@@ -35,44 +27,5 @@
             Required
         ]
         public virtual ulong UserId { get; set; }
-
-        #endregion
-
-        #region Methods
-
-        public virtual bool Remove()
-        {
-            _logger.Trace($"SubscriptionItem::Remove [GuildId={GuildId}, UserId={UserId}]");
-
-            using (var conn = DataAccessLayer.CreateFactory().Open())
-            {
-                var result = conn.DeleteById<T>(Id);
-                return result == 1;
-            }
-        }
-
-        public virtual bool Save()
-        {
-            _logger.Trace($"SubscriptionItem::Update [GuildId={GuildId}, UserId={UserId}]");
-
-            using (var conn = DataAccessLayer.CreateFactory().Open())
-            {
-                var inserted = conn.Save(this, true);
-                return inserted;
-            }
-        }
-
-        public virtual bool Update()
-        {
-            _logger.Trace($"SubscriptionItem::Update [GuildId={GuildId}, UserId={UserId}]");
-
-            using (var conn = DataAccessLayer.CreateFactory().Open())
-            {
-                var result = conn.Update<T>(this);
-                return result == 1;
-            }
-        }
-
-        #endregion
     }
 }

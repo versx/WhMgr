@@ -8,7 +8,7 @@
         JsonObject("raids"),
         Alias("raids")
     ]
-    public class RaidSubscription : SubscriptionItem<RaidSubscription>
+    public class RaidSubscription : SubscriptionItem
     {
         [
             Alias("subscription_id"),

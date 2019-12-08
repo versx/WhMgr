@@ -8,7 +8,7 @@
         JsonObject("pokemon"),
         Alias("pokemon")
     ]
-    public class PokemonSubscription : SubscriptionItem<PokemonSubscription>
+    public class PokemonSubscription : SubscriptionItem
     {
         #region Properties
 

@@ -10,7 +10,7 @@
         JsonObject("invasions"),
         Alias("invasions")
     ]
-    public class InvasionSubscription : SubscriptionItem<InvasionSubscription>
+    public class InvasionSubscription : SubscriptionItem
     {
         [
             Alias("subscription_id"),
