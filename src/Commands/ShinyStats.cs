@@ -16,22 +16,6 @@
     using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
-    using WhMgr.Net.Models;
-
-    //public class NotificationStatistics
-    //{
-    //    public ulong GuildId { get; set; }
-
-    //    public ulong UserId { get; set; }
-
-    //    public ulong TotalPokemon { get; set; }
-
-    //    public ulong TotalRaids { get; set; }
-
-    //    public ulong TotalQuests { get; set; }
-
-    //    public ulong TotalInvasions { get; set; }
-    //}
 
     public class ShinyStats
     {
@@ -111,47 +95,6 @@
             await statsChannel.SendMessageAsync($"Found **{total.Shiny.ToString("N0")}** total shinies out of **{total.Total.ToString("N0")}** possiblities{ratio}.");
         }
 
-        public static Task<Dictionary<int, ShinyPokemonStats>> GetStats(string scannerConnectionString)
-        {
-            var list = new Dictionary<int, ShinyPokemonStats>
-            {
-                { 0, new ShinyPokemonStats { PokemonId = 0 } }
-            };
-            try
-            {
-                using (var db = DataAccessLayer.CreateFactory(scannerConnectionString).Open())
-                {
-                    db.SetCommandTimeout(300);
-                    //var unixTimestamp = DateTimeOffset.ToUnixTimeSeconds();
-                    var twentyFourHoursAgo = DateTime.Now.Subtract(TimeSpan.FromHours(24));
-                    var pokemon = db.Select<PokemonData>().Where(x => x.Shiny.HasValue && x.Updated.FromUnix() > twentyFourHoursAgo).ToList();
-                    for (var i = 0; i < pokemon.Count; i++)
-                    {
-                        var curPkmn = pokemon[i];
-                        if (curPkmn.Id > 0 && _possiblyShinies.Contains(curPkmn.Id))
-                        {
-                            if (!list.ContainsKey(curPkmn.Id))
-                            {
-                                list.Add(curPkmn.Id, new ShinyPokemonStats { PokemonId = (uint)curPkmn.Id });
-                            }
-
-                            list[curPkmn.Id].PokemonId = (uint)curPkmn.Id;
-                            list[curPkmn.Id].Shiny += curPkmn.Shiny.HasValue ? Convert.ToInt32(curPkmn.Shiny.Value) : 0;
-                            list[curPkmn.Id].Total++;
-                        }
-                    }
-                    list.ForEach((x, y) => list[0].Shiny += y.Shiny);
-                    list.ForEach((x, y) => list[0].Total += y.Total);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-
-            return Task.FromResult(list);
-        }
-
         public static Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStats(string scannerConnectionString)
         {
             var list = new Dictionary<uint, ShinyPokemonStats>
@@ -216,18 +159,6 @@
 
             [Alias("count")]
             public ulong Count { get; set; }
-        }
-
-        public class ShinyPokemonStat
-        {
-            public DateTime Date { get; set; }
-
-            public ulong Total { get; set; }
-
-            public ulong Shiny { get; set; }
-
-
-            public uint PokemonId { get; set; }
         }
 
         public class ShinyPokemonStats

@@ -18,7 +18,6 @@
     using WhMgr.Extensions;
     using WhMgr.Geofence;
     using WhMgr.Net.Models;
-    using WhMgr.Osm;
     using WhMgr.Utilities;
 
     public class Nests
@@ -217,102 +216,57 @@
         ]
         public async Task ListNestsAsync(CommandContext ctx, string pokemon = null)
         {
-            if (string.IsNullOrEmpty(pokemon))
+            var pokeId = pokemon.PokemonIdFromName();
+            if (pokeId == 0)
             {
-                var eb = new DiscordEmbedBuilder
-                {
-                    Title = $"Local Nests",
-                    Color = DiscordColor.Blurple,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
-                        IconUrl = ctx.Guild?.IconUrl
-                    }
-                };
-
-                var nests = GetNestsByPokemon(_dep.WhConfig.Database.Nests.ToString());
-                if (nests == null)
-                {
-                    await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from nest database.");
-                    return;
-                }
-
-                var groupedNests = GroupNests(nests);
-                foreach (var nest in groupedNests)
-                {
-                    var sb = new StringBuilder();
-                    foreach (var gn in nest.Value)
-                    {
-                        if (gn.Average == 0)
-                            continue;
-
-                        var pkmn = MasterFile.GetPokemon(gn.PokemonId, 0);
-                        sb.AppendLine($"{pkmn.Name} [{gn.Name}]({string.Format(Strings.GoogleMaps, gn.Latitude, gn.Longitude)}) Avg/h: {gn.Average.ToString("N0")}");
-                    }
-                    var total = sb.ToString();
-                    if (eb.Fields.Count < 26)
-                    {
-                        eb.AddField($"{nest.Key}", total.Substring(0, Math.Min(1024, total.Length)), true);
-                    }
-                }
-
-                if (eb.Fields.Count == 0)
-                {
-                    eb.Description = $"{ctx.User.Username} No local nests were found.";
-                    eb.Color = DiscordColor.Yellow;
-                }
-
-                await ctx.RespondAsync(string.Empty, false, eb);
+                await ctx.RespondEmbed($"{ctx.User.Username} {pokemon} is not a valid Pokemon id or name.");
+                return;
             }
-            else
+
+            var pkmn = MasterFile.GetPokemon(pokeId, 0);
+            var eb = new DiscordEmbedBuilder
             {
-                var pokeId = pokemon.PokemonIdFromName();
-                if (pokeId == 0)
+                Title = $"Local {pkmn.Name} Nests",
+                Color = DiscordColor.Blurple,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Username} {pokemon} is not a valid Pokemon id or name.");
-                    return;
+                    Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
+                    IconUrl = ctx.Guild?.IconUrl
                 }
+            };
 
-                var pkmn = MasterFile.GetPokemon(pokeId, 0);
-                var eb = new DiscordEmbedBuilder
-                {
-                    Title = $"Local {pkmn.Name} Nests",
-                    Color = DiscordColor.Blurple,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
-                        IconUrl = ctx.Guild?.IconUrl
-                    }
-                };
-
-                var nests = GetNestsByPokemon(_dep.WhConfig.Database.Nests.ToString())?.Where(x => x.Key == pokeId);
-                if (nests == null)
-                {
-                    await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from nest database.");
-                    return;
-                }
-
-                var groupedNests = GroupNests(nests);
-                foreach (var nest in groupedNests)
-                {
-                    var sb = new StringBuilder();
-                    foreach (var gn in nest.Value)
-                    {
-                        if (gn.Average == 0)
-                            continue;
-
-                        sb.AppendLine($"[{gn.Name}]({string.Format(Strings.GoogleMaps, gn.Latitude, gn.Longitude)}) Avg/h: {gn.Average.ToString("N0")}");
-                    }
-                    eb.AddField($"{nest.Key}", sb.ToString(), true);
-                }
-                if (eb.Fields.Count == 0)
-                {
-                    eb.Description = $"{ctx.User.Username} No local nests found for `{pkmn.Name}`.";
-                    eb.Color = DiscordColor.Yellow;
-                }
-
-                await ctx.RespondAsync(string.Empty, false, eb);
+            var nests = GetNestsByPokemon(_dep.WhConfig.Database.Nests.ToString())?.Where(x => x.Key == pokeId);
+            if (nests == null)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username} Could not get list of nests from nest database.");
+                return;
             }
+
+            var cities = _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles.Select(x => x.ToLower()).ToList();
+            var groupedNests = GroupNests(nests);
+            foreach (var nest in groupedNests)
+            {
+                var sb = new StringBuilder();
+                foreach (var gn in nest.Value)
+                {
+                    if (gn.Average == 0)
+                        continue;
+
+                    var geofence = _dep.Whm.GetGeofence(gn.Latitude, gn.Longitude);
+                    if (!cities.Contains(geofence?.Name))
+                        continue;
+
+                    sb.AppendLine($"[{gn.Name}]({string.Format(Strings.GoogleMaps, gn.Latitude, gn.Longitude)}) Avg/h: {gn.Average.ToString("N0")}");
+                }
+                eb.AddField($"{nest.Key}", sb.ToString(), true);
+            }
+            if (eb.Fields.Count == 0)
+            {
+                eb.Description = $"{ctx.User.Username} No local nests found for `{pkmn.Name}`.";
+                eb.Color = DiscordColor.Yellow;
+            }
+
+            await ctx.RespondAsync(string.Empty, false, eb);
         }
 
         private Dictionary<string, List<Nest>> GroupNests(IEnumerable<KeyValuePair<int, List<Nest>>> nests)

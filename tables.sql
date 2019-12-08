@@ -17,13 +17,13 @@ CREATE TABLE `pokemon` (
   `userId` bigint(20) DEFAULT NULL,
   `pokemon_id` int(11) DEFAULT NULL,
   `form` text DEFAULT NULL,
-  `min_cp` int(11) DEFAULT NULL,
+  `min_cp` int(11) DEFAULT 0,
   `miv_iv` int(11) DEFAULT 0,
   `min_lvl` int(11) DEFAULT 0,
   `gender` text DEFAULT '*',
-  `attack` int(11) DEFAULT NULL,
-  `defense` int(11) DEFAULT NULL,
-  `stamina` int(11) DEFAULT NULL
+  `attack` int(11) DEFAULT 0,
+  `defense` int(11) DEFAULT 0,
+  `stamina` int(11) DEFAULT 0
 )
 
 CREATE TABLE `raids` (
