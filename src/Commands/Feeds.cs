@@ -271,7 +271,7 @@
                 }
             }
 
-            await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_ASSIGNED_ALL_ROLES"));
+            await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_ASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));
         }
 
         private async Task RemoveAllDefaultFeedRoles(CommandContext ctx)
