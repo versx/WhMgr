@@ -1386,7 +1386,7 @@
                 ThumbnailUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQdNi3XTIwl8tkN_D6laRdexk0fXJ-fMr0C_s4ju-bXw2kcDSRI"
             };
 
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             sb.AppendLine($"__**Pokemon**__");
             sb.AppendLine($"Alarms Sent: {stats.PokemonAlarmsSent.ToString("N0")}");
             sb.AppendLine($"Total Received: {stats.TotalReceivedPokemon.ToString("N0")}");
@@ -1423,9 +1423,9 @@
             sb.AppendLine($"Alarms Sent: {stats.WeatherAlarmsSent.ToString("N0")}");
             sb.AppendLine($"Total Received: {stats.TotalReceivedWeathers.ToString("N0")}");
             sb.AppendLine();
-            var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {MasterFile.Instance.Pokedex[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
-            sb.AppendLine($"**Recent 100% Spawns**");
-            sb.AppendLine(string.IsNullOrEmpty(hundos) ? "None" : hundos);
+            //var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {MasterFile.Instance.Pokedex[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
+            //sb.AppendLine($"**Recent 100% Spawns**");
+            //sb.AppendLine(string.IsNullOrEmpty(hundos) ? "None" : hundos);
 
             eb.Description = sb.ToString();
             eb.Footer = new DiscordEmbedBuilder.EmbedFooter
