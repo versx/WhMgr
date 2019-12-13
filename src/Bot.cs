@@ -770,7 +770,7 @@
 
             if (!_whConfig.Servers.ContainsKey(guildId))
             {
-                _logger.Warn($"No config set for guild {guildId}");
+                _logger.Warn($"Discord client not ready yet to create emojis for guild {guildId}");
                 return;
             }
 

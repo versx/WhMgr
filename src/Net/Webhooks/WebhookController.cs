@@ -179,7 +179,13 @@
 
             if (_config.EventPokemonIds.Contains(pkmn.Id) && _config.EventPokemonIds.Count > 0)
             {
-                if (PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina) < 90)
+                //Skip Pokemon if no IV stats.
+                if (pkmn.IsMissingStats)
+                    return;
+
+                //Skip Pokemon if IV is less than 90% and does not match any PvP league stats.
+                if (PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina) < 90 && 
+                    (!pkmn.MatchesGreatLeague || !pkmn.MatchesUltraLeague))
                     return;
             }
 
