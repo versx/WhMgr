@@ -555,6 +555,7 @@
                     });
                 }
             }
+            subscription.Save();
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
