@@ -111,7 +111,8 @@
 	<string name="GYM_DIRECTIONS_IMAGE_LINK">[[Directions]({1})] [[Gym Image]({0})]</string>
 	
 	<string name="SHINY_STATS_INVALID_CHANNEL">{0} Shiny stats channel does not exist.</string>
-	<string name="SHINY_STATS_TITLE">[**Shiny Pokemon stats for {0}**]\r\n----------------------------------------------</string>
+	<string name="SHINY_STATS_TITLE">[**Shiny Pokemon stats for {0}**]</string>
+	<string name="SHINY_STATS_NEWLINE">----------------------------------------------</string>
 	<string name="SHINY_STATS_MESSAGE">**{0} (#{1})**  |  **{2}** shiny out of **{3}** total seen in the last 24 hours.</string>
 	<string name="SHINY_STATS_MESSAGE_WITH_RATIO">**{0} (#{1})**  |  **{2}** shiny out of **{3}** total seen in the last 24 hours with a **1/{4}** ratio.</string>
 	<string name="SHINY_STATS_TOTAL_MESSAGE">Found **{0}** total shinies out of **{1}** possiblities.</string>

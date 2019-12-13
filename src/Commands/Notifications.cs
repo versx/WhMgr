@@ -283,6 +283,7 @@
                                 GuildId = ctx.Guild.Id,
                                 UserId = ctx.User.Id,
                                 PokemonId = i,
+                                Form = null,
                                 MinimumIV = minIV,
                                 MinimumLevel = minLvl,
                                 Gender = gender
@@ -522,7 +523,7 @@
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
             var validation = ValidatePokemonList(poke);
-            if (validation.Valid != null || validation.Valid.Count == 0)
+            if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;

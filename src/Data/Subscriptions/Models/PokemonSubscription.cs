@@ -102,7 +102,7 @@
             Defense = 0;
             Stamina = 0;
             MinimumRank = 0;
-            Form = string.Empty;
+            Form = null;
         }
 
         #endregion

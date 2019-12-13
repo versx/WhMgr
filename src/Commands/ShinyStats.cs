@@ -71,6 +71,7 @@
             }
 
             await statsChannel.SendMessageAsync(_dep.Language.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString()));
+            await statsChannel.SendMessageAsync(_dep.Language.Translate("SHINY_STATS_NEWLINE"));
             var stats = await GetShinyStats(_dep.WhConfig.Database.Scanner.ToString());
             var sorted = stats.Keys.ToList();
             sorted.Sort();
