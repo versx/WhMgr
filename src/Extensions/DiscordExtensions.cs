@@ -94,7 +94,6 @@
             {
                 //_logger.Error(ex);
                 _logger.Error($"Failed to send DM to user {user.Username}.");
-                //TODO: Delete user from subscriptions
             }
 
             return null;
@@ -158,7 +157,7 @@
             if (message?.Channel?.Guild == null)
             {
                 //TODO: Localize
-                await message.RespondEmbed($"{message.Author.Mention} DM is not supported for this command.", DiscordColor.Yellow);
+                await message.RespondEmbed($"{message.Author.Mention} Direct message is not supported for this command.", DiscordColor.Yellow);
                 return false;
             }
 

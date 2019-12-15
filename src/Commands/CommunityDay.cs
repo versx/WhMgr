@@ -194,5 +194,11 @@
             }
             await ctx.RespondEmbed(message);
         }
+
+        public async Task StatsAsync(CommandContext ctx,
+            [Description("")] string pokemon)
+        {
+            await Task.CompletedTask;
+        }
     }
 }

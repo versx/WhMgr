@@ -56,7 +56,10 @@
             _connFactory = new OrmLiteConnectionFactory(_whConfig.Database.Main.ToString(), MySqlDialect.Provider);
             //_scanConnFactory = new OrmLiteConnectionFactory(_whConfig.Database.Scanner.ToString(), MySqlDialect.Provider);
 
-            CreateDefaultTables();
+            if (!CreateDefaultTables())
+            {
+                _logger.Error("FAiled to create default tables");
+            }
             ReloadSubscriptions();
         }
 
@@ -171,6 +174,7 @@
                 using (var conn = DataAccessLayer.CreateFactory().Open())
                 {
                     conn.Delete<PokemonSubscription>(x => x.GuildId == guildId && x.UserId == userId);
+                    conn.Delete<PvPSubscription>(x => x.GuildId == guildId && x.UserId == userId);
                     conn.Delete<RaidSubscription>(x => x.GuildId == guildId && x.UserId == userId);
                     conn.Delete<QuestSubscription>(x => x.GuildId == guildId && x.UserId == userId);
                     conn.Delete<GymSubscription>(x => x.GuildId == guildId && x.UserId == userId);
@@ -192,7 +196,7 @@
 
         #region Private Methods
 
-        private void CreateDefaultTables()
+        private bool CreateDefaultTables()
         {
             _logger.Trace($"SubscriptionManager::CreateDefaultTables");
 
@@ -234,11 +238,41 @@
                 }
 
                 _logger.Info($"Database tables created.");
+                return true;
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
             }
+            return false;
+        }
+
+        private bool DropDefaultTables()
+        {
+            _logger.Trace($"SubscriptionManager::CreateDefaultTables");
+
+            if (!IsDbConnectionOpen())
+            {
+                throw new Exception("Not connected to database.");
+            }
+
+            try
+            {
+                var conn = GetConnection();
+                conn.DropTable<InvasionSubscription>();
+                conn.DropTable<QuestSubscription>();
+                conn.DropTable<GymSubscription>();
+                conn.DropTable<RaidSubscription>();
+                conn.DropTable<PvPSubscription>();
+                conn.DropTable<PokemonSubscription>();
+                conn.DropTable<SubscriptionObject>();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+            return false;
         }
 
         private System.Data.IDbConnection GetConnection()

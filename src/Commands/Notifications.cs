@@ -271,10 +271,9 @@
                     for (int i = 1; i < Strings.MaxPokemonIds; i++)
                     {
                         var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == i);
-                        //TODO: Check if uxie, mesprite, azelf
-                        //Always ignore the user's input for Unown and set it to 0 by default.
-                        var minIV = i == 201 ? 0 : realIV;
-                        var minLvl = i == 201 ? 0 : lvl;
+                        //Always ignore the user's input for Unown, Azelf, Mesprit, or Uxie and set it to 0 by default.
+                        var minIV = IsRarePokemon(i) ? 0 : realIV;
+                        var minLvl = IsRarePokemon(i) ? 0 : lvl;
                         if (subPkmn == null)
                         {
                             //Does not exist, create.
@@ -1304,18 +1303,22 @@
                 return;
             }
 
+            var oldSubscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
+            if (oldSubscription != null)
+            {
+                var result = Data.Subscriptions.SubscriptionManager.RemoveAllUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
+                if (!result)
+                {
+                    _logger.Error($"Failed to clear old user subscriptions for {ctx.User.Username} ({ctx.User.Id}) in guild {ctx.Guild?.Name} ({ctx.Guild?.Id}) before importing.");
+                }
+            }
+
             var subscription = JsonConvert.DeserializeObject<SubscriptionObject>(data);
             if (subscription == null)
             {
                 await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_IMPORT_MALFORMED_DATA").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
-            //TODO: Drop existing before import?
-            //subscription?.Pokemon?.ForEach(x => x.SubscriptionId = 0);
-            //subscription?.Raids?.ForEach(x => x.SubscriptionId = 0);
-            //subscription?.Quests?.ForEach(x => x.SubscriptionId = 0);
-            //subscription?.Invasions?.ForEach(x => x.SubscriptionId = 0);
-            //subscription?.Gyms?.ForEach(x => x.SubscriptionId = 0);
             subscription.Save();
             await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_IMPORT_SUCCESS").FormatText(ctx.User.Username));
         }
