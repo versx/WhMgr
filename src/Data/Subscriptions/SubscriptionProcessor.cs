@@ -147,7 +147,7 @@
                     }
 
                     var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
-                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && ((x.Form == null || x.Form == string.Empty) || string.Compare(x.Form, form, true) == 0));
+                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
                     if (subscribedPokemon == null)
                     {
                         _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
@@ -166,6 +166,131 @@
                         (!subscribedPokemon.HasStats && matchesIV && matchesLvl && matchesGender) ||
                         (subscribedPokemon.HasStats && matchesAttack && matchesDefense && matchesStamina)
                          ))
+                        continue;
+
+                    var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
+                    var iconStyleUrl = _whConfig.IconStyles.FirstOrDefault(x => string.Compare(x.Key, iconStyle, true) == 0).Value;
+                    var pkmnImage = string.Format(iconStyleUrl, pkmn.Id, pkmn.FormId);
+                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name, pkmnImage);
+                    _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
+
+                    Statistics.Instance.SubscriptionPokemonSent++;
+                    Thread.Sleep(5);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                }
+            }
+
+            subscriptions.Clear();
+            subscriptions = null;
+            member = null;
+            user = null;
+            loc = null;
+            pokemon = null;
+
+            await Task.CompletedTask;
+        }
+
+        public async Task ProcessPvPSubscription(PokemonData pkmn)
+        {
+            if (!MasterFile.Instance.Pokedex.ContainsKey(pkmn.Id))
+                return;
+
+            var loc = _whm.GetGeofence(pkmn.Latitude, pkmn.Longitude);
+            if (loc == null)
+            {
+                //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                return;
+            }
+
+            var subscriptions = Manager.GetUserSubscriptionsByPvPPokemonId(pkmn.Id);
+            if (subscriptions == null)
+            {
+                _logger.Warn($"Failed to get subscriptions from database table.");
+                return;
+            }
+
+            SubscriptionObject user;
+            PvPSubscription subscribedPokemon;
+            DiscordMember member = null;
+            var pokemon = MasterFile.GetPokemon(pkmn.Id, pkmn.FormId);
+            var matchesLeague = false;
+            var matchesRank = false;
+            var matchesPercent = false;
+            for (var i = 0; i < subscriptions.Count; i++)
+            {
+                try
+                {
+                    user = subscriptions[i];
+                    if (user == null)
+                        continue;
+
+                    if (!user.Enabled)
+                        continue;
+
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
+                    try
+                    {
+                        member = await client.GetMemberById(user.GuildId, user.UserId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Debug($"FAILED TO GET MEMBER BY ID {user.UserId}");
+                        _logger.Error(ex);
+                        continue;
+                    }
+
+                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
+                    {
+                        _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pvp pokemon {pokemon.Name}...");
+                        continue;
+                    }
+
+                    if (member?.Roles == null || loc == null)
+                        continue;
+
+                    if (!member.Roles.Select(x => x?.Name?.ToLower()).Contains(loc?.Name?.ToLower()))
+                    {
+                        //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
+                        continue;
+                    }
+
+                    if (user.DistanceM > 0)
+                    {
+                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                        if (user.DistanceM < distance)
+                        {
+                            //Skip if distance is set and is not with specified distance.
+                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM} meters.");
+                            continue;
+                        }
+                    }
+
+                    var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
+                    subscribedPokemon = user.PvP.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
+                    if (subscribedPokemon == null)
+                    {
+                        _logger.Info($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
+                        continue;
+                    }
+
+                    matchesLeague = (pkmn.MatchesGreatLeague && subscribedPokemon.League == PvPLeague.Great) || (pkmn.MatchesUltraLeague && subscribedPokemon.League == PvPLeague.Ultra);
+                    matchesRank = pkmn.GreatLeagueRank.Key <= subscribedPokemon.MinimumRank || pkmn.UltraLeagueRank.Key <= subscribedPokemon.MinimumRank;
+                    matchesPercent = pkmn.GreatLeagueRank.Value >= subscribedPokemon.MinimumPercent || pkmn.UltraLeagueRank.Value >= subscribedPokemon.MinimumPercent;
+
+                    if (!(matchesLeague && matchesRank && matchesPercent))
                         continue;
 
                     var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";

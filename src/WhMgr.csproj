@@ -167,6 +167,7 @@
     <Compile Include="Data\Models\Moveset.cs" />
     <Compile Include="Data\Subscriptions\Interfaces\ISubscriptionItem.cs" />
     <Compile Include="Data\Subscriptions\Models\PokemonSubscription.cs" />
+    <Compile Include="Data\Subscriptions\Models\PvPLeague.cs" />
     <Compile Include="Data\Subscriptions\Models\PvPSubscription.cs" />
     <Compile Include="Data\Subscriptions\Models\QuestSubscription.cs" />
     <Compile Include="Data\Subscriptions\Models\RaidSubscription.cs" />

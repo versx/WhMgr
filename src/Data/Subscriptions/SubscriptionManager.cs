@@ -95,6 +95,14 @@
             )?.ToList();
         }
 
+        public List<SubscriptionObject> GetUserSubscriptionsByPvPPokemonId(int pokeId)
+        {
+            return _subscriptions?.Where(x =>
+                x.Enabled && x.Pokemon != null &&
+                x.PvP.Exists(y => y.PokemonId == pokeId)
+            )?.ToList();
+        }
+
         public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
             return _subscriptions?.Where(x =>
@@ -203,6 +211,10 @@
                 if (!conn.CreateTableIfNotExists<PokemonSubscription>())
                 {
                     _logger.Info($"Table PokemonSubscription already exists.");
+                }
+                if (!conn.CreateTableIfNotExists<PvPSubscription>())
+                {
+                    _logger.Info($"Table PvPSubscription already exists.");
                 }
                 if (!conn.CreateTableIfNotExists<RaidSubscription>())
                 {

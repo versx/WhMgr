@@ -734,6 +734,7 @@
                 return;
 
             new System.Threading.Thread(async () => await _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
+            new System.Threading.Thread(async () => await _subProcessor.ProcessPvPSubscription(e)) { IsBackground = true }.Start();
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)

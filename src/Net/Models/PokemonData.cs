@@ -30,6 +30,7 @@
         #region Variables
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("POKEMONDATA");
+        private static readonly KeyValuePair<int, double> DefaultRank = new KeyValuePair<int, double>(4096, 0.0);
 
         private readonly PvpRankCalculator _pvpCalc = new PvpRankCalculator();
         private List<PvPCP> _possibleGreatLeagueCPs;
@@ -345,6 +346,44 @@
         ]
         public int? DisplayPokemonId { get; set; }
 
+        #region PvP
+
+        private bool _greatLeagueRankSet = false;
+        private KeyValuePair<int, double> _greatLeagueRank = DefaultRank;
+        [
+            JsonIgnore,
+            Ignore
+        ]
+        public KeyValuePair<int, double> GreatLeagueRank
+        {
+            get
+            {
+                if (!_greatLeagueRankSet)
+                {
+                    if (!int.TryParse(Attack, out var atk))
+                        return DefaultRank;
+
+                    if (!int.TryParse(Defense, out var def))
+                        return DefaultRank;
+
+                    if (!int.TryParse(Stamina, out var sta))
+                        return DefaultRank;
+
+                    if (!int.TryParse(CP, out var cp))
+                        return DefaultRank;
+
+                    var best = _pvpCalc.CalculateBestPvPStat(Id, FormId, atk, def, sta, 1500).GetAwaiter().GetResult();
+                    if (best == null)
+                        return DefaultRank;
+
+                    var rank = _pvpCalc.GetRank(Id, FormId, cp, best).GetAwaiter().GetResult();
+                    _greatLeagueRank = rank;
+                    _greatLeagueRankSet = true;
+                }
+                return _greatLeagueRank;
+            }
+        }
+
         private bool? _matchesGreatLeague;
         [
             JsonIgnore,
@@ -402,6 +441,43 @@
                     _possibleGreatLeagueCPs = _pvpCalc.CalculatePossibleCPs(Id, FormId, atk, def, sta, lvl, Gender, 1490, 1500).GetAwaiter().GetResult();
                 }
                 return _possibleGreatLeagueCPs;
+            }
+        }
+
+
+        private bool _ultraLeagueRankSet = false;
+        private KeyValuePair<int, double> _ultraLeagueRank = DefaultRank;
+        [
+            JsonIgnore,
+            Ignore
+        ]
+        public KeyValuePair<int, double> UltraLeagueRank
+        {
+            get
+            {
+                if (!_ultraLeagueRankSet)
+                {
+                    if (!int.TryParse(Attack, out var atk))
+                        return DefaultRank;
+
+                    if (!int.TryParse(Defense, out var def))
+                        return DefaultRank;
+
+                    if (!int.TryParse(Stamina, out var sta))
+                        return DefaultRank;
+
+                    if (!int.TryParse(CP, out var cp))
+                        return DefaultRank;
+
+                    var best = _pvpCalc.CalculateBestPvPStat(Id, FormId, atk, def, sta, 2500).GetAwaiter().GetResult();
+                    if (best == null)
+                        return DefaultRank;
+
+                    var rank = _pvpCalc.GetRank(Id, FormId, cp, best).GetAwaiter().GetResult();
+                    _ultraLeagueRank = rank;
+                    _ultraLeagueRankSet = true;
+                }
+                return _ultraLeagueRank;
             }
         }
 
@@ -464,6 +540,8 @@
                 return _possibleUltraLeagueCPs;
             }
         }
+
+        #endregion
 
         [
             JsonIgnore,

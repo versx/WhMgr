@@ -6,14 +6,6 @@
 
     using Newtonsoft.Json;
 
-    public enum PvPLeague
-    {
-        Other = 0,
-        Great = 1500,
-        Ultra = 2500,
-        Master = 5000
-    }
-
     [
         JsonObject("pvp"),
         Alias("pvp")
@@ -49,7 +41,24 @@
             JsonProperty("min_cp"),
             Ignore//Alias("min_cp")
         ]
-        public int MinimumCP { get; set; }
+        public int MinimumCP
+        {
+            get
+            {
+                switch (League)
+                {
+                    case PvPLeague.Great:
+                        return 0;
+                    case PvPLeague.Ultra:
+                        return 1500;
+                    case PvPLeague.Master:
+                        return 2500;
+                    case PvPLeague.Other:
+                    default:
+                        return 0;
+                }
+            }
+        }
 
         [
             JsonProperty("max_cp"),
@@ -59,22 +68,23 @@
 
         [
             JsonProperty("min_rank"),
-            Alias("miv_rank")
+            Alias("miv_rank"),
+            Default(25)
         ]
         public int MinimumRank { get; set; }
 
         [
             JsonProperty("min_percent"),
-            Alias("min_percent")
+            Alias("min_percent"),
+            Default(90.0)
         ]
         public double MinimumPercent { get; set; }
 
         public PvPSubscription()
         {
+            Form = null;
             League = PvPLeague.Great;
-            MinimumCP = 0;
-            //MaximumCP = 2500;
-            MinimumRank = 5;
+            MinimumRank = 25;
             MinimumPercent = 90;
         }
     }
