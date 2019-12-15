@@ -13,8 +13,6 @@
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
 
-    //TODO: Expand with add/remove commands
-
     [
         Group("event"),
         Aliases("ev"),
@@ -38,7 +36,7 @@
             Aliases("l"),
             Description("List all Pokemon considered as `event`.")
         ]
-        public async Task ListCommandDayAsync(CommandContext ctx)
+        public async Task ListAsync(CommandContext ctx)
         {
             var eb = new DiscordEmbedBuilder
             {
@@ -70,7 +68,7 @@
             Aliases("s"),
             Description("Sets a list of Pokemon as `event`.")
         ]
-        public async Task SetCommunityDayAsync(CommandContext ctx,
+        public async Task SetAsync(CommandContext ctx,
             [Description("Comma separated list of event Pokemon")] string eventPokemonIds = "0")
         {
             var eventPokemonSplit = eventPokemonIds.Split(',');
@@ -102,6 +100,94 @@
             }
 
             var message = _dep.Language.Translate("EVENT_POKEMON_SET").FormatText(ctx.User.Username, string.Join(", ", pkmnNames));
+            if (pkmnFailed.Count > 0)
+            {
+                message += "\r\n" + _dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", pkmnFailed));
+            }
+            await ctx.RespondEmbed(message);
+        }
+
+        [
+            Command("add"),
+            Aliases("a"),
+            Description("Adds one or more Pokemon to current `event` list.")
+        ]
+        public async Task AddAsync(CommandContext ctx,
+            [Description("Comma separated list of event Pokemon")] string eventPokemonIds)
+        {
+            var eventPokemonSplit = eventPokemonIds.Split(',');
+            var pkmnToAdd = new List<int>();
+            var pkmnFailed = new List<string>();
+            for (var i = 0; i < eventPokemonSplit.Length; i++)
+            {
+                var eventPokemonId = eventPokemonSplit[i];
+                if (int.TryParse(eventPokemonId, out var pokemonId) && (pokemonId == 0 || MasterFile.Instance.Pokedex.ContainsKey(pokemonId)))
+                {
+                    pkmnToAdd.Add(pokemonId);
+                    continue;
+                }
+
+                pkmnFailed.Add(eventPokemonId);
+            }
+
+            _dep.WhConfig.EventPokemonIds.AddRange(pkmnToAdd);
+            _dep.WhConfig.Save(_dep.WhConfig.FileName);
+
+            var pkmnNames = new List<string>();
+            for (var i = 0; i < pkmnToAdd.Count; i++)
+            {
+                var pkmnId = pkmnToAdd[i];
+                if (MasterFile.Instance.Pokedex.ContainsKey(pkmnId))
+                {
+                    pkmnNames.Add(pkmnId + ":" + MasterFile.Instance.Pokedex[pkmnId].Name);
+                }
+            }
+
+            var message = _dep.Language.Translate("EVENT_POKEMON_SET").FormatText(ctx.User.Username, string.Join(", ", pkmnNames));
+            if (pkmnFailed.Count > 0)
+            {
+                message += "\r\n" + _dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", pkmnFailed));
+            }
+            await ctx.RespondEmbed(message);
+        }
+
+        [
+            Command("remove"),
+            Aliases("r", "rm"),
+            Description("Removes one or more Pokemon from `event` list.")
+        ]
+        public async Task RemoveAsync(CommandContext ctx,
+            [Description("Command separated list of event Pokemon")] string eventPokemonIds)
+        {
+            var eventPokemonSplit = eventPokemonIds.Split(',');
+            var pkmnToRemove = new List<int>();
+            var pkmnFailed = new List<string>();
+            for (var i = 0; i < eventPokemonSplit.Length; i++)
+            {
+                var eventPokemonId = eventPokemonSplit[i];
+                if (int.TryParse(eventPokemonId, out var pokemonId) && (pokemonId == 0 || MasterFile.Instance.Pokedex.ContainsKey(pokemonId)))
+                {
+                    pkmnToRemove.Add(pokemonId);
+                    continue;
+                }
+
+                pkmnFailed.Add(eventPokemonId);
+            }
+
+            pkmnToRemove.ForEach(x => _dep.WhConfig.EventPokemonIds.Remove(x));
+            _dep.WhConfig.Save(_dep.WhConfig.FileName);
+
+            var pkmnNames = new List<string>();
+            for (var i = 0; i < pkmnToRemove.Count; i++)
+            {
+                var pkmnId = pkmnToRemove[i];
+                if (MasterFile.Instance.Pokedex.ContainsKey(pkmnId))
+                {
+                    pkmnNames.Add(pkmnId + ":" + MasterFile.Instance.Pokedex[pkmnId].Name);
+                }
+            }
+
+            var message = _dep.Language.Translate("EVENT_POKEMON_REMOVE").FormatText(ctx.User.Username, string.Join(", ", pkmnNames));
             if (pkmnFailed.Count > 0)
             {
                 message += "\r\n" + _dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", pkmnFailed));

@@ -29,7 +29,6 @@
     //TODO: Reload config on change
     //TODO: PvP ranks dts
     //TODO: Separate subscriptions dts
-    //TODO: Translator singleton
 
     public class Bot
     {

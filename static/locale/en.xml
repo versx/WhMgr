@@ -146,4 +146,6 @@
 	<string name="NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS">{0} has unsubscribed from **all** {1} League PvP Pokemon notifications.</string>
 	
 	<string name="EVENT_POKEMON_SET">{0} event Pokemon set to `{1}`, feeds will adjust to only show in channels that are 90% or higher.</string>
+	<string name="EVENT_POKEMON_ADD">{0} event Pokemon added to `{1}`, feeds will adjust to only show in channels that are 90% or higher.</string>
+	<string name="EVENT_POKEMON_REMOVE">{0} event Pokemon `{1}` removed.</string>
 </resources>
