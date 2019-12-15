@@ -1102,15 +1102,33 @@
         ]
         public async Task PvpMeAsync(CommandContext ctx,
             [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to Pokemon spawn notifications.")] string poke,
-            [Description("Minimum PvP ranking.")] int rank)
+            [Description("PvP league")] string league,
+            [Description("Minimum PvP ranking.")] int minimumRank = 5,
+            [Description("Minimum PvP rank percentage.")] double minimumPercent = 0.0)
         {
             if (!await CanExecute(ctx))
                 return;
 
-            if (rank < 0 || rank > 4096)
+            var pvpLeague = string.Compare(league, "great", true) == 0  ? 
+                PvPLeague.Great : 
+                string.Compare(league, "ultra", true) == 0 ? 
+                    PvPLeague.Ultra : 
+                    string.Compare(league, "master", true) == 0 ? 
+                        PvPLeague.Master : 
+                        PvPLeague.Other;
+
+            //You may only subscribe to the top 100 or higher rank.
+            if (minimumRank < 0 || minimumRank > 100)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, rank), DiscordColor.Red);
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumRank), DiscordColor.Red);
+                return;
+            }
+
+            if (minimumPercent < 0 || minimumPercent > 100)
+            {
+                await ctx.TriggerTypingAsync();
+                await ctx.RespondEmbed("");
                 return;
             }
 
@@ -1139,26 +1157,31 @@
 
                 var pokemon = MasterFile.Instance.Pokedex[pokemonId];
                 var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
-                var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
+                var subPkmn = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId && 
+                                                                   string.Compare(x.Form, form, true) == 0 &&
+                                                                   x.League == pvpLeague);
                 if (subPkmn == null)
                 {
                     //Does not exist, create.
-                    subscription.Pokemon.Add(new PokemonSubscription
+                    subscription.PvP.Add(new PvPSubscription
                     {
                         GuildId = ctx.Guild.Id,
                         UserId = ctx.User.Id,
                         PokemonId = pokemonId,
                         Form = form,
-                        MinimumRank = rank
+                        League = pvpLeague,
+                        MinimumRank = minimumRank,
+                        MinimumPercent = minimumPercent
                     });
                     subscribed.Add(name);
                     continue;
                 }
 
                 //Exists, check if anything changed.
-                if (rank != subPkmn.MinimumRank)
+                if (minimumRank != subPkmn.MinimumRank || minimumPercent != subPkmn.MinimumPercent)
                 {
-                    subPkmn.MinimumRank = rank;
+                    subPkmn.MinimumRank = minimumRank;
+                    subPkmn.MinimumPercent = minimumPercent;
                     subscribed.Add(name);
                     continue;
                 }
@@ -1179,10 +1202,10 @@
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a minimum PvP ranking of {rank} or lower."
+                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a minimum {pvpLeague} League PvP ranking of {minimumRank} or lower and a minimum ranking percentage of {minimumPercent}%."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
-                    ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a minimum PvP ranking of '{rank}' or lower."
+                    ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a minimum {pvpLeague} League PvP ranking of '{minimumRank}' or lower and a minimum ranking percentage of {minimumPercent}%."
                     : string.Empty)
             );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -1193,7 +1216,8 @@
             Description("")
         ]
         public async Task PvpMeNotAsync(CommandContext ctx,
-            [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to Pokemon spawn notifications.")] string poke)
+            [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to Pokemon spawn notifications.")] string poke,
+            [Description("PvP league")] string league)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -1206,17 +1230,27 @@
                 return;
             }
 
+            var pvpLeague = string.Compare(league, "great", true) == 0 ?
+                PvPLeague.Great :
+                string.Compare(league, "ultra", true) == 0 ?
+                    PvPLeague.Ultra :
+                    string.Compare(league, "master", true) == 0 ?
+                        PvPLeague.Master :
+                        PvPLeague.Other;
+
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var confirm = await ctx.Confirm(_dep.Language.Translate("NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Pokemon.Count(x => x.MinimumRank > 0).ToString("N0")));
+                var confirm = await ctx.Confirm(_dep.Language.Translate("NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.PvP.Count(x => x.League == pvpLeague).ToString("N0"), pvpLeague));
                 if (!confirm)
                     return;
 
-                subscription.Pokemon.ForEach(x => x.MinimumRank = 0);
-                subscription.Save();
+                subscription.PvP
+                    .Where(x => x.League == pvpLeague)?
+                    .ToList()?
+                    .ForEach(x => x.Id.Remove<PvPSubscription>());
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, pvpLeague));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
             }
@@ -1229,15 +1263,15 @@
             }
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
-            subscription.Pokemon
-                .Where(x => 
-                    validation.Valid.ContainsKey(x.PokemonId) && 
-                    string.Compare(x.Form, validation.Valid[x.PokemonId], true) == 0)?
+            subscription.PvP
+                .Where(x =>
+                    validation.Valid.ContainsKey(x.PokemonId) &&
+                    string.Compare(x.Form, validation.Valid[x.PokemonId], true) == 0 &&
+                    x.League == pvpLeague)?
                 .ToList()?
-                .ForEach(x => x.MinimumRank = 0);
-            subscription.Save();
+                .ForEach(x => x.Id.Remove<PvPSubscription>());
 
-            await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join("**, **", pokemonNames)));
+            await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join("**, **", pokemonNames), pvpLeague));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 

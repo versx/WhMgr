@@ -73,7 +73,11 @@
                 return;
 
             var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, ctx.Guild.Id, _dep.WhConfig);
-            if (_dep.WhConfig.Servers[ctx.Guild.Id].CitiesRequireSupporterRole && !isSupporter)
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            if (server.CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
@@ -84,10 +88,6 @@
                 await AssignAllDefaultFeedRoles(ctx);
                 return;
             }
-
-            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
-            if (server == null)
-                return;
 
             var assigned = new List<string>();
             var alreadyAssigned = new List<string>();
@@ -120,9 +120,6 @@
                     {
                         alreadyAssigned.Add(cityRole.Name);
                     }
-
-                    if (!cityRoles.Contains(city.ToLower()))
-                        continue;
 
                     var cityRaidRole = ctx.Client.GetRoleFromName($"{city}Raids");
                     if (cityRaidRole != null)

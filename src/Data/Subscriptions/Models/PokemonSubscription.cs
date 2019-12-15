@@ -74,15 +74,6 @@
         public int Stamina { get; set; }
 
         [
-            JsonProperty("min_rank"),
-            Alias("min_rank")
-        ]
-        public int MinimumRank { get; set; }
-
-        //[Alias("city")]
-        //public string City { get; set; }
-
-        [
             JsonIgnore,
             Ignore
         ]
@@ -101,7 +92,6 @@
             Attack = 0;
             Defense = 0;
             Stamina = 0;
-            MinimumRank = 0;
             Form = null;
         }
 

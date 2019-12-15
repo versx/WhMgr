@@ -141,9 +141,9 @@
 	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1} {2}** Team Rocket invasion notifications{3}.</string>
 	<string name="ERROR_NO_INVASION_SUBSCRIPTIONS">{0} is not subscribed to any Team Rocket invasion notifications{1}.</string>
 	
-	<string name="SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** PvP notifications.</string>
-	<string name="NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your PvP Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.</string>
-	<string name="NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS">{0} has unsubscribed from **all** PvP Pokemon notifications.</string>
+	<string name="SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** {2} League PvP notifications.</string>
+	<string name="NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your {2} League PvP Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.</string>
+	<string name="NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS">{0} has unsubscribed from **all** {1} League PvP Pokemon notifications.</string>
 	
 	<string name="EVENT_POKEMON_SET">{0} event Pokemon set to `{1}`, feeds will adjust to only show in channels that are 90% or higher.</string>
 </resources>

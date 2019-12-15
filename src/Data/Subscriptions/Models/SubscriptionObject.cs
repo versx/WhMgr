@@ -28,6 +28,13 @@
         public List<PokemonSubscription> Pokemon { get; set; }
 
         [
+            JsonProperty("pvp"),
+            Alias("pvp"),
+            Reference
+        ]
+        public List<PvPSubscription> PvP { get; set; }
+
+        [
             JsonProperty("raids"),
             Alias("raids"), 
             Reference]
@@ -98,6 +105,7 @@
         {
             Enabled = true;
             Pokemon = new List<PokemonSubscription>();
+            PvP = new List<PvPSubscription>();
             Raids = new List<RaidSubscription>();
             Gyms = new List<GymSubscription>();
             Quests = new List<QuestSubscription>();

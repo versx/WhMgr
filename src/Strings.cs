@@ -56,7 +56,8 @@
 
         public const string SQL_SELECT_CONVERTED_POKESTOPS = "SELECT pokestop.id, pokestop.lat, pokestop.lon, pokestop.name, pokestop.url FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id = gym.id;";
         public const string SQL_UPDATE_CONVERTED_POKESTOPS = "UPDATE gym INNER JOIN pokestop ON pokestop.id = gym.id SET gym.name = pokestop.name, gym.url = pokestop.url;";
-        public const string SQL_DELETE_CONVERTED_POKESTOPS = "DELETE pokestop FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id IS NOT NULL;";
+        public const string SQL_DELETE_CONVERTED_POKESTOPS = "DELETE FROM pokestop WHERE id IN (SELECT id FROM gym)";
+        public const string SQL_DELETE_STALE_POKESTOPS = "DELETE FROM pokestop WHERE updated < UNIX_TIMESTAMP() - 90000;";
 
         public static readonly Dictionary<int, PokemonGenerationRange> PokemonGenerationRanges = new Dictionary<int, PokemonGenerationRange>
         {
@@ -64,7 +65,10 @@
             { 2, new PokemonGenerationRange { Generation = 2, Start = 152, End = 251 } },
             { 3, new PokemonGenerationRange { Generation = 3, Start = 252, End = 385 } },
             { 4, new PokemonGenerationRange { Generation = 4, Start = 386, End = 493 } },
-            { 5, new PokemonGenerationRange { Generation = 5, Start = 495, End = 649 } }
+            { 5, new PokemonGenerationRange { Generation = 5, Start = 495, End = 649 } },
+            { 6, new PokemonGenerationRange { Generation = 6, Start = 650, End = 721 } },
+            { 7, new PokemonGenerationRange { Generation = 7, Start = 722, End = 809 } },
+            { 8, new PokemonGenerationRange { Generation = 8, Start = 810, End = 890 } }
         };
 
         public static readonly string[] EmojiList =
