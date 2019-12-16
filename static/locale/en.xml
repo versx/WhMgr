@@ -36,6 +36,7 @@
 	<string name="NOTIFY_INVALID_POKEMON_SPECIFIED">{0} Unable to recognize any of the Pokemon you specified.</string>
 	<string name="NOTIFY_NO_POKEMON_SUBSCRIPTIONS">{0} is not subscribed to any Pokemon notifications.</string>
 	<string name="NOTIFY_INVALID_PVP_RANK_RANGE">{0} {1} must be within the range of `0-4096`.</string>
+	<string name="NOTIFY_INVALID_PVP_PERCENT_RANGE">{0} {1} must be within the range of `0-100`.</string>
 	
 	<string name="NOTIFY_CONFIRM_REMOVE_ALL_POKEMON_SUBSCRIPTIONS">{0} are you sure you want to remove **all** {1} of your Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.</string>
 	<string name="NOTIFY_SUCCESS_REMOVE_ALL_POKEMON_SUBSCRIPTIONS">{0} has unsubscribed from **all** Pokemon notifications.</string>
@@ -78,8 +79,9 @@
 	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET">Not Set (Any Distance)</string>
 	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_KM">{0} kilometers</string>
 	
-	<string name="NOTIFY_SETTINGS_EMBED_POKEMON">Pokemon Subscriptions: ({0}/{1} used)</string>
 	<string name="NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED">Default: {0}% ({1} unlisted)</string>
+	<string name="NOTIFY_SETTINGS_EMBED_POKEMON">Pokemon Subscriptions: ({0}/{1} used)</string>
+	<string name="NOTIFY_SETTINGS_EMBED_PVP">PvP Subscriptions: ({0}/{1} used)</string>
 	<string name="NOTIFY_SETTINGS_EMBED_RAIDS">Raid Subscriptions: ({0}/{1} used)</string>
 	<string name="NOTIFY_SETTINGS_EMBED_QUESTS">Quest Subscriptions: ({0}/{1} used)</string>
 	<string name="NOTIFY_SETTINGS_EMBED_INVASIONS">Invasion Subscriptions: ({0}/{1} used)</string>

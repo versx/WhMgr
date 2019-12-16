@@ -558,10 +558,10 @@
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
-                ctx.User.Username, 
+                ctx.User.Username,
                 string.Join("**, **", pokemonNames),
-                string.IsNullOrEmpty(city) ? 
-                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") : 
+                string.IsNullOrEmpty(city) ?
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
             );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -1041,7 +1041,7 @@
                 return InvasionGruntType.ExecutiveSierra;
             else if (type.Contains("decoy"))
                 return gender == PokemonGender.Male ?
-                    InvasionGruntType.DecoyMale : 
+                    InvasionGruntType.DecoyMale :
                     InvasionGruntType.DecoyFemale;
 
             return InvasionGruntType.Unset;
@@ -1108,12 +1108,12 @@
             if (!await CanExecute(ctx))
                 return;
 
-            var pvpLeague = string.Compare(league, "great", true) == 0  ? 
-                PvPLeague.Great : 
-                string.Compare(league, "ultra", true) == 0 ? 
-                    PvPLeague.Ultra : 
-                    string.Compare(league, "master", true) == 0 ? 
-                        PvPLeague.Master : 
+            var pvpLeague = string.Compare(league, "great", true) == 0 ?
+                PvPLeague.Great :
+                string.Compare(league, "ultra", true) == 0 ?
+                    PvPLeague.Ultra :
+                    string.Compare(league, "master", true) == 0 ?
+                        PvPLeague.Master :
                         PvPLeague.Other;
 
             //You may only subscribe to the top 100 or higher rank.
@@ -1127,7 +1127,7 @@
             if (minimumPercent < 0 || minimumPercent > 100)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed("");
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumPercent), DiscordColor.Red);
                 return;
             }
 
@@ -1156,7 +1156,7 @@
 
                 var pokemon = MasterFile.Instance.Pokedex[pokemonId];
                 var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
-                var subPkmn = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId && 
+                var subPkmn = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId &&
                                                                    string.Compare(x.Form, form, true) == 0 &&
                                                                    x.League == pvpLeague);
                 if (subPkmn == null)
@@ -1201,10 +1201,10 @@
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a minimum {pvpLeague} League PvP ranking of {minimumRank} or lower and a minimum ranking percentage of {minimumPercent}%."
+                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a minimum {pvpLeague} League PvP ranking of {minimumRank} or higher and a minimum ranking percentage of {minimumPercent}%."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
-                    ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a minimum {pvpLeague} League PvP ranking of '{minimumRank}' or lower and a minimum ranking percentage of {minimumPercent}%."
+                    ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a minimum {pvpLeague} League PvP ranking of '{minimumRank}' or higher and a minimum ranking percentage of {minimumPercent}%."
                     : string.Empty)
             );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -1512,6 +1512,7 @@
             //var isSubbed = _dep.SubscriptionProcessor.Manager.UserExists(guildId, user.Id);
             var isSubbed = subscription?.Pokemon.Count > 0 || subscription?.Raids.Count > 0 || subscription?.Quests.Count > 0 || subscription?.Invasions.Count > 0 || subscription?.Gyms.Count > 0;
             var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
+            var hasPvP = isSubbed && subscription?.PvP.Count > 0;
             var hasRaids = isSubbed && subscription?.Raids.Count > 0;
             var hasQuests = isSubbed && subscription?.Quests.Count > 0;
             var hasInvasions = isSubbed && subscription?.Invasions.Count > 0;
@@ -1524,12 +1525,11 @@
             feeds.Sort();
 
             var sb = new StringBuilder();
-
             sb.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_ENABLED").FormatText(subscription.Enabled ? "Yes" : "No"));
             sb.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_CITIES").FormatText(string.Join(", ", feeds)));
             sb.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_ICON_STYLE").FormatText(subscription.IconStyle));
-            sb.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(subscription.DistanceM == 0 ? 
-                _dep.Language.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET") : 
+            sb.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(subscription.DistanceM == 0 ?
+                _dep.Language.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET") :
                 _dep.Language.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_KM").FormatText(subscription.DistanceM)));
 
             if (hasPokemon)
@@ -1560,7 +1560,7 @@
 
                 foreach (var sub in results)
                 {
-                    if (sub.IV == defaultIV && exceedsLimits) 
+                    if (sub.IV == defaultIV && exceedsLimits)
                         continue;
 
                     foreach (var poke in sub.Pokes)
@@ -1576,10 +1576,20 @@
                 sb.Append("```");
                 sb.AppendLine();
                 sb.AppendLine();
-                messages.Add(sb.ToString()); ;
+                messages.Add(sb.ToString());
             }
 
             var sb2 = new StringBuilder();
+            if (hasPvP)
+            {
+                sb2.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_PVP").FormatText(subscription.PvP.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxPvPSubscriptions.ToString("N0")));
+                sb2.Append("```");
+                sb2.Append(string.Join(Environment.NewLine, GetPvPSubscriptionNames(guildId, user.Id)));
+                sb2.Append("```");
+                sb2.AppendLine();
+                sb2.AppendLine();
+            }
+
             if (hasRaids)
             {
                 sb2.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_RAIDS").FormatText(subscription.Raids.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxRaidSubscriptions.ToString("N0")));
@@ -1643,6 +1653,30 @@
 
         //    return list;
         //}
+
+        private List<string> GetPvPSubscriptionNames(ulong guildId, ulong userId)
+        {
+            var list = new List<string>();
+            //if (!_dep.SubscriptionProcessor.Manager.UserExists(guildId, userId))
+            //    return list;
+
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
+            var subscribedPvP = subscription.PvP;
+            subscribedPvP.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
+            foreach (var pvp in subscribedPvP)
+            {
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
+                    continue;
+
+                var pokemon = MasterFile.Instance.Pokedex[pvp.PokemonId];
+                if (pokemon == null)
+                    continue;
+
+                list.Add($"{pvp.PokemonId}: {pokemon.Name} {(string.IsNullOrEmpty(pvp.Form) ? string.Empty : $"Form: {pvp.Form} ")}({pvp.League} League Rank: 1-{pvp.MinimumRank} Percent: {pvp.MinimumPercent}%+)");
+            }
+
+            return list;
+        }
 
         private List<string> GetRaidSubscriptionNames(ulong guildId, ulong userId)
         {

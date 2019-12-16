@@ -33,7 +33,8 @@
 
         [
             JsonProperty("league"),
-            Alias("league")
+            Alias("league"),
+            Required
         ]
         public PvPLeague League { get; set; }
 

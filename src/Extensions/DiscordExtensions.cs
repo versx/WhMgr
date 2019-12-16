@@ -164,6 +164,23 @@
             return true;
         }
 
+        public static ulong ContextToGuild(this CommandContext ctx, Dictionary<ulong, DiscordClient> servers)
+        {
+            var keys = servers.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var guildId = keys[i];
+                if (!servers.ContainsKey(guildId))
+                    continue;
+
+                if (ctx.Client.CurrentUser.Id != servers[guildId].CurrentUser.Id)
+                    continue;
+
+                return guildId;
+            }
+            return 0;
+        }
+
         #region Roles
 
         public static bool IsSupporterOrHigher(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)

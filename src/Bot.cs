@@ -252,11 +252,11 @@
         {
             _logger.Info($"------------------------------------------");
             _logger.Info($"[DISCORD] Connected.");
-            _logger.Info($"[DISCORD] Current Application:");
+            _logger.Info($"[DISCORD] ----- Current Application");
             _logger.Info($"[DISCORD] Name: {e.Client.CurrentApplication.Name}");
             _logger.Info($"[DISCORD] Description: {e.Client.CurrentApplication.Description}");
             _logger.Info($"[DISCORD] Owner: {e.Client.CurrentApplication.Owner.Username}#{e.Client.CurrentApplication.Owner.Discriminator}");
-            _logger.Info($"[DISCORD] Current User:");
+            _logger.Info($"[DISCORD] ----- Current User");
             _logger.Info($"[DISCORD] Id: {e.Client.CurrentUser.Id}");
             _logger.Info($"[DISCORD] Name: {e.Client.CurrentUser.Username}#{e.Client.CurrentUser.Discriminator}");
             _logger.Info($"[DISCORD] Email: {e.Client.CurrentUser.Email}");

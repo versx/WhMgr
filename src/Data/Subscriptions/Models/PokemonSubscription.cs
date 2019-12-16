@@ -74,12 +74,6 @@
         public int Stamina { get; set; }
 
         [
-            JsonProperty("min_rank"),
-            Alias("min_rank")
-        ]
-        public int MinimumRank { get; set; }
-
-        [
             JsonIgnore,
             Ignore
         ]
