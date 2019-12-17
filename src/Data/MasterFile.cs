@@ -18,6 +18,7 @@
         const string GreatPvPLibFileName = "pvp_great_league_ranks.json";
         const string UltraPvPLibFileName = "pvp_ultra_league_ranks.json";
         const string EmojisFileName = "emojis.json";
+        const string ShinyFileName = "shiny.json";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");
 
@@ -59,6 +60,9 @@
 
         [JsonIgnore]
         public IReadOnlyDictionary<string, ulong> Emojis { get; set; }
+
+        [JsonIgnore]
+        public List<int> PossibleShinies { get; set; }
 
         [JsonIgnore]
         public GreatPvpRankLibrary GreatPvPLibrary { get; set; }
@@ -106,6 +110,11 @@
             Emojis = LoadInit<Dictionary<string, ulong>>(
                 Path.Combine(Strings.DataFolder, EmojisFileName), 
                 typeof(Dictionary<string, ulong>)
+            );
+
+            PossibleShinies = LoadInit<List<int>>(
+                Path.Combine(Strings.DataFolder, ShinyFileName),
+                typeof(List<int>)
             );
         }
 
