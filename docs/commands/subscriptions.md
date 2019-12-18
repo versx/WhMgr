@@ -20,14 +20,16 @@ Examples:
 ### Pokemon  
 
 **pokeme** - Subscribe to specific Pokemon notifications.  
-Usage: `pokeme <pokemon> <iv> <level> <gender>`  
+Usage: `pokeme <pokemon> [iv] [level] [gender]`  
 
 * `<pokemon>` - Parameter can take a list of Ids or names or the `all` keyword for everything.  
-* `<iv>` - Minimum IV value.  
-* `<level>` - Minimum level value.  
+* `<iv>` - (Optional) Minimum IV value.  
+* `<level>` - (Optional) Minimum level value.  
+* `<gender>` - (Optional) Specific gender `m` or `f` or `*` for all.  
 
 Examples:  
 
+* `.pokeme tyranitar`  
 * `.pokeme pikachu 100 35 f`  
 * `.pokeme pikachu 100`  
 * `.pokeme all 100 35`  
