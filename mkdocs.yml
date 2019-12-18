@@ -7,7 +7,10 @@ repo_url: https://github.com/versx/whmgr/
 edit_uri: ""
 
 theme:
-    name: flatly #mkdocs, bootstrap4, cinder, cosmo, cyborg, flatly, ivory, material, slate, yeti
+    name: flatly #mkdocs, bootstrap4, cinder, cosmo, cyborg, flatly, ivory, material, readthedocs, slate, yeti
+
+extends: mkdocs
+hljs_style: docco
 
 nav:
     - Home: index.md
@@ -41,3 +44,7 @@ copyright: Copyright &copy; 2019 <a href="https://github.com/versx">versx</a>, M
 
 plugins:
     - search
+
+extra_css:
+    - css/base.css
+    - css/bootstrap-custom.min.css
