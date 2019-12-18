@@ -10,7 +10,7 @@
 Usage: `set-distance <kilometers> <latitude>,<longitude>`  
 
 * `<kilometers>` - Distance in kilometers from location.  
-* `<latitude>` - Latitude part of the locations' coordinate pair.  
+* `<latitude>` - Latitude part of the location's coordinate pair.  
 * `<longitude>` - Longitude part of the location's coordinate pair.  
 
 Examples:  
