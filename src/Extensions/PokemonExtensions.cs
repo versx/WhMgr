@@ -1311,22 +1311,25 @@
             {
                 string form = null;
                 var pokeIdStr = poke;
-                if (poke.Contains("-"))
-                {
-                    //Has form
-                    var formSplit = poke.Split('-');
-                    if (formSplit.Length != 2)
-                        continue;
-
-                    pokeIdStr = formSplit[0];
-                    form = formSplit[1];
-                }
-
                 var pokeId = pokeIdStr.PokemonIdFromName();
                 if (pokeId == 0)
                 {
-                    invalid.Add(poke);
-                    continue;
+                    if (poke.Contains("-"))
+                    {
+                        //Has form
+                        var formSplit = poke.Split('-');
+                        if (formSplit.Length != 2)
+                            continue;
+
+                        pokeIdStr = formSplit[0];
+                        pokeId = pokeIdStr.PokemonIdFromName();
+                        form = formSplit[1];
+                    }
+                    else
+                    {
+                        invalid.Add(poke);
+                        continue;
+                    }
                 }
 
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokeId))
