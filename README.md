@@ -40,7 +40,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
     "stripeApiKey": ""
     // List of Discord servers to connect and post webhook messages to.
     "servers": {
-        // Discord server #1
+        // Discord server #1 guild ID
         "000000000000000001": {
             // Bot command prefix, leave blank to use @mention <command>
             "commandPrefix": ".",
