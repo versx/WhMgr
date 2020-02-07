@@ -103,22 +103,22 @@
 
         public RaidData()
         {
-            SetTimes();
+            SetTimes(false);
         }
 
-        public void SetTimes()
+        public void SetTimes(bool enableDST)
         {
             StartTime = Start.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
-            //{
-            //    StartTime = StartTime.AddHours(1); //DST
-            //}
+            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
+            {
+                StartTime = StartTime.AddHours(1); //DST
+            }
 
             EndTime = End.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
-            //{
-            //    EndTime = EndTime.AddHours(1); //DST
-            //}
+            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
+            {
+                EndTime = EndTime.AddHours(1); //DST
+            }
         }
 
         public DiscordEmbed GenerateRaidMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string raidImageUrl)

@@ -76,24 +76,24 @@
 
         public PokestopData()
         {
-            SetTimes();
+            SetTimes(false);
         }
 
         #region Public Methods
 
-        public void SetTimes()
+        public void SetTimes(bool enableDST)
         {
             LureExpireTime = LureExpire.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(LureExpireTime))
-            //{
-            //LureExpireTime = LureExpireTime.AddHours(1); //DST
-            //}
+            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(LureExpireTime))
+            {
+                LureExpireTime = LureExpireTime.AddHours(1); //DST
+            }
 
             InvasionExpireTime = IncidentExpire.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(InvasionExpireTime))
-            //{
-            //InvasionExpireTime = InvasionExpireTime.AddHours(1); //DST
-            //}
+            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(InvasionExpireTime))
+            {
+                InvasionExpireTime = InvasionExpireTime.AddHours(1); //DST
+            }
         }
 
         public static string InvasionTypeToString(InvasionGruntType gruntType)

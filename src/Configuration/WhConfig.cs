@@ -40,6 +40,9 @@
         [JsonProperty("iconStyles")]
         public Dictionary<string, string> IconStyles { get; set; }
 
+        [JsonProperty("enableDST")]
+        public bool EnableDST { get; set; }
+
         [JsonIgnore]
         public string FileName { get; set; }
 

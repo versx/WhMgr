@@ -63,6 +63,8 @@
         [JsonProperty("botChannelIds")]
         public List<ulong> BotChannelIds { get; set; }
 
+        // TODO: Add DST option for each server.
+
         public DiscordServerConfig()
         {
             //Locale = "en";

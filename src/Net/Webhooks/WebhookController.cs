@@ -150,7 +150,7 @@
             }
             _config = config;
 
-            _http = new HttpServer(_config.WebhookPort);
+            _http = new HttpServer(_config.WebhookPort, _config.EnableDST);
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
             _http.QuestReceived += Http_QuestReceived;
@@ -227,8 +227,6 @@
         private void Http_PokestopReceived(object sender, DataReceivedEventArgs<PokestopData> e)
         {
             var pokestop = e.Data;
-            pokestop.SetTimes();
-
             if (pokestop.HasLure || pokestop.HasInvasion)
             {
                 ProcessPokestop(pokestop);

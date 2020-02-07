@@ -555,7 +555,7 @@
 
         public PokemonData()
         {
-            SetDespawnTime();
+            SetDespawnTime(false);
             //_top100GreatLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 1500, TopPvPRanks).GetAwaiter().GetResult();
             //_top100UltraLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 2500, TopPvPRanks).GetAwaiter().GetResult();
         }
@@ -564,34 +564,34 @@
 
         #region Public Methods
 
-        public void SetDespawnTime()
+        public void SetDespawnTime(bool enableDST)
         {
             //TODO: DST config option
 
             DespawnTime = DisappearTime.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(DespawnTime))
-            //{
-            //    DespawnTime = DespawnTime.AddHours(1); //DST
-            //}
+            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(DespawnTime))
+            {
+                DespawnTime = DespawnTime.AddHours(1); //DST
+            }
             SecondsLeft = DespawnTime.Subtract(DateTime.Now);
 
             FirstSeenTime = FirstSeen.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(FirstSeenTime))
-            //{
-            //    FirstSeenTime = FirstSeenTime.AddHours(1); //DST
-            //}
+            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(FirstSeenTime))
+            {
+                FirstSeenTime = FirstSeenTime.AddHours(1); //DST
+            }
 
             LastModifiedTime = LastModified.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(LastModifiedTime))
-            //{
-            //    LastModifiedTime = LastModifiedTime.AddHours(1);
-            //}
+            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(LastModifiedTime))
+            {
+                LastModifiedTime = LastModifiedTime.AddHours(1);
+            }
 
             UpdatedTime = Updated.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(Updated))
-            //{
-            //    UpdatedTime = UpdatedTime.AddHours(1);
-            //}
+            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(UpdatedTime))
+            {
+                UpdatedTime = UpdatedTime.AddHours(1);
+            }
         }
 
         //public bool IsUnderLevel(int targetLevel)
