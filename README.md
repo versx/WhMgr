@@ -5,7 +5,7 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 
 
 ## Description:  
-Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, and field research quests. Also supports Discord user's subscribing to Pokemon, raid, or quest notifications via DM.
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, and field research quests. Also supports Discord user's subscribing to Pokemon, raid, quest, and Team Rocket invasion notifications via DM.
 
 
 ## Features:  
@@ -34,7 +34,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
     "port": 8008,
     // Locale language translation
     "locale": "en",
-    // ShortURL API (yourls.org API)
+    // ShortURL API (yourls.org API, i.e. `https://domain.com/yourls-api.php?signature=XXXXXX`)
     "shortUrlApiUrl": null,
     // Stripe API key
     "stripeApiKey": ""
