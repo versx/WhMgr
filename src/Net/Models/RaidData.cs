@@ -150,7 +150,7 @@
             //TODO: Check whConfig.Servers[guildId]
 
             //var server = whConfig.Servers[guildId];
-            var pkmnInfo = MasterFile.Instance.Pokedex[PokemonId];
+            var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
             var form = PokemonId.GetPokemonForm(Form.ToString());
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
