@@ -673,6 +673,8 @@
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? MasterFile.Instance.Pokedex[DisplayPokemonId ?? Id] : pkmnInfo;
             var isShiny = Shiny.HasValue ? Shiny.Value : false;
+            var height = double.TryParse(Height, out var realHeight) ? Math.Round(realHeight).ToString() : "";
+            var weight = double.TryParse(Weight, out var realWeight) ? Math.Round(realWeight).ToString() : "";
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
@@ -731,8 +733,8 @@
                 { "pvp_stats", pvpStats },
 
                 //Other properties
-                { "height", Height ?? defaultMissingValue },
-                { "weight", Weight ?? defaultMissingValue },
+                { "height", height ?? defaultMissingValue },
+                { "weight", weight ?? defaultMissingValue },
                 { "is_ditto", Convert.ToString(IsDitto) },
                 { "original_pkmn_id", Convert.ToString(DisplayPokemonId) },
                 { "original_pkmn_id_3", (DisplayPokemonId ?? 0).ToString("D3") },
