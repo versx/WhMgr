@@ -29,6 +29,7 @@
     //TODO: Reload config on change
     //TODO: PvP ranks dts
     //TODO: Separate subscriptions dts
+    //TODO: Cache pokestops to reduce pokestop queries.
 
     public class Bot
     {

@@ -37,6 +37,9 @@
         [JsonProperty("webhook")]
         public string Webhook { get; set; }
 
+        [JsonProperty("mentions")]
+        public string Mentions { get; set; }
+
         public AlarmObject()
         {
             LoadGeofence();

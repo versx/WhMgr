@@ -607,16 +607,18 @@
         public async Task<DiscordEmbed> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string pokemonImageUrl)
         {
             //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
-            var alertMessageType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
-            var alertMessage = alarm?.Alerts[alertMessageType] ?? AlertMessage.Defaults[alertMessageType];
+            var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
+            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = await GetProperties(guildId, client, whConfig, city, pokemonImageUrl);
+            var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
+            var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
             {
-                Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
-                Url = DynamicReplacementEngine.ReplaceText(alertMessage.Url, properties),
-                ImageUrl = DynamicReplacementEngine.ReplaceText(alertMessage.ImageUrl, properties),
+                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
+                ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = pokemonImageUrl,
-                Description = DynamicReplacementEngine.ReplaceText(alertMessage.Content, properties),
+                Description = mention + description,
                 Color = IV.BuildColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
@@ -670,6 +672,7 @@
                 string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? MasterFile.Instance.Pokedex[DisplayPokemonId ?? Id] : pkmnInfo;
+            var isShiny = Shiny.HasValue ? Shiny.Value : false;
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
@@ -717,6 +720,7 @@
                 { "sta_iv", Stamina ?? defaultMissingValue },
                 { "iv", IV ?? defaultMissingValue },
                 { "iv_rnd", IVRounded ?? defaultMissingValue },
+                { "is_shiny", Convert.ToString(isShiny) },
 
                 //PvP stat properties
                 { "is_great", Convert.ToString(isGreat) },

@@ -53,13 +53,15 @@
             var alertType = AlertMessageType.Gyms;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = GetProperties(guildId, client, whConfig, city, oldGym);
+            var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
+            var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl , properties),
-                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Description = mention + description,
                 Color = Team == PokemonTeam.Mystic ? DiscordColor.Blue :
                     Team == PokemonTeam.Valor ? DiscordColor.Red :
                     Team == PokemonTeam.Instinct ? DiscordColor.Yellow :
