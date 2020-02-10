@@ -610,7 +610,7 @@
                         }
                     }
 
-                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
                     _queue.Enqueue(new NotificationItem(user, member, embed, pokestop.Name));
 
                     Statistics.Instance.SubscriptionInvasionsSent++;

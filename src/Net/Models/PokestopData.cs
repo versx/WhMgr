@@ -284,8 +284,8 @@
                 { "lure_expire_time", LureExpireTime.ToLongTimeString() },
                 { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
                 { "has_invasion", Convert.ToString(HasInvasion) },
-                { "grunt_type", invasion.Type == PokemonType.None ? leaderString : invasion?.Type.ToString() },
-                { "grunt_type_emoji", invasion.Type == PokemonType.None ? leaderString : client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
+                { "grunt_type", invasion?.Type == PokemonType.None ? leaderString : invasion?.Type.ToString() },
+                { "grunt_type_emoji", invasion?.Type == PokemonType.None ? leaderString : client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
                     invasion.Type.GetTypeEmojiIcons(client.Guilds[guildId]) :
                     string.Empty
                 },

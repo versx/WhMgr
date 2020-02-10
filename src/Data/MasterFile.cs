@@ -124,7 +124,7 @@
                 return null;
 
             var pkmn = Instance.Pokedex[pokemonId];
-            var useForm = pkmn.Attack == null && formId > 0;
+            var useForm = !pkmn.Attack.HasValue && formId > 0 && pkmn.Forms.ContainsKey(formId);
             var pkmnForm = useForm ? pkmn.Forms[formId] : pkmn;
             pkmnForm.Name = pkmn.Name;
             return pkmnForm;
