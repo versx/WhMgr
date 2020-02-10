@@ -192,7 +192,7 @@
             var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = GetProperties(guildId, client, whConfig, city);
-            var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
+            var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
             {

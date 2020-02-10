@@ -610,7 +610,7 @@
             var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = await GetProperties(guildId, client, whConfig, city, pokemonImageUrl);
-            var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
+            var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
             {

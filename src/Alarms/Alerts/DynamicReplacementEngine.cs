@@ -10,7 +10,7 @@
         public static string ReplaceText(string alarmText, IReadOnlyDictionary<string, string> pkmnInfo)
         {
             if (string.IsNullOrEmpty(alarmText))
-                return null;
+                return string.Empty;
 
             var placeHolder = alarmText;
             var keys = pkmnInfo.Keys.ToList();
