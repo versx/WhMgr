@@ -103,6 +103,7 @@
             await cmds.SudoAsync(member, ctx.Channel, command);
         }
 
+        /*
         [
             Command("test-emoji"),
             Description("")
@@ -168,6 +169,7 @@
             var data = Newtonsoft.Json.JsonConvert.SerializeObject(dict, Newtonsoft.Json.Formatting.Indented);
             File.WriteAllText("emojis.json", data);
         }
+        */
     }
 }
 /*

@@ -37,9 +37,6 @@ Use any of the following in your alerts file to structure how notifications will
 | start_time_left | Time left until raid starts | 43m, 33s
 | end_time | Raid end time | 09:15:10 AM
 | end_time_left | Time left until raid ends | 45, 11s
-| despawn_time | Pokemon despawn time | 07:33:01 PM
-| despawn_time_verified | Indicates if time is confirmed or not | `~` for not verified
-| is_despawn_time_verified | Returns if despawn time is verified | true
 | time_left | Minutes and seconds of time left until despawn | 29m, 30s
 | geofence | Geofence name raid boss is in | City1
 | lat | Latitude coordinate of Pokemon location | 5.980921321

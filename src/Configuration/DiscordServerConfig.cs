@@ -76,6 +76,7 @@
         }
     }
 
+    /*
     public class SubscriptionsConfiguration
     {
         [JsonProperty("enableSubscriptions")]
@@ -90,4 +91,5 @@
         [JsonProperty("iconStyle")]
         public string IconStyle { get; set; }
     }
+    */
 }

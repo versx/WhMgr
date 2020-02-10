@@ -18,12 +18,12 @@
         //public const string GoogleMapsStaticImage = "https://maps.googleapis.com/maps/api/staticmap?center={0},{1}&markers=color:red%7C{0},{1}&maptype=roadmap&size=300x175&zoom=14";
         //public const string GoogleMapsStaticImage = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+FF0000({1},{0})/{1},{0},14/300x175?access_token=pk.eyJ1IjoidmVyc3giLCJhIjoiY2p3dXNzYmR0MDFmNzRicXNlNHJ4YjJucSJ9.tBti0YjkEb98_hxhswsSOw";
 
-        public const string DataFolder = "Data";
         public const string GeofenceFolder = "Geofences";
         public const string AlertsFolder = "Alerts";
         public const string FiltersFolder = "Filters";
         public const string LibrariesFolder = "Libs";
         public const string StaticFolder = "static";
+        public static readonly string DataFolder = StaticFolder + Path.DirectorySeparatorChar + "data";
         public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locale";
         public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
         public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
@@ -44,6 +44,7 @@
 
         public const string All = "All";
 
+        // TODO: Make configurable.
         public const int MaxPokemonDisplayed = 70;
         public const int MaxPokemonSubscriptions = 25;
         public const int MaxPvPSubscriptions = 15;
