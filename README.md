@@ -280,21 +280,30 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 6.) Run `schema.sql` to manually create necessary database tables. 
 7.) Start WhMgr.exe with Administrator privileges.  
 
-*Notes:  
-- Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.*  
-- DM notifications can be sent to users based on:
-    - Pokemon ID
-    - Pokemon Form
-    - Pokemon IV
-    - Pokemon Level
-    - Pokemon Attack/Defense/Stamina values
-    - Pokemon Gender
-    - Raid Boss
-    - City
-    - Gym Name
-    - Quest Reward
+**Important Notes:**  
+- Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.  
+- Discord Permissions Needed:  
+  * Read Messages  
+  * Send Messages  
+  * Manage Messages (Prune quest channels)  
+  * Manage Roles (If cities are enabled)  
+  * Manage Emojis  
+  * Embed Links  
+  * Attach Files (`export` command)  
+  * Use External Emojis (soon)  
+- DM notifications can be sent to users based on:  
+    - Pokemon ID  
+    - Pokemon Form  
+    - Pokemon IV  
+    - Pokemon Level  
+    - Pokemon Attack/Defense/Stamina values  
+    - Pokemon Gender  
+    - Raid Boss  
+    - City  
+    - Gym Name  
+    - Quest Reward  
     - Invasion Grunt Type  
-    - Distance
+    - Distance (meters)  
 
 ## Notification Commands
 **General Subscription Commands**  
