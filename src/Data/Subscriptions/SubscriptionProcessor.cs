@@ -261,7 +261,8 @@
                     if (member?.Roles == null || loc == null)
                         continue;
 
-                    if (!member.Roles.Select(x => x?.Name?.ToLower()).Contains(loc?.Name?.ToLower()))
+                    // If member does not have role associated with city and server does have city roles configured, skip subscription.
+                    if (!member.Roles.Select(x => x?.Name?.ToLower()).Contains(loc?.Name?.ToLower()) && _whConfig.Servers[user.GuildId].CityRoles?.Count > 0)
                     {
                         //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
                         continue;
