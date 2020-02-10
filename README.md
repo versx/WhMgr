@@ -23,11 +23,14 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Custom icon style selection for Discord user notifications.  
 - Lots more...  
 
+## Documentation:  
+[ReadTheDocs](https://whmgr.rftd.io/)  
+
 ## Getting Started:  
 
 1.) Copy `config.example.json` to `config.json`.  
-  a.) Create bot token.  
-  b.) Input your bot token and config options. [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
+  a.) [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
+  b.) Input your bot token and config options.  
 ```js
 {
     // Http listener port for raw webhook data.
@@ -36,7 +39,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
     "locale": "en",
     // ShortURL API (yourls.org API, i.e. `https://domain.com/yourls-api.php?signature=XXXXXX`)
     "shortUrlApiUrl": null,
-    // Stripe API key
+    // Stripe API key (Stripe production API key, i.e. rk_3824802934
     "stripeApiKey": ""
     // List of Discord servers to connect and post webhook messages to.
     "servers": {
@@ -46,7 +49,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
             "commandPrefix": ".",
             // Discord server owner ID.
             "guildId": 000000000000000001,
-            // Discord Emoji server ID. (Can be same as `guildId`)
+            // Discord Emoji server ID. (Can be same as `guildId`, currently not implemented, set as `guildId`)  
             "emojiGuildId": 000000000000000001,
             // Discord server owner ID.
             "ownerId": 000000000000000000,
@@ -231,6 +234,9 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 	  
         //Path to geofence file.
         "geofence":"geofence1.txt",
+	
+	//DTS compatible mention description.  
+	"mentions":"<!@324234324> <iv> L<lvl> <geofence>"  
       
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
@@ -246,6 +252,9 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 	  
         //Path to geofence file.
         "geofence":"geofence1.txt",
+	
+	//DTS compatible mention description.  
+	"mentions":""  
       
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
@@ -268,8 +277,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 33.02,-118.02
 33.03,-118.03
 ```
-6.)
-Upload Discord emojis that are in the emojis folder.  
+6.) Run `schema.sql` to manually create necessary database tables. 
 7.) Start WhMgr.exe with Administrator privileges.  
 
 *Notes:  
