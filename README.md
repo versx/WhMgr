@@ -24,7 +24,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Lots more...  
 
 ## Documentation:  
-[ReadTheDocs](https://whmgr.rftd.io/)  
+[ReadTheDocs](https://whmgr.rtfd.io/)  
 
 ## Getting Started:  
 
@@ -388,6 +388,7 @@ __**Pokemon**__
 | has_weather | Returns if Pokemon data has weather | false
 | weather | Weather in-game name | PartlyCloudy
 | weather_emoji | Weather in-game emoji | Weather
+| is_shiny | Returns if worker encountered a shiny | true
 | username | Account username of account that found Pokemon | Frank0324
 | spawnpoint_id | Spawnpoint ID Pokemon near | 3920849203840983204980
 | encounter_id | Encounter ID of Pokemon | 392874987239487924
@@ -445,10 +446,6 @@ __**Raids & Eggs**__
 | start_time_left | Time left until raid starts | 43m, 33s
 | end_time | Raid end time | 09:15:10 AM
 | end_time_left | Time left until raid ends | 45, 11s
-| despawn_time | Pokemon despawn time | 07:33:01 PM
-| despawn_time_verified | Indicates if time is confirmed or not | `~` for not verified
-| is_despawn_time_verified | Returns if despawn time is verified | true
-| time_left | Minutes and seconds of time left until despawn | 29m, 30s
 | geofence | Geofence name raid boss is in | City1
 | lat | Latitude coordinate of Pokemon location | 5.980921321
 | lng | Longitude coordinate of Pokemon location | 3.109283009
@@ -547,14 +544,17 @@ __**Quests**__
 
 
 ## TODO:  
+- Convert to .NETCore project to allow cross platform deployments. (Windows, macOS, Linux)  
 - Allow Pokemon id and name in Pokemon filter lists.  
 - Individual filters per Pokemon. (PA style, maybe)  
+- Fix support for secondary emoji server.  
 - Finish Localization.  
 - Wiki.  
 - Telegram support.  
 
 
-## Examples:
+## Examples:  
+*All examples are completely customizable using Dynamic Text Replacement/Substitution*
 Discord Pokemon Notifications:  
 ![Pokemon Notifications](images/pkmn.png "Pokemon Notifications")  
 
@@ -582,6 +582,11 @@ Discord Lure (Magnetic) Notifications:
 Discord Team Rocket Invasion Notifications:  
 ![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
 
+## Current Issues:  
+- Gender icon comes in as `?` so -m and -f are used for now.  
+- Emoji guild is not currently used, notification guild is used for now.  
+
 ## Credits:  
 [versx](https://github.com/versx) - Developer  
 [PokeAlarm](https://github.com/PokeAlarm/PokeAlarm) - Dynamic Text Substitution idea  
+[WDR](https://github.com/PartTimeJS/WDR) - masterfile.json file  
