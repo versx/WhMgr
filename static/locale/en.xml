@@ -74,7 +74,7 @@
 	
 	<string name="NOTIFY_SETTINGS_EMBED_TITLE">**{0} Notification Settings (Page: {1}/{2}):**</string>
 	<string name="NOTIFY_SETTINGS_EMBED_ENABLED">Enabled: **{0}**</string>
-	<string name="NOTIFY_SETTINGS_EMBED_CITIES">Feed Zones: ```{0}```</string>
+	<string name="NOTIFY_SETTINGS_EMBED_CITIES">Pokemon Feed Zones: ```{0}```</string>
 	<string name="NOTIFY_SETTINGS_EMBED_ICON_STYLE">Icon Style: **{0}**</string>
 	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE">Distance: **{0}**</string>
 	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET">Not Set (Any Distance)</string>
@@ -140,8 +140,8 @@
 	<string name="SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** quest notifications{2}.</string>
 	<string name="ERROR_NO_QUEST_SUBSCRIPTIONS">{0} is not subscribed to any quest notifications{1}.</string>
 	
-	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE">{0} has subscribed to **{1} {2}** Team Rocket invasion notifications{3}.</string>
-	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1} {2}** Team Rocket invasion notifications{3}.</string>
+	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE">{0} has subscribed to **{1}** Team Rocket invasion reward notifications{2}.</string>
+	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** Team Rocket invasion reward notifications{2}.</string>
 	<string name="ERROR_NO_INVASION_SUBSCRIPTIONS">{0} is not subscribed to any Team Rocket invasion notifications{1}.</string>
 	
 	<string name="SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** {2} League PvP notifications.</string>

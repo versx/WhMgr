@@ -10,6 +10,7 @@
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
+    using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Utilities;
@@ -271,9 +272,15 @@
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
-            var invasion = new TeamRocketInvasion(GruntType);
+            var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = GetGruntLeaderString(GruntType);
-            var invasionEncounters = invasion.GetPossibleInvasionEncounters();
+            var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? Commands.Notifications.GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
+            var invasionTypeEmoji = pokemonType == PokemonType.None ? 
+                    leaderString : 
+                    client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
+                        pokemonType.GetTypeEmojiIcons(client.Guilds[guildId]) :
+                        string.Empty;
+            var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : string.Empty;
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -284,12 +291,9 @@
                 { "lure_expire_time", LureExpireTime.ToLongTimeString() },
                 { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
                 { "has_invasion", Convert.ToString(HasInvasion) },
-                { "grunt_type", invasion?.Type == PokemonType.None ? leaderString : invasion?.Type.ToString() },
-                { "grunt_type_emoji", invasion?.Type == PokemonType.None ? leaderString : client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
-                    invasion.Type.GetTypeEmojiIcons(client.Guilds[guildId]) :
-                    string.Empty
-                },
-                { "grunt_gender", invasion.Gender.ToString() },
+                { "grunt_type", invasion?.Type },
+                { "grunt_type_emoji", invasionTypeEmoji },
+                { "grunt_gender", invasion?.Grunt },
                 { "invasion_expire_time", InvasionExpireTime.ToLongTimeString() },
                 { "invasion_expire_time_left", InvasionExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
                 { "invasion_encounters", $"**Encounter Reward Chance:**\r\n" + invasionEncounters },
@@ -323,12 +327,13 @@
 
     public class TeamRocketInvasion
     {
-        public InvasionGruntType InvasionGruntType { get; set; }
+        [JsonProperty("type")]
+        public string Type { get; set; }
 
-        public PokemonType Type { get; set; }
+        [JsonProperty("grunt")]
+        public string Grunt { get; set; }
 
-        public PokemonGender Gender { get; set; }
-
+        [JsonProperty("second_reward")]
         public bool SecondReward { get; set; }
 
         public bool HasEncounter
@@ -339,15 +344,15 @@
             }
         }
 
+        [JsonProperty("encounters")]
         public TeamRocketEncounters Encounters { get; set; }
 
         public TeamRocketInvasion()
         {
-            Type = PokemonType.None;
-            Gender = PokemonGender.Unset;
             Encounters = new TeamRocketEncounters();
         }
 
+        /*
         public TeamRocketInvasion(InvasionGruntType gruntType)
         {
             InvasionGruntType = gruntType;
@@ -788,21 +793,25 @@
             }
             return InvasionGruntType.Unset;
         }
+        */
     }
 
     public class TeamRocketEncounters
     {
-        public List<int> First { get; set; }
+        [JsonProperty("first")]
+        public List<string> First { get; set; }
 
-        public List<int> Second { get; set; }
+        [JsonProperty("second")]
+        public List<string> Second { get; set; }
 
-        public List<int> Third { get; set; }
+        [JsonProperty("third")]
+        public List<string> Third { get; set; }
 
         public TeamRocketEncounters()
         {
-            First = new List<int>();
-            Second = new List<int>();
-            Third = new List<int>();
+            First = new List<string>();
+            Second = new List<string>();
+            Third = new List<string>();
         }
     }
 

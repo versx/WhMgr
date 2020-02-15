@@ -10,8 +10,17 @@
     {
         public static string GetPossibleInvasionEncounters(this TeamRocketInvasion invasion)
         {
-            var first = string.Join(", ", invasion.Encounters.First.Select(x => MasterFile.GetPokemon(x, 0)?.Name));
-            var second = string.Join(", ", invasion.Encounters.Second.Select(x => MasterFile.GetPokemon(x, 0)?.Name));
+            var toInt = new Func<string, int>(x =>
+            {
+                var val = x.Split('_')[0];
+                if (!int.TryParse(val, out var result))
+                {
+                    Console.Error.WriteLine($"Failed to parse {val} as integer");
+                }
+                return result;
+            });
+            var first = string.Join(", ", invasion.Encounters.First.Select(x => MasterFile.GetPokemon(toInt(x), 0)?.Name));
+            var second = string.Join(", ", invasion.Encounters.Second.Select(x => MasterFile.GetPokemon(toInt(x), 0)?.Name));
             //var third = string.Join(", ", invasion.Encounters.Third.Select(x => Database.Instance.Pokemon[x].Name));
             var msg = string.Empty;
             if (invasion.SecondReward)

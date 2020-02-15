@@ -546,13 +546,21 @@
                 return;
             }
 
-            var subscriptions = Manager.GetUserSubscriptionsByGruntType(pokestop.GruntType);
+            var invasion = MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType) ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
+            var encounters = GetEncounterRewards(invasion);
+            var subscriptions = Manager.GetUserSubscriptionsByEncounterReward(encounters);
             if (subscriptions == null)
             {
                 _logger.Warn($"Failed to get subscriptions from database table.");
                 return;
             }
 
+            if (!MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType))
+            {
+                _logger.Error($"Failed to parse grunt type {pokestop.GruntType}, not in `grunttype.json` list.");
+                return;
+            }
+         
             SubscriptionObject user;
             for (int i = 0; i < subscriptions.Count; i++)
             {
@@ -590,7 +598,7 @@
                     }
 
                     var exists = user.Invasions.FirstOrDefault(x =>
-                        x.GruntType == pokestop.GruntType &&
+                        encounters.Contains(x.RewardPokemonId) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;
                     if (!exists)
@@ -703,6 +711,56 @@
                 }
             })
             { IsBackground = true }.Start();
+        }
+
+        #endregion
+
+        #region Static Methods
+
+        private static List<int> GetEncounterRewards(TeamRocketInvasion invasion)
+        {
+            var list = new List<int>();
+            if (invasion == null || invasion.Encounters == null)
+                return list;
+
+            if (invasion?.SecondReward ?? false)
+            {
+                //85%/15% Rate
+                for (var i = 0; i < invasion.Encounters.Second.Count; i++)
+                {
+                    var mon = invasion.Encounters.Second[i];
+                    var id = ParsePokemonId(mon);
+                    if (id == 0)
+                        continue;
+
+                    list.Add(id);
+                }
+            }
+            else
+            {
+                //100% Rate
+                for (var i = 0; i < invasion.Encounters.First.Count; i++)
+                {
+                    var mon = invasion.Encounters.First[i];
+                    var id = ParsePokemonId(mon);
+                    if (id == 0)
+                        continue;
+
+                    list.Add(id);
+                }
+            }
+            return list;
+        }
+
+        private static int ParsePokemonId(string value)
+        {
+            var split = value.Split('_');
+            if (!int.TryParse(split[0], out var id))
+            {
+                _logger.Error($"Failed to parse grunttype {split[0]}");
+                return 0;
+            }
+            return id;
         }
 
         #endregion

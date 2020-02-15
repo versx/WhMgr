@@ -23,7 +23,7 @@
 
         [
             JsonProperty("user_id"),
-            Alias("userId"),
+            Alias("userId"), // TODO: Eventually fix
             Required
         ]
         public virtual ulong UserId { get; set; }
