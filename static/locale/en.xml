@@ -77,7 +77,7 @@
 	<string name="NOTIFY_SETTINGS_EMBED_ICON_STYLE">Icon Style: **{0}**</string>
 	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE">Distance: **{0}**</string>
 	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET">Not Set (Any Distance)</string>
-	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_KM">{0} kilometers</string>
+	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_KM">{0} meters</string>
 	
 	<string name="NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED">Default: {0}% ({1} unlisted)</string>
 	<string name="NOTIFY_SETTINGS_EMBED_POKEMON">Pokemon Subscriptions: ({0}/{1} used)</string>
