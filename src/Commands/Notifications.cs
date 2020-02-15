@@ -1116,6 +1116,12 @@
                         PvPLeague.Master :
                         PvPLeague.Other;
 
+            if (pvpLeague == PvPLeague.Other)
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_PVP_LEAGUE").FormatText(ctx.User.Username, league), DiscordColor.Red);
+                return;
+            }
+
             //You may only subscribe to the top 100 or higher rank.
             if (minimumRank < 0 || minimumRank > 100)
             {
@@ -1236,6 +1242,12 @@
                     string.Compare(league, "master", true) == 0 ?
                         PvPLeague.Master :
                         PvPLeague.Other;
+
+            if (pvpLeague == PvPLeague.Other)
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_PVP_LEAGUE").FormatText(ctx.User.Username, league), DiscordColor.Red);
+                return;
+            }
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
