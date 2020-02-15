@@ -1575,7 +1575,9 @@
                     if (sub.IV == defaultIV && exceedsLimits)
                         continue;
 
-                    foreach (var poke in sub.Pokes)
+                    var pokes = sub.Pokes;
+                    pokes.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
+                    foreach (var poke in pokes)
                     {
                         if (!MasterFile.Instance.Pokedex.ContainsKey(poke.PokemonId))
                             continue;
