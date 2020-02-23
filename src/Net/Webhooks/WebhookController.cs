@@ -185,9 +185,7 @@
 
                 var iv = PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina);
                 //Skip Pokemon if IV is less than 90%, not 0%, and does not match any PvP league stats.
-                if (iv < 90 &&
-                    iv != 0 &&
-                    (!pkmn.MatchesGreatLeague || !pkmn.MatchesUltraLeague))
+                if ((iv < 90 && iv != 0) || !pkmn.MatchesGreatLeague || !pkmn.MatchesUltraLeague)
                     return;
             }
 
