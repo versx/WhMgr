@@ -599,3 +599,6 @@ Discord Team Rocket Invasion Notifications:
 [versx](https://github.com/versx) - Developer  
 [PokeAlarm](https://github.com/PokeAlarm/PokeAlarm) - Dynamic Text Substitution idea  
 [WDR](https://github.com/PartTimeJS/WDR) - masterfile.json file  
+
+## Discord  
+https://discordapp.com/invite/zZ9h9Xa  
