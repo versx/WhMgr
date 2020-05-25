@@ -9,7 +9,6 @@
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
-    using WhMgr.Net.Models;
 
     public class SubscriptionManager
     {

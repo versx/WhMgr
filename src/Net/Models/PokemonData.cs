@@ -555,7 +555,7 @@
 
         public PokemonData()
         {
-            SetDespawnTime(false);
+            //SetDespawnTime(false, false);
             //_top100GreatLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 1500, TopPvPRanks).GetAwaiter().GetResult();
             //_top100UltraLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 2500, TopPvPRanks).GetAwaiter().GetResult();
         }
@@ -564,7 +564,7 @@
 
         #region Public Methods
 
-        public void SetDespawnTime(bool enableDST)
+        public void SetDespawnTime(bool enableDST, bool enableLeapYear)
         {
             //TODO: DST config option
 
@@ -591,6 +591,15 @@
             if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(UpdatedTime))
             {
                 UpdatedTime = UpdatedTime.AddHours(1);
+            }
+
+            if (enableLeapYear)
+            {
+                DespawnTime = DespawnTime.Subtract(TimeSpan.FromHours(24));
+                FirstSeenTime = FirstSeenTime.Subtract(TimeSpan.FromHours(24));
+                LastModifiedTime = LastModifiedTime.Subtract(TimeSpan.FromHours(24));
+                UpdatedTime = UpdatedTime.Subtract(TimeSpan.FromHours(24));
+                SecondsLeft = SecondsLeft.Subtract(TimeSpan.FromHours(24));
             }
         }
 

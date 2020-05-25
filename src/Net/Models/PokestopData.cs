@@ -77,12 +77,12 @@
 
         public PokestopData()
         {
-            SetTimes(false);
+            SetTimes(false, false);
         }
 
         #region Public Methods
 
-        public void SetTimes(bool enableDST)
+        public void SetTimes(bool enableDST, bool enableLeapYear)
         {
             LureExpireTime = LureExpire.FromUnix();
             if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(LureExpireTime))
@@ -94,6 +94,12 @@
             if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(InvasionExpireTime))
             {
                 InvasionExpireTime = InvasionExpireTime.AddHours(1); //DST
+            }
+
+            if (enableLeapYear)
+            {
+                LureExpireTime = LureExpireTime.Subtract(TimeSpan.FromDays(1));
+                InvasionExpireTime = InvasionExpireTime.Subtract(TimeSpan.FromDays(1));
             }
         }
 

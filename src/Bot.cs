@@ -153,6 +153,7 @@
                 commands.RegisterCommands<ShinyStats>();
                 commands.RegisterCommands<Gyms>();
                 commands.RegisterCommands<Quests>();
+                commands.RegisterCommands<Settings>();
                 if (server.EnableSubscriptions)
                 {
                     commands.RegisterCommands<Notifications>();
