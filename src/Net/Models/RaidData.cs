@@ -103,10 +103,10 @@
 
         public RaidData()
         {
-            SetTimes(false);
+            SetTimes(false, false);
         }
 
-        public void SetTimes(bool enableDST)
+        public void SetTimes(bool enableDST, bool enableLeapYear)
         {
             StartTime = Start.FromUnix();
             if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
@@ -119,6 +119,12 @@
             {
                 EndTime = EndTime.AddHours(1); //DST
             }
+
+            if (enableLeapYear)
+            {
+                StartTime = StartTime.Subtract(TimeSpan.FromDays(1));
+                EndTime = EndTime.Subtract(TimeSpan.FromDays(1));
+            }
         }
 
         public DiscordEmbed GenerateRaidMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string raidImageUrl)
@@ -126,7 +132,7 @@
             var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = GetProperties(guildId, client, whConfig, city, raidImageUrl);
-            var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
+            var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
             {

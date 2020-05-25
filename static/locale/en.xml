@@ -35,6 +35,7 @@
 	<string name="NOTIFY_COMMON_TYPE_POKEMON">{0} {1} is a common type Pokemon and cannot be subscribed to for notifications unless the IV is set to at least {2}% or higher.</string>
 	<string name="NOTIFY_INVALID_POKEMON_SPECIFIED">{0} Unable to recognize any of the Pokemon you specified.</string>
 	<string name="NOTIFY_NO_POKEMON_SUBSCRIPTIONS">{0} is not subscribed to any Pokemon notifications.</string>
+	<string name="NOTIFY_INVALID_PVP_LEAGUE">{0} {1} is not a valid PvP league. (Great or Ultra)</string>
 	<string name="NOTIFY_INVALID_PVP_RANK_RANGE">{0} {1} must be within the range of `0-4096`.</string>
 	<string name="NOTIFY_INVALID_PVP_PERCENT_RANGE">{0} {1} must be within the range of `0-100`.</string>
 	
@@ -73,11 +74,11 @@
 	
 	<string name="NOTIFY_SETTINGS_EMBED_TITLE">**{0} Notification Settings (Page: {1}/{2}):**</string>
 	<string name="NOTIFY_SETTINGS_EMBED_ENABLED">Enabled: **{0}**</string>
-	<string name="NOTIFY_SETTINGS_EMBED_CITIES">Feed Zones: ```{0}```</string>
+	<string name="NOTIFY_SETTINGS_EMBED_CITIES">Pokemon Feed Zones: ```{0}```</string>
 	<string name="NOTIFY_SETTINGS_EMBED_ICON_STYLE">Icon Style: **{0}**</string>
 	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE">Distance: **{0}**</string>
 	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET">Not Set (Any Distance)</string>
-	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_KM">{0} kilometers</string>
+	<string name="NOTIFY_SETTINGS_EMBED_DISTANCE_KM">{0} meters</string>
 	
 	<string name="NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED">Default: {0}% ({1} unlisted)</string>
 	<string name="NOTIFY_SETTINGS_EMBED_POKEMON">Pokemon Subscriptions: ({0}/{1} used)</string>
@@ -139,8 +140,8 @@
 	<string name="SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** quest notifications{2}.</string>
 	<string name="ERROR_NO_QUEST_SUBSCRIPTIONS">{0} is not subscribed to any quest notifications{1}.</string>
 	
-	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE">{0} has subscribed to **{1} {2}** Team Rocket invasion notifications{3}.</string>
-	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1} {2}** Team Rocket invasion notifications{3}.</string>
+	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE">{0} has subscribed to **{1}** Team Rocket invasion reward notifications{2}.</string>
+	<string name="SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** Team Rocket invasion reward notifications{2}.</string>
 	<string name="ERROR_NO_INVASION_SUBSCRIPTIONS">{0} is not subscribed to any Team Rocket invasion notifications{1}.</string>
 	
 	<string name="SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE">{0} has unsubscribed from **{1}** {2} League PvP notifications.</string>

@@ -19,6 +19,7 @@
         const string UltraPvPLibFileName = "pvp_ultra_league_ranks.json";
         const string EmojisFileName = "emojis.json";
         const string ShinyFileName = "shiny.json";
+        const string GruntTypesFileName = "grunttype.json";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");
 
@@ -60,6 +61,9 @@
 
         [JsonIgnore]
         public IReadOnlyDictionary<string, ulong> Emojis { get; set; }
+
+        [JsonIgnore]
+        public IReadOnlyDictionary<InvasionGruntType, TeamRocketInvasion> GruntTypes { get; set; }
 
         [JsonIgnore]
         public List<int> PossibleShinies { get; set; }
@@ -112,6 +116,11 @@
                 typeof(Dictionary<string, ulong>)
             );
 
+            GruntTypes = LoadInit<Dictionary<InvasionGruntType, TeamRocketInvasion>>(
+                Path.Combine(Strings.DataFolder, GruntTypesFileName),
+                typeof(Dictionary<InvasionGruntType, TeamRocketInvasion>)
+            );
+
             PossibleShinies = LoadInit<List<int>>(
                 Path.Combine(Strings.DataFolder, ShinyFileName),
                 typeof(List<int>)
@@ -124,7 +133,7 @@
                 return null;
 
             var pkmn = Instance.Pokedex[pokemonId];
-            var useForm = pkmn.Attack == null && formId > 0;
+            var useForm = !pkmn.Attack.HasValue && formId > 0 && pkmn.Forms.ContainsKey(formId);
             var pkmnForm = useForm ? pkmn.Forms[formId] : pkmn;
             pkmnForm.Name = pkmn.Name;
             return pkmnForm;

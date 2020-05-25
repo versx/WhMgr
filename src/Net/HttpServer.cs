@@ -22,6 +22,7 @@
         private static readonly IEventLogger _logger = EventLogger.GetLogger("HTTP");
         private static readonly object _lock = new object();
         private readonly bool _enableDST = false;
+        private readonly bool _enableLeapYear = false;
         private HttpListener _server;
         //private Thread _requestThread;
 
@@ -71,10 +72,11 @@
 
         #region Constructor
 
-        public HttpServer(ushort port, bool enableDST)
+        public HttpServer(ushort port, bool enableDST, bool enableLeapYear)
         {
             Port = port;
             _enableDST = enableDST;
+            _enableLeapYear = enableLeapYear;
 
             Initialize();
         }
@@ -249,7 +251,7 @@
                     return;
                 }
 
-                pokemon.SetDespawnTime(_enableDST);
+                pokemon.SetDespawnTime(_enableDST, _enableLeapYear);
 
                 OnPokemonReceived(pokemon);
             }
@@ -277,7 +279,7 @@
                     return;
                 }
 
-                raid.SetTimes(_enableDST);
+                raid.SetTimes(_enableDST, _enableLeapYear);
 
                 OnRaidReceived(raid);
             }
@@ -319,7 +321,7 @@
                     return;
                 }
 
-                pokestop.SetTimes(_enableDST);
+                pokestop.SetTimes(_enableDST, _enableLeapYear);
 
                 OnPokestopReceived(pokestop);
             }

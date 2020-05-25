@@ -43,6 +43,9 @@
         [JsonProperty("enableDST")]
         public bool EnableDST { get; set; }
 
+        [JsonProperty("enableLeapYear")]
+        public bool EnableLeapYear { get; set; }
+
         [JsonIgnore]
         public string FileName { get; set; }
 

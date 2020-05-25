@@ -150,7 +150,7 @@
             }
             _config = config;
 
-            _http = new HttpServer(_config.WebhookPort, _config.EnableDST);
+            _http = new HttpServer(_config.WebhookPort, _config.EnableDST, _config.EnableLeapYear);
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
             _http.QuestReceived += Http_QuestReceived;
@@ -185,9 +185,7 @@
 
                 var iv = PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina);
                 //Skip Pokemon if IV is less than 90%, not 0%, and does not match any PvP league stats.
-                if (iv < 90 &&
-                    iv != 0 &&
-                    (!pkmn.MatchesGreatLeague || !pkmn.MatchesUltraLeague))
+                if ((iv < 90 && iv != 0) || !pkmn.MatchesGreatLeague || !pkmn.MatchesUltraLeague)
                     return;
             }
 
@@ -428,8 +426,7 @@
                     //}
 
                     if (!(float.TryParse(pkmn.Height, out var height) && float.TryParse(pkmn.Weight, out var weight) &&
-                          Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters.Pokemon.Size)) &&
-                          alarm.Filters.Pokemon.Size.HasValue)
+                          Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters?.Pokemon?.Size)))
                     {
                         continue;
                     }

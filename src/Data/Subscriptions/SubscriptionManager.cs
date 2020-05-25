@@ -9,7 +9,6 @@
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
-    using WhMgr.Net.Models;
 
     public class SubscriptionManager
     {
@@ -114,11 +113,11 @@
             )?.ToList();
         }
 
-        public List<SubscriptionObject> GetUserSubscriptionsByGruntType(InvasionGruntType gruntType)
+        public List<SubscriptionObject> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
         {
             return _subscriptions?.Where(x =>
                 x.Enabled && x.Invasions != null &&
-                x.Invasions.Exists(y => y.GruntType == gruntType)
+                x.Invasions.Exists(y => encounterRewards.Contains(y.RewardPokemonId))
             )?.ToList();
         }
 

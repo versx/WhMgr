@@ -29,7 +29,6 @@
     //TODO: Reload config on change
     //TODO: PvP ranks dts
     //TODO: Separate subscriptions dts
-    //TODO: Cache pokestops to reduce pokestop queries.
 
     public class Bot
     {
@@ -154,6 +153,7 @@
                 commands.RegisterCommands<ShinyStats>();
                 commands.RegisterCommands<Gyms>();
                 commands.RegisterCommands<Quests>();
+                commands.RegisterCommands<Settings>();
                 if (server.EnableSubscriptions)
                 {
                     commands.RegisterCommands<Notifications>();

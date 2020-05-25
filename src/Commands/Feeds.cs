@@ -38,15 +38,16 @@
                 return;
 
             var server = _dep.WhConfig.Servers[ctx.Guild.Id];
-
+            var cityRoles = server.CityRoles;
+            cityRoles.Sort();
             var sb = new StringBuilder();
             sb.AppendLine(_dep.Language.Translate("FEEDS_AVAILABLE_CITY_ROLES"));
-            sb.AppendLine($"- {string.Join($"{Environment.NewLine}- ", server.CityRoles)}");
+            sb.AppendLine($"- {string.Join($"{Environment.NewLine}- ", cityRoles)}");
             sb.AppendLine();
             sb.AppendLine($"- {Strings.All}");
             sb.AppendLine();
             sb.AppendLine();
-            sb.AppendLine(_dep.Language.Translate("FEEDS_TYPE_COMMAND_ASSIGN_ROLE"));
+            sb.AppendLine(_dep.Language.Translate("FEEDS_TYPE_COMMAND_ASSIGN_ROLE").FormatText(server.CommandPrefix));
             var eb = new DiscordEmbedBuilder
             {
                 Color = DiscordColor.Red,

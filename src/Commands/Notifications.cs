@@ -602,6 +602,7 @@
                     _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
                     DiscordColor.Red
                 );
+                return;
             }
 
             if (string.Compare(poke, Strings.All, true) == 0)
@@ -863,14 +864,20 @@
 
         [
             Command("invme"),
-            Description("Subscribe to Team Rocket invasion notifications based on the grunt type and gender.")
+            Description("Subscribe to Team Rocket invasion notifications based on the encounter reward.")
         ]
         public async Task InvMeAsync(CommandContext ctx,
-            [Description("Invasion type i.e. `fire-m` to add.")] string invasionType,
-            [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
+            [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to rewards from Team Rocket Invasion notifications.")] string poke,
+            [Description("City to send the notification if the invasion appears in otherwise if null all will be sent.")] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
+
+            //Remove any spaces from city names
+            if (!string.IsNullOrEmpty(city) && city.Contains(" "))
+            {
+                city = city.Replace(" ", "");
+            }
 
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
@@ -881,54 +888,43 @@
                 }
             }
 
-            if (!invasionType.Contains("-"))
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
+            var validation = ValidatePokemonList(poke);
+            if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                var invType = invasionType.ToLower();
-                if (!(invType.Contains("gio") || invType.Contains("clif") || invType.Contains("arlo") || invType.Contains("sierra") || invType.Contains("decoy")))
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                return;
+            }
+
+            var keys = validation.Valid.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var pokemonId = keys[i];
+                //var form = validation.Valid[pokemonId];
+                var cities = string.IsNullOrEmpty(city)
+                    ? _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles
+                    : new List<string> { city };
+                foreach (var area in cities)
                 {
-                    await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_INVASION_GENDER").FormatText(ctx.User.Username), DiscordColor.Red);
-                    return;
+                    var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId &&
+                                                                                 string.Compare(x.City, area, true) == 0);
+                    if (subInvasion != null)
+                        continue; //Already exists
+
+                    subscription.Invasions.Add(new InvasionSubscription
+                    {
+                        GuildId = ctx.Guild.Id,
+                        UserId = ctx.User.Id,
+                        RewardPokemonId = pokemonId,
+                        City = area
+                    });
                 }
             }
-
-            var parts = invasionType.Split('-');
-            var type = parts[0];
-            var gender = parts.Length > 1 ? parts[1] : "m";
-            var pokemonGender = (gender.ToLower().Contains("male") || gender.ToLower()[0] == 'm') ? PokemonGender.Male : PokemonGender.Female;
-            var leaderType = GetLeaderGruntType(type, pokemonGender);
-            var pkmnType = GetPokemonTypeFromString(type);
-            var gruntType = leaderType == InvasionGruntType.Unset ?
-                TeamRocketInvasion.GruntTypeToTrInvasion(pkmnType, pokemonGender) :
-                leaderType;
-            var leaderString = PokestopData.GetGruntLeaderString(gruntType);
-
-            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
-            var cities = string.IsNullOrEmpty(city)
-                ? _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles
-                : new List<string> { city };
-
-            foreach (var area in cities)
-            {
-                var subInvasion = subscription.Invasions.FirstOrDefault(x => x.GruntType == gruntType &&
-                                                                             string.Compare(x.City, area, true) == 0);
-                if (subInvasion != null)
-                    continue; //Already exists
-
-                subscription.Invasions.Add(new InvasionSubscription
-                {
-                    GuildId = ctx.Guild.Id,
-                    UserId = ctx.User.Id,
-                    GruntType = gruntType,
-                    City = area
-                });
-            }
-
             subscription.Save();
+
             await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
-                pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType),
-                leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender),
+                string.Join(", ", validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name)),
                 string.IsNullOrEmpty(city) ?
                     _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
@@ -938,14 +934,20 @@
 
         [
             Command("invmenot"),
-            Description("Unsubscribe from one or all subscribed field research quest notifications by reward keyword.")
+            Description("Unsubscribe from one or all subscribed Team Rocket invasion notifications by encounter reward.")
         ]
         public async Task InvMeNotAsync(CommandContext ctx,
-            [Description("Invasion type i.e. `water-f` to remove.")] string invasionType,
+            [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to unsubscribe from rewards for Team Rocket Invasion notifications.")] string poke,
             [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
+
+            //Remove any spaces from city names
+            if (!string.IsNullOrEmpty(city) && city.Contains(" "))
+            {
+                city = city.Replace(" ", "");
+            }
 
             if (string.Compare(city, Strings.All, true) != 0 && !string.IsNullOrEmpty(city))
             {
@@ -960,66 +962,62 @@
             if (subscription == null || subscription?.Invasions.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NO_INVASION_SUBSCRIPTIONS").FormatText(
-                    ctx.User.Username,
-                    string.IsNullOrEmpty(city) ?
-                        _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                        _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
-                        DiscordColor.Red
+                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NO_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city) ?
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                    _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
+                    DiscordColor.Red
                 );
                 return;
             }
 
-            if (string.Compare(invasionType, Strings.All, true) == 0)
+            if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var removeAllResult = await ctx.Confirm(_dep.Language.Translate("NOTIFY_CONFIRM_REMOVE_ALL_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Invasions.Count.ToString("N0")));
-                if (!removeAllResult)
+                var result = await ctx.Confirm(_dep.Language.Translate("NOTIFY_CONFIRM_REMOVE_ALL_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Invasions.Count.ToString("N0")));
+                if (!result)
                     return;
 
                 subscription.Invasions.ForEach(x => x.Id.Remove<InvasionSubscription>());
+
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_SUCCESS_REMOVE_ALL_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
             }
 
-            if (!invasionType.Contains("-"))
+            var validation = ValidatePokemonList(poke);
+            if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                var invType = invasionType.ToLower();
-                if (!(invType.Contains("gio") || invType.Contains("clif") || invType.Contains("arlo") || invType.Contains("sierra") || invType.Contains("decoy")))
-                {
-                    await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_INVASION_GENDER").FormatText(ctx.User.Username), DiscordColor.Red);
-                    return;
-                }
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                return;
             }
 
-            var parts = invasionType.Split('-');
-            var type = parts[0];
-            var gender = parts.Length > 1 ? parts[1] : "m";
-            var pokemonGender = (gender.ToLower().Contains("male") || gender.ToLower()[0] == 'm') ? PokemonGender.Male : PokemonGender.Female;
-            var leaderType = GetLeaderGruntType(type, pokemonGender);
-            var pkmnType = GetPokemonTypeFromString(type);
-            var gruntType = leaderType == InvasionGruntType.Unset ?
-                TeamRocketInvasion.GruntTypeToTrInvasion(pkmnType, pokemonGender) :
-                leaderType;
-            var leaderString = PokestopData.GetGruntLeaderString(gruntType);
+            //var notSubscribed = new List<string>();
+            //var unsubscribed = new List<string>();
+            foreach (var item in validation.Valid)
+            {
+                var pokemonId = item.Key;
+                //var form = item.Value;
+                var cities = string.IsNullOrEmpty(city)
+                    ? _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles
+                    : new List<string> { city };
+                foreach (var area in cities)
+                {
+                    var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId &&
+                                                                                 string.Compare(x.City, area, true) == 0);
+                    if (subInvasion == null)
+                        continue; //Already removed
 
-            var cities = string.IsNullOrEmpty(city)
-                        ? _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles
-                        : new List<string> { city };
-
-            subscription.Invasions
-                .Where(x =>
-                       x.GruntType == gruntType &&
-                       cities.Contains(x.City.ToLower()))
-                .ToList()
-                .ForEach(x => x.Id.Remove<InvasionSubscription>());
+                    if (!subInvasion.Id.Remove<InvasionSubscription>())
+                    {
+                        _logger.Error($"Unable to remove invasions subscription for user id {subInvasion.UserId} from guild id {subInvasion.GuildId}");
+                    }
+                }
+            }
 
             //await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{(pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType))} {(leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender))}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
             await ctx.RespondEmbed(_dep.Language.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
-                pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType),
-                leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender),
+                string.Join(", ", validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name)),
                 string.IsNullOrEmpty(city) ?
                     _dep.Language.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     _dep.Language.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
@@ -1028,26 +1026,7 @@
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
-        private InvasionGruntType GetLeaderGruntType(string leaderGruntType, PokemonGender gender = PokemonGender.Unset)
-        {
-            var type = leaderGruntType.ToLower();
-            if (type.Contains("gio") || type.Contains("giovanni"))
-                return InvasionGruntType.Giovanni;
-            else if (type.Contains("arlo"))
-                return InvasionGruntType.ExecutiveArlo;
-            else if (type.Contains("clif"))
-                return InvasionGruntType.ExecutiveCliff;
-            else if (type.Contains("sierra"))
-                return InvasionGruntType.ExecutiveSierra;
-            else if (type.Contains("decoy"))
-                return gender == PokemonGender.Male ?
-                    InvasionGruntType.DecoyMale :
-                    InvasionGruntType.DecoyFemale;
-
-            return InvasionGruntType.Unset;
-        }
-
-        private PokemonType GetPokemonTypeFromString(string pokemonType)
+        public static PokemonType GetPokemonTypeFromString(string pokemonType)
         {
             var type = pokemonType.ToLower();
             if (type.Contains("bug"))
@@ -1074,8 +1053,8 @@
                 return PokemonType.Ground;
             else if (type.Contains("ice"))
                 return PokemonType.Ice;
-            else if (type.Contains("tierii") || type.Contains("none") || type.Contains("tier2") || type.Contains("t2"))
-                return PokemonType.None;
+            //else if (type.Contains("tierii") || type.Contains("none") || type.Contains("tier2") || type.Contains("t2"))
+            //    return PokemonType.None;
             else if (type.Contains("normal"))
                 return PokemonType.Normal;
             else if (type.Contains("poison"))
@@ -1115,6 +1094,12 @@
                     string.Compare(league, "master", true) == 0 ?
                         PvPLeague.Master :
                         PvPLeague.Other;
+
+            if (pvpLeague == PvPLeague.Other)
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_PVP_LEAGUE").FormatText(ctx.User.Username, league), DiscordColor.Red);
+                return;
+            }
 
             //You may only subscribe to the top 100 or higher rank.
             if (minimumRank < 0 || minimumRank > 100)
@@ -1236,6 +1221,12 @@
                     string.Compare(league, "master", true) == 0 ?
                         PvPLeague.Master :
                         PvPLeague.Other;
+
+            if (pvpLeague == PvPLeague.Other)
+            {
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_PVP_LEAGUE").FormatText(ctx.User.Username, league), DiscordColor.Red);
+                return;
+            }
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
@@ -1526,11 +1517,11 @@
 
             var sb = new StringBuilder();
             sb.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_ENABLED").FormatText(subscription.Enabled ? "Yes" : "No"));
-            sb.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_CITIES").FormatText(string.Join(", ", feeds)));
             sb.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_ICON_STYLE").FormatText(subscription.IconStyle));
             sb.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(subscription.DistanceM == 0 ?
                 _dep.Language.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET") :
                 _dep.Language.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_KM").FormatText(subscription.DistanceM)));
+            sb.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_CITIES").FormatText(string.Join(", ", feeds)));
 
             if (hasPokemon)
             {
@@ -1563,7 +1554,9 @@
                     if (sub.IV == defaultIV && exceedsLimits)
                         continue;
 
-                    foreach (var poke in sub.Pokes)
+                    var pokes = sub.Pokes;
+                    pokes.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
+                    foreach (var poke in pokes)
                     {
                         if (!MasterFile.Instance.Pokedex.ContainsKey(poke.PokemonId))
                             continue;
@@ -1735,14 +1728,14 @@
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedInvasions = subscription.Invasions;
-            subscribedInvasions.Sort((x, y) => string.Compare(x.GruntType.ToString().ToLower(), y.GruntType.ToString().ToLower(), true));
+            subscribedInvasions.Sort((x, y) => string.Compare(MasterFile.GetPokemon(x.RewardPokemonId, 0).Name, MasterFile.GetPokemon(y.RewardPokemonId, 0).Name, true));
             var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
 
-            var results = subscribedInvasions.GroupBy(p => p.GruntType, (key, g) => new { Grunt = key, Cities = g.ToList() });
+            var results = subscribedInvasions.GroupBy(p => p.RewardPokemonId, (key, g) => new { RewardPokemon = key, Cities = g.ToList() });
             foreach (var invasion in results)
             {
                 var isAllCities = cityRoles.ScrambledEquals(invasion.Cities.Select(x => x.City.ToLower()).ToList(), StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                list.Add(_dep.Language.Translate("NOTIFY_FROM").FormatText(invasion.Grunt, isAllCities ? _dep.Language.Translate("ALL_AREAS") : string.Join(", ", invasion.Cities.Select(x => x.City))));
+                list.Add(_dep.Language.Translate("NOTIFY_FROM").FormatText(MasterFile.GetPokemon(invasion.RewardPokemon, 0).Name, isAllCities ? _dep.Language.Translate("ALL_AREAS") : string.Join(", ", invasion.Cities.Select(x => x.City))));
             }
 
             return list;

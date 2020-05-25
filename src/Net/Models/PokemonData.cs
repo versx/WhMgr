@@ -555,7 +555,7 @@
 
         public PokemonData()
         {
-            SetDespawnTime(false);
+            //SetDespawnTime(false, false);
             //_top100GreatLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 1500, TopPvPRanks).GetAwaiter().GetResult();
             //_top100UltraLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 2500, TopPvPRanks).GetAwaiter().GetResult();
         }
@@ -564,7 +564,7 @@
 
         #region Public Methods
 
-        public void SetDespawnTime(bool enableDST)
+        public void SetDespawnTime(bool enableDST, bool enableLeapYear)
         {
             //TODO: DST config option
 
@@ -592,6 +592,15 @@
             {
                 UpdatedTime = UpdatedTime.AddHours(1);
             }
+
+            if (enableLeapYear)
+            {
+                DespawnTime = DespawnTime.Subtract(TimeSpan.FromHours(24));
+                FirstSeenTime = FirstSeenTime.Subtract(TimeSpan.FromHours(24));
+                LastModifiedTime = LastModifiedTime.Subtract(TimeSpan.FromHours(24));
+                UpdatedTime = UpdatedTime.Subtract(TimeSpan.FromHours(24));
+                SecondsLeft = SecondsLeft.Subtract(TimeSpan.FromHours(24));
+            }
         }
 
         //public bool IsUnderLevel(int targetLevel)
@@ -610,7 +619,7 @@
             var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = await GetProperties(guildId, client, whConfig, city, pokemonImageUrl);
-            var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
+            var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
             {

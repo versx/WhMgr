@@ -19,15 +19,16 @@
             var keys = arguments.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
-                switch (keys[i])
+                var key = keys[i];
+                switch (key.ToLower())
                 {
                     case "config":
                     case "c":
-                        configFilePath = arguments.ContainsKey(keys[i]) ? arguments[keys[i]]?.ToString() : Strings.ConfigFileName;
+                        configFilePath = arguments.ContainsKey(key) ? arguments[key]?.ToString() : Strings.ConfigFileName;
                         break;
                     case "name":
                     case "n":
-                        managerName = arguments.ContainsKey(keys[i]) ? arguments[keys[i]]?.ToString() : "Default";
+                        managerName = arguments.ContainsKey(key) ? arguments[key]?.ToString() : "Default";
                         break;
                 }
             }
