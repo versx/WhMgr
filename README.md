@@ -282,7 +282,8 @@ wget https://raw.githubusercontent.com/versx/iPhoneController/sqlite/install.sh 
 33.03,-118.03
 ```
 7.) Run `schema.sql` to manually create necessary database tables.  
-8.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
+8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
+9.) Start WhMgr `dotnet WhMgr.dll` (If Windows, run as Administrator)  
 
 **Important Notes:**  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.  
