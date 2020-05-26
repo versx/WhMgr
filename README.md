@@ -30,7 +30,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 
 1.) Run the following to install .NET Core runtime, clone respository, and copy example Alerts, Filters, Geofences, config and alarm files.  
 ```
-wget https://raw.githubusercontent.com/versx/iPhoneController/sqlite/install.sh && chmod +x install.sh && ./install.sh && rm install.sh
+wget https://raw.githubusercontent.com/versx/WhMgr/netcore/install.sh && chmod +x install.sh && ./install.sh && rm install.sh
 ```
 2.) Copy `config.example.json` to `config.json`.  
   a.) [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
@@ -282,7 +282,12 @@ wget https://raw.githubusercontent.com/versx/iPhoneController/sqlite/install.sh 
 33.03,-118.03
 ```
 7.) Run `schema.sql` to manually create necessary database tables.  
+<<<<<<< HEAD
 8.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
+=======
+8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
+9.) Start WhMgr `dotnet WhMgr.dll` (If Windows, run as Administrator)  
+>>>>>>> 31510cdd8f3e5e9ce26282657d58dad5d42836fd
 
 **Important Notes:**  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.  
@@ -603,3 +608,6 @@ Discord Team Rocket Invasion Notifications:
 [versx](https://github.com/versx) - Developer  
 [PokeAlarm](https://github.com/PokeAlarm/PokeAlarm) - Dynamic Text Substitution idea  
 [WDR](https://github.com/PartTimeJS/WDR) - masterfile.json file  
+
+## Discord  
+https://discordapp.com/invite/zZ9h9Xa  

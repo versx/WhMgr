@@ -103,10 +103,10 @@
 
         public RaidData()
         {
-            SetTimes(false);
+            SetTimes(false, false);
         }
 
-        public void SetTimes(bool enableDST)
+        public void SetTimes(bool enableDST, bool enableLeapYear)
         {
             StartTime = Start.FromUnix();
             if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
@@ -118,6 +118,12 @@
             if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
             {
                 EndTime = EndTime.AddHours(1); //DST
+            }
+
+            if (enableLeapYear)
+            {
+                StartTime = StartTime.Subtract(TimeSpan.FromDays(1));
+                EndTime = EndTime.Subtract(TimeSpan.FromDays(1));
             }
         }
 

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using DSharpPlus.CommandsNext;
@@ -82,6 +83,7 @@
                 {
                     await statsChannel.SendMessageAsync(_dep.Language.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
                 }
+                Thread.Sleep(500);
             }
 
             var total = stats[0];

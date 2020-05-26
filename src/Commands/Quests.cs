@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Commands
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using DSharpPlus.CommandsNext;
@@ -60,6 +61,7 @@
                         continue;
 
                     await message.DeleteAsync("Channel reset.");
+                    Thread.Sleep(100);
                 }
 
                 messages = await channel.GetMessagesAsync();
