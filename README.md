@@ -28,7 +28,11 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 
 ## Getting Started:  
 
-1.) Copy `config.example.json` to `config.json`.  
+1.) Run the following to install .NET Core runtime, clone respository, and copy example Alerts, Filters, Geofences, config and alarm files.  
+```
+wget https://raw.githubusercontent.com/versx/iPhoneController/sqlite/install.sh && chmod +x install.sh && ./install.sh && rm install.sh
+```
+2.) Copy `config.example.json` to `config.json`.  
   a.) [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
   b.) Input your bot token and config options.  
 ```js
@@ -202,8 +206,8 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
     }
 }
 ```
-2.) Copy `alarms.example.json` to `alarms.json`.  
-3.) Fill out the alarms file.  
+3.) Copy `alarms.example.json` to `alarms.json`.  
+4.) Fill out the alarms file.  
 ```js
 {
     //Global switch for Pokemon notifications.
@@ -261,8 +265,8 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
     }]
 }
 ```
-4.) Create directory `Geofences` in root directory of executable file.  
-5.) Create/copy geofence files to `Geofences` folder.  
+5.) Create directory `Geofences` in root directory of executable file.  
+6.) Create/copy geofence files to `Geofences` folder.  
 
 *Note:* Geofence file format is the following:  
 ```ini
@@ -277,8 +281,8 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 33.02,-118.02
 33.03,-118.03
 ```
-6.) Run `schema.sql` to manually create necessary database tables. 
-7.) Start WhMgr.exe with Administrator privileges.  
+7.) Run `schema.sql` to manually create necessary database tables.  
+8.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
 
 **Important Notes:**  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.  

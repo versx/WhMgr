@@ -1095,12 +1095,15 @@
 
         public static string GetPokemonGenderIcon(this PokemonGender gender)
         {
-            return gender switch
+            switch (gender)
             {
-                PokemonGender.Male => "-m", //♂ \u2642
-                PokemonGender.Female => "-f", //♀ \u2640
-                _ => "" //⚲
-            };
+                case PokemonGender.Male:
+                    return "-m"; //♂ \u2642
+                case PokemonGender.Female:
+                    return "-f"; //♀ \u2640
+                default:
+                    return ""; //⚲
+            }
         }
 
         public static List<PokemonType> GetStrengths(this PokemonType type)
