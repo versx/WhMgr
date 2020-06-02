@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using DSharpPlus.CommandsNext;
@@ -135,6 +136,8 @@
                             alreadyAssigned.Add(cityRaidRole.Name);
                         }
                     }
+
+                    Thread.Sleep(200);
                 }
 
                 if (assigned.Count == 0 && alreadyAssigned.Count == 0)
@@ -226,6 +229,8 @@
                     {
                         alreadyUnassigned.Add(cityRaidRole.Name);
                     }
+
+                    Thread.Sleep(200);
                 }
 
                 await ctx.RespondEmbed
@@ -267,6 +272,8 @@
                 {
                     _logger.Error($"Failed to assign role {cityRole.Name} to user {ctx.User.Username} ({ctx.User.Id}).");
                 }
+
+                Thread.Sleep(200);
             }
 
             await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_ASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));
@@ -295,6 +302,8 @@
                 {
                     _logger.Error($"Failed to remove role {cityRole.Name} from user {ctx.User.Username} ({ctx.User.Id}).");
                 }
+
+                Thread.Sleep(200);
             }
 
             await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_UNASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));

@@ -90,7 +90,7 @@
             _processedPokestops = new Dictionary<string, PokestopData>();
             _processedQuests = new Dictionary<string, QuestData>();
             _processedInvasions = new Dictionary<string, TeamRocketInvasion>();
-            _processedWeather = new Dictionary<string, WeatherData>();
+            _processedWeather = new Dictionary<long, WeatherData>();
 
             Initialize();
         }

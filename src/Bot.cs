@@ -24,6 +24,7 @@
     using DSharpPlus.EventArgs;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
+    using System.Threading;
 
     //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
     //TODO: Reload config on change
@@ -905,6 +906,7 @@
                 {
                     var item = await client.DeleteMessages(channelIds[j]);
                     _logger.Debug($"Deleted all {item.Item2.ToString("N0")} quest messages from channel {item.Item1.Name}.");
+                    Thread.Sleep(200);
                 }
 
                 _logger.Debug($"Finished automatic quest messages cleanup...");

@@ -122,7 +122,7 @@
                     };
 
                     await channel.SendMessageAsync(embed: eb);
-                    System.Threading.Thread.Sleep(100);
+                    System.Threading.Thread.Sleep(200);
                 }
                 catch (Exception ex)
                 {
