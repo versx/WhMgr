@@ -24,6 +24,13 @@
         private readonly bool _enableDST = false;
         private readonly bool _enableLeapYear = false;
         private HttpListener _server;
+        private readonly Dictionary<ulong, PokemonData> _processedPokemon;
+        private readonly Dictionary<string, RaidData> _processedRaids;
+        private readonly Dictionary<string, GymData> _processedGyms;
+        private readonly Dictionary<string, PokestopData> _processedPokestops;
+        private readonly Dictionary<string, QuestData> _processedQuests;
+        private readonly Dictionary<string, TeamRocketInvasion> _processedInvasions;
+        private readonly Dictionary<long, WeatherData> _processedWeather;
         //private Thread _requestThread;
 
         #endregion
@@ -77,6 +84,13 @@
             Port = port;
             _enableDST = enableDST;
             _enableLeapYear = enableLeapYear;
+            _processedPokemon = new Dictionary<ulong, PokemonData>();
+            _processedRaids = new Dictionary<string, RaidData>();
+            _processedGyms = new Dictionary<string, GymData>();
+            _processedPokestops = new Dictionary<string, PokestopData>();
+            _processedQuests = new Dictionary<string, QuestData>();
+            _processedInvasions = new Dictionary<string, TeamRocketInvasion>();
+            _processedWeather = new Dictionary<string, WeatherData>();
 
             Initialize();
         }
@@ -253,6 +267,14 @@
 
                 pokemon.SetDespawnTime(_enableDST, _enableLeapYear);
 
+                /*
+                if (_processedPokemon.ContainsKey(pokemon.Id))
+                {
+                    // Pokemon already sent (check if IV set)
+                    return;
+                }
+                */
+
                 OnPokemonReceived(pokemon);
             }
             catch (Exception ex)
@@ -281,6 +303,21 @@
 
                 raid.SetTimes(_enableDST, _enableLeapYear);
 
+                if (_processedRaids.ContainsKey(raid.GymId))
+                {
+                    if (_processedRaids[raid.GymId].PokemonId == raid.PokemonId &&
+                        _processedRaids[raid.GymId].Level == raid.Level &&
+                        _processedRaids[raid.GymId].End == raid.End)
+                    {
+                        // Processed raid already
+                        return;
+                    }
+                }
+                else
+                {
+                    _processedRaids.Add(raid.GymId, raid);
+                }
+
                 OnRaidReceived(raid);
             }
             catch (Exception ex)
@@ -299,6 +336,21 @@
                 {
                     _logger.Error($"Failed to parse Quest webhook object: {message}");
                     return;
+                }
+
+                if (_processedQuests.ContainsKey(quest.PokestopId))
+                {
+                    if (_processedQuests[quest.PokestopId].Type == quest.Type &&
+                        _processedQuests[quest.PokestopId].Rewards == quest.Rewards &&
+                        _processedQuests[quest.PokestopId].Conditions == quest.Conditions)
+                    {
+                        // Processed quest already
+                        return;
+                    }
+                }
+                else
+                {
+                    _processedQuests.Add(quest.PokestopId, quest);
                 }
 
                 OnQuestReceived(quest);
@@ -323,6 +375,22 @@
 
                 pokestop.SetTimes(_enableDST, _enableLeapYear);
 
+                if (_processedPokestops.ContainsKey(pokestop.PokestopId))
+                {
+                    if (
+                        (_processedPokestops[pokestop.PokestopId].LureType == pokestop.LureType && _processedPokestops[pokestop.PokestopId].LureExpire == pokestop.LureExpire) ||
+                        (_processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType && _processedPokestops[pokestop.PokestopId].IncidentExpire == pokestop.IncidentExpire)
+                        )
+                    {
+                        // Processed pokestop lure or invasion already
+                        return;
+                    }
+                }
+                else
+                {
+                    _processedPokestops.Add(pokestop.PokestopId, pokestop);
+                }
+
                 OnPokestopReceived(pokestop);
             }
             catch (Exception ex)
@@ -342,6 +410,8 @@
                     _logger.Error($"Failed to parse gym webhook object: {message}");
                     return;
                 }
+
+                // TODO: Filter duplicates
 
                 OnGymReceived(gym);
             }
@@ -363,6 +433,8 @@
                     return;
                 }
 
+                // TODO: Filter duplicates
+
                 OnGymDetailsReceived(gymDetails);
             }
             catch (Exception ex)
@@ -381,6 +453,19 @@
                 {
                     _logger.Error($"Failed to parse gym details webhook object: {message}");
                     return;
+                }
+
+                if (_processedWeather.ContainsKey(weather.Id))
+                {
+                    if (_processedWeather[weather.Id].GameplayCondition == weather.GameplayCondition)
+                    {
+                        // Processed weather already
+                        return;
+                    }
+                }
+                else
+                {
+                    _processedWeather.Add(weather.Id, weather);
                 }
 
                 OnWeatherReceived(weather);
