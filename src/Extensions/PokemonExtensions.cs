@@ -1108,6 +1108,12 @@
 
         public static List<PokemonType> GetStrengths(this PokemonType type)
         {
+            if (MasterFile.Instance.PokemonTypes.ContainsKey(type))
+            {
+                return MasterFile.Instance.PokemonTypes[type].Strengths;
+            }
+            return new List<PokemonType>();
+            /*
             var types = new PokemonType[0];
             switch (type)
             {
@@ -1166,10 +1172,17 @@
                     break;
             }
             return types.ToList();
+            */
         }
 
         public static List<PokemonType> GetWeaknesses(this PokemonType type)
         {
+            if (MasterFile.Instance.PokemonTypes.ContainsKey(type))
+            {
+                return MasterFile.Instance.PokemonTypes[type].Weaknesses;
+            }
+            return new List<PokemonType>();
+            /*
             var types = new PokemonType[0];
             switch (type)
             {
@@ -1229,6 +1242,7 @@
                     break;
             }
             return types.ToList();
+            */
         }
 
         public static string GetTypeEmojiIcons(this PokemonType pokemonType, DiscordGuild guild)

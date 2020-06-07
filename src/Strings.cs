@@ -50,6 +50,7 @@
         public const int MaxPokemonSubscriptions = 25;
         public const int MaxPvPSubscriptions = 15;
         public const int MaxRaidSubscriptions = 5;
+        public const int MaxGymSubscriptions = 3;
         public const int MaxQuestSubscriptions = 2;
         public const int MaxInvasionSubscriptions = 1;
         public const int CommonTypeMinimumIV = 90;

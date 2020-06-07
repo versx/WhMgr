@@ -50,6 +50,12 @@
         public int MinimumLevel { get; set; }
 
         [
+            JsonProperty("max_lvl"),
+            Alias("max_lvl")
+        ]
+        public int MaximumLevel { get; set; }
+
+        [
             JsonProperty("gender"),
             Alias("gender")
         ]
@@ -88,6 +94,7 @@
             MinimumCP = 0;
             MinimumIV = 0;
             MinimumLevel = 0;
+            MaximumLevel = 35;
             Gender = "*";
             Attack = 0;
             Defense = 0;

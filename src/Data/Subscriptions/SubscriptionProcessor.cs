@@ -156,7 +156,7 @@
 
                     matchesIV = _whm.Filters.MatchesIV(pkmn.IV, subscribedPokemon.MinimumIV);
                     //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
-                    matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, subscribedPokemon.MinimumLevel);
+                    matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, (uint)subscribedPokemon.MinimumLevel, (uint)subscribedPokemon.MaximumLevel);
                     matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
                     matchesAttack = _whm.Filters.MatchesAttack(pkmn.Attack, subscribedPokemon.Attack);
                     matchesDefense = _whm.Filters.MatchesDefense(pkmn.Defense, subscribedPokemon.Defense);
@@ -288,8 +288,9 @@
                     }
 
                     matchesLeague = (pkmn.MatchesGreatLeague && subscribedPokemon.League == PvPLeague.Great) || (pkmn.MatchesUltraLeague && subscribedPokemon.League == PvPLeague.Ultra);
-                    matchesRank = pkmn.GreatLeagueRank.Key <= subscribedPokemon.MinimumRank || pkmn.UltraLeagueRank.Key <= subscribedPokemon.MinimumRank;
-                    matchesPercent = pkmn.GreatLeagueRank.Value >= subscribedPokemon.MinimumPercent || pkmn.UltraLeagueRank.Value >= subscribedPokemon.MinimumPercent;
+                    //matchesRank = pkmn.GreatLeagueRank.Key <= subscribedPokemon.MinimumRank || pkmn.UltraLeagueRank.Key <= subscribedPokemon.MinimumRank;
+                    matchesRank = (pkmn.GreatLeague?.Exists(x => (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank) ?? false) || (pkmn.UltraLeague?.Exists(x => (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank) ?? false);
+                    matchesPercent = (pkmn.GreatLeague?.Exists(x => (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false) || (pkmn.UltraLeague?.Exists(x => (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false);
 
                     if (!(matchesLeague && matchesRank && matchesPercent))
                         continue;
@@ -392,7 +393,7 @@
                         }
                     }
 
-                    if (user.Gyms.Count > 0 && !user.Gyms.Exists(x => !string.IsNullOrEmpty(x?.Name) && raid.GymName.ToLower().Contains(x.Name?.ToLower())))
+                    if (user.Gyms.Count > 0 && !user.Gyms.Exists(x => !string.IsNullOrEmpty(x?.Name) && ((raid.GymName?.ToLower()?.Contains(x.Name?.ToLower()) ?? false) || (raid.GymName?.ToLower()?.StartsWith(x.Name?.ToLower()) ?? false))))
                     {
                         //Skip if list is not empty and gym is not in list.
                         _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");

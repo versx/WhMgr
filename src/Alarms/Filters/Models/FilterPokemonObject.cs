@@ -69,7 +69,7 @@
             MinimumLevel = 0;
             MaximumLevel = 100; //Support for when they increase level cap. :wink:
             MinimumRank = 0;
-            MaximumRank = 100;
+            MaximumRank = 4096;
             Gender = '*';
             Size = null;
         }

@@ -88,7 +88,12 @@
                 if (MasterFile.Instance.Pokedex.ContainsKey(PokemonId) && !IsEgg)
                 {
                     var list = new List<PokemonType>();
-                    MasterFile.Instance.Pokedex[PokemonId]?.Types?.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
+                    var types = MasterFile.GetPokemon(PokemonId, Form)?.Types;
+                    //MasterFile.GetPokemon(PokemonId, Form)?.Types?.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
+                    foreach (var type in types)
+                    {
+                        list.AddRange(type.GetWeaknesses());
+                    }
                     return list;
                 }
 
@@ -188,6 +193,7 @@
                 string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
+            Console.WriteLine("Weaknesses:", weaknesses);
             var weaknessesEmoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
                 Weaknesses.GetWeaknessEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
                 string.Empty;

@@ -266,9 +266,8 @@
                 }
 
                 pokemon.SetDespawnTime(_enableDST, _enableLeapYear);
-
                 /*
-                if (_processedPokemon.ContainsKey(pokemon.Id))
+                if (_processedPokemon.ContainsKey(pokemon.EncounterId))
                 {
                     // Pokemon already sent (check if IV set)
                     return;
@@ -306,9 +305,12 @@
                 if (_processedRaids.ContainsKey(raid.GymId))
                 {
                     if (_processedRaids[raid.GymId].PokemonId == raid.PokemonId &&
+                        _processedRaids[raid.GymId].Form == raid.Form &&
                         _processedRaids[raid.GymId].Level == raid.Level &&
+                        _processedRaids[raid.GymId].Start == raid.Start &&
                         _processedRaids[raid.GymId].End == raid.End)
                     {
+                        _logger.Debug($"PROCESSED RAID ALREADY: Id: {raid.GymId} Name: {raid.GymName} Pokemon: {raid.PokemonId} Form: {raid.Form} Start: {raid.StartTime} End: {raid.EndTime}");
                         // Processed raid already
                         return;
                     }
@@ -382,6 +384,7 @@
                         (_processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType && _processedPokestops[pokestop.PokestopId].IncidentExpire == pokestop.IncidentExpire)
                         )
                     {
+                        _logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
                         // Processed pokestop lure or invasion already
                         return;
                     }

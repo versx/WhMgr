@@ -20,6 +20,7 @@ CREATE TABLE `pokemon` (
    `min_cp` int(11) DEFAULT NULL,
    `miv_iv` int(11) DEFAULT NULL,
    `min_lvl` int(11) DEFAULT NULL,
+   `max_lvl` int(11) DEFAULT NULL,
    `gender` text DEFAULT NULL,
    `attack` int(11) DEFAULT NULL,
    `defense` int(11) DEFAULT NULL,

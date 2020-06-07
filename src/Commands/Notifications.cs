@@ -188,7 +188,7 @@
         public async Task PokeMeAsync(CommandContext ctx,
             [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to Pokemon spawn notifications.")] string poke,
             [Description("Minimum IV to receive notifications for, use 0 to disregard IV.")] string iv = "0",
-            [Description("Minimum level to receive notifications for, use 0 to disregard level.")] int lvl = 0,
+            [Description("Minimum level and maximum level to receive notifications for, use 0 to disregard level.")] string lvl = "0",
             [Description("Specific gender the Pokemon must be, use * to disregard gender.")] string gender = "*")
         {
             if (!await CanExecute(ctx))
@@ -245,9 +245,35 @@
                 return;
             }
 
-            if (lvl < 0 || lvl > 35)
+            var minLevel = 0;
+            var maxLevel = 35;
+            if (lvl.Contains('-'))
+            {
+                var split = lvl.Split('-');
+                if (!int.TryParse(split[0], out minLevel))
+                {
+                    // TODO: Failed to parse min level
+                }
+                if (!int.TryParse(split[1], out maxLevel))
+                {
+                    // TODO: Failed to parse max level
+                }
+            }
+            else
+            {
+                // TODO: Level is min, use default max of 40
+            }
+            if (minLevel < 0 || minLevel > 35)
             {
                 await ctx.TriggerTypingAsync();
+                // TODO: Change min level locale
+                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_LEVEL").FormatText(ctx.User.Username, lvl), DiscordColor.Red);
+                return;
+            }
+            if (maxLevel < 0 || maxLevel > 35)
+            {
+                await ctx.TriggerTypingAsync();
+                // TODO: Change max level locale
                 await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_LEVEL").FormatText(ctx.User.Username, lvl), DiscordColor.Red);
                 return;
             }
@@ -273,7 +299,8 @@
                         var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == i);
                         //Always ignore the user's input for Unown, Azelf, Mesprit, or Uxie and set it to 0 by default.
                         var minIV = IsRarePokemon(i) ? 0 : realIV;
-                        var minLvl = IsRarePokemon(i) ? 0 : lvl;
+                        var minLvl = IsRarePokemon(i) ? 0 : minLevel;
+                        var maxLvl = IsRarePokemon(i) ? 35 : maxLevel;
                         if (subPkmn == null)
                         {
                             //Does not exist, create.
@@ -285,6 +312,7 @@
                                 Form = null,
                                 MinimumIV = minIV,
                                 MinimumLevel = minLvl,
+                                MaximumLevel = maxLvl,
                                 Gender = gender
                             });
                             continue;
@@ -292,11 +320,13 @@
 
                         //Exists, check if anything changed.
                         if (realIV != subPkmn.MinimumIV ||
-                            lvl != subPkmn.MinimumLevel ||
+                            minLvl != subPkmn.MinimumLevel ||
+                            maxLvl != subPkmn.MaximumLevel ||
                             gender != subPkmn.Gender)
                         {
                             subPkmn.MinimumIV = minIV;
                             subPkmn.MinimumLevel = minLvl;
+                            subPkmn.MaximumLevel = maxLvl;
                             subPkmn.Gender = gender;
                         }
                     }
@@ -304,7 +334,7 @@
                     subscription.Save();
 
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} subscribed to **all** Pokemon notifications with a minimum IV of {iv}%{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}.");
+                    await ctx.RespondEmbed($"{ctx.User.Username} subscribed to **all** Pokemon notifications with a minimum IV of {iv}%{(minLevel > 0 ? $" and a level between {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}.");
                     _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                     return;
                 }
@@ -352,7 +382,8 @@
                 var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
                 //Always ignore the user's input for Unown and set it to 0 by default.
                 var minIV = IsRarePokemon(pokemonId) ? 0 : realIV;
-                var minLvl = IsRarePokemon(pokemonId) ? 0 : lvl;
+                var minLvl = IsRarePokemon(pokemonId) ? 0 : minLevel;
+                var maxLvl = IsRarePokemon(pokemonId) ? 35 : maxLevel;
                 if (subPkmn == null)
                 {
                     //Does not exist, create.
@@ -364,6 +395,7 @@
                         Form = form,
                         MinimumIV = minIV,
                         MinimumLevel = minLvl,
+                        MaximumLevel = maxLvl,
                         Gender = gender
                     });
                     subscribed.Add(name);
@@ -373,7 +405,8 @@
                 //Exists, check if anything changed.
                 if (realIV != subPkmn.MinimumIV ||
                     string.Compare(form, subPkmn.Form, true) != 0 ||
-                    lvl != subPkmn.MinimumLevel ||
+                    minLvl != subPkmn.MinimumLevel ||
+                    maxLvl != subPkmn.MaximumLevel ||
                     gender != subPkmn.Gender ||
                     attack != subPkmn.Attack ||
                     defense != subPkmn.Defense ||
@@ -381,7 +414,8 @@
                 {
                     subPkmn.Form = form;
                     subPkmn.MinimumIV = realIV;
-                    subPkmn.MinimumLevel = lvl;
+                    subPkmn.MinimumLevel = minLvl;
+                    subPkmn.MaximumLevel = maxLvl;
                     subPkmn.Gender = gender;
                     subPkmn.Attack = attack;
                     subPkmn.Defense = defense;
@@ -405,10 +439,10 @@
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
+                    ? $"{ctx.User.Username} has subscribed to **{string.Join("**, **", subscribed)}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(minLevel > 0 ? $" and between level {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
-                    ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(lvl > 0 ? $" and a minimum level of {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
+                    ? $"\r\n{ctx.User.Username} is already subscribed to **{string.Join("**, **", alreadySubscribed)}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(minLevel > 0 ? $" and a between level {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
                     : string.Empty)
             );
 
@@ -1505,6 +1539,7 @@
             var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
             var hasPvP = isSubbed && subscription?.PvP.Count > 0;
             var hasRaids = isSubbed && subscription?.Raids.Count > 0;
+            var hasGyms = isSubbed && subscription?.Gyms.Count > 0;
             var hasQuests = isSubbed && subscription?.Quests.Count > 0;
             var hasInvasions = isSubbed && subscription?.Invasions.Count > 0;
             var messages = new List<string>();
@@ -1588,6 +1623,16 @@
                 sb2.AppendLine(_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_RAIDS").FormatText(subscription.Raids.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxRaidSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetRaidSubscriptionNames(guildId, user.Id)));
+                sb2.Append("```");
+                sb2.AppendLine();
+                sb2.AppendLine();
+            }
+
+            if (hasGyms)
+            {
+                sb2.AppendLine(/*_dep.Language.Translate("NOTIFY_SETTINGS_EMBED_GYMS")*/"Gym Subscriptions: ({0}/{1} used)".FormatText(subscription.Gyms.Count.ToString("N0"), isSupporter ? "" : Strings.MaxGymSubscriptions.ToString("N0")));
+                sb2.Append("```");
+                sb2.Append(string.Join(Environment.NewLine, GetGymSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
                 sb2.AppendLine();
                 sb2.AppendLine();
@@ -1699,6 +1744,23 @@
             return list;
         }
 
+        private List<string> GetGymSubscriptionNames(ulong guildId, ulong userId)
+        {
+            var list = new List<string>();
+            //if (!_dep.SubscriptionProcessor.Manager.UserExists(guildId, userId))
+            //    return list;
+
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
+            var subscribedGyms = subscription.Gyms;
+            subscribedGyms.Sort((x, y) => x.Name.CompareTo(y.Name));
+            foreach (var gym in subscribedGyms)
+            {
+                list.Add(gym.Name);
+            }
+
+            return list;
+        }
+
         private List<string> GetQuestSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
@@ -1746,11 +1808,11 @@
         {
             var commonPokemon = new List<int>
             {
-                1, //Bulbasaur
-                4, //Charmander
-                7, //Squirtle
-                10, //Caterpie
-                13, //Weedle
+                //1, //Bulbasaur
+                //4, //Charmander
+                //7, //Squirtle
+                //10, //Caterpie
+                //13, //Weedle
                 16, //Pidgey
                 17, //Pidgeotto
                 19, //Rattata
@@ -1761,64 +1823,64 @@
                 27, //Sandshrew
                 29, //Nidoran Female
                 32, //Nidoran Male
-                35, //Clefairy
-                37, //Vulpix
-                39, //Jigglypuff
-                41, //Zubat
-                43, //Oddish
+                //35, //Clefairy
+                //37, //Vulpix
+                //39, //Jigglypuff
+                //41, //Zubat
+                //43, //Oddish
                 46, //Paras
-                48, //Venonat
+                //48, //Venonat
                 50, //Diglett
                 52, //Meowth
                 54, //Psyduck
-                56, //Mankey
+                //56, //Mankey
                 58, //Growlithe
-                60, //Poliwag
+                //60, //Poliwag
                 //63, //Abra
                 //66, //Machop
-                69, //Bellsprout
-                72, //Tentacool
+                //69, //Bellsprout
+                //72, //Tentacool
                 74, //Geodude
                 77, //Ponyta
                 79, //Slowpoke
                 81, //Magnemite
                 84, //Doduo
-                86, //Seel
+                //86, //Seel
                 90, //Shellder
-                92, //Gastly
-                96, //Drowzee
+                //92, //Gastly
+                //96, //Drowzee
                 98, //Krabby
                 100, //Voltorb
                 102, //Exeggcute
                 104, //Cubone
                 109, //Koffing
                 111, //Ryhorn
-                116, //Horsea
-                118, //Goldeen
+                //116, //Horsea
+                //118, //Goldeen
                 120, //Staryu
                 127, //Pinsir
                 128, //Tauros
-                129, //Magikarp
+                //129, //Magikarp
                 //133, //Eevee
                 138, //Omanyte
                 140, //Kabuto
-                152, //Chikorita
-                155, //Cyndaquil
-                158, //Totodile
+                //152, //Chikorita
+                //155, //Cyndaquil
+                //158, //Totodile
                 161, //Sentret
-                163, //Hoothoot
+                //163, //Hoothoot
                 165, //Ledyba
                 167, //Spinarak
-                170, //Chinchou
+                //170, //Chinchou
                 177, //Natu
                 179, //Mareep
-                183, //Marill
+                //183, //Marill
                 //185, //Sudowoodo
                 187, //Hoppip
                 //190, //Aipom
                 191, //Sunkern
                 193, //Yanma
-                194, //Wooper
+                //194, //Wooper
                 198, //Murkrow
                 200, //Misdreavus
                 204, //Pineco
@@ -1833,17 +1895,17 @@
                 223, //Remoraid
                 228, //Houndour
                 231, //Phanpy
-                252, //Treecko
+                //252, //Treecko
                 //255, //Torchic
                 //258, //Mudkip
                 261, //Poochyena
                 263, //Zigzagoon
                 265, //Wurmple
-                273, //Seedot
+                //273, //Seedot
                 276, //Taillow
                 //293, //Whismur
                 296, //Makuhita
-                299, //Nosepass
+                //299, //Nosepass
                 300, //Skitty
                 302, //Sableye
                 304, //Aron
@@ -1858,30 +1920,30 @@
                 320, //Wailmer
                 322, //Numel
                 325, //Spoink
-                328, //Trapinch
+                //328, //Trapinch
                 331, //Cacnea
-                333, //Swablu
+                //333, //Swablu
                 336, //Seviper
-                339, //Barboach
+                //339, //Barboach
                 341, //Corphish
                 343, //Baltoy
                 345, //Lileep
                 347, //Anorith
                 351, //Castform
-                353, //Shuppet
+                //353, //Shuppet
                 355, //Duskull
                 //361, //Snorunt
                 363, //Spheal
                 //370, //Luvdisc
-                387, //Turtwig
-                390, //Chimchar
-                396, //Starly
+                //387, //Turtwig
+                //390, //Chimchar
+                //396, //Starly
                 399, //Bidoof
                 401, //Kricketot
                 418, //Buizel
                 //425, //Drifloon
                 427, //Buneary
-                434, //Stunky
+                //434, //Stunky
                 459, //Snover
                 504, //Patrat
                 506, //Lillipup

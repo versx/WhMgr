@@ -293,10 +293,8 @@
                     }
                 }
 
-                //_logger.Info($"Loading alerts file {x.AlertsFile}...");
                 x.LoadAlerts();
 
-                //_logger.Info($"Loading filters file {x.FiltersFile}...");
                 x.LoadFilters();
             });
 
@@ -406,14 +404,19 @@
                         continue;
                     }
 
-                    //TODO: Get PvP rank
-                    if (!pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague)//&& !Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank))
+                    if (alarm.Filters.Pokemon.IsPvpGreatLeague &&
+                        !(pkmn.MatchesGreatLeague && pkmn.GreatLeague.Exists(x =>
+                            Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
+                            && x.CP >= 1400 && x.CP <= 1500)))
                     //if (!(pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague))// && Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)))
                     {
                         continue;
                     }
 
-                    if (!pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague)//&& !Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank))
+                    if (alarm.Filters.Pokemon.IsPvpUltraLeague &&
+                        !(pkmn.MatchesUltraLeague && pkmn.UltraLeague.Exists(x =>
+                            Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
+                            && x.CP >= 2400 && x.CP <= 2500)))
                     //if (!(pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague))// && Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)))
                     {
                         continue;
@@ -425,8 +428,8 @@
                     //    continue;
                     //}
 
-                    if (!(float.TryParse(pkmn.Height, out var height) && float.TryParse(pkmn.Weight, out var weight) &&
-                          Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters?.Pokemon?.Size)))
+                    if (float.TryParse(pkmn.Height, out var height) && float.TryParse(pkmn.Weight, out var weight) &&
+                        !Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters?.Pokemon?.Size))
                     {
                         continue;
                     }

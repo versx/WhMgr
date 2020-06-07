@@ -11,6 +11,18 @@
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
+    public class PokemonTypes
+    {
+        [JsonProperty("immunes")]
+        public List<PokemonType> Immune { get; set; }
+
+        [JsonProperty("weaknesses")]
+        public List<PokemonType> Weaknesses { get; set; }
+
+        [JsonProperty("strengths")]
+        public List<PokemonType> Strengths { get; set; }
+    }
+
     public class MasterFile
     {
         const string MasterFileName = "masterfile.json";
@@ -20,6 +32,7 @@
         const string EmojisFileName = "emojis.json";
         const string ShinyFileName = "shiny.json";
         const string GruntTypesFileName = "grunttype.json";
+        const string TypesFileName = "types.json";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");
 
@@ -34,8 +47,8 @@
         [JsonProperty("items")]
         public IReadOnlyDictionary<string, string> ItemsText { get; set; }
 
-        [JsonProperty("types")]
-        public IReadOnlyDictionary<int, PokemonType> Types { get; set; }
+        //[JsonProperty("types")]
+        //public IReadOnlyDictionary<int, PokemonType> Types { get; set; }
 
         [JsonProperty("quest_condition")]
         public IReadOnlyDictionary<string, string> QuestConditions { get; set; }
@@ -64,6 +77,8 @@
 
         [JsonIgnore]
         public IReadOnlyDictionary<InvasionGruntType, TeamRocketInvasion> GruntTypes { get; set; }
+
+        public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }
 
         [JsonIgnore]
         public List<int> PossibleShinies { get; set; }
@@ -124,6 +139,11 @@
             PossibleShinies = LoadInit<List<int>>(
                 Path.Combine(Strings.DataFolder, ShinyFileName),
                 typeof(List<int>)
+            );
+
+            PokemonTypes = LoadInit<Dictionary<PokemonType, PokemonTypes>>(
+                Path.Combine(Strings.DataFolder, TypesFileName),
+                typeof(Dictionary<PokemonType, PokemonTypes>)
             );
         }
 
