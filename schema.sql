@@ -62,7 +62,6 @@ CREATE TABLE `invasions` (
   `subscription_id` int(11) NOT NULL DEFAULT 0,
   `guild_id` bigint(20) DEFAULT NULL,
   `userId` bigint(20) DEFAULT NULL,
-  `grunt_type` text DEFAULT NULL,
   `reward_pokemon_id` int(11) DEFAULT NULL,
   `city` text DEFAULT NULL,
   PRIMARY KEY (`id`)
