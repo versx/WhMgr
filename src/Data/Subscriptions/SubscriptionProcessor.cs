@@ -393,7 +393,13 @@
                         }
                     }
 
-                    if (user.Gyms.Count > 0 && !user.Gyms.Exists(x => !string.IsNullOrEmpty(x?.Name) && ((raid.GymName?.ToLower()?.Contains(x.Name?.ToLower()) ?? false) || (raid.GymName?.ToLower()?.StartsWith(x.Name?.ToLower()) ?? false))))
+                    if (user.Gyms.Count > 0 && !user.Gyms.Exists(x =>
+                        !string.IsNullOrEmpty(x?.Name) &&
+                        (
+                            (raid.GymName?.ToLower()?.Contains(x.Name?.ToLower()) ?? false) ||
+                            (raid.GymName?.ToLower()?.StartsWith(x.Name?.ToLower()) ?? false)
+                        )
+                    ))
                     {
                         //Skip if list is not empty and gym is not in list.
                         _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");

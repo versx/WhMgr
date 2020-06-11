@@ -395,7 +395,7 @@
         {
             get
             {
-                return GreatLeague?.Exists(x => x.Rank <= TopPvPRanks && x.CP <= 1500) ?? false;
+                return GreatLeague?.Exists(x => x.Rank <= TopPvPRanks && x.CP >= 1400 && x.CP <= 1500) ?? false;
                 /*
                 if (_matchesGreatLeague == null)
                 {
@@ -496,7 +496,7 @@
         {
             get
             {
-                return UltraLeague?.Exists(x => x.Rank <= TopPvPRanks && x.CP <= 2500) ?? false;
+                return UltraLeague?.Exists(x => x.Rank <= TopPvPRanks && x.CP >= 2400 && x.CP <= 2500) ?? false;
                 /*
                 if (_matchesUltraLeague == null)
                 {
