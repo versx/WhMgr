@@ -395,7 +395,7 @@
         {
             get
             {
-                return GreatLeague?.Exists(x => x.Rank <= TopPvPRanks && x.CP >= 1400 && x.CP <= 1500) ?? false;
+                return GreatLeague?.Exists(x => x.CP >= 1400 && x.CP <= 1500) ?? false;
                 /*
                 if (_matchesGreatLeague == null)
                 {
@@ -496,7 +496,7 @@
         {
             get
             {
-                return UltraLeague?.Exists(x => x.Rank <= TopPvPRanks && x.CP >= 2400 && x.CP <= 2500) ?? false;
+                return UltraLeague?.Exists(x => x.CP >= 2400 && x.CP <= 2500) ?? false;
                 /*
                 if (_matchesUltraLeague == null)
                 {
@@ -839,7 +839,7 @@
             {
                 foreach (var pvp in GreatLeague)
                 {
-                    if (pvp.Rank > TopPvPRanks || pvp.Rank == 0)
+                    if (/*pvp.Rank > TopPvPRanks ||*/ pvp.Rank == 0)
                         continue;
 
                     if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
@@ -900,7 +900,7 @@
             {
                 foreach (var pvp in UltraLeague)
                 {
-                    if (pvp.Rank > TopPvPRanks || pvp.Rank == 0)
+                    if (/*pvp.Rank > TopPvPRanks ||*/ pvp.Rank == 0)
                         continue;
 
                     if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))

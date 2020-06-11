@@ -273,7 +273,7 @@
                     _logger.Error($"Failed to assign role {cityRole.Name} to user {ctx.User.Username} ({ctx.User.Id}).");
                 }
 
-                Thread.Sleep(200);
+                Thread.Sleep(500);
             }
 
             await ctx.RespondEmbed(_dep.Language.Translate("FEEDS_ASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));
