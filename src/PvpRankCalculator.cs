@@ -1,4 +1,5 @@
-﻿namespace WhMgr
+﻿/*
+namespace WhMgr
 {
     using System;
     using System.Collections.Generic;
@@ -215,3 +216,4 @@
         public int Stamina { get; set; }
     }
 }
+*/
