@@ -21,7 +21,7 @@
 
         public override string ToString()
         {
-            return $"Uid={Username};Password={Password};Server={Host};Port={Port};Database={Database};";
+            return $"Uid={Username};Password={Password};Server={Host};Port={Port};Database={Database};old guids=true;";
         }
     }
 }
