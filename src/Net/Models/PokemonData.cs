@@ -839,7 +839,7 @@
             {
                 foreach (var pvp in GreatLeague)
                 {
-                    if (/*pvp.Rank > TopPvPRanks ||*/ pvp.Rank == 0)
+                    if (/*pvp.Rank > TopPvPRanks ||*/ pvp.Rank == 0 || !(pvp.CP >= 1400 && pvp.CP <= 1500))
                         continue;
 
                     if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
@@ -900,7 +900,7 @@
             {
                 foreach (var pvp in UltraLeague)
                 {
-                    if (/*pvp.Rank > TopPvPRanks ||*/ pvp.Rank == 0)
+                    if (/*pvp.Rank > TopPvPRanks ||*/ pvp.Rank == 0 || !(pvp.CP >= 2400 && pvp.CP <= 2500))
                         continue;
 
                     if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))

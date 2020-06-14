@@ -87,6 +87,7 @@
 
             if (string.Compare(cityName, Strings.All, true) == 0)
             {
+                await ctx.RespondEmbed($"Please wait while I assign all city roles, this may take a couple of minutes depending on the amount of cities.", DiscordColor.Green); // TODO: Localize
                 await AssignAllDefaultFeedRoles(ctx);
                 return;
             }
@@ -181,6 +182,7 @@
 
             if (string.Compare(cityName, Strings.All, true) == 0)
             {
+                await ctx.RespondEmbed($"Please wait while I unassign all city roles, this may take a couple of minutes depending on the amount of cities.", DiscordColor.Green); // TODO: Localize
                 await RemoveAllDefaultFeedRoles(ctx);
                 return;
             }
