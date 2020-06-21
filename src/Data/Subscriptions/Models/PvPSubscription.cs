@@ -81,12 +81,20 @@
         ]
         public double MinimumPercent { get; set; }
 
+        [
+            JsonProperty("city"),
+            Alias("city"),
+            Default("all")
+        ]
+        public string City { get; set; }
+
         public PvPSubscription()
         {
             Form = null;
             League = PvPLeague.Great;
             MinimumRank = 25;
             MinimumPercent = 90;
+            City = "all";
         }
     }
 }

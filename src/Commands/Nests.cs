@@ -6,6 +6,7 @@
     using System.Text;
     using System.Threading.Tasks;
 
+    using DSharpPlus;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
@@ -33,7 +34,8 @@
 
         [
             Command("nests"),
-            Description("")
+            Description(""),
+            RequirePermissions(Permissions.KickMembers)
         ]
         public async Task PostNestsAsync(CommandContext ctx)
         {

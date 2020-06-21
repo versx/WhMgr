@@ -89,10 +89,13 @@
                 {
                     var list = new List<PokemonType>();
                     var types = MasterFile.GetPokemon(PokemonId, Form)?.Types;
-                    //MasterFile.GetPokemon(PokemonId, Form)?.Types?.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
-                    foreach (var type in types)
+                    if (types != null)
                     {
-                        list.AddRange(type.GetWeaknesses());
+                        //MasterFile.GetPokemon(PokemonId, Form)?.Types?.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
+                        foreach (var type in types)
+                        {
+                            list.AddRange(type.GetWeaknesses());
+                        }
                     }
                     return list;
                 }

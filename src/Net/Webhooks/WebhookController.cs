@@ -479,7 +479,7 @@
 
                         if (!alarm.Filters.Eggs.Enabled)
                         {
-                            _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: raids filter not enabled.");
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: raids filter not enabled.");
                             continue;
                         }
 
@@ -516,7 +516,7 @@
 
                         if (!alarm.Filters.Raids.Enabled)
                         {
-                            _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: raids filter not enabled.");
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: raids filter not enabled.");
                             continue;
                         }
 
@@ -585,7 +585,7 @@
 
                     if (!alarm.Filters.Quests.Enabled)
                     {
-                        _logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: quests filter not enabled.");
+                        //_logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: quests filter not enabled.");
                         continue;
                     }
 
@@ -657,7 +657,7 @@
 
                     if (!alarm.Filters.Pokestops.Enabled)
                     {
-                        _logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
                         continue;
                     }
 
@@ -713,7 +713,7 @@
 
                     if (!alarm.Filters.Gyms.Enabled)
                     {
-                        _logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName}: gym filter not enabled.");
+                        //_logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName}: gym filter not enabled.");
                         continue;
                     }
 

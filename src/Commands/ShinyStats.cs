@@ -6,6 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using DSharpPlus;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
@@ -30,8 +31,7 @@
 
         [
             Command("shiny-stats"),
-            DSharpPlus.CommandsNext.Attributes.Description(""),
-            RequireOwner
+            RequirePermissions(Permissions.KickMembers)
         ]
         public async Task GetShinyStatsAsync(CommandContext ctx)
         {

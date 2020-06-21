@@ -189,7 +189,8 @@
             [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to Pokemon spawn notifications.")] string poke,
             [Description("Minimum IV to receive notifications for, use 0 to disregard IV.")] string iv = "0",
             [Description("Minimum level and maximum level to receive notifications for, use 0 to disregard level.")] string lvl = "0",
-            [Description("Specific gender the Pokemon must be, use * to disregard gender.")] string gender = "*")
+            [Description("Specific gender the Pokemon must be, use * to disregard gender.")] string gender = "*",
+            [Description("City")] string city = "all")
         {
             if (!await CanExecute(ctx))
                 return;
@@ -281,7 +282,7 @@
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
-
+            /*
             try
             {
                 if (string.Compare(poke, Strings.All, true) == 0)
@@ -344,6 +345,7 @@
                 _logger.Debug($"[ERROR] POKEME FAILED-----------------------------------");
                 _logger.Error(ex);
             }
+            */
 
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
@@ -2032,6 +2034,11 @@
                 var genRange = Strings.PokemonGenerationRanges[gen];
                 var range = GetListFromRange(genRange.Start, genRange.End);
                 validation = range.ValidatePokemon();
+            }
+            else if (string.Compare(pokemonList, Strings.All, true) == 0)
+            {
+                var list = GetListFromRange(1, Strings.MaxPokemonIds);
+                validation = list.ValidatePokemon();
             }
             else
             {

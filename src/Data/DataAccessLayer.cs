@@ -3,6 +3,7 @@
     using System.Collections.Generic;
 
     using ServiceStack.OrmLite;
+    using ServiceStack.Text;
 
     public static class DataAccessLayer
     {
@@ -24,7 +25,9 @@
 
             if (!Factories.ContainsKey(connectionString))
             {
-                Factories.Add(connectionString, new OrmLiteConnectionFactory(connectionString, MySqlDialect.Provider));
+                var provider = MySqlDialect.Provider;
+                provider.StringSerializer = new JsonStringSerializer();
+                Factories.Add(connectionString, new OrmLiteConnectionFactory(connectionString, provider));
             }
 
             //var factory = new OrmLiteConnectionFactory(connectionString, MySqlDialect.Provider);

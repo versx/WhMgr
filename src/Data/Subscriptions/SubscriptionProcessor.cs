@@ -87,6 +87,7 @@
             var matchesAttack = false;
             var matchesDefense = false;
             var matchesStamina = false;
+            var matchesIVList = false;
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -135,6 +136,15 @@
                         continue;
                     }
 
+                    /*
+                    var exists = user.Pokemon.Exists(x => string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0));
+                    if (!exists)
+                    {
+                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.PokemonId} because the Pokemon is in city '{loc.Name}'.");
+                        continue;
+                    }
+                    */
+
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
@@ -147,10 +157,15 @@
                     }
 
                     var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
-                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
+                    //subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
+                    subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
+                        x.PokemonId == pkmn.Id &&
+                        //(string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
+                    );
                     if (subscribedPokemon == null)
                     {
-                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
+                        //_logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
@@ -158,15 +173,22 @@
                     //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
                     matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, (uint)subscribedPokemon.MinimumLevel, (uint)subscribedPokemon.MaximumLevel);
                     matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
+                    matchesIVList = subscribedPokemon.IVList != null && subscribedPokemon.IVList.Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}");
                     matchesAttack = _whm.Filters.MatchesAttack(pkmn.Attack, subscribedPokemon.Attack);
                     matchesDefense = _whm.Filters.MatchesDefense(pkmn.Defense, subscribedPokemon.Defense);
                     matchesStamina = _whm.Filters.MatchesStamina(pkmn.Stamina, subscribedPokemon.Stamina);
 
+                    if (!(!subscribedPokemon.HasStats && (matchesIV || matchesIVList) && matchesLvl && matchesGender) ||
+                        (subscribedPokemon.HasStats && matchesAttack && matchesDefense && matchesStamina))
+                    {
+                        continue;
+                    }
+                    /*
                     if (!(
-                        (!subscribedPokemon.HasStats && matchesIV && matchesLvl && matchesGender) ||
-                        (subscribedPokemon.HasStats && matchesAttack && matchesDefense && matchesStamina)
+                        subscribedPokemon.HasStats && (matchesIV && matchesLvl && matchesGender) || (subscribedPokemon.HasStats && matchesIVList)
                          ))
                         continue;
+                    */
 
                     var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
                     var iconStyleUrl = _whConfig.IconStyles.FirstOrDefault(x => string.Compare(x.Key, iconStyle, true) == 0).Value;
@@ -280,17 +302,24 @@
                     }
 
                     var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
-                    subscribedPokemon = user.PvP.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
+                    subscribedPokemon = user.PvP.FirstOrDefault(x =>
+                        x.PokemonId == pkmn.Id &&
+                        //(string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
+                    );
                     if (subscribedPokemon == null)
                     {
-                        _logger.Info($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
+                        //_logger.Info($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
-                    matchesLeague = (pkmn.MatchesGreatLeague && subscribedPokemon.League == PvPLeague.Great) || (pkmn.MatchesUltraLeague && subscribedPokemon.League == PvPLeague.Ultra);
+                    matchesLeague = (pkmn.MatchesGreatLeague && subscribedPokemon.League == PvPLeague.Great) ||
+                                    (pkmn.MatchesUltraLeague && subscribedPokemon.League == PvPLeague.Ultra);
                     //matchesRank = pkmn.GreatLeagueRank.Key <= subscribedPokemon.MinimumRank || pkmn.UltraLeagueRank.Key <= subscribedPokemon.MinimumRank;
-                    matchesRank = (pkmn.GreatLeague?.Exists(x => (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank) ?? false) || (pkmn.UltraLeague?.Exists(x => (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank) ?? false);
-                    matchesPercent = (pkmn.GreatLeague?.Exists(x => (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false) || (pkmn.UltraLeague?.Exists(x => (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false);
+                    matchesRank = (pkmn.GreatLeague?.Exists(x => (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank) ?? false) ||
+                                  (pkmn.UltraLeague?.Exists(x => (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank) ?? false);
+                    matchesPercent = (pkmn.GreatLeague?.Exists(x => (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false) ||
+                                     (pkmn.UltraLeague?.Exists(x => (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false);
 
                     if (!(matchesLeague && matchesRank && matchesPercent))
                         continue;

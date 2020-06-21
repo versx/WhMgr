@@ -145,8 +145,8 @@
             var lang = ctx.Dependencies?.GetDependency<Translator>();
             var message = lang != null ? 
                     lang.Translate("DONATE_MESSAGE").FormatText(ctx.User.Username) :
-                    $"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\n" +
-                    $"Donation information can be found by typing the `donate` command.\r\n\r\n" +
+                    $"{ctx.User.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
+                    $"Donation information can be found by typing the `$donate` command.\r\n\r\n" +
                     $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
             var eb = await ctx.RespondEmbed(message);
             return eb.FirstOrDefault();

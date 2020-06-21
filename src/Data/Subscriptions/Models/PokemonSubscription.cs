@@ -3,6 +3,7 @@
     using ServiceStack.DataAnnotations;
 
     using Newtonsoft.Json;
+    using System.Collections.Generic;
 
     [
         JsonObject("pokemon"),
@@ -44,6 +45,12 @@
         public int MinimumIV { get; set; }
 
         [
+            JsonProperty("iv_list"),
+            Alias("iv_list")
+        ]
+        public List<string> IVList { get; set; }
+
+        [
             JsonProperty("min_lvl"),
             Alias("min_lvl")
         ]
@@ -80,6 +87,12 @@
         public int Stamina { get; set; }
 
         [
+            JsonProperty("city"),
+            Alias("city")
+        ]
+        public string City { get; set; }
+
+        [
             JsonIgnore,
             Ignore
         ]
@@ -100,6 +113,7 @@
             Defense = 0;
             Stamina = 0;
             Form = null;
+            City = null;
         }
 
         #endregion

@@ -40,6 +40,7 @@
             [Description("")] string key,
             [Description("")] string value)
         {
+            // TODO: Provide list of available config options to set.
             if (!await ctx.Message.IsDirectMessageSupported())
                 return;
 

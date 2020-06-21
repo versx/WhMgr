@@ -76,8 +76,9 @@
             try
             {
                 var conn = GetConnection();
-                var expression = conn?.From<SubscriptionObject>();
-                var where = expression?.Where(x => x.GuildId == guildId && x.UserId == userId);
+                var where = conn?
+                    .From<SubscriptionObject>()
+                    .Where(x => x.GuildId == guildId && x.UserId == userId);
                 var query = conn?.LoadSelect(where);
                 var sub = query?.FirstOrDefault();
                 return sub ?? new SubscriptionObject { UserId = userId, GuildId = guildId };
@@ -100,7 +101,7 @@
         public List<SubscriptionObject> GetUserSubscriptionsByPvPPokemonId(int pokeId)
         {
             return _subscriptions?.Where(x =>
-                x.Enabled && x.Pokemon != null &&
+                x.Enabled && x.PvP != null &&
                 x.PvP.Exists(y => y.PokemonId == pokeId)
             )?.ToList();
         }
@@ -110,6 +111,14 @@
             return _subscriptions?.Where(x =>
                 x.Enabled && x.Raids != null &&
                 x.Raids.Exists(y => y.PokemonId == pokeId)
+            )?.ToList();
+        }
+
+        public List<SubscriptionObject> GetUserSubscriptionsByQuestReward(string reward)
+        {
+            return _subscriptions?.Where(x =>
+                x.Enabled && x.Quests != null &&
+                x.Quests.Exists(y => reward.Contains(y.RewardKeyword))
             )?.ToList();
         }
 
@@ -131,11 +140,44 @@
                 }
 
                 var conn = GetConnection();
-                var expression = conn?.From<SubscriptionObject>();
-                var where = expression?.Where(x => x.Enabled);
-                var query = conn?.LoadSelect(where);
-                var list = query?.ToList();
-                return list;
+                /*
+                var results = conn.Select(conn.From<SubscriptionObject>());
+                for (var i = 0; i < results.Count; i++)
+                {
+                    var result = results[i];
+                    result.Pokemon = conn.Select(conn
+                        .From<PokemonSubscription>()
+                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
+                    );
+                    result.PvP = conn.Select(conn
+                        .From<PvPSubscription>()
+                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
+                    );
+                    result.Raids = conn.Select(conn
+                        .From<RaidSubscription>()
+                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
+                    );
+                    result.Gyms = conn.Select(conn
+                        .From<GymSubscription>()
+                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
+                    );
+                    result.Quests = conn.Select(conn
+                        .From<QuestSubscription>()
+                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
+                    );
+                    result.Invasions = conn.Select(conn
+                        .From<InvasionSubscription>()
+                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
+                    );
+                }
+                */
+                var where = conn?
+                    .From<SubscriptionObject>()?
+                    .Where(x => x.Enabled);
+                var results = conn?
+                    .LoadSelect(where)?
+                    .ToList();
+                return results;
             }
             catch (OutOfMemoryException mex)
             {

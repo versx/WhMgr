@@ -10,6 +10,7 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
     using ServiceStack.OrmLite;
+
     using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
