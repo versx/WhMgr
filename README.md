@@ -55,7 +55,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         "000000000000000001": {
             // Bot command prefix, leave blank to use @mention <command>
             "commandPrefix": ".",
-            // Discord server owner ID.
+            // Discord server server ID.
             "guildId": 000000000000000001,
             // Discord Emoji server ID. (Can be same as `guildId`, currently not implemented, set as `guildId`)  
             "emojiGuildId": 000000000000000001,
@@ -286,12 +286,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 33.03,-118.03
 ```
 7.) Run `schema.sql` to manually create necessary database tables.  
-<<<<<<< HEAD
-8.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
-=======
 8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
-9.) Start WhMgr `dotnet WhMgr.dll` (If Windows, run as Administrator)  
->>>>>>> 31510cdd8f3e5e9ce26282657d58dad5d42836fd
+9.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
 
 **Important Notes:**  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.  
@@ -330,6 +326,10 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 **Pokemon Subscriptions**  
 * `pokeme` Subscribe to specific Pokemon notifications  
 * `pokemenot` Unsubscribe from specific Pokemon notifications
+
+**PVP Subscriptions**  
+* `pvpme` Subscription to specific PVP Pokemon notifications
+* `pvpmenot` Unsubscribe from specific PVP Pokemon notifications
 
 **Raid Subscriptions**  
 * `raidme` Subscribe to specific Raid notifications
@@ -566,13 +566,11 @@ __**Quests**__
 
 
 ## TODO:  
-- Convert to .NETCore project to allow cross platform deployments. (Windows, macOS, Linux)  
 - Allow Pokemon id and name in Pokemon filter lists.  
 - Individual filters per Pokemon. (PA style, maybe)  
 - Fix support for secondary emoji server.  
 - Finish Localization.  
 - Wiki.  
-- Telegram support.  
 
 
 ## Examples:  
