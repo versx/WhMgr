@@ -157,7 +157,6 @@
                     }
 
                     var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
-                    //subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
                         //(string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&

@@ -599,6 +599,9 @@ Discord Lure (Mossy) Notifications:
 Discord Lure (Magnetic) Notifications:  
 ![Lure (Magnetic) Notifications](images/lure_magnetic.png "Lure (Magnetic) Notifications")  
 
+Discord Gym Team Takeover Notifications:  
+![Gym Team Takeover Notifications](images/gyms.png "Gym Team Takeover Notifications")  
+
 Discord Team Rocket Invasion Notifications:  
 ![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
 

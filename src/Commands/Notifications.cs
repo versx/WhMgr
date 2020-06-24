@@ -228,6 +228,7 @@
                     await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_STAMINA_VALUE").FormatText(ctx.User.Username, split[2]), DiscordColor.Red);
                     return;
                 }
+                // TODO: Add to sub.IVList
             }
             else
             {
@@ -282,70 +283,6 @@
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
-            /*
-            try
-            {
-                if (string.Compare(poke, Strings.All, true) == 0)
-                {
-                    if (realIV < 90)
-                    {
-                        await ctx.TriggerTypingAsync();
-                        await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_MINIMUM_IV").FormatText(ctx.User.Username), DiscordColor.Red);
-                        return;
-                    }
-
-                    await ctx.TriggerTypingAsync();
-                    for (int i = 1; i < Strings.MaxPokemonIds; i++)
-                    {
-                        var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == i);
-                        //Always ignore the user's input for Unown, Azelf, Mesprit, or Uxie and set it to 0 by default.
-                        var minIV = IsRarePokemon(i) ? 0 : realIV;
-                        var minLvl = IsRarePokemon(i) ? 0 : minLevel;
-                        var maxLvl = IsRarePokemon(i) ? 35 : maxLevel;
-                        if (subPkmn == null)
-                        {
-                            //Does not exist, create.
-                            subscription.Pokemon.Add(new PokemonSubscription
-                            {
-                                GuildId = ctx.Guild.Id,
-                                UserId = ctx.User.Id,
-                                PokemonId = i,
-                                Form = null,
-                                MinimumIV = minIV,
-                                MinimumLevel = minLvl,
-                                MaximumLevel = maxLvl,
-                                Gender = gender
-                            });
-                            continue;
-                        }
-
-                        //Exists, check if anything changed.
-                        if (realIV != subPkmn.MinimumIV ||
-                            minLvl != subPkmn.MinimumLevel ||
-                            maxLvl != subPkmn.MaximumLevel ||
-                            gender != subPkmn.Gender)
-                        {
-                            subPkmn.MinimumIV = minIV;
-                            subPkmn.MinimumLevel = minLvl;
-                            subPkmn.MaximumLevel = maxLvl;
-                            subPkmn.Gender = gender;
-                        }
-                    }
-
-                    subscription.Save();
-
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed($"{ctx.User.Username} subscribed to **all** Pokemon notifications with a minimum IV of {iv}%{(minLevel > 0 ? $" and a level between {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}.");
-                    _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Debug($"[ERROR] POKEME FAILED-----------------------------------");
-                _logger.Error(ex);
-            }
-            */
 
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
@@ -398,7 +335,8 @@
                         MinimumIV = minIV,
                         MinimumLevel = minLvl,
                         MaximumLevel = maxLvl,
-                        Gender = gender
+                        Gender = gender,
+                        IVList = (attack > 0 || defense > 0 || stamina > 0) ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>()
                     });
                     subscribed.Add(name);
                     continue;
@@ -410,6 +348,7 @@
                     minLvl != subPkmn.MinimumLevel ||
                     maxLvl != subPkmn.MaximumLevel ||
                     gender != subPkmn.Gender ||
+                    !subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") ||
                     attack != subPkmn.Attack ||
                     defense != subPkmn.Defense ||
                     stamina != subPkmn.Stamina)
@@ -419,9 +358,10 @@
                     subPkmn.MinimumLevel = minLvl;
                     subPkmn.MaximumLevel = maxLvl;
                     subPkmn.Gender = gender;
-                    subPkmn.Attack = attack;
-                    subPkmn.Defense = defense;
-                    subPkmn.Stamina = stamina;
+                    subPkmn.IVList.Add($"{attack}/{defense}/{stamina}");
+                    //subPkmn.Attack = attack;
+                    //subPkmn.Defense = defense;
+                    //subPkmn.Stamina = stamina;
                     subscribed.Add(name);
                     continue;
                 }

@@ -734,8 +734,8 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(async () => await _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
-            new System.Threading.Thread(async () => await _subProcessor.ProcessPvPSubscription(e)) { IsBackground = true }.Start();
+            new Thread(async () => await _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
+            new Thread(async () => await _subProcessor.ProcessPvPSubscription(e)) { IsBackground = true }.Start();
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
@@ -743,7 +743,7 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(async () => await _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
+            new Thread(async () => await _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
@@ -751,7 +751,7 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(async () => await _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
+            new Thread(async () => await _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
         }
 
         private void OnInvasionSubscriptionTriggered(object sender, PokestopData e)
@@ -759,7 +759,7 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(async () => await _subProcessor.ProcessInvasionSubscription(e)) { IsBackground = true }.Start();
+            new Thread(async () => await _subProcessor.ProcessInvasionSubscription(e)) { IsBackground = true }.Start();
         }
 
         #endregion

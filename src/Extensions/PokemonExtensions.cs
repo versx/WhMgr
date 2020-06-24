@@ -1355,7 +1355,10 @@
                     continue;
                 }
 
-                valid.Add(pokeId, form);
+                if (!valid.ContainsKey(pokeId))
+                {
+                    valid.Add(pokeId, form);
+                }
             }
 
             return new PokemonValidation { Valid = valid, Invalid = invalid };
