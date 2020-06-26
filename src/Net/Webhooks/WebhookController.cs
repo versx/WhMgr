@@ -18,6 +18,9 @@
     using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
+    /// <summary>
+    /// Webhook controller class to manage and filter Discord channel notifications.
+    /// </summary>
     public class WebhookController
     {
         #region Variables
@@ -128,18 +131,23 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Instantiate a new <see cref="WebhookController"/> class.
+        /// </summary>
+        /// <param name="config"><see cref="WhConfig"/> configuration class.</param>
         public WebhookController(WhConfig config)
         {
             Filters = new Filters();
             Geofences = new Dictionary<string, GeofenceItem>();
 
-            _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, Servers={config.Servers.Count.ToString("N0")}]");
+            _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, Servers={config.Servers.Count:N0}]");
 
             GeofenceService = new GeofenceService();
             _gyms = new Dictionary<string, GymDetailsData>();
             _weather = new Dictionary<long, WeatherType>();
             _servers = config.Servers;
             _alarms = new Dictionary<ulong, AlarmList>();
+
             foreach (var server in _servers)
             {
                 if (_alarms.ContainsKey(server.Key))
@@ -158,7 +166,7 @@
             _http.GymReceived += Http_GymReceived;
             _http.GymDetailsReceived += Http_GymDetailsReceived;
             _http.WeatherReceived += Http_WeatherReceived;
-            _http.IsDebug = false;
+            _http.IsDebug = _config.Debug;
             _http.Start();
 
             new System.Threading.Thread(LoadAlarmsOnChange).Start();
@@ -188,15 +196,6 @@
                 if ((iv < 90 && iv != 0) || !pkmn.MatchesGreatLeague || !pkmn.MatchesUltraLeague)
                     return;
             }
-
-            //if (e.Pokemon.IsDitto)
-            //{
-            //    // Ditto
-            //    var originalId = e.Pokemon.Id;
-            //    e.Pokemon.OriginalPokemonId = originalId;
-            //    e.Pokemon.Id = 132;
-            //    e.Pokemon.FormId = 0;
-            //}
 
             ProcessPokemon(pkmn);
             OnPokemonSubscriptionTriggered(pkmn);
@@ -373,7 +372,6 @@
                         continue;
                     }
 
-                    //if (alarm.Filters.Pokemon.FilterType == FilterType.Include && alarm.Filters.Pokemon.Pokemon?.Count > 0 && !alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
                     if (alarm.Filters.Pokemon.FilterType == FilterType.Include && alarm.Filters.Pokemon.Pokemon?.Count > 0 && !alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
                     {
                         //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: filter {alarm.Filters.Pokemon.FilterType}.");
@@ -408,7 +406,6 @@
                         !(pkmn.MatchesGreatLeague && pkmn.GreatLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
                             && x.CP >= 1400 && x.CP <= 1500)))
-                    //if (!(pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague))// && Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)))
                     {
                         continue;
                     }
@@ -417,7 +414,6 @@
                         !(pkmn.MatchesUltraLeague && pkmn.UltraLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
                             && x.CP >= 2400 && x.CP <= 2500)))
-                    //if (!(pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague))// && Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)))
                     {
                         continue;
                     }
@@ -833,6 +829,12 @@
 
         #region Geofence Utilities
 
+        /// <summary>
+        /// Check if the provided location is within one of the provided geofences.
+        /// </summary>
+        /// <param name="geofences">List of geofences</param>
+        /// <param name="location">Location to check</param>
+        /// <returns></returns>
         public GeofenceItem InGeofence(List<GeofenceItem> geofences, Location location)
         {
             for (var i = 0; i < geofences.Count; i++)
@@ -847,6 +849,12 @@
             return null;
         }
 
+        /// <summary>
+        /// Get the geofence the provided location falls within.
+        /// </summary>
+        /// <param name="latitude">Latitude geocoordinate</param>
+        /// <param name="longitude">Longitude geocoordinate</param>
+        /// <returns>Returns a <see cref="GeofenceItem"/> object the provided location falls within.</returns>
         public GeofenceItem GetGeofence(double latitude, double longitude)
         {
             return GeofenceService.GetGeofence(Geofences

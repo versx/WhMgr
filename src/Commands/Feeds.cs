@@ -260,8 +260,9 @@
             }
 
             var server = _dep.WhConfig.Servers[ctx.Guild.Id];
-            foreach (var city in server.CityRoles)
+            for (var i = 0; i < server.CityRoles.Count; i++)
             {
+                var city = server.CityRoles[i];
                 var cityRole = ctx.Client.GetRoleFromName(city);
                 if (cityRole == null)
                 {
@@ -290,8 +291,9 @@
             }
 
             var server = _dep.WhConfig.Servers[ctx.Guild.Id];
-            foreach (var city in server.CityRoles)
+            for (var i = 0; i < server.CityRoles.Count; i++)
             {
+                var city = server.CityRoles[i];
                 var cityRole = ctx.Client.GetRoleFromName(city);
                 if (cityRole == null)
                 {

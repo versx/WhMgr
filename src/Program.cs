@@ -1,13 +1,14 @@
 ﻿namespace WhMgr
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
 
     class Program
     {
-        public static string ManagerName { get; set; }
+        public static string ManagerName { get; set; } = "Main";
 
         static void Main(string[] args) => MainAsync(args).GetAwaiter().GetResult();
 
@@ -47,7 +48,7 @@
             var bot = new Bot(whConfig);
             await bot.Start();
 
-            System.Diagnostics.Process.GetCurrentProcess().WaitForExit();
+            Process.GetCurrentProcess().WaitForExit();
         }
     }
 }

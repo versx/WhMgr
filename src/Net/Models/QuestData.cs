@@ -13,105 +13,9 @@
     using WhMgr.Extensions;
     using WhMgr.Utilities;
 
-    /*
-[
-	{
-		"type":"quest",
-		"message":
-		{
-			"conditions":[],
-			"latitude":34.072844,
-			"template":"challenge_gym_try_easy_pkmn",
-			"rewards":
-			[
-				{
-					"info":
-					{
-						"pokemon_id":56,
-						"costume_id":0,
-						"shiny":false,
-						"ditto":false,
-						"gender_id":0,
-						"form_id":0
-					},
-					"type":7
-				}
-			],
-			"pokestop_id":"b47856e4583849c2a494691b654b40f1.16",
-			"pokestop_url":"http://lh5.ggpht.com/l_pBhHYciTp9yCjC6idcLUNaie9pNXn4j89oODbNVm7BZZg22PimZ3YUPtNcgS4RLJFz3_W56PihRRaLRGEm",
-			"pokestop_name":"Business Center Fountain",
-			"target":1,
-			"updated":1540863910,
-			"type":7,
-			"longitude":-117.562695
-		}
-	}
-]
-
-{
-    "message":
-    {
-        "rewards":
-        [
-            {
-                "info":
-                {
-                    "costume_id":0,
-                    "form_id":0,
-                    "gender_id":0,
-                    "shiny":false,
-                    "pokemon_id":327,
-                    "ditto":false
-                },
-                "type":7
-            }
-        ],
-        "pokestop_id":"73d7a307b0264316b104470fd37cb4f5.16",
-        "updated":1541350000,
-        "longitude":-117.667454,
-        "pokestop_url":"",
-        "type":16,
-        "pokestop_name":"Unknown",
-        "latitude":34.103494,
-        "template":"challenge_november_land_nice_curveball_plural",
-        "conditions":
-        [
-            {
-                "info":
-                {
-                    "throw_type_id":10,
-                    "hit":false
-                },
-                "type":8
-            },
-            {
-                "type":15
-            }
-        ],
-        "target":3
-    },
-    "type":"quest"
-}
-
-"conditions":
-[{
-    "info":
-    {
-        "pokemon_type_ids":[8]
-    },
-    "type":1
-}],
-{
-"conditions":
-[{
-    "info":
-    {
-        "pokemon_ids":[355,353]
-    },
-    "type":2
-}]
-     */
-
+    /// <summary>
+    /// RealDeviceMap Quest webhook model class.
+    /// </summary>
     public sealed class QuestData
     {
         public const string WebHookHeader = "quest";
@@ -164,6 +68,9 @@
 
         #endregion
 
+        /// <summary>
+        /// Instantiate a new <see cref="QuestData"/> class.
+        /// </summary>
         public QuestData()
         {
             Rewards = new List<QuestRewardMessage>();

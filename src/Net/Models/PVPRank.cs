@@ -2,7 +2,10 @@
 {
     using Newtonsoft.Json;
 
-    public class PVPRank
+    /// <summary>
+    /// PVP Pokemon rank class.
+    /// </summary>
+    public sealed class PVPRank
     {
         [JsonProperty("rank")]
         public int? Rank { get; set; }

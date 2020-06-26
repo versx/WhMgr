@@ -41,6 +41,19 @@
         public const string ErrorLogFileName = "error.log";
         public const string StatsFileName = "notifications_{0}.csv";
 
+        public static readonly List<string> ValidGenders = new List<string> { "*", "m", "f" };
+
+        public const int MinimumIV = 0;
+        public const int MaximumIV = 100;
+        public const int MinimumLevel = 0;
+        public const int MaximumLevel = 35;
+        public const int MinimumCP = 0;
+        public const int MaximumCP = 99999;
+        public const int MinimumRank = 0;
+        public const int MaximumRank = 100;
+        public const int MinimumPercent = 0;
+        public const int MaximumPercent = 100;
+
         public const int MaxPokemonIds = 649;
 
         public const string All = "All";
@@ -54,6 +67,8 @@
         public const int MaxQuestSubscriptions = 2;
         public const int MaxInvasionSubscriptions = 1;
         public const int CommonTypeMinimumIV = 90;
+
+        public const int MaxQueueCountWarning = 30;
 
         public const string EmojiSchema = "<:{0}:{1}>";
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";

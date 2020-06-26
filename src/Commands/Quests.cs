@@ -4,6 +4,7 @@
     using System.Threading;
     using System.Threading.Tasks;
 
+    using DSharpPlus;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
@@ -24,7 +25,7 @@
         [
             Command("reset-quests"),
             Hidden,
-            RequireOwner
+            RequirePermissions(Permissions.KickMembers)
         ]
         public async Task ResetChannelAsync(CommandContext ctx,
             [Description("Discord channel to reset.")] DiscordChannel channel = null)

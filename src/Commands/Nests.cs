@@ -271,6 +271,11 @@
             await ctx.RespondAsync(embed: eb);
         }
 
+        /// <summary>
+        /// Group nests based on city name
+        /// </summary>
+        /// <param name="nests"></param>
+        /// <returns></returns>
         private Dictionary<string, List<Nest>> GroupNests(IEnumerable<KeyValuePair<int, List<Nest>>> nests)
         {
             var dict = new Dictionary<string, List<Nest>>();
@@ -299,8 +304,12 @@
             return dict;
         }
 
-
-        public Dictionary<int, List<Nest>> GetNestsByPokemon(string nestsConnectionString = null)
+        /// <summary>
+        /// Group nests based on Pokemon
+        /// </summary>
+        /// <param name="nestsConnectionString"></param>
+        /// <returns></returns>
+        public static Dictionary<int, List<Nest>> GetNestsByPokemon(string nestsConnectionString = null)
         {
             if (string.IsNullOrEmpty(nestsConnectionString))
                 return null;
@@ -331,7 +340,12 @@
             return null;
         }
 
-        public List<Nest> GetNests(string nestsConnectionString = null)
+        /// <summary>
+        /// Get a list of nests from the database
+        /// </summary>
+        /// <param name="nestsConnectionString"></param>
+        /// <returns></returns>
+        public static List<Nest> GetNests(string nestsConnectionString = null)
         {
             if (string.IsNullOrEmpty(nestsConnectionString))
                 return null;

@@ -17,10 +17,11 @@
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
 
+    /// <summary>
+    /// Discord user subscription processing class.
+    /// </summary>
     public class SubscriptionProcessor
     {
-        const int MaxQueueCountWarning = 30;
-
         #region Variables
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION");
@@ -40,6 +41,12 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Instantiate a new <see cref="SubscriptionProcessor"/> class.
+        /// </summary>
+        /// <param name="servers">Discord servers dictionary</param>
+        /// <param name="config">Configuration file</param>
+        /// <param name="whm">Webhook controller class</param>
         public SubscriptionProcessor(Dictionary<ulong, DiscordClient> servers, WhConfig config, WebhookController whm)
         {
             _logger.Trace($"SubscriptionProcessor::SubscriptionProcessor");
@@ -84,9 +91,6 @@
             var matchesIV = false;
             var matchesLvl = false;
             var matchesGender = false;
-            var matchesAttack = false;
-            var matchesDefense = false;
-            var matchesStamina = false;
             var matchesIVList = false;
             for (var i = 0; i < subscriptions.Count; i++)
             {
@@ -159,7 +163,7 @@
                     var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
-                        //(string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     );
                     if (subscribedPokemon == null)
@@ -172,22 +176,17 @@
                     //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
                     matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, (uint)subscribedPokemon.MinimumLevel, (uint)subscribedPokemon.MaximumLevel);
                     matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
-                    matchesIVList = subscribedPokemon.IVList != null && subscribedPokemon.IVList.Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}");
-                    matchesAttack = _whm.Filters.MatchesAttack(pkmn.Attack, subscribedPokemon.Attack);
-                    matchesDefense = _whm.Filters.MatchesDefense(pkmn.Defense, subscribedPokemon.Defense);
-                    matchesStamina = _whm.Filters.MatchesStamina(pkmn.Stamina, subscribedPokemon.Stamina);
+                    matchesIVList = subscribedPokemon.IVList?.Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}") ?? false;
 
-                    if (!(!subscribedPokemon.HasStats && (matchesIV || matchesIVList) && matchesLvl && matchesGender) ||
-                        (subscribedPokemon.HasStats && matchesAttack && matchesDefense && matchesStamina))
+                    if (!(matchesIV && matchesLvl && matchesGender))
                     {
                         continue;
                     }
-                    /*
-                    if (!(
-                        subscribedPokemon.HasStats && (matchesIV && matchesLvl && matchesGender) || (subscribedPokemon.HasStats && matchesIVList)
-                         ))
+
+                    if (!(subscribedPokemon.HasStats && matchesIVList))
+                    {
                         continue;
-                    */
+                    }
 
                     var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
                     var iconStyleUrl = _whConfig.IconStyles.FirstOrDefault(x => string.Compare(x.Key, iconStyle, true) == 0).Value;
@@ -303,7 +302,7 @@
                     var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
                     subscribedPokemon = user.PvP.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
-                        //(string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     );
                     if (subscribedPokemon == null)
@@ -314,7 +313,6 @@
 
                     matchesLeague = (pkmn.MatchesGreatLeague && subscribedPokemon.League == PvPLeague.Great) ||
                                     (pkmn.MatchesUltraLeague && subscribedPokemon.League == PvPLeague.Ultra);
-                    //matchesRank = pkmn.GreatLeagueRank.Key <= subscribedPokemon.MinimumRank || pkmn.UltraLeagueRank.Key <= subscribedPokemon.MinimumRank;
                     matchesRank = (pkmn.GreatLeague?.Exists(x => (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank) ?? false) ||
                                   (pkmn.UltraLeague?.Exists(x => (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank) ?? false);
                     matchesPercent = (pkmn.GreatLeague?.Exists(x => (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false) ||
@@ -404,12 +402,6 @@
                         continue;
                     }
 
-                    //if (!member.Roles.Select(x => x.Name.ToLower()).Contains(loc.Name.ToLower()))
-                    //{
-                    //    _logger.Debug($"[{loc.Name}] Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name} because they do not have the city role '{loc.Name}'.");
-                    //    continue;
-                    //}
-
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
@@ -437,9 +429,7 @@
                     var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                     var exists = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
-                        //(string.Compare(x.Form, form, true) == 0 || string.IsNullOrEmpty(x.Form)) &&
-                        (x.Form == null || x.Form == string.Empty || string.Compare(x.Form, form, true) == 0) &&
-                        //string.Compare(x.Form, form, true) == 0 &&
+                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;
                     if (!exists)
@@ -448,8 +438,6 @@
                         continue;
                     }
 
-                    //var iconStyle = string.IsNullOrEmpty(user.IconStyle) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle;
-                    //var iconStyleUrl = _whConfig.IconStyles.FirstOrDefault(x => string.Compare(x.Key, user.IconStyle, true) == 0).Value;
                     var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
                     var iconStyleUrl = _whConfig.IconStyles.FirstOrDefault(x => string.Compare(x.Key, iconStyle, true) == 0).Value;
                     var raidImage = string.Format(iconStyleUrl, raid.PokemonId, raid.Form);
@@ -681,9 +669,7 @@
         {
             _logger.Trace($"SubscriptionProcessor::ProcessQueue");
 
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
             new Thread(async () =>
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
             {
                 while (true)
                 {
@@ -693,24 +679,26 @@
                         continue;
                     }
 
-                    if (_queue.Count > MaxQueueCountWarning)
+                    if (_queue.Count > Strings.MaxQueueCountWarning)
                     {
-                        _logger.Warn($"Subscription queue is {_queue.Count.ToString("N0")} items long.");
+                        _logger.Warn($"Subscription queue is {_queue.Count:N0} items long.");
                     }
 
                     var item = _queue.Dequeue();
                     if (item == null || item?.Subscription == null || item?.Member == null || item?.Embed == null)
                         continue;
 
+                    // Check if user is receiving messages too fast.
                     if (item.Subscription.Limiter.IsLimited())
                     {
                         _logger.Warn($"{item.Member.Username} notifications rate limited, waiting {(60 - item.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", item.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+                        // Send ratelimited notification to user if not already sent to adjust subscription settings to more reasonable settings.
                         if (!item.Subscription.RateLimitNotificationSent)
                         {
                             var guildName = _servers.ContainsKey(item.Subscription.GuildId) ? _servers[item.Subscription.GuildId].Guilds[item.Subscription.GuildId]?.Name : Strings.Creator;
                             var guildIconUrl = _servers.ContainsKey(item.Subscription.GuildId) ? _servers[item.Subscription.GuildId].Guilds[item.Subscription.GuildId]?.IconUrl : string.Empty;
-                            var rateLimitMessage = $"Your notification subscriptions have exceeded the {NotificationLimiter.MaxNotificationsPerMinute.ToString("N0")} per minute and you are now being rate limited." +
-                                                   $"Please adjust your subscriptions to receive a maximum of {NotificationLimiter.MaxNotificationsPerMinute.ToString("N0")} notifications within a 60 second time span.";
+                            var rateLimitMessage = $"Your notification subscriptions have exceeded the {NotificationLimiter.MaxNotificationsPerMinute:N0}) per minute and you are now being rate limited." +
+                                                   $"Please adjust your subscriptions to receive a maximum of {NotificationLimiter.MaxNotificationsPerMinute:N0} notifications within a 60 second time span.";
                             var eb = new DiscordEmbedBuilder
                             {
                                 Title = "Rate Limited",
@@ -731,6 +719,7 @@
                         continue;
                     }
 
+                    // Ratelimit is up, allow for ratelimiting again if 
                     item.Subscription.RateLimitNotificationSent = false;
 
                     if (!_servers.ContainsKey(item.Subscription.GuildId))
@@ -739,6 +728,7 @@
                         continue;
                     }
 
+                    // Send notification to user
                     var client = _servers[item.Subscription.GuildId];
                     await client.SendDirectMessage(item.Member, item.Embed);
                     _logger.Info($"[WEBHOOK] Notified user {item.Member.Username} of {item.Description}.");

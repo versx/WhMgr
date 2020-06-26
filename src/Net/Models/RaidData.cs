@@ -5,6 +5,7 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
+
     using Newtonsoft.Json;
 
     using WhMgr.Alarms.Alerts;
@@ -14,6 +15,9 @@
     using WhMgr.Extensions;
     using WhMgr.Utilities;
 
+    /// <summary>
+    /// RealDeviceMap Raid/Egg webhook model class.
+    /// </summary>
     public sealed class RaidData
     {
         public const string WebHookHeader = "raid";
@@ -91,11 +95,7 @@
                     var types = MasterFile.GetPokemon(PokemonId, Form)?.Types;
                     if (types != null)
                     {
-                        //MasterFile.GetPokemon(PokemonId, Form)?.Types?.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
-                        foreach (var type in types)
-                        {
-                            list.AddRange(type.GetWeaknesses());
-                        }
+                        MasterFile.GetPokemon(PokemonId, Form)?.Types?.ForEach(x => list.AddRange(x.GetWeaknesses()));
                     }
                     return list;
                 }
@@ -109,11 +109,19 @@
 
         #endregion
 
+        /// <summary>
+        /// Instantiate a new <see cref="RaidData"/> class.
+        /// </summary>
         public RaidData()
         {
             SetTimes(false, false);
         }
 
+        /// <summary>
+        /// Set start and end times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
+        /// </summary>
+        /// <param name="enableDST">Enable Day Light Savings time adjustment.</param>
+        /// <param name="enableLeapYear">Enable leap year time adjustment.</param>
         public void SetTimes(bool enableDST, bool enableLeapYear)
         {
             StartTime = Start.FromUnix();
@@ -168,14 +176,6 @@
             var form = PokemonId.GetPokemonForm(Form.ToString());
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
-            //var weather = raid.Weather?.ToString();
-            //var weatherEmoji = string.Empty;
-            //if (raid.Weather.HasValue && Strings.WeatherEmojis.ContainsKey(raid.Weather.Value) && raid.Weather != WeatherType.None)
-            //{
-            //    var isWeatherBoosted = pkmnInfo.IsWeatherBoosted(raid.Weather.Value);
-            //    var isWeatherBoostedText = isWeatherBoosted ? " (Boosted)" : null;
-            //    weatherEmoji = Strings.WeatherEmojis[raid.Weather.Value] + isWeatherBoostedText;
-            //}
             var move1 = string.Empty;
             var move2 = string.Empty;
             if (MasterFile.Instance.Movesets.ContainsKey(FastMove))

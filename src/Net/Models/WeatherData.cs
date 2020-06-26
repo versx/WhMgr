@@ -6,15 +6,17 @@
     using Newtonsoft.Json;
     using ServiceStack.DataAnnotations;
 
-    using WhMgr.Diagnostics;
     using WhMgr.Extensions;
 
+    /// <summary>
+    /// RealDeviceMap Weather webhook model class.
+    /// </summary>
     [Alias("weather")]
     public sealed class WeatherData
     {
         public const string WebHookHeader = "weather";
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("WEATHERDATA");
+        //private static readonly IEventLogger _logger = EventLogger.GetLogger("WEATHERDATA");
 
         #region Properties
 
@@ -71,6 +73,9 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Instantiate a new <see cref="WeatherData"/> class.
+        /// </summary>
         public WeatherData()
         {
             SetTimes();

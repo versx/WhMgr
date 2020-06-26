@@ -21,10 +21,8 @@ CREATE TABLE `pokemon` (
   `miv_iv` int(11) DEFAULT NULL,
   `min_lvl` int(11) DEFAULT NULL,
   `max_lvl` int(11) DEFAULT NULL,
-  `gender` text DEFAULT NULL,
-  `attack` int(11) DEFAULT NULL,
-  `defense` int(11) DEFAULT NULL,
-  `stamina` int(11) DEFAULT NULL,
+  `iv_list` longtext DEFAULT NULL,
+  `city` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_pokemon_subscriptions_subscription_id` (`subscription_id`),
   CONSTRAINT `FK_pokemon_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
@@ -37,7 +35,7 @@ CREATE TABLE `raids` (
   `userId` bigint(20) DEFAULT NULL,
   `pokemon_id` int(11) DEFAULT NULL,
   `form` text DEFAULT NULL,
-  `city` text DEFAULT NULL,
+  `city` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_raid_subscriptions_subscription_id` (`subscription_id`),
   CONSTRAINT `FK_raid_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
@@ -49,7 +47,7 @@ CREATE TABLE `quests` (
   `guild_id` bigint(20) DEFAULT NULL,
   `userId` bigint(20) DEFAULT NULL,
   `reward` text DEFAULT NULL,
-  `city` text DEFAULT NULL,
+  `city` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_quest_subscriptions_subscription_id` (`subscription_id`),
   CONSTRAINT `FK_quest_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
@@ -72,7 +70,7 @@ CREATE TABLE `invasions` (
   `guild_id` bigint(20) DEFAULT NULL,
   `userId` bigint(20) DEFAULT NULL,
   `reward_pokemon_id` int(11) DEFAULT NULL,
-  `city` text DEFAULT NULL,
+  `city` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_invasion_subscriptions_subscription_id` (`subscription_id`),
   CONSTRAINT `FK_invasion_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
@@ -88,6 +86,7 @@ CREATE TABLE `pvp` (
   `league` varchar(255) NOT NULL,
   `miv_rank` int(11) NOT NULL DEFAULT 25,
   `min_percent` double NOT NULL DEFAULT 90,
+  `city` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_pvp_subscriptions_subscription_id` (`subscription_id`),
   CONSTRAINT `FK_pvp_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)

@@ -228,11 +228,12 @@
                     await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_STAMINA_VALUE").FormatText(ctx.User.Username, split[2]), DiscordColor.Red);
                     return;
                 }
+
                 // TODO: Add to sub.IVList
             }
             else
             {
-                if (!int.TryParse(iv, out realIV) || realIV < 0 || realIV > 100)
+                if (!int.TryParse(iv, out realIV) || realIV < Strings.MinimumIV || realIV > Strings.MaximumIV)
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_IV_RANGE").FormatText(ctx.User.Username, iv), DiscordColor.Red);
@@ -240,15 +241,15 @@
                 }
             }
 
-            if (gender != "*" && gender != "m" && gender != "f")
+            if (!Strings.ValidGenders.Contains(gender.ToLower()))
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_GENDER").FormatText(ctx.User.Username, gender), DiscordColor.Red);
                 return;
             }
 
-            var minLevel = 0;
-            var maxLevel = 35;
+            var minLevel = Strings.MinimumLevel;
+            var maxLevel = Strings.MaximumLevel;
             if (lvl.Contains('-'))
             {
                 var split = lvl.Split('-');
@@ -336,6 +337,7 @@
                         MinimumLevel = minLvl,
                         MaximumLevel = maxLvl,
                         Gender = gender,
+                        // TODO: Allow 0%
                         IVList = (attack > 0 || defense > 0 || stamina > 0) ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>()
                     });
                     subscribed.Add(name);
@@ -348,10 +350,7 @@
                     minLvl != subPkmn.MinimumLevel ||
                     maxLvl != subPkmn.MaximumLevel ||
                     gender != subPkmn.Gender ||
-                    !subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") ||
-                    attack != subPkmn.Attack ||
-                    defense != subPkmn.Defense ||
-                    stamina != subPkmn.Stamina)
+                    (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && (attack > 0 || defense > 0 || stamina > 0)))
                 {
                     subPkmn.Form = form;
                     subPkmn.MinimumIV = realIV;
@@ -359,9 +358,6 @@
                     subPkmn.MaximumLevel = maxLvl;
                     subPkmn.Gender = gender;
                     subPkmn.IVList.Add($"{attack}/{defense}/{stamina}");
-                    //subPkmn.Attack = attack;
-                    //subPkmn.Defense = defense;
-                    //subPkmn.Stamina = stamina;
                     subscribed.Add(name);
                     continue;
                 }
@@ -1078,14 +1074,14 @@
             }
 
             //You may only subscribe to the top 100 or higher rank.
-            if (minimumRank < 0 || minimumRank > 100)
+            if (minimumRank < Strings.MinimumRank || minimumRank > Strings.MaximumRank)
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumRank), DiscordColor.Red);
                 return;
             }
 
-            if (minimumPercent < 0 || minimumPercent > 100)
+            if (minimumPercent < Strings.MinimumPercent || minimumPercent > Strings.MaximumPercent)
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumPercent), DiscordColor.Red);
@@ -1540,7 +1536,7 @@
 
                         var pkmn = MasterFile.Instance.Pokedex[poke.PokemonId];
                         var form = string.IsNullOrEmpty(poke.Form) ? string.Empty : $" ({poke.Form})";
-                        sb.AppendLine($"{poke.PokemonId}: {pkmn.Name}{form} {(poke.HasStats ? $"{poke.Attack}/{poke.Defense}/{poke.Stamina}" : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}");
+                        sb.AppendLine($"{poke.PokemonId}: {pkmn.Name}{form} {(poke.HasStats ? string.Join(", ", poke.IVList) : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}");
                     }
                 }
                 sb.Append("```");

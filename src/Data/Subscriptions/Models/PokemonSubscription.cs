@@ -69,24 +69,6 @@
         public string Gender { get; set; }
 
         [
-            JsonProperty("attack"),
-            Alias("attack")
-        ]
-        public int Attack { get; set; }
-
-        [
-            JsonProperty("defense"),
-            Alias("defense")
-        ]
-        public int Defense { get; set; }
-
-        [
-            JsonProperty("stamina"),
-            Alias("stamina")
-        ]
-        public int Stamina { get; set; }
-
-        [
             JsonProperty("city"),
             Alias("city")
         ]
@@ -96,7 +78,7 @@
             JsonIgnore,
             Ignore
         ]
-        public bool HasStats => Attack > 0 || Defense > 0 || Stamina > 0;
+        public bool HasStats => (IVList?.Count ?? 0) > 0;
 
         #endregion
 
@@ -109,11 +91,9 @@
             MinimumLevel = 0;
             MaximumLevel = 35;
             Gender = "*";
-            Attack = 0;
-            Defense = 0;
-            Stamina = 0;
             Form = null;
             City = null;
+            IVList = new List<string>();
         }
 
         #endregion

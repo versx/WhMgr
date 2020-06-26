@@ -11,9 +11,7 @@
 
         #region Static Variables
 
-        //private static EventLogger _instance;
         private static readonly Dictionary<string, EventLogger> _instances = new Dictionary<string, EventLogger>();
-        //private static readonly object _lock = new object();
         private static readonly EventWaitHandle _waitHandle = new EventWaitHandle(true, EventResetMode.AutoReset, Strings.BotName + new Random().Next(10000, 90000));
 
         #endregion
@@ -34,16 +32,6 @@
 
             _instances.Add(instanceName, new EventLogger(instanceName));
             return _instances[instanceName];
-
-            //if (_instance == null)
-            //{
-            //    CreateLogsDirectory();
-
-            //    _instance = new EventLogger();
-            //    _instance.Info("Logging started...");
-            //}
-
-            //return _instance;
         }
 
         #endregion
@@ -59,7 +47,6 @@
         {
             Name = name;
             LogHandler = new Action<LogType, string>(DefaultLogHandler);
-            //_instances = new Dictionary<string, IEventLogger>();
             CreateLogsDirectory();
         }
 
@@ -72,7 +59,6 @@
         {
             Name = name;
             LogHandler = logHandler;
-            //_instances = new Dictionary<string, EventLogger>();
             CreateLogsDirectory();
         }
 
@@ -138,12 +124,9 @@
             }
             Console.WriteLine(msg);
 
-            //lock (_lock)
-            //{
             _waitHandle.WaitOne();
-            File.AppendAllText(Path.Combine(Strings.LogsFolder, $"{Program.ManagerName}_{DateTime.Now.ToString("yyyy-MM-dd")}.log"), msg + Environment.NewLine);
+            File.AppendAllText(Path.Combine(Strings.LogsFolder, $"{Program.ManagerName}_{DateTime.Now:yyyy-MM-dd}.log"), msg + Environment.NewLine);
             _waitHandle.Set();
-            //}
         }
 
         private static void CreateLogsDirectory()

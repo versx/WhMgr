@@ -4,6 +4,7 @@
     using System.Collections.Generic;
 
     using Newtonsoft.Json;
+
     using WhMgr.Net.Models;
 
     public class PokedexPokemon

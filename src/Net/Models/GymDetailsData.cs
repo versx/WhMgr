@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+
     using DSharpPlus;
     using DSharpPlus.Entities;
 
@@ -13,6 +14,9 @@
     using WhMgr.Extensions;
     using WhMgr.Utilities;
 
+    /// <summary>
+    /// RealDeviceMap Gym Details webhook model class.
+    /// </summary>
     public sealed class GymDetailsData
     {
         public const string WebhookHeader = "gym_details";

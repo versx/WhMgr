@@ -98,7 +98,7 @@
             }
         }
 
-        public static Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStats(string scannerConnectionString)
+        internal static Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStats(string scannerConnectionString)
         {
             var list = new Dictionary<uint, ShinyPokemonStats>
             {
@@ -139,7 +139,7 @@
         }
 
         [Alias("pokemon_iv_stats")]
-        public class PokemonStatsIV
+        internal class PokemonStatsIV
         {
             [Alias("date")]
             public DateTime Date { get; set; }
@@ -152,7 +152,7 @@
         }
 
         [Alias("pokemon_shiny_stats")]
-        public class PokemonStatsShiny
+        internal class PokemonStatsShiny
         {
             [Alias("date")]
             public DateTime Date { get; set; }
@@ -164,7 +164,7 @@
             public ulong Count { get; set; }
         }
 
-        public class ShinyPokemonStats
+        internal class ShinyPokemonStats
         {
             public uint PokemonId { get; set; }
 

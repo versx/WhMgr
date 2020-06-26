@@ -36,26 +36,8 @@
 
         [JsonProperty("markers")]
         public List<MarkerConfiguration> Markers { get; set; }
-
-        //public string BuildStaticMapUrl(double lat, double lng)
-        //{
-        //    var url = string.Format(Url, lat, lng);
-        //    var markersKey = "?markers=";
-        //    var obj = Markers;
-        //    obj.ForEach(x => { x.Latitude = lat; x.Longitude = lng; });
-        //    var json = JsonConvert.SerializeObject(Markers);
-            
-        //    var markerUrl = "?markers=[{\"url\":\"<marker>\",\"height\":32,\"width\":32,\"x_offset\":0,\"y_offset\":0,\"latitude\":<lat>,\"longitude\":<lng>}]";
-        //    markerUrl = markerUrl
-        //        .Replace("<marker>", marker)
-        //        .Replace("<lat>", lat.ToString())
-        //        .Replace("<lng>", lng.ToString());
-
-        //    return url + Uri.EscapeUriString(markerUrl);
-        //}
     }
 
-    //"url\":\"<marker>\",\"height\":32,\"width\":32,\"x_offset\":0,\"y_offset\":0,\"latitude\":<lat>,\"longitude\":<lng>
     public class MarkerConfiguration
     {
         [JsonProperty("url")]

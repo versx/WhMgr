@@ -9,7 +9,6 @@
     using DSharpPlus.Entities;
 
     using Newtonsoft.Json;
-    using Org.BouncyCastle.Pkix;
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
@@ -21,20 +20,17 @@
     using WhMgr.Extensions;
     using WhMgr.Utilities;
 
+    /// <summary>
+    /// RealDeviceMap Pokemon webhook and database model class.
+    /// </summary>
     [Alias("pokemon")]
     public sealed class PokemonData
     {
         public const string WebHookHeader = "pokemon";
-        public const int TopPvPRanks = 10;
 
         #region Variables
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("POKEMONDATA");
-        //private static readonly KeyValuePair<int, double> DefaultRank = new KeyValuePair<int, double>(4096, 0.0);
-
-        //private readonly PvpRankCalculator _pvpCalc = new PvpRankCalculator();
-        //private List<PvPCP> _possibleGreatLeagueCPs;
-        //private List<PvPCP> _possibleUltraLeagueCPs;
 
         #endregion
 
@@ -289,56 +285,6 @@
             Ignore
         ]
         public bool IsDitto => Id == 132;
-        //{
-        //    get
-        //    {
-        //        //if (!int.TryParse(Level, out var level))
-        //        //    return false;
-
-        //        var isUnderLevel6 = IsUnderLevel(6);
-        //        var isStatsUnder4 = IsStatsBelow4;
-        //        //var isUnderLevel31 = IsUnderLevel(31);
-        //        //var isAboveLevel30 = IsAboveLevel(30);
-        //        //var isWindOrRain = Weather == WeatherType.Windy || Weather == WeatherType.Rain;
-        //        //var isWindOrCloudy = Weather == WeatherType.Windy || Weather == WeatherType.Cloudy;
-        //        //var isNotBoosted = Weather == WeatherType.None && isAboveLevel30;
-
-        //        var check1 = Weather != WeatherType.None &&
-        //               (isUnderLevel6 || isStatsUnder4) &&
-        //               //isUnderLevel6 &&
-        //               //isStatsUnder4 &&
-        //               DittoDisguises.Contains(Id);
-        //        //var check2 = (Id == 193 && (isNotBoosted || (isWindOrRain && isUnderLevel6)));
-        //        //var check3 = (Id == 193 && isWindOrRain && isUnderLevel31 && IsStatsBelow4);
-        //        //var check4 = (Id == 41 && ((Weather == WeatherType.None && isAboveLevel30) || (isWindOrCloudy && isUnderLevel6)));
-        //        //var check5 = (Id == 41 && isWindOrCloudy && isUnderLevel31 && IsStatsBelow4);
-        //        //var check6 = (Id == 16 || Id == 163 || Id == 276) && Weather == WeatherType.Windy && (isUnderLevel6 || (isUnderLevel31 && IsStatsBelow4));
-        //        if (check1)
-        //        {
-        //            FormId = 0;
-        //        }
-
-        //        return check1;// || check2 || check3 || check4 || check5 || check6;
-
-        //        /*
-        //        if pokemon_id == 193:
-        //            if (is_no_weather_boost and is_above_level_30) or ((is_windy or is_raining) and is_below_level_6):
-        //                make_ditto()
-        //                return
-        //            if (is_windy or is_raining) and is_below_level_31 and stat_below_4:
-        //                make_ditto()
-        //                return
-        //        if pokemon_id == 41:
-        //            if (is_no_weather_boost and is_above_level_30) or ((is_windy or is_cloudy) and is_below_level_6):
-        //                make_ditto()
-        //            elif (is_windy or is_cloudy) and is_below_level_31 and stat_below_4:
-        //                make_ditto()
-        //        if (pokemon_id == 16 or pokemon_id == 163 or pokemon_id == 276) and is_windy:
-        //            if is_below_level_6 or (is_below_level_31 and stat_below_4):
-        //                make_ditto()
-        //         */
-        //    }
-        //}
 
         [
             JsonProperty("display_pokemon_id"),
@@ -348,209 +294,17 @@
 
         #region PvP
 
-        /*
-        private bool _greatLeagueRankSet = false;
-        private KeyValuePair<int, double> _greatLeagueRank = DefaultRank;
         [
             JsonIgnore,
             Ignore
         ]
-        public KeyValuePair<int, double> GreatLeagueRank
-        {
-            get
-            {
-                if (!_greatLeagueRankSet)
-                {
-                    if (!int.TryParse(Attack, out var atk))
-                        return DefaultRank;
+        public bool MatchesGreatLeague => GreatLeague?.Exists(x => x.CP >= 1400 && x.CP <= 1500) ?? false;
 
-                    if (!int.TryParse(Defense, out var def))
-                        return DefaultRank;
-
-                    if (!int.TryParse(Stamina, out var sta))
-                        return DefaultRank;
-
-                    if (!int.TryParse(CP, out var cp))
-                        return DefaultRank;
-
-                    var best = _pvpCalc.CalculateBestPvPStat(Id, FormId, atk, def, sta, 1500).GetAwaiter().GetResult();
-                    if (best == null)
-                        return DefaultRank;
-
-                    var rank = _pvpCalc.GetRank(Id, FormId, cp, best).GetAwaiter().GetResult();
-                    _greatLeagueRank = rank;
-                    _greatLeagueRankSet = true;
-                }
-                return _greatLeagueRank;
-            }
-        }
-        */
-
-        //private bool? _matchesGreatLeague;
         [
             JsonIgnore,
             Ignore
         ]
-        public bool MatchesGreatLeague
-        {
-            get
-            {
-                return GreatLeague?.Exists(x => x.CP >= 1400 && x.CP <= 1500) ?? false;
-                /*
-                if (_matchesGreatLeague == null)
-                {
-                    var passes = false;
-                    for (var i = 0; i < PossibleGreatLeagueCPs?.Count; i++)
-                    {
-                        var pvpCP = PossibleGreatLeagueCPs[i];
-                        var best = _pvpCalc.CalculateBestPvPStat(pvpCP.PokemonId, pvpCP.FormId, pvpCP.Attack, pvpCP.Defense, pvpCP.Stamina, 1500).GetAwaiter().GetResult();
-                        if (best == null)
-                            continue;
-
-                        var rank = _pvpCalc.GetRank(pvpCP.PokemonId, pvpCP.FormId, pvpCP.CP, best).GetAwaiter().GetResult();
-                        if (rank.Key <= TopPvPRanks && rank.Key > 0)
-                        {
-                            passes = true;
-                            break;
-                        }
-                    }
-                    _matchesGreatLeague = passes;
-                }
-                return _matchesGreatLeague.Value;
-                */
-            }
-        }
-
-        /*
-        [
-            JsonIgnore,
-            Ignore
-        ]
-        public List<PvPCP> PossibleGreatLeagueCPs
-        {
-            get
-            {
-                if (_possibleGreatLeagueCPs == null)
-                {
-                    if (!int.TryParse(Attack, out var atk))
-                        return null;
-
-                    if (!int.TryParse(Defense, out var def))
-                        return null;
-
-                    if (!int.TryParse(Stamina, out var sta))
-                        return null;
-
-                    if (!int.TryParse(Level, out var lvl))
-                        return null;
-
-                    _possibleGreatLeagueCPs = _pvpCalc.CalculatePossibleCPs(Id, FormId, atk, def, sta, lvl, Gender, 1490, 1500).GetAwaiter().GetResult();
-                }
-                return _possibleGreatLeagueCPs;
-            }
-        }
-
-        private bool _ultraLeagueRankSet = false;
-        private KeyValuePair<int, double> _ultraLeagueRank = DefaultRank;
-        [
-            JsonIgnore,
-            Ignore
-        ]
-        public KeyValuePair<int, double> UltraLeagueRank
-        {
-            get
-            {
-                if (!_ultraLeagueRankSet)
-                {
-                    if (!int.TryParse(Attack, out var atk))
-                        return DefaultRank;
-
-                    if (!int.TryParse(Defense, out var def))
-                        return DefaultRank;
-
-                    if (!int.TryParse(Stamina, out var sta))
-                        return DefaultRank;
-
-                    if (!int.TryParse(CP, out var cp))
-                        return DefaultRank;
-
-                    var best = _pvpCalc.CalculateBestPvPStat(Id, FormId, atk, def, sta, 2500).GetAwaiter().GetResult();
-                    if (best == null)
-                        return DefaultRank;
-
-                    var rank = _pvpCalc.GetRank(Id, FormId, cp, best).GetAwaiter().GetResult();
-                    _ultraLeagueRank = rank;
-                    _ultraLeagueRankSet = true;
-                }
-                return _ultraLeagueRank;
-            }
-        }
-        */
-
-        //private bool? _matchesUltraLeague;
-        [
-            JsonIgnore,
-            Ignore
-        ]
-        public bool MatchesUltraLeague
-        {
-            get
-            {
-                return UltraLeague?.Exists(x => x.CP >= 2400 && x.CP <= 2500) ?? false;
-                /*
-                if (_matchesUltraLeague == null)
-                {
-                    var passes = false;
-                    for (var i = 0; i < PossibleUltraLeagueCPs?.Count; i++)
-                    {
-                        var pvpCP = PossibleUltraLeagueCPs[i];
-                        var best = _pvpCalc.CalculateBestPvPStat(pvpCP.PokemonId, pvpCP.FormId, pvpCP.Attack, pvpCP.Defense, pvpCP.Stamina, 2500).GetAwaiter().GetResult();
-                        if (best == null)
-                            continue;
-
-                        var rank = _pvpCalc.GetRank(pvpCP.PokemonId, pvpCP.FormId, pvpCP.CP, best).GetAwaiter().GetResult();
-                        if (rank.Key <= TopPvPRanks && rank.Key > 0)
-                        {
-                            passes = true;
-                            break;
-                        }
-                    }
-                    _matchesUltraLeague = passes;
-                }
-                return _matchesUltraLeague.Value;
-                */
-            }
-        }
-
-        /*
-        [
-            JsonIgnore,
-            Ignore
-        ]
-        public List<PvPCP> PossibleUltraLeagueCPs
-        {
-            get
-            {
-                if (_possibleUltraLeagueCPs == null)
-                {
-                    if (!int.TryParse(Attack, out var atk))
-                        return null;
-
-                    if (!int.TryParse(Defense, out var def))
-                        return null;
-
-                    if (!int.TryParse(Stamina, out var sta))
-                        return null;
-
-                    if (!int.TryParse(Level, out var lvl))
-                        return null;
-
-                    _possibleUltraLeagueCPs = _pvpCalc.CalculatePossibleCPs(Id, FormId, atk, def, sta, lvl, Gender, 2490, 2500).GetAwaiter().GetResult();
-                }
-                return _possibleUltraLeagueCPs;
-            }
-        }
-        */
+        public bool MatchesUltraLeague => UltraLeague?.Exists(x => x.CP >= 2400 && x.CP <= 2500) ?? false;
 
         #endregion
 
@@ -570,11 +324,11 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Instantiate a new <see cref="PokemonData"/> class.
+        /// </summary>
         public PokemonData()
         {
-            //SetDespawnTime(false, false);
-            //_top100GreatLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 1500, TopPvPRanks).GetAwaiter().GetResult();
-            //_top100UltraLeagueRanks = _pvpCalc.CalculateTopRanks(Id, FormId, 2500, TopPvPRanks).GetAwaiter().GetResult();
             GreatLeague = new List<PVPRank>();
             UltraLeague = new List<PVPRank>();
         }
@@ -583,6 +337,11 @@
 
         #region Public Methods
 
+        /// <summary>
+        /// Set despawn times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
+        /// </summary>
+        /// <param name="enableDST">Enable Day Light Savings time adjustment.</param>
+        /// <param name="enableLeapYear">Enable leap year time adjustment.</param>
         public void SetDespawnTime(bool enableDST, bool enableLeapYear)
         {
             //TODO: DST config option
@@ -621,16 +380,6 @@
                 SecondsLeft = SecondsLeft.Subtract(TimeSpan.FromHours(24));
             }
         }
-
-        //public bool IsUnderLevel(int targetLevel)
-        //{
-        //    return int.TryParse(Level, out var level) && level < targetLevel;
-        //}
-
-        //public bool IsAboveLevel(int targetLevel)
-        //{
-        //    return int.TryParse(Level, out var level) && level >= targetLevel;
-        //}
 
         public async Task<DiscordEmbed> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string pokemonImageUrl)
         {
@@ -677,7 +426,7 @@
             {
                 if (client.Guilds.ContainsKey(guildId) && whConfig.Servers.ContainsKey(guildId))
                 {
-                    weatherEmoji = Weather.Value.GetWeatherEmojiIcon(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]);//Strings.WeatherEmojis[Weather.Value];
+                    weatherEmoji = Weather.Value.GetWeatherEmojiIcon(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]);
                 }
             }
             var move1 = string.Empty;
@@ -837,14 +586,16 @@
             var sb = new StringBuilder();
             if (GreatLeague != null)
             {
-                foreach (var pvp in GreatLeague)
+                for (var i = 0; i < GreatLeague.Count; i++)
                 {
-                    if (/*pvp.Rank > TopPvPRanks ||*/ pvp.Rank == 0 || !(pvp.CP >= 1400 && pvp.CP <= 1500))
+                    var pvp = GreatLeague[i];
+                    var withinCpRange = pvp.CP >= 1400 && pvp.CP <= 1500;
+                    if (pvp.Rank == 0 || !withinCpRange)
                         continue;
 
                     if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
                     {
-                        _logger.Warn($"Pokemon database doesn't contain pokemon id {pvp.PokemonId}");
+                        _logger.Error($"Pokemon database doesn't contain pokemon id {pvp.PokemonId}");
                         continue;
                     }
                     var pkmn = MasterFile.Instance.Pokedex[pvp.PokemonId];
@@ -861,36 +612,6 @@
                 result = "**Great League:**\r\n" + result;
             }
             return await Task.FromResult(result);
-
-            /*
-            const int MaxCP = 1500;
-            var sb = new StringBuilder();
-            var cps = PossibleGreatLeagueCPs;
-            if (cps == null)
-                return null;
-            foreach (var pvpCP in cps)
-            {
-                var best = await _pvpCalc.CalculateBestPvPStat(pvpCP.PokemonId, pvpCP.FormId, pvpCP.Attack, pvpCP.Defense, pvpCP.Stamina, MaxCP);
-                var rank = await _pvpCalc.GetRank(pvpCP.PokemonId, pvpCP.FormId, pvpCP.CP, best);
-                if (rank.Key > TopPvPRanks || rank.Key == 0)
-                    continue;
-
-                if (!MasterFile.Instance.Pokedex.ContainsKey(pvpCP.PokemonId))
-                {
-                    _logger.Warn($"Pokemon database doesn't contain pokemon id {pvpCP.PokemonId}");
-                    continue;
-                }
-                var pkmn = MasterFile.Instance.Pokedex[pvpCP.PokemonId];
-                var form = pkmn.Forms.ContainsKey(FormId) ? " (" + pkmn.Forms[pvpCP.FormId].Name + ")" : string.Empty;
-                sb.AppendLine($"Rank #{rank.Key} {pkmn.Name}{form} {pvpCP.CP}CP @ L{pvpCP.Level} {rank.Value}%");
-            }
-            var result = sb.ToString();
-            if (!string.IsNullOrEmpty(result))
-            {
-                result = "**Great League:**\r\n" + result;
-            }
-            return await Task.FromResult(result);
-            */
         }
 
         private async Task<string> GetUltraLeague()
@@ -898,9 +619,11 @@
             var sb = new StringBuilder();
             if (UltraLeague != null)
             {
-                foreach (var pvp in UltraLeague)
+                for (var i = 0; i < UltraLeague.Count; i++)
                 {
-                    if (/*pvp.Rank > TopPvPRanks ||*/ pvp.Rank == 0 || !(pvp.CP >= 2400 && pvp.CP <= 2500))
+                    var pvp = UltraLeague[i];
+                    var withinCpRange = pvp.CP >= 2400 && pvp.CP <= 2500;
+                    if (pvp.Rank == 0 || !withinCpRange)
                         continue;
 
                     if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
@@ -922,74 +645,7 @@
                 result = "**Ultra League:**\r\n" + result;
             }
             return await Task.FromResult(result);
-
-            /*
-            const int MaxCP = 2500;
-            var sb = new StringBuilder();
-            var cps = PossibleUltraLeagueCPs;
-            if (cps == null)
-                return null;
-            foreach (var pvpCP in cps)
-            {
-                var best = await _pvpCalc.CalculateBestPvPStat(pvpCP.PokemonId, pvpCP.FormId, pvpCP.Attack, pvpCP.Defense, pvpCP.Stamina, MaxCP); //Changed to pvpCP from Id, FormId, atk, def, sta
-                var rank = await _pvpCalc.GetRank(pvpCP.PokemonId, pvpCP.FormId, pvpCP.CP, best);
-                if (rank.Key > TopPvPRanks || rank.Key == 0)
-                    continue;
-
-                if (!MasterFile.Instance.Pokedex.ContainsKey(pvpCP.PokemonId))
-                {
-                    _logger.Warn($"Pokemon database doesn't contain pokemon id {pvpCP.PokemonId}");
-                    continue;
-                }
-                var pkmn = MasterFile.Instance.Pokedex[pvpCP.PokemonId];
-                var form = pkmn.Forms.ContainsKey(FormId) ? " (" + pkmn.Forms[pvpCP.FormId].Name + ")" : string.Empty;
-                sb.AppendLine($"Rank #{rank.Key} {pkmn.Name}{form} {pvpCP.CP}CP @ L{pvpCP.Level} {rank.Value}%");
-            }
-            var result = sb.ToString();
-            if (!string.IsNullOrEmpty(result))
-            {
-                result = "**Ultra League:**\r\n" + result;
-            }
-            return await Task.FromResult(result);
-            */
         }
-
-        //private async Task<string> GetLeagueStats(int minCP = 1490, int maxCP = 2500)
-        //{
-        //    if (!int.TryParse(Attack, out var atk))
-        //        return string.Empty;
-        //    if (!int.TryParse(Defense, out var def))
-        //        return string.Empty;
-        //    if (!int.TryParse(Stamina, out var sta))
-        //        return string.Empty;
-        //    if (!int.TryParse(Level, out var lvl))
-        //        return string.Empty;
-
-        //    var sb = new StringBuilder();
-        //    var pvpCPs = await _pvpCalc.CalculatePossibleCPs(Id, FormId, atk, def, sta, lvl, Gender.ToString(), minCP, maxCP);
-        //    foreach (var pvpCP in pvpCPs)
-        //    {
-        //        var best = await _pvpCalc.CalculateBestPvPStat(Id, FormId, atk, def, sta, maxCP);
-        //        var rank = await _pvpCalc.GetRank(pvpCP.PokemonId, pvpCP.FormId, pvpCP.CP, best);
-        //        if (rank.Key > TopPvPRanks)
-        //            continue;
-
-        //        if (!MasterFile.Instance.Pokedex.ContainsKey(pvpCP.PokemonId))
-        //        {
-        //            _logger.Warn($"Pokemon database doesn't contain pokemon id {pvpCP.PokemonId}");
-        //            continue;
-        //        }
-        //        var pkmn = MasterFile.Instance.Pokedex[pvpCP.PokemonId];
-        //        var form = pkmn.Forms.ContainsKey(FormId) ? " (" + pkmn.Forms[pvpCP.FormId].Name + ")" : string.Empty;
-        //        sb.AppendLine($"Rank #{rank.Key} {pkmn.Name}{form} {pvpCP.CP}CP @ L{pvpCP.Level} {rank.Value}%");
-        //    }
-        //    var result = sb.ToString();
-        //    if (!string.IsNullOrEmpty(result))
-        //    {
-        //        result = (maxCP == 2500 ? "**Ultra League:**\r\n" : "**Great League:**\r\n") + result;
-        //    }
-        //    return await Task.FromResult(result);
-        //}
 
         #endregion
     }

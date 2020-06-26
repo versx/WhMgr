@@ -115,6 +115,7 @@
 
         public static string GetPokemonForm(this int pokeId, string formId)
         {
+            // TODO: Localize
             if (!int.TryParse(formId, out int form))
                 return null;
 
@@ -1113,66 +1114,6 @@
                 return MasterFile.Instance.PokemonTypes[type].Strengths;
             }
             return new List<PokemonType>();
-            /*
-            var types = new PokemonType[0];
-            switch (type)
-            {
-                case PokemonType.Normal:
-                    break;
-                case PokemonType.Fighting:
-                    types = new PokemonType[] { PokemonType.Normal, PokemonType.Rock, PokemonType.Steel, PokemonType.Ice, PokemonType.Dark };
-                    break;
-                case PokemonType.Flying:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Bug, PokemonType.Grass };
-                    break;
-                case PokemonType.Poison:
-                    types = new PokemonType[] { PokemonType.Grass, PokemonType.Fairy };
-                    break;
-                case PokemonType.Ground:
-                    types = new PokemonType[] { PokemonType.Poison, PokemonType.Rock, PokemonType.Steel, PokemonType.Fire, PokemonType.Electric };
-                    break;
-                case PokemonType.Rock:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Bug, PokemonType.Fire, PokemonType.Ice };
-                    break;
-                case PokemonType.Bug:
-                    types = new PokemonType[] { PokemonType.Grass, PokemonType.Psychic, PokemonType.Dark };
-                    break;
-                case PokemonType.Ghost:
-                    types = new PokemonType[] { PokemonType.Ghost, PokemonType.Psychic };
-                    break;
-                case PokemonType.Steel:
-                    types = new PokemonType[] { PokemonType.Rock, PokemonType.Ice };
-                    break;
-                case PokemonType.Fire:
-                    types = new PokemonType[] { PokemonType.Bug, PokemonType.Steel, PokemonType.Grass, PokemonType.Ice };
-                    break;
-                case PokemonType.Water:
-                    types = new PokemonType[] { PokemonType.Ground, PokemonType.Rock, PokemonType.Fire };
-                    break;
-                case PokemonType.Grass:
-                    types = new PokemonType[] { PokemonType.Ground, PokemonType.Rock, PokemonType.Water };
-                    break;
-                case PokemonType.Electric:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Water };
-                    break;
-                case PokemonType.Psychic:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Poison };
-                    break;
-                case PokemonType.Ice:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Ground, PokemonType.Grass, PokemonType.Dragon };
-                    break;
-                case PokemonType.Dragon:
-                    types = new PokemonType[] { PokemonType.Dragon };
-                    break;
-                case PokemonType.Dark:
-                    types = new PokemonType[] { PokemonType.Ghost, PokemonType.Psychic };
-                    break;
-                case PokemonType.Fairy:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Dragon, PokemonType.Dark };
-                    break;
-            }
-            return types.ToList();
-            */
         }
 
         public static List<PokemonType> GetWeaknesses(this PokemonType type)
@@ -1182,68 +1123,7 @@
                 return MasterFile.Instance.PokemonTypes[type].Weaknesses;
             }
             return new List<PokemonType>();
-            /*
-            var types = new PokemonType[0];
-            switch (type)
-            {
-                case PokemonType.Normal:
-                    types = new PokemonType[] { PokemonType.Fighting };
-                    break;
-                case PokemonType.Fighting:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Psychic, PokemonType.Fairy };
-                    break;
-                case PokemonType.Flying:
-                    types = new PokemonType[] { PokemonType.Rock, PokemonType.Electric, PokemonType.Ice };
-                    break;
-                case PokemonType.Poison:
-                    types = new PokemonType[] { PokemonType.Ground, PokemonType.Psychic };
-                    break;
-                case PokemonType.Ground:
-                    types = new PokemonType[] { PokemonType.Water, PokemonType.Grass, PokemonType.Ice };
-                    break;
-                case PokemonType.Rock:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Ground, PokemonType.Steel, PokemonType.Water, PokemonType.Grass };
-                    break;
-                case PokemonType.Bug:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Rock, PokemonType.Fire };
-                    break;
-                case PokemonType.Ghost:
-                    types = new PokemonType[] { PokemonType.Ghost, PokemonType.Dark };
-                    break;
-                case PokemonType.Steel:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Ground, PokemonType.Fire };
-                    break;
-                case PokemonType.Fire:
-                    types = new PokemonType[] { PokemonType.Ground, PokemonType.Rock, PokemonType.Water };
-                    break;
-                case PokemonType.Water:
-                    types = new PokemonType[] { PokemonType.Grass, PokemonType.Electric };
-                    break;
-                case PokemonType.Grass:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Poison, PokemonType.Bug, PokemonType.Fire, PokemonType.Ice };
-                    break;
-                case PokemonType.Electric:
-                    types = new PokemonType[] { PokemonType.Ground };
-                    break;
-                case PokemonType.Psychic:
-                    types = new PokemonType[] { PokemonType.Bug, PokemonType.Ghost, PokemonType.Dark };
-                    break;
-                case PokemonType.Ice:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Rock, PokemonType.Steel, PokemonType.Fire };
-                    break;
-                case PokemonType.Dragon:
-                    types = new PokemonType[] { PokemonType.Ice, PokemonType.Dragon, PokemonType.Fairy };
-                    break;
-                case PokemonType.Dark:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Bug, PokemonType.Fairy };
-                    break;
-                case PokemonType.Fairy:
-                    types = new PokemonType[] { PokemonType.Poison, PokemonType.Steel };
-                    break;
-            }
-            return types.ToList();
-            */
-        }
+         }
 
         public static string GetTypeEmojiIcons(this PokemonType pokemonType, DiscordGuild guild)
         {

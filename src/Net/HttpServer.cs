@@ -6,6 +6,7 @@
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
+    using System.Runtime.InteropServices.ComTypes;
     using System.Security.Principal;
     using System.Text;
     using System.Threading;
@@ -23,7 +24,6 @@
         private static readonly object _lock = new object();
         private readonly bool _enableDST = false;
         private readonly bool _enableLeapYear = false;
-        private HttpListener _server;
         private readonly Dictionary<ulong, PokemonData> _processedPokemon;
         private readonly Dictionary<string, RaidData> _processedRaids;
         private readonly Dictionary<string, GymData> _processedGyms;
@@ -31,46 +31,76 @@
         private readonly Dictionary<string, QuestData> _processedQuests;
         private readonly Dictionary<string, TeamRocketInvasion> _processedInvasions;
         private readonly Dictionary<long, WeatherData> _processedWeather;
-        //private Thread _requestThread;
+        private HttpListener _server;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// Http listening port
+        /// </summary>
         public ushort Port { get; }
 
+        /// <summary>
+        /// Logs incoming webhook data if set to <c>true</c>
+        /// </summary>
         public bool IsDebug { get; set; }
 
+        /// <summary>
+        /// Skips webhook raid eggs
+        /// </summary>
         public bool SkipEggs { get; set; }
 
         #endregion
 
         #region Events
 
+        /// <summary>
+        /// Trigged when a Pokemon webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<PokemonData>> PokemonReceived;
 
         private void OnPokemonReceived(PokemonData pokemon) => PokemonReceived?.Invoke(this, new DataReceivedEventArgs<PokemonData>(pokemon));
 
+        /// <summary>
+        /// Trigged when a Raid or Raid Egg webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<RaidData>> RaidReceived;
 
         private void OnRaidReceived(RaidData raid) => RaidReceived?.Invoke(this, new DataReceivedEventArgs<RaidData>(raid));
 
+        /// <summary>
+        /// Trigged when a Field Research Quest webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<QuestData>> QuestReceived;
 
         private void OnQuestReceived(QuestData quest) => QuestReceived?.Invoke(this, new DataReceivedEventArgs<QuestData>(quest));
 
+        /// <summary>
+        /// Trigged when a Pokestop webhook (lure/invasion) payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<PokestopData>> PokestopReceived;
 
         private void OnPokestopReceived(PokestopData pokestop) => PokestopReceived?.Invoke(this, new DataReceivedEventArgs<PokestopData>(pokestop));
 
+        /// <summary>
+        /// Trigged when a Gym webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<GymData>> GymReceived;
 
         private void OnGymReceived(GymData gym) => GymReceived?.Invoke(this, new DataReceivedEventArgs<GymData>(gym));
 
+        /// <summary>
+        /// Trigged when a Gym Details webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<GymDetailsData>> GymDetailsReceived;
 
         private void OnGymDetailsReceived(GymDetailsData gymDetails) => GymDetailsReceived?.Invoke(this, new DataReceivedEventArgs<GymDetailsData>(gymDetails));
 
+        /// <summary>
+        /// Trigged when a Weather webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<WeatherData>> WeatherReceived;
 
         private void OnWeatherReceived(WeatherData weather) => WeatherReceived?.Invoke(this, new DataReceivedEventArgs<WeatherData>(weather));
@@ -79,6 +109,12 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Instantiates a new <see cref="HttpServer"/> class.
+        /// </summary>
+        /// <param name="port">Listening port</param>
+        /// <param name="enableDST">Enable Day Light Savings time adjustemnt</param>
+        /// <param name="enableLeapYear">Enable leap year time adjustment</param>
         public HttpServer(ushort port, bool enableDST, bool enableLeapYear)
         {
             Port = port;
@@ -99,6 +135,9 @@
 
         #region Public Methods
 
+        /// <summary>
+        /// Starts the HTTP listener server
+        /// </summary>
         public void Start()
         {
             _logger.Trace($"Start");
@@ -118,16 +157,13 @@
             }
 
             _logger.Info($"Starting HttpServer request handler...");
-            //if (_requestThread == null)
-            //{
-                var requestThread = new Thread(RequestHandler) { IsBackground = true };
-            //}
-            //if (_requestThread.ThreadState != ThreadState.Running)
-            //{
-                requestThread.Start();
-            //}
+            var requestThread = new Thread(RequestHandler) { IsBackground = true };
+            requestThread.Start();
         }
 
+        /// <summary>
+        /// Attempts to stop the HTTP listener server
+        /// </summary>
         public void Stop()
         {
             _logger.Trace($"Stop");
@@ -140,13 +176,6 @@
 
             _logger.Info($"Stopping...");
             _server.Stop();
-
-            //if (_requestThread != null)
-            //{
-            //    _logger.Info($"Exiting main thread...");
-            //    _requestThread.Abort();
-            //    _requestThread = null;
-            //}
         }
 
         #endregion
@@ -167,7 +196,6 @@
                 {
                     try
                     {
-                        //if (sr.Peek() > -1)
                         var data = sr.ReadToEnd();
                         ParseData(data);
                     }
@@ -215,11 +243,13 @@
                 }
 
                 var messages = JsonConvert.DeserializeObject<List<WebhookMessage>>(data);
+                // If we fail to deserialize webhook payload, skip
                 if (messages == null)
                     return;
 
-                foreach (var message in messages)
+                for (var i = 0; i < messages.Count; i++)
                 {
+                    var message = messages[i];
                     switch (message.Type)
                     {
                         case PokemonData.WebHookHeader:
@@ -379,10 +409,9 @@
 
                 if (_processedPokestops.ContainsKey(pokestop.PokestopId))
                 {
-                    if (
-                        (_processedPokestops[pokestop.PokestopId].LureType == pokestop.LureType && _processedPokestops[pokestop.PokestopId].LureExpire == pokestop.LureExpire) ||
-                        (_processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType && _processedPokestops[pokestop.PokestopId].IncidentExpire == pokestop.IncidentExpire)
-                        )
+                    var processedLureAlready = _processedPokestops[pokestop.PokestopId].LureType == pokestop.LureType && _processedPokestops[pokestop.PokestopId].LureExpire == pokestop.LureExpire;
+                    var processedInvasionAlready = _processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType && _processedPokestops[pokestop.PokestopId].IncidentExpire == pokestop.IncidentExpire;
+                    if (processedLureAlready || processedInvasionAlready)
                     {
                         _logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
                         // Processed pokestop lure or invasion already
