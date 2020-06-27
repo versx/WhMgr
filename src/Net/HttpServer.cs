@@ -336,6 +336,7 @@
 
                 if (_processedRaids.ContainsKey(raid.GymId))
                 {
+                    /*
                     if ((_processedRaids[raid.GymId].PokemonId == 0 || _processedRaids[raid.GymId].PokemonId == raid.PokemonId) &&
                         _processedRaids[raid.GymId].Form == raid.Form &&
                         _processedRaids[raid.GymId].Level == raid.Level &&
@@ -346,6 +347,7 @@
                         // Processed raid already
                         return;
                     }
+                    */
                 }
                 else
                 {
