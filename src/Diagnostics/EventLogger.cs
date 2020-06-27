@@ -12,9 +12,11 @@
         #region Static Variables
 
         private static readonly Dictionary<string, EventLogger> _instances = new Dictionary<string, EventLogger>();
+#if Windows
         private static readonly EventWaitHandle _waitHandle = new EventWaitHandle(true, EventResetMode.AutoReset, Strings.BotName + new Random().Next(10000, 90000));
+#endif
 
-        #endregion
+#endregion
 
         #region Properties
 
@@ -124,9 +126,13 @@
             }
             Console.WriteLine(msg);
 
+#if Windows
             _waitHandle.WaitOne();
+#endif
             File.AppendAllText(Path.Combine(Strings.LogsFolder, $"{Program.ManagerName}_{DateTime.Now:yyyy-MM-dd}.log"), msg + Environment.NewLine);
+#if Windows
             _waitHandle.Set();
+#endif
         }
 
         private static void CreateLogsDirectory()

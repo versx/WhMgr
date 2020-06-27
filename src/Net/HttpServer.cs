@@ -620,12 +620,16 @@
 
         private static bool IsAdministrator()
         {
+#if Windows
             var identity = WindowsIdentity.GetCurrent();
             var principal = new WindowsPrincipal(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
+#else
+            return true;
+#endif
         }
 
-        #endregion
+#endregion
 
         private class WebhookMessage
         {
