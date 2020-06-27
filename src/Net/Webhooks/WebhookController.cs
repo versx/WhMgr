@@ -158,7 +158,7 @@
             }
             _config = config;
 
-            _http = new HttpServer(_config.WebhookPort, _config.EnableDST, _config.EnableLeapYear);
+            _http = new HttpServer(_config.ListeningHost, _config.WebhookPort, _config.EnableDST, _config.EnableLeapYear);
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
             _http.QuestReceived += Http_QuestReceived;

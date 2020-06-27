@@ -6,7 +6,6 @@
     using System.Net;
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
-    using System.Runtime.InteropServices.ComTypes;
     using System.Security.Principal;
     using System.Text;
     using System.Threading;
@@ -36,6 +35,8 @@
         #endregion
 
         #region Properties
+
+        public string Host { get; }
 
         /// <summary>
         /// Http listening port
@@ -115,8 +116,9 @@
         /// <param name="port">Listening port</param>
         /// <param name="enableDST">Enable Day Light Savings time adjustemnt</param>
         /// <param name="enableLeapYear">Enable leap year time adjustment</param>
-        public HttpServer(ushort port, bool enableDST, bool enableLeapYear)
+        public HttpServer(string host, ushort port, bool enableDST, bool enableLeapYear)
         {
+            Host = host;
             Port = port;
             _enableDST = enableDST;
             _enableLeapYear = enableLeapYear;
@@ -334,7 +336,7 @@
 
                 if (_processedRaids.ContainsKey(raid.GymId))
                 {
-                    if (_processedRaids[raid.GymId].PokemonId == raid.PokemonId &&
+                    if ((_processedRaids[raid.GymId].PokemonId == 0 || _processedRaids[raid.GymId].PokemonId == raid.PokemonId) &&
                         _processedRaids[raid.GymId].Form == raid.Form &&
                         _processedRaids[raid.GymId].Level == raid.Level &&
                         _processedRaids[raid.GymId].Start == raid.Start &&
@@ -528,23 +530,11 @@
 
                 if (IsAdministrator())
                 {
-                    for (var i = 0; i < addresses.Count; i++)
-                    {
-                        var endpoint = PrepareEndPoint(addresses[i], Port);
-                        if (!_server.Prefixes.Contains(endpoint))
-                            _server.Prefixes.Add(endpoint);
-
-                        _logger.Debug($"[IP ADDRESS] {endpoint}");
-                    }
-                }
-
-                for (var i = 0; i < Strings.LocalEndPoint.Length; i++)
-                {
-                    var endpoint = PrepareEndPoint(Strings.LocalEndPoint[i], Port);
+                    var endpoint = PrepareEndPoint(Host, Port);
                     if (!_server.Prefixes.Contains(endpoint))
+                    {
                         _server.Prefixes.Add(endpoint);
-
-                    _logger.Debug($"[IP ADDRESS] {endpoint}");
+                    }
                 }
             }
             catch (Exception ex)

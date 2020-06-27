@@ -10,6 +10,9 @@
 
     public class WhConfig
     {
+        [JsonProperty("host")]
+        public string ListeningHost { get; set; }
+
         [JsonProperty("port")]
         public ushort WebhookPort { get; set; }
 

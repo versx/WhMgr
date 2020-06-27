@@ -1,8 +1,9 @@
 {
+  "host": "10.0.0.10",
   "port": 8008,
   "locale": "en",
   "shortUrlApiUrl": null,
-  "stripeApiKey": ""
+  "stripeApiKey": "",
   "servers": {
     "000000000000000001": {
       "commandPrefix": ".",
