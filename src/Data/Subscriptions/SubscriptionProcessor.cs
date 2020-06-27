@@ -178,15 +178,11 @@
                     matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
                     matchesIVList = subscribedPokemon.IVList?.Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}") ?? false;
 
-                    if (!(matchesIV && matchesLvl && matchesGender))
-                    {
+                    if (!(
+                        (matchesIV && matchesLvl && matchesGender) ||
+                        (subscribedPokemon.HasStats && matchesIVList)
+                        ))
                         continue;
-                    }
-
-                    if (!(subscribedPokemon.HasStats && matchesIVList))
-                    {
-                        continue;
-                    }
 
                     var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
                     var iconStyleUrl = _whConfig.IconStyles.FirstOrDefault(x => string.Compare(x.Key, iconStyle, true) == 0).Value;
