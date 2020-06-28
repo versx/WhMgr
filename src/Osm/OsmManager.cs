@@ -12,8 +12,6 @@
 
     public class OsmManager
     {
-        private const string NestFilePath = "";
-
         private static readonly IEventLogger _logger = EventLogger.GetLogger("OSM");
 
         public OsmFeatureCollection Nests { get; private set; }

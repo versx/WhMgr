@@ -361,7 +361,7 @@
             }
             else
             {
-                _logger.Error($"User {e.Context.User.Username} tried executing command {e.Command?.Name} and unknown error occurred.\r\n: {e.Exception.ToString()}");
+                _logger.Error($"User {e.Context.User.Username} tried executing command {e.Command?.Name} and unknown error occurred.\r\n: {e.Exception}");
             }
         }
 
@@ -432,7 +432,7 @@
 
             var pokemon = e.Data;
             var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[POKEMON] Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
@@ -484,7 +484,7 @@
             _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Data.PokemonId}, Level: {e.Data.Level}, StartTime: {e.Data.StartTime}]");
 
             var raid = e.Data;
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[RAID] Failed to lookup city from coordinates {raid.Latitude},{raid.Longitude} {pkmn.Name} {raid.Level}, skipping...");
@@ -535,7 +535,7 @@
             _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, Type={e.Data.Type}]");
 
             var quest = e.Data;
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[QUEST] Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
@@ -575,7 +575,7 @@
             _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, LureExpire={e.Data.LureExpire}, InvasionExpire={e.Data.IncidentExpire}]");
 
             var pokestop = e.Data;
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[POKESTOP] Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
@@ -644,7 +644,7 @@
             _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");
 
             var gymDetails = e.Data;
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
@@ -919,11 +919,11 @@
                 if (server.PruneQuestChannels)
                 {
                     var channelIds = server.QuestChannelIds;
-                    _logger.Debug($"Quest channel pruning started for {channelIds.Count.ToString("N0")} channels...");
+                    _logger.Debug($"Quest channel pruning started for {channelIds.Count:N0} channels...");
                     for (var j = 0; j < channelIds.Count; j++)
                     {
                         var result = await client.DeleteMessages(channelIds[j]);
-                        _logger.Debug($"Deleted all {result.Item2.ToString("N0")} quest messages from channel {result.Item1.Name}.");
+                        _logger.Debug($"Deleted all {result.Item2:N0} quest messages from channel {result.Item1.Name}.");
                         Thread.Sleep(1000);
                     }
 

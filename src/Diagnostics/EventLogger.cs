@@ -5,6 +5,9 @@
     using System.IO;
     using System.Threading;
 
+    /// <summary>
+    /// Event logger diagnostics class
+    /// </summary>
     public class EventLogger : IEventLogger
     {
         private const string DefaultLoggerName = "default";
@@ -20,10 +23,21 @@
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the logger instance name
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the log handler callback
+        /// </summary>
         public Action<LogType, string> LogHandler { get; set; }
 
+        /// <summary>
+        /// Gets the event logger class by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static EventLogger GetLogger(string name = null)
         {
             var instanceName = (name ?? DefaultLoggerName).ToLower();
@@ -40,11 +54,18 @@
 
         #region Constructor(s)
 
+        /// <summary>
+        /// Instantiate a new <see cref="EventLogger"/> class
+        /// </summary>
         public EventLogger() 
             : this(DefaultLoggerName)
         {
         }
 
+        /// <summary>
+        /// Instantiate a new <see cref="EventLogger"/> class by name
+        /// </summary>
+        /// <param name="name">Name to set</param>
         public EventLogger(string name)
         {
             Name = name;
@@ -52,11 +73,11 @@
             CreateLogsDirectory();
         }
 
-        public EventLogger(Action<LogType, string> logHandler) 
-            : this(DefaultLoggerName, logHandler)
-        {
-        }
-
+        /// <summary>
+        /// Instantiate a new <see cref="EventLogger"/> class by name and log handler
+        /// </summary>
+        /// <param name="name">Name to set</param>
+        /// <param name="logHandler">Event logger handler callback</param>
         public EventLogger(string name, Action<LogType, string> logHandler)
         {
             Name = name;

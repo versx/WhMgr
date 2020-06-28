@@ -9,14 +9,17 @@
         /// Gender not set
         /// </summary>
         Unset = 0,
+
         /// <summary>
         /// Male gender
         /// </summary>
         Male,
+
         /// <summary>
         /// Female gender
         /// </summary>
         Female,
+
         /// <summary>
         /// Genderless gender
         /// </summary>

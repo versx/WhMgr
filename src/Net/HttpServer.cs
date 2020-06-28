@@ -15,6 +15,9 @@
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
+    /// <summary>
+    /// HTTP listener class
+    /// </summary>
     public class HttpServer
     {
         #region Variables
@@ -36,6 +39,9 @@
 
         #region Properties
 
+        /// <summary>
+        /// HTTP listening interface/host address
+        /// </summary>
         public string Host { get; }
 
         /// <summary>

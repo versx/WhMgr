@@ -22,8 +22,6 @@
     ]
     public class Settings
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("SETTINGS");
-
         private readonly Dependencies _dep;
 
         public Settings(Dependencies dep)
@@ -180,8 +178,6 @@
         ]
         public class CityRoles
         {
-            private static readonly IEventLogger _logger = EventLogger.GetLogger("SETTINGS");
-
             private readonly Dependencies _dep;
 
             public CityRoles(Dependencies dep)

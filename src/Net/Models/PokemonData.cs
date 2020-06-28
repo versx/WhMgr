@@ -449,7 +449,7 @@
                 string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? MasterFile.Instance.Pokedex[DisplayPokemonId ?? Id] : pkmnInfo;
-            var isShiny = Shiny.HasValue ? Shiny.Value : false;
+            var isShiny = Shiny ?? false;
             var height = double.TryParse(Height, out var realHeight) ? Math.Round(realHeight).ToString() : "";
             var weight = double.TryParse(Weight, out var realWeight) ? Math.Round(realWeight).ToString() : "";
 

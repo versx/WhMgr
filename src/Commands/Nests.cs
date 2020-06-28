@@ -98,7 +98,7 @@
                     var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
                     var staticMapLink = Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pkmnImage, nest.Latitude, nest.Longitude, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
                     var geofences = _dep.Whm.Geofences.Values.ToList();
-                    var geofence = _dep.Whm.GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
+                    var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
@@ -258,7 +258,7 @@
                     if (!cities.Contains(geofence?.Name))
                         continue;
 
-                    sb.AppendLine($"[{gn.Name}]({string.Format(Strings.GoogleMaps, gn.Latitude, gn.Longitude)}) Avg/h: {gn.Average.ToString("N0")}");
+                    sb.AppendLine($"[{gn.Name}]({string.Format(Strings.GoogleMaps, gn.Latitude, gn.Longitude)}) Avg/h: {gn.Average:N0}");
                 }
                 eb.AddField($"{nest.Key}", sb.ToString(), true);
             }
@@ -284,7 +284,7 @@
                 foreach (var nest2 in nest.Value)
                 {
                     var geofences = _dep.Whm.Geofences.Values.ToList();
-                    var geofence = _dep.Whm.GeofenceService.GetGeofence(geofences, new Location(nest2.Latitude, nest2.Longitude));
+                    var geofence = GeofenceService.GetGeofence(geofences, new Location(nest2.Latitude, nest2.Longitude));
                     if (geofence == null)
                     {
                         _logger.Warn($"Failed to find geofence for nest {nest.Key}.");

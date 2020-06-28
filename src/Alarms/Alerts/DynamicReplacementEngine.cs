@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    public class DynamicReplacementEngine
+    public static class DynamicReplacementEngine
     {
         /// <summary>
         /// Replace text placeholders with Pokemon values
