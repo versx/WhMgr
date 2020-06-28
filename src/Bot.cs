@@ -48,6 +48,10 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Discord bot class
+        /// </summary>
+        /// <param name="whConfig">Configuration settings</param>
         public Bot(WhConfig whConfig)
         {
             _logger.Trace($"WhConfig [Servers={whConfig.Servers.Count}, Port={whConfig.WebhookPort}]");
@@ -178,6 +182,10 @@
 
         #region Public Methods
 
+        /// <summary>
+        /// Start the Discord bot(s)
+        /// </summary>
+        /// <returns></returns>
         public async Task Start()
         {
             _logger.Trace("Start");
@@ -212,6 +220,10 @@
             _logger.Info("WebhookManager is running...");
         }
 
+        /// <summary>
+        /// Stop the Discord bot(s)
+        /// </summary>
+        /// <returns></returns>
         public async Task Stop()
         {
             _logger.Trace("Stop");
@@ -235,8 +247,9 @@
             _whm.GymAlarmTriggered -= OnGymAlarmTriggered;
             _whm.GymDetailsAlarmTriggered -= OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered -= OnWeatherAlarmTriggered;
-            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null) //At least one server wanted subscriptions
+            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null)
             {
+                //At least one server wanted subscriptions
                 _whm.PokemonSubscriptionTriggered -= OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered -= OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered -= OnQuestSubscriptionTriggered;
@@ -770,7 +783,7 @@
         {
             _logger.Trace($"CreateEmojis");
 
-            if (!_whConfig.Servers.ContainsKey(guildId))
+            if (!_servers.ContainsKey(guildId))
             {
                 _logger.Warn($"Discord client not ready yet to create emojis for guild {guildId}");
                 return;
@@ -778,7 +791,7 @@
 
             var server = _whConfig.Servers[guildId];
             var client = _servers[guildId];
-            if (!client.Guilds?.ContainsKey(server.EmojiGuildId) ?? false)
+            if (!(client.Guilds?.ContainsKey(server.EmojiGuildId) ?? false))
             {
                 _logger.Warn($"Bot not in emoji server {server.EmojiGuildId}");
                 return;

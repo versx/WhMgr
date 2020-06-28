@@ -5,31 +5,15 @@
     using System.IO;
 
     using Newtonsoft.Json;
-    using ServiceStack.DataAnnotations;
 
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
-    public class PokemonTypes
-    {
-        [JsonProperty("immunes")]
-        public List<PokemonType> Immune { get; set; }
-
-        [JsonProperty("weaknesses")]
-        public List<PokemonType> Weaknesses { get; set; }
-
-        [JsonProperty("strengths")]
-        public List<PokemonType> Strengths { get; set; }
-    }
-
     public class MasterFile
     {
         const string MasterFileName = "masterfile.json";
         const string CpMultipliersFileName = "cpMultipliers.json";
-        const string GreatPvPLibFileName = "pvp_great_league_ranks.json";
-        const string UltraPvPLibFileName = "pvp_ultra_league_ranks.json";
-        const string EmojisFileName = "emojis.json";
         const string ShinyFileName = "shiny.json";
         const string GruntTypesFileName = "grunttype.json";
         const string TypesFileName = "types.json";
@@ -46,9 +30,6 @@
 
         [JsonProperty("items")]
         public IReadOnlyDictionary<string, string> ItemsText { get; set; }
-
-        //[JsonProperty("types")]
-        //public IReadOnlyDictionary<int, PokemonType> Types { get; set; }
 
         [JsonProperty("quest_condition")]
         public IReadOnlyDictionary<string, string> QuestConditions { get; set; }
@@ -83,12 +64,6 @@
         [JsonIgnore]
         public List<int> PossibleShinies { get; set; }
 
-        [JsonIgnore]
-        public GreatPvpRankLibrary GreatPvPLibrary { get; set; }
-
-        [JsonIgnore]
-        public UltraPvpRankLibrary UltraPvPLibrary { get; set; }
-
         #region Singletons
 
         private static MasterFile _instance;
@@ -114,21 +89,6 @@
             CpMultipliers = LoadInit<Dictionary<double, double>>(
                 Path.Combine(Strings.DataFolder, CpMultipliersFileName),
                 typeof(Dictionary<double, double>)
-            );
-
-            GreatPvPLibrary = LoadInit<GreatPvpRankLibrary>(
-                Path.Combine(Strings.DataFolder, GreatPvPLibFileName), 
-                typeof(GreatPvpRankLibrary)
-            );
-
-            UltraPvPLibrary = LoadInit<UltraPvpRankLibrary>(
-                Path.Combine(Strings.DataFolder, UltraPvPLibFileName), 
-                typeof(UltraPvpRankLibrary)
-            );
-
-            Emojis = LoadInit<Dictionary<string, ulong>>(
-                Path.Combine(Strings.DataFolder, EmojisFileName), 
-                typeof(Dictionary<string, ulong>)
             );
 
             GruntTypes = LoadInit<Dictionary<InvasionGruntType, TeamRocketInvasion>>(
@@ -177,80 +137,15 @@
         }
     }
 
-    #region PvP
-
-    public abstract class PvPRank
+    public class PokemonTypes
     {
-        [
-            JsonProperty("pokemon_id"),
-            Alias("pokemon_id")
-        ]
-        public int PokemonId { get; set; }
+        [JsonProperty("immunes")]
+        public List<PokemonType> Immune { get; set; }
 
-        [
-            JsonProperty("form"),
-            Alias("form")
-        ]
-        public int FormId { get; set; }
+        [JsonProperty("weaknesses")]
+        public List<PokemonType> Weaknesses { get; set; }
 
-        [
-            JsonProperty("attack"),
-            Alias("attack")
-        ]
-        public int Attack { get; set; }
-
-        [
-            JsonProperty("defense"),
-            Alias("defense")
-        ]
-        public int Defense { get; set; }
-
-        [
-            JsonProperty("stamina"),
-            Alias("stamina")
-        ]
-        public int Stamina { get; set; }
-
-        [
-            JsonProperty("value"),
-            Alias("value")
-        ]
-        public int Value { get; set; }
-
-        [
-            JsonProperty("level"),
-            Alias("level")
-        ]
-        public double Level { get; set; }
-
-        [
-            JsonProperty("CP"),
-            Alias("CP")
-        ]
-        public int CP { get; set; }
-
-        [
-            JsonProperty("percent"),
-            Alias("percent")
-        ]
-        public double Percent { get; set; }
-
-        [
-            JsonProperty("rank"),
-            Alias("rank")
-        ]
-        public int Rank { get; set; }
+        [JsonProperty("strengths")]
+        public List<PokemonType> Strengths { get; set; }
     }
-
-    [Alias("great_league")]
-    public class GreatPvPRank : PvPRank { }
-
-    [Alias("ultra_league")]
-    public class UltraPvPRank : PvPRank { }
-
-    public class GreatPvpRankLibrary : Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, GreatPvPRank>>>>> { }
-
-    public class UltraPvpRankLibrary : Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, UltraPvPRank>>>>> { }
-
-    #endregion
 }

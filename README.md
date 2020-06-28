@@ -286,6 +286,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 33.03,-118.03
 ```
 7.) Run `schema.sql` to manually create necessary database tables.  
+8.) Add dotnet to your environment path if it isn't already (optional): `export PATH=~/.dotnet/dotnet:$PATH`  
 8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
 9.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
 
