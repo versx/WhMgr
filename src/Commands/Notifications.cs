@@ -328,6 +328,7 @@
                 var minIV = IsRarePokemon(pokemonId) ? 0 : realIV;
                 var minLvl = IsRarePokemon(pokemonId) ? 0 : minLevel;
                 var maxLvl = IsRarePokemon(pokemonId) ? 35 : maxLevel;
+                var hasStatsSet = attack >= 0 || defense >= 0 || stamina >= 0;
                 if (subPkmn == null)
                 {
                     //Does not exist, create.
@@ -341,8 +342,7 @@
                         MinimumLevel = minLvl,
                         MaximumLevel = maxLvl,
                         Gender = gender,
-                        // TODO: Allow 0%
-                        IVList = (attack >= 0 || defense >= 0 || stamina >= 0) ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>()
+                        IVList = hasStatsSet ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>()
                     });
                     subscribed.Add(name);
                     continue;
@@ -354,14 +354,17 @@
                     minLvl != subPkmn.MinimumLevel ||
                     maxLvl != subPkmn.MaximumLevel ||
                     gender != subPkmn.Gender ||
-                    (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && (attack >= 0 || defense >= 0 || stamina >= 0)))
+                    (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && hasStatsSet))
                 {
                     subPkmn.Form = form;
-                    subPkmn.MinimumIV = (attack >= 0 || defense >= 0 || stamina >= 0) ? subPkmn.MinimumIV : realIV;
+                    subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : realIV;
                     subPkmn.MinimumLevel = minLvl;
                     subPkmn.MaximumLevel = maxLvl;
                     subPkmn.Gender = gender;
-                    subPkmn.IVList.Add($"{attack}/{defense}/{stamina}");
+                    if (hasStatsSet)
+                    {
+                        subPkmn.IVList.Add($"{attack}/{defense}/{stamina}");
+                    }
                     subscribed.Add(name);
                     continue;
                 }
@@ -381,10 +384,10 @@
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Username} has subscribed to **{(subscribed.Count == Strings.MaxPokemonIds ? "All" : string.Join("**, **", subscribed))}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(minLevel > 0 ? $" and between level {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
+                    ? $"{ctx.User.Username} has subscribed to **{(subscribed.Count == Strings.MaxPokemonIds ? "All" : string.Join("**, **", subscribed))}** notifications with a{(attack >= 0 || defense >= 0 || stamina >= 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(minLevel > 0 ? $" and between level {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
-                    ? $"\r\n{ctx.User.Username} is already subscribed to **{(alreadySubscribed.Count == Strings.MaxPokemonIds ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a{(attack > 0 || defense > 0 || stamina > 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(minLevel > 0 ? $" and a between level {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
+                    ? $"\r\n{ctx.User.Username} is already subscribed to **{(alreadySubscribed.Count == Strings.MaxPokemonIds ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a{(attack >= 0 || defense >= 0 || stamina >= 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(minLevel > 0 ? $" and a between level {lvl}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")}."
                     : string.Empty)
             );
 
