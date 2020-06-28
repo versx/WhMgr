@@ -67,15 +67,18 @@
 
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
+            // Initialize and start midnight reset timer
             var midnight = new DandTSoftware.Timers.MidnightTimer();
             midnight.TimeReached += async (e) => await ResetQuests();
             midnight.Start();
 
+            // Initialize the subscription processor if at least one Discord server wants custom notifications
             if (_whConfig.Servers.Values.ToList().Exists(x => x.EnableSubscriptions))
             {
                 _subProcessor = new SubscriptionProcessor(_servers, _whConfig, _whm);
             }
 
+            // Create a DiscordClient object per Discord server in config
             var keys = _whConfig.Servers.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -115,19 +118,20 @@
                 client.ClientErrored += Client_ClientErrored;
                 client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
 
+                // Configure Discord interactivity module
                 var interactivity = client.UseInteractivity
                 (
                     new InteractivityConfiguration
                     {
-                    // default pagination behaviour to just ignore the reactions
-                    PaginationBehaviour = TimeoutBehaviour.Ignore,
+                        // default pagination behaviour to just ignore the reactions
+                        PaginationBehaviour = TimeoutBehaviour.Ignore,
 
-                    // default pagination timeout to 5 minutes
-                    PaginationTimeout = TimeSpan.FromMinutes(5), //TODO: Set prod
+                        // default pagination timeout to 5 minutes
+                        PaginationTimeout = TimeSpan.FromMinutes(5), //TODO: Set prod
 
-                    // default timeout for other actions to 2 minutes
-                    Timeout = TimeSpan.FromMinutes(2) //TODO: Set prod
-                }
+                        // default timeout for other actions to 2 minutes
+                        Timeout = TimeSpan.FromMinutes(2) //TODO: Set prod
+                    }
                 );
 
                 DependencyCollection dep;
@@ -137,6 +141,7 @@
                     dep = d.Build();
                 }
 
+                // Discord commands configuration
                 var commands = client.UseCommandsNext
                 (
                     new CommandsNextConfiguration
@@ -152,6 +157,7 @@
                 );
                 commands.CommandExecuted += Commands_CommandExecuted;
                 commands.CommandErrored += Commands_CommandErrored;
+                // Register Discord command handler classes
                 commands.RegisterCommands<Owner>();
                 commands.RegisterCommands<CommunityDay>();
                 commands.RegisterCommands<Nests>();
@@ -174,6 +180,7 @@
                     _servers.Add(guildId, client);
                 }
 
+                // Wait 3 seconds between initializing Discord clients
                 Task.Delay(3000).GetAwaiter().GetResult();
             }
         }
@@ -191,6 +198,7 @@
             _logger.Trace("Start");
             _logger.Info("Connecting to Discord...");
 
+            // Loop through each Discord server and attempt initial connection
             var keys = _servers.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -202,6 +210,7 @@
                 await Task.Delay(1000);
             }
 
+            // Register alarm event handlers
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
             _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
@@ -211,6 +220,7 @@
             _whm.WeatherAlarmTriggered += OnWeatherAlarmTriggered;
             if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null) //At least one server wants subscriptions
             {
+                // Register subscription event handlers
                 _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
@@ -240,6 +250,7 @@
                 await Task.Delay(1000);
             }
 
+            // Unregister alarm event handlers
             _whm.PokemonAlarmTriggered -= OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered -= OnRaidAlarmTriggered;
             _whm.QuestAlarmTriggered -= OnQuestAlarmTriggered;
@@ -249,7 +260,7 @@
             _whm.WeatherAlarmTriggered -= OnWeatherAlarmTriggered;
             if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null)
             {
-                //At least one server wanted subscriptions
+                //At least one server wanted subscriptions, unregister the subscription event handlers
                 _whm.PokemonSubscriptionTriggered -= OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered -= OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered -= OnQuestSubscriptionTriggered;
@@ -287,7 +298,11 @@
 
         private async Task Client_GuildAvailable(GuildCreateEventArgs e)
         {
-            await CreateEmojis(e.Guild.Id);
+            // If guild is in configured servers list then attempt to create emojis needed
+            if (_whConfig.Servers.ContainsKey(e.Guild.Id))
+            {
+                await CreateEmojis(e.Guild.Id);
+            }
         }
 
         //private async Task Client_MessageCreated(MessageCreateEventArgs e)
@@ -871,7 +886,7 @@
                         }
 
                         _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
-                        //Subtract an hour to make sure it shows yesterdays date.
+                        // Subtract an hour to make sure it shows yesterday's date.
                         await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
                         await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_NEWLINE"));
                         var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
@@ -889,8 +904,6 @@
                             var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
                             var pkmnStats = stats[pokemon];
                             var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
-                            //var chanceMessage = chance == 0 ? null : $" with a **1/{chance}** ratio";
-                            //await statsChannel.SendMessageAsync($"**{pkmn.Name} (#{pokemon})**  |  **{pkmnStats.Shiny.ToString("N0")}** shiny out of **{pkmnStats.Total.ToString("N0")}** total seen in the last 24 hours{chanceMessage}.");
                             if (chance == 0)
                             {
                                 await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
@@ -911,24 +924,32 @@
                         {
                             await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
                         }
-                        //var ratio = total.Shiny == 0 || total.Total == 0 ? null : $" with a **1/{Convert.ToInt32(total.Total / total.Shiny)}** ratio in total";
-                        //await statsChannel.SendMessageAsync($"Found **{total.Shiny.ToString("N0")}** total shinies out of **{total.Total.ToString("N0")}** possiblities{ratio}.");
                     }
+
+                    Thread.Sleep(10 * 1000);
                 }
 
                 if (server.PruneQuestChannels)
                 {
-                    var channelIds = server.QuestChannelIds;
-                    _logger.Debug($"Quest channel pruning started for {channelIds.Count:N0} channels...");
-                    for (var j = 0; j < channelIds.Count; j++)
+                    try
                     {
-                        var result = await client.DeleteMessages(channelIds[j]);
-                        _logger.Debug($"Deleted all {result.Item2:N0} quest messages from channel {result.Item1.Name}.");
-                        Thread.Sleep(1000);
+                        var channelIds = server.QuestChannelIds;
+                        _logger.Debug($"Quest channel pruning started for {channelIds.Count:N0} channels...");
+                        for (var j = 0; j < channelIds.Count; j++)
+                        {
+                            var result = await client.DeleteMessages(channelIds[j]);
+                            _logger.Debug($"Deleted all {result.Item2:N0} quest messages from channel {result.Item1.Name}.");
+                            Thread.Sleep(1000);
+                        }
+                        _logger.Debug($"Finished automatic quest messages cleanup...");
                     }
-
-                    _logger.Debug($"Finished automatic quest messages cleanup...");
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex);
+                    }
                 }
+
+                Thread.Sleep(10 * 1000);
             }
 
             CleanupDepartedMembers();
@@ -960,7 +981,9 @@
                         if (!SubscriptionManager.RemoveAllUserSubscriptions(user.GuildId, user.UserId))
                         {
                             _logger.Warn($"Unable to remove user {user.UserId} subscription settings from the database.");
+                            continue;
                         }
+                        _logger.Info($"Successfully removed user {user.UserId}'s subscription settings from the database.");
                     }
                 }
             }

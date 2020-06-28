@@ -7,6 +7,9 @@
 
     using WhMgr.Utilities;
 
+    /// <summary>
+    /// Url shortener class using yourls.org
+    /// </summary>
     public class UrlShortener
     {
         /*
@@ -41,6 +44,12 @@
         [JsonProperty("statusCode")]
         public int StatusCode { get; set; }
 
+        /// <summary>
+        /// Creates a short url from the url provided
+        /// </summary>
+        /// <param name="baseApiUrl"></param>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public static string CreateShortUrl(string baseApiUrl, string url)
         {
             try

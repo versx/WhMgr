@@ -27,6 +27,7 @@
     public sealed class PokemonData
     {
         public const string WebHookHeader = "pokemon";
+        public const int MaximumRankPVP = 500;
 
         #region Variables
 
@@ -298,13 +299,13 @@
             JsonIgnore,
             Ignore
         ]
-        public bool MatchesGreatLeague => GreatLeague?.Exists(x => x.CP >= 1400 && x.CP <= 1500) ?? false;
+        public bool MatchesGreatLeague => GreatLeague?.Exists(x => x.Rank <= MaximumRankPVP && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP) ?? false;
 
         [
             JsonIgnore,
             Ignore
         ]
-        public bool MatchesUltraLeague => UltraLeague?.Exists(x => x.CP >= 2400 && x.CP <= 2500) ?? false;
+        public bool MatchesUltraLeague => UltraLeague?.Exists(x => x.Rank <= MaximumRankPVP && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP) ?? false;
 
         #endregion
 
@@ -589,8 +590,9 @@
                 for (var i = 0; i < GreatLeague.Count; i++)
                 {
                     var pvp = GreatLeague[i];
-                    var withinCpRange = pvp.CP >= 1400 && pvp.CP <= 1500;
-                    if (pvp.Rank == 0 || !withinCpRange)
+                    var withinCpRange = pvp.CP >= Strings.MinimumGreatLeagueCP && pvp.CP <= Strings.MaximumGreatLeagueCP;
+                    var withinRankRange = pvp.Rank <= MaximumRankPVP;
+                    if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
                         continue;
 
                     if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
@@ -600,7 +602,7 @@
                     }
                     var pkmn = MasterFile.Instance.Pokedex[pvp.PokemonId];
                     var form = pkmn.Forms.ContainsKey(FormId) ? " (" + pkmn.Forms[pvp.FormId].Name + ")" : string.Empty;
-                    if (pvp.Rank.HasValue && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= 1500)
+                    if ((pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP) && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumGreatLeagueCP)
                     {
                         sb.AppendLine($"Rank #{pvp.Rank.Value} {pkmn.Name}{form} {pvp.CP.Value}CP @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
                     }
@@ -622,8 +624,9 @@
                 for (var i = 0; i < UltraLeague.Count; i++)
                 {
                     var pvp = UltraLeague[i];
-                    var withinCpRange = pvp.CP >= 2400 && pvp.CP <= 2500;
-                    if (pvp.Rank == 0 || !withinCpRange)
+                    var withinCpRange = pvp.CP >= Strings.MinimumUltraLeagueCP && pvp.CP <= Strings.MaximumUltraLeagueCP;
+                    var withinRankRange = pvp.Rank <= MaximumRankPVP;
+                    if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
                         continue;
 
                     if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
@@ -633,7 +636,7 @@
                     }
                     var pkmn = MasterFile.Instance.Pokedex[pvp.PokemonId];
                     var form = pkmn.Forms.ContainsKey(FormId) ? " (" + pkmn.Forms[pvp.FormId].Name + ")" : string.Empty;
-                    if (pvp.Rank.HasValue && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= 2500)
+                    if ((pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP) && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumUltraLeagueCP)
                     {
                         sb.AppendLine($"Rank #{pvp.Rank.Value} {pkmn.Name}{form} {pvp.CP.Value}CP @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
                     }

@@ -7,6 +7,9 @@
 
     using WhMgr.Net.Models;
 
+    /// <summary>
+    /// Static strings class
+    /// </summary>
     internal static class Strings
     {
         public const string BotName = "Brock";
@@ -53,6 +56,10 @@
         public const int MaximumRank = 100;
         public const int MinimumPercent = 0;
         public const int MaximumPercent = 100;
+        public const int MinimumGreatLeagueCP = 1400;
+        public const int MaximumGreatLeagueCP = 1500;
+        public const int MinimumUltraLeagueCP = 2400;
+        public const int MaximumUltraLeagueCP = 2500;
 
         public const int MaxPokemonIds = 649;
 
@@ -90,6 +97,7 @@
             { 8, new PokemonGenerationRange { Generation = 8, Start = 810, End = 890 } }
         };
 
+        // Required emoji list
         public static readonly string[] EmojiList =
         {
             //Team emojis
@@ -157,12 +165,24 @@
         };
     }
 
+    /// <summary>
+    /// Pokemon generation range class
+    /// </summary>
     public class PokemonGenerationRange
     {
+        /// <summary>
+        /// Gets or sets the Pokemon generation number
+        /// </summary>
         public int Generation { get; set; }
 
+        /// <summary>
+        /// Gets or sets the pokedex ID the generation starts at
+        /// </summary>
         public int Start { get; set; }
 
+        /// <summary>
+        /// Gets or sets the pokedex ID the generation ends at
+        /// </summary>
         public int End { get; set; }
     }
 }

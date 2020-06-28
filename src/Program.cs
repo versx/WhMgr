@@ -8,15 +8,28 @@
 
     class Program
     {
+        /// <summary>
+        /// Gets or sets the manager name
+        /// </summary>
         public static string ManagerName { get; set; } = "Main";
 
+        /// <summary>
+        /// Main entry point
+        /// </summary>
+        /// <param name="args">Command line arguments</param>
         static void Main(string[] args) => MainAsync(args).GetAwaiter().GetResult();
 
+        /// <summary>
+        /// Asynchronous main entry point
+        /// </summary>
+        /// <param name="args">Command line arguments</param>
+        /// <returns></returns>
         static async Task MainAsync(string[] args)
         {
             var arguments = CommandLine.ParseArgs(new string[] { "--", "-" }, args);
             var configFilePath = string.Empty;
             var managerName = string.Empty;
+            // Loop through the parsed command line arguments and set the key values associated with each argument provided
             var keys = arguments.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -48,6 +61,7 @@
             var bot = new Bot(whConfig);
             await bot.Start();
 
+            // Keep the process alive
             Process.GetCurrentProcess().WaitForExit();
         }
     }

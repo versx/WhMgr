@@ -8,6 +8,9 @@
 
     using WhMgr.Diagnostics;
 
+    /// <summary>
+    /// Stripe service class
+    /// </summary>
     public class StripeService
     {
         #region Variables
@@ -23,6 +26,10 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Instantiates a new <see cref="StripeService"/> class with the provided API key
+        /// </summary>
+        /// <param name="apiKey">Stripe API key</param>
         public StripeService(string apiKey)
         {
             _customerService = new CustomerService();
@@ -34,15 +41,26 @@
 
         #region Public Methods
 
+        /// <summary>
+        /// Gets a customer based on guild id and user id
+        /// </summary>
+        /// <param name="guildId">Guild Id to filter by</param>
+        /// <param name="userId">User Id to filter by</param>
+        /// <returns>Customer in guild id and user id</returns>
         public Customer GetCustomer(ulong guildId, ulong userId)
         {
             var customers = GetAllCustomers();
             var customerObj = customers.FirstOrDefault(x =>
                               ulong.TryParse(x.Metadata["user_server_discord_id"], out var discordGuildId) && discordGuildId == guildId &&
-                              ulong.TryParse(x.Metadata["user_discord_id"], out var discordUserId) && discordUserId == userId);
+                              ulong.TryParse(x.Metadata["user_discord_id"], out var discordUserId) && discordUserId == userId
+            );
             return customerObj;
         }
 
+        /// <summary>
+        /// Get a list of all Stripe customers
+        /// </summary>
+        /// <returns>Returns a list of all Stripe customers</returns>
         public List<Customer> GetAllCustomers()
         {
             if (_customers == null || _customers?.Count == 0)
@@ -59,6 +77,11 @@
             return _customers;
         }
 
+        /// <summary>
+        /// Gets a list of Stripe customers with a maximum limit of 100
+        /// </summary>
+        /// <param name="limit">Maximum limit (default: 100)</param>
+        /// <returns>Returns a list of Stripe customers</returns>
         public List<Customer> GetCustomers(int limit = 100)
         {
             StripeList<Customer> customers;
@@ -74,6 +97,12 @@
             return customers?.Data;
         }
 
+        /// <summary>
+        /// Gets Stripe customer data by guild id and user id
+        /// </summary>
+        /// <param name="guildId">Guild Id to filter by</param>
+        /// <param name="userId">User Id to filter by</param>
+        /// <returns>Returns the customer data relating to the provided guild id and user id</returns>
         public CustomerData GetCustomerData(ulong guildId, ulong userId)
         {
             var customer = GetCustomer(guildId, userId);
@@ -130,16 +159,34 @@
         #endregion
     }
 
+    /// <summary>
+    /// Customer data metadata
+    /// </summary>
     public class CustomerData
     {
+        /// <summary>
+        /// Gets or sets the customer User ID
+        /// </summary>
         public ulong UserId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the customer Guild ID
+        /// </summary>
         public ulong GuildId { get; set; }
 
+        /// <summary>
+        /// Gets or sets the customer's subscription expiration date
+        /// </summary>
         public DateTime? ExpireDate { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Discord server name
+        /// </summary>
         public string ServerName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the purchased Discord server role name
+        /// </summary>
         public string RoleName { get; set; }
     }
 }
