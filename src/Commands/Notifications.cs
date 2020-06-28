@@ -462,6 +462,68 @@
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
+        [
+            Command("pokeme2"),
+            Description("")
+        ]
+        public async Task PokeMeAsync2(CommandContext ctx)
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            await ctx.Message.DeleteAsync();
+            var pokemonMessage = await ctx.RespondEmbed("Enter either the Pokemon name(s) or Pokedex ID(s) separated by a comma to subscribe to (i.e. larvitar,dratini):", DiscordColor.Blurple);
+            var interactivity = _dep.Interactivity;
+            var result = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && !string.IsNullOrEmpty(x.Content), TimeSpan.FromMinutes(3)); // TODO: Configurable subscription timeout
+            // TODO: Provide error response on null result
+            // TODO: If nothing provided for optional values use default value
+            if (result == null)
+            {
+                await ctx.RespondEmbed($"Invalid Pokemon", DiscordColor.Red);
+                return;
+            }
+            var resultPokemon = result.Message.Content;
+            // TODO: Validate result then delete message
+            await result.Message.DeleteAsync();
+            pokemonMessage.ForEach(async x => await x.DeleteAsync());
+
+            var ivMessage = await ctx.RespondEmbed("Enter the minimum IV value or specific individual values (i.e. 95 or 0-14-15):", DiscordColor.Blurple);
+            result = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && !string.IsNullOrEmpty(x.Content), TimeSpan.FromMinutes(3));
+            if (result == null)
+            {
+                await ctx.RespondEmbed($"Invalid IV value", DiscordColor.Red);
+                return;
+            }
+
+            var resultIV = result.Message.Content;
+            // TODO: Validate result then delete message
+            await result.Message.DeleteAsync();
+            ivMessage.ForEach(async x => await x.DeleteAsync());
+
+            var levelMessage = await ctx.RespondEmbed("Enter the minimum level or minimum and maximum level (i.e 25 or 25-35):", DiscordColor.Blurple);
+            result = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && !string.IsNullOrEmpty(x.Content), TimeSpan.FromMinutes(3));
+            var resultLevel = result.Message.Content;
+            if (result == null)
+            {
+                resultLevel = "0";
+            }
+            // TODO: Validate result then delete message
+            levelMessage.ForEach(async x => await x.DeleteAsync());
+            await result.Message.DeleteAsync();
+
+            var genderMessage = await ctx.RespondEmbed("Enter the gender to receive notifications for (i.e `m`, `f`, or `*`):", DiscordColor.Blurple);
+            result = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && !string.IsNullOrEmpty(x.Content), TimeSpan.FromMinutes(3));
+            var resultGender = result.Message.Content;
+            if (result == null)
+            {
+                resultGender = "*";
+            }
+            genderMessage.ForEach(async x => await x.DeleteAsync());
+            await result.Message.DeleteAsync();
+
+            await ctx.RespondEmbed($"Result: {resultPokemon}, IV: {resultIV}, Level: {resultLevel}, Gender: {resultGender}", DiscordColor.Green);
+        }
+
         #endregion
 
         #region Raidme / Raidmenot

@@ -179,7 +179,7 @@
                     matchesIVList = subscribedPokemon.IVList?.Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}") ?? false;
 
                     if (!(
-                        (matchesIV && matchesLvl && matchesGender) ||
+                        (/*!subscribedPokemon.HasStats && */matchesIV && matchesLvl && matchesGender) ||
                         (subscribedPokemon.HasStats && matchesIVList)
                         ))
                         continue;
@@ -232,9 +232,8 @@
             PvPSubscription subscribedPokemon;
             DiscordMember member = null;
             var pokemon = MasterFile.GetPokemon(pkmn.Id, pkmn.FormId);
-            var matchesLeague = false;
-            var matchesRank = false;
-            var matchesPercent = false;
+            var matchesGreat = false;
+            var matchesUltra = false;
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -307,14 +306,16 @@
                         continue;
                     }
 
-                    matchesLeague = (pkmn.MatchesGreatLeague && subscribedPokemon.League == PvPLeague.Great) ||
-                                    (pkmn.MatchesUltraLeague && subscribedPokemon.League == PvPLeague.Ultra);
-                    matchesRank = (pkmn.GreatLeague?.Exists(x => (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank) ?? false) ||
-                                  (pkmn.UltraLeague?.Exists(x => (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank) ?? false);
-                    matchesPercent = (pkmn.GreatLeague?.Exists(x => (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false) ||
-                                     (pkmn.UltraLeague?.Exists(x => (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false);
+                    matchesGreat = pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Great &&
+                                                                     (x.CP ?? 0) >= 2400 && (x.CP ?? 0) <= 2500 &&
+                                                                     (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
+                                                                     (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false;
+                    matchesUltra = pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Ultra &&
+                                                                     (x.CP ?? 0) >= 2400 && (x.CP ?? 0) <= 2500 &&
+                                                                     (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
+                                                                     (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false;
 
-                    if (!(matchesLeague && matchesRank && matchesPercent))
+                    if (!(matchesGreat || matchesUltra))
                         continue;
 
                     var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";

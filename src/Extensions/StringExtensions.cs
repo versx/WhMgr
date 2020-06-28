@@ -50,7 +50,7 @@
 
             for (var i = 0; i < s.Length; i += partLength)
             {
-                yield return s.Substring(i, Math.Min(partLength, s.Length - 1));
+                yield return s.Substring(i, Math.Min(partLength, s.Length));
             }
         }
 
