@@ -201,9 +201,9 @@
             //    return;
             //}
 
-            var attack = 0;
-            var defense = 0;
-            var stamina = 0;
+            var attack = -1;
+            var defense = -1;
+            var stamina = -1;
             var realIV = 0;
             if (iv.Contains("-"))
             {
@@ -338,7 +338,7 @@
                         MaximumLevel = maxLvl,
                         Gender = gender,
                         // TODO: Allow 0%
-                        IVList = (attack > 0 || defense > 0 || stamina > 0) ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>()
+                        IVList = (attack >= 0 || defense >= 0 || stamina >= 0) ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>()
                     });
                     subscribed.Add(name);
                     continue;
@@ -350,10 +350,10 @@
                     minLvl != subPkmn.MinimumLevel ||
                     maxLvl != subPkmn.MaximumLevel ||
                     gender != subPkmn.Gender ||
-                    (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && (attack > 0 || defense > 0 || stamina > 0)))
+                    (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && (attack >= 0 || defense >= 0 || stamina >= 0)))
                 {
                     subPkmn.Form = form;
-                    subPkmn.MinimumIV = realIV;
+                    subPkmn.MinimumIV = (attack >= 0 || defense >= 0 || stamina >= 0) ? subPkmn.MinimumIV : realIV;
                     subPkmn.MinimumLevel = minLvl;
                     subPkmn.MaximumLevel = maxLvl;
                     subPkmn.Gender = gender;
@@ -1598,7 +1598,7 @@
 
                         var pkmn = MasterFile.Instance.Pokedex[poke.PokemonId];
                         var form = string.IsNullOrEmpty(poke.Form) ? string.Empty : $" ({poke.Form})";
-                        sb.AppendLine($"{poke.PokemonId}: {pkmn.Name}{form} {(poke.HasStats ? string.Join(", ", poke.IVList) : poke.MinimumIV + "%+")}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}");
+                        sb.AppendLine($"{poke.PokemonId}: {pkmn.Name}{form} {(poke.MinimumIV + "%+" + (poke.HasStats ? string.Join(", ", poke.IVList) : string.Empty))}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}");
                     }
                 }
                 sb.Append("```");

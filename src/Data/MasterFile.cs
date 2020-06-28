@@ -61,9 +61,6 @@
 
         public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }
 
-        [JsonIgnore]
-        public List<int> PossibleShinies { get; set; }
-
         #region Singletons
 
         private static MasterFile _instance;
@@ -94,11 +91,6 @@
             GruntTypes = LoadInit<Dictionary<InvasionGruntType, TeamRocketInvasion>>(
                 Path.Combine(Strings.DataFolder, GruntTypesFileName),
                 typeof(Dictionary<InvasionGruntType, TeamRocketInvasion>)
-            );
-
-            PossibleShinies = LoadInit<List<int>>(
-                Path.Combine(Strings.DataFolder, ShinyFileName),
-                typeof(List<int>)
             );
 
             PokemonTypes = LoadInit<Dictionary<PokemonType, PokemonTypes>>(

@@ -115,7 +115,7 @@
                     for (var i = 0; i < pokemonShiny.Count; i++)
                     {
                         var curPkmn = pokemonShiny[i];
-                        if (curPkmn.PokemonId > 0 && MasterFile.Instance.PossibleShinies.Contains((int)curPkmn.PokemonId))
+                        if (curPkmn.PokemonId > 0)
                         {
                             if (!list.ContainsKey(curPkmn.PokemonId))
                             {
