@@ -10,7 +10,6 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
-    using WhMgr.Diagnostics;
     using WhMgr.Extensions;
 
     [

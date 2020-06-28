@@ -34,6 +34,7 @@
         private readonly Dictionary<string, TeamRocketInvasion> _processedInvasions;
         private readonly Dictionary<long, WeatherData> _processedWeather;
         private HttpListener _server;
+        private bool _initialized = false;
 
         #endregion
 
@@ -149,6 +150,12 @@
         public void Start()
         {
             _logger.Trace($"Start");
+
+            if (!_initialized)
+            {
+                _logger.Error("HTTP listener not initalized, make sure you run as administrator or root.");
+                return;
+            }
 
             if (_server.IsListening)
             {
@@ -536,14 +543,19 @@
                     addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Ethernet);
                 }
 
-                if (IsAdministrator())
+                if (!IsAdministrator())
                 {
-                    var endpoint = PrepareEndPoint(Host, Port);
-                    if (!_server.Prefixes.Contains(endpoint))
-                    {
-                        _server.Prefixes.Add(endpoint);
-                    }
+                    // TODO: Throw exception
+                    _logger.Error("Failed to start listener, please run as administrator/root!");
+                    return;
                 }
+
+                var endpoint = PrepareEndPoint(Host, Port);
+                if (!_server.Prefixes.Contains(endpoint))
+                {
+                    _server.Prefixes.Add(endpoint);
+                }
+                _initialized = true;
             }
             catch (Exception ex)
             {
