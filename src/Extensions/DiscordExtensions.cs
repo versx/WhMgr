@@ -16,6 +16,7 @@
     using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Localization;
+    using WhMgr.Net.Models;
 
     public static class DiscordExtensions
     {
@@ -466,6 +467,29 @@
             }
 
             return DiscordColor.White;
+        }
+
+        public static DiscordColor BuildWeatherColor(this WeatherType weather)
+        {
+            switch (weather)
+            {
+                case WeatherType.Clear:
+                    return DiscordColor.Yellow;
+                case WeatherType.Cloudy:
+                    return DiscordColor.Grayple;
+                case WeatherType.Fog:
+                    return DiscordColor.DarkGray;
+                case WeatherType.PartlyCloudy:
+                case WeatherType.Rain:
+                    return DiscordColor.Blue;
+                case WeatherType.Snow:
+                    return DiscordColor.White;
+                case WeatherType.Windy:
+                    return DiscordColor.Purple;
+                case WeatherType.None:
+                default:
+                    return DiscordColor.Gray;
+            }
         }
 
         #endregion

@@ -43,5 +43,11 @@
         /// </summary>
         [JsonProperty("gyms")]
         public FilterGymObject Gyms { get; set; }
+
+        /// <summary>
+        /// Weather cell filters
+        /// </summary>
+        [JsonProperty("weather")]
+        public FilterWeatherObject Weather { get; set; }
     }
 }

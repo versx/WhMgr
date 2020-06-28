@@ -23,8 +23,6 @@
         public const string WebhookHeader = "pokestop";
         public const string WebhookHeaderInvasion = "invasion";
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("POKESTOPDATA");
-
         #region Properties
 
         [JsonProperty("pokestop_id")]

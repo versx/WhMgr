@@ -12,7 +12,8 @@
     using DSharpPlus.Entities;
 
     using ServiceStack.OrmLite;
-
+    using WhMgr.Alarms.Alerts;
+    using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
@@ -77,13 +78,12 @@
                 if (nest.Average == 0)
                     continue;
 
-                //var properties = GetProperties(ctx.Client, nest);
-                //var eb = GenerateNestMessage(ctx.Client, _dep.WhConfig, nest, "");
-
                 try
                 {
-                    var pkmn = MasterFile.GetPokemon(nest.PokemonId, 0);
                     var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.IconStyles[server.IconStyle], PokemonGender.Unset, 0);
+                    var eb = GenerateNestMessage(ctx.Guild.Id, ctx.Client, _dep.WhConfig, nest, pkmnImage);
+                    /*
+                    var pkmn = MasterFile.GetPokemon(nest.PokemonId, 0);
                     var type1 = pkmn?.Types?[0];
                     var type2 = pkmn?.Types?.Count > 1 ? pkmn.Types?[1] : PokemonType.None;
                     var type1Emoji = ctx.Client.Guilds.ContainsKey(server.EmojiGuildId) ?
@@ -97,6 +97,7 @@
                     var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
                     var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
                     var staticMapLink = Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pkmnImage, nest.Latitude, nest.Longitude, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
+                    */
                     var geofences = _dep.Whm.Geofences.Values.ToList();
                     var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
                     if (geofence == null)
@@ -107,7 +108,7 @@
                     if (!cities.Contains(geofence.Name.ToLower()))
                         continue;
 
-
+                    /*
                     var eb = new DiscordEmbedBuilder
                     {
                         Title = $"{geofence?.Name ?? "Unknown"}: {nest.Name}",
@@ -122,6 +123,7 @@
                             IconUrl = ctx.Guild?.IconUrl
                         }
                     };
+                    */
 
                     await channel.SendMessageAsync(embed: eb);
                     System.Threading.Thread.Sleep(200);
@@ -133,84 +135,84 @@
             }
         }
 
-        //public DiscordEmbed GenerateNestMessage(DiscordClient client, WhConfig whConfig, Nest nest, /*AlarmObject alarm,*/ string pokemonImageUrl)
-        //{
-        //    //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
-        //    var alertMessageType = AlertMessageType.Nests;
-        //    var alertMessage = alarm?.Alerts[alertMessageType] ?? AlertMessage.Defaults[alertMessageType];
-        //    var properties = GetProperties(client, nest);
-        //    var eb = new DiscordEmbedBuilder
-        //    {
-        //        Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
-        //        Url = DynamicReplacementEngine.ReplaceText(alertMessage.Url, properties),
-        //        ImageUrl = DynamicReplacementEngine.ReplaceText(alertMessage.ImageUrl, properties),
-        //        ThumbnailUrl = pokemonImageUrl,
-        //        Description = DynamicReplacementEngine.ReplaceText(alertMessage.Content, properties),
-        //        Color = DiscordColor.Green,
-        //        Footer = new DiscordEmbedBuilder.EmbedFooter
-        //        {
-        //            Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-        //            IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
-        //        }
-        //    };
-        //    return eb.Build();
-        //}
+        public DiscordEmbed GenerateNestMessage(ulong guildId, DiscordClient client, WhConfig whConfig, Nest nest, /*AlarmObject alarm,*/ string pokemonImageUrl)
+        {
+            var alertMessageType = AlertMessageType.Nests;
+            var alertMessage = /*alarm?.Alerts[alertMessageType] ??*/ AlertMessage.Defaults[alertMessageType]; // TODO: Add nestAlert config option
+            var properties = GetProperties(guildId, client, whConfig, nest);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alertMessage.Url, properties),
+                ImageUrl = Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pokemonImageUrl, nest.Latitude, nest.Longitude, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault()),//DynamicReplacementEngine.ReplaceText(alertMessage.ImageUrl, properties),
+                ThumbnailUrl = pokemonImageUrl,
+                Description = DynamicReplacementEngine.ReplaceText(alertMessage.Content, properties),
+                Color = DiscordColor.Green,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
+                }
+            };
+            return eb.Build();
+        }
 
-        //public IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, Nest nest)
-        //{
-        //    var pkmn = Database.Instance.Pokemon[nest.PokemonId];
-        //    var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, PokemonGender.Unset, 0);
-        //    var nestName = nest.Name ?? "Unknown";
-        //    var type1 = pkmn?.Types?[0];
-        //    var type2 = pkmn?.Types?.Count > 1 ? pkmn.Types?[1] : PokemonType.None;
-        //    var type1Emoji = client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) ?
-        //        pkmn?.Types?[0].GetTypeEmojiIcons(client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
-        //        string.Empty;
-        //    var type2Emoji = client.Guilds.ContainsKey(_dep.WhConfig.Discord.EmojiGuildId) && pkmn?.Types?.Count > 1 ?
-        //        pkmn?.Types?[1].GetTypeEmojiIcons(client.Guilds[_dep.WhConfig.Discord.EmojiGuildId]) :
-        //        string.Empty;
-        //    var typeEmojis = $"{type1Emoji} {type2Emoji}";
-        //    var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
-        //    var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
-        //    var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
-        //    var staticMapLink = Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pkmnImage, nest.Latitude, nest.Longitude);
-        //    var geofences = _dep.Whm.Geofences.Values.ToList();
-        //    var geofence = _dep.Whm.GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
-        //    var city = geofence?.Name ?? "Unknown";
+        public IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, Nest nest)
+        {
+            var pkmnInfo = MasterFile.GetPokemon(nest.PokemonId, 0);
+            var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, PokemonGender.Unset, 0);
+            var nestName = nest.Name ?? "Unknown";
+            var type1 = pkmnInfo?.Types?[0];
+            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
+            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
+                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
+                string.Empty;
+            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ?
+                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
+                string.Empty;
+            var typeEmojis = $"{type1Emoji} {type2Emoji}";
+            var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
+            var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
+            var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
+            var staticMapLink = Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pkmnImage, nest.Latitude, nest.Longitude);
+            var geofences = _dep.Whm.Geofences.Values.ToList();
+            var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
+            var city = geofence?.Name ?? "Unknown";
 
-        //    var dict = new Dictionary<string, string>
-        //    {
-        //        //Main properties
-        //        { "pkmn_id", Convert.ToString(nest.PokemonId) },
-        //        { "pkmn_id_3", nest.PokemonId.ToString("D3") },
-        //        { "pkmn_name", pkmn?.Name },
-        //        { "avg_spawns", Convert.ToString(nest.Average) },
-        //        { "nest_name", nestName },
-        //        { "type_1", Convert.ToString(type1) },
-        //        { "type_2", Convert.ToString(type2) },
-        //        { "type_1_emoji", type1Emoji },
-        //        { "type_2_emoji", type2Emoji },
-        //        { "types", $"{type1} | {type2}" },
-        //        { "types_emoji", typeEmojis },
+            var dict = new Dictionary<string, string>
+            {
+                //Main properties
+                { "pkmn_id", Convert.ToString(nest.PokemonId) },
+                { "pkmn_id_3", nest.PokemonId.ToString("D3") },
+                { "pkmn_name", pkmnInfo?.Name },
+                { "pkmn_img_url", pkmnImage },
+                { "avg_spawns", Convert.ToString(nest.Average) },
+                { "nest_name", nestName },
+                { "type_1", Convert.ToString(type1) },
+                { "type_2", Convert.ToString(type2) },
+                { "type_1_emoji", type1Emoji },
+                { "type_2_emoji", type2Emoji },
+                { "types", $"{type1} | {type2}" },
+                { "types_emoji", typeEmojis },
 
-        //        //Location properties
-        //        { "geofence", city },
-        //        { "lat", Convert.ToString(nest.Latitude) },
-        //        { "lng", Convert.ToString(nest.Longitude) },
-        //        { "lat_5", Convert.ToString(Math.Round(nest.Latitude, 5)) },
-        //        { "lng_5", Convert.ToString(Math.Round(nest.Longitude, 5)) },
+                //Location properties
+                { "geofence", city },
+                { "lat", Convert.ToString(nest.Latitude) },
+                { "lng", Convert.ToString(nest.Longitude) },
+                { "lat_5", Convert.ToString(Math.Round(nest.Latitude, 5)) },
+                { "lng_5", Convert.ToString(Math.Round(nest.Longitude, 5)) },
 
-        //        //Location links
-        //        { "tilemaps_url", staticMapLink },
-        //        { "gmaps_url", gmapsLink },
-        //        { "applemaps_url", appleMapsLink },
-        //        { "wazemaps_url", wazeMapsLink },
+                //Location links
+                { "tilemaps_url", staticMapLink },
+                { "gmaps_url", gmapsLink },
+                { "applemaps_url", appleMapsLink },
+                { "wazemaps_url", wazeMapsLink },
 
-        //        //Misc properties
-        //        { "br", "\r\n" }
-        //    };
-        //    return dict;
-        //}
+                //Misc properties
+                { "br", "\r\n" }
+            };
+            return dict;
+        }
 
         [
             Command("list-nests"),

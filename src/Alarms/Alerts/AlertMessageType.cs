@@ -53,6 +53,11 @@
         /// <summary>
         /// Pokemon nest alert
         /// </summary>
-        Nests
+        Nests,
+
+        /// <summary>
+        /// Weather cell alert
+        /// </summary>
+        Weather
     }
 }

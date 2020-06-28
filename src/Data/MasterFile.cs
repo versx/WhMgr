@@ -14,7 +14,6 @@
     {
         const string MasterFileName = "masterfile.json";
         const string CpMultipliersFileName = "cpMultipliers.json";
-        const string ShinyFileName = "shiny.json";
         const string GruntTypesFileName = "grunttype.json";
         const string TypesFileName = "types.json";
 

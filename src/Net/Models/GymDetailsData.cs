@@ -72,8 +72,8 @@
                     DiscordColor.LightGray,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(whConfig.Servers[guildId].GuildId) ? client.Guilds[whConfig.Servers[guildId].GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.Servers[guildId].GuildId) ? client.Guilds[whConfig.Servers[guildId].GuildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
                 }
             };
             return eb.Build();

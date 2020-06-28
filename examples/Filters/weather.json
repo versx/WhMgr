@@ -1,0 +1,7 @@
+{
+	"weather":
+	{
+		"enabled": true,
+		"types": []
+	}
+}

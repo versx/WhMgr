@@ -713,37 +713,32 @@
 
             _logger.Info($"Weather Found [Alarm: {e.Alarm.Name}, S2CellId: {e.Data.Id}, Condition={e.Data.GameplayCondition}, Severity={e.Data.Severity}]");
 
-            //var weather = e.Data;
-            //var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
-            //if (loc == null)
-            //{
-            //    //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
-            //    return;
-            //}
+            var weather = e.Data;
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
+            if (loc == null)
+            {
+                //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
+                return;
+            }
+
+            if (!_servers.ContainsKey(e.GuildId))
+                return;
+
+            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+                return;
 
             try
             {
-                //if (!_gyms.ContainsKey(weather.Id))
-                //{
-                //    _gyms.Add(weather.Id, weather);
-                //}
-
-                //var oldGym = _gyms[weather.Id];
-                //var changed = oldGym.Team != weather.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
-                //if (!changed)
-                //    return;
-
-                //var eb = weather.GenerateGymMessage(_client, _whConfig, e.Alarm, oldGym, loc?.Name ?? e.Alarm.Name);
-                //var name = weather.GymName;
-                //var jsonEmbed = new DiscordWebhookMessage
-                //{
-                //    Username = name,
-                //    AvatarUrl = weather.Url,
-                //    Embeds = new List<DiscordEmbed> { eb }
-                //}.Build();
-                //NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
-
-                //_gyms[weather.Id] = weather;
+                var client = _servers[e.GuildId];
+                var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var name = $"Weather Cell ID #{weather.Id}";
+                var jsonEmbed = new DiscordWebhookMessage
+                {
+                    Username = name,
+                    AvatarUrl = string.Empty, //weather.Url,
+                    Embeds = new List<DiscordEmbed> { eb }
+                }.Build();
+                NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
 
                 Statistics.Instance.WeatherAlarmsSent++;
             }
@@ -762,8 +757,16 @@
             if (_subProcessor == null)
                 return;
 
-            new Thread(async () => await _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
-            new Thread(async () => await _subProcessor.ProcessPvPSubscription(e)) { IsBackground = true }.Start();
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessPokemonSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process Pokemon subscription");
+            }
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessPvPSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process PVP subscription");
+            }
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
@@ -771,7 +774,11 @@
             if (_subProcessor == null)
                 return;
 
-            new Thread(async () => await _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessRaidSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process raid subscription");
+            }
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
@@ -779,7 +786,11 @@
             if (_subProcessor == null)
                 return;
 
-            new Thread(async () => await _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessQuestSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process quest subscription");
+            }
         }
 
         private void OnInvasionSubscriptionTriggered(object sender, PokestopData e)
@@ -787,7 +798,11 @@
             if (_subProcessor == null)
                 return;
 
-            new Thread(async () => await _subProcessor.ProcessInvasionSubscription(e)) { IsBackground = true }.Start();
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessInvasionSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process invasion subscription");
+            }
         }
 
         #endregion
