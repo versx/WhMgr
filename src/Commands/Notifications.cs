@@ -265,6 +265,10 @@
             else
             {
                 // TODO: Level is min, use default max of 40
+                if (!int.TryParse(lvl, out minLevel))
+                {
+                    // TODO: Failed to parse minLevel
+                }
             }
             if (minLevel < 0 || minLevel > 35)
             {
