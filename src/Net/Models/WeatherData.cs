@@ -16,6 +16,13 @@
     using WhMgr.Osm.Models;
     using WhMgr.Utilities;
 
+    public enum WeatherSeverity
+    {
+        None = 0,
+        Moderate,
+        Extreme
+    }
+
     /// <summary>
     /// RealDeviceMap Weather webhook model class.
     /// </summary>
@@ -38,7 +45,6 @@
         public double Longitude { get; set; }
 
         [JsonProperty("polygon")]
-        //[JsonIgnore]
         public MultiPolygon Polygon { get; set; }
 
         [JsonProperty("gameplay_condition")]
@@ -66,7 +72,7 @@
         public ushort SpecialEffectLevel { get; set; }
 
         [JsonProperty("severity")]
-        public ushort? Severity { get; set; }
+        public WeatherSeverity? Severity { get; set; }
 
         [JsonProperty("warn_weather")]
         public bool? WarnWeather { get; set; }
@@ -116,7 +122,7 @@
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = mention + description,
-                Color = GameplayCondition.BuildWeatherColor(), // TODO: Color based on weather condition
+                Color = GameplayCondition.BuildWeatherColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
@@ -128,13 +134,22 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city)
         {
+            var weather = GameplayCondition.ToString();
+            var weatherEmoji = string.Empty;
+            var hasWeather = GameplayCondition != WeatherType.None;
+            if (Strings.WeatherEmojis.ContainsKey(GameplayCondition) && GameplayCondition != WeatherType.None)
+            {
+                if (client.Guilds.ContainsKey(guildId) && whConfig.Servers.ContainsKey(guildId))
+                {
+                    weatherEmoji = GameplayCondition.GetWeatherEmojiIcon(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]);
+                }
+            }
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             //var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);
             // TODO: Weather icon
-            // TODO: Weather polygon
-            var staticMapLink = Utils.PrepareWeatherStaticMapUrl(whConfig.Urls.StaticMap, "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcR-fAppkiIuF5-MEuFT-diWB2xV3XnGdUcQ-w&usqp=CAU", Latitude, Longitude, Polygon);
+            var staticMapLink = Utils.PrepareWeatherStaticMapUrl(whConfig.Urls.StaticMap.Replace("/15/", "/11/"), "https://image.flaticon.com/icons/png/512/169/169367.png", Latitude, Longitude, FixWeatherPolygon(Polygon));
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
@@ -146,7 +161,11 @@
                 //Main properties
                 // TODO: Format ConditionLevel properties and get WindDirection enum
                 { "id", Id.ToString() },
-                { "weather_condition", GameplayCondition.ToString() },
+                { "weather_condition", weather },
+                { "has_weather", Convert.ToString(hasWeather) },
+                { "weather", weather ?? defaultMissingValue },
+                { "weather_emoji", weatherEmoji ?? defaultMissingValue },
+
                 { "wind_direction", WindDirection.ToString() },
                 { "wind_level", WindLevel.ToString() },
                 { "raid_level", RainLevel.ToString() },
@@ -174,6 +193,17 @@
                 { "br", "\r\n" }
             };
             return dict;
+        }
+
+        public static MultiPolygon FixWeatherPolygon(MultiPolygon multiPolygon)
+        {
+            var newMultiPolygon = new MultiPolygon();
+            if (multiPolygon.Count == 0 || multiPolygon == null)
+                return newMultiPolygon;
+
+            multiPolygon.ForEach(x => newMultiPolygon.Add(new Polygon { x[1], x[0] }));
+            newMultiPolygon.Add(newMultiPolygon[newMultiPolygon.Count - 1]);
+            return newMultiPolygon;
         }
 
         #endregion

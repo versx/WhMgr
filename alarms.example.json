@@ -4,6 +4,7 @@
 	"enableQuests": true, //Enable or disable Quest alarms globally
 	"enablePokestops": true, //Enable or disable Pokestop alarms globally
 	"enableGyms": true, //Enable or disable Gym alarms globally
+	"enableWeather": true, //Enable or disable Weather alarms globally
 	"alarms": 
 	[
 		{
@@ -67,6 +68,13 @@
 			"alerts": "default.json",
 			"filters": "gyms.json",
 			"geofence": "City1.txt",
+			"webhook":"<DISCORD_WEBHOOK_URL>"
+		},
+		{
+			"name":"City2-Weather",
+			"alerts": "default.json",
+			"filters":"weather.json",
+			"geofence":"City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -136,6 +144,13 @@
 			"name":"Absol-Quests",
 			"alerts": "default.json",
 			"filters":"quests_absol.json",
+			"geofence":"City2.txt",
+			"webhook":"<DISCORD_WEBHOOK_URL>"
+		},
+		{
+			"name":"City2-Weather",
+			"alerts": "default.json",
+			"filters":"weather.json",
 			"geofence":"City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		}

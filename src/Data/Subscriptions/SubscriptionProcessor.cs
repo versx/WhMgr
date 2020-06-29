@@ -717,7 +717,7 @@
                         continue;
                     }
 
-                    // Ratelimit is up, allow for ratelimiting again if 
+                    // Ratelimit is up, allow for ratelimiting again
                     item.Subscription.RateLimitNotificationSent = false;
 
                     if (!_servers.ContainsKey(item.Subscription.GuildId))

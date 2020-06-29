@@ -480,6 +480,7 @@
                 case WeatherType.Fog:
                     return DiscordColor.DarkGray;
                 case WeatherType.PartlyCloudy:
+                    return DiscordColor.LightGray;
                 case WeatherType.Rain:
                     return DiscordColor.Blue;
                 case WeatherType.Snow:
