@@ -387,7 +387,7 @@
             //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
             var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = await GetProperties(whConfig, city, pokemonImageUrl);
+            var properties = await GetProperties(guildId, client, whConfig, city, pokemonImageUrl);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -409,7 +409,7 @@
 
         #endregion
 
-        private async Task<IReadOnlyDictionary<string, string>> GetProperties(WhConfig whConfig, string city, string pokemonImageUrl)
+        private async Task<IReadOnlyDictionary<string, string>> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city, string pokemonImageUrl)
         {
             //TODO: Check whConfig.Servers[guildId]
 
@@ -439,8 +439,14 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
-            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
+            //var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
+            //var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
+            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
+                pkmnInfo?.Types?[0].GetTypeEmojiIcons() :
+                string.Empty;
+            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ?
+                pkmnInfo?.Types?[1].GetTypeEmojiIcons() :
+                string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? MasterFile.Instance.Pokedex[DisplayPokemonId ?? Id] : pkmnInfo;
             var isShiny = Shiny ?? false;

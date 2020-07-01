@@ -101,6 +101,24 @@
             var cmds = ctx.CommandsNext;
             await cmds.SudoAsync(member, ctx.Channel, command);
         }
+
+        [
+            Command("test-emoji"),
+            Description("")
+        ]
+        public async Task TestAsync(CommandContext ctx,
+            [Description("")] string emojiName)
+        {
+            var title = "Emoji Test";
+            var emojiId = MasterFile.Instance.Emojis[emojiName];
+            var emoji = string.Format(Strings.EmojiSchema, emojiName, emojiId);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = title,
+                Description = $"{emoji}"
+            };
+            await ctx.RespondAsync(emoji, false, embed: eb);
+        }
     }
 }
 /*

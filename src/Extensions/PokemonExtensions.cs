@@ -1148,7 +1148,7 @@
         {
             var key = $"weather_" + Convert.ToInt32(weather);
             var emojiId = MasterFile.Instance.Emojis[key];
-            var emojiName = emojiId > 0 ? $"<:{key}:{emojiId}>" : weather.ToString();
+            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : weather.ToString();
             return emojiName;
         }
 
