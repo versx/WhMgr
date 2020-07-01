@@ -36,6 +36,9 @@
 
         #region Properties
 
+        /// <summary>
+        /// Get subscription manager class
+        /// </summary>
         public SubscriptionManager Manager { get; }
 
         #endregion
@@ -150,6 +153,7 @@
                     }
                     */
 
+                    // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
@@ -284,6 +288,7 @@
                         continue;
                     }
 
+                    // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
@@ -400,6 +405,7 @@
                         continue;
                     }
 
+                    // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
@@ -527,6 +533,7 @@
                         continue;
                     }
 
+                    // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
@@ -628,6 +635,7 @@
                         continue;
                     }
 
+                    // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));

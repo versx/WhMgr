@@ -321,7 +321,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 * `enable` Enable direct message subscriptions  
 * `disable` Disable direct message subscriptions  
 * `info` List all Pokemon, Raid, Quest, Invasion, and Gym subscriptions and settings  
-* `set-distance`  Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in kilometers)  
+* `set-distance`  Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in meters)  
 * `expire` / `expires` Check stripe API when Donor/Supporter subscription expires  
 
 **Pokemon Subscriptions**  
@@ -569,7 +569,11 @@ __**Quests**__
 ## TODO:  
 - Allow Pokemon id and name in Pokemon filter lists.  
 - Individual filters per Pokemon. (PA style, maybe)  
-- Fix support for secondary emoji server.  
+- Reload config on change
+- PvP ranks DTS
+- Separate subscriptions DTS
+- Configurable static map options per model
+- More robust/customizable static map creation
 - Finish Localization.  
 - Wiki.  
 

@@ -11,6 +11,7 @@
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
+    using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Utilities;
 
@@ -81,11 +82,11 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city, GymDetailsData oldGym)
         {
-            var exEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId("ex") : 0;
+            var exEmojiId = MasterFile.Instance.Emojis["ex"];
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 0;
+            var teamEmojiId = MasterFile.Instance.Emojis[Team.ToString().ToLower()];
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
-            var oldTeamEmojiId = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ? client.Guilds[whConfig.Servers[guildId].EmojiGuildId].GetEmojiId(oldGym.Team.ToString().ToLower()) : 0;
+            var oldTeamEmojiId = MasterFile.Instance.Emojis[oldGym.Team.ToString().ToLower()];
             var oldTeamEmoji = oldTeamEmojiId > 0 ? $"<:{oldGym.Team.ToString().ToLower()}:{oldTeamEmojiId}>" : oldGym.Team.ToString();
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);

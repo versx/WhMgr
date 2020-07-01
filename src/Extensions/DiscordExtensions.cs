@@ -13,7 +13,6 @@
     using DSharpPlus.Interactivity;
 
     using WhMgr.Configuration;
-    using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Localization;
     using WhMgr.Net.Models;
@@ -389,24 +388,6 @@
 
             return Tuple.Create(channel, deleted);
         }
-
-        #region Emojis
-
-        public static ulong? GetEmojiId(this DiscordGuild guild, string emojiName)
-        {
-            return guild.Emojis.FirstOrDefault(x => string.Compare(x.Name, emojiName, true) == 0)?.Id;
-        }
-
-        public static string GetEmoji(this string emojiName)
-        {
-            if (!MasterFile.Instance.Emojis.ContainsKey(emojiName))
-            {
-                return null;
-            }
-            return string.Format(Strings.EmojiSchema, emojiName, MasterFile.Instance.Emojis[emojiName]);
-        }
-
-        #endregion
 
         public static async Task<bool> Confirm(this CommandContext ctx, string message)
         {

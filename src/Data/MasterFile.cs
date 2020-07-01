@@ -53,7 +53,7 @@
         public IReadOnlyDictionary<double, double> CpMultipliers { get; }
 
         [JsonIgnore]
-        public IReadOnlyDictionary<string, ulong> Emojis { get; set; }
+        public Dictionary<string, ulong> Emojis { get; set; }
 
         [JsonIgnore]
         public IReadOnlyDictionary<InvasionGruntType, TeamRocketInvasion> GruntTypes { get; set; }
@@ -96,6 +96,8 @@
                 Path.Combine(Strings.DataFolder, TypesFileName),
                 typeof(Dictionary<PokemonType, PokemonTypes>)
             );
+
+            Emojis = new Dictionary<string, ulong>();
         }
 
         public static PokedexPokemon GetPokemon(int pokemonId, int formId)
@@ -138,5 +140,14 @@
 
         [JsonProperty("strengths")]
         public List<PokemonType> Strengths { get; set; }
+    }
+
+    public class Emoji
+    {
+        public ulong GuildId { get; set; }
+
+        public string Name { get; set; }
+
+        public ulong Id { get; set; }
     }
 }

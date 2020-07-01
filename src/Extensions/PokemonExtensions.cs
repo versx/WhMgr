@@ -1135,7 +1135,7 @@
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
-                var emojiId = guild.GetEmojiId($"types_{type.ToString().ToLower()}");
+                var emojiId = MasterFile.Instance.Emojis[$"types_{type.ToString().ToLower()}"];
                 var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId) : type.ToString();
                 if (!list.Contains(emojiName))
                 {
@@ -1149,7 +1149,7 @@
         public static string GetWeatherEmojiIcon(this WeatherType weather, DiscordGuild guild)
         {
             var key = $"weather_" + Convert.ToInt32(weather);
-            var emojiId = guild.GetEmojiId(key);
+            var emojiId = MasterFile.Instance.Emojis[key];
             var emojiName = emojiId > 0 ? $"<:{key}:{emojiId}>" : weather.ToString();
             return emojiName;
         }
@@ -1165,7 +1165,7 @@
                 var weaknessLst = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
                 foreach (var weakness in weaknessLst)
                 {
-                    var emojiId = guild.GetEmojiId($"types_{weakness.ToString().ToLower()}");
+                    var emojiId = MasterFile.Instance.Emojis[$"types_{weakness.ToString().ToLower()}"];
                     var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId) : weakness.ToString();
                     if (!list.Contains(emojiName))
                     {

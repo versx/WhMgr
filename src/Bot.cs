@@ -26,10 +26,12 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
 
-    //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
-    //TODO: Reload config on change
-    //TODO: PvP ranks dts
-    //TODO: Separate subscriptions dts
+    // TODO: Subscriptions, Pokemon, Raid, Quest, Invasion, Gym, Weather alarm statistics by day. date/pokemonId/count
+    // TODO: Reload config on change
+    // TODO: PvP ranks dts
+    // TODO: Separate subscriptions dts
+    // TODO: Configurable static map options per model
+    // TODO: More robust/customizable static map creation
 
     public class Bot
     {
@@ -149,7 +151,7 @@
                         StringPrefix = server.CommandPrefix?.ToString(),
                         EnableDms = true,
                         EnableMentionPrefix = string.IsNullOrEmpty(server.CommandPrefix),
-                        EnableDefaultHelp = false,
+                        EnableDefaultHelp = true,
                         CaseSensitive = false,
                         IgnoreExtraArguments = true,
                         Dependencies = dep
@@ -239,6 +241,7 @@
             _logger.Trace("Stop");
             _logger.Info("Disconnecting from Discord...");
 
+            // Loop through each Discord server and terminate the connection
             var keys = _servers.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -855,6 +858,48 @@
                 catch (Exception ex)
                 {
                     _logger.Error(ex);
+                }
+            }
+
+            await LoadEmojis();
+        }
+
+        private async Task LoadEmojis()
+        {
+            var keys = _whConfig.Servers.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var t = keys[i];
+                var guildId = keys[i];
+                var emojiGuildId = _whConfig.Servers[guildId].EmojiGuildId;
+                if (!_servers.ContainsKey(guildId))
+                    continue;
+
+                var configGuild = _servers[guildId];
+                if (!configGuild.Guilds.ContainsKey(emojiGuildId))
+                    continue;
+
+                var emojiGuild = configGuild.Guilds[emojiGuildId];
+                var emojis = await emojiGuild.GetEmojisAsync();
+                for (var j = 0; j < Strings.EmojiList.Length; j++)
+                {
+                    try
+                    {
+                        var name = Strings.EmojiList[j];
+                        var emoji = emojis.FirstOrDefault(x => string.Compare(x.Name, name, true) == 0);
+                        if (emoji == null)
+                            continue;
+
+                        if (!MasterFile.Instance.Emojis.ContainsKey(emoji.Name))
+                        {
+                            MasterFile.Instance.Emojis.Add(emoji.Name, emoji.Id);
+                            continue;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex);
+                    }
                 }
             }
         }

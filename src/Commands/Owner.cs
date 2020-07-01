@@ -7,14 +7,14 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
+    using WhMgr.Data;
     using WhMgr.Data.Subscriptions;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Utilities;
 
     [
-        RequireOwner,
-        Hidden
+        RequireOwner
     ]
     public class Owner
     {
@@ -31,7 +31,8 @@
 
         [
             Command("isbanned"),
-            Description("Check if IP banned from NianticLabs or Pokemon Trainer Club.")
+            Description("Check if IP banned from NianticLabs or Pokemon Trainer Club."),
+            Hidden
         ]
         public async Task IsIPBannedAsync(CommandContext ctx)
         {
@@ -54,7 +55,8 @@
 
         [
             Command("clean-departed"),
-            Description("")
+            Description(""),
+            Hidden
         ]
         public async Task CleanDepartedAsync(CommandContext ctx)
         {
@@ -86,7 +88,8 @@
 
         [
             Command("sudo"), 
-            Description("Executes a command as another user.")
+            Description("Executes a command as another user."),
+            Hidden
         ]
         public async Task Sudo(CommandContext ctx, 
             [Description("Member to execute as.")] DiscordMember member, 
@@ -98,74 +101,6 @@
             var cmds = ctx.CommandsNext;
             await cmds.SudoAsync(member, ctx.Channel, command);
         }
-
-        /*
-        [
-            Command("test-emoji"),
-            Description("")
-        ]
-        public async Task TestAsync(CommandContext ctx,
-            [Description("")] string emojiName)
-        {
-            var title = "Emoji Test";
-            var emoji = emojiName.GetEmoji();
-            var eb = new DiscordEmbedBuilder
-            {
-                Title = title,
-                Description = $"{emoji}"
-            };
-            await ctx.RespondAsync(embed: eb);
-        }
-
-        [
-            Command("save-emojis"),
-            Description("")
-        ]
-        public async Task SaveEmojisAsync(CommandContext ctx,
-            [Description("")] ulong guildId)
-        {
-            await SaveEmojis(ctx.Client, guildId);
-        }
-
-
-        private async Task SaveEmojis(DiscordClient client, ulong emojiGuildId)
-        {
-            if (!client.Guilds.ContainsKey(emojiGuildId))
-            {
-                _logger.Error($"Bot not in emoji guild {emojiGuildId}.");
-                return;
-            }
-
-            var dict = new Dictionary<string, ulong>();
-            var guild = client.Guilds[emojiGuildId];
-            var emojis = await guild.GetEmojisAsync();
-            for (var i = 0; i < Strings.EmojiList.Length; i++)
-            {
-                try
-                {
-                    var emojiName = Strings.EmojiList[i];
-                    var emoji = emojis.FirstOrDefault(x => string.Compare(x.Name, emojiName, true) == 0);
-                    if (emoji == null)
-                        continue;
-
-                    if (!dict.ContainsKey(emoji.Name))
-                    {
-                        dict.Add(emoji.Name, emoji.Id);
-                        continue;
-                    }
-
-                    _logger.Error($"Emoji {emoji.Name} ({emoji.Id}) from guild {guild.Name} ({guild.Id}) already exists in emoji dictionary.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex);
-                }
-            }
-
-            var data = Newtonsoft.Json.JsonConvert.SerializeObject(dict, Newtonsoft.Json.Formatting.Indented);
-            File.WriteAllText("emojis.json", data);
-        }
-        */
     }
 }
 /*
