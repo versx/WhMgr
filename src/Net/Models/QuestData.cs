@@ -81,7 +81,7 @@
         {
             var alertType = AlertMessageType.Quests;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(guildId, whConfig, city);
+            var properties = GetProperties(whConfig, city);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -94,14 +94,14 @@
                 Color = DiscordColor.Orange,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
                 }
             };
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
         {
             //TODO: Check whConfig.Servers[guildId]
 

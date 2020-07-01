@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using DSharpPlus.Entities;
-
     using WhMgr.Data;
     using WhMgr.Data.Models;
     using WhMgr.Net.Models;
@@ -1125,12 +1123,12 @@
             return new List<PokemonType>();
          }
 
-        public static string GetTypeEmojiIcons(this PokemonType pokemonType, DiscordGuild guild)
+        public static string GetTypeEmojiIcons(this PokemonType pokemonType)
         {
-            return GetTypeEmojiIcons(new List<PokemonType> { pokemonType }, guild);
+            return GetTypeEmojiIcons(new List<PokemonType> { pokemonType });
         }
 
-        public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes, DiscordGuild guild)
+        public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes)
         {
             var list = new List<string>();
             foreach (var type in pokemonTypes)
@@ -1146,7 +1144,7 @@
             return string.Join(" ", list);
         }
 
-        public static string GetWeatherEmojiIcon(this WeatherType weather, DiscordGuild guild)
+        public static string GetWeatherEmojiIcon(this WeatherType weather)
         {
             var key = $"weather_" + Convert.ToInt32(weather);
             var emojiId = MasterFile.Instance.Emojis[key];
@@ -1154,7 +1152,7 @@
             return emojiName;
         }
 
-        public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes, DiscordGuild guild)
+        public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes)
         {
             if (pokemonTypes == null || pokemonTypes?.Count == 0)
                 return string.Empty;

@@ -112,7 +112,7 @@
         {
             var alertType = AlertMessageType.Weather;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(guildId, client, whConfig, city);
+            var properties = GetProperties(whConfig, city);
             var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -125,29 +125,25 @@
                 Color = GameplayCondition.BuildWeatherColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
                 }
             };
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
         {
             var weather = GameplayCondition.ToString();
             var weatherEmoji = string.Empty;
             var hasWeather = GameplayCondition != WeatherType.None;
             if (Strings.WeatherEmojis.ContainsKey(GameplayCondition) && GameplayCondition != WeatherType.None)
             {
-                if (client.Guilds.ContainsKey(guildId) && whConfig.Servers.ContainsKey(guildId))
-                {
-                    weatherEmoji = GameplayCondition.GetWeatherEmojiIcon(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]);
-                }
+                weatherEmoji = GameplayCondition.GetWeatherEmojiIcon();
             }
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            //var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);
             // TODO: Weather icon
             var staticMapLink = Utils.PrepareWeatherStaticMapUrl(whConfig.Urls.StaticMap.Replace("/15/", "/11/"), "https://image.flaticon.com/icons/png/512/169/169367.png", Latitude, Longitude, FixWeatherPolygon(Polygon));
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
@@ -159,7 +155,6 @@
             var dict = new Dictionary<string, string>
             {
                 //Main properties
-                // TODO: Format ConditionLevel properties and get WindDirection enum
                 { "id", Id.ToString() },
                 { "weather_condition", weather },
                 { "has_weather", Convert.ToString(hasWeather) },

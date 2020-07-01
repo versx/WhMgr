@@ -387,7 +387,7 @@
             //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
             var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = await GetProperties(guildId, client, whConfig, city, pokemonImageUrl);
+            var properties = await GetProperties(whConfig, city, pokemonImageUrl);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -400,8 +400,8 @@
                 Color = IV.BuildColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
                 }
             };
             return await Task.FromResult(eb.Build());
@@ -409,7 +409,7 @@
 
         #endregion
 
-        private async Task<IReadOnlyDictionary<string, string>> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city, string pokemonImageUrl)
+        private async Task<IReadOnlyDictionary<string, string>> GetProperties(WhConfig whConfig, string city, string pokemonImageUrl)
         {
             //TODO: Check whConfig.Servers[guildId]
 
@@ -425,10 +425,7 @@
             var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherType.None);
             if (Weather.HasValue && Strings.WeatherEmojis.ContainsKey(Weather.Value) && Weather != WeatherType.None)
             {
-                if (client.Guilds.ContainsKey(guildId) && whConfig.Servers.ContainsKey(guildId))
-                {
-                    weatherEmoji = Weather.Value.GetWeatherEmojiIcon(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]);
-                }
+                weatherEmoji = Weather.Value.GetWeatherEmojiIcon();
             }
             var move1 = string.Empty;
             var move2 = string.Empty;
@@ -442,12 +439,8 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
-                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
-                string.Empty;
-            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ?
-                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
-                string.Empty;
+            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
+            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? MasterFile.Instance.Pokedex[DisplayPokemonId ?? Id] : pkmnInfo;
             var isShiny = Shiny ?? false;

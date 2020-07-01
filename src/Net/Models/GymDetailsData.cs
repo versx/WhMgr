@@ -57,7 +57,7 @@
         {
             var alertType = AlertMessageType.Gyms;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(guildId, client, whConfig, city, oldGym);
+            var properties = GetProperties(whConfig, city, oldGym);
             var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -73,14 +73,14 @@
                     DiscordColor.LightGray,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
                 }
             };
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city, GymDetailsData oldGym)
+        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, GymDetailsData oldGym)
         {
             var exEmojiId = MasterFile.Instance.Emojis["ex"];
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";

@@ -228,8 +228,6 @@
                     await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_STAMINA_VALUE").FormatText(ctx.User.Username, split[2]), DiscordColor.Red);
                     return;
                 }
-
-                // TODO: Add to sub.IVList
             }
             else
             {
@@ -255,32 +253,32 @@
                 var split = lvl.Split('-');
                 if (!int.TryParse(split[0], out minLevel))
                 {
-                    // TODO: Failed to parse min level
+                    await ctx.RespondEmbed($"{ctx.User.Username} Failed to parse minimum level provided '{split[0]}'.", DiscordColor.Red); // TODO Localize
+                    return;
                 }
                 if (!int.TryParse(split[1], out maxLevel))
                 {
-                    // TODO: Failed to parse max level
+                    await ctx.RespondEmbed($"{ctx.User.Username} Failed to parse maximum level provided '{split[1]}'.", DiscordColor.Red); // TODO Localize
+                    return;
                 }
             }
             else
             {
-                // TODO: Level is min, use default max of 40
                 if (!int.TryParse(lvl, out minLevel))
                 {
-                    // TODO: Failed to parse minLevel
+                    await ctx.RespondEmbed($"{ctx.User.Username} Failed to parse minimum level provided '{lvl}'.", DiscordColor.Red); // TODO Localize
+                    return;
                 }
             }
             if (minLevel < 0 || minLevel > 35)
             {
                 await ctx.TriggerTypingAsync();
-                // TODO: Change min level locale
                 await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_LEVEL").FormatText(ctx.User.Username, lvl), DiscordColor.Red);
                 return;
             }
             if (maxLevel < 0 || maxLevel > 35)
             {
                 await ctx.TriggerTypingAsync();
-                // TODO: Change max level locale
                 await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_LEVEL").FormatText(ctx.User.Username, lvl), DiscordColor.Red);
                 return;
             }

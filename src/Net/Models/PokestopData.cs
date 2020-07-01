@@ -207,7 +207,7 @@
         {
             var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(guildId, client, whConfig, city);
+            var properties = GetProperties(whConfig, city);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -225,8 +225,8 @@
                     : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
+                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
+                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
                 }
             };
             return eb.Build();
@@ -262,14 +262,14 @@
 
         #region Private Methods
 
-        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
         {
             //var server = whConfig.Servers[guildId];
             string icon;
             if (HasInvasion)
             {
                 //TODO: Load from local file
-                icon = "https://map.ver.sx/static/img/pokestop/i0.png";
+                icon = "http://images2.fanpop.com/image/photos/11300000/Team-Rocket-Logo-team-rocket-11302897-198-187.jpg";
             }
             else if (HasLure)
             {
@@ -290,11 +290,9 @@
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = GetGruntLeaderString(GruntType);
             var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? Commands.Notifications.GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
-            var invasionTypeEmoji = pokemonType == PokemonType.None ? 
-                    leaderString : 
-                    client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
-                        pokemonType.GetTypeEmojiIcons(client.Guilds[guildId]) :
-                        string.Empty;
+            var invasionTypeEmoji = pokemonType == PokemonType.None
+                ? leaderString
+                : pokemonType.GetTypeEmojiIcons();
             var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : string.Empty;
 
             const string defaultMissingValue = "?";

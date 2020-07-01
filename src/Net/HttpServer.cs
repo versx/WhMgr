@@ -460,8 +460,6 @@
                     return;
                 }
 
-                // TODO: Filter duplicates
-
                 OnGymReceived(gym);
             }
             catch (Exception ex)
@@ -481,8 +479,6 @@
                     _logger.Error($"Failed to parse gym details webhook object: {message}");
                     return;
                 }
-
-                // TODO: Filter duplicates
 
                 OnGymDetailsReceived(gymDetails);
             }
@@ -545,7 +541,6 @@
 
                 if (!IsAdministrator())
                 {
-                    // TODO: Throw exception
                     _logger.Error("Failed to start listener, please run as administrator/root!");
                     return;
                 }

@@ -139,7 +139,7 @@
         {
             var alertMessageType = AlertMessageType.Nests;
             var alertMessage = /*alarm?.Alerts[alertMessageType] ??*/ AlertMessage.Defaults[alertMessageType]; // TODO: Add nestAlert config option
-            var properties = GetProperties(guildId, client, whConfig, nest);
+            var properties = GetProperties(whConfig, nest);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
@@ -157,19 +157,15 @@
             return eb.Build();
         }
 
-        public IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, Nest nest)
+        public IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, Nest nest)
         {
             var pkmnInfo = MasterFile.GetPokemon(nest.PokemonId, 0);
             var pkmnImage = nest.PokemonId.GetPokemonImage(_dep.WhConfig.Urls.PokemonImage, PokemonGender.Unset, 0);
             var nestName = nest.Name ?? "Unknown";
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
-                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
-                string.Empty;
-            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ?
-                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Servers[guildId].EmojiGuildId]) :
-                string.Empty;
+            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
+            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);

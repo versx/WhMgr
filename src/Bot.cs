@@ -129,10 +129,10 @@
                         PaginationBehaviour = TimeoutBehaviour.Ignore,
 
                         // default pagination timeout to 5 minutes
-                        PaginationTimeout = TimeSpan.FromMinutes(5), //TODO: Set prod
+                        PaginationTimeout = TimeSpan.FromMinutes(5),
 
                         // default timeout for other actions to 2 minutes
-                        Timeout = TimeSpan.FromMinutes(2) //TODO: Set prod
+                        Timeout = TimeSpan.FromMinutes(2)
                     }
                 );
 
@@ -883,22 +883,15 @@
                 var emojis = await emojiGuild.GetEmojisAsync();
                 for (var j = 0; j < Strings.EmojiList.Length; j++)
                 {
-                    try
-                    {
-                        var name = Strings.EmojiList[j];
-                        var emoji = emojis.FirstOrDefault(x => string.Compare(x.Name, name, true) == 0);
-                        if (emoji == null)
-                            continue;
+                    var name = Strings.EmojiList[j];
+                    var emoji = emojis.FirstOrDefault(x => string.Compare(x.Name, name, true) == 0);
+                    if (emoji == null)
+                        continue;
 
-                        if (!MasterFile.Instance.Emojis.ContainsKey(emoji.Name))
-                        {
-                            MasterFile.Instance.Emojis.Add(emoji.Name, emoji.Id);
-                            continue;
-                        }
-                    }
-                    catch (Exception ex)
+                    if (!MasterFile.Instance.Emojis.ContainsKey(emoji.Name))
                     {
-                        _logger.Error(ex);
+                        MasterFile.Instance.Emojis.Add(emoji.Name, emoji.Id);
+                        continue;
                     }
                 }
             }

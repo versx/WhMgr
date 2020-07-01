@@ -1,7 +1,6 @@
 ﻿namespace WhMgr.Configuration
 {
     using System.Collections.Generic;
-
     using Newtonsoft.Json;
 
     /// <summary>
@@ -120,8 +119,6 @@
         [JsonProperty("botChannelIds")]
         public List<ulong> BotChannelIds { get; set; }
 
-        // TODO: Add DST option for each server.
-
         /// <summary>
         /// Instantiate a new <see cref="DiscordServerConfig"/> class
         /// </summary>
@@ -135,21 +132,4 @@
             ShinyStats = new ShinyStatsConfig();
         }
     }
-
-    /*
-    public class SubscriptionsConfiguration
-    {
-        [JsonProperty("enableSubscriptions")]
-        public bool EnableSubscriptions { get; set; }
-
-        [JsonProperty("enableCities")]
-        public bool EnableCities { get; set; }
-
-        [JsonProperty("citiesRequireSupporterRole")]
-        public bool CitiesRequireSupporterRole { get; set; }
-
-        [JsonProperty("iconStyle")]
-        public string IconStyle { get; set; }
-    }
-    */
 }
