@@ -344,43 +344,17 @@
         /// </summary>
         /// <param name="enableDST">Enable Day Light Savings time adjustment.</param>
         /// <param name="enableLeapYear">Enable leap year time adjustment.</param>
-        public void SetDespawnTime(bool enableDST, bool enableLeapYear)
+        public void SetDespawnTime()
         {
-            //TODO: DST config option
 
             DespawnTime = DisappearTime.FromUnix();
-            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(DespawnTime))
-            {
-                DespawnTime = DespawnTime.AddHours(1); //DST
-            }
+
             SecondsLeft = DespawnTime.Subtract(DateTime.Now);
 
             FirstSeenTime = FirstSeen.FromUnix();
-            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(FirstSeenTime))
-            {
-                FirstSeenTime = FirstSeenTime.AddHours(1); //DST
-            }
 
             LastModifiedTime = LastModified.FromUnix();
-            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(LastModifiedTime))
-            {
-                LastModifiedTime = LastModifiedTime.AddHours(1);
-            }
 
-            UpdatedTime = Updated.FromUnix();
-            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(UpdatedTime))
-            {
-                UpdatedTime = UpdatedTime.AddHours(1);
-            }
-
-            if (enableLeapYear)
-            {
-                DespawnTime = DespawnTime.Subtract(TimeSpan.FromHours(24));
-                FirstSeenTime = FirstSeenTime.Subtract(TimeSpan.FromHours(24));
-                LastModifiedTime = LastModifiedTime.Subtract(TimeSpan.FromHours(24));
-                UpdatedTime = UpdatedTime.Subtract(TimeSpan.FromHours(24));
-                SecondsLeft = SecondsLeft.Subtract(TimeSpan.FromHours(24));
-            }
         }
 
         public async Task<DiscordEmbed> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string pokemonImageUrl)
