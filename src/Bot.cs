@@ -30,12 +30,11 @@
     // TODO: Reload config on change
     // TODO: PvP ranks dts
     // TODO: Separate subscriptions dts
-    // TODO: Configurable static map options per model
-    // TODO: More robust/customizable static map creation
     // TODO: Localize quest/invasion text
     // TODO: Specific timezone per Discord
     // TODO: Change to PMSF icon format
     // TODO: Account status alarms
+    // TODO: Database migrator
 
     public class Bot
     {

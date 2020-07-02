@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -387,7 +388,7 @@
             //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
             var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = await GetProperties(guildId, client, whConfig, city, pokemonImageUrl);
+            var properties = await GetProperties(whConfig, city, pokemonImageUrl);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -409,7 +410,7 @@
 
         #endregion
 
-        private async Task<IReadOnlyDictionary<string, string>> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city, string pokemonImageUrl)
+        private async Task<IReadOnlyDictionary<string, string>> GetProperties(WhConfig whConfig, string city, string pokemonImageUrl)
         {
             //TODO: Check whConfig.Servers[guildId]
 
@@ -420,13 +421,10 @@
             var level = Level;
             var size = Size?.ToString();
             var weather = Weather?.ToString();
-            var weatherEmoji = string.Empty;
             var hasWeather = Weather.HasValue && Weather != WeatherType.None;
             var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherType.None);
-            if (Weather.HasValue && Strings.WeatherEmojis.ContainsKey(Weather.Value) && Weather != WeatherType.None)
-            {
-                weatherEmoji = Weather.Value.GetWeatherEmojiIcon();
-            }
+            var weatherKey = $"weather_{Convert.ToInt32(Weather ?? WeatherType.None)}";
+            var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && Weather != WeatherType.None ? (Weather ?? WeatherType.None).GetWeatherEmojiIcon() : string.Empty;
             var move1 = string.Empty;
             var move2 = string.Empty;
             if (int.TryParse(FastMove, out var fastMoveId) && MasterFile.Instance.Movesets.ContainsKey(fastMoveId))
@@ -439,14 +437,8 @@
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            //var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
-            //var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
-            var type1Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
-                pkmnInfo?.Types?[0].GetTypeEmojiIcons() :
-                string.Empty;
-            var type2Emoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ?
-                pkmnInfo?.Types?[1].GetTypeEmojiIcons() :
-                string.Empty;
+            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
+            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto ? MasterFile.Instance.Pokedex[DisplayPokemonId ?? Id] : pkmnInfo;
             var isShiny = Shiny ?? false;
@@ -456,7 +448,9 @@
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, pokemonImageUrl, Latitude, Longitude);
+            //var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, pokemonImageUrl, Latitude, Longitude);
+            var templatesFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.TemplatesFolder);
+            var staticMapLink = Utils.GetStaticMapsUrl(Path.Combine(templatesFolder, whConfig.StaticMaps.PokemonTemplateFile), whConfig.Urls.StaticMap, Latitude, Longitude, pokemonImageUrl);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);

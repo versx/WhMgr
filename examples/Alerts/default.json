@@ -91,7 +91,7 @@
     },
     "weather": {
         "avatarUrl": "<weather_img_url>",
-        "content": "**Weather Condition:** <weather_condition><br>**Weather Cell ID:** #<id>",
+        "content": "**Weather Condition:** <weather_emoji> <weather_condition><br>**Weather Cell ID:** #<id>",
         "iconUrl": "",
         "title": "<geofence>",
         "url": "<gmaps_url>",

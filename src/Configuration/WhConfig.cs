@@ -77,6 +77,12 @@
         public Dictionary<string, string> IconStyles { get; set; }
 
         /// <summary>
+        /// Gets or sets the static maps config
+        /// </summary>
+        [JsonProperty("staticMaps")]
+        public StaticMaps StaticMaps { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to enable Day Light Savings time for despawn timers
         /// </summary>
         [JsonProperty("enableDST")]
@@ -113,6 +119,7 @@
             Urls = new UrlConfig();
             EventPokemonIds = new List<int>();
             IconStyles = new Dictionary<string, string>();
+            StaticMaps = new StaticMaps();
         }
 
         /// <summary>
@@ -137,7 +144,9 @@
                 throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
 
-            return MasterFile.LoadInit<WhConfig>(filePath, typeof(WhConfig));
+            var config = MasterFile.LoadInit<WhConfig>(filePath);
+            config.StaticMaps.LoadConfigs();
+            return config;
         }
     }
 }
