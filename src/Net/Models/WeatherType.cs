@@ -13,5 +13,6 @@
         Windy,
         Snow,
         Fog
+        //All = ushort.MaxValue
     }
 }

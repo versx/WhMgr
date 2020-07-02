@@ -31,8 +31,6 @@
     {
         public const string WebHookHeader = "weather";
 
-        //private static readonly IEventLogger _logger = EventLogger.GetLogger("WEATHERDATA");
-
         #region Properties
 
         [JsonProperty("id")]
@@ -144,8 +142,9 @@
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            // TODO: Weather icon
-            var staticMapLink = Utils.PrepareWeatherStaticMapUrl(whConfig.Urls.StaticMap.Replace("/15/", "/11/"), "https://image.flaticon.com/icons/png/512/169/169367.png", Latitude, Longitude, FixWeatherPolygon(Polygon));
+            var weatherImageUrl = string.Format(whConfig.Urls.WeatherImage, $"weather_{Convert.ToInt32(GameplayCondition)}");
+            // TODO: Create separate static maps for each model type
+            var staticMapLink = Utils.PrepareWeatherStaticMapUrl(whConfig.Urls.StaticMap.Replace("/15/", "/11/"), weatherImageUrl, Latitude, Longitude, FixWeatherPolygon(Polygon));
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
@@ -160,6 +159,7 @@
                 { "has_weather", Convert.ToString(hasWeather) },
                 { "weather", weather ?? defaultMissingValue },
                 { "weather_emoji", weatherEmoji ?? defaultMissingValue },
+                { "weather_img_url", weatherImageUrl },
 
                 { "wind_direction", WindDirection.ToString() },
                 { "wind_level", WindLevel.ToString() },

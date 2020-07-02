@@ -585,7 +585,7 @@
 
             if (!MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType))
             {
-                _logger.Error($"Failed to parse grunt type {pokestop.GruntType}, not in `grunttype.json` list.");
+                //_logger.Error($"Failed to parse grunt type {pokestop.GruntType}, not in `grunttype.json` list.");
                 return;
             }
          

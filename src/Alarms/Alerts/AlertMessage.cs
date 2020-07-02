@@ -131,10 +131,10 @@
             {
                 AlertMessageType.Weather, new AlertMessageSettings
                 {
-                    AvatarUrl = "",
-                    Content = "**Weather Condition:** <weather_emoji> <weather_condition><br>",
+                    AvatarUrl = "<weather_img_url>",
+                    Content = "**Weather Condition:** <weather_condition><br>**Weather Cell ID:** #<id>",
                     IconUrl = "",
-                    Title = "<geofence>: #<id>",
+                    Title = "<geofence>",
                     Url = "<gmaps_url>",
                     Username = "Weather",
                     ImageUrl = "<tilemaps_url>"

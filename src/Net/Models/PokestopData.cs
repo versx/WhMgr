@@ -11,7 +11,6 @@
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
     using WhMgr.Data;
-    using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Utilities;
 
@@ -349,6 +348,7 @@
         [JsonProperty("second_reward")]
         public bool SecondReward { get; set; }
 
+        [JsonIgnore]
         public bool HasEncounter
         {
             get

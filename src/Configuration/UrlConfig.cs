@@ -26,6 +26,12 @@
         public string QuestImage { get; set; }
 
         /// <summary>
+        /// Gets or sets the weather image url
+        /// </summary>
+        [JsonProperty("weatherImage")]
+        public string WeatherImage { get; set; }
+
+        /// <summary>
         /// Gets or sets the static map image url
         /// </summary>
         [JsonProperty("staticMap")]

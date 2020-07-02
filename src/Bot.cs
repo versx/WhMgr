@@ -32,6 +32,10 @@
     // TODO: Separate subscriptions dts
     // TODO: Configurable static map options per model
     // TODO: More robust/customizable static map creation
+    // TODO: Localize quest/invasion text
+    // TODO: Specific timezone per Discord
+    // TODO: Change to PMSF icon format
+    // TODO: Account status alarms
 
     public class Bot
     {
@@ -64,6 +68,7 @@
             _lang = new Translator();
             _lang.SetLocale(_whConfig.Locale);
 
+            // Set database connection strings to static properties so we can access within our extension classes
             DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
             DataAccessLayer.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
 
@@ -136,6 +141,7 @@
                     }
                 );
 
+                // Build the dependency collection which will contain our objects that can be globally used within each command module
                 DependencyCollection dep;
                 using (var d = new DependencyCollectionBuilder())
                 {
@@ -150,7 +156,9 @@
                     {
                         StringPrefix = server.CommandPrefix?.ToString(),
                         EnableDms = true,
+                        // If command prefix is null, allow for mention prefix
                         EnableMentionPrefix = string.IsNullOrEmpty(server.CommandPrefix),
+                        // Use DSharpPlus's built-in help formatter
                         EnableDefaultHelp = true,
                         CaseSensitive = false,
                         IgnoreExtraArguments = true,
@@ -220,7 +228,8 @@
             _whm.GymAlarmTriggered += OnGymAlarmTriggered;
             _whm.GymDetailsAlarmTriggered += OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered += OnWeatherAlarmTriggered;
-            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null) //At least one server wants subscriptions
+            // At least one server wants subscriptions
+            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null)
             {
                 // Register subscription event handlers
                 _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
@@ -296,6 +305,7 @@
                 _logger.Error($"DiscordClient is null, Unable to update status.");
                 return;
             }
+            // TODO: Make configurable Discord status, if null use version
             await client.UpdateStatusAsync(new DiscordGame($"v{Strings.Version}"), UserStatus.Online);
         }
 
@@ -733,12 +743,12 @@
             try
             {
                 var client = _servers[e.GuildId];
+                var weatherImageUrl = string.Format(_whConfig.Urls.WeatherImage, $"weather_{Convert.ToInt32(weather.GameplayCondition)}");
                 var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
-                var name = $"Weather Cell ID #{weather.Id}";
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = name,
-                    AvatarUrl = string.Empty, //weather.Url,
+                    Username = "Weather",
+                    AvatarUrl = weatherImageUrl,
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
@@ -866,10 +876,11 @@
 
         private async Task LoadEmojis()
         {
+            _logger.Trace($"LoadEmojis");
+
             var keys = _whConfig.Servers.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
-                var t = keys[i];
                 var guildId = keys[i];
                 var emojiGuildId = _whConfig.Servers[guildId].EmojiGuildId;
                 if (!_servers.ContainsKey(guildId))
