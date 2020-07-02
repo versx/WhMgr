@@ -572,8 +572,6 @@ __**Quests**__
 - Reload config on change
 - PvP ranks DTS
 - Separate subscriptions DTS
-- Configurable static map options per model
-- More robust/customizable static map creation
 - Finish Localization.  
 - Wiki.  
 
@@ -612,7 +610,6 @@ Discord Team Rocket Invasion Notifications:
 
 ## Current Issues:  
 - Gender icon comes in as `?` so -m and -f are used for now.  
-- Emoji guild is not currently used, notification guild is used for now.  
 
 ## Credits:  
 [versx](https://github.com/versx) - Developer  
