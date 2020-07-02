@@ -157,6 +157,7 @@
         [
             Command("expire-admin"),
             Description(""),
+            Hidden,
             RequireOwner
         ]
         public async Task GetExpireAdminAsync(CommandContext ctx,
@@ -1225,10 +1226,10 @@
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Username} has subscribed to **{(subscribed.Count == Strings.MaxPokemonIds ? "All" : string.Join("**, **", subscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of {minimumRank} or higher and a minimum ranking percentage of {minimumPercent}%."
+                    ? $"{ctx.User.Username} has subscribed to **{(string.Compare(Strings.All, poke, true) == 0 ? "All" : string.Join("**, **", subscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of {minimumRank} or higher and a minimum ranking percentage of {minimumPercent}%."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
-                    ? $"\r\n{ctx.User.Username} is already subscribed to **{(alreadySubscribed.Count == Strings.MaxPokemonIds ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of '{minimumRank}' or higher and a minimum ranking percentage of {minimumPercent}%."
+                    ? $"\r\n{ctx.User.Username} is already subscribed to **{(string.Compare(Strings.All, poke, true) == 0 ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of '{minimumRank}' or higher and a minimum ranking percentage of {minimumPercent}%."
                     : string.Empty)
             );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
