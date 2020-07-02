@@ -81,7 +81,7 @@
         /// </summary>
         public PokestopData()
         {
-            SetTimes(false, false);
+            SetTimes();
         }
 
         #region Public Methods
@@ -89,27 +89,11 @@
         /// <summary>
         /// Set expire times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
         /// </summary>
-        /// <param name="enableDST">Enable Day Light Savings time adjustment.</param>
-        /// <param name="enableLeapYear">Enable leap year time adjustment.</param>
-        public void SetTimes(bool enableDST, bool enableLeapYear)
+        public void SetTimes()
         {
             LureExpireTime = LureExpire.FromUnix();
-            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(LureExpireTime))
-            {
-                LureExpireTime = LureExpireTime.AddHours(1); //DST
-            }
 
             InvasionExpireTime = IncidentExpire.FromUnix();
-            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(InvasionExpireTime))
-            {
-                InvasionExpireTime = InvasionExpireTime.AddHours(1); //DST
-            }
-
-            if (enableLeapYear)
-            {
-                LureExpireTime = LureExpireTime.Subtract(TimeSpan.FromDays(1));
-                InvasionExpireTime = InvasionExpireTime.Subtract(TimeSpan.FromDays(1));
-            }
         }
 
         public static string InvasionTypeToString(InvasionGruntType gruntType)

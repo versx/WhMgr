@@ -114,7 +114,5 @@
     "Default": "https://cdn.example.com/images/original/monsters/{0:D3}_{1:D3}.png",
     "Shuffle": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png"
   },
-  "enableDST": false,
-  "enableLeapYear": true,
   "debug": false
 }

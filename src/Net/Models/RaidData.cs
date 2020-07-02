@@ -114,33 +114,14 @@
         /// </summary>
         public RaidData()
         {
-            SetTimes(false, false);
+            SetTimes();
         }
 
-        /// <summary>
-        /// Set start and end times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
-        /// </summary>
-        /// <param name="enableDST">Enable Day Light Savings time adjustment.</param>
-        /// <param name="enableLeapYear">Enable leap year time adjustment.</param>
-        public void SetTimes(bool enableDST, bool enableLeapYear)
+        public void SetTimes()
         {
             StartTime = Start.FromUnix();
-            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
-            {
-                StartTime = StartTime.AddHours(1); //DST
-            }
 
             EndTime = End.FromUnix();
-            if (enableDST)//TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
-            {
-                EndTime = EndTime.AddHours(1); //DST
-            }
-
-            if (enableLeapYear)
-            {
-                StartTime = StartTime.Subtract(TimeSpan.FromDays(1));
-                EndTime = EndTime.Subtract(TimeSpan.FromDays(1));
-            }
         }
 
         public DiscordEmbed GenerateRaidMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string raidImageUrl)

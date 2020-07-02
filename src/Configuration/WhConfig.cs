@@ -77,18 +77,6 @@
         public Dictionary<string, string> IconStyles { get; set; }
 
         /// <summary>
-        /// Gets or sets whether to enable Day Light Savings time for despawn timers
-        /// </summary>
-        [JsonProperty("enableDST")]
-        public bool EnableDST { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether to enable Leap Year date adjustment for despawn timers
-        /// </summary>
-        [JsonProperty("enableLeapYear")]
-        public bool EnableLeapYear { get; set; }
-
-        /// <summary>
         /// Gets or sets whether to log incoming webhook data to a file
         /// </summary>
         [JsonProperty("debug")]

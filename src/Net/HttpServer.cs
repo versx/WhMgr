@@ -24,8 +24,6 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("HTTP");
         private static readonly object _lock = new object();
-        private readonly bool _enableDST = false;
-        private readonly bool _enableLeapYear = false;
         private readonly Dictionary<ulong, PokemonData> _processedPokemon;
         private readonly Dictionary<string, RaidData> _processedRaids;
         private readonly Dictionary<string, GymData> _processedGyms;
@@ -121,14 +119,10 @@
         /// Instantiates a new <see cref="HttpServer"/> class.
         /// </summary>
         /// <param name="port">Listening port</param>
-        /// <param name="enableDST">Enable Day Light Savings time adjustemnt</param>
-        /// <param name="enableLeapYear">Enable leap year time adjustment</param>
-        public HttpServer(string host, ushort port, bool enableDST, bool enableLeapYear)
+        public HttpServer(string host, ushort port)
         {
             Host = host;
             Port = port;
-            _enableDST = enableDST;
-            _enableLeapYear = enableLeapYear;
             _processedPokemon = new Dictionary<ulong, PokemonData>();
             _processedRaids = new Dictionary<string, RaidData>();
             _processedGyms = new Dictionary<string, GymData>();
@@ -310,7 +304,7 @@
                     return;
                 }
 
-                pokemon.SetDespawnTime(_enableDST, _enableLeapYear);
+                pokemon.SetDespawnTime();
                 /*
                 if (_processedPokemon.ContainsKey(pokemon.EncounterId))
                 {
@@ -345,7 +339,7 @@
                     return;
                 }
 
-                raid.SetTimes(_enableDST, _enableLeapYear);
+                raid.SetTimes();
 
                 if (_processedRaids.ContainsKey(raid.GymId))
                 {
@@ -422,7 +416,7 @@
                     return;
                 }
 
-                pokestop.SetTimes(_enableDST, _enableLeapYear);
+                pokestop.SetTimes();
 
                 if (_processedPokestops.ContainsKey(pokestop.PokestopId))
                 {
