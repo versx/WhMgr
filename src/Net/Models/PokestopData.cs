@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
@@ -22,6 +23,8 @@
     {
         public const string WebhookHeader = "pokestop";
         public const string WebhookHeaderInvasion = "invasion";
+
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("POKESTOP");
 
         #region Properties
 
@@ -248,7 +251,6 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
         {
-            //var server = whConfig.Servers[guildId];
             string icon;
             if (HasInvasion)
             {
@@ -263,10 +265,13 @@
             {
                 icon = Url;
             }
+
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, icon, Latitude, Longitude);
+            //var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, icon, Latitude, Longitude);
+            var templatesFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.TemplatesFolder);
+            var staticMapLink = Utils.GetStaticMapsUrl(Path.Combine(templatesFolder, HasInvasion ? whConfig.StaticMaps.InvasionsTemplateFile : HasLure ? whConfig.StaticMaps.LuresTemplateFile : whConfig.StaticMaps.LuresTemplateFile /*PokestopTemplateFile*/), whConfig.Urls.StaticMap, Latitude, Longitude, icon);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
@@ -333,6 +338,7 @@
         [JsonProperty("second_reward")]
         public bool SecondReward { get; set; }
 
+        [JsonIgnore]
         public bool HasEncounter
         {
             get

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
@@ -128,7 +129,7 @@
         {
             var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(guildId, client, whConfig, city, raidImageUrl);
+            var properties = GetProperties(whConfig, city, raidImageUrl);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -148,25 +149,14 @@
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, DiscordClient client, WhConfig whConfig, string city, string raidImageUrl)
+        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, string raidImageUrl)
         {
-            //TODO: Check whConfig.Servers[guildId]
-
-            //var server = whConfig.Servers[guildId];
             var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
             var form = PokemonId.GetPokemonForm(Form.ToString());
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
-            var move1 = string.Empty;
-            var move2 = string.Empty;
-            if (MasterFile.Instance.Movesets.ContainsKey(FastMove))
-            {
-                move1 = MasterFile.Instance.Movesets[FastMove].Name;
-            }
-            if (MasterFile.Instance.Movesets.ContainsKey(ChargeMove))
-            {
-                move2 = MasterFile.Instance.Movesets[ChargeMove].Name;
-            }
+            var move1 = MasterFile.Instance.Movesets.ContainsKey(FastMove) ? MasterFile.Instance.Movesets[FastMove].Name : string.Empty;
+            var move2 = MasterFile.Instance.Movesets.ContainsKey(ChargeMove) ? MasterFile.Instance.Movesets[ChargeMove].Name : string.Empty;
             var types = pkmnInfo?.Types;
             var type1 = types?[0];
             var type2 = types?.Count > 1 ? types?[1] : PokemonType.None;
@@ -174,10 +164,7 @@
             var type2Emoji = pkmnInfo?.Types?.Count > 1 ? types?[1].GetTypeEmojiIcons() : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
-            //var weaknessesEmoji = types?.GetWeaknessEmojiIcons();
-            var weaknessesEmoji = client.Guilds.ContainsKey(whConfig.Servers[guildId].EmojiGuildId) ?
-                types?.GetWeaknessEmojiIcons() ?? string.Empty :
-                string.Empty;
+            var weaknessesEmoji = types?.GetWeaknessEmojiIcons();
             var perfectRange = PokemonId.MaxCpAtLevel(20);
             var boostedRange = PokemonId.MaxCpAtLevel(25);
             var worstRange = PokemonId.MinCpAtLevel(20);
@@ -190,7 +177,9 @@
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, raidImageUrl, Latitude, Longitude);
+            //var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, raidImageUrl, Latitude, Longitude);
+            var templatesFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.TemplatesFolder);
+            var staticMapLink = Utils.GetStaticMapsUrl(Path.Combine(templatesFolder, whConfig.StaticMaps.RaidsTemplateFile), whConfig.Urls.StaticMap, Latitude, Longitude, raidImageUrl);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);

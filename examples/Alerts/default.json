@@ -90,10 +90,10 @@
         "imageUrl": "<tilemaps_url>"
     },
     "weather": {
-        "avatarUrl": "",
-        "content": "**Weather Condition:** <weather_condition><br>",
+        "avatarUrl": "<weather_img_url>",
+        "content": "**Weather Condition:** <weather_emoji> <weather_condition><br>**Weather Cell ID:** #<id>",
         "iconUrl": "",
-        "title": "<geofence>: #<id>",
+        "title": "<geofence>",
         "url": "<gmaps_url>",
         "username": "Weather",
         "imageUrl": "<tilemaps_url>"

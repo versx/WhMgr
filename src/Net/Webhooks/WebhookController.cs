@@ -6,7 +6,7 @@
     using System.Linq;
 
     using Newtonsoft.Json;
-
+    using ServiceStack.Script;
     using WhMgr.Alarms;
     using WhMgr.Alarms.Filters;
     using WhMgr.Alarms.Models;
@@ -766,6 +766,8 @@
             if (gymDetails == null)
                 return;
 
+            Statistics.Instance.TotalReceivedGyms++;
+
             var keys = _alarms.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -782,6 +784,15 @@
                 for (var j = 0; j < gymDetailsAlarms.Count; j++)
                 {
                     var alarm = gymDetailsAlarms[j];
+                    if (alarm.Filters.Gyms == null)
+                        continue;
+
+                    if (!alarm.Filters.Gyms.Enabled)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, Name={gym.Name}: gym filter not enabled.");
+                        continue;
+                    }
+
                     var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
                     if (geofence == null)
                     {
@@ -839,6 +850,15 @@
                 for (var j = 0; j < weatherAlarms.Count; j++)
                 {
                     var alarm = weatherAlarms[j];
+                    if (alarm.Filters.Weather == null)
+                        continue;
+
+                    if (!alarm.Filters.Weather.Enabled)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
+                        continue;
+                    }
+
                     var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
                     if (geofence == null)
                     {
@@ -846,7 +866,12 @@
                         continue;
                     }
 
-                    // TODO: Check against weather types list
+                    if (!alarm.Filters.Weather.WeatherTypes.Contains(weather.GameplayCondition))
+                    {
+                        // Weather is not in list of accepted ones to send alarms for
+                        continue;
+                    }
+
                     if (!_weather.ContainsKey(weather.Id))
                     {
                         _weather.Add(weather.Id, weather.GameplayCondition);

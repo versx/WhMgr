@@ -1,0 +1,12 @@
+{
+    "staticmap_url": "{{tilemaps_url}}",
+    "markers": [{
+        "url": "{{marker}}",
+        "height": "32",
+        "width": "32",
+        "x_offset": 0,
+        "y_offset": 0,
+        "latitude": "{{lat}}",
+        "longitude": "{{lon}}"
+    }]
+}

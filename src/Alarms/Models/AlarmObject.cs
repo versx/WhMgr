@@ -9,6 +9,7 @@
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Filters.Models;
     using WhMgr.Geofence;
+    using WhMgr.Utilities;
 
     /// <summary>
     /// Alarm filter class

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
@@ -12,6 +13,7 @@
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
+    using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Osm.Models;
     using WhMgr.Utilities;
@@ -30,8 +32,6 @@
     public sealed class WeatherData
     {
         public const string WebHookHeader = "weather";
-
-        //private static readonly IEventLogger _logger = EventLogger.GetLogger("WEATHERDATA");
 
         #region Properties
 
@@ -135,17 +135,17 @@
         private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
         {
             var weather = GameplayCondition.ToString();
-            var weatherEmoji = string.Empty;
+            var weatherKey = $"weather_{Convert.ToInt32(GameplayCondition)}";
+            var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && GameplayCondition != WeatherType.None ? GameplayCondition.GetWeatherEmojiIcon() : string.Empty;
             var hasWeather = GameplayCondition != WeatherType.None;
-            if (Strings.WeatherEmojis.ContainsKey(GameplayCondition) && GameplayCondition != WeatherType.None)
-            {
-                weatherEmoji = GameplayCondition.GetWeatherEmojiIcon();
-            }
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            // TODO: Weather icon
-            var staticMapLink = Utils.PrepareWeatherStaticMapUrl(whConfig.Urls.StaticMap.Replace("/15/", "/11/"), "https://image.flaticon.com/icons/png/512/169/169367.png", Latitude, Longitude, FixWeatherPolygon(Polygon));
+            var weatherImageUrl = string.Format(whConfig.Urls.WeatherImage, weatherKey);
+            // TODO: Create separate static maps for each model type
+            //var staticMapLink = Utils.PrepareWeatherStaticMapUrl(whConfig.Urls.StaticMap.Replace("/15/", "/11/"), weatherImageUrl, Latitude, Longitude, FixWeatherPolygon(Polygon));
+            var templatesFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.TemplatesFolder);
+            var staticMapLink = Utils.GetStaticMapsUrl(Path.Combine(templatesFolder, whConfig.StaticMaps.WeatherTemplateFile), whConfig.Urls.StaticMap.Replace("/15/", "/11/"), Latitude, Longitude, weatherImageUrl);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
@@ -160,6 +160,7 @@
                 { "has_weather", Convert.ToString(hasWeather) },
                 { "weather", weather ?? defaultMissingValue },
                 { "weather_emoji", weatherEmoji ?? defaultMissingValue },
+                { "weather_img_url", weatherImageUrl },
 
                 { "wind_direction", WindDirection.ToString() },
                 { "wind_level", WindLevel.ToString() },

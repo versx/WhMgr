@@ -69,7 +69,7 @@
             {
                 if (_instance == null)
                 {
-                    _instance = LoadInit<MasterFile>(Path.Combine(Strings.DataFolder, MasterFileName), typeof(MasterFile));
+                    _instance = LoadInit<MasterFile>(Path.Combine(Strings.DataFolder, MasterFileName));
                 }
 
                 return _instance;
@@ -82,21 +82,9 @@
 
         public MasterFile()
         {
-            CpMultipliers = LoadInit<Dictionary<double, double>>(
-                Path.Combine(Strings.DataFolder, CpMultipliersFileName),
-                typeof(Dictionary<double, double>)
-            );
-
-            GruntTypes = LoadInit<Dictionary<InvasionGruntType, TeamRocketInvasion>>(
-                Path.Combine(Strings.DataFolder, GruntTypesFileName),
-                typeof(Dictionary<InvasionGruntType, TeamRocketInvasion>)
-            );
-
-            PokemonTypes = LoadInit<Dictionary<PokemonType, PokemonTypes>>(
-                Path.Combine(Strings.DataFolder, TypesFileName),
-                typeof(Dictionary<PokemonType, PokemonTypes>)
-            );
-
+            CpMultipliers = LoadInit<Dictionary<double, double>>(Path.Combine(Strings.DataFolder, CpMultipliersFileName));
+            GruntTypes = LoadInit<Dictionary<InvasionGruntType, TeamRocketInvasion>>(Path.Combine(Strings.DataFolder, GruntTypesFileName));
+            PokemonTypes = LoadInit<Dictionary<PokemonType, PokemonTypes>>(Path.Combine(Strings.DataFolder, TypesFileName));
             Emojis = new Dictionary<string, ulong>();
         }
 
@@ -112,7 +100,7 @@
             return pkmnForm;
         }
 
-        public static T LoadInit<T>(string filePath, Type type)
+        public static T LoadInit<T>(string filePath)
         {
             if (!File.Exists(filePath))
             {
@@ -126,7 +114,7 @@
                 return default;
             }
 
-            return (T)JsonConvert.DeserializeObject(data, type);
+            return (T)JsonConvert.DeserializeObject(data, typeof(T));
         }
     }
 
