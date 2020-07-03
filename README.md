@@ -5,13 +5,14 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 
 
 ## Description:  
-Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, and field research quests. Also supports Discord user's subscribing to Pokemon, raid, quest, and Team Rocket invasion notifications via DM.
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, and Team Rocket invasion notifications via DM.
 
 
 ## Features:  
 - Supports multiple Discord servers.  
-- Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, and invasions.  
+- Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
 - Per user custom Discord notifications for Pokemon, raids, quests, and invasions.  
+- Notifications based on pre-defined distance.  
 - Customizable alert messages with dynamic text replacement.  
 - Support for multiple cities/areas using roles and geofences per server.  
 - Daily shiny stats reporting.  
@@ -21,6 +22,9 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Custom prefix support as well as mentionable user support for commands.  
 - Custom image support for Discord alarm reports.  
 - Custom icon style selection for Discord user notifications.  
+- External emoji server support.  
+- Custom static map format support.  
+- Support for language translation.  
 - Lots more...  
 
 ## Documentation:  
@@ -194,12 +198,6 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     ],
     // Image URL config
     "urls": {
-        //Pokemon images repository path.
-        "pokemonImage": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png",
-        //Raid egg images repository path.
-        "eggImage": "https://cdn.example.com/images/shuffle/eggs/{0}.png",
-        //Field research quest images repository path.
-        "questImage": "https://cdn.example.com/images/shuffle/quests/{0}.png",
         //Static tile map images template.
         "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png"
     },
