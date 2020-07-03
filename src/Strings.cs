@@ -102,6 +102,7 @@
         public static readonly string[] EmojiList =
         {
             //Team emojis
+            "neutral",
             "valor",
             "mystic",
             "instinct",
