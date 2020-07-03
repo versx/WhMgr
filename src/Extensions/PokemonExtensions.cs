@@ -1177,6 +1177,14 @@
             return emojiName;
         }
 
+        public static string GetCaptureRateEmojiIcon(this CaptureRateType type)
+        {
+            var key = $"capture_" + Convert.ToInt32(type);
+            var emojiId = MasterFile.Instance.Emojis[key];
+            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : type.ToString();
+            return emojiName;
+        }
+
         public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes)
         {
             if (pokemonTypes == null || pokemonTypes?.Count == 0)

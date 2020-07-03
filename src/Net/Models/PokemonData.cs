@@ -5,7 +5,7 @@
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
-
+    using DotLiquid.Tags;
     using DSharpPlus;
     using DSharpPlus.Entities;
 
@@ -77,10 +77,6 @@
         {
             get
             {
-                /*
-                var iv = GetIV(Attack, Defense, Stamina);
-                return iv == -1 ? "?" : iv + "%";
-                */
                 if (!int.TryParse(Stamina, out int sta) ||
                     !int.TryParse(Attack, out int atk) ||
                     !int.TryParse(Defense, out int def))
@@ -309,11 +305,39 @@
         public bool MatchesUltraLeague => UltraLeague?.Exists(x => x.Rank <= MaximumRankPVP && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP) ?? false;
 
 
-        [JsonProperty("pvp_rankings_great_league")]
+        [
+            JsonProperty("pvp_rankings_great_league"),
+            Ignore
+        ]
         public List<PVPRank> GreatLeague { get; set; }
 
-        [JsonProperty("pvp_rankings_ultra_league")]
+        [
+            JsonProperty("pvp_rankings_ultra_league"),
+            Ignore
+        ]
         public List<PVPRank> UltraLeague { get; set; }
+
+        #endregion
+
+        #region Catch Rates
+
+        [
+            JsonProperty("capture_1"),
+            Alias("capture_1")
+        ]
+        public double? CatchRate1 { get; set; }
+
+        [
+            JsonProperty("capture_2"),
+            Alias("capture_2")
+        ]
+        public double? CatchRate2 { get; set; }
+
+        [
+            JsonProperty("capture_3"),
+            Alias("capture_3")
+        ]
+        public double? CatchRate3 { get; set; }
 
         #endregion
 
@@ -439,7 +463,7 @@
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
             {
-                //Main properties
+                // Main properties
                 { "pkmn_id", Convert.ToString(Id) },
                 { "pkmn_name", pkmnInfo.Name },
                 { "pkmn_img_url", pokemonImageUrl },
@@ -469,7 +493,16 @@
                 { "iv_rnd", IVRounded ?? defaultMissingValue },
                 { "is_shiny", Convert.ToString(isShiny) },
 
-                //PvP stat properties
+                // Catch rate properties
+                { "has_capture_rates",  Convert.ToString(CatchRate1.HasValue && CatchRate2.HasValue && CatchRate3.HasValue) },
+                { "capture_1", CatchRate1.HasValue ? Math.Round(CatchRate1.Value * 100, 2).ToString() : string.Empty },
+                { "capture_2", CatchRate2.HasValue ? Math.Round(CatchRate2.Value * 100, 2).ToString() : string.Empty },
+                { "capture_3", CatchRate3.HasValue ? Math.Round(CatchRate3.Value * 100, 2).ToString() : string.Empty },
+                { "capture_1_emoji", CaptureRateType.PokeBall.GetCaptureRateEmojiIcon() },
+                { "capture_2_emoji", CaptureRateType.GreatBall.GetCaptureRateEmojiIcon() },
+                { "capture_3_emoji", CaptureRateType.UltraBall.GetCaptureRateEmojiIcon() },
+
+                // PvP stat properties
                 { "is_great", Convert.ToString(isGreat) },
                 { "is_ultra", Convert.ToString(isUltra) },
                 { "is_pvp", Convert.ToString(isPvP) },
@@ -477,7 +510,7 @@
                 //{ "ultra_league_stats", ultraLeagueStats },
                 { "pvp_stats", pvpStats },
 
-                //Other properties
+                // Other properties
                 { "height", height ?? defaultMissingValue },
                 { "weight", weight ?? defaultMissingValue },
                 { "is_ditto", Convert.ToString(IsDitto) },
@@ -492,32 +525,32 @@
                 { "spawnpoint_id", SpawnpointId ?? defaultMissingValue },
                 { "encounter_id", EncounterId ?? defaultMissingValue },
 
-                //Time properties
+                // Time properties
                 { "despawn_time", DespawnTime.ToString("hh:mm:ss tt") },
                 { "despawn_time_verified", DisappearTimeVerified ? "" : "~" },
                 { "is_despawn_time_verified", Convert.ToString(DisappearTimeVerified) },
                 { "time_left", SecondsLeft.ToReadableString(true) ?? defaultMissingValue },
 
-                //Location properties
+                // Location properties
                 { "geofence", city ?? defaultMissingValue },
                 { "lat", Convert.ToString(Latitude) },
                 { "lng", Convert.ToString(Longitude) },
                 { "lat_5", Convert.ToString(Math.Round(Latitude, 5)) },
                 { "lng_5", Convert.ToString(Math.Round(Longitude, 5)) },
 
-                //Location links
+                // Location links
                 { "tilemaps_url", staticMapLink },
                 { "gmaps_url", gmapsLocationLink },
                 { "applemaps_url", appleMapsLocationLink },
                 { "wazemaps_url", wazeMapsLocationLink },
 
-                //Pokestop properties
+                // Pokestop properties
                 { "near_pokestop", Convert.ToString(pokestop != null) },
                 { "pokestop_id", PokestopId ?? defaultMissingValue },
                 { "pokestop_name", pokestop?.Name ?? defaultMissingValue },
                 { "pokestop_url", pokestop?.Url ?? defaultMissingValue },
 
-                //Misc properties
+                // Misc properties
                 { "br", "\r\n" }
             };
             return await Task.FromResult(dict);
@@ -618,5 +651,12 @@
         }
 
         #endregion
+    }
+
+    public enum CaptureRateType
+    {
+        PokeBall = 1,
+        GreatBall,
+        UltraBall,
     }
 }
