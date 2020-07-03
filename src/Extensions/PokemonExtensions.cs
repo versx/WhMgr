@@ -1054,35 +1054,35 @@
         public static string GetPokemonIcon(this int pokemonId, int formId, int costumeId, WhConfig whConfig, string style)
         {
             var iconStyleUrl = whConfig.IconStyles[style];
-            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl : iconStyleUrl + "/";
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl : iconStyleUrl;
             var id = string.Format("{0:D3}", pokemonId);
             var form = formId > 0 ? formId.ToString() : "00";
             return costumeId == 0
-                ? url + $"pokemon_icon_{id}_{form}.png"
-                : url + $"pokemon_icon_{id}_{form}_{costumeId}.png";
+                ? $"{url}/pokemon_icon_{id}_{form}.png"
+                : $"{url}/pokemon_icon_{id}_{form}_{costumeId}.png";
         }
 
         public static string GetRaidEggIcon(this RaidData raid, WhConfig whConfig, string style)
         {
             var iconStyleUrl = whConfig.IconStyles[style];
-            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "eggs/" : iconStyleUrl + "/";
-            return $"{url}eggs/{raid.Level}.png";
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "eggs/" : iconStyleUrl;
+            return $"{url}/eggs/{raid.Level}.png";
         }
 
         public static string GetQuestIcon(this QuestData quest, WhConfig whConfig, string style)
         {
             var iconStyleUrl = whConfig.IconStyles[style];
-            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards/" : $"{iconStyleUrl}/rewards/";
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards/" : $"{iconStyleUrl}/rewards";
             switch (quest.Rewards?[0].Type)
             {
                 case QuestRewardType.Candy:
-                    return $"{url}reward_1301_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
+                    return $"{url}/reward_1301_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
                 case QuestRewardType.Item:
-                    return $"{url}reward_{(int)quest.Rewards?[0].Info.Item}.png";
+                    return $"{url}/reward_{(int)quest.Rewards?[0].Info.Item}.png";
                 case QuestRewardType.PokemonEncounter:
                     return (quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId).GetPokemonIcon(quest.Rewards?[0].Info.FormId ?? 0, quest.Rewards?[0].Info.CostumeId ?? 0, whConfig, style);
                 case QuestRewardType.Stardust:
-                    return $"{url}reward_stardust_{quest.Rewards[0].Info.Amount}.png";
+                    return $"{url}/reward_stardust_{quest.Rewards[0].Info.Amount}.png";
                 case QuestRewardType.AvatarClothing:
                 case QuestRewardType.Experience:
                 case QuestRewardType.Quest:
@@ -1095,15 +1095,22 @@
         public static string GetLureIcon(this PokestopData pokestop, WhConfig whConfig, string style)
         {
             var iconStyleUrl = whConfig.IconStyles[style];
-            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards/" : $"{iconStyleUrl}/rewards/";
-            return $"{url}reward_{Convert.ToInt32(pokestop.LureType)}_1.png";
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards/" : $"{iconStyleUrl}/rewards";
+            return $"{url}/reward_{Convert.ToInt32(pokestop.LureType)}_1.png";
+        }
+
+        public static string GetInvasionIcon(this PokestopData pokestop, WhConfig whConfig, string style)
+        {
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "grunt/" : $"{iconStyleUrl}/grunt";
+            return $"{url}/{Convert.ToInt32(pokestop.GruntType)}.png";
         }
 
         public static string GetWeatherIcon(this WeatherData weather, WhConfig whConfig, string style)
         {
             var iconStyleUrl = whConfig.IconStyles[style];
-            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "weather/" : $"{iconStyleUrl}/weather/";
-            return $"{url}weather_{Convert.ToInt32(weather.GameplayCondition)}.png";
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "weather/" : $"{iconStyleUrl}/weather";
+            return $"{url}/weather_{Convert.ToInt32(weather.GameplayCondition)}.png";
         }
 
         public static string GetPokemonGenderIcon(this PokemonGender gender)
@@ -1194,7 +1201,9 @@
             if (string.IsNullOrEmpty(name))
                 return 0;
 
-            var pkmn = MasterFile.Instance.Pokedex.FirstOrDefault(x => string.Compare(x.Value.Name, name, true) == 0);
+            var pkmn = int.TryParse(name, out var id)
+                ? MasterFile.Instance.Pokedex.FirstOrDefault(x => x.Key == id)
+                : MasterFile.Instance.Pokedex.FirstOrDefault(x => string.Compare(x.Value.Name, name, true) == 0);
 
             if (pkmn.Key > 0)
                 return pkmn.Key;

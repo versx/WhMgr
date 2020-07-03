@@ -140,8 +140,7 @@
             string icon;
             if (HasInvasion)
             {
-                //TODO: Load from local file
-                icon = "http://images2.fanpop.com/image/photos/11300000/Team-Rocket-Logo-team-rocket-11302897-198-187.jpg";
+                icon = this.GetInvasionIcon(whConfig, whConfig.Servers[guildId].IconStyle);
             }
             else if (HasLure)
             {
