@@ -2,9 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
 
+    using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Data.Models;
     using WhMgr.Net.Models;
@@ -1051,44 +1051,62 @@
             return string.Empty;
         }
 
-        public static string GetPokemonImage(this int pokemonId, string pokemonImageUrl, int form = 0, int costume = 0)
+        public static string GetPokemonIcon(this int pokemonId, int formId, int costumeId, WhConfig whConfig, string style)
         {
-            var url = pokemonImageUrl.EndsWith('/') ? pokemonImageUrl : pokemonImageUrl + "/";
-            var idFormatted = string.Format("{0:D3}", pokemonId);
-            var formFormatted = form > 0 ? form.ToString() : "00";
-            if (costume > 0)
-            {
-                var costumeFormatted = costume > 0 ? costume.ToString() : string.Empty;
-                return url + $"{idFormatted}_{formFormatted}_{costumeFormatted}.png";
-            }
-            return url + $"{idFormatted}_{formFormatted}.png";
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl : iconStyleUrl + "/";
+            var id = string.Format("{0:D3}", pokemonId);
+            var form = formId > 0 ? formId.ToString() : "00";
+            var returnUrl = costumeId == 0
+                ? url + $"pokemon_icon_{id}_{form}.png"
+                : url + $"pokemon_icon_{id}_{form}_{costumeId}.png";
+            Console.WriteLine("PokemonUrl: {0}", returnUrl);
+            return returnUrl;
         }
 
-        //public static string GetPokemonImage(this int pokemonId, PokemonGender gender, string form, bool shiny)
-        //{
-        //    var isShiny = shiny ? "_shiny" : null;
-        //    var formTag = int.TryParse(form, out var formId) && formId > 0 ? "_" + string.Format("{0:D2}", formId) : null;
-        //    var genderId = (int)gender > 1 ? 0 : (int)gender;
-        //    var url = string.Format(Strings.PokemonImage, pokemonId, genderId, formTag, isShiny);
-        //    if (IsUrlExist(url))
-        //    {
-        //        return url;
-        //    }
+        public static string GetRaidEggIcon(this RaidData raid, WhConfig whConfig, string style)
+        {
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "eggs/" : iconStyleUrl + "/";
+            return $"{url}eggs/{raid.Level}.png";
+        }
 
-        //    url = string.Format(Strings.PokemonImage, pokemonId, 0, int.TryParse(form, out formId) ? "_" + string.Format("{0:D2}", formId) : null, isShiny);
-        //    if (IsUrlExist(url))
-        //    {
-        //        return url;
-        //    }
+        public static string GetQuestIcon(this QuestData quest, WhConfig whConfig, string style)
+        {
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards/" : $"{iconStyleUrl}/rewards/";
+            switch (quest.Rewards?[0].Type)
+            {
+                case QuestRewardType.Candy:
+                    return $"{url}reward_1301_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
+                case QuestRewardType.Item:
+                    return $"{url}reward_{(int)quest.Rewards?[0].Info.Item}.png";
+                case QuestRewardType.PokemonEncounter:
+                    return (quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId).GetPokemonIcon(quest.Rewards?[0].Info.FormId ?? 0, quest.Rewards?[0].Info.CostumeId ?? 0, whConfig, style);
+                case QuestRewardType.Stardust:
+                    return $"{url}reward_stardust_{quest.Rewards[0].Info.Amount}.png";
+                case QuestRewardType.AvatarClothing:
+                case QuestRewardType.Experience:
+                case QuestRewardType.Quest:
+                case QuestRewardType.Unset:
+                default:
+                    return null;
+            }
+        }
 
-        //    url = string.Format(Strings.PokemonImage, pokemonId, form, isShiny, string.Empty);
-        //    if (int.TryParse(form, out formId))
-        //    {
-        //        return url;
-        //    }
+        public static string GetLureIcon(this PokestopData pokestop, WhConfig whConfig, string style)
+        {
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards/" : $"{iconStyleUrl}/rewards/";
+            return $"{url}reward_{Convert.ToInt32(pokestop.LureType)}_1.png";
+        }
 
-        //    return string.Format(Strings.PokemonImage, pokemonId, genderId, isShiny, string.Empty);
-        //}
+        public static string GetWeatherIcon(this WeatherData weather, WhConfig whConfig, string style)
+        {
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "weather/" : $"{iconStyleUrl}/weather/";
+            return $"{url}weather_{Convert.ToInt32(weather.GameplayCondition)}.png";
+        }
 
         public static string GetPokemonGenderIcon(this PokemonGender gender)
         {

@@ -108,11 +108,11 @@
             //}
         }
 
-        public DiscordEmbed GenerateWeatherMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbed GenerateWeatherMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string weatherImageUrl)
         {
             var alertType = AlertMessageType.Weather;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(whConfig, city);
+            var properties = GetProperties(whConfig, city, weatherImageUrl);
             var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -132,7 +132,7 @@
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, string weatherImageUrl)
         {
             var weather = GameplayCondition.ToString();
             var weatherKey = $"weather_{Convert.ToInt32(GameplayCondition)}";
@@ -141,7 +141,6 @@
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            var weatherImageUrl = string.Format(whConfig.Urls.WeatherImage, weatherKey);
             // TODO: Create separate static maps for each model type
             var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.WeatherTemplateFile);
             var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap.Replace("/15/", "/11/"), Latitude, Longitude, weatherImageUrl);

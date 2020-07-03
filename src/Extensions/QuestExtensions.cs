@@ -179,35 +179,6 @@
             return null;
         }
 
-        public static string GetIconUrl(this QuestData quest, WhConfig config)
-        {
-            var iconIndex = 0;
-            switch (quest.Rewards?[0].Type)
-            {
-                case QuestRewardType.AvatarClothing:
-                    break;
-                case QuestRewardType.Candy:
-                    iconIndex = 1301;
-                    break;
-                case QuestRewardType.Experience:
-                    iconIndex = -2;
-                    break;
-                case QuestRewardType.Item:
-                    return string.Format(config.Urls.QuestImage, (int)quest.Rewards?[0].Info.Item);
-                case QuestRewardType.PokemonEncounter:
-                    return (quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId).GetPokemonImage(config.Urls.PokemonImage, quest.Rewards?[0].Info.FormId ?? 0, quest.Rewards?[0].Info.CostumeId ?? 0);
-                case QuestRewardType.Quest:
-                    break;
-                case QuestRewardType.Stardust:
-                    iconIndex = -1;
-                    break;
-                case QuestRewardType.Unset:
-                    break;
-            }
-
-            return string.Format(config.Urls.QuestImage, iconIndex);
-        }
-
         public static string GetReward(this QuestData quest)
         {
             return GetReward(quest.Rewards?[0]);

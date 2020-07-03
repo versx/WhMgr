@@ -308,13 +308,14 @@
         ]
         public bool MatchesUltraLeague => UltraLeague?.Exists(x => x.Rank <= MaximumRankPVP && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP) ?? false;
 
-        #endregion
 
         [JsonProperty("pvp_rankings_great_league")]
         public List<PVPRank> GreatLeague { get; set; }
 
         [JsonProperty("pvp_rankings_ultra_league")]
         public List<PVPRank> UltraLeague { get; set; }
+
+        #endregion
 
         [
             JsonIgnore,

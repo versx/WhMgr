@@ -83,7 +83,7 @@
         {
             var alertType = AlertMessageType.Quests;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(whConfig, city);
+            var properties = GetProperties(whConfig, city, this.GetQuestIcon(whConfig, whConfig.Servers[guildId].IconStyle));
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -103,7 +103,7 @@
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, string questRewardImageUrl)
         {
             //TODO: Check whConfig.Servers[guildId]
 
@@ -111,7 +111,6 @@
             var questMessage = this.GetQuestMessage();
             var questConditions = this.GetConditions();
             var questReward = this.GetReward();
-            var questRewardImageUrl = this.GetIconUrl(whConfig);
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);

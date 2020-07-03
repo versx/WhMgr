@@ -190,8 +190,7 @@
                         continue;
 
                     var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
-                    var iconStyleUrl = _whConfig.IconStyles.FirstOrDefault(x => string.Compare(x.Key, iconStyle, true) == 0).Value;
-                    var pkmnImage = string.Format(iconStyleUrl, pkmn.Id, pkmn.FormId);
+                    var pkmnImage = pkmn.Id.GetPokemonIcon(pkmn.FormId, pkmn.Costume, _whConfig, iconStyle);
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name, pkmnImage);
                     _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
 
@@ -325,8 +324,7 @@
                         continue;
 
                     var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
-                    var iconStyleUrl = _whConfig.IconStyles.FirstOrDefault(x => string.Compare(x.Key, iconStyle, true) == 0).Value;
-                    var pkmnImage = string.Format(iconStyleUrl, pkmn.Id, pkmn.FormId);
+                    var pkmnImage = pkmn.Id.GetPokemonIcon(pkmn.FormId, pkmn.Costume, _whConfig, iconStyle);
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name, pkmnImage);
                     _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
 
@@ -443,8 +441,7 @@
                     }
 
                     var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
-                    var iconStyleUrl = _whConfig.IconStyles.FirstOrDefault(x => string.Compare(x.Key, iconStyle, true) == 0).Value;
-                    var raidImage = string.Format(iconStyleUrl, raid.PokemonId, raid.Form);
+                    var raidImage = raid.PokemonId.GetPokemonIcon(raid.Form, 0, _whConfig, iconStyle);
                     var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name, raidImage);
                     _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
 

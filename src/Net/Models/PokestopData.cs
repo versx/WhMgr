@@ -190,7 +190,7 @@
         {
             var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(whConfig, city);
+            var properties = GetProperties(guildId, whConfig, city);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
             var eb = new DiscordEmbedBuilder
@@ -245,7 +245,7 @@
 
         #region Private Methods
 
-        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, WhConfig whConfig, string city)
         {
             string icon;
             if (HasInvasion)
@@ -255,7 +255,7 @@
             }
             else if (HasLure)
             {
-                icon = string.Format(whConfig.Urls.QuestImage, Convert.ToInt32(LureType));
+                icon = this.GetLureIcon(whConfig, whConfig.Servers[guildId].IconStyle);
             }
             else
             {

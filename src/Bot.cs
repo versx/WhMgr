@@ -478,7 +478,7 @@
                 var form = pokemon.Id.GetPokemonForm(pokemon.FormId.ToString());
                 //var costume = e.Pokemon.Id.GetCostume(e.Pokemon.Costume.ToString());
                 //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
-                var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.IconStyles[server.IconStyle], pokemon.FormId, pokemon.Costume);
+                var pkmnImage = pokemon.Id.GetPokemonIcon(pokemon.FormId, pokemon.Costume, _whConfig, server.IconStyle);
 
                 var client = _servers[e.GuildId];
                 var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
@@ -530,8 +530,8 @@
                 var pkmn = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
                 var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                 var pkmnImage = raid.IsEgg ? 
-                    string.Format(_whConfig.Urls.EggImage, raid.Level) : 
-                    raid.PokemonId.GetPokemonImage(_whConfig.IconStyles[server.IconStyle], raid.Form);
+                    raid.GetRaidEggIcon(_whConfig, server.IconStyle) :
+                    raid.PokemonId.GetPokemonIcon(raid.Form, 0, _whConfig, server.IconStyle);
 
                 var client = _servers[e.GuildId];
                 var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
@@ -582,7 +582,7 @@
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = quest.GetQuestMessage(),
-                    AvatarUrl = quest.GetIconUrl(_whConfig),
+                    AvatarUrl = quest.GetQuestIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle),
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
@@ -624,7 +624,7 @@
             }
             else if (pokestop.HasLure)
             {
-                icon = string.Format(_whConfig.Urls.QuestImage, Convert.ToInt32(pokestop.LureType));
+                icon = pokestop.GetLureIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle);// string.Format(_whConfig.Urls.QuestImage, Convert.ToInt32(pokestop.LureType));
             }
             else
             {
@@ -742,8 +742,8 @@
             try
             {
                 var client = _servers[e.GuildId];
-                var weatherImageUrl = string.Format(_whConfig.Urls.WeatherImage, $"weather_{Convert.ToInt32(weather.GameplayCondition)}");
-                var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var weatherImageUrl = weather.GetWeatherIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle);
+                var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name, weatherImageUrl);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = "Weather",
