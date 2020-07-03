@@ -16,14 +16,6 @@
         ]
         public int SubscriptionId { get; set; }
 
-        /*
-        [
-            JsonProperty("grunt_type"),
-            Alias("grunt_type"), 
-            Required
-        ]
-        public InvasionGruntType GruntType { get; set; }
-        */
         [
             JsonProperty("reward_pokemon_id"),
             Alias("reward_pokemon_id"),

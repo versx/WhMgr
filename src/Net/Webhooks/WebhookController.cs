@@ -6,7 +6,7 @@
     using System.Linq;
 
     using Newtonsoft.Json;
-    using ServiceStack.Script;
+
     using WhMgr.Alarms;
     using WhMgr.Alarms.Filters;
     using WhMgr.Alarms.Models;

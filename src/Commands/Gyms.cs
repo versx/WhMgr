@@ -12,7 +12,6 @@
 
     using ServiceStack.OrmLite;
 
-    using WhMgr.Diagnostics;
     using WhMgr.Extensions;
 
     [
