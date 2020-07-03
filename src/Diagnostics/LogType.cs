@@ -1,48 +1,43 @@
 ﻿namespace WhMgr.Diagnostics
 {
     /// <summary>
-    /// The log level to use.
+    /// Defines logging severity levels.
     /// </summary>
-    public enum LogType : uint
+    public enum LogLevel : uint
     {
         /// <summary>
-        /// Normal log level.
+        /// Logs that contain the most detailed messages. These messages may contain sensitive application data. These messages are disabled by default and should never be enabled in a production environment.
         /// </summary>
-        Normal = 0,
+        Trace,
 
         /// <summary>
-        /// Successful log level.
-        /// </summary>
-        Success,
-
-        /// <summary>
-        /// Warning log level.
-        /// </summary>
-        Warning,
-
-        /// <summary>
-        /// Error log level.
-        /// </summary>
-        Error,
-
-        /// <summary>
-        /// Fatal log level.
-        /// </summary>
-        Fatal,
-
-        /// <summary>
-        /// Debug log level.
+        /// Logs that are used for interactive investigation during development. These logs should primarily contain information useful for debugging and have no long-term value.
         /// </summary>
         Debug,
 
         /// <summary>
-        /// Information log level.
+        /// Logs that track the general flow of the application. These logs should have long-term value.
         /// </summary>
         Info,
 
         /// <summary>
-        /// Trace log level.
+        /// Logs that highlight an abnormal or unexpected event in the application flow, but do not otherwise cause the application execution to stop.
         /// </summary>
-        Trace
+        Warning,
+
+        /// <summary>
+        /// Logs that highlight when the current flow of execution is stopped due to a failure. These should indicate a failure in the current activity, not an application-wide failure.
+        /// </summary>
+        Error,
+
+        /// <summary>
+        /// Logs that describe an unrecoverable application or system crash, or a catastrophic failure that requires immediate attention.
+        /// </summary>
+        Fatal,
+
+        /// <summary>
+        /// Not used for writing log messages. Specifies that a logging category should not write any messages.
+        /// </summary>
+        None
     }
 }

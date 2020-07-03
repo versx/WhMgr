@@ -1057,11 +1057,9 @@
             var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl : iconStyleUrl + "/";
             var id = string.Format("{0:D3}", pokemonId);
             var form = formId > 0 ? formId.ToString() : "00";
-            var returnUrl = costumeId == 0
+            return costumeId == 0
                 ? url + $"pokemon_icon_{id}_{form}.png"
                 : url + $"pokemon_icon_{id}_{form}_{costumeId}.png";
-            Console.WriteLine("PokemonUrl: {0}", returnUrl);
-            return returnUrl;
         }
 
         public static string GetRaidEggIcon(this RaidData raid, WhConfig whConfig, string style)

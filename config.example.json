@@ -111,5 +111,6 @@
     "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/new/",
     "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/new/"
   },
-  "debug": false
+  "debug": false,
+  "logLevel": "Trace"
 }

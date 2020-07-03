@@ -337,7 +337,7 @@
         private async Task Commands_CommandExecuted(CommandExecutionEventArgs e)
         {
             // let's log the name of the command and user
-            e.Context.Client.DebugLogger.LogMessage(LogLevel.Info, Strings.BotName, $"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
+            e.Context.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Info, Strings.BotName, $"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
 
             // since this method is not async, let's return
             // a completed task, so that no additional work
@@ -347,7 +347,7 @@
 
         private async Task Commands_CommandErrored(CommandErrorEventArgs e)
         {
-            e.Context.Client.DebugLogger.LogMessage(LogLevel.Error, Strings.BotName, $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? e.Context.Message.Content}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
+            e.Context.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Error, Strings.BotName, $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? e.Context.Message.Content}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
 
             // let's check if the error is a result of lack of required permissions
             if (e.Exception is DSharpPlus.CommandsNext.Exceptions.ChecksFailedException)
@@ -403,11 +403,11 @@
             ConsoleColor color;
             switch (e.Level)
             {
-                case LogLevel.Error: color = ConsoleColor.DarkRed; break;
-                case LogLevel.Warning: color = ConsoleColor.Yellow; break;
-                case LogLevel.Info: color = ConsoleColor.White; break;
-                case LogLevel.Critical: color = ConsoleColor.Red; break;
-                case LogLevel.Debug: default: color = ConsoleColor.DarkGray; break;
+                case DSharpPlus.LogLevel.Error: color = ConsoleColor.DarkRed; break;
+                case DSharpPlus.LogLevel.Warning: color = ConsoleColor.Yellow; break;
+                case DSharpPlus.LogLevel.Info: color = ConsoleColor.White; break;
+                case DSharpPlus.LogLevel.Critical: color = ConsoleColor.Red; break;
+                case DSharpPlus.LogLevel.Debug: default: color = ConsoleColor.DarkGray; break;
             }
 
             //Source

@@ -3,10 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Security.Policy;
+
     using Newtonsoft.Json;
 
     using WhMgr.Data;
+    using WhMgr.Diagnostics;
 
     /// <summary>
     /// Configuration file class
@@ -61,9 +62,6 @@
         [JsonProperty("urls")]
         public UrlConfig Urls { get; set; }
 
-        //[JsonProperty("staticMap")]
-        //public StaticMapConfig StaticMap { get; set; }
-
         /// <summary>
         /// Gets or sets the event Pokemon IDs list
         /// </summary>
@@ -89,6 +87,12 @@
         public bool Debug { get; set; }
 
         /// <summary>
+        /// Gets or sets the event logging level to set
+        /// </summary>
+        [JsonProperty("logLevel")]
+        public LogLevel LogLevel { get; set; }
+
+        /// <summary>
         /// Gets or sets the configuration file path
         /// </summary>
         [JsonIgnore]
@@ -102,6 +106,7 @@
             ListeningHost = "127.0.0.1";
             WebhookPort = 8008;
             Locale = "en";
+            LogLevel = LogLevel.Trace;
             Servers = new Dictionary<ulong, DiscordServerConfig>();
             Database = new ConnectionStringsConfig();
             Urls = new UrlConfig();
