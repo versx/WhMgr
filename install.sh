@@ -31,6 +31,7 @@ echo "Copying example files..."
 cp -R examples/Alerts bin/debug/netcoreapp2.1/Alerts/
 cp -R examples/Filters bin/debug/netcoreapp2.1/Filters/
 cp -R examples/Geofences bin/debug/netcoreapp2.1/Geofences/
+cp -R examples/Templates bin/debug/netcoreapp2.1/Templates/
 cp -R static/ bin/debug/netcoreapp2.1/static/
 cp alarms.example.json bin/debug/netcoreapp2.1/alarms.json
 cp config.example.json bin/debug/netcoreapp2.1/config.json

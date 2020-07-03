@@ -111,6 +111,16 @@
     "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/new/",
     "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/new/"
   },
+  "staticMaps": {
+      "pokemon": "pokemon.example.json",
+	  "raids": "raids.example.json",
+	  "quests": "quests.example.json",
+	  "invasions": "invasions.example.json",
+	  "lures": "lures.example.json",
+	  "gyms": "gyms.example.json",
+	  "nests": "nests.example.json",
+	  "weather": "weather.example.json"
+  },
   "debug": false,
   "logLevel": "Trace"
 }
