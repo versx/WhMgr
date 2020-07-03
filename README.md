@@ -36,7 +36,7 @@ wget https://raw.githubusercontent.com/versx/WhMgr/netcore/install.sh && chmod +
 Windows:  
 bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/netcore/install.bat install.bat | start install.bat  
 ```
-2.) Copy `config.example.json` to `config.json`.  
+2.) Edit `config.json` either open in Notepad/++ or `vi config.json`.  
   a.) [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
   b.) Input your bot token and config options.  
 ```js
@@ -207,10 +207,14 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     "iconStyles": {
         "Default": "https://cdn.example.com/images/original/monsters/{0:D3}_{1:D3}.png",
         "Shuffle": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png"
-    }
+    },
+    // Log webhook payloads to a file for debugging
+    "debug": false,
+    // Only show logs with higher or equal priority levels
+    "logLevel": "Trace"
 }
 ```
-3.) Copy `alarms.example.json` to `alarms.json`.  
+3.) Edit `alarms.json` either open in Notepad/++ or `vi alarms.json`.  
 4.) Fill out the alarms file.  
 ```js
 {
@@ -228,48 +232,51 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
   
     //Global switch for Gym notifications.
     "enableGyms": false,
+	
+    //Global switch for Weather notifications.
+	"enableWeather": false,
   
     //List of alarms
     "alarms": [{
         //Alarm name.
         "name":"Alarm1",
-	  
+      
         //Alerts file.
         "alerts":"default.json",
-	  
+      
         //Alarm filters.
         "filters":"default.json",
-	  
+      
         //Path to geofence file.
         "geofence":"geofence1.txt",
-	
-	//DTS compatible mention description.  
-	"mentions":"<!@324234324> <iv> L<lvl> <geofence>"  
+    
+        //DTS compatible mention description.  
+        "mentions":"<!@324234324> <iv> L<lvl> <geofence>"  
       
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
     },{
         //Alarm name.
         "name":"Alarm2",
-	  
+      
         //Alerts file.
         "alerts":"default.json",
-	  
+      
         //Alarm filters.
         "filters":"100iv.json",
-	  
+      
         //Path to geofence file.
         "geofence":"geofence1.txt",
-	
-	//DTS compatible mention description.  
-	"mentions":""  
+    
+        //DTS compatible mention description.  
+        "mentions":""  
       
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
     }]
 }
 ```
-5.) Create directory `Geofences` in root directory of executable file.  
+5.) Create directory `Geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
 6.) Create/copy geofence files to `Geofences` folder.  
 
 *Note:* Geofence file format is the following:  
@@ -287,8 +294,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 ```
 7.) Run `schema.sql` to manually create necessary database tables.  
 8.) Add dotnet to your environment path if it isn't already (optional): `export PATH=~/.dotnet/dotnet:$PATH`  
-8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
-9.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
+9.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
+10.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
 
 **Important Notes:**  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.  
@@ -300,13 +307,13 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
   * Manage Emojis  
   * Embed Links  
   * Attach Files (`export` command)  
-  * Use External Emojis (soon)  
+  * Use External Emojis  
 - DM notifications can be sent to users based on:  
     - Pokemon ID  
     - Pokemon Form  
     - Pokemon IV  
     - Pokemon Level  
-    - Pokemon Attack/Defense/Stamina values  
+    - List of Pokemon Attack/Defense/Stamina values  
     - Pokemon Gender  
     - Raid Boss  
     - City  
@@ -563,7 +570,25 @@ __**Quests**__
 | gmaps_url | Google maps location url | https://maps.google.com/maps?q=5.980921321,3.109283009
 | applemaps_url | Apple maps location url | https://maps.apple.com/maps?daddr=5.980921321,3.109283009
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
-| br | Newline break | `\r\n`
+| br | Newline break | `\r\n`  
+
+**Weather**  
+
+| Place Holder | Description  | Example
+|---|---|---|  
+| id | Weather Cell ID | -932840982304982034
+| weather_img_url | Image url of Weather condition type | https://google.com/imgs/weather_2.png
+| weather_condition | Weather condition type string | Clear
+| geofence | Geofence name raid boss is in | City1
+| lat | Latitude coordinate of Pokemon location | 5.980921321
+| lng | Longitude coordinate of Pokemon location | 3.109283009
+| lat_5 | Latitude coordinate shortend to 5th precision | 5.98092
+| lng_5 | Longitude coordinate shortend to 5th precision | 3.10928
+| tilemaps_url | Static tile map url | http://tiles.example.com/static/pokemon-1.png
+| gmaps_url | Google maps location url | https://maps.google.com/maps?q=5.980921321,3.109283009
+| applemaps_url | Apple maps location url | https://maps.apple.com/maps?daddr=5.980921321,3.109283009
+| wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
+| br | Newline break | `\r\n`  
 
 
 ## TODO:  
