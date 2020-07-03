@@ -63,7 +63,7 @@
         /// Instantiate a new <see cref="EventLogger"/> class
         /// </summary>
         public EventLogger() 
-            : this(DefaultLoggerName, LogLevel.Trace) // TODO: Set trace or debug
+            : this(DefaultLoggerName, LogLevel.Trace)
         {
         }
 

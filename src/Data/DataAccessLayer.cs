@@ -51,8 +51,6 @@
                 Factories.Add(connectionString, new OrmLiteConnectionFactory(connectionString, provider));
             }
 
-            //var factory = new OrmLiteConnectionFactory(connectionString, MySqlDialect.Provider);
-            //return factory.Open();
             return Factories[connectionString];
         }
     }

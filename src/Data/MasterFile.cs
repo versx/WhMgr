@@ -49,7 +49,6 @@
         public IReadOnlyDictionary<int, string> Lures { get; set; }
 
         [JsonProperty("cpMultipliers")]
-
         public IReadOnlyDictionary<double, double> CpMultipliers { get; }
 
         [JsonIgnore]
@@ -58,6 +57,7 @@
         [JsonIgnore]
         public IReadOnlyDictionary<InvasionGruntType, TeamRocketInvasion> GruntTypes { get; set; }
 
+        [JsonIgnore]
         public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }
 
         #region Singletons

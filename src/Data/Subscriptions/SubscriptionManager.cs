@@ -140,37 +140,6 @@
                 }
 
                 var conn = GetConnection();
-                /*
-                var results = conn.Select(conn.From<SubscriptionObject>());
-                for (var i = 0; i < results.Count; i++)
-                {
-                    var result = results[i];
-                    result.Pokemon = conn.Select(conn
-                        .From<PokemonSubscription>()
-                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
-                    );
-                    result.PvP = conn.Select(conn
-                        .From<PvPSubscription>()
-                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
-                    );
-                    result.Raids = conn.Select(conn
-                        .From<RaidSubscription>()
-                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
-                    );
-                    result.Gyms = conn.Select(conn
-                        .From<GymSubscription>()
-                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
-                    );
-                    result.Quests = conn.Select(conn
-                        .From<QuestSubscription>()
-                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
-                    );
-                    result.Invasions = conn.Select(conn
-                        .From<InvasionSubscription>()
-                        .Where(x => x.GuildId == result.GuildId && x.UserId == result.UserId)
-                    );
-                }
-                */
                 var where = conn?
                     .From<SubscriptionObject>()?
                     .Where(x => x.Enabled);
@@ -251,31 +220,31 @@
                 var conn = GetConnection();
                 if (!conn.CreateTableIfNotExists<SubscriptionObject>())
                 {
-                    _logger.Info($"Table SubscriptionObject already exists.");
+                    _logger.Debug($"Table SubscriptionObject already exists.");
                 }
                 if (!conn.CreateTableIfNotExists<PokemonSubscription>())
                 {
-                    _logger.Info($"Table PokemonSubscription already exists.");
+                    _logger.Debug($"Table PokemonSubscription already exists.");
                 }
                 if (!conn.CreateTableIfNotExists<PvPSubscription>())
                 {
-                    _logger.Info($"Table PvPSubscription already exists.");
+                    _logger.Debug($"Table PvPSubscription already exists.");
                 }
                 if (!conn.CreateTableIfNotExists<RaidSubscription>())
                 {
-                    _logger.Info($"Table RaidSubscription already exists.");
+                    _logger.Debug($"Table RaidSubscription already exists.");
                 }
                 if (!conn.CreateTableIfNotExists<GymSubscription>())
                 {
-                    _logger.Info($"Table GymSubscription already exists.");
+                    _logger.Debug($"Table GymSubscription already exists.");
                 }
                 if (!conn.CreateTableIfNotExists<QuestSubscription>())
                 {
-                    _logger.Info($"Table QuestSubscription already exists.");
+                    _logger.Debug($"Table QuestSubscription already exists.");
                 }
                 if (!conn.CreateTableIfNotExists<InvasionSubscription>())
                 {
-                    _logger.Info($"Table InvasionSubscription already exists.");
+                    _logger.Debug($"Table InvasionSubscription already exists.");
                 }
 
                 _logger.Info($"Database tables created.");

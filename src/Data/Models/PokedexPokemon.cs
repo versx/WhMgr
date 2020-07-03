@@ -22,7 +22,6 @@
         public int? EvolvedForm { get; set; }
 
         [JsonProperty("evolutions")]
-        //public List<int> Evolutions { get; set; }
         public List<string> Evolutions { get; set; } //TODO: Check "657_0"
 
         [JsonProperty("types")]

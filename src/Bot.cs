@@ -617,7 +617,7 @@
             string icon;
             if (pokestop.HasInvasion)
             {
-                icon = pokestop.GetInvasionIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle);// "http://images2.fanpop.com/image/photos/11300000/Team-Rocket-Logo-team-rocket-11302897-198-187.jpg";
+                icon = pokestop.GetInvasionIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle);
             }
             else if (pokestop.HasLure)
             {

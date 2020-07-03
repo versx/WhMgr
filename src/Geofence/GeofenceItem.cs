@@ -70,16 +70,19 @@
             var lines = File.ReadAllLines(filePath);
             var geofence = new GeofenceItem();
 
+            // Loop through each new line of the file
             for (var i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
+                // If the line starts with '[' then parse the Geofence name
                 if (line.StartsWith("[", StringComparison.Ordinal))
                 {
                     geofence = new GeofenceItem(line.TrimStart('[').TrimEnd(']'));
                     continue;
                 }
 
-                var coordinates = line.Replace(" ", null).Split(',');
+                // Trim off any extra whitespace and split the line by a comma ','
+                var coordinates = line.Trim('\0').Split(',');
                 if (!double.TryParse(coordinates[0], out var lat))
                     continue;
 
@@ -88,6 +91,8 @@
 
                 geofence.Polygons.Add(new Location(lat, lng));
 
+                // If we have reached the end of the file or the start of another
+                // geofence, add the current to the list of geofences
                 var isEnd = i == lines.Length - 1 || lines[i + 1].StartsWith("[", StringComparison.Ordinal);
                 if (isEnd)
                 {
