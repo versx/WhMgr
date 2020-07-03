@@ -30,8 +30,8 @@
         public string Translate(string value, params object[] args)
         {
             return args.Length > 0
-                ? string.Format(Translate(value), args)
-                : Translate(value);
+                ? string.Format(base.Translate(value), args)
+                : base.Translate(value);
         }
     }
 }
