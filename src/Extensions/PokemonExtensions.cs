@@ -1154,7 +1154,11 @@
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
-                var emojiId = MasterFile.Instance.Emojis[$"types_{type.ToString().ToLower()}"];
+                var emojiKey = $"types_{type.ToString().ToLower()}";
+                if (!MasterFile.Instance.Emojis.ContainsKey(emojiKey))
+                    continue;
+
+                var emojiId = MasterFile.Instance.Emojis[emojiKey];
                 var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId) : type.ToString();
                 if (!list.Contains(emojiName))
                 {

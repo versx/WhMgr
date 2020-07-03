@@ -31,9 +31,7 @@
     // TODO: PvP ranks dts
     // TODO: Separate subscriptions dts
     // TODO: Specific timezone per Discord
-    // TODO: Change to PMSF icon format
     // TODO: Account status alarms
-    // TODO: Database migrator
 
     public class Bot
     {
@@ -69,6 +67,12 @@
             // Set database connection strings to static properties so we can access within our extension classes
             DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
             DataAccessLayer.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
+
+            var migrator = new DatabaseMigrator();
+            while (!migrator.Finished)
+            {
+                Thread.Sleep(50);
+            }
 
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
@@ -475,8 +479,6 @@
             {
                 var server = _whConfig.Servers[e.GuildId];
                 var form = pokemon.Id.GetPokemonForm(pokemon.FormId.ToString());
-                //var costume = e.Pokemon.Id.GetCostume(e.Pokemon.Costume.ToString());
-                //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
                 var pkmnImage = pokemon.Id.GetPokemonIcon(pokemon.FormId, pokemon.Costume, _whConfig, server.IconStyle);
 
                 var client = _servers[e.GuildId];
@@ -924,95 +926,100 @@
                     continue;
                 }
                 var client = _servers[guildId];
-                if (!server.ShinyStats.Enabled)
-                {
-                    _logger.Debug($"Shiny stats not enabled for guild with id {guildId}.");
-                    continue;
-                }
-
                 if (server.ShinyStats.Enabled)
                 {
-                    var statsChannel = await client.GetChannelAsync(server.ShinyStats.ChannelId);
-                    if (statsChannel == null)
-                    {
-                        _logger.Warn($"Unable to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
-                    }
-                    else
-                    {
-                        if (server.ShinyStats.ClearMessages)
-                        {
-                            _logger.Debug($"Deleting previous shiny stats messages in channel {server.ShinyStats.ChannelId}");
-                            await client.DeleteMessages(server.ShinyStats.ChannelId);
-                        }
-
-                        _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
-                        // Subtract an hour to make sure it shows yesterday's date.
-                        await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
-                        await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
-                        var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
-                        var sorted = stats.Keys.ToList();
-                        sorted.Sort();
-
-                        foreach (var pokemon in sorted)
-                        {
-                            if (pokemon == 0)
-                                continue;
-
-                            if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
-                                continue;
-
-                            var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
-                            var pkmnStats = stats[pokemon];
-                            var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
-                            if (chance == 0)
-                            {
-                                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
-                            }
-                            else
-                            {
-                                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
-                            }
-                        }
-
-                        var total = stats[0];
-                        var totalRatio = total.Shiny == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Shiny);
-                        if (totalRatio == 0)
-                        {
-                            await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0")));
-                        }
-                        else
-                        {
-                            await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
-                        }
-                    }
-
-                    Thread.Sleep(10 * 1000);
+                    await PostShinyStats(client, server);
                 }
 
                 if (server.PruneQuestChannels)
                 {
-                    try
-                    {
-                        var channelIds = server.QuestChannelIds;
-                        _logger.Debug($"Quest channel pruning started for {channelIds.Count:N0} channels...");
-                        for (var j = 0; j < channelIds.Count; j++)
-                        {
-                            var result = await client.DeleteMessages(channelIds[j]);
-                            _logger.Debug($"Deleted all {result.Item2:N0} quest messages from channel {result.Item1.Name}.");
-                            Thread.Sleep(1000);
-                        }
-                        _logger.Debug($"Finished automatic quest messages cleanup...");
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error(ex);
-                    }
+                    await PruneQuestChannels(client, server);
                 }
 
                 Thread.Sleep(10 * 1000);
             }
 
             CleanupDepartedMembers();
+        }
+
+        private async Task PostShinyStats(DiscordClient client, DiscordServerConfig server)
+        {
+            var statsChannel = await client.GetChannelAsync(server.ShinyStats.ChannelId);
+            if (statsChannel == null)
+            {
+                _logger.Warn($"Unable to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
+            }
+            else
+            {
+                if (server.ShinyStats.ClearMessages)
+                {
+                    _logger.Debug($"Deleting previous shiny stats messages in channel {server.ShinyStats.ChannelId}");
+                    await client.DeleteMessages(server.ShinyStats.ChannelId);
+                }
+
+                var guildId = server.GuildId;
+                _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
+                // Subtract an hour to make sure it shows yesterday's date.
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
+                var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
+                var sorted = stats.Keys.ToList();
+                sorted.Sort();
+
+                foreach (var pokemon in sorted)
+                {
+                    if (pokemon == 0)
+                        continue;
+
+                    if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
+                        continue;
+
+                    var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
+                    var pkmnStats = stats[pokemon];
+                    var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
+                    if (chance == 0)
+                    {
+                        await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
+                    }
+                    else
+                    {
+                        await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
+                    }
+                }
+
+                var total = stats[0];
+                var totalRatio = total.Shiny == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Shiny);
+                if (totalRatio == 0)
+                {
+                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0")));
+                }
+                else
+                {
+                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
+                }
+            }
+
+            Thread.Sleep(10 * 1000);
+        }
+
+        private async Task PruneQuestChannels(DiscordClient client, DiscordServerConfig server)
+        {
+            try
+            {
+                var channelIds = server.QuestChannelIds;
+                _logger.Debug($"Quest channel pruning started for {channelIds.Count:N0} channels...");
+                for (var j = 0; j < channelIds.Count; j++)
+                {
+                    var result = await client.DeleteMessages(channelIds[j]);
+                    _logger.Debug($"Deleted all {result.Item2:N0} quest messages from channel {result.Item1.Name}.");
+                    Thread.Sleep(1000);
+                }
+                _logger.Debug($"Finished automatic quest messages cleanup...");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
         }
 
         private void CleanupDepartedMembers()

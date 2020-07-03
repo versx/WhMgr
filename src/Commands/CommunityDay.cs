@@ -334,7 +334,6 @@
                 using (var db = DataAccessLayer.CreateFactory(DataAccessLayer.ScannerConnectionString).Open())
                 {
                     var query = db.Select<T>(sql, args);
-                    Console.WriteLine(query);
                     return query;
                 }
             }

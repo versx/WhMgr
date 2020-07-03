@@ -217,7 +217,12 @@
 
             try
             {
+                /*
                 var conn = GetConnection();
+                if (!conn.CreateTableIfNotExists<Metadata>())
+                {
+                    _logger.Debug($"Table Metadata already exists.");
+                }
                 if (!conn.CreateTableIfNotExists<SubscriptionObject>())
                 {
                     _logger.Debug($"Table SubscriptionObject already exists.");
@@ -246,6 +251,7 @@
                 {
                     _logger.Debug($"Table InvasionSubscription already exists.");
                 }
+                */
 
                 _logger.Info($"Database tables created.");
                 return true;
