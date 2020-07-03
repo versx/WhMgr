@@ -36,12 +36,14 @@
         [JsonProperty("weather")]
         public string WeatherTemplateFile { get; set; }
 
+        [JsonIgnore]
+        public string TemplatesFolder => Path.Combine(Directory.GetCurrentDirectory(), Strings.TemplatesFolder);
+
         public void LoadConfigs()
         {
-            var templatesFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.TemplatesFolder);
-            if (!Directory.Exists(templatesFolder))
+            if (!Directory.Exists(TemplatesFolder))
             {
-                _logger.Error($"Templates folder for static maps does not exist: {templatesFolder}");
+                _logger.Error($"Templates folder for static maps does not exist: {TemplatesFolder}");
                 return;
             }
         }

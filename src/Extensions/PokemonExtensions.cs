@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
 
     using WhMgr.Data;
@@ -400,7 +401,7 @@
                     }
                     break;
                 case 58: //Growlithe
-                switch (form)
+                    switch (form)
                     {
                         case 280: //Normal
                             return Normal;
@@ -1050,20 +1051,17 @@
             return string.Empty;
         }
 
-        public static string GetPokemonImage(this int pokemonId, string pokemonImageUrl, PokemonGender gender, int form, int costume = 0)
+        public static string GetPokemonImage(this int pokemonId, string pokemonImageUrl, int form = 0, int costume = 0)
         {
-            if (form > 0)
-            {
-                return string.Format(pokemonImageUrl, pokemonId, form);
-            }
-
+            var url = pokemonImageUrl.EndsWith('/') ? pokemonImageUrl : pokemonImageUrl + "/";
+            var idFormatted = string.Format("{0:D3}", pokemonId);
+            var formFormatted = form > 0 ? form.ToString() : "00";
             if (costume > 0)
             {
-                return string.Format(pokemonImageUrl, pokemonId, costume);
+                var costumeFormatted = costume > 0 ? costume.ToString() : string.Empty;
+                return url + $"{idFormatted}_{formFormatted}_{costumeFormatted}.png";
             }
-
-            var genderId = 0;// gender == PokemonGender.Female ? 1 : 0;
-            return string.Format(pokemonImageUrl, pokemonId, genderId);
+            return url + $"{idFormatted}_{formFormatted}.png";
         }
 
         //public static string GetPokemonImage(this int pokemonId, PokemonGender gender, string form, bool shiny)

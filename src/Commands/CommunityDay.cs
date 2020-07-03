@@ -323,7 +323,7 @@
             }
         }
 
-        public List<T> ExecuteQuery<T>(string sql, Dictionary<string, object> args)
+        public static List<T> ExecuteQuery<T>(string sql, Dictionary<string, object> args)
         {
             if (string.IsNullOrEmpty(DataAccessLayer.ScannerConnectionString))
                 return default;

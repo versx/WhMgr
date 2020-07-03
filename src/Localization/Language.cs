@@ -3,10 +3,8 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Globalization;
     using System.IO;
-    using System.Xml;
 
     using Newtonsoft.Json;
 
@@ -111,9 +109,7 @@
         public virtual TTo Translate(TFrom value)
         {
             // loop through table looking for result
-#pragma warning disable RECS0017 // Possible compare of value type with 'null'
             if (value == null || !_map.TryGetValue(value, out TTo result))
-#pragma warning restore RECS0017 // Possible compare of value type with 'null'
             {
                 result = DefaultValue;
             }
@@ -222,18 +218,6 @@
             var data = File.ReadAllText(path);
             var obj = JsonConvert.DeserializeObject<TDictionary>(data);
             return obj;
-        }
-
-        /// <summary>
-        /// Converts a string to its object representation.
-        /// </summary>
-        /// <typeparam name="T">The type of object to convert the string to.</typeparam>
-        /// <param name="value">The actual string value.</param>
-        /// <returns>Returns an object relating to the converted string.</returns>
-        private static T StringToObject<T>(string value)
-        {
-            var tc = TypeDescriptor.GetConverter(typeof(T));
-            return (T)tc.ConvertFromString(value);
         }
 
         #endregion

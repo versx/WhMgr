@@ -195,7 +195,7 @@
                 case QuestRewardType.Item:
                     return string.Format(config.Urls.QuestImage, (int)quest.Rewards?[0].Info.Item);
                 case QuestRewardType.PokemonEncounter:
-                    return (quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId).GetPokemonImage(config.Urls.PokemonImage, (PokemonGender)quest.Rewards?[0].Info.GenderId, quest.Rewards?[0].Info.FormId ?? 0, quest.Rewards?[0].Info.CostumeId ?? 0);
+                    return (quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId).GetPokemonImage(config.Urls.PokemonImage, quest.Rewards?[0].Info.FormId ?? 0, quest.Rewards?[0].Info.CostumeId ?? 0);
                 case QuestRewardType.Quest:
                     break;
                 case QuestRewardType.Stardust:
@@ -230,17 +230,17 @@
                 case QuestRewardType.AvatarClothing:
                     return "Avatar Clothing";
                 case QuestRewardType.Candy:
-                    return $"{amount.ToString("N0")} Rare Candy";
+                    return $"{amount:N0} Rare Candy";
                 case QuestRewardType.Experience:
-                    return $"{amount.ToString("N0")} XP";
+                    return $"{amount:N0} XP";
                 case QuestRewardType.Item:
-                    return $"{amount.ToString("N0")} {item.ToString().Replace("_", " ")}";
+                    return $"{amount:N0} {item.ToString().Replace("_", " ")}";
                 case QuestRewardType.PokemonEncounter:
                     return (isShiny ? $"**SHINY** " : "") + MasterFile.GetPokemon(isDitto ? 132 : pokemonId, 0)?.Name;
                 case QuestRewardType.Quest:
                     return "Quest";
                 case QuestRewardType.Stardust:
-                    return $"{amount.ToString("N0")} Stardust";
+                    return $"{amount:N0} Stardust";
             }
 
             return "Unknown";

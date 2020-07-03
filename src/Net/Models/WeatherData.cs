@@ -143,9 +143,8 @@
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var weatherImageUrl = string.Format(whConfig.Urls.WeatherImage, weatherKey);
             // TODO: Create separate static maps for each model type
-            //var staticMapLink = Utils.PrepareWeatherStaticMapUrl(whConfig.Urls.StaticMap.Replace("/15/", "/11/"), weatherImageUrl, Latitude, Longitude, FixWeatherPolygon(Polygon));
-            var templatesFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.TemplatesFolder);
-            var staticMapLink = Utils.GetStaticMapsUrl(Path.Combine(templatesFolder, whConfig.StaticMaps.WeatherTemplateFile), whConfig.Urls.StaticMap.Replace("/15/", "/11/"), Latitude, Longitude, weatherImageUrl);
+            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.WeatherTemplateFile);
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap.Replace("/15/", "/11/"), Latitude, Longitude, weatherImageUrl);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);

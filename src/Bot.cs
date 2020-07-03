@@ -478,7 +478,7 @@
                 var form = pokemon.Id.GetPokemonForm(pokemon.FormId.ToString());
                 //var costume = e.Pokemon.Id.GetCostume(e.Pokemon.Costume.ToString());
                 //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
-                var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.IconStyles[server.IconStyle], pokemon.Gender, pokemon.FormId, pokemon.Costume);
+                var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.IconStyles[server.IconStyle], pokemon.FormId, pokemon.Costume);
 
                 var client = _servers[e.GuildId];
                 var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
@@ -531,7 +531,7 @@
                 var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
                 var pkmnImage = raid.IsEgg ? 
                     string.Format(_whConfig.Urls.EggImage, raid.Level) : 
-                    raid.PokemonId.GetPokemonImage(_whConfig.IconStyles[server.IconStyle], PokemonGender.Unset, raid.Form);
+                    raid.PokemonId.GetPokemonImage(_whConfig.IconStyles[server.IconStyle], raid.Form);
 
                 var client = _servers[e.GuildId];
                 var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
