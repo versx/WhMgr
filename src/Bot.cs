@@ -30,7 +30,6 @@
     // TODO: Reload config on change
     // TODO: PvP ranks dts
     // TODO: Separate subscriptions dts
-    // TODO: Localize quest/invasion text
     // TODO: Specific timezone per Discord
     // TODO: Change to PMSF icon format
     // TODO: Account status alarms
@@ -44,7 +43,6 @@
         private readonly WebhookController _whm;
         private readonly WhConfig _whConfig;
         private readonly SubscriptionProcessor _subProcessor;
-        private readonly Translator _lang;
         private readonly Dictionary<string, GymDetailsData> _gyms;
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("BOT");
@@ -64,8 +62,9 @@
             _whConfig = whConfig;
             _gyms = new Dictionary<string, GymDetailsData>();
             _whm = new WebhookController(_whConfig);
-            _lang = new Translator();
-            _lang.SetLocale(_whConfig.Locale);
+
+            // Set translation language
+            Translator.Instance.SetLocale(_whConfig.Locale);
 
             // Set database connection strings to static properties so we can access within our extension classes
             DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
@@ -144,7 +143,7 @@
                 DependencyCollection dep;
                 using (var d = new DependencyCollectionBuilder())
                 {
-                    d.AddInstance(new Dependencies(interactivity, _whm, _subProcessor, _whConfig, _lang, new StripeService(_whConfig.StripeApiKey)));
+                    d.AddInstance(new Dependencies(interactivity, _whm, _subProcessor, _whConfig, new StripeService(_whConfig.StripeApiKey)));
                     dep = d.Build();
                 }
 
@@ -950,8 +949,8 @@
 
                         _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
                         // Subtract an hour to make sure it shows yesterday's date.
-                        await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
-                        await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_NEWLINE"));
+                        await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
+                        await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
                         var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
                         var sorted = stats.Keys.ToList();
                         sorted.Sort();
@@ -969,11 +968,11 @@
                             var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
                             if (chance == 0)
                             {
-                                await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
+                                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
                             }
                             else
                             {
-                                await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
+                                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
                             }
                         }
 
@@ -981,11 +980,11 @@
                         var totalRatio = total.Shiny == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Shiny);
                         if (totalRatio == 0)
                         {
-                            await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_TOTAL_MESSAGE").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0")));
+                            await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0")));
                         }
                         else
                         {
-                            await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
+                            await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
                         }
                     }
 
@@ -1085,7 +1084,7 @@
                             return;
                         }
 
-                        await client.SendDirectMessage(owner, _lang.Translate("BOT_CRASH_MESSAGE"), null);
+                        await client.SendDirectMessage(owner, Translator.Instance.Translate("BOT_CRASH_MESSAGE"), null);
                     }
                 }
             }

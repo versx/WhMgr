@@ -240,9 +240,10 @@
 
         [JsonProperty("raid_levels")]
         public List<int> RaidLevels { get; set; }
+
+        // TODO: Pokemon alignment
     }
 
-    //TODO: Use external files for easier updates.
     public enum QuestType
     {
         Unknown = 0,
@@ -451,13 +452,13 @@
 
     public enum PokemonAlignment
     {
-        Shadow = 1, //alignment_1
-        Purified //alignment_2
+        Shadow = 1,
+        Purified
     }
 
     public enum CharacterCategory
     {
-        TeamLeader = 1, //character_category_1
-        Grunt //character_category_2
+        TeamLeader = 1,
+        Grunt
     }
 }

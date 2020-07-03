@@ -12,6 +12,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
     using WhMgr.Utilities;
 
     /// <summary>
@@ -69,11 +70,15 @@
         [JsonProperty("updated")]
         public ulong Updated { get; set; }
 
+        [JsonIgnore]
         public bool HasLure => LureExpire > 0 && LureType != PokestopLureType.None && LureExpireTime > DateTime.Now;
 
+        [JsonIgnore]
         public bool HasInvasion => IncidentExpire > 0 && InvasionExpireTime > DateTime.Now;
 
         #endregion
+
+        #region Constructor
 
         /// <summary>
         /// Instantiate a new <see cref="PokestopData"/> class.
@@ -82,6 +87,8 @@
         {
             SetTimes();
         }
+
+        #endregion
 
         #region Public Methods
 
@@ -93,97 +100,6 @@
             LureExpireTime = LureExpire.FromUnix();
 
             InvasionExpireTime = IncidentExpire.FromUnix();
-        }
-
-        public static string InvasionTypeToString(InvasionGruntType gruntType)
-        {
-            switch (gruntType)
-            {
-                case InvasionGruntType.Unset:
-                    return "None";
-                case InvasionGruntType.Blanche:
-                    return "Blanche";
-                case InvasionGruntType.Candela:
-                    return "Candela";
-                case InvasionGruntType.Spark:
-                    return "Spark";
-                case InvasionGruntType.MaleGrunt:
-                    return "Male Grunt";
-                case InvasionGruntType.FemaleGrunt:
-                    return "Female Grunt";
-                case InvasionGruntType.BugFemaleGrunt:
-                    return "Bug - Female Grunt";
-                case InvasionGruntType.BugMaleGrunt:
-                    return "Bug - Male Grunt";
-                case InvasionGruntType.DarknessFemaleGrunt:
-                    return "Ghost - Female Grunt";
-                case InvasionGruntType.DarknessMaleGrunt:
-                    return "Ghost - Male Grunt";
-                case InvasionGruntType.DarkFemaleGrunt:
-                    return "Dark - Female Grunt";
-                case InvasionGruntType.DarkMaleGrunt:
-                    return "Dark - Male Grunt";
-                case InvasionGruntType.DragonFemaleGrunt:
-                    return "Dragon - Female Grunt";
-                case InvasionGruntType.DragonMaleGrunt:
-                    return "Dragon - Male Grunt";
-                case InvasionGruntType.FairyFemaleGrunt:
-                    return "Fairy - Female Grunt";
-                case InvasionGruntType.FairyMaleGrunt:
-                    return "Fairy - Male Grunt";
-                case InvasionGruntType.FightingFemaleGrunt:
-                    return "Fighting - Female Grunt";
-                case InvasionGruntType.FightingMaleGrunt:
-                    return "Fighting - Male Grunt";
-                case InvasionGruntType.FireFemaleGrunt:
-                    return "Fire - Female Grunt";
-                case InvasionGruntType.FireMaleGrunt:
-                    return "Fire - Male Grunt";
-                case InvasionGruntType.FlyingFemaleGrunt:
-                    return "Flying - Female Grunt";
-                case InvasionGruntType.FlyingMaleGrunt:
-                    return "Flying - Male Grunt";
-                case InvasionGruntType.GrassFemaleGrunt:
-                    return "Grass - Female Grunt";
-                case InvasionGruntType.GrassMaleGrunt:
-                    return "Grass - Male Grunt";
-                case InvasionGruntType.GroundFemaleGrunt:
-                    return "Ground - Female Grunt";
-                case InvasionGruntType.GroundMaleGrunt:
-                    return "Ground - Male Grunt";
-                case InvasionGruntType.IceFemaleGrunt:
-                    return "Ice - Female Grunt";
-                case InvasionGruntType.IceMaleGrunt:
-                    return "Ice - Male Grunt";
-                case InvasionGruntType.MetalFemaleGrunt:
-                    return "Steel - Female Grunt";
-                case InvasionGruntType.MetalMaleGrunt:
-                    return "Steel - Male Grunt";
-                case InvasionGruntType.NormalFemaleGrunt:
-                    return "Normal - Female Grunt";
-                case InvasionGruntType.NormalMaleGrunt:
-                    return "Normal - Male Grunt";
-                case InvasionGruntType.PoisonFemaleGrunt:
-                    return "Poison - Female Grunt";
-                case InvasionGruntType.PoisonMaleGrunt:
-                    return "Poison - Male Grunt";
-                case InvasionGruntType.PsychicFemaleGrunt:
-                    return "Psychic - Female Grunt";
-                case InvasionGruntType.PsychicMaleGrunt:
-                    return "Psychic - Male Grunt";
-                case InvasionGruntType.RockFemaleGrunt:
-                    return "Rock - Female Grunt";
-                case InvasionGruntType.RockMaleGrunt:
-                    return "Rock - Male Grunt";
-                case InvasionGruntType.WaterFemaleGrunt:
-                    return "Water - Female Grunt";
-                case InvasionGruntType.WaterMaleGrunt:
-                    return "Water - Male Grunt";
-                case InvasionGruntType.PlayerTeamLeader:
-                    return "Player Team Leader";
-                default:
-                    return gruntType.ToString();
-            }
         }
 
         public DiscordEmbed GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
@@ -217,32 +133,6 @@
 
         #endregion
 
-        public static string GetGruntLeaderString(InvasionGruntType gruntType)
-        {
-            switch (gruntType)
-            {
-                case InvasionGruntType.Blanche:
-                case InvasionGruntType.Candela:
-                case InvasionGruntType.Spark:
-                    return Convert.ToString(gruntType);
-                case InvasionGruntType.ExecutiveArlo:
-                    return "Executive Arlo";
-                case InvasionGruntType.ExecutiveCliff:
-                    return "Executive Cliff";
-                case InvasionGruntType.ExecutiveSierra:
-                    return "Executive Sierra";
-                case InvasionGruntType.Giovanni:
-                    return "Giovanni or Decoy";
-                case InvasionGruntType.DecoyFemale:
-                case InvasionGruntType.DecoyMale:
-                    return "Decoy";
-                case InvasionGruntType.PlayerTeamLeader:
-                    return "Player Team Leader";
-                default:
-                    return "Tier II";
-            }
-        }
-
         #region Private Methods
 
         private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, WhConfig whConfig, string city)
@@ -272,7 +162,7 @@
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
-            var leaderString = GetGruntLeaderString(GruntType);
+            var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));
             var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? Commands.Notifications.GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
             var invasionTypeEmoji = pokemonType == PokemonType.None
                 ? leaderString
@@ -322,70 +212,61 @@
         #endregion
     }
 
-    public class TeamRocketInvasion
-    {
-        [JsonProperty("type")]
-        public string Type { get; set; }
-
-        [JsonProperty("grunt")]
-        public string Grunt { get; set; }
-
-        [JsonProperty("second_reward")]
-        public bool SecondReward { get; set; }
-
-        [JsonIgnore]
-        public bool HasEncounter
-        {
-            get
-            {
-                return Encounters?.First?.Count > 0 || Encounters?.Second?.Count > 0 || Encounters?.Third?.Count > 0;
-            }
-        }
-
-        [JsonProperty("encounters")]
-        public TeamRocketEncounters Encounters { get; set; }
-
-        public TeamRocketInvasion()
-        {
-            Encounters = new TeamRocketEncounters();
-        }
-    }
-
-    public class TeamRocketEncounters
-    {
-        [JsonProperty("first")]
-        public List<string> First { get; set; }
-
-        [JsonProperty("second")]
-        public List<string> Second { get; set; }
-
-        [JsonProperty("third")]
-        public List<string> Third { get; set; }
-
-        public TeamRocketEncounters()
-        {
-            First = new List<string>();
-            Second = new List<string>();
-            Third = new List<string>();
-        }
-    }
-
+    /// <summary>
+    /// Pokestop lure type
+    /// </summary>
     public enum PokestopLureType
     {
+        /// <summary>
+        /// No Pokestop lure deployed
+        /// </summary>
         None = 0,
+
+        /// <summary>
+        /// Normal Pokestop lure deployed
+        /// </summary>
         Normal = 501,
+
+        /// <summary>
+        /// Glacial Pokestop lure deployed
+        /// </summary>
         Glacial = 502,
+
+        /// <summary>
+        /// Mossy Pokestop lure deployed
+        /// </summary>
         Mossy = 503,
+
+        /// <summary>
+        /// Magnetic Pokestop lure deployed
+        /// </summary>
         Magnetic = 504
     }
 
+    /// <summary>
+    /// Pokestop display type
+    /// </summary>
     public enum PokestopDisplay
     {
+        /// <summary>
+        /// Normal Pokestop
+        /// </summary>
         Normal = 0,
+
+        /// <summary>
+        /// Team Rocket Invasion Pokestop
+        /// </summary>
         RocketInvasion,
+
+        /// <summary>
+        /// Team Rocket victory Pokestop
+        /// </summary>
         RocketVictory
     }
 
+    /// <summary>
+    /// Team Rocket Invasion grunt type
+    /// </summary>
     public enum InvasionGruntType
     {
         Unset = 0,

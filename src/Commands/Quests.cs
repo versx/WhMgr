@@ -11,6 +11,7 @@
 
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
 
     public class Quests
     {
@@ -67,7 +68,7 @@
 
                 messages = await channel.GetMessagesAsync();
             }
-            await ctx.RespondEmbed(_dep.Language.Translate("CHANNEL_MESSAGES_DELETED").FormatText(ctx.User.Username, channel.Mention));
+            await ctx.RespondEmbed(Translator.Instance.Translate("CHANNEL_MESSAGES_DELETED").FormatText(ctx.User.Username, channel.Mention));
         }
     }
 }

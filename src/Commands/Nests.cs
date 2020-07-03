@@ -19,6 +19,7 @@
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
     using WhMgr.Geofence;
     using WhMgr.Net.Models;
     using WhMgr.Utilities;
@@ -43,7 +44,7 @@
         {
             if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 
@@ -52,7 +53,7 @@
             var channel = await ctx.Client.GetChannelAsync(channelId);
             if (channel == null)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NESTS_DISABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_DISABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
@@ -68,7 +69,7 @@
             var nests = GetNests(_dep.WhConfig.Database.Nests.ToString());
             if (nests == null)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username));
                 return;
             }
 
@@ -112,7 +113,7 @@
             {
                 Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alertMessage.Url, properties),
-                ImageUrl = DynamicReplacementEngine.ReplaceText(alertMessage.ImageUrl, properties),//Utils.PrepareStaticMapUrl(_dep.WhConfig.Urls.StaticMap, pokemonImageUrl, nest.Latitude, nest.Longitude, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault()),
+                ImageUrl = DynamicReplacementEngine.ReplaceText(alertMessage.ImageUrl, properties),
                 ThumbnailUrl = pokemonImageUrl,
                 Description = DynamicReplacementEngine.ReplaceText(alertMessage.Content, properties),
                 Color = DiscordColor.Green,
@@ -188,7 +189,7 @@
             var pokeId = pokemon.PokemonIdFromName();
             if (pokeId == 0)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("NOTIFY_INVALID_POKEMON_ID_OR_NAME").FormatText(ctx.User.Username, pokemon), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID_OR_NAME").FormatText(ctx.User.Username, pokemon), DiscordColor.Red);
                 return;
             }
 
@@ -207,7 +208,7 @@
             var nests = GetNestsByPokemon(_dep.WhConfig.Database.Nests.ToString())?.Where(x => x.Key == pokeId);
             if (nests == null)
             {
-                await ctx.RespondEmbed(_dep.Language.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 

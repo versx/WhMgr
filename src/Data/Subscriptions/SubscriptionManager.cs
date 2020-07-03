@@ -288,6 +288,7 @@
             return false;
         }
 
+        /*
         private bool DropDefaultTables()
         {
             _logger.Trace($"SubscriptionManager::CreateDefaultTables");
@@ -315,6 +316,7 @@
             }
             return false;
         }
+        */
 
         private System.Data.IDbConnection GetConnection()
         {
