@@ -34,6 +34,7 @@ echo "Copying example files..."
 xcopy /s /e %prjDir%\examples\Alerts\* %binDir%\Alerts\
 xcopy /s /e %prjDir%\examples\Filters\* %binDir%\Filters\
 xcopy /s /e %prjDir%\examples\Geofences\* %binDir%\Geofences\
+xcopy /s /e %prjDir%\examples\Templates\* %binDir%\Templates\
 xcopy /s /e %prjDir%\static\* %binDir%\static\
 xcopy %prjDir%\alarms.example.json %binDir%\alarms.json*
 xcopy %prjDir%\config.example.json %binDir%\config.json*
