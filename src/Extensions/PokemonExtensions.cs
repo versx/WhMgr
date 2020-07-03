@@ -1065,14 +1065,14 @@
         public static string GetRaidEggIcon(this RaidData raid, WhConfig whConfig, string style)
         {
             var iconStyleUrl = whConfig.IconStyles[style];
-            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "eggs/" : iconStyleUrl;
-            return $"{url}/eggs/{raid.Level}.png";
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "eggs" : $"{iconStyleUrl}/eggs";
+            return $"{url}/{raid.Level}.png";
         }
 
         public static string GetQuestIcon(this QuestData quest, WhConfig whConfig, string style)
         {
             var iconStyleUrl = whConfig.IconStyles[style];
-            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards/" : $"{iconStyleUrl}/rewards";
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards" : $"{iconStyleUrl}/rewards";
             switch (quest.Rewards?[0].Type)
             {
                 case QuestRewardType.Candy:
@@ -1095,7 +1095,7 @@
         public static string GetLureIcon(this PokestopData pokestop, WhConfig whConfig, string style)
         {
             var iconStyleUrl = whConfig.IconStyles[style];
-            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards/" : $"{iconStyleUrl}/rewards";
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards" : $"{iconStyleUrl}/rewards";
             return $"{url}/reward_{Convert.ToInt32(pokestop.LureType)}_1.png";
         }
 
