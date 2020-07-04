@@ -272,7 +272,7 @@
             switch (quest.Rewards?[0].Type)
             {
                 case QuestRewardType.Candy:
-                    return $"{url}/reward_1301_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
+                    return $"{url}/reward_{Convert.ToInt32(ItemId.Rare_Candy)}_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
                 case QuestRewardType.Item:
                     return $"{url}/reward_{(int)quest.Rewards?[0].Info.Item}_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
                 case QuestRewardType.PokemonEncounter:
