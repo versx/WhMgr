@@ -283,6 +283,16 @@
                             return NoEvolve;
                         case 894: //Fall
                             return "Fall";
+                        case 901: //VS 2019
+                            return "VS 2019";
+                        case 949: //Clone
+                            return "Clone";
+                        case 969: //Shadow
+                            return Shadow;
+                        case 970: //Purified
+                            return Purified;
+                        case 2332:
+                            return "Costume 2020";
                     }
                     break;
                 case 26: //Raichu
