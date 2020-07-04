@@ -274,7 +274,7 @@
                 case QuestRewardType.Candy:
                     return $"{url}/reward_1301_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
                 case QuestRewardType.Item:
-                    return $"{url}/reward_{(int)quest.Rewards?[0].Info.Item}.png";
+                    return $"{url}/reward_{(int)quest.Rewards?[0].Info.Item}_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
                 case QuestRewardType.PokemonEncounter:
                     return (quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId).GetPokemonIcon(quest.Rewards?[0].Info.FormId ?? 0, quest.Rewards?[0].Info.CostumeId ?? 0, whConfig, style);
                 case QuestRewardType.Stardust:
