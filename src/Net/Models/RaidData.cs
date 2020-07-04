@@ -14,6 +14,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
     using WhMgr.Utilities;
 
     /// <summary>
@@ -161,8 +162,8 @@
             var form = Form.GetPokemonForm();
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
-            var move1 = MasterFile.Instance.Movesets.ContainsKey(FastMove) ? MasterFile.Instance.Movesets[FastMove].Name : string.Empty;
-            var move2 = MasterFile.Instance.Movesets.ContainsKey(ChargeMove) ? MasterFile.Instance.Movesets[ChargeMove].Name : string.Empty;
+            var move1 = Translator.Instance.Translate("move_" + FastMove);// MasterFile.Instance.Movesets.ContainsKey(FastMove) ? MasterFile.Instance.Movesets[FastMove].Name : string.Empty;
+            var move2 = Translator.Instance.Translate("move_" + ChargeMove);//MasterFile.Instance.Movesets.ContainsKey(ChargeMove) ? MasterFile.Instance.Movesets[ChargeMove].Name : string.Empty;
             var types = pkmnInfo?.Types;
             var type1 = types?[0];
             var type2 = types?.Count > 1 ? types?[1] : PokemonType.None;

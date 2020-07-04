@@ -8,7 +8,7 @@
         /// <summary>
         /// Logs that contain the most detailed messages. These messages may contain sensitive application data. These messages are disabled by default and should never be enabled in a production environment.
         /// </summary>
-        Trace,
+        Trace = 0,
 
         /// <summary>
         /// Logs that are used for interactive investigation during development. These logs should primarily contain information useful for debugging and have no long-term value.

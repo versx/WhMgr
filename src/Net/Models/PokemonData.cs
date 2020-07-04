@@ -19,6 +19,7 @@
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
     using WhMgr.Utilities;
 
     /// <summary>
@@ -426,13 +427,13 @@
             var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && Weather != WeatherType.None ? (Weather ?? WeatherType.None).GetWeatherEmojiIcon() : string.Empty;
             var move1 = "Unknown";
             var move2 = "Unknown";
-            if (int.TryParse(FastMove, out var fastMoveId) && MasterFile.Instance.Movesets.ContainsKey(fastMoveId))
+            if (int.TryParse(FastMove, out var fastMoveId))// && MasterFile.Instance.Movesets.ContainsKey(fastMoveId))
             {
-                move1 = MasterFile.Instance.Movesets[fastMoveId].Name;
+                move1 = Translator.Instance.Translate("move_" + fastMoveId);//MasterFile.Instance.Movesets[fastMoveId].Name;
             }
-            if (int.TryParse(ChargeMove, out var chargeMoveId) && MasterFile.Instance.Movesets.ContainsKey(chargeMoveId))
+            if (int.TryParse(ChargeMove, out var chargeMoveId))// && MasterFile.Instance.Movesets.ContainsKey(chargeMoveId))
             {
-                move2 = MasterFile.Instance.Movesets[chargeMoveId].Name;
+                move2 = Translator.Instance.Translate("move_" + chargeMoveId);//MasterFile.Instance.Movesets[chargeMoveId].Name;
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;

@@ -26,8 +26,8 @@
         [JsonProperty("pokemon")]
         public IReadOnlyDictionary<int, PokedexPokemon> Pokedex { get; set; }
 
-        [JsonProperty("moves")]
-        public IReadOnlyDictionary<int, Moveset> Movesets { get; set; }
+        //[JsonProperty("moves")]
+        //public IReadOnlyDictionary<int, Moveset> Movesets { get; set; }
 
         [JsonProperty("items")]
         public IReadOnlyDictionary<string, string> ItemsText { get; set; }
