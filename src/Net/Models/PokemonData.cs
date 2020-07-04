@@ -413,8 +413,6 @@
 
         private async Task<IReadOnlyDictionary<string, string>> GetProperties(WhConfig whConfig, string city, string pokemonImageUrl)
         {
-            //TODO: Check whConfig.Servers[guildId]
-
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
             var form = Id.GetPokemonForm(FormId.ToString());
             var costume = Id.GetCostume(Costume.ToString());

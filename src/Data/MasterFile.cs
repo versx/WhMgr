@@ -5,6 +5,7 @@
     using System.IO;
 
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
 
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
@@ -16,6 +17,7 @@
         const string CpMultipliersFileName = "cpMultipliers.json";
         const string GruntTypesFileName = "grunttype.json";
         const string TypesFileName = "types.json";
+        const string RarityFileName = "rarity.json";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");
 
@@ -60,6 +62,8 @@
         [JsonIgnore]
         public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }
 
+        public IReadOnlyDictionary<PokemonRarity, List<int>> PokemonRarity { get; set; }
+
         #region Singletons
 
         private static MasterFile _instance;
@@ -85,6 +89,7 @@
             CpMultipliers = LoadInit<Dictionary<double, double>>(Path.Combine(Strings.DataFolder, CpMultipliersFileName));
             GruntTypes = LoadInit<Dictionary<InvasionGruntType, TeamRocketInvasion>>(Path.Combine(Strings.DataFolder, GruntTypesFileName));
             PokemonTypes = LoadInit<Dictionary<PokemonType, PokemonTypes>>(Path.Combine(Strings.DataFolder, TypesFileName));
+            PokemonRarity = LoadInit<Dictionary<PokemonRarity, List<int>>>(Path.Combine(Strings.DataFolder, RarityFileName));
             Emojis = new Dictionary<string, ulong>();
         }
 
@@ -137,5 +142,12 @@
         public string Name { get; set; }
 
         public ulong Id { get; set; }
+    }
+
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum PokemonRarity
+    {
+        Common,
+        Rare
     }
 }
