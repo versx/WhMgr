@@ -135,7 +135,7 @@
         private void DefaultLogHandler(LogLevel level, string message)
         {
             // Only log event logs that are higher or equal priority that the log level set
-            if (!(Level >= level))
+            if (Level > level)
                 return;
 
             var msg = $"{DateTime.Now.ToShortTimeString()} [{level.ToString().ToUpper()}] [{Name.ToUpper()}] {message}";
