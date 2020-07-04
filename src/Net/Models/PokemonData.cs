@@ -422,8 +422,8 @@
             var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherType.None);
             var weatherKey = $"weather_{Convert.ToInt32(Weather ?? WeatherType.None)}";
             var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && Weather != WeatherType.None ? (Weather ?? WeatherType.None).GetWeatherEmojiIcon() : string.Empty;
-            var move1 = string.Empty;
-            var move2 = string.Empty;
+            var move1 = "Unknown";
+            var move2 = "Unknown";
             if (int.TryParse(FastMove, out var fastMoveId) && MasterFile.Instance.Movesets.ContainsKey(fastMoveId))
             {
                 move1 = MasterFile.Instance.Movesets[fastMoveId].Name;
