@@ -57,13 +57,10 @@
                 return;
             }
 
-            if (true) //TODO: Config ClearMessages
+            var deleted = await ctx.Client.DeleteMessages(channelId);
+            if (deleted.Item2 == 0)
             {
-                var deleted = await ctx.Client.DeleteMessages(channelId);
-                if (deleted.Item2 == 0)
-                {
-                    _logger.Warn($"Failed to delete messages in channel: {channelId}");
-                }
+                _logger.Warn($"Failed to delete messages in channel: {channelId}");
             }
 
             var nests = GetNests(_dep.WhConfig.Database.Nests.ToString());

@@ -1,9 +1,10 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
+    using System.Collections.Generic;
+
     using ServiceStack.DataAnnotations;
 
     using Newtonsoft.Json;
-    using System.Collections.Generic;
 
     [
         JsonObject("pokemon"),
@@ -40,7 +41,7 @@
 
         [
             JsonProperty("min_iv"),
-            Alias("miv_iv")
+            Alias("min_iv")
         ]
         public int MinimumIV { get; set; }
 

@@ -32,6 +32,7 @@
     // TODO: Separate subscriptions dts
     // TODO: Specific timezone per Discord
     // TODO: Account status alarms
+    // TODO: Finish localization
 
     public class Bot
     {
@@ -462,7 +463,6 @@
             _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
 
             var pokemon = e.Data;
-            var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
             var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude));
             if (loc == null)
             {
@@ -479,17 +479,13 @@
             try
             {
                 var server = _whConfig.Servers[e.GuildId];
-                var form = pokemon.Id.GetPokemonForm(pokemon.FormId.ToString());
-                var pkmnImage = pokemon.Id.GetPokemonIcon(pokemon.FormId, pokemon.Costume, _whConfig, server.IconStyle);
-
                 var client = _servers[e.GuildId];
-                var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
-                var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIcon()}{form}";
+                var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = name,
-                    AvatarUrl = pkmnImage,
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username,
+                    AvatarUrl = eb.IconUrl,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 Statistics.Instance.PokemonAlarmsSent++;
@@ -529,20 +525,13 @@
             try
             {
                 var server = _whConfig.Servers[e.GuildId];
-                var pkmn = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
-                var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
-                var pkmnImage = raid.IsEgg ? 
-                    raid.GetRaidEggIcon(_whConfig, server.IconStyle) :
-                    raid.PokemonId.GetPokemonIcon(raid.Form, 0, _whConfig, server.IconStyle);
-
                 var client = _servers[e.GuildId];
-                var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
-                var name = raid.IsEgg ? $"Level {raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
+                var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = name,
-                    AvatarUrl = pkmnImage,
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username,
+                    AvatarUrl = eb.IconUrl,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 if (raid.IsEgg)
@@ -617,29 +606,15 @@
             if (!_whConfig.Servers.ContainsKey(e.GuildId))
                 return;
 
-            string icon;
-            if (pokestop.HasInvasion)
-            {
-                icon = pokestop.GetInvasionIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle);
-            }
-            else if (pokestop.HasLure)
-            {
-                icon = pokestop.GetLureIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle);
-            }
-            else
-            {
-                icon = pokestop.Url;
-            }
-
             try
             {
                 var client = _servers[e.GuildId];
                 var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = pokestop.Name ?? "Unknown Pokestop",
-                    AvatarUrl = icon,
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username ?? Translator.Instance.Translate("UNKNOWN_POKESTOP"),
+                    AvatarUrl = eb.IconUrl,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 if (pokestop.HasInvasion)
@@ -701,16 +676,15 @@
                 var name = gymDetails.GymName;
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = name,
-                    AvatarUrl = gymDetails.Url,
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username,
+                    AvatarUrl = eb.IconUrl,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 Statistics.Instance.GymAlarmsSent++;
                 _gyms[gymDetails.GymId] = gymDetails;
 
-                //Statistics.Instance.PokemonSent++;
-                //Statistics.Instance.IncrementPokemonStats(pokemon.Id);
+                Statistics.Instance.GymAlarmsSent++;
             }
             catch (Exception ex)
             {
@@ -742,13 +716,12 @@
             try
             {
                 var client = _servers[e.GuildId];
-                var weatherImageUrl = weather.GetWeatherIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle);
-                var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name, weatherImageUrl);
+                var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = "Weather",
-                    AvatarUrl = weatherImageUrl,
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username,
+                    AvatarUrl = eb.IconUrl,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
 

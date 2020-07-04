@@ -28,6 +28,8 @@
     "NOTIFY_INVALID_GENDER": "{0} {1} is not a valid gender. (i.e. `m`, `f`, `*`)",
     "NOTIFY_INVALID_LEVEL": "{0} {1} must be within the range of `0-35`.",
     "NOTIFY_INVALID_MINIMUM_IV": "{0} may not subscribe to **all** Pokemon with a minimum IV less than 90, please set something higher.",
+	"NOTIFY_INVALID_MINIMUM_LEVEL": "{0} Failed to parse minimum level provided '{1}'.",
+	"NOTIFY_INVALID_MAXIMUM_LEVEL": "{0} Failed to parse maximum level provided '{1}'.",
     "NOTIFY_INVALID_POKEMON_IDS_OR_NAMES": "{0} {1} are not valid Pokemon names or IDs.",
     "NOTIFY_INVALID_POKEMON_ID_OR_NAME": "{0} {1} are not valid Pokemon name or ID.",
     "NOTIFY_INVALID_POKEMON_ID": "{0} {1} is not a valid Pokemon id.",
@@ -99,6 +101,7 @@
     "FEEDS_ASSIGNED_ROLES_ALREADY": "\r\n{0} is already assigned to role(s) **{1}**.",
     "FEEDS_UNASSIGNED_ROLES": "{0} has been removed from role(s) **{1}**.",
     "FEEDS_UNASSIGNED_ROLES_ALREADY": "\r\n{0} is not assigned to role(s) **{1}**.",
+	"FEEDS_PLEASE_WAIT": "{0} Please wait while I assign all city roles, this may take a couple of minutes depending on the amount of cities.",
 
     "CHANNEL_MESSAGES_DELETED": "{0} Channel {1} messages have been deleted.",
     
@@ -150,6 +153,8 @@
     "EVENT_POKEMON_SET": "{0} event Pokemon set to `{1}`, feeds will adjust to only show in channels that are 90% or higher.",
     "EVENT_POKEMON_ADD": "{0} event Pokemon added to `{1}`, feeds will adjust to only show in channels that are 90% or higher.",
     "EVENT_POKEMON_REMOVE": "{0} event Pokemon `{1}` removed.",
+	
+	"DIRECT_MESSAGE_NOT_SUPPORTED": "{0} Direct message is not supported for this command.",
     
     "quest_1": "{0} time(s) First Catch OTD",
     "quest_2": "{0} time(s) First Pokestop OTD",

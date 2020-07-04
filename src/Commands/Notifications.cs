@@ -255,12 +255,12 @@
                 var split = lvl.Split('-');
                 if (!int.TryParse(split[0], out minLevel))
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Username} Failed to parse minimum level provided '{split[0]}'.", DiscordColor.Red); // TODO Localize
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_LEVEL", ctx.User.Username, split[0]), DiscordColor.Red);
                     return;
                 }
                 if (!int.TryParse(split[1], out maxLevel))
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Username} Failed to parse maximum level provided '{split[1]}'.", DiscordColor.Red); // TODO Localize
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MAXIMUM_LEVEL", ctx.User.Username, split[1]), DiscordColor.Red);
                     return;
                 }
             }
@@ -268,7 +268,7 @@
             {
                 if (!int.TryParse(lvl, out minLevel))
                 {
-                    await ctx.RespondEmbed($"{ctx.User.Username} Failed to parse minimum level provided '{lvl}'.", DiscordColor.Red); // TODO Localize
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_LEVEL", ctx.User.Username, lvl), DiscordColor.Red);
                     return;
                 }
             }

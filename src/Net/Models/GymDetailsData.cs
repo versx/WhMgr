@@ -53,7 +53,7 @@
 
         #endregion
 
-        public DiscordEmbed GenerateGymMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, GymDetailsData oldGym, string city)
+        public DiscordEmbedNotification GenerateGymMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, GymDetailsData oldGym, string city)
         {
             var alertType = AlertMessageType.Gyms;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
@@ -77,7 +77,9 @@
                     IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
                 }
             };
-            return eb.Build();
+            var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
+            var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
+            return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
         }
 
         private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, GymDetailsData oldGym)

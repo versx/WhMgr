@@ -144,21 +144,10 @@
                 await ctx.TriggerTypingAsync();
             }
 
-            // TODO: Fix translator
-            Translator lang = null;
-            try
-            {
-                lang = ctx.Dependencies.GetDependency<Translator>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: {0}", ex);
-            }
-            var message = lang != null ? 
-                    lang.Translate("DONATE_MESSAGE").FormatText(ctx.User.Username) :
-                    $"{ctx.User.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
-                    $"Donation information can be found by typing the `$donate` command.\r\n\r\n" +
-                    $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
+            var message = Translator.Instance.Translate("DONATE_MESSAGE", ctx.User.Username) ??
+                $"{ctx.User.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
+                $"Donation information can be found by typing the `$donate` command.\r\n\r\n" +
+                $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
             var eb = await ctx.RespondEmbed(message);
             return eb.FirstOrDefault();
         }
@@ -167,8 +156,7 @@
         {
             if (message?.Channel?.Guild == null)
             {
-                //TODO: Localize
-                await message.RespondEmbed($"{message.Author.Mention} Direct message is not supported for this command.", DiscordColor.Yellow);
+                await message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", message.Author.Username), DiscordColor.Yellow);
                 return false;
             }
 

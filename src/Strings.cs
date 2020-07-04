@@ -18,7 +18,7 @@
 
         public const string GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
-        public const string WazeMaps = "https://www.waze.com/ul?ll={0},{1}&navigate=yes";
+        public const string WazeMaps = "https://waze.com/ul?ll={0},{1}&navigate=yes";
 
         public const string GeofenceFolder = "Geofences";
         public const string AlertsFolder = "Alerts";
@@ -46,6 +46,7 @@
 
         public static readonly List<string> ValidGenders = new List<string> { "*", "m", "f" };
 
+        // Default filter settings for alarms and subscriptions
         public const int MinimumIV = 0;
         public const int MaximumIV = 100;
         public const int MinimumLevel = 0;

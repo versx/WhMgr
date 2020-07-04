@@ -105,9 +105,6 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, string questRewardImageUrl)
         {
-            //TODO: Check whConfig.Servers[guildId]
-
-            //var server = whConfig.Servers[guildId];
             var questMessage = this.GetQuestMessage();
             var questConditions = this.GetConditions();
             var questReward = this.GetReward();

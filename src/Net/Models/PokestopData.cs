@@ -102,7 +102,7 @@
             InvasionExpireTime = IncidentExpire.FromUnix();
         }
 
-        public DiscordEmbed GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
@@ -128,7 +128,9 @@
                     IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
                 }
             };
-            return eb.Build();
+            var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
+            var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
+            return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
         }
 
         #endregion
@@ -137,25 +139,14 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, WhConfig whConfig, string city)
         {
-            string icon;
-            if (HasInvasion)
-            {
-                icon = this.GetInvasionIcon(whConfig, whConfig.Servers[guildId].IconStyle);
-            }
-            else if (HasLure)
-            {
-                icon = this.GetLureIcon(whConfig, whConfig.Servers[guildId].IconStyle);
-            }
-            else
-            {
-                icon = Url;
-            }
-
+            var lureImageUrl = this.GetLureIcon(whConfig, whConfig.Servers[guildId].IconStyle);
+            var invasionImageUrl = this.GetInvasionIcon(whConfig, whConfig.Servers[guildId].IconStyle);
+            var imageUrl = HasInvasion ? invasionImageUrl : HasLure ? lureImageUrl : Url;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, HasInvasion ? whConfig.StaticMaps.InvasionsTemplateFile : HasLure ? whConfig.StaticMaps.LuresTemplateFile : whConfig.StaticMaps.LuresTemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, Latitude, Longitude, icon);
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, Latitude, Longitude, imageUrl);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
@@ -201,6 +192,8 @@
                 { "pokestop_id", PokestopId ?? defaultMissingValue },
                 { "pokestop_name", Name ?? defaultMissingValue },
                 { "pokestop_url", Url ?? defaultMissingValue },
+                { "lure_img_url", lureImageUrl },
+                { "invasion_img_url", invasionImageUrl },
 
                 //Misc properties
                 { "br", "\r\n" }

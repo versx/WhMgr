@@ -189,10 +189,13 @@
                         ))
                         continue;
 
-                    var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
-                    var pkmnImage = pkmn.Id.GetPokemonIcon(pkmn.FormId, pkmn.Costume, _whConfig, iconStyle);
-                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name, pkmnImage);
-                    _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
+                    //var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
+                    //var pkmnImage = pkmn.Id.GetPokemonIcon(pkmn.FormId, pkmn.Costume, _whConfig, iconStyle);
+                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name));
+                    }
 
                     Statistics.Instance.SubscriptionPokemonSent++;
                     Thread.Sleep(5);
@@ -323,10 +326,13 @@
                     if (!(matchesGreat || matchesUltra))
                         continue;
 
-                    var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
-                    var pkmnImage = pkmn.Id.GetPokemonIcon(pkmn.FormId, pkmn.Costume, _whConfig, iconStyle);
-                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name, pkmnImage);
-                    _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
+                    //var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
+                    //var pkmnImage = pkmn.Id.GetPokemonIcon(pkmn.FormId, pkmn.Costume, _whConfig, iconStyle);
+                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name));
+                    }
 
                     Statistics.Instance.SubscriptionPokemonSent++;
                     Thread.Sleep(5);
@@ -440,10 +446,12 @@
                         continue;
                     }
 
-                    var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
-                    var raidImage = raid.PokemonId.GetPokemonIcon(raid.Form, 0, _whConfig, iconStyle);
-                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name, raidImage);
-                    _queue.Enqueue(new NotificationItem(user, member, embed, pokemon.Name));
+                    //var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
+                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name));
+                    }
 
                     Statistics.Instance.SubscriptionRaidsSent++;
                     Thread.Sleep(5);
@@ -645,7 +653,10 @@
                     }
 
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
-                    _queue.Enqueue(new NotificationItem(user, member, embed, pokestop.Name));
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name));
+                    }
 
                     Statistics.Instance.SubscriptionInvasionsSent++;
                     Thread.Sleep(5);

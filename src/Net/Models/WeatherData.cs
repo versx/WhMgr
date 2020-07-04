@@ -108,10 +108,12 @@
             //}
         }
 
-        public DiscordEmbed GenerateWeatherMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string weatherImageUrl)
+        public DiscordEmbedNotification GenerateWeatherMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var alertType = AlertMessageType.Weather;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
+            var server = whConfig.Servers[guildId];
+            var weatherImageUrl = this.GetWeatherIcon(whConfig, server.IconStyle);
             var properties = GetProperties(whConfig, city, weatherImageUrl);
             var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
@@ -129,7 +131,9 @@
                     IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
                 }
             };
-            return eb.Build();
+            var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
+            var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
+            return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
         }
 
         private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, string weatherImageUrl)
@@ -141,7 +145,6 @@
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            // TODO: Create separate static maps for each model type
             var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.WeatherTemplateFile);
             var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap.Replace("/15/", "/11/"), Latitude, Longitude, weatherImageUrl);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);

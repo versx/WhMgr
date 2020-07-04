@@ -125,10 +125,14 @@
             EndTime = End.FromUnix();
         }
 
-        public DiscordEmbed GenerateRaidMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string raidImageUrl)
+        public DiscordEmbedNotification GenerateRaidMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)//, string raidImageUrl)
         {
             var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
+            var server = whConfig.Servers[guildId];
+            var raidImageUrl = IsEgg ?
+                this.GetRaidEggIcon(whConfig, server.IconStyle) :
+                PokemonId.GetPokemonIcon(Form, 0, whConfig, server.IconStyle);
             var properties = GetProperties(whConfig, city, raidImageUrl);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
@@ -146,7 +150,9 @@
                     IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
                 }
             };
-            return eb.Build();
+            var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
+            var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
+            return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
         }
 
         private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, string raidImageUrl)

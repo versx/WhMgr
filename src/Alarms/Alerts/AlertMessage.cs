@@ -34,9 +34,9 @@
             {
                 AlertMessageType.Gyms, new AlertMessageSettings
                 {
-                    AvatarUrl = "",
+                    AvatarUrl = "<gym_img_url>",
                     Content = "<#team_changed>Gym changed from <old_gym_team_emoji> <old_gym_team> to <gym_team_emoji> <gym_team><br></team_changed><#in_battle>Gym is under attack!<br></in_battle>**Slots Available:** <slots_available><br><#is_ex><ex_gym_emoji> Gym!</is_ex>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)] [[Waze Maps](<wazemaps_url>)]**",
-                    IconUrl = "",
+                    IconUrl = "<gym_img_url>",
                     Title = "<geofence>: <gym_name>",
                     Url = "<gmaps_url>",
                     Username = "<gym_name>",
@@ -47,7 +47,6 @@
                 AlertMessageType.Raids, new AlertMessageSettings
                 {
                     AvatarUrl = "<pkmn_img_url>",
-                    //Content = "<pkmn_name> Raid Ends: <end_time><br>**Started:** <start_time><br>**Ends:** <end_time> (<end_time_left> left)<br>**Perfect CP:** <perfect_cp> / :white_sun_rain_cloud: <perfect_cp_boosted><br>**Worst CP:** <worst_cp> / :white_sun_rain_cloud: <worst_cp_boosted><br>**Types:** <types_emoji> | **Level:** <lvl><br>**Moveset:** <moveset><br>**Weaknesses:** <weaknesses_emoji><br>**Team:** <team_emoji><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)]**",
                     Content = "<pkmn_name> Raid Ends: <end_time> (<end_time_left> left)<br>**Perfect CP:** <perfect_cp> / :white_sun_rain_cloud: <perfect_cp_boosted><br>**Worst CP:** <worst_cp> / :white_sun_rain_cloud: <worst_cp_boosted><br>**Types:** <types_emoji> | **Level:** <lvl> | **Team:** <team_emoji><br>**Moveset:** <moveset><br>**Weaknesses:** <weaknesses_emoji><br><#is_ex><ex_emoji> Gym!<br></is_ex>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)] [[Waze Maps](<wazemaps_url>)]**",
                     IconUrl = "<pkmn_img_url>",
                     Title = "<geofence>: <gym_name>",
@@ -71,9 +70,9 @@
             {
                 AlertMessageType.Pokestops, new AlertMessageSettings
                 {
-                    AvatarUrl = "",
+                    AvatarUrl = "<pokestop_url>",
                     Content = "<#has_lure>**Lure Expires** <lure_expire_time> (<lure_expire_time_left> left)<br>**Lure Type:** <lure_type><br></has_lure><#has_invasion>**Expires:** <invasion_expire_time> (<invasion_expire_time_left> left)<br>**Type:** <grunt_type_emoji> | **Gender:** <grunt_gender><br><invasion_encounters><br></has_invasion>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)] [[Waze Maps](<wazemaps_url>)]**",
-                    IconUrl = "",
+                    IconUrl = "<pokestop_url>",
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",
                     Username = "<pokestop_name>",
@@ -95,7 +94,7 @@
             {
                 AlertMessageType.Invasions, new AlertMessageSettings
                 {
-                    AvatarUrl = "", //TODO: Invasions IconUrl
+                    AvatarUrl = "<invasion_img_url>",
                     Content = "<#has_invasion>**Expires:** <invasion_expire_time> (<invasion_expire_time_left> left)<br>**Type:** <grunt_type_emoji> | **Gender:** <grunt_gender><br><invasion_encounters><br></has_invasion>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)] [[Waze Maps](<wazemaps_url>)]**",
                     IconUrl = "<pokestop_url>",
                     Title = "<geofence>: <pokestop_name>",
@@ -107,7 +106,7 @@
             {
                 AlertMessageType.Lures, new AlertMessageSettings
                 {
-                    AvatarUrl = "", //TODO: Lures IconUrl
+                    AvatarUrl = "<lure_img_url>",
                     Content = "<#has_lure>**Lure Expires:** <lure_expire_time> (<lure_expire_time_left> left)<br>**Lure Type:** <lure_type><br></has_lure>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)] [[Waze Maps](<wazemaps_url>)]**",
                     IconUrl = "<pokestop_url>",
                     Title = "<geofence>: <pokestop_name>",
@@ -133,7 +132,7 @@
                 {
                     AvatarUrl = "<weather_img_url>",
                     Content = "**Weather Condition:** <weather_condition><br>**Weather Cell ID:** #<id>",
-                    IconUrl = "",
+                    IconUrl = "<weather_img_url>",
                     Title = "<geofence>",
                     Url = "<gmaps_url>",
                     Username = "Weather",

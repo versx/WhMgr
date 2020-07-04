@@ -35,7 +35,7 @@
         /// </summary>
         [
             JsonProperty("user_id"),
-            Alias("userId"), // TODO: Eventually fix
+            Alias("user_id"),
             Required
         ]
         public virtual ulong UserId { get; set; }
