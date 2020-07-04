@@ -297,7 +297,7 @@
 
         #region Discord Events
 
-        private async Task Client_Ready(ReadyEventArgs e)
+        private Task Client_Ready(ReadyEventArgs e)
         {
             _logger.Info($"------------------------------------------");
             _logger.Info($"[DISCORD] Connected.");
@@ -311,14 +311,7 @@
             _logger.Info($"[DISCORD] Email: {e.Client.CurrentUser.Email}");
             _logger.Info($"------------------------------------------");
 
-            if (!(e.Client is DiscordClient client))
-            {
-                _logger.Error($"DiscordClient is null, Unable to update status.");
-                return;
-            }
-
-            // TODO: Make configurable Discord status, if null use version
-            await client.UpdateStatusAsync(new DiscordGame($"v{Strings.Version}"), UserStatus.Online);
+            return Task.CompletedTask;
         }
 
         private async Task Client_GuildAvailable(GuildCreateEventArgs e)
@@ -326,7 +319,21 @@
             // If guild is in configured servers list then attempt to create emojis needed
             if (_whConfig.Servers.ContainsKey(e.Guild.Id))
             {
+                // Create default emojis
                 await CreateEmojis(e.Guild.Id);
+
+                if (!(e.Client is DiscordClient client))
+                {
+                    _logger.Error($"DiscordClient is null, Unable to update status.");
+                    return;
+                }
+
+                // Set custom bot status if guild is in config server list
+                if (_whConfig.Servers.ContainsKey(e.Guild.Id))
+                {
+                    var status = _whConfig.Servers[e.Guild.Id].Status;
+                    await client.UpdateStatusAsync(new DiscordGame(status ?? $"v{Strings.Version}"), UserStatus.Online);
+                }
             }
         }
 

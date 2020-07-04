@@ -120,6 +120,12 @@
         public List<ulong> BotChannelIds { get; set; }
 
         /// <summary>
+        /// Gets or sets the Discord bot's custom status
+        /// </summary>
+        [JsonProperty("status")]
+        public string Status { get; set; }
+
+        /// <summary>
         /// Instantiate a new <see cref="DiscordServerConfig"/> class
         /// </summary>
         public DiscordServerConfig()

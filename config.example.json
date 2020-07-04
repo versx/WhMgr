@@ -38,7 +38,8 @@
       "iconStyle": "Default",
       "botChannelIds": [
         000000000000000000
-      ]
+      ],
+	  "status": null
     },
     "000000000000000002": {
       "commandPrefix": ".",
@@ -73,7 +74,8 @@
       "iconStyle": "Default",
       "botChannelIds": [
         000000000000000000
-      ]
+      ],
+	  "status": "Test #2"
     }
   },
   "database": {
