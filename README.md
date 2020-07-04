@@ -190,7 +190,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             "database": "manualdb"
         }
     },
-    // List of Pokemon IDs to treat as event and restrict postings and subscriptions to 90% IV or higher.
+    // List of Pokemon IDs to treat as event and restrict postings and subscriptions to 90% IV or higher. (Filled in automatically with `event set` command)  
     "eventPokemonIds": [
         129,
         456,
@@ -203,8 +203,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     },
     // Available icon styles
     "iconStyles": {
-        "Default": "https://cdn.example.com/images/original/monsters/{0:D3}_{1:D3}.png",
-        "Shuffle": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png"
+        "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
+        "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
     },
     // Log webhook payloads to a file for debugging
     "debug": false,

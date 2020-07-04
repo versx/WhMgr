@@ -108,8 +108,8 @@
     "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png"
   },
   "iconStyles": {
-    "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/new/",
-    "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/new/"
+    "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
+    "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
   },
   "staticMaps": {
       "pokemon": "pokemon.example.json",

@@ -278,7 +278,11 @@
                 case QuestRewardType.PokemonEncounter:
                     return (quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId).GetPokemonIcon(quest.Rewards?[0].Info.FormId ?? 0, quest.Rewards?[0].Info.CostumeId ?? 0, whConfig, style);
                 case QuestRewardType.Stardust:
-                    return $"{url}/reward_stardust_{quest.Rewards[0].Info.Amount}.png";
+                    if ((quest.Rewards[0]?.Info?.Amount ?? 0) > 0)
+                    {
+                        return $"{url}/reward_stardust_{quest.Rewards[0].Info.Amount}.png";
+                    }
+                    return $"{url}/reward_stardust.png";
                 case QuestRewardType.AvatarClothing:
                 case QuestRewardType.Experience:
                 case QuestRewardType.Quest:
