@@ -158,7 +158,7 @@
         private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, string raidImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
-            var form = PokemonId.GetPokemonForm(Form.ToString());
+            var form = Form.GetPokemonForm();
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
             var move1 = MasterFile.Instance.Movesets.ContainsKey(FastMove) ? MasterFile.Instance.Movesets[FastMove].Name : string.Empty;

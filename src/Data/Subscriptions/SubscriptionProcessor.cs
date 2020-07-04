@@ -165,7 +165,7 @@
                         }
                     }
 
-                    var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
+                    var form = pkmn.FormId.GetPokemonForm();
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
                         (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
@@ -302,7 +302,7 @@
                         }
                     }
 
-                    var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
+                    var form = pkmn.FormId.GetPokemonForm();
                     subscribedPokemon = user.PvP.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
                         (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
@@ -434,7 +434,7 @@
                         continue;
                     }
 
-                    var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
+                    var form = raid.Form.GetPokemonForm();
                     var exists = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
                         (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&

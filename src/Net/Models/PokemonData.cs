@@ -414,7 +414,7 @@
         private async Task<IReadOnlyDictionary<string, string>> GetProperties(WhConfig whConfig, string city, string pokemonImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
-            var form = Id.GetPokemonForm(FormId.ToString());
+            var form = FormId.GetPokemonForm();
             var costume = Id.GetCostume(Costume.ToString());
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
