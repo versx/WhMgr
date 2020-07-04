@@ -85,6 +85,7 @@
     "NOTIFY_SETTINGS_EMBED_POKEMON": "Pokemon Subscriptions: ({0}/{1} used)",
     "NOTIFY_SETTINGS_EMBED_PVP": "PvP Subscriptions: ({0}/{1} used)",
     "NOTIFY_SETTINGS_EMBED_RAIDS": "Raid Subscriptions: ({0}/{1} used)",
+    "NOTIFY_SETTINGS_EMBED_GYMS": "Gym Subscriptions: ({0}/{1} used)",
     "NOTIFY_SETTINGS_EMBED_QUESTS": "Quest Subscriptions: ({0}/{1} used)",
     "NOTIFY_SETTINGS_EMBED_INVASIONS": "Invasion Subscriptions: ({0}/{1} used)",
     

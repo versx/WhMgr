@@ -12,31 +12,8 @@
 
     public static class PokemonExtensions
     {
-        //private const string Alolan = "Alolan";
-        //private const string Armored = "Armored";
-        //private const string Shadow = "Shadow";
-        //private const string Purified = "Purified";
         private const string Normal = "";
-        //private const string Glasses = "Glasses";
         private const string NoEvolve = "No-Evolve";
-        //private const string Anniversary = "Anniversary";
-        //private const string Christmas = "Christmas";
-        //private const string Birthday = "Birthday";
-        //private const string Halloween = "Halloween";
-        //private const string Sunny = "Sunny";
-        //private const string Overcast = "Overcast";
-        //private const string Rainy = "Rainy";
-        //private const string Snowy = "Snowy";
-        //private const string Attack = "Attack";
-        //private const string Defense = "Defense";
-        //private const string Speed = "Speed";
-        //private const string Plant = "Plant";
-        //private const string Sandy = "Sandy";
-        //private const string Trash = "Trash";
-        //private const string Altered = "Altered";
-        //private const string Origin = "Origin";
-        //private const string WestSea = "West Sea";
-        //private const string EastSea = "East Sea";
 
         //private const string ExclaimationMark = "!";
         //private const string QuestionMark = "?";
@@ -69,6 +46,7 @@
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(minAtk * minAtk * minDef * minSta) / 10));
         }
 
+        /*
         public static int GetLevel(this int id, int cp, int atk, int def, int sta)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id))
@@ -93,6 +71,7 @@
             var cp = Math.Floor(attack * Math.Pow(defense, 0.5) * Math.Pow(stamina, 0.5) * Math.Pow(cpm, 2) / 10);
             return Convert.ToInt32(cp < 10 ? 10 : cp);
         }
+        */
 
         public static PokemonSize GetSize(this int id, float height, float weight)
         {
@@ -116,7 +95,11 @@
             if (formId == 0)
                 return null;
 
-            return Translator.Instance.Translate("form_" + formId);
+            var form = Translator.Instance.Translate("form_" + formId);
+            // TODO: Localize
+            if (string.Compare(form, "Normal", true) == 0)
+                return string.Empty;
+            return form;
         }
 
         public static string GetCostume(this int pokeId, string costumeId)

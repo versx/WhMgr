@@ -1535,8 +1535,7 @@
             }
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, user.Id);
-            //var isSubbed = _dep.SubscriptionProcessor.Manager.UserExists(guildId, user.Id);
-            var isSubbed = subscription?.Pokemon.Count > 0 || subscription?.Raids.Count > 0 || subscription?.Quests.Count > 0 || subscription?.Invasions.Count > 0 || subscription?.Gyms.Count > 0;
+            var isSubbed = subscription?.Pokemon.Count > 0 || subscription?.PvP.Count > 0 || subscription?.Raids.Count > 0 || subscription?.Quests.Count > 0 || subscription?.Invasions.Count > 0 || subscription?.Gyms.Count > 0;
             var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
             var hasPvP = isSubbed && subscription?.PvP.Count > 0;
             var hasRaids = isSubbed && subscription?.Raids.Count > 0;
@@ -1585,23 +1584,20 @@
                     sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED").FormatText(defaultIV, defaultCount.ToString("N0")));
                 }
 
-                foreach (var sub in results)
+
+                foreach (var poke in subscription.Pokemon)
                 {
-                    if (sub.IV == defaultIV && exceedsLimits)
+                    if (poke.MinimumIV == defaultIV && poke.IVList.Count == 0 && exceedsLimits)
                         continue;
 
-                    var pokes = sub.Pokes;
-                    pokes.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
-                    foreach (var poke in pokes)
-                    {
-                        if (!MasterFile.Instance.Pokedex.ContainsKey(poke.PokemonId))
-                            continue;
+                    if (!MasterFile.Instance.Pokedex.ContainsKey(poke.PokemonId))
+                        continue;
 
-                        var pkmn = MasterFile.Instance.Pokedex[poke.PokemonId];
-                        var form = string.IsNullOrEmpty(poke.Form) ? string.Empty : $" ({poke.Form})";
-                        sb.AppendLine($"{poke.PokemonId}: {pkmn.Name}{form} {(poke.MinimumIV + "%+" + (poke.HasStats ? string.Join(", ", poke.IVList) : string.Empty))}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}");
-                    }
+                    var pkmn = MasterFile.Instance.Pokedex[poke.PokemonId];
+                    var form = string.IsNullOrEmpty(poke.Form) ? string.Empty : $" ({poke.Form})";
+                    sb.AppendLine($"{poke.PokemonId}: {pkmn.Name}{form} {(poke.MinimumIV + "%+ " + (poke.HasStats ? string.Join(", ", poke.IVList) : string.Empty))}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}");
                 }
+
                 sb.Append("```");
                 sb.AppendLine();
                 sb.AppendLine();
@@ -1631,7 +1627,7 @@
 
             if (hasGyms)
             {
-                sb2.AppendLine(/*Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_GYMS")*/"Gym Subscriptions: ({0}/{1} used)".FormatText(subscription.Gyms.Count.ToString("N0"), isSupporter ? "" : Strings.MaxGymSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_GYMS").FormatText(subscription.Gyms.Count.ToString("N0"), isSupporter ? "" : Strings.MaxGymSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetGymSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1642,7 +1638,6 @@
             if (hasQuests)
             {
                 sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_QUESTS").FormatText(subscription.Quests.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxQuestSubscriptions.ToString("N0")));
-                //msg += $"Alert Time: {(subscription.AlertTime.HasValue ? subscription.AlertTime.Value.ToString("hh:mm:ss") : "Not set")}\r\n";
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetQuestSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1668,37 +1663,9 @@
             return messages;
         }
 
-        //private List<string> GetPokemonSubscriptionNames(ulong userId)
-        //{
-        //    var list = new List<string>();
-        //    if (!_dep.SubscriptionProcessor.Manager.UserExists(userId))
-        //        return list;
-
-        //    var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(userId);
-        //    var subscribedPokemon = subscription.Pokemon;
-        //    subscribedPokemon.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
-
-        //    foreach (var poke in subscribedPokemon)
-        //    {
-        //        if (!MasterFile.Instance.Pokedex.ContainsKey(poke.PokemonId))
-        //            continue;
-
-        //        var pokemon = MasterFile.Instance.Pokedex[poke.PokemonId];
-        //        if (pokemon == null)
-        //            continue;
-
-        //        list.Add(pokemon.Name);
-        //    }
-
-        //    return list;
-        //}
-
         private List<string> GetPvPSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
-            //if (!_dep.SubscriptionProcessor.Manager.UserExists(guildId, userId))
-            //    return list;
-
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedPvP = subscription.PvP;
             subscribedPvP.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
@@ -1720,9 +1687,6 @@
         private List<string> GetRaidSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
-            //if (!_dep.SubscriptionProcessor.Manager.UserExists(guildId, userId))
-            //    return list;
-
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedRaids = subscription.Raids;
             subscribedRaids.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
@@ -1748,9 +1712,6 @@
         private List<string> GetGymSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
-            //if (!_dep.SubscriptionProcessor.Manager.UserExists(guildId, userId))
-            //    return list;
-
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedGyms = subscription.Gyms;
             subscribedGyms.Sort((x, y) => x.Name.CompareTo(y.Name));
@@ -1765,9 +1726,6 @@
         private List<string> GetQuestSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
-            //if (!_dep.SubscriptionProcessor.Manager.UserExists(guildId, userId))
-            //    return list;
-
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedQuests = subscription.Quests;
             subscribedQuests.Sort((x, y) => string.Compare(x.RewardKeyword.ToLower(), y.RewardKeyword.ToLower(), true));
@@ -1786,9 +1744,6 @@
         private List<string> GetInvasionSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
-            //if (!_dep.SubscriptionProcessor.Manager.UserExists(guildId, userId))
-            //    return list;
-
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedInvasions = subscription.Invasions;
             subscribedInvasions.Sort((x, y) => string.Compare(MasterFile.GetPokemon(x.RewardPokemonId, 0).Name, MasterFile.GetPokemon(y.RewardPokemonId, 0).Name, true));

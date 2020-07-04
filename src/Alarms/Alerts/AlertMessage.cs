@@ -34,9 +34,9 @@
             {
                 AlertMessageType.Gyms, new AlertMessageSettings
                 {
-                    AvatarUrl = "<gym_img_url>",
+                    AvatarUrl = "<gym_url>",
                     Content = "<#team_changed>Gym changed from <old_gym_team_emoji> <old_gym_team> to <gym_team_emoji> <gym_team><br></team_changed><#in_battle>Gym is under attack!<br></in_battle>**Slots Available:** <slots_available><br><#is_ex><ex_gym_emoji> Gym!</is_ex>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)] [[Waze Maps](<wazemaps_url>)]**",
-                    IconUrl = "<gym_img_url>",
+                    IconUrl = "<gym_url>",
                     Title = "<geofence>: <gym_name>",
                     Url = "<gmaps_url>",
                     Username = "<gym_name>",

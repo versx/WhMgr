@@ -31,6 +31,12 @@
     // TODO: Separate subscriptions dts
     // TODO: Specific timezone per Discord
     // TODO: Account status alarms
+    // TODO: Update masterfile.json
+    // TODO: List all subscriptions with info command
+    // TODO: Subscriptions via DM again
+    // TODO: Multiple discord bot tokens per server
+    // TODO: Custom discord status per server, if null use version
+    // TODO: Custom footer DTS
 
     public class Bot
     {
@@ -74,6 +80,7 @@
                 Thread.Sleep(50);
             }
 
+            // Set unhandled exception event handler
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
             // Initialize and start midnight reset timer
