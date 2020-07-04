@@ -68,6 +68,7 @@
             DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
             DataAccessLayer.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
 
+            // Start database migrator
             var migrator = new DatabaseMigrator();
             while (!migrator.Finished)
             {
@@ -78,7 +79,7 @@
 
             // Initialize and start midnight reset timer
             var midnight = new DandTSoftware.Timers.MidnightTimer();
-            midnight.TimeReached += async (e) => await ResetQuests();
+            midnight.TimeReached += async (e) => await OnMidnightTimer();
             midnight.Start();
 
             // Initialize the subscription processor if at least one Discord server wants custom notifications
@@ -906,7 +907,7 @@
             }
         }
 
-        private async Task ResetQuests()
+        private async Task OnMidnightTimer()
         {
             _logger.Debug($"MIDNIGHT {DateTime.Now}");
             _logger.Debug($"Starting automatic quest messages cleanup...");

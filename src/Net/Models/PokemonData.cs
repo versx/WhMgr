@@ -371,7 +371,6 @@
         /// <param name="enableLeapYear">Enable leap year time adjustment.</param>
         public void SetDespawnTime()
         {
-
             DespawnTime = DisappearTime.FromUnix();
 
             SecondsLeft = DespawnTime.Subtract(DateTime.Now);
@@ -379,7 +378,6 @@
             FirstSeenTime = FirstSeen.FromUnix();
 
             LastModifiedTime = LastModified.FromUnix();
-
         }
 
         public async Task<DiscordEmbed> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string pokemonImageUrl)

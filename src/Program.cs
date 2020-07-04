@@ -26,6 +26,7 @@
         /// <returns></returns>
         static async Task MainAsync(string[] args)
         {
+            // Parse command line arguments if given
             var arguments = CommandLine.ParseArgs(new string[] { "--", "-" }, args);
             var configFilePath = string.Empty;
             var managerName = string.Empty;
@@ -49,7 +50,7 @@
 
             configFilePath = Path.Combine(Environment.CurrentDirectory, string.IsNullOrEmpty(configFilePath) ? Strings.ConfigFileName : configFilePath);
             ManagerName = managerName;
-            var logger = Diagnostics.EventLogger.GetLogger();
+            var logger = Diagnostics.EventLogger.GetLogger(managerName);
             var whConfig = Configuration.WhConfig.Load(configFilePath);
             if (whConfig == null)
             {
@@ -58,6 +59,7 @@
             }
             whConfig.FileName = configFilePath;
 
+            // Start bot
             var bot = new Bot(whConfig);
             await bot.Start();
 
