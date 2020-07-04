@@ -25,14 +25,13 @@
     using DSharpPlus.EventArgs;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
+    using ServiceStack.Text;
 
     // TODO: Subscriptions, Pokemon, Raid, Quest, Invasion, Gym, Weather alarm statistics by day. date/pokemonId/count
-    // TODO: Reload config on change
     // TODO: PvP ranks dts
     // TODO: Separate subscriptions dts
     // TODO: Specific timezone per Discord
     // TODO: Account status alarms
-    // TODO: Finish localization
 
     public class Bot
     {
@@ -40,7 +39,7 @@
 
         private readonly Dictionary<ulong, DiscordClient> _servers;
         private readonly WebhookController _whm;
-        private readonly WhConfig _whConfig;
+        private WhConfig _whConfig;
         private readonly SubscriptionProcessor _subProcessor;
         private readonly Dictionary<string, GymDetailsData> _gyms;
 
@@ -197,6 +196,8 @@
                 // Wait 3 seconds between initializing Discord clients
                 Task.Delay(3000).GetAwaiter().GetResult();
             }
+
+            RegisterConfigMonitor();
         }
 
         #endregion
@@ -309,6 +310,7 @@
                 _logger.Error($"DiscordClient is null, Unable to update status.");
                 return;
             }
+
             // TODO: Make configurable Discord status, if null use version
             await client.UpdateStatusAsync(new DiscordGame($"v{Strings.Version}"), UserStatus.Online);
         }
@@ -1028,6 +1030,14 @@
                     }
                 }
             }
+        }
+
+        private void RegisterConfigMonitor()
+        {
+            var path = Path.Combine(Directory.GetCurrentDirectory(), Strings.ConfigFileName);
+            var fileWatcher = new FileWatcher(path);
+            fileWatcher.FileChanged += (sender, e) => _whConfig = WhConfig.Load(e.FilePath);
+            fileWatcher.Start();
         }
 
         private async void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)

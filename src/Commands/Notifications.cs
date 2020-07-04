@@ -748,7 +748,6 @@
             }
 
             subscription.Save();
-            //await ctx.RespondEmbed($"{ctx.User.Username} is already subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
                 rewardKeyword,
@@ -823,7 +822,6 @@
                 .ForEach(x => x.Id.Remove<QuestSubscription>());
             subscription.Save();
 
-            //await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{rewardKeyword}** quest notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
                 rewardKeyword,
@@ -1032,12 +1030,9 @@
                 return;
             }
 
-            //var notSubscribed = new List<string>();
-            //var unsubscribed = new List<string>();
             foreach (var item in validation.Valid)
             {
                 var pokemonId = item.Key;
-                //var form = item.Value;
                 var cities = string.IsNullOrEmpty(city)
                     ? _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles
                     : new List<string> { city };
@@ -1055,7 +1050,6 @@
                 }
             }
 
-            //await ctx.RespondEmbed($"{ctx.User.Username} is not subscribed to **{(pkmnType == PokemonType.None ? leaderString : Convert.ToString(pkmnType))} {(leaderString != "Tier II" ? string.Empty : Convert.ToString(pokemonGender))}** Team Rocket invasion notifications{(string.IsNullOrEmpty(city) ? " from **all** areas" : $" from city **{city}**")}.", DiscordColor.Red);
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
                 string.Join(", ", validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name)),

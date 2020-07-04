@@ -596,7 +596,6 @@ __**Quests**__
 - Reload config on change
 - PvP ranks DTS
 - Separate subscriptions DTS
-- Finish Localization.  
 - Wiki.  
 
 

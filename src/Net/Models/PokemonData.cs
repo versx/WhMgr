@@ -395,7 +395,7 @@
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),//pokemonImageUrl,
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = mention + description,
                 Color = IV.BuildColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
