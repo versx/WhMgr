@@ -575,7 +575,10 @@
             }
 
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType) ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
-            var encounters = invasion.GetEncounterRewards();
+            var encounters = invasion?.GetEncounterRewards();
+            if (encounters == null)
+                return;
+
             var subscriptions = Manager.GetUserSubscriptionsByEncounterReward(encounters);
             if (subscriptions == null)
             {
