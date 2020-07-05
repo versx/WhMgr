@@ -12,6 +12,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Supports multiple Discord servers.  
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
 - Per user custom Discord notifications for Pokemon, raids, quests, and invasions.  
+- User interface to configure Discord notifications with ease (as well as Discord commands). (https://github.com/versx/WhMgr-UI)  
 - Notifications based on pre-defined distance.  
 - Customizable alert messages with dynamic text replacement.  
 - Support for multiple cities/areas using roles and geofences per server.  
@@ -20,6 +21,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Support for Donors/Supporters only notifications.  
 - Direct messages of Pokemon notifications based on city roles assigned.  
 - Custom prefix support as well as mentionable user support for commands.  
+- Twilio text message alerts for ultra rare Pokemon.  
 - Custom image support for Discord alarm reports.  
 - Custom icon style selection for Discord user notifications.  
 - External emoji server support.  
@@ -111,7 +113,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             "botChannelIds": [
                 000000000000000000
             ],
-			// Custom Discord status per server, leave blank or null to use current version.  
+            // Custom Discord status per server, leave blank or null to use current version.  
             "status": ""
         },
         "000000000000000002": {
@@ -208,6 +210,33 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     "iconStyles": {
         "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
         "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
+    },
+    "staticMaps": {
+        "pokemon": "pokemon.example.json",
+        "raids": "raids.example.json",
+        "quests": "quests.example.json",
+        "invasions": "invasions.example.json",
+        "lures": "lures.example.json",
+        "gyms": "gyms.example.json",
+        "nests": "nests.example.json",
+        "weather": "weather.example.json"
+    },
+    // Get text message alerts with Twilio.com
+    "twilio": {
+        // Determines if text message alerts are be enabled
+        "enabled": false,
+        // Twilio account SID (Get via Twilio dashboard)
+        "accountSid": "",
+        // Twilio account auth token (Get via Twilio dashboard)
+        "authToken": "",
+        // Twilio phone number that will be sending the text message alert
+        "from": "",
+        // List of Discord user ids that can receive text message alerts
+        "userIds": "",
+        // List of acceptable Pokemon to receive text message alerts from
+        "pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
+        // Minimum acceptable IV value for Pokemon to be if not ultra rare (Unown, Lake Trio)
+        "minIV": 100
     },
     // Log webhook payloads to a file for debugging
     "debug": false,
