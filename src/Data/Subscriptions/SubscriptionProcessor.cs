@@ -17,6 +17,7 @@
     using WhMgr.Extensions;
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
+    using Utils = WhMgr.Utilities.Utils;
 
     /// <summary>
     /// Discord user subscription processing class.
@@ -741,6 +742,17 @@
                     }
 
                     // Send notification to user
+                    if (!string.IsNullOrEmpty(item.Subscription.PhoneNumber))
+                    {
+                        // Send text message
+                        var msg = item.Embed.Description;
+                        var result = Utils.SendSmsMessage(msg.Substring(0, 160), _whConfig.Twilio, item.Subscription.PhoneNumber);
+                        if (!result)
+                        {
+                            _logger.Error($"Failed to send text message to phone number '{item.Subscription.PhoneNumber}'");
+                        }
+                    }
+
                     var client = _servers[item.Subscription.GuildId];
                     await client.SendDirectMessage(item.Member, item.Embed);
                     _logger.Info($"[WEBHOOK] Notified user {item.Member.Username} of {item.Description}.");

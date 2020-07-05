@@ -90,6 +90,12 @@
         public string IconStyle { get; set; }
 
         [
+            JsonProperty("phone_number"),
+            Alias("phone_number")
+        ]
+        public string PhoneNumber { get; set; }
+
+        [
             JsonIgnore,
             Ignore
         ]
@@ -115,6 +121,7 @@
             Latitude = 0;
             Longitude = 0;
             IconStyle = "Default";
+            PhoneNumber = string.Empty;
         }
     }
 }
