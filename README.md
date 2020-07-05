@@ -110,7 +110,9 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             // Channel ID(s) bot commands can be executed in.
             "botChannelIds": [
                 000000000000000000
-            ]
+            ],
+			// Custom Discord status per server, leave blank or null to use current version.  
+            "status": ""
         },
         "000000000000000002": {
             "commandPrefix": ".",
@@ -145,7 +147,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             "iconStyle": "Default",
             "botChannelIds": [
                 000000000000000000
-            ]
+            ],
+            "status": null
         }
     },
     // Database configuration
@@ -230,9 +233,9 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
   
     //Global switch for Gym notifications.
     "enableGyms": false,
-	
+    
     //Global switch for Weather notifications.
-	"enableWeather": false,
+    "enableWeather": false,
   
     //List of alarms
     "alarms": [{

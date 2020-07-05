@@ -35,7 +35,6 @@
     // TODO: List all subscriptions with info command
     // TODO: Subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
-    // TODO: Custom discord status per server, if null use version
     // TODO: Custom footer DTS
 
     public class Bot
