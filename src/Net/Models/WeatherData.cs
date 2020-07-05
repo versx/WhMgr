@@ -114,9 +114,11 @@
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var server = whConfig.Servers[guildId];
             var weatherImageUrl = this.GetWeatherIcon(whConfig, server.IconStyle);
-            var properties = GetProperties(whConfig, city, weatherImageUrl);
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, weatherImageUrl);
             var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
+            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
+            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -127,8 +129,8 @@
                 Color = GameplayCondition.BuildWeatherColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
+                    Text = footerText,
+                    IconUrl = footerIconUrl
                 }
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
@@ -136,7 +138,7 @@
             return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, string weatherImageUrl)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string weatherImageUrl)
         {
             var weather = GameplayCondition.ToString();
             var weatherKey = $"weather_{Convert.ToInt32(GameplayCondition)}";
@@ -185,6 +187,12 @@
                 { "gmaps_url", gmapsLocationLink },
                 { "applemaps_url", appleMapsLocationLink },
                 { "wazemaps_url", wazeMapsLocationLink },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
+
+                { "date_time", DateTime.Now.ToString() },
 
                 //Misc properties
                 { "br", "\r\n" }

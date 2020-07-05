@@ -134,21 +134,23 @@
             var raidImageUrl = IsEgg ?
                 this.GetRaidEggIcon(whConfig, server.IconStyle) :
                 PokemonId.GetPokemonIcon(Form, 0, whConfig, server.IconStyle);
-            var properties = GetProperties(whConfig, city, raidImageUrl);
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, raidImageUrl);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
+            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
+            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = raidImageUrl,//DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = mention + description,
                 Color = Level.BuildRaidColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
+                    Text = footerText,
+                    IconUrl = footerIconUrl
                 }
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
@@ -156,14 +158,14 @@
             return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, string raidImageUrl)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string raidImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
             var form = Form.GetPokemonForm();
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
-            var move1 = Translator.Instance.Translate("move_" + FastMove);// MasterFile.Instance.Movesets.ContainsKey(FastMove) ? MasterFile.Instance.Movesets[FastMove].Name : string.Empty;
-            var move2 = Translator.Instance.Translate("move_" + ChargeMove);//MasterFile.Instance.Movesets.ContainsKey(ChargeMove) ? MasterFile.Instance.Movesets[ChargeMove].Name : string.Empty;
+            var move1 = Translator.Instance.Translate("move_" + FastMove);
+            var move2 = Translator.Instance.Translate("move_" + ChargeMove);
             var types = pkmnInfo?.Types;
             var type1 = types?[0];
             var type2 = types?.Count > 1 ? types?[1] : PokemonType.None;
@@ -248,6 +250,12 @@
                 { "gym_id", GymId },
                 { "gym_name", GymName },
                 { "gym_url", GymUrl },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
+
+                { "date_time", DateTime.Now.ToString() },
 
                 //Misc properties
                 { "br", "\r\n" }

@@ -83,9 +83,11 @@
         {
             var alertType = AlertMessageType.Quests;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(whConfig, city, this.GetQuestIcon(whConfig, whConfig.Servers[guildId].IconStyle));
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, this.GetQuestIcon(whConfig, whConfig.Servers[guildId].IconStyle));
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
+            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
+            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -96,14 +98,14 @@
                 Color = DiscordColor.Orange,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
+                    Text = footerText,
+                    IconUrl = footerIconUrl
                 }
             };
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, string questRewardImageUrl)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string questRewardImageUrl)
         {
             var questMessage = this.GetQuestMessage();
             var questConditions = this.GetConditions();
@@ -147,6 +149,12 @@
                 { "pokestop_id", PokestopId ?? defaultMissingValue },
                 { "pokestop_name", PokestopName ?? defaultMissingValue },
                 { "pokestop_url", PokestopUrl ?? defaultMissingValue },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
+
+                { "date_time", DateTime.Now.ToString() },
 
                 //Misc properties
                 { "br", "\r\n" }

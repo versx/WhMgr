@@ -6,7 +6,11 @@
         "title": "<geofence>",
         "url": "<gmaps_url>",
         "username": "<form> <pkmn_name><gender>",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     },
     "pokemonMissingStats": {
         "avatarUrl": "<pkmn_img_url>",
@@ -15,7 +19,11 @@
         "title": "<geofence>",
         "url": "<gmaps_url>",
         "username": "<form> <pkmn_name><gender>",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     },
     "gyms": {
         "avatarUrl": "<gym_url>",
@@ -24,7 +32,11 @@
         "title": "<geofence>: <gym_name>",
         "url": "<gmaps_url>",
         "username": "<gym_name>",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     },
     "raids": {
         "avatarUrl": "<pkmn_img_url>",
@@ -33,7 +45,11 @@
         "title": "<geofence>: <gym_name>",
         "url": "<gmaps_url>",
         "username": "<pkmn_form> <pkmn_name> Raid",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     },
     "eggs": {
         "avatarUrl": "<pkmn_img_url>",
@@ -42,7 +58,11 @@
         "title": "<geofence>: <gym_name>",
         "url": "<gmaps_url>",
         "username": "Level <lvl> Egg",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     },
     "pokestops": {
         "avatarUrl": "<pokestop_url>",
@@ -51,7 +71,11 @@
         "title": "<geofence>: <pokestop_name>",
         "url": "<gmaps_url>",
         "username": "<pokestop_name>",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     },
     "quests": {
         "avatarUrl": "<quest_reward_img_url>",
@@ -60,7 +84,11 @@
         "title": "<geofence>: <pokestop_name>",
         "url": "<gmaps_url>",
         "username": "<quest_task>",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     },
     "lures": {
         "avatarUrl": "<lure_img_url>",
@@ -69,7 +97,11 @@
         "title": "<geofence>: <pokestop_name>",
         "url": "<gmaps_url>",
         "username": "<pokestop_name>",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     },
     "invasions": {
         "avatarUrl": "<invasion_img_url>",
@@ -78,7 +110,11 @@
         "title": "<geofence>: <pokestop_name>",
         "url": "<gmaps_url>",
         "username": "<pokestop_name>",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     },
     "nests": {
         "avatarUrl": "<pkmn_img_url>",
@@ -87,7 +123,11 @@
         "title": "<geofence>: <nest_name>",
         "url": "<gmaps_url>",
         "username": "",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     },
     "weather": {
         "avatarUrl": "<weather_img_url>",
@@ -96,6 +136,10 @@
         "title": "<geofence>",
         "url": "<gmaps_url>",
         "username": "Weather",
-        "imageUrl": "<tilemaps_url>"
+        "imageUrl": "<tilemaps_url>",
+        "footer": {
+            "text": "<guild_name>",
+            "icon_url": "<guild_img_url>"
+        }
     }
 }

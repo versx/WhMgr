@@ -10,6 +10,7 @@
     using DSharpPlus.Entities;
 
     using Newtonsoft.Json;
+    using ServiceStack;
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
@@ -388,9 +389,11 @@
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var server = whConfig.Servers[guildId];
             var pokemonImageUrl = Id.GetPokemonIcon(FormId, Costume, whConfig, server.IconStyle);
-            var properties = await GetProperties(whConfig, city, pokemonImageUrl);
+            var properties = await GetProperties(client.Guilds[guildId], whConfig, city, pokemonImageUrl);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
+            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
+            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -401,8 +404,8 @@
                 Color = IV.BuildColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
+                    Text = footerText,
+                    IconUrl = footerIconUrl
                 }
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
@@ -412,7 +415,7 @@
 
         #endregion
 
-        private async Task<IReadOnlyDictionary<string, string>> GetProperties(WhConfig whConfig, string city, string pokemonImageUrl)
+        private async Task<IReadOnlyDictionary<string, string>> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
             var form = FormId.GetPokemonForm();
@@ -427,13 +430,13 @@
             var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && Weather != WeatherType.None ? (Weather ?? WeatherType.None).GetWeatherEmojiIcon() : string.Empty;
             var move1 = "Unknown";
             var move2 = "Unknown";
-            if (int.TryParse(FastMove, out var fastMoveId))// && MasterFile.Instance.Movesets.ContainsKey(fastMoveId))
+            if (int.TryParse(FastMove, out var fastMoveId))
             {
-                move1 = Translator.Instance.Translate("move_" + fastMoveId);//MasterFile.Instance.Movesets[fastMoveId].Name;
+                move1 = Translator.Instance.Translate("move_" + fastMoveId);
             }
-            if (int.TryParse(ChargeMove, out var chargeMoveId))// && MasterFile.Instance.Movesets.ContainsKey(chargeMoveId))
+            if (int.TryParse(ChargeMove, out var chargeMoveId))
             {
-                move2 = Translator.Instance.Translate("move_" + chargeMoveId);//MasterFile.Instance.Movesets[chargeMoveId].Name;
+                move2 = Translator.Instance.Translate("move_" + chargeMoveId);
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
@@ -550,6 +553,12 @@
                 { "pokestop_id", PokestopId ?? defaultMissingValue },
                 { "pokestop_name", pokestop?.Name ?? defaultMissingValue },
                 { "pokestop_url", pokestop?.Url ?? defaultMissingValue },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
+
+                { "date_time", DateTime.Now.ToString() },
 
                 // Misc properties
                 { "br", "\r\n" }

@@ -36,6 +36,7 @@
     // TODO: Subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
     // TODO: Custom footer DTS
+    // TODO: PvP icons to DTS
 
     public class Bot
     {

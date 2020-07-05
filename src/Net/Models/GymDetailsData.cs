@@ -57,9 +57,11 @@
         {
             var alertType = AlertMessageType.Gyms;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(whConfig, city, oldGym);
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, oldGym);
             var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
+            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
+            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -73,8 +75,8 @@
                     DiscordColor.LightGray,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
+                    Text = footerText,
+                    IconUrl = footerIconUrl
                 }
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
@@ -82,7 +84,7 @@
             return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city, GymDetailsData oldGym)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, GymDetailsData oldGym)
         {
             var exEmojiId = MasterFile.Instance.Emojis["ex"];
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
@@ -134,6 +136,12 @@
                 { "gmaps_url", gmapsLocationLink },
                 { "applemaps_url", appleMapsLocationLink },
                 { "wazemaps_url", wazeMapsLocationLink },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
+
+                { "date_time", DateTime.Now.ToString() },
 
                 //Misc properties
                 { "br", "\r\n" }

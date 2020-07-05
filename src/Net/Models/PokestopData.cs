@@ -106,9 +106,11 @@
         {
             var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(guildId, whConfig, city);
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city);
             var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
             var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
+            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
+            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -124,8 +126,8 @@
                     : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds?[guildId]?.Name ?? Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds?[guildId]?.IconUrl ?? string.Empty
+                    Text = footerText,
+                    IconUrl = footerIconUrl
                 }
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
@@ -137,10 +139,10 @@
 
         #region Private Methods
 
-        private IReadOnlyDictionary<string, string> GetProperties(ulong guildId, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city)
         {
-            var lureImageUrl = this.GetLureIcon(whConfig, whConfig.Servers[guildId].IconStyle);
-            var invasionImageUrl = this.GetInvasionIcon(whConfig, whConfig.Servers[guildId].IconStyle);
+            var lureImageUrl = this.GetLureIcon(whConfig, whConfig.Servers[guild.Id].IconStyle);
+            var invasionImageUrl = this.GetInvasionIcon(whConfig, whConfig.Servers[guild.Id].IconStyle);
             var imageUrl = HasInvasion ? invasionImageUrl : HasLure ? lureImageUrl : Url;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
@@ -194,6 +196,12 @@
                 { "pokestop_url", Url ?? defaultMissingValue },
                 { "lure_img_url", lureImageUrl },
                 { "invasion_img_url", invasionImageUrl },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
+
+                { "date_time", DateTime.Now.ToString() },
 
                 //Misc properties
                 { "br", "\r\n" }

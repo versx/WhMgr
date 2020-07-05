@@ -16,7 +16,12 @@
                     Title = "<geofence>",
                     Url = "<gmaps_url>",
                     Username = "<form> <pkmn_name><gender>",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             },
             {
@@ -28,7 +33,12 @@
                     Title = "<geofence>",
                     Url = "<gmaps_url>",
                     Username = "<form> <pkmn_name><gender>",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             },
             {
@@ -40,7 +50,12 @@
                     Title = "<geofence>: <gym_name>",
                     Url = "<gmaps_url>",
                     Username = "<gym_name>",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             },
             {
@@ -52,7 +67,12 @@
                     Title = "<geofence>: <gym_name>",
                     Url = "<gmaps_url>",
                     Username = "<pkmn_form> <pkmn_name> Raid",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             },
             {
@@ -64,7 +84,12 @@
                     Title = "<geofence>: <gym_name>",
                     Url = "<gmaps_url>",
                     Username = "Level <lvl> Egg",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             },
             {
@@ -76,7 +101,12 @@
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",
                     Username = "<pokestop_name>",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             },
             {
@@ -88,7 +118,12 @@
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",
                     Username = "<quest_task>",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             },
             {
@@ -100,7 +135,12 @@
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",
                     Username = "<pokestop_name>",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             },
             {
@@ -112,7 +152,12 @@
                     Title = "<geofence>: <pokestop_name>",
                     Url = "<gmaps_url>",
                     Username = "<pokestop_name>",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             },
             {
@@ -124,7 +169,12 @@
                     Title = "<geofence>: <nest_name>",
                     Url = "<gmaps_url>",
                     Username = "",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             },
             {
@@ -136,7 +186,12 @@
                     Title = "<geofence>",
                     Url = "<gmaps_url>",
                     Username = "Weather",
-                    ImageUrl = "<tilemaps_url>"
+                    ImageUrl = "<tilemaps_url>",
+                    Footer = new AlertMessageFooter
+                    {
+                        Text = "<guild_name> | <date_time>",
+                        IconUrl = "<guild_img_url>"
+                    }
                 }
             }
         };
