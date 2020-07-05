@@ -207,6 +207,8 @@
             var defense = -1;
             var stamina = -1;
             var realIV = 0;
+
+            // Check if IV value contains `-` and to expect individual values instead of whole IV value
             if (iv.Contains("-"))
             {
                 var split = iv.Split('-');
@@ -233,6 +235,7 @@
             }
             else
             {
+                // User provided IV value as a whole
                 if (!int.TryParse(iv, out realIV) || realIV < Strings.MinimumIV || realIV > Strings.MaximumIV)
                 {
                     await ctx.TriggerTypingAsync();
@@ -241,15 +244,9 @@
                 }
             }
 
-            if (!Strings.ValidGenders.Contains(gender.ToLower()))
-            {
-                await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_GENDER").FormatText(ctx.User.Username, gender), DiscordColor.Red);
-                return;
-            }
-
             var minLevel = Strings.MinimumLevel;
             var maxLevel = Strings.MaximumLevel;
+            // Check if level contains `-` and to expect a minimum and maximum level provided
             if (lvl.Contains('-'))
             {
                 var split = lvl.Split('-');
@@ -266,22 +263,27 @@
             }
             else
             {
+                // Only minimum level was provided
                 if (!int.TryParse(lvl, out minLevel))
                 {
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_LEVEL", ctx.User.Username, lvl), DiscordColor.Red);
                     return;
                 }
             }
+
+            // Validate minimum and maximum levels are within range
             if (minLevel < 0 || minLevel > 35)
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_LEVEL").FormatText(ctx.User.Username, lvl), DiscordColor.Red);
                 return;
             }
-            if (maxLevel < 0 || maxLevel > 35)
+
+            // Check if gender is a value gender provided
+            if (!Strings.ValidGenders.Contains(gender.ToLower()))
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_LEVEL").FormatText(ctx.User.Username, lvl), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_GENDER").FormatText(ctx.User.Username, gender), DiscordColor.Red);
                 return;
             }
 
@@ -292,6 +294,7 @@
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
             var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(ctx.Guild.Id, _dep.WhConfig);
+            // Validate the provided pokemon list
             var validation = ValidatePokemonList(poke);
             if (validation == null || validation.Valid.Count == 0)
             {
@@ -299,6 +302,7 @@
                 return;
             }
 
+            // Loop through each valid pokemon entry provided
             var keys = validation.Valid.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -315,7 +319,7 @@
                 var pokemon = MasterFile.Instance.Pokedex[pokemonId];
                 var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
 
-                //Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
+                // Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
                 if (IsCommonPokemon(pokemonId) && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
                 {
                     await ctx.TriggerTypingAsync();
@@ -324,14 +328,14 @@
                 }
 
                 var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
-                //Always ignore the user's input for Unown and set it to 0 by default.
+                // Always ignore the user's input for Unown and set it to 0 by default.
                 var minIV = IsRarePokemon(pokemonId) ? 0 : realIV;
                 var minLvl = IsRarePokemon(pokemonId) ? 0 : minLevel;
                 var maxLvl = IsRarePokemon(pokemonId) ? 35 : maxLevel;
                 var hasStatsSet = attack >= 0 || defense >= 0 || stamina >= 0;
                 if (subPkmn == null)
                 {
-                    //Does not exist, create.
+                    // Does not exist, create.
                     subscription.Pokemon.Add(new PokemonSubscription
                     {
                         GuildId = ctx.Guild.Id,
@@ -348,7 +352,7 @@
                     continue;
                 }
 
-                //Exists, check if anything changed.
+                // Exists, check if anything changed.
                 if (realIV != subPkmn.MinimumIV ||
                     string.Compare(form, subPkmn.Form, true) != 0 ||
                     minLvl != subPkmn.MinimumLevel ||
@@ -369,7 +373,7 @@
                     continue;
                 }
 
-                //Already subscribed to the same Pokemon and form
+                // Already subscribed to the same Pokemon and form
                 alreadySubscribed.Add(name);
             }
 
@@ -412,12 +416,15 @@
                 return;
             }
 
+            // Check if we received the all parameter
             if (string.Compare(poke, Strings.All, true) == 0)
             {
+                // Send a confirmation confirming the user actually wants to remove all of their Pokemon subscriptions
                 var confirm = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Pokemon.Count.ToString("N0")));
                 if (!confirm)
                     return;
 
+                // Loop through all Pokemon subscriptions and remove them
                 subscription.Pokemon.ForEach(x => x.Id.Remove<PokemonSubscription>());
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username));

@@ -7,9 +7,12 @@
     using Newtonsoft.Json;
 
     using WhMgr.Data;
+    using WhMgr.Diagnostics;
 
     public class TeamRocketInvasion
     {
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("TR-INVASION");
+
         [JsonProperty("type")]
         public string Type { get; set; }
 
@@ -57,6 +60,52 @@
                 msg += $"100% - {first}\r\n";
             }
             return msg;
+        }
+
+        public List<int> GetEncounterRewards()
+        {
+            var list = new List<int>();
+            if (Encounters == null)
+                return list;
+
+            if (SecondReward)
+            {
+                //85%/15% Rate
+                for (var i = 0; i < Encounters.Second.Count; i++)
+                {
+                    var mon = Encounters.Second[i];
+                    var id = ParsePokemonId(mon);
+                    if (id == 0)
+                        continue;
+
+                    list.Add(id);
+                }
+            }
+            else
+            {
+                //100% Rate
+                for (var i = 0; i < Encounters.First.Count; i++)
+                {
+                    var mon = Encounters.First[i];
+                    var id = ParsePokemonId(mon);
+                    if (id == 0)
+                        continue;
+
+                    list.Add(id);
+                }
+            }
+            return list;
+        }
+
+        private static int ParsePokemonId(string value)
+        {
+            var split = value.Split('_');
+            if (!int.TryParse(split[0], out var id))
+            {
+                _logger.Error($"Failed to parse grunttype {split[0]}");
+                return 0;
+            }
+            return id;
         }
     }
 

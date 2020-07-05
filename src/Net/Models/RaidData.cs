@@ -119,6 +119,9 @@
             SetTimes();
         }
 
+        /// <summary>
+        /// Set expire times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
+        /// </summary>
         public void SetTimes()
         {
             StartTime = Start.FromUnix();
@@ -126,6 +129,15 @@
             EndTime = End.FromUnix();
         }
 
+        /// <summary>
+        /// Generate a Discord embed Raid message
+        /// </summary>
+        /// <param name="guildId">Guild the notification is for</param>
+        /// <param name="client">Discord client</param>
+        /// <param name="whConfig">Webhook config</param>
+        /// <param name="alarm">Webhook alarm</param>
+        /// <param name="city">City the Raid was found in</param>
+        /// <returns>DiscordEmbedNotification object to send</returns>
         public DiscordEmbedNotification GenerateRaidMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;

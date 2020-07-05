@@ -5,12 +5,11 @@
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
-    using DotLiquid.Tags;
+
     using DSharpPlus;
     using DSharpPlus.Entities;
 
     using Newtonsoft.Json;
-    using ServiceStack;
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
@@ -370,8 +369,6 @@
         /// <summary>
         /// Set despawn times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
         /// </summary>
-        /// <param name="enableDST">Enable Day Light Savings time adjustment.</param>
-        /// <param name="enableLeapYear">Enable leap year time adjustment.</param>
         public void SetDespawnTime()
         {
             DespawnTime = DisappearTime.FromUnix();
@@ -383,9 +380,18 @@
             LastModifiedTime = LastModified.FromUnix();
         }
 
+        /// <summary>
+        /// Generate a Discord embed Pokemon message
+        /// </summary>
+        /// <param name="guildId">Guild the notification is for</param>
+        /// <param name="client">Discord client</param>
+        /// <param name="whConfig">Webhook config</param>
+        /// <param name="alarm">Webhook alarm</param>
+        /// <param name="city">City the Pokemon was found in</param>
+        /// <returns>DiscordEmbedNotification object to send</returns>
         public async Task<DiscordEmbedNotification> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
-            //If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
+            // If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
             var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var server = whConfig.Servers[guildId];
@@ -670,6 +676,9 @@
         #endregion
     }
 
+    /// <summary>
+    /// Pokemon capture rate
+    /// </summary>
     public enum CaptureRateType
     {
         PokeBall = 1,

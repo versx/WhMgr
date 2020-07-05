@@ -189,8 +189,6 @@
                         ))
                         continue;
 
-                    //var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
-                    //var pkmnImage = pkmn.Id.GetPokemonIcon(pkmn.FormId, pkmn.Costume, _whConfig, iconStyle);
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
                     {
@@ -326,8 +324,6 @@
                     if (!(matchesGreat || matchesUltra))
                         continue;
 
-                    //var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
-                    //var pkmnImage = pkmn.Id.GetPokemonIcon(pkmn.FormId, pkmn.Costume, _whConfig, iconStyle);
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
                     {
@@ -446,7 +442,6 @@
                         continue;
                     }
 
-                    //var iconStyle = string.IsNullOrEmpty(user.IconStyle) && _whConfig.Servers.ContainsKey(user.GuildId) ? _whConfig.Servers[user.GuildId].IconStyle : user.IconStyle ?? "Default";
                     var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
                     {
@@ -580,7 +575,7 @@
             }
 
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType) ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
-            var encounters = GetEncounterRewards(invasion);
+            var encounters = invasion.GetEncounterRewards();
             var subscriptions = Manager.GetUserSubscriptionsByEncounterReward(encounters);
             if (subscriptions == null)
             {
@@ -750,56 +745,6 @@
                 }
             })
             { IsBackground = true }.Start();
-        }
-
-        #endregion
-
-        #region Static Methods
-
-        private static List<int> GetEncounterRewards(TeamRocketInvasion invasion)
-        {
-            var list = new List<int>();
-            if (invasion == null || invasion.Encounters == null)
-                return list;
-
-            if (invasion?.SecondReward ?? false)
-            {
-                //85%/15% Rate
-                for (var i = 0; i < invasion.Encounters.Second.Count; i++)
-                {
-                    var mon = invasion.Encounters.Second[i];
-                    var id = ParsePokemonId(mon);
-                    if (id == 0)
-                        continue;
-
-                    list.Add(id);
-                }
-            }
-            else
-            {
-                //100% Rate
-                for (var i = 0; i < invasion.Encounters.First.Count; i++)
-                {
-                    var mon = invasion.Encounters.First[i];
-                    var id = ParsePokemonId(mon);
-                    if (id == 0)
-                        continue;
-
-                    list.Add(id);
-                }
-            }
-            return list;
-        }
-
-        private static int ParsePokemonId(string value)
-        {
-            var split = value.Split('_');
-            if (!int.TryParse(split[0], out var id))
-            {
-                _logger.Error($"Failed to parse grunttype {split[0]}");
-                return 0;
-            }
-            return id;
         }
 
         #endregion

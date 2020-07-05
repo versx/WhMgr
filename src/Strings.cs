@@ -123,15 +123,13 @@
             "capture_3",
 
             // Weather emojis
-            "weather_1", //Clear
-            "weather_2", //Rain
-            "weather_3", //PartlyCloudy/Overcast
-            "weather_4", //Cloudy
-            "weather_5", //Windy
-            "weather_6", //Snow
-            "weather_7", //Fog
-
-            // Catch chances emojis
+            "weather_1", // Clear
+            "weather_2", // Rain
+            "weather_3", // PartlyCloudy/Overcast
+            "weather_4", // Cloudy
+            "weather_5", // Windy
+            "weather_6", // Snow
+            "weather_7", // Fog
 
             // Ex gym emoji
             "ex",
