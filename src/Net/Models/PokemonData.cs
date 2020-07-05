@@ -18,6 +18,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Data.Models;
+    using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Localization;
@@ -461,6 +462,8 @@
 
             var isGreat = MatchesGreatLeague;
             var isUltra = MatchesUltraLeague;
+            var greatLeagueEmoji = PvPLeague.Great.GetLeagueEmojiIcon();
+            var ultraLeagueEmoji = PvPLeague.Ultra.GetLeagueEmojiIcon();
             var isPvP = isGreat || isUltra;
             var pvpStats = await GetPvP();
 
@@ -512,6 +515,8 @@
                 { "is_pvp", Convert.ToString(isPvP) },
                 //{ "great_league_stats", greatLeagueStats },
                 //{ "ultra_league_stats", ultraLeagueStats },
+                { "great_league_emoji", greatLeagueEmoji },
+                { "ultra_league_emoji", ultraLeagueEmoji },
                 { "pvp_stats", pvpStats },
 
                 // Other properties
@@ -621,7 +626,8 @@
             var result = sb.ToString();
             if (!string.IsNullOrEmpty(result))
             {
-                result = "**Great League:**\r\n" + result;
+                var greatLeagueEmoji = PvPLeague.Great.GetLeagueEmojiIcon();
+                result = greatLeagueEmoji + " **Great League:**\r\n" + result;
             }
             return await Task.FromResult(result);
         }
@@ -655,7 +661,8 @@
             var result = sb.ToString();
             if (!string.IsNullOrEmpty(result))
             {
-                result = "**Ultra League:**\r\n" + result;
+                var ultraLeagueEmoji = PvPLeague.Ultra.GetLeagueEmojiIcon();
+                result = ultraLeagueEmoji + " **Ultra League:**\r\n" + result;
             }
             return await Task.FromResult(result);
         }

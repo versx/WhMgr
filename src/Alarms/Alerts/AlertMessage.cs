@@ -66,7 +66,7 @@
                     IconUrl = "<pkmn_img_url>",
                     Title = "<geofence>: <gym_name>",
                     Url = "<gmaps_url>",
-                    Username = "<pkmn_form> <pkmn_name> Raid",
+                    Username = "<form> <pkmn_name> Raid",
                     ImageUrl = "<tilemaps_url>",
                     Footer = new AlertMessageFooter
                     {

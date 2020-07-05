@@ -35,8 +35,7 @@
     // TODO: List all subscriptions with info command
     // TODO: Subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
-    // TODO: Custom footer DTS
-    // TODO: PvP icons to DTS
+    // TODO: Custom gender emojis
 
     public class Bot
     {

@@ -7,6 +7,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Data.Models;
+    using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Localization;
     using WhMgr.Net.Models;
 
@@ -354,7 +355,7 @@
 
         public static string GetWeatherEmojiIcon(this WeatherType weather)
         {
-            var key = $"weather_" + Convert.ToInt32(weather);
+            var key = $"weather_{Convert.ToInt32(weather)}";
             var emojiId = MasterFile.Instance.Emojis[key];
             var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : weather.ToString();
             return emojiName;
@@ -362,9 +363,17 @@
 
         public static string GetCaptureRateEmojiIcon(this CaptureRateType type)
         {
-            var key = $"capture_" + Convert.ToInt32(type);
+            var key = $"capture_{Convert.ToInt32(type)}";
             var emojiId = MasterFile.Instance.Emojis[key];
             var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : type.ToString();
+            return emojiName;
+        }
+
+        public static string GetLeagueEmojiIcon(this PvPLeague league)
+        {
+            var key = $"league_{league.ToString().ToLower()}";
+            var emojiId = MasterFile.Instance.Emojis[key];
+            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : league.ToString();
             return emojiName;
         }
 

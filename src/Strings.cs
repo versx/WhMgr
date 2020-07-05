@@ -154,7 +154,11 @@
             "types_dark",
             "types_normal",
             "types_flying",
-            "types_poison"
+            "types_poison",
+
+            // PVP league emojis
+            "league_great",
+            "league_ultra"
         };
 
         public static IReadOnlyDictionary<WeatherType, List<PokemonType>> WeatherBoosts => new Dictionary<WeatherType, List<PokemonType>>
