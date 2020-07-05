@@ -428,6 +428,7 @@
             var form = FormId.GetPokemonForm();
             var costume = Id.GetCostume(Costume.ToString());
             var gender = Gender.GetPokemonGenderIcon();
+            var genderEmoji = Gender.GetGenderEmojiIcon();
             var level = Level;
             var size = Size?.ToString();
             var weather = Weather?.ToString();
@@ -489,6 +490,7 @@
                 { "cp", CP ?? defaultMissingValue },
                 { "lvl", level ?? defaultMissingValue },
                 { "gender", gender },
+                { "gender_emoji", genderEmoji },
                 { "size", size ?? defaultMissingValue },
                 { "move_1", move1 ?? defaultMissingValue },
                 { "move_2", move2 ?? defaultMissingValue },

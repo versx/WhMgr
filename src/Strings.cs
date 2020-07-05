@@ -156,7 +156,12 @@
 
             // PVP league emojis
             "league_great",
-            "league_ultra"
+            "league_ultra",
+
+            // Gender emojis
+            "gender_male",
+            "gender_female",
+            "gender_genderless"
         };
 
         public static IReadOnlyDictionary<WeatherType, List<PokemonType>> WeatherBoosts => new Dictionary<WeatherType, List<PokemonType>>

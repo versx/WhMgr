@@ -302,11 +302,11 @@
             switch (gender)
             {
                 case PokemonGender.Male:
-                    return "-m"; //♂ \u2642
+                    return "♂"; //♂ \u2642
                 case PokemonGender.Female:
-                    return "-f"; //♀ \u2640
+                    return "♀"; //♀ \u2640
                 default:
-                    return ""; //⚲
+                    return "⚲"; //⚲
             }
         }
 
@@ -374,6 +374,14 @@
             var key = $"league_{league.ToString().ToLower()}";
             var emojiId = MasterFile.Instance.Emojis[key];
             var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : league.ToString();
+            return emojiName;
+        }
+
+        public static string GetGenderEmojiIcon(this PokemonGender gender)
+        {
+            var key = $"gender_{gender.ToString().ToLower()}";
+            var emojiId = MasterFile.Instance.Emojis[key];
+            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : gender.ToString();
             return emojiName;
         }
 
