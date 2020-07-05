@@ -47,6 +47,16 @@
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(minAtk * minAtk * minDef * minSta) / 10));
         }
 
+        public static bool IsCommonPokemon(this int pokeId)
+        {
+            return MasterFile.Instance.PokemonRarity[PokemonRarity.Common].Contains(pokeId);
+        }
+
+        public static bool IsRarePokemon(this int pokeId)
+        {
+            return MasterFile.Instance.PokemonRarity[PokemonRarity.Rare].Contains(pokeId);
+        }
+
         /*
         public static int GetLevel(this int id, int cp, int atk, int def, int sta)
         {

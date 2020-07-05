@@ -320,7 +320,7 @@
                 var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
 
                 // Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
-                if (IsCommonPokemon(pokemonId) && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
+                if (pokemonId.IsCommonPokemon() && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
                 {
                     await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_COMMON_TYPE_POKEMON").FormatText(ctx.User.Username, pokemon.Name, Strings.CommonTypeMinimumIV), DiscordColor.Red);
@@ -329,9 +329,9 @@
 
                 var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
                 // Always ignore the user's input for Unown and set it to 0 by default.
-                var minIV = IsRarePokemon(pokemonId) ? 0 : realIV;
-                var minLvl = IsRarePokemon(pokemonId) ? 0 : minLevel;
-                var maxLvl = IsRarePokemon(pokemonId) ? 35 : maxLevel;
+                var minIV = pokemonId.IsRarePokemon() ? 0 : realIV;
+                var minLvl = pokemonId.IsRarePokemon() ? 0 : minLevel;
+                var maxLvl = pokemonId.IsRarePokemon() ? 35 : maxLevel;
                 var hasStatsSet = attack >= 0 || defense >= 0 || stamina >= 0;
                 if (subPkmn == null)
                 {
@@ -1764,16 +1764,6 @@
             }
 
             return list;
-        }
-
-        private bool IsCommonPokemon(int pokeId)
-        {
-            return MasterFile.Instance.PokemonRarity[PokemonRarity.Common].Contains(pokeId);
-        }
-
-        private bool IsRarePokemon(int pokeId)
-        {
-            return MasterFile.Instance.PokemonRarity[PokemonRarity.Rare].Contains(pokeId);
         }
 
         private List<string> GetListFromRange(int startRange, int endRange)

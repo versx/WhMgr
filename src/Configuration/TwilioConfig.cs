@@ -1,5 +1,7 @@
 ﻿namespace WhMgr.Configuration
 {
+    using System.Collections.Generic;
+
     using Newtonsoft.Json;
 
     public class TwilioConfig
@@ -15,5 +17,36 @@
 
         [JsonProperty("from")]
         public string FromNumber { get; set; }
+
+        [JsonProperty("userIds")]
+        public List<ulong> UserIds { get; set; }
+
+        [JsonProperty("pokemonIds")]
+        public List<int> PokemonIds { get; set; }
+
+        [JsonProperty("minIV")]
+        public int MinimumIV { get; set; }
+
+        public TwilioConfig()
+        {
+            UserIds = new List<ulong>();
+            PokemonIds = new List<int>
+            {
+                201, // Unown
+                480, // Uxie
+                481, // Mesprite
+                482, // Azelf
+                443, // Gible
+                444, // Gabite
+                445, // Garchomp
+                633, // Deino
+                634, // Zweilous
+                635, // Hydreigon
+                610, // Axew
+                611, // Fraxure
+                612 // Haxorus
+            };
+            MinimumIV = 100;
+        }
     }
 }
