@@ -996,9 +996,10 @@
             }
             subscription.Save();
 
+            var valid = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
-                string.Join(", ", validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name)),
+                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", valid),
                 string.IsNullOrEmpty(city) ?
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
@@ -1085,9 +1086,10 @@
                 }
             }
 
+            var valid = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
-                string.Join(", ", validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name)),
+                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", valid),
                 string.IsNullOrEmpty(city) ?
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
