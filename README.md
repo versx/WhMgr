@@ -1,6 +1,6 @@
-# Brock Webhook Manager
+# Brock Webhook Manager v4.0  
 
-### PokeAlarm alternative.  
+### PokeAlarm, Poracle, WDR, etc alternative.  
 Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
 
 
