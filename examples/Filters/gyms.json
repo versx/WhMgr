@@ -1,0 +1,8 @@
+{
+	"gyms":
+	{
+		"enabled": true,
+		"underAttack": true,
+		"team": "All"
+	}
+}

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using DSharpPlus;
@@ -12,9 +13,9 @@
     using DSharpPlus.Interactivity;
 
     using WhMgr.Configuration;
-    using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Localization;
+    using WhMgr.Net.Models;
 
     public static class DiscordExtensions
     {
@@ -44,6 +45,7 @@
                 };
 
                 messagesSent.Add(await discordMessage.RespondAsync(embed: eb));
+                Thread.Sleep(500);
             }
             return messagesSent;
         }
@@ -142,12 +144,10 @@
                 await ctx.TriggerTypingAsync();
             }
 
-            var lang = ctx.Dependencies?.GetDependency<Translator>();
-            var message = lang != null ? 
-                    lang.Translate("DONATE_MESSAGE").FormatText(ctx.User.Username) :
-                    $"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\n" +
-                    $"Donation information can be found by typing the `donate` command.\r\n\r\n" +
-                    $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
+            var message = Translator.Instance.Translate("DONATE_MESSAGE", ctx.User.Username) ??
+                $"{ctx.User.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
+                $"Donation information can be found by typing the `$donate` command.\r\n\r\n" +
+                $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
             var eb = await ctx.RespondEmbed(message);
             return eb.FirstOrDefault();
         }
@@ -156,8 +156,7 @@
         {
             if (message?.Channel?.Guild == null)
             {
-                //TODO: Localize
-                await message.RespondEmbed($"{message.Author.Mention} Direct message is not supported for this command.", DiscordColor.Yellow);
+                await message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", message.Author.Username), DiscordColor.Yellow);
                 return false;
             }
 
@@ -378,24 +377,6 @@
             return Tuple.Create(channel, deleted);
         }
 
-        #region Emojis
-
-        public static ulong? GetEmojiId(this DiscordGuild guild, string emojiName)
-        {
-            return guild.Emojis.FirstOrDefault(x => string.Compare(x.Name, emojiName, true) == 0)?.Id;
-        }
-
-        public static string GetEmoji(this string emojiName)
-        {
-            if (!MasterFile.Instance.Emojis.ContainsKey(emojiName))
-            {
-                return null;
-            }
-            return string.Format(Strings.EmojiSchema, emojiName, MasterFile.Instance.Emojis[emojiName]);
-        }
-
-        #endregion
-
         public static async Task<bool> Confirm(this CommandContext ctx, string message)
         {
             await ctx.RespondEmbed(message);
@@ -455,6 +436,30 @@
             }
 
             return DiscordColor.White;
+        }
+
+        public static DiscordColor BuildWeatherColor(this WeatherType weather)
+        {
+            switch (weather)
+            {
+                case WeatherType.Clear:
+                    return DiscordColor.Yellow;
+                case WeatherType.Cloudy:
+                    return DiscordColor.Grayple;
+                case WeatherType.Fog:
+                    return DiscordColor.DarkGray;
+                case WeatherType.PartlyCloudy:
+                    return DiscordColor.LightGray;
+                case WeatherType.Rain:
+                    return DiscordColor.Blue;
+                case WeatherType.Snow:
+                    return DiscordColor.White;
+                case WeatherType.Windy:
+                    return DiscordColor.Purple;
+                case WeatherType.None:
+                default:
+                    return DiscordColor.Gray;
+            }
         }
 
         #endregion

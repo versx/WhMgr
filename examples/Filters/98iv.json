@@ -4,7 +4,7 @@
 		"enabled": true,
 		"pokemon": [],
 		"min_iv": 97,
-		"max_iv": 99,
+		"max_iv": 100,
 		"type": "Include",
 		"ignoreMissing": true
 	}

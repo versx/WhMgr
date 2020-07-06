@@ -26,5 +26,12 @@
         {
             return base.Translate(value);
         }
+
+        public string Translate(string value, params object[] args)
+        {
+            return args.Length > 0
+                ? string.Format(base.Translate(value), args)
+                : base.Translate(value);
+        }
     }
 }

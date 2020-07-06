@@ -1,7 +1,5 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
-    using System;
-
     using ServiceStack.DataAnnotations;
 
     using Newtonsoft.Json;
@@ -38,6 +36,7 @@
         ]
         public PvPLeague League { get; set; }
 
+        /*
         [
             JsonProperty("min_cp"),
             Ignore//Alias("min_cp")
@@ -66,10 +65,11 @@
             Ignore//Alias("max_cp")
         ]
         public int MaximumCP => Convert.ToInt32(League);
+        */
 
         [
             JsonProperty("min_rank"),
-            Alias("miv_rank"),
+            Alias("min_rank"),
             Default(25)
         ]
         public int MinimumRank { get; set; }
@@ -81,12 +81,20 @@
         ]
         public double MinimumPercent { get; set; }
 
+        [
+            JsonProperty("city"),
+            Alias("city"),
+            Default("all")
+        ]
+        public string City { get; set; }
+
         public PvPSubscription()
         {
             Form = null;
             League = PvPLeague.Great;
             MinimumRank = 25;
             MinimumPercent = 90;
+            City = "all";
         }
     }
 }

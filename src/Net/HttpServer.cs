@@ -15,55 +15,98 @@
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
+    /// <summary>
+    /// HTTP listener class
+    /// </summary>
     public class HttpServer
     {
         #region Variables
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("HTTP");
         private static readonly object _lock = new object();
-        private readonly bool _enableDST = false;
-        private readonly bool _enableLeapYear = false;
+        private readonly Dictionary<ulong, PokemonData> _processedPokemon;
+        private readonly Dictionary<string, RaidData> _processedRaids;
+        private readonly Dictionary<string, GymData> _processedGyms;
+        private readonly Dictionary<string, PokestopData> _processedPokestops;
+        private readonly Dictionary<string, QuestData> _processedQuests;
+        private readonly Dictionary<string, TeamRocketInvasion> _processedInvasions;
+        private readonly Dictionary<long, WeatherData> _processedWeather;
         private HttpListener _server;
-        //private Thread _requestThread;
+        private bool _initialized = false;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// HTTP listening interface/host address
+        /// </summary>
+        public string Host { get; }
+
+        /// <summary>
+        /// Http listening port
+        /// </summary>
         public ushort Port { get; }
 
+        /// <summary>
+        /// Logs incoming webhook data if set to <c>true</c>
+        /// </summary>
         public bool IsDebug { get; set; }
 
+        /// <summary>
+        /// Skips webhook raid eggs
+        /// </summary>
         public bool SkipEggs { get; set; }
 
         #endregion
 
         #region Events
 
+        /// <summary>
+        /// Trigged when a Pokemon webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<PokemonData>> PokemonReceived;
 
         private void OnPokemonReceived(PokemonData pokemon) => PokemonReceived?.Invoke(this, new DataReceivedEventArgs<PokemonData>(pokemon));
 
+        /// <summary>
+        /// Trigged when a Raid or Raid Egg webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<RaidData>> RaidReceived;
 
         private void OnRaidReceived(RaidData raid) => RaidReceived?.Invoke(this, new DataReceivedEventArgs<RaidData>(raid));
 
+        /// <summary>
+        /// Trigged when a Field Research Quest webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<QuestData>> QuestReceived;
 
         private void OnQuestReceived(QuestData quest) => QuestReceived?.Invoke(this, new DataReceivedEventArgs<QuestData>(quest));
 
+        /// <summary>
+        /// Trigged when a Pokestop webhook (lure/invasion) payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<PokestopData>> PokestopReceived;
 
         private void OnPokestopReceived(PokestopData pokestop) => PokestopReceived?.Invoke(this, new DataReceivedEventArgs<PokestopData>(pokestop));
 
+        /// <summary>
+        /// Trigged when a Gym webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<GymData>> GymReceived;
 
         private void OnGymReceived(GymData gym) => GymReceived?.Invoke(this, new DataReceivedEventArgs<GymData>(gym));
 
+        /// <summary>
+        /// Trigged when a Gym Details webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<GymDetailsData>> GymDetailsReceived;
 
         private void OnGymDetailsReceived(GymDetailsData gymDetails) => GymDetailsReceived?.Invoke(this, new DataReceivedEventArgs<GymDetailsData>(gymDetails));
 
+        /// <summary>
+        /// Trigged when a Weather webhook payload is received.
+        /// </summary>
         public event EventHandler<DataReceivedEventArgs<WeatherData>> WeatherReceived;
 
         private void OnWeatherReceived(WeatherData weather) => WeatherReceived?.Invoke(this, new DataReceivedEventArgs<WeatherData>(weather));
@@ -72,11 +115,21 @@
 
         #region Constructor
 
-        public HttpServer(ushort port, bool enableDST, bool enableLeapYear)
+        /// <summary>
+        /// Instantiates a new <see cref="HttpServer"/> class.
+        /// </summary>
+        /// <param name="port">Listening port</param>
+        public HttpServer(string host, ushort port)
         {
+            Host = host;
             Port = port;
-            _enableDST = enableDST;
-            _enableLeapYear = enableLeapYear;
+            _processedPokemon = new Dictionary<ulong, PokemonData>();
+            _processedRaids = new Dictionary<string, RaidData>();
+            _processedGyms = new Dictionary<string, GymData>();
+            _processedPokestops = new Dictionary<string, PokestopData>();
+            _processedQuests = new Dictionary<string, QuestData>();
+            _processedInvasions = new Dictionary<string, TeamRocketInvasion>();
+            _processedWeather = new Dictionary<long, WeatherData>();
 
             Initialize();
         }
@@ -85,9 +138,18 @@
 
         #region Public Methods
 
+        /// <summary>
+        /// Starts the HTTP listener server
+        /// </summary>
         public void Start()
         {
             _logger.Trace($"Start");
+
+            if (!_initialized)
+            {
+                _logger.Error("HTTP listener not initalized, make sure you run as administrator or root.");
+                return;
+            }
 
             if (_server.IsListening)
             {
@@ -104,16 +166,13 @@
             }
 
             _logger.Info($"Starting HttpServer request handler...");
-            //if (_requestThread == null)
-            //{
-                var requestThread = new Thread(RequestHandler) { IsBackground = true };
-            //}
-            //if (_requestThread.ThreadState != ThreadState.Running)
-            //{
-                requestThread.Start();
-            //}
+            var requestThread = new Thread(RequestHandler) { IsBackground = true };
+            requestThread.Start();
         }
 
+        /// <summary>
+        /// Attempts to stop the HTTP listener server
+        /// </summary>
         public void Stop()
         {
             _logger.Trace($"Stop");
@@ -126,13 +185,6 @@
 
             _logger.Info($"Stopping...");
             _server.Stop();
-
-            //if (_requestThread != null)
-            //{
-            //    _logger.Info($"Exiting main thread...");
-            //    _requestThread.Abort();
-            //    _requestThread = null;
-            //}
         }
 
         #endregion
@@ -153,7 +205,6 @@
                 {
                     try
                     {
-                        //if (sr.Peek() > -1)
                         var data = sr.ReadToEnd();
                         ParseData(data);
                     }
@@ -201,11 +252,13 @@
                 }
 
                 var messages = JsonConvert.DeserializeObject<List<WebhookMessage>>(data);
+                // If we fail to deserialize webhook payload, skip
                 if (messages == null)
                     return;
 
-                foreach (var message in messages)
+                for (var i = 0; i < messages.Count; i++)
                 {
+                    var message = messages[i];
                     switch (message.Type)
                     {
                         case PokemonData.WebHookHeader:
@@ -251,7 +304,14 @@
                     return;
                 }
 
-                pokemon.SetDespawnTime(_enableDST, _enableLeapYear);
+                pokemon.SetDespawnTime();
+                /*
+                if (_processedPokemon.ContainsKey(pokemon.EncounterId))
+                {
+                    // Pokemon already sent (check if IV set)
+                    return;
+                }
+                */
 
                 OnPokemonReceived(pokemon);
             }
@@ -279,7 +339,27 @@
                     return;
                 }
 
-                raid.SetTimes(_enableDST, _enableLeapYear);
+                raid.SetTimes();
+
+                if (_processedRaids.ContainsKey(raid.GymId))
+                {
+                    /*
+                    if ((_processedRaids[raid.GymId].PokemonId == 0 || _processedRaids[raid.GymId].PokemonId == raid.PokemonId) &&
+                        _processedRaids[raid.GymId].Form == raid.Form &&
+                        _processedRaids[raid.GymId].Level == raid.Level &&
+                        _processedRaids[raid.GymId].Start == raid.Start &&
+                        _processedRaids[raid.GymId].End == raid.End)
+                    {
+                        _logger.Debug($"PROCESSED RAID ALREADY: Id: {raid.GymId} Name: {raid.GymName} Pokemon: {raid.PokemonId} Form: {raid.Form} Start: {raid.StartTime} End: {raid.EndTime}");
+                        // Processed raid already
+                        return;
+                    }
+                    */
+                }
+                else
+                {
+                    _processedRaids.Add(raid.GymId, raid);
+                }
 
                 OnRaidReceived(raid);
             }
@@ -299,6 +379,21 @@
                 {
                     _logger.Error($"Failed to parse Quest webhook object: {message}");
                     return;
+                }
+
+                if (_processedQuests.ContainsKey(quest.PokestopId))
+                {
+                    if (_processedQuests[quest.PokestopId].Type == quest.Type &&
+                        _processedQuests[quest.PokestopId].Rewards == quest.Rewards &&
+                        _processedQuests[quest.PokestopId].Conditions == quest.Conditions)
+                    {
+                        // Processed quest already
+                        return;
+                    }
+                }
+                else
+                {
+                    _processedQuests.Add(quest.PokestopId, quest);
                 }
 
                 OnQuestReceived(quest);
@@ -321,7 +416,23 @@
                     return;
                 }
 
-                pokestop.SetTimes(_enableDST, _enableLeapYear);
+                pokestop.SetTimes();
+
+                if (_processedPokestops.ContainsKey(pokestop.PokestopId))
+                {
+                    var processedLureAlready = _processedPokestops[pokestop.PokestopId].LureType == pokestop.LureType && _processedPokestops[pokestop.PokestopId].LureExpire == pokestop.LureExpire;
+                    var processedInvasionAlready = _processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType && _processedPokestops[pokestop.PokestopId].IncidentExpire == pokestop.IncidentExpire;
+                    if (processedLureAlready || processedInvasionAlready)
+                    {
+                        _logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
+                        // Processed pokestop lure or invasion already
+                        return;
+                    }
+                }
+                else
+                {
+                    _processedPokestops.Add(pokestop.PokestopId, pokestop);
+                }
 
                 OnPokestopReceived(pokestop);
             }
@@ -383,6 +494,19 @@
                     return;
                 }
 
+                if (_processedWeather.ContainsKey(weather.Id))
+                {
+                    if (_processedWeather[weather.Id].GameplayCondition == weather.GameplayCondition)
+                    {
+                        // Processed weather already
+                        return;
+                    }
+                }
+                else
+                {
+                    _processedWeather.Add(weather.Id, weather);
+                }
+
                 OnWeatherReceived(weather);
             }
             catch (Exception ex)
@@ -409,26 +533,18 @@
                     addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Ethernet);
                 }
 
-                if (IsAdministrator())
+                if (!IsAdministrator())
                 {
-                    for (var i = 0; i < addresses.Count; i++)
-                    {
-                        var endpoint = PrepareEndPoint(addresses[i], Port);
-                        if (!_server.Prefixes.Contains(endpoint))
-                            _server.Prefixes.Add(endpoint);
-
-                        _logger.Debug($"[IP ADDRESS] {endpoint}");
-                    }
+                    _logger.Error("Failed to start listener, please run as administrator/root!");
+                    return;
                 }
 
-                for (var i = 0; i < Strings.LocalEndPoint.Length; i++)
+                var endpoint = PrepareEndPoint(Host, Port);
+                if (!_server.Prefixes.Contains(endpoint))
                 {
-                    var endpoint = PrepareEndPoint(Strings.LocalEndPoint[i], Port);
-                    if (!_server.Prefixes.Contains(endpoint))
-                        _server.Prefixes.Add(endpoint);
-
-                    _logger.Debug($"[IP ADDRESS] {endpoint}");
+                    _server.Prefixes.Add(endpoint);
                 }
+                _initialized = true;
             }
             catch (Exception ex)
             {
@@ -503,12 +619,16 @@
 
         private static bool IsAdministrator()
         {
+#if Windows
             var identity = WindowsIdentity.GetCurrent();
             var principal = new WindowsPrincipal(identity);
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
+#else
+            return true;
+#endif
         }
 
-        #endregion
+#endregion
 
         private class WebhookMessage
         {

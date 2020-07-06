@@ -3,10 +3,10 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.ComponentModel;
     using System.Globalization;
     using System.IO;
-    using System.Xml;
+
+    using Newtonsoft.Json;
 
     public class Language<TFrom, TTo, TDictionary> : IEnumerable<KeyValuePair<TFrom, TTo>>
         where TDictionary : IDictionary<TFrom, TTo>, new()
@@ -109,9 +109,7 @@
         public virtual TTo Translate(TFrom value)
         {
             // loop through table looking for result
-#pragma warning disable RECS0017 // Possible compare of value type with 'null'
             if (value == null || !_map.TryGetValue(value, out TTo result))
-#pragma warning restore RECS0017 // Possible compare of value type with 'null'
             {
                 result = DefaultValue;
             }
@@ -186,26 +184,6 @@
         }
 
         /// <summary>
-        /// Switchs the language.
-        /// </summary>
-        /// <param name="localeCode">Locale code.</param>
-        public void SwitchLanguage(string localeCode)
-        {
-            CurrentCulture = new CultureInfo(localeCode);
-            Console.WriteLine($"[INFO] Switching current UI language to {CurrentCulture.DisplayName}...");
-
-            string path = Path.Combine(LocaleDirectory, CountryCode + ".xml");
-            if (!File.Exists(path))
-                return;
-
-            //if (_settings != null)
-            //{
-            //    _settings.ConfigPath = path;
-            //    _settings.LoadSettings();
-            //}
-        }
-
-        /// <summary>
         /// Get an enumerator to walk through the list
         /// </summary>
         /// <returns>The enumerator.</returns>
@@ -227,50 +205,20 @@
 
         #region Private Methods
 
+        /// <summary>
+        /// Load specified locale code associated with locale translation file
+        /// </summary>
+        /// <param name="localeCode">Two digit country code (i.e. en, de, es, etc..)</param>
+        /// <returns>Returns a dictionary of locale translations</returns>
         private TDictionary LoadCountry(string localeCode)
         {
             CurrentCulture = new CultureInfo(localeCode);
 
-            var path = Path.Combine(LocaleDirectory, localeCode + ".xml");
+            var path = Path.Combine(LocaleDirectory, localeCode + ".json");
             var data = File.ReadAllText(path);
-            var xml = new XmlDocument();
-            xml.LoadXml(data);
-            var resources = xml.SelectNodes("resources/string");
-            var dict = new TDictionary();
-
-            foreach (XmlNode node in resources)
-            {
-                var key = StringToObject<TFrom>(node.Attributes["name"].Value);
-                var val = StringToObject<TTo>(node.InnerText);
-                dict.Add(key, val);
-            }
-
-            return dict;
+            var obj = JsonConvert.DeserializeObject<TDictionary>(data);
+            return obj;
         }
-
-        /// <summary>
-        /// Converts a string to its object representation.
-        /// </summary>
-        /// <typeparam name="T">The type of object to convert the string to.</typeparam>
-        /// <param name="value">The actual string value.</param>
-        /// <returns>Returns an object relating to the converted string.</returns>
-        private static T StringToObject<T>(string value)
-        {
-            var tc = TypeDescriptor.GetConverter(typeof(T));
-            return (T)tc.ConvertFromString(value);
-        }
-
-        ///// <summary>
-        ///// Converts an object to its string representation.
-        ///// </summary>
-        ///// <typeparam name="T">The type of object to convert.</typeparam>
-        ///// <param name="value">The actual object value.</param>
-        ///// <returns>Returns the string representation of the converted object.</returns>
-        //private static string ObjectToString<T>(T value)
-        //{
-        //    var tc = TypeDescriptor.GetConverter(typeof(T));
-        //    return tc.ConvertToString(value);
-        //}
 
         #endregion
     }

@@ -5,13 +5,15 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 
 
 ## Description:  
-Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, and field research quests. Also supports Discord user's subscribing to Pokemon, raid, quest, and Team Rocket invasion notifications via DM.
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, and Team Rocket invasion notifications via DM.
 
 
 ## Features:  
 - Supports multiple Discord servers.  
-- Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, and invasions.  
+- Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
 - Per user custom Discord notifications for Pokemon, raids, quests, and invasions.  
+- User interface to configure Discord notifications with ease (as well as Discord commands). (https://github.com/versx/WhMgr-UI)  
+- Notifications based on pre-defined distance.  
 - Customizable alert messages with dynamic text replacement.  
 - Support for multiple cities/areas using roles and geofences per server.  
 - Daily shiny stats reporting.  
@@ -19,8 +21,13 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Support for Donors/Supporters only notifications.  
 - Direct messages of Pokemon notifications based on city roles assigned.  
 - Custom prefix support as well as mentionable user support for commands.  
+- Subscriptions based on distance from a set location or specific gym names.  
+- Twilio text message alerts for ultra rare Pokemon.  
 - Custom image support for Discord alarm reports.  
 - Custom icon style selection for Discord user notifications.  
+- External emoji server support.  
+- Custom static map format support.  
+- Support for language translation.  
 - Lots more...  
 
 ## Documentation:  
@@ -28,7 +35,15 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 
 ## Getting Started:  
 
-1.) Copy `config.example.json` to `config.json`.  
+1.) Run the following to install .NET Core runtime, clone respository, and copy example Alerts, Filters, Geofences, config and alarm files.  
+```
+Linux/macOS:  
+wget https://raw.githubusercontent.com/versx/WhMgr/netcore/install.sh && chmod +x install.sh && ./install.sh && rm install.sh  
+
+Windows:  
+bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/netcore/install.bat install.bat | start install.bat  
+```
+2.) Edit `config.json` either open in Notepad/++ or `vi config.json`.  
   a.) [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
   b.) Input your bot token and config options.  
 ```js
@@ -47,7 +62,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
         "000000000000000001": {
             // Bot command prefix, leave blank to use @mention <command>
             "commandPrefix": ".",
-            // Discord server owner ID.
+            // Discord server server ID.
             "guildId": 000000000000000001,
             // Discord Emoji server ID. (Can be same as `guildId`, currently not implemented, set as `guildId`)  
             "emojiGuildId": 000000000000000001,
@@ -98,7 +113,9 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
             // Channel ID(s) bot commands can be executed in.
             "botChannelIds": [
                 000000000000000000
-            ]
+            ],
+            // Custom Discord status per server, leave blank or null to use current version.  
+            "status": ""
         },
         "000000000000000002": {
             "commandPrefix": ".",
@@ -133,7 +150,8 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
             "iconStyle": "Default",
             "botChannelIds": [
                 000000000000000000
-            ]
+            ],
+            "status": null
         }
     },
     // Database configuration
@@ -178,7 +196,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
             "database": "manualdb"
         }
     },
-    // List of Pokemon IDs to treat as event and restrict postings and subscriptions to 90% IV or higher.
+    // List of Pokemon IDs to treat as event and restrict postings and subscriptions to 90% IV or higher. (Filled in automatically with `event set` command)  
     "eventPokemonIds": [
         129,
         456,
@@ -186,24 +204,49 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
     ],
     // Image URL config
     "urls": {
-        //Pokemon images repository path.
-        "pokemonImage": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png",
-        //Raid egg images repository path.
-        "eggImage": "https://cdn.example.com/images/shuffle/eggs/{0}.png",
-        //Field research quest images repository path.
-        "questImage": "https://cdn.example.com/images/shuffle/quests/{0}.png",
         //Static tile map images template.
         "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png"
     },
     // Available icon styles
     "iconStyles": {
-        "Default": "https://cdn.example.com/images/original/monsters/{0:D3}_{1:D3}.png",
-        "Shuffle": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png"
-    }
+        "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
+        "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
+    },
+    "staticMaps": {
+        "pokemon": "pokemon.example.json",
+        "raids": "raids.example.json",
+        "quests": "quests.example.json",
+        "invasions": "invasions.example.json",
+        "lures": "lures.example.json",
+        "gyms": "gyms.example.json",
+        "nests": "nests.example.json",
+        "weather": "weather.example.json"
+    },
+    // Get text message alerts with Twilio.com
+    "twilio": {
+        // Determines if text message alerts are be enabled
+        "enabled": false,
+        // Twilio account SID (Get via Twilio dashboard)
+        "accountSid": "",
+        // Twilio account auth token (Get via Twilio dashboard)
+        "authToken": "",
+        // Twilio phone number that will be sending the text message alert
+        "from": "",
+        // List of Discord user ids that can receive text message alerts
+        "userIds": "",
+        // List of acceptable Pokemon to receive text message alerts from
+        "pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
+        // Minimum acceptable IV value for Pokemon to be if not ultra rare (Unown, Lake Trio)
+        "minIV": 100
+    },
+    // Log webhook payloads to a file for debugging
+    "debug": false,
+    // Only show logs with higher or equal priority levels
+    "logLevel": "Trace"
 }
 ```
-2.) Copy `alarms.example.json` to `alarms.json`.  
-3.) Fill out the alarms file.  
+3.) Edit `alarms.json` either open in Notepad/++ or `vi alarms.json`.  
+4.) Fill out the alarms file.  
 ```js
 {
     //Global switch for Pokemon notifications.
@@ -220,49 +263,52 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
   
     //Global switch for Gym notifications.
     "enableGyms": false,
+    
+    //Global switch for Weather notifications.
+    "enableWeather": false,
   
     //List of alarms
     "alarms": [{
         //Alarm name.
         "name":"Alarm1",
-	  
+      
         //Alerts file.
         "alerts":"default.json",
-	  
+      
         //Alarm filters.
         "filters":"default.json",
-	  
+      
         //Path to geofence file.
         "geofence":"geofence1.txt",
-	
-	//DTS compatible mention description.  
-	"mentions":"<!@324234324> <iv> L<lvl> <geofence>"  
+    
+        //DTS compatible mention description.  
+        "mentions":"<!@324234324> <iv> L<lvl> <geofence>"  
       
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
     },{
         //Alarm name.
         "name":"Alarm2",
-	  
+      
         //Alerts file.
         "alerts":"default.json",
-	  
+      
         //Alarm filters.
         "filters":"100iv.json",
-	  
+      
         //Path to geofence file.
         "geofence":"geofence1.txt",
-	
-	//DTS compatible mention description.  
-	"mentions":""  
+    
+        //DTS compatible mention description.  
+        "mentions":""  
       
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
     }]
 }
 ```
-4.) Create directory `Geofences` in root directory of executable file.  
-5.) Create/copy geofence files to `Geofences` folder.  
+5.) Create directory `Geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
+6.) Create/copy geofence files to `Geofences` folder.  
 
 *Note:* Geofence file format is the following:  
 ```ini
@@ -277,8 +323,10 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 33.02,-118.02
 33.03,-118.03
 ```
-6.) Run `schema.sql` to manually create necessary database tables. 
-7.) Start WhMgr.exe with Administrator privileges.  
+7.) Add dotnet to your environment path if it isn't already (optional): `export PATH=~/.dotnet/dotnet:$PATH`  
+8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
+9.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
+10.) Optional User Interface for members to create subscriptions from a website instead of using Discord commands. (Still WIP but mostly done) [WhMgr UI](https://github.com/versx/WhMgr-UI)  
 
 **Important Notes:**  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.  
@@ -290,13 +338,13 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
   * Manage Emojis  
   * Embed Links  
   * Attach Files (`export` command)  
-  * Use External Emojis (soon)  
+  * Use External Emojis  
 - DM notifications can be sent to users based on:  
     - Pokemon ID  
     - Pokemon Form  
     - Pokemon IV  
     - Pokemon Level  
-    - Pokemon Attack/Defense/Stamina values  
+    - List of Pokemon Attack/Defense/Stamina values  
     - Pokemon Gender  
     - Raid Boss  
     - City  
@@ -311,12 +359,16 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 * `enable` Enable direct message subscriptions  
 * `disable` Disable direct message subscriptions  
 * `info` List all Pokemon, Raid, Quest, Invasion, and Gym subscriptions and settings  
-* `set-distance`  Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in kilometers)  
+* `set-distance`  Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in meters)  
 * `expire` / `expires` Check stripe API when Donor/Supporter subscription expires  
 
 **Pokemon Subscriptions**  
 * `pokeme` Subscribe to specific Pokemon notifications  
 * `pokemenot` Unsubscribe from specific Pokemon notifications
+
+**PVP Subscriptions**  
+* `pvpme` Subscription to specific PVP Pokemon notifications
+* `pvpmenot` Unsubscribe from specific PVP Pokemon notifications
 
 **Raid Subscriptions**  
 * `raidme` Subscribe to specific Raid notifications
@@ -549,17 +601,34 @@ __**Quests**__
 | gmaps_url | Google maps location url | https://maps.google.com/maps?q=5.980921321,3.109283009
 | applemaps_url | Apple maps location url | https://maps.apple.com/maps?daddr=5.980921321,3.109283009
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
-| br | Newline break | `\r\n`
+| br | Newline break | `\r\n`  
+
+**Weather**  
+
+| Place Holder | Description  | Example
+|---|---|---|  
+| id | Weather Cell ID | -932840982304982034
+| weather_img_url | Image url of Weather condition type | https://google.com/imgs/weather_2.png
+| weather_condition | Weather condition type string | Clear
+| geofence | Geofence name raid boss is in | City1
+| lat | Latitude coordinate of Pokemon location | 5.980921321
+| lng | Longitude coordinate of Pokemon location | 3.109283009
+| lat_5 | Latitude coordinate shortend to 5th precision | 5.98092
+| lng_5 | Longitude coordinate shortend to 5th precision | 3.10928
+| tilemaps_url | Static tile map url | http://tiles.example.com/static/pokemon-1.png
+| gmaps_url | Google maps location url | https://maps.google.com/maps?q=5.980921321,3.109283009
+| applemaps_url | Apple maps location url | https://maps.apple.com/maps?daddr=5.980921321,3.109283009
+| wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
+| br | Newline break | `\r\n`  
 
 
 ## TODO:  
-- Convert to .NETCore project to allow cross platform deployments. (Windows, macOS, Linux)  
 - Allow Pokemon id and name in Pokemon filter lists.  
 - Individual filters per Pokemon. (PA style, maybe)  
-- Fix support for secondary emoji server.  
-- Finish Localization.  
+- Reload config on change
+- PvP ranks DTS
+- Separate subscriptions DTS
 - Wiki.  
-- Telegram support.  
 
 
 ## Examples:  
@@ -588,12 +657,14 @@ Discord Lure (Mossy) Notifications:
 Discord Lure (Magnetic) Notifications:  
 ![Lure (Magnetic) Notifications](images/lure_magnetic.png "Lure (Magnetic) Notifications")  
 
+Discord Gym Team Takeover Notifications:  
+![Gym Team Takeover Notifications](images/gyms.png "Gym Team Takeover Notifications")  
+
 Discord Team Rocket Invasion Notifications:  
 ![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
 
 ## Current Issues:  
 - Gender icon comes in as `?` so -m and -f are used for now.  
-- Emoji guild is not currently used, notification guild is used for now.  
 
 ## Credits:  
 [versx](https://github.com/versx) - Developer  

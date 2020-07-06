@@ -1,14 +1,17 @@
 ﻿namespace WhMgr.Commands
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
+    using DSharpPlus;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
 
     public class Quests
     {
@@ -23,7 +26,7 @@
         [
             Command("reset-quests"),
             Hidden,
-            RequireOwner
+            RequirePermissions(Permissions.KickMembers)
         ]
         public async Task ResetChannelAsync(CommandContext ctx,
             [Description("Discord channel to reset.")] DiscordChannel channel = null)
@@ -60,11 +63,12 @@
                         continue;
 
                     await message.DeleteAsync("Channel reset.");
+                    Thread.Sleep(100);
                 }
 
                 messages = await channel.GetMessagesAsync();
             }
-            await ctx.RespondEmbed(_dep.Language.Translate("CHANNEL_MESSAGES_DELETED").FormatText(ctx.User.Username, channel.Mention));
+            await ctx.RespondEmbed(Translator.Instance.Translate("CHANNEL_MESSAGES_DELETED").FormatText(ctx.User.Username, channel.Mention));
         }
     }
 }

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using WhMgr.Commands;
@@ -25,10 +26,13 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
 
-    //TODO: User subscriptions and Pokemon, Raid, and Quest alarm statistics by day. date/pokemonId/count
-    //TODO: Reload config on change
-    //TODO: PvP ranks dts
-    //TODO: Separate subscriptions dts
+    // TODO: Subscriptions, Pokemon, Raid, Quest, Invasion, Gym, Weather alarm statistics by day. date/pokemonId/count
+    // TODO: Specific timezone per Discord
+    // TODO: Account status alarms
+    // TODO: List all subscriptions with info command
+    // TODO: Manage subscriptions via DM again
+    // TODO: Multiple discord bot tokens per server
+    // TODO: Double check gym alarms
 
     public class Bot
     {
@@ -36,9 +40,8 @@
 
         private readonly Dictionary<ulong, DiscordClient> _servers;
         private readonly WebhookController _whm;
-        private readonly WhConfig _whConfig;
+        private WhConfig _whConfig;
         private readonly SubscriptionProcessor _subProcessor;
-        private readonly Translator _lang;
         private readonly Dictionary<string, GymDetailsData> _gyms;
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("BOT");
@@ -47,6 +50,10 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Discord bot class
+        /// </summary>
+        /// <param name="whConfig">Configuration settings</param>
         public Bot(WhConfig whConfig)
         {
             _logger.Trace($"WhConfig [Servers={whConfig.Servers.Count}, Port={whConfig.WebhookPort}]");
@@ -54,23 +61,36 @@
             _whConfig = whConfig;
             _gyms = new Dictionary<string, GymDetailsData>();
             _whm = new WebhookController(_whConfig);
-            _lang = new Translator();
-            _lang.SetLocale(_whConfig.Locale);
 
+            // Set translation language
+            Translator.Instance.SetLocale(_whConfig.Locale);
+
+            // Set database connection strings to static properties so we can access within our extension classes
             DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
             DataAccessLayer.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
 
+            // Start database migrator
+            var migrator = new DatabaseMigrator();
+            while (!migrator.Finished)
+            {
+                Thread.Sleep(50);
+            }
+
+            // Set unhandled exception event handler
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
+            // Initialize and start midnight reset timer
             var midnight = new DandTSoftware.Timers.MidnightTimer();
-            midnight.TimeReached += async (e) => await ResetQuests();
+            midnight.TimeReached += async (e) => await OnMidnightTimer();
             midnight.Start();
 
+            // Initialize the subscription processor if at least one Discord server wants custom notifications
             if (_whConfig.Servers.Values.ToList().Exists(x => x.EnableSubscriptions))
             {
                 _subProcessor = new SubscriptionProcessor(_servers, _whConfig, _whm);
             }
 
+            // Create a DiscordClient object per Discord server in config
             var keys = _whConfig.Servers.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -110,36 +130,41 @@
                 client.ClientErrored += Client_ClientErrored;
                 client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
 
+                // Configure Discord interactivity module
                 var interactivity = client.UseInteractivity
                 (
                     new InteractivityConfiguration
                     {
-                    // default pagination behaviour to just ignore the reactions
-                    PaginationBehaviour = TimeoutBehaviour.Ignore,
+                        // default pagination behaviour to just ignore the reactions
+                        PaginationBehaviour = TimeoutBehaviour.Ignore,
 
-                    // default pagination timeout to 5 minutes
-                    PaginationTimeout = TimeSpan.FromMinutes(5), //TODO: Set prod
+                        // default pagination timeout to 5 minutes
+                        PaginationTimeout = TimeSpan.FromMinutes(5),
 
-                    // default timeout for other actions to 2 minutes
-                    Timeout = TimeSpan.FromMinutes(2) //TODO: Set prod
-                }
+                        // default timeout for other actions to 2 minutes
+                        Timeout = TimeSpan.FromMinutes(2)
+                    }
                 );
 
+                // Build the dependency collection which will contain our objects that can be globally used within each command module
                 DependencyCollection dep;
                 using (var d = new DependencyCollectionBuilder())
                 {
-                    d.AddInstance(new Dependencies(interactivity, _whm, _subProcessor, _whConfig, _lang, new StripeService(_whConfig.StripeApiKey)));
+                    d.AddInstance(new Dependencies(interactivity, _whm, _subProcessor, _whConfig, new StripeService(_whConfig.StripeApiKey)));
                     dep = d.Build();
                 }
 
+                // Discord commands configuration
                 var commands = client.UseCommandsNext
                 (
                     new CommandsNextConfiguration
                     {
                         StringPrefix = server.CommandPrefix?.ToString(),
                         EnableDms = true,
+                        // If command prefix is null, allow for mention prefix
                         EnableMentionPrefix = string.IsNullOrEmpty(server.CommandPrefix),
-                        EnableDefaultHelp = false,
+                        // Use DSharpPlus's built-in help formatter
+                        EnableDefaultHelp = true,
                         CaseSensitive = false,
                         IgnoreExtraArguments = true,
                         Dependencies = dep
@@ -147,6 +172,7 @@
                 );
                 commands.CommandExecuted += Commands_CommandExecuted;
                 commands.CommandErrored += Commands_CommandErrored;
+                // Register Discord command handler classes
                 commands.RegisterCommands<Owner>();
                 commands.RegisterCommands<CommunityDay>();
                 commands.RegisterCommands<Nests>();
@@ -169,19 +195,27 @@
                     _servers.Add(guildId, client);
                 }
 
+                // Wait 3 seconds between initializing Discord clients
                 Task.Delay(3000).GetAwaiter().GetResult();
             }
+
+            RegisterConfigMonitor();
         }
 
         #endregion
 
         #region Public Methods
 
+        /// <summary>
+        /// Start the Discord bot(s)
+        /// </summary>
+        /// <returns></returns>
         public async Task Start()
         {
             _logger.Trace("Start");
             _logger.Info("Connecting to Discord...");
 
+            // Loop through each Discord server and attempt initial connection
             var keys = _servers.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -193,6 +227,7 @@
                 await Task.Delay(1000);
             }
 
+            // Register alarm event handlers
             _whm.PokemonAlarmTriggered += OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered += OnRaidAlarmTriggered;
             _whm.QuestAlarmTriggered += OnQuestAlarmTriggered;
@@ -200,8 +235,10 @@
             _whm.GymAlarmTriggered += OnGymAlarmTriggered;
             _whm.GymDetailsAlarmTriggered += OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered += OnWeatherAlarmTriggered;
-            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null) //At least one server wants subscriptions
+            // At least one server wants subscriptions
+            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null)
             {
+                // Register subscription event handlers
                 _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
@@ -211,11 +248,16 @@
             _logger.Info("WebhookManager is running...");
         }
 
+        /// <summary>
+        /// Stop the Discord bot(s)
+        /// </summary>
+        /// <returns></returns>
         public async Task Stop()
         {
             _logger.Trace("Stop");
             _logger.Info("Disconnecting from Discord...");
 
+            // Loop through each Discord server and terminate the connection
             var keys = _servers.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -227,6 +269,7 @@
                 await Task.Delay(1000);
             }
 
+            // Unregister alarm event handlers
             _whm.PokemonAlarmTriggered -= OnPokemonAlarmTriggered;
             _whm.RaidAlarmTriggered -= OnRaidAlarmTriggered;
             _whm.QuestAlarmTriggered -= OnQuestAlarmTriggered;
@@ -234,8 +277,9 @@
             _whm.GymAlarmTriggered -= OnGymAlarmTriggered;
             _whm.GymDetailsAlarmTriggered -= OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered -= OnWeatherAlarmTriggered;
-            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null) //At least one server wanted subscriptions
+            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null)
             {
+                //At least one server wanted subscriptions, unregister the subscription event handlers
                 _whm.PokemonSubscriptionTriggered -= OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered -= OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered -= OnQuestSubscriptionTriggered;
@@ -249,7 +293,7 @@
 
         #region Discord Events
 
-        private async Task Client_Ready(ReadyEventArgs e)
+        private Task Client_Ready(ReadyEventArgs e)
         {
             _logger.Info($"------------------------------------------");
             _logger.Info($"[DISCORD] Connected.");
@@ -263,17 +307,30 @@
             _logger.Info($"[DISCORD] Email: {e.Client.CurrentUser.Email}");
             _logger.Info($"------------------------------------------");
 
-            if (!(e.Client is DiscordClient client))
-            {
-                _logger.Error($"DiscordClient is null, Unable to update status.");
-                return;
-            }
-            await client.UpdateStatusAsync(new DiscordGame($"v{Strings.Version}"), UserStatus.Online);
+            return Task.CompletedTask;
         }
 
         private async Task Client_GuildAvailable(GuildCreateEventArgs e)
         {
-            await CreateEmojis(e.Guild.Id);
+            // If guild is in configured servers list then attempt to create emojis needed
+            if (_whConfig.Servers.ContainsKey(e.Guild.Id))
+            {
+                // Create default emojis
+                await CreateEmojis(e.Guild.Id);
+
+                if (!(e.Client is DiscordClient client))
+                {
+                    _logger.Error($"DiscordClient is null, Unable to update status.");
+                    return;
+                }
+
+                // Set custom bot status if guild is in config server list
+                if (_whConfig.Servers.ContainsKey(e.Guild.Id))
+                {
+                    var status = _whConfig.Servers[e.Guild.Id].Status;
+                    await client.UpdateStatusAsync(new DiscordGame(status ?? $"v{Strings.Version}"), UserStatus.Online);
+                }
+            }
         }
 
         //private async Task Client_MessageCreated(MessageCreateEventArgs e)
@@ -297,7 +354,7 @@
         private async Task Commands_CommandExecuted(CommandExecutionEventArgs e)
         {
             // let's log the name of the command and user
-            e.Context.Client.DebugLogger.LogMessage(LogLevel.Info, Strings.BotName, $"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
+            e.Context.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Info, Strings.BotName, $"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
 
             // since this method is not async, let's return
             // a completed task, so that no additional work
@@ -307,7 +364,7 @@
 
         private async Task Commands_CommandErrored(CommandErrorEventArgs e)
         {
-            e.Context.Client.DebugLogger.LogMessage(LogLevel.Error, Strings.BotName, $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? e.Context.Message.Content}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
+            e.Context.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Error, Strings.BotName, $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? e.Context.Message.Content}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
 
             // let's check if the error is a result of lack of required permissions
             if (e.Exception is DSharpPlus.CommandsNext.Exceptions.ChecksFailedException)
@@ -347,7 +404,7 @@
             }
             else
             {
-                _logger.Error($"User {e.Context.User.Username} tried executing command {e.Command?.Name} and unknown error occurred.\r\n: {e.Exception.ToString()}");
+                _logger.Error($"User {e.Context.User.Username} tried executing command {e.Command?.Name} and unknown error occurred.\r\n: {e.Exception}");
             }
         }
 
@@ -363,11 +420,11 @@
             ConsoleColor color;
             switch (e.Level)
             {
-                case LogLevel.Error: color = ConsoleColor.DarkRed; break;
-                case LogLevel.Warning: color = ConsoleColor.Yellow; break;
-                case LogLevel.Info: color = ConsoleColor.White; break;
-                case LogLevel.Critical: color = ConsoleColor.Red; break;
-                case LogLevel.Debug: default: color = ConsoleColor.DarkGray; break;
+                case DSharpPlus.LogLevel.Error: color = ConsoleColor.DarkRed; break;
+                case DSharpPlus.LogLevel.Warning: color = ConsoleColor.Yellow; break;
+                case DSharpPlus.LogLevel.Info: color = ConsoleColor.White; break;
+                case DSharpPlus.LogLevel.Critical: color = ConsoleColor.Red; break;
+                case DSharpPlus.LogLevel.Debug: default: color = ConsoleColor.DarkGray; break;
             }
 
             //Source
@@ -417,8 +474,7 @@
             _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
 
             var pokemon = e.Data;
-            var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[POKEMON] Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
@@ -434,19 +490,13 @@
             try
             {
                 var server = _whConfig.Servers[e.GuildId];
-                var form = pokemon.Id.GetPokemonForm(pokemon.FormId.ToString());
-                //var costume = e.Pokemon.Id.GetCostume(e.Pokemon.Costume.ToString());
-                //var costumeFormatted = (string.IsNullOrEmpty(costume) ? "" : " " + costume);
-                var pkmnImage = pokemon.Id.GetPokemonImage(_whConfig.IconStyles[server.IconStyle], pokemon.Gender, pokemon.FormId, pokemon.Costume);
-
                 var client = _servers[e.GuildId];
-                var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
-                var name = $"{pkmn.Name}{pokemon.Gender.GetPokemonGenderIcon()}{form}";
+                var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = name,
-                    AvatarUrl = pkmnImage,
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username,
+                    AvatarUrl = eb.IconUrl,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 Statistics.Instance.PokemonAlarmsSent++;
@@ -470,7 +520,7 @@
             _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Data.PokemonId}, Level: {e.Data.Level}, StartTime: {e.Data.StartTime}]");
 
             var raid = e.Data;
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[RAID] Failed to lookup city from coordinates {raid.Latitude},{raid.Longitude} {pkmn.Name} {raid.Level}, skipping...");
@@ -486,20 +536,13 @@
             try
             {
                 var server = _whConfig.Servers[e.GuildId];
-                var pkmn = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
-                var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
-                var pkmnImage = raid.IsEgg ? 
-                    string.Format(_whConfig.Urls.EggImage, raid.Level) : 
-                    raid.PokemonId.GetPokemonImage(_whConfig.IconStyles[server.IconStyle], PokemonGender.Unset, raid.Form);
-
                 var client = _servers[e.GuildId];
-                var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name, pkmnImage);
-                var name = raid.IsEgg ? $"Level {raid.Level} {pkmn.Name}" : $"{(string.IsNullOrEmpty(form) ? null : form + "-")}{pkmn.Name} Raid";
+                var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = name,
-                    AvatarUrl = pkmnImage,
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username,
+                    AvatarUrl = eb.IconUrl,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 if (raid.IsEgg)
@@ -521,7 +564,7 @@
             _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, Type={e.Data.Type}]");
 
             var quest = e.Data;
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[QUEST] Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
@@ -541,7 +584,7 @@
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = quest.GetQuestMessage(),
-                    AvatarUrl = quest.GetIconUrl(_whConfig),
+                    AvatarUrl = quest.GetQuestIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle),
                     Embeds = new List<DiscordEmbed> { eb }
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
@@ -561,7 +604,7 @@
             _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, LureExpire={e.Data.LureExpire}, InvasionExpire={e.Data.IncidentExpire}]");
 
             var pokestop = e.Data;
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[POKESTOP] Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
@@ -574,31 +617,15 @@
             if (!_whConfig.Servers.ContainsKey(e.GuildId))
                 return;
 
-            //var server = _whConfig.Servers[e.GuildId];
-            string icon;
-            if (pokestop.HasInvasion)
-            {
-                //TODO: Load from local file
-                icon = "http://images2.fanpop.com/image/photos/11300000/Team-Rocket-Logo-team-rocket-11302897-198-187.jpg";
-            }
-            else if (pokestop.HasLure)
-            {
-                icon = string.Format(_whConfig.Urls.QuestImage, Convert.ToInt32(pokestop.LureType));
-            }
-            else
-            {
-                icon = pokestop.Url;
-            }
-
             try
             {
                 var client = _servers[e.GuildId];
                 var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = pokestop.Name ?? "Unknown Pokestop",
-                    AvatarUrl = icon,
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username ?? Translator.Instance.Translate("UNKNOWN_POKESTOP"),
+                    AvatarUrl = eb.IconUrl,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 if (pokestop.HasInvasion)
@@ -630,7 +657,7 @@
             _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");
 
             var gymDetails = e.Data;
-            var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
@@ -660,16 +687,15 @@
                 var name = gymDetails.GymName;
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = name,
-                    AvatarUrl = gymDetails.Url,
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username,
+                    AvatarUrl = eb.IconUrl,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 Statistics.Instance.GymAlarmsSent++;
                 _gyms[gymDetails.GymId] = gymDetails;
 
-                //Statistics.Instance.PokemonSent++;
-                //Statistics.Instance.IncrementPokemonStats(pokemon.Id);
+                Statistics.Instance.GymAlarmsSent++;
             }
             catch (Exception ex)
             {
@@ -684,37 +710,31 @@
 
             _logger.Info($"Weather Found [Alarm: {e.Alarm.Name}, S2CellId: {e.Data.Id}, Condition={e.Data.GameplayCondition}, Severity={e.Data.Severity}]");
 
-            //var weather = e.Data;
-            //var loc = _whm.GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
-            //if (loc == null)
-            //{
-            //    //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
-            //    return;
-            //}
+            var weather = e.Data;
+            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
+            if (loc == null)
+            {
+                //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
+                return;
+            }
+
+            if (!_servers.ContainsKey(e.GuildId))
+                return;
+
+            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+                return;
 
             try
             {
-                //if (!_gyms.ContainsKey(weather.Id))
-                //{
-                //    _gyms.Add(weather.Id, weather);
-                //}
-
-                //var oldGym = _gyms[weather.Id];
-                //var changed = oldGym.Team != weather.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
-                //if (!changed)
-                //    return;
-
-                //var eb = weather.GenerateGymMessage(_client, _whConfig, e.Alarm, oldGym, loc?.Name ?? e.Alarm.Name);
-                //var name = weather.GymName;
-                //var jsonEmbed = new DiscordWebhookMessage
-                //{
-                //    Username = name,
-                //    AvatarUrl = weather.Url,
-                //    Embeds = new List<DiscordEmbed> { eb }
-                //}.Build();
-                //NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
-
-                //_gyms[weather.Id] = weather;
+                var client = _servers[e.GuildId];
+                var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var jsonEmbed = new DiscordWebhookMessage
+                {
+                    Username = eb.Username,
+                    AvatarUrl = eb.IconUrl,
+                    Embeds = eb.Embeds
+                }.Build();
+                NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
 
                 Statistics.Instance.WeatherAlarmsSent++;
             }
@@ -733,8 +753,16 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(async () => await _subProcessor.ProcessPokemonSubscription(e)) { IsBackground = true }.Start();
-            new System.Threading.Thread(async () => await _subProcessor.ProcessPvPSubscription(e)) { IsBackground = true }.Start();
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessPokemonSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process Pokemon subscription");
+            }
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessPvPSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process PVP subscription");
+            }
         }
 
         private void OnRaidSubscriptionTriggered(object sender, RaidData e)
@@ -742,7 +770,11 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(async () => await _subProcessor.ProcessRaidSubscription(e)) { IsBackground = true }.Start();
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessRaidSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process raid subscription");
+            }
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
@@ -750,7 +782,11 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(async () => await _subProcessor.ProcessQuestSubscription(e)) { IsBackground = true }.Start();
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessQuestSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process quest subscription");
+            }
         }
 
         private void OnInvasionSubscriptionTriggered(object sender, PokestopData e)
@@ -758,7 +794,11 @@
             if (_subProcessor == null)
                 return;
 
-            new System.Threading.Thread(async () => await _subProcessor.ProcessInvasionSubscription(e)) { IsBackground = true }.Start();
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessInvasionSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process invasion subscription");
+            }
         }
 
         #endregion
@@ -769,7 +809,7 @@
         {
             _logger.Trace($"CreateEmojis");
 
-            if (!_whConfig.Servers.ContainsKey(guildId))
+            if (!_servers.ContainsKey(guildId))
             {
                 _logger.Warn($"Discord client not ready yet to create emojis for guild {guildId}");
                 return;
@@ -777,7 +817,7 @@
 
             var server = _whConfig.Servers[guildId];
             var client = _servers[guildId];
-            if (!client.Guilds?.ContainsKey(server.EmojiGuildId) ?? false)
+            if (!(client.Guilds?.ContainsKey(server.EmojiGuildId) ?? false))
             {
                 _logger.Warn($"Bot not in emoji server {server.EmojiGuildId}");
                 return;
@@ -813,9 +853,45 @@
                     _logger.Error(ex);
                 }
             }
+
+            await LoadEmojis();
         }
 
-        private async Task ResetQuests()
+        private async Task LoadEmojis()
+        {
+            _logger.Trace($"LoadEmojis");
+
+            var keys = _whConfig.Servers.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var guildId = keys[i];
+                var emojiGuildId = _whConfig.Servers[guildId].EmojiGuildId;
+                if (!_servers.ContainsKey(guildId))
+                    continue;
+
+                var configGuild = _servers[guildId];
+                if (!configGuild.Guilds.ContainsKey(emojiGuildId))
+                    continue;
+
+                var emojiGuild = configGuild.Guilds[emojiGuildId];
+                var emojis = await emojiGuild.GetEmojisAsync();
+                for (var j = 0; j < Strings.EmojiList.Length; j++)
+                {
+                    var name = Strings.EmojiList[j];
+                    var emoji = emojis.FirstOrDefault(x => string.Compare(x.Name, name, true) == 0);
+                    if (emoji == null)
+                        continue;
+
+                    if (!MasterFile.Instance.Emojis.ContainsKey(emoji.Name))
+                    {
+                        MasterFile.Instance.Emojis.Add(emoji.Name, emoji.Id);
+                        continue;
+                    }
+                }
+            }
+        }
+
+        private async Task OnMidnightTimer()
         {
             _logger.Debug($"MIDNIGHT {DateTime.Now}");
             _logger.Debug($"Starting automatic quest messages cleanup...");
@@ -835,82 +911,100 @@
                     continue;
                 }
                 var client = _servers[guildId];
-                if (!server.ShinyStats.Enabled)
+                if (server.ShinyStats.Enabled)
                 {
-                    _logger.Debug($"Shiny stats not enabled for guild with id {guildId}.");
-                    continue;
-                }
-                
-                var statsChannel = await client.GetChannelAsync(server.ShinyStats.ChannelId);
-                if (statsChannel == null)
-                {
-                    _logger.Warn($"Unable to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
-                }
-                else
-                {
-                    if (server.ShinyStats.ClearMessages)
-                    {
-                        _logger.Debug($"Deleting previous shiny stats messages in channel {server.ShinyStats.ChannelId}");
-                        await client.DeleteMessages(server.ShinyStats.ChannelId);
-                    }
-
-                    _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
-                    //Subtract an hour to make sure it shows yesterdays date.
-                    await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
-                    await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_NEWLINE"));
-                    var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
-                    var sorted = stats.Keys.ToList();
-                    sorted.Sort();
-
-                    foreach (var pokemon in sorted)
-                    {
-                        if (pokemon == 0)
-                            continue;
-
-                        if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
-                            continue;
-
-                        var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
-                        var pkmnStats = stats[pokemon];
-                        var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
-                        //var chanceMessage = chance == 0 ? null : $" with a **1/{chance}** ratio";
-                        //await statsChannel.SendMessageAsync($"**{pkmn.Name} (#{pokemon})**  |  **{pkmnStats.Shiny.ToString("N0")}** shiny out of **{pkmnStats.Total.ToString("N0")}** total seen in the last 24 hours{chanceMessage}.");
-                        if (chance == 0)
-                        {
-                            await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
-                        }
-                        else
-                        {
-                            await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
-                        }
-                    }
-
-                    var total = stats[0];
-                    var totalRatio = total.Shiny == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Shiny);
-                    if (totalRatio == 0)
-                    {
-                        await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_TOTAL_MESSAGE").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0")));
-                    }
-                    else
-                    {
-                        await statsChannel.SendMessageAsync(_lang.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
-                    }
-                    //var ratio = total.Shiny == 0 || total.Total == 0 ? null : $" with a **1/{Convert.ToInt32(total.Total / total.Shiny)}** ratio in total";
-                    //await statsChannel.SendMessageAsync($"Found **{total.Shiny.ToString("N0")}** total shinies out of **{total.Total.ToString("N0")}** possiblities{ratio}.");
+                    await PostShinyStats(client, server);
                 }
 
-                var channelIds = server.QuestChannelIds;
-                _logger.Debug($"Quest channel pruning started for {channelIds.Count.ToString("N0")} channels...");
-                for (var j = 0; j < channelIds.Count; j++)
+                if (server.PruneQuestChannels)
                 {
-                    var item = await client.DeleteMessages(channelIds[j]);
-                    _logger.Debug($"Deleted all {item.Item2.ToString("N0")} quest messages from channel {item.Item1.Name}.");
+                    await PruneQuestChannels(client, server);
                 }
 
-                _logger.Debug($"Finished automatic quest messages cleanup...");
+                Thread.Sleep(10 * 1000);
             }
 
             CleanupDepartedMembers();
+        }
+
+        private async Task PostShinyStats(DiscordClient client, DiscordServerConfig server)
+        {
+            var statsChannel = await client.GetChannelAsync(server.ShinyStats.ChannelId);
+            if (statsChannel == null)
+            {
+                _logger.Warn($"Unable to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
+            }
+            else
+            {
+                if (server.ShinyStats.ClearMessages)
+                {
+                    _logger.Debug($"Deleting previous shiny stats messages in channel {server.ShinyStats.ChannelId}");
+                    await client.DeleteMessages(server.ShinyStats.ChannelId);
+                }
+
+                var guildId = server.GuildId;
+                _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
+                // Subtract an hour to make sure it shows yesterday's date.
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
+                var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
+                var sorted = stats.Keys.ToList();
+                sorted.Sort();
+
+                foreach (var pokemon in sorted)
+                {
+                    if (pokemon == 0)
+                        continue;
+
+                    if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
+                        continue;
+
+                    var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
+                    var pkmnStats = stats[pokemon];
+                    var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
+                    if (chance == 0)
+                    {
+                        await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
+                    }
+                    else
+                    {
+                        await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
+                    }
+                }
+
+                var total = stats[0];
+                var totalRatio = total.Shiny == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Shiny);
+                if (totalRatio == 0)
+                {
+                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0")));
+                }
+                else
+                {
+                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
+                }
+            }
+
+            Thread.Sleep(10 * 1000);
+        }
+
+        private async Task PruneQuestChannels(DiscordClient client, DiscordServerConfig server)
+        {
+            try
+            {
+                var channelIds = server.QuestChannelIds;
+                _logger.Debug($"Quest channel pruning started for {channelIds.Count:N0} channels...");
+                for (var j = 0; j < channelIds.Count; j++)
+                {
+                    var result = await client.DeleteMessages(channelIds[j]);
+                    _logger.Debug($"Deleted all {result.Item2:N0} quest messages from channel {result.Item1.Name}.");
+                    Thread.Sleep(1000);
+                }
+                _logger.Debug($"Finished automatic quest messages cleanup...");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
         }
 
         private void CleanupDepartedMembers()
@@ -939,10 +1033,20 @@
                         if (!SubscriptionManager.RemoveAllUserSubscriptions(user.GuildId, user.UserId))
                         {
                             _logger.Warn($"Unable to remove user {user.UserId} subscription settings from the database.");
+                            continue;
                         }
+                        _logger.Info($"Successfully removed user {user.UserId}'s subscription settings from the database.");
                     }
                 }
             }
+        }
+
+        private void RegisterConfigMonitor()
+        {
+            var path = Path.Combine(Directory.GetCurrentDirectory(), Strings.ConfigFileName);
+            var fileWatcher = new FileWatcher(path);
+            fileWatcher.FileChanged += (sender, e) => _whConfig = WhConfig.Load(e.FilePath);
+            fileWatcher.Start();
         }
 
         private async void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
@@ -978,7 +1082,7 @@
                             return;
                         }
 
-                        await client.SendDirectMessage(owner, _lang.Translate("BOT_CRASH_MESSAGE"), null);
+                        await client.SendDirectMessage(owner, Translator.Instance.Translate("BOT_CRASH_MESSAGE"), null);
                     }
                 }
             }

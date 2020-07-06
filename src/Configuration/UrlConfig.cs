@@ -2,17 +2,14 @@
 {
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// Url configuration class
+    /// </summary>
     public class UrlConfig
     {
-        [JsonProperty("pokemonImage")]
-        public string PokemonImage { get; set; }
-
-        [JsonProperty("eggImage")]
-        public string EggImage { get; set; }
-
-        [JsonProperty("questImage")]
-        public string QuestImage { get; set; }
-
+        /// <summary>
+        /// Gets or sets the static map image url
+        /// </summary>
         [JsonProperty("staticMap")]
         public string StaticMap { get; set; }
     }

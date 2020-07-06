@@ -65,4 +65,6 @@ Use any of the following in your alerts file to structure how notifications will
 | pokestop_id | Nearby Pokestop ID | 9382498723849792348798234.16
 | pokestop_name | Name of nearby Pokestop | The Amazing Pokestop
 | pokestop_url | Image url of nearby Pokestop | https://google.com/imgs/gym.png
+| guild_name | Name of Guild | Test Guild
+| guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
 | br | Newline break | `\r\n`

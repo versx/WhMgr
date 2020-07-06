@@ -5,7 +5,7 @@
     using System.IO;
 
     using Newtonsoft.Json;
-    using ServiceStack.DataAnnotations;
+    using Newtonsoft.Json.Converters;
 
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
@@ -15,11 +15,7 @@
     {
         const string MasterFileName = "masterfile.json";
         const string CpMultipliersFileName = "cpMultipliers.json";
-        const string GreatPvPLibFileName = "pvp_great_league_ranks.json";
-        const string UltraPvPLibFileName = "pvp_ultra_league_ranks.json";
-        const string EmojisFileName = "emojis.json";
-        const string ShinyFileName = "shiny.json";
-        const string GruntTypesFileName = "grunttype.json";
+        const string RarityFileName = "rarity.json";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");
 
@@ -28,51 +24,38 @@
         [JsonProperty("pokemon")]
         public IReadOnlyDictionary<int, PokedexPokemon> Pokedex { get; set; }
 
-        [JsonProperty("moves")]
-        public IReadOnlyDictionary<int, Moveset> Movesets { get; set; }
+        //[JsonProperty("moves")]
+        //public IReadOnlyDictionary<int, Moveset> Movesets { get; set; }
+
+        [JsonProperty("quest_conditions")]
+        public IReadOnlyDictionary<string, QuestConditionModel> QuestConditions { get; set; }
+
+        [JsonProperty("quest_types")]
+        public IReadOnlyDictionary<int, QuestTypeModel> QuestTypes { get; set; }
+
+        [JsonProperty("quest_reward_types")]
+        public IReadOnlyDictionary<int, QuestRewardTypeModel> QuestRewardTypes { get; set; }
+
+        [JsonProperty("throw_types")]
+        public IReadOnlyDictionary<int, string> ThrowTypes { get; set; }
 
         [JsonProperty("items")]
-        public IReadOnlyDictionary<string, string> ItemsText { get; set; }
+        public IReadOnlyDictionary<int, ItemModel> Items { get; set; }
 
-        [JsonProperty("types")]
-        public IReadOnlyDictionary<int, PokemonType> Types { get; set; }
+        [JsonProperty("grunt_types")]
+        public IReadOnlyDictionary<InvasionGruntType, TeamRocketInvasion> GruntTypes { get; set; }
 
-        [JsonProperty("quest_condition")]
-        public IReadOnlyDictionary<string, string> QuestConditions { get; set; }
+        [JsonProperty("pokemon_types")]
+        public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }
 
-        [JsonProperty("alignment")]
-        public IReadOnlyDictionary<int, string> Alignment { get; set; }
-
-        [JsonProperty("character_category")]
-        public IReadOnlyDictionary<int, string> CharacterCategory { get; set; }
-
-        [JsonProperty("throw_type")]
-        public IReadOnlyDictionary<int, string> ThrowType { get; set; }
-
-        [JsonProperty("item")]
-        public IReadOnlyDictionary<int, string> Items { get; set; }
-
-        [JsonProperty("lure")]
-        public IReadOnlyDictionary<int, string> Lures { get; set; }
-
-        [JsonProperty("cpMultipliers")]
-
+        [JsonIgnore]
         public IReadOnlyDictionary<double, double> CpMultipliers { get; }
 
         [JsonIgnore]
-        public IReadOnlyDictionary<string, ulong> Emojis { get; set; }
+        public Dictionary<string, ulong> Emojis { get; set; }
 
         [JsonIgnore]
-        public IReadOnlyDictionary<InvasionGruntType, TeamRocketInvasion> GruntTypes { get; set; }
-
-        [JsonIgnore]
-        public List<int> PossibleShinies { get; set; }
-
-        [JsonIgnore]
-        public GreatPvpRankLibrary GreatPvPLibrary { get; set; }
-
-        [JsonIgnore]
-        public UltraPvpRankLibrary UltraPvPLibrary { get; set; }
+        public IReadOnlyDictionary<PokemonRarity, List<int>> PokemonRarity { get; set; }
 
         #region Singletons
 
@@ -83,7 +66,7 @@
             {
                 if (_instance == null)
                 {
-                    _instance = LoadInit<MasterFile>(Path.Combine(Strings.DataFolder, MasterFileName), typeof(MasterFile));
+                    _instance = LoadInit<MasterFile>(Path.Combine(Strings.DataFolder, MasterFileName));
                 }
 
                 return _instance;
@@ -96,35 +79,9 @@
 
         public MasterFile()
         {
-            CpMultipliers = LoadInit<Dictionary<double, double>>(
-                Path.Combine(Strings.DataFolder, CpMultipliersFileName),
-                typeof(Dictionary<double, double>)
-            );
-
-            GreatPvPLibrary = LoadInit<GreatPvpRankLibrary>(
-                Path.Combine(Strings.DataFolder, GreatPvPLibFileName), 
-                typeof(GreatPvpRankLibrary)
-            );
-
-            UltraPvPLibrary = LoadInit<UltraPvpRankLibrary>(
-                Path.Combine(Strings.DataFolder, UltraPvPLibFileName), 
-                typeof(UltraPvpRankLibrary)
-            );
-
-            Emojis = LoadInit<Dictionary<string, ulong>>(
-                Path.Combine(Strings.DataFolder, EmojisFileName), 
-                typeof(Dictionary<string, ulong>)
-            );
-
-            GruntTypes = LoadInit<Dictionary<InvasionGruntType, TeamRocketInvasion>>(
-                Path.Combine(Strings.DataFolder, GruntTypesFileName),
-                typeof(Dictionary<InvasionGruntType, TeamRocketInvasion>)
-            );
-
-            PossibleShinies = LoadInit<List<int>>(
-                Path.Combine(Strings.DataFolder, ShinyFileName),
-                typeof(List<int>)
-            );
+            CpMultipliers = LoadInit<Dictionary<double, double>>(Path.Combine(Strings.DataFolder, CpMultipliersFileName));
+            PokemonRarity = LoadInit<Dictionary<PokemonRarity, List<int>>>(Path.Combine(Strings.DataFolder, RarityFileName));
+            Emojis = new Dictionary<string, ulong>();
         }
 
         public static PokedexPokemon GetPokemon(int pokemonId, int formId)
@@ -139,7 +96,7 @@
             return pkmnForm;
         }
 
-        public static T LoadInit<T>(string filePath, Type type)
+        public static T LoadInit<T>(string filePath)
         {
             if (!File.Exists(filePath))
             {
@@ -153,84 +110,85 @@
                 return default;
             }
 
-            return (T)JsonConvert.DeserializeObject(data, type);
+            return (T)JsonConvert.DeserializeObject(data, typeof(T));
         }
     }
 
-    #region PvP
-
-    public abstract class PvPRank
+    public class PokemonTypes
     {
-        [
-            JsonProperty("pokemon_id"),
-            Alias("pokemon_id")
-        ]
-        public int PokemonId { get; set; }
+        [JsonProperty("immunes")]
+        public List<PokemonType> Immune { get; set; }
 
-        [
-            JsonProperty("form"),
-            Alias("form")
-        ]
-        public int FormId { get; set; }
+        [JsonProperty("weaknesses")]
+        public List<PokemonType> Weaknesses { get; set; }
 
-        [
-            JsonProperty("attack"),
-            Alias("attack")
-        ]
-        public int Attack { get; set; }
+        [JsonProperty("resistances")]
+        public List<PokemonType> Resistances { get; set; }
 
-        [
-            JsonProperty("defense"),
-            Alias("defense")
-        ]
-        public int Defense { get; set; }
+        [JsonProperty("strengths")]
+        public List<PokemonType> Strengths { get; set; }
 
-        [
-            JsonProperty("stamina"),
-            Alias("stamina")
-        ]
-        public int Stamina { get; set; }
-
-        [
-            JsonProperty("value"),
-            Alias("value")
-        ]
-        public int Value { get; set; }
-
-        [
-            JsonProperty("level"),
-            Alias("level")
-        ]
-        public double Level { get; set; }
-
-        [
-            JsonProperty("CP"),
-            Alias("CP")
-        ]
-        public int CP { get; set; }
-
-        [
-            JsonProperty("percent"),
-            Alias("percent")
-        ]
-        public double Percent { get; set; }
-
-        [
-            JsonProperty("rank"),
-            Alias("rank")
-        ]
-        public int Rank { get; set; }
+        public PokemonTypes()
+        {
+            Immune = new List<PokemonType>();
+            Weaknesses = new List<PokemonType>();
+            Resistances = new List<PokemonType>();
+            Strengths = new List<PokemonType>();
+        }
     }
 
-    [Alias("great_league")]
-    public class GreatPvPRank : PvPRank { }
+    public class Emoji
+    {
+        public ulong GuildId { get; set; }
 
-    [Alias("ultra_league")]
-    public class UltraPvPRank : PvPRank { }
+        public string Name { get; set; }
 
-    public class GreatPvpRankLibrary : Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, GreatPvPRank>>>>> { }
+        public ulong Id { get; set; }
+    }
 
-    public class UltraPvpRankLibrary : Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<int, UltraPvPRank>>>>> { }
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum PokemonRarity
+    {
+        Common,
+        Rare
+    }
 
-    #endregion
+    public class ItemModel
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        
+        [JsonProperty("proto")]
+        public string ProtoName { get; set; }
+
+        [JsonProperty("min_trainer_level")]
+        public int MinimumTrainerLevel { get; set; }
+    }
+
+    public class QuestTypeModel
+    {
+        [JsonProperty("prototext")]
+        public string ProtoText { get; set; }
+
+        [JsonProperty("text")]
+        public string Text { get; set; }
+    }
+
+    public class QuestConditionModel
+    {
+        [JsonProperty("prototext")]
+        public string ProtoText { get; set; }
+
+        [JsonProperty("text")]
+        public string Text { get; set; }
+    }
+
+    public class QuestRewardTypeModel
+    {
+        [JsonProperty("prototext")]
+        public string ProtoText { get; set; }
+
+        [JsonProperty("text")]
+        public string Text { get; set; }
+    }
 }

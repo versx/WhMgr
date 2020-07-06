@@ -18,6 +18,9 @@
     using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
+    /// <summary>
+    /// Webhook controller class to manage and filter Discord channel notifications.
+    /// </summary>
     public class WebhookController
     {
         #region Variables
@@ -35,14 +38,19 @@
 
         #region Properties
 
-        public GeofenceService GeofenceService { get; }
-
+        /// <summary>
+        /// Geofences cache
+        /// </summary>
         public Dictionary<string, GeofenceItem> Geofences { get; private set; }
 
-        public Filters Filters { get; }
-
+        /// <summary>
+        /// Gyms cache
+        /// </summary>
         public IReadOnlyDictionary<string, GymDetailsData> Gyms => _gyms;
 
+        /// <summary>
+        /// Weather cells cache
+        /// </summary>
         public IReadOnlyDictionary<long, WeatherType> Weather => _weather;
 
         #endregion
@@ -51,42 +59,63 @@
 
         #region Alarms
 
+        /// <summary>
+        /// Triggered upon a Pokemon matching an alarm filter
+        /// </summary>
         public event EventHandler<AlarmEventTriggeredEventArgs<PokemonData>> PokemonAlarmTriggered;
         private void OnPokemonAlarmTriggered(PokemonData pkmn, AlarmObject alarm, ulong guildId)
         {
             PokemonAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<PokemonData>(pkmn, alarm, guildId));
         }
 
+        /// <summary>
+        /// Triggered upon a raid matching an alarm filter
+        /// </summary>
         public event EventHandler<AlarmEventTriggeredEventArgs<RaidData>> RaidAlarmTriggered;
         private void OnRaidAlarmTriggered(RaidData raid, AlarmObject alarm, ulong guildId)
         {
             RaidAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<RaidData>(raid, alarm, guildId));
         }
 
+        /// <summary>
+        /// Triggered upon a field research quest matching an alarm filter
+        /// </summary>
         public event EventHandler<AlarmEventTriggeredEventArgs<QuestData>> QuestAlarmTriggered;
         private void OnQuestAlarmTriggered(QuestData quest, AlarmObject alarm, ulong guildId)
         {
             QuestAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<QuestData>(quest, alarm, guildId));
         }
 
+        /// <summary>
+        /// Triggered upon a gym matching an alarm filter
+        /// </summary>
         public event EventHandler<AlarmEventTriggeredEventArgs<GymData>> GymAlarmTriggered;
         private void OnGymAlarmTriggered(GymData gym, AlarmObject alarm, ulong guildId)
         {
             GymAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<GymData>(gym, alarm, guildId));
         }
 
+        /// <summary>
+        /// Triggered upon a gym's details matching an alarm filter
+        /// </summary>
         public event EventHandler<AlarmEventTriggeredEventArgs<GymDetailsData>> GymDetailsAlarmTriggered;
         private void OnGymDetailsAlarmTriggered(GymDetailsData gymDetails, AlarmObject alarm, ulong guildId)
         {
             GymDetailsAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<GymDetailsData>(gymDetails, alarm, guildId));
         }
 
+        /// <summary>
+        /// Triggered upon a pokestop matching an alarm filter
+        /// </summary>
         public event EventHandler<AlarmEventTriggeredEventArgs<PokestopData>> PokestopAlarmTriggered;
         private void OnPokestopAlarmTriggered(PokestopData pokestop, AlarmObject alarm, ulong guildId)
         {
             PokestopAlarmTriggered?.Invoke(this, new AlarmEventTriggeredEventArgs<PokestopData>(pokestop, alarm, guildId));
         }
 
+        /// <summary>
+        /// Triggered upon a weather cell matching an alarm filter
+        /// </summary>
         public event EventHandler<AlarmEventTriggeredEventArgs<WeatherData>> WeatherAlarmTriggered;
         private void OnWeatherAlarmTriggered(WeatherData weather, AlarmObject alarm, ulong guildId)
         {
@@ -97,6 +126,9 @@
 
         #region Subscriptions
 
+        /// <summary>
+        /// Triggered upon a Pokemon matching a subscribers subscription filter
+        /// </summary>
         public event EventHandler<PokemonData> PokemonSubscriptionTriggered;
 
         private void OnPokemonSubscriptionTriggered(PokemonData pkmn)
@@ -104,18 +136,27 @@
             PokemonSubscriptionTriggered?.Invoke(this, pkmn);
         }
 
+        /// <summary>
+        /// Triggered upon a raid matching a subscribers subscription filter
+        /// </summary>
         public event EventHandler<RaidData> RaidSubscriptionTriggered;
         private void OnRaidSubscriptionTriggered(RaidData raid)
         {
             RaidSubscriptionTriggered?.Invoke(this, raid);
         }
 
+        /// <summary>
+        /// Triggered upon a field research quest matching a subscribers subscription filter
+        /// </summary>
         public event EventHandler<QuestData> QuestSubscriptionTriggered;
         private void OnQuestSubscriptionTriggered(QuestData quest)
         {
             QuestSubscriptionTriggered?.Invoke(this, quest);
         }
 
+        /// <summary>
+        /// Triggered upon a pokestop matching a subscribers subscription filter
+        /// </summary>
         public event EventHandler<PokestopData> InvasionSubscriptionTriggered;
         private void OnInvasionSubscriptionTriggered(PokestopData pokestop)
         {
@@ -128,18 +169,21 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Instantiate a new <see cref="WebhookController"/> class.
+        /// </summary>
+        /// <param name="config"><see cref="WhConfig"/> configuration class.</param>
         public WebhookController(WhConfig config)
         {
-            Filters = new Filters();
+            _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, Servers={config.Servers.Count:N0}]");
+
             Geofences = new Dictionary<string, GeofenceItem>();
 
-            _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, Servers={config.Servers.Count.ToString("N0")}]");
-
-            GeofenceService = new GeofenceService();
             _gyms = new Dictionary<string, GymDetailsData>();
             _weather = new Dictionary<long, WeatherType>();
             _servers = config.Servers;
             _alarms = new Dictionary<ulong, AlarmList>();
+
             foreach (var server in _servers)
             {
                 if (_alarms.ContainsKey(server.Key))
@@ -150,7 +194,7 @@
             }
             _config = config;
 
-            _http = new HttpServer(_config.WebhookPort, _config.EnableDST, _config.EnableLeapYear);
+            _http = new HttpServer(_config.ListeningHost, _config.WebhookPort);
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
             _http.QuestReceived += Http_QuestReceived;
@@ -158,7 +202,7 @@
             _http.GymReceived += Http_GymReceived;
             _http.GymDetailsReceived += Http_GymDetailsReceived;
             _http.WeatherReceived += Http_WeatherReceived;
-            _http.IsDebug = false;
+            _http.IsDebug = _config.Debug;
             _http.Start();
 
             new System.Threading.Thread(LoadAlarmsOnChange).Start();
@@ -177,6 +221,7 @@
                 return;
             }
 
+            // Check if Pokemon is in event Pokemon list
             if (_config.EventPokemonIds.Contains(pkmn.Id) && _config.EventPokemonIds.Count > 0)
             {
                 //Skip Pokemon if no IV stats.
@@ -188,15 +233,6 @@
                 if ((iv < 90 && iv != 0) || !pkmn.MatchesGreatLeague || !pkmn.MatchesUltraLeague)
                     return;
             }
-
-            //if (e.Pokemon.IsDitto)
-            //{
-            //    // Ditto
-            //    var originalId = e.Pokemon.Id;
-            //    e.Pokemon.OriginalPokemonId = originalId;
-            //    e.Pokemon.Id = 132;
-            //    e.Pokemon.FormId = 0;
-            //}
 
             ProcessPokemon(pkmn);
             OnPokemonSubscriptionTriggered(pkmn);
@@ -293,10 +329,8 @@
                     }
                 }
 
-                //_logger.Info($"Loading alerts file {x.AlertsFile}...");
                 x.LoadAlerts();
 
-                //_logger.Info($"Loading filters file {x.FiltersFile}...");
                 x.LoadFilters();
             });
 
@@ -358,14 +392,14 @@
 
                     if (!alarm.Filters.Pokemon.Enabled)
                     {
-                        //_logger.Info($"[{alarm.Name}] Skipping pokemon {pkmn.Id} because Pokemon filter not enabled.");
+                        //_logger.Info($"[{alarm.Name}] Skipping pokemon {pkmn.Id}: Pokemon filter not enabled.");
                         continue;
                     }
 
-                    var geofence = InGeofence(alarm.Geofences, new Location(pkmn.Latitude, pkmn.Longitude));
+                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(pkmn.Latitude, pkmn.Longitude));
                     if (geofence == null)
                     {
-                        //_logger.Info($"[{alarm.Name}] Skipping pokemon {pkmn.Id} because not in geofence.");
+                        //_logger.Info($"[{alarm.Name}] Skipping pokemon {pkmn.Id}: not in geofence.");
                         continue;
                     }
 
@@ -375,7 +409,6 @@
                         continue;
                     }
 
-                    //if (alarm.Filters.Pokemon.FilterType == FilterType.Include && alarm.Filters.Pokemon.Pokemon?.Count > 0 && !alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
                     if (alarm.Filters.Pokemon.FilterType == FilterType.Include && alarm.Filters.Pokemon.Pokemon?.Count > 0 && !alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
                     {
                         //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: filter {alarm.Filters.Pokemon.FilterType}.");
@@ -406,15 +439,18 @@
                         continue;
                     }
 
-                    //TODO: Get PvP rank
-                    if (!pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague)//&& !Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank))
-                    //if (!(pkmn.MatchesGreatLeague && alarm.Filters.Pokemon.IsPvpGreatLeague))// && Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)))
+                    if (alarm.Filters.Pokemon.IsPvpGreatLeague &&
+                        !(pkmn.MatchesGreatLeague && pkmn.GreatLeague.Exists(x =>
+                            Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
+                            && x.CP >= 1400 && x.CP <= 1500)))
                     {
                         continue;
                     }
 
-                    if (!pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague)//&& !Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank))
-                    //if (!(pkmn.MatchesUltraLeague && alarm.Filters.Pokemon.IsPvpUltraLeague))// && Filters.MatchesPvPRank(PokemonData.TopPvPRanks, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)))
+                    if (alarm.Filters.Pokemon.IsPvpUltraLeague &&
+                        !(pkmn.MatchesUltraLeague && pkmn.UltraLeague.Exists(x =>
+                            Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
+                            && x.CP >= 2400 && x.CP <= 2500)))
                     {
                         continue;
                     }
@@ -425,8 +461,7 @@
                     //    continue;
                     //}
 
-                    if (!(float.TryParse(pkmn.Height, out var height) && float.TryParse(pkmn.Weight, out var weight) &&
-                          Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters?.Pokemon?.Size)))
+                    if (!(float.TryParse(pkmn.Height, out var height) && float.TryParse(pkmn.Weight, out var weight) && Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters?.Pokemon?.Size)))
                     {
                         continue;
                     }
@@ -462,10 +497,10 @@
                 for (var j = 0; j < raidAlarms.Count; j++)
                 {
                     var alarm = raidAlarms[j];
-                    var geofence = InGeofence(alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
+                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
                     if (geofence == null)
                     {
-                        //_logger.Info($"[{alarm.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level} because not in geofence.");
+                        //_logger.Info($"[{alarm.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level}: not in geofence.");
                         continue;
                     }
 
@@ -476,7 +511,7 @@
 
                         if (!alarm.Filters.Eggs.Enabled)
                         {
-                            _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: raids filter not enabled.");
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: raids filter not enabled.");
                             continue;
                         }
 
@@ -513,7 +548,7 @@
 
                         if (!alarm.Filters.Raids.Enabled)
                         {
-                            _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: raids filter not enabled.");
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: raids filter not enabled.");
                             continue;
                         }
 
@@ -582,11 +617,11 @@
 
                     if (!alarm.Filters.Quests.Enabled)
                     {
-                        _logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: quests filter not enabled.");
+                        //_logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: quests filter not enabled.");
                         continue;
                     }
 
-                    var geofence = InGeofence(alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
+                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: not in geofence.");
@@ -654,7 +689,7 @@
 
                     if (!alarm.Filters.Pokestops.Enabled)
                     {
-                        _logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
                         continue;
                     }
 
@@ -670,7 +705,7 @@
                         continue;
                     }
 
-                    var geofence = InGeofence(alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
+                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
@@ -710,11 +745,11 @@
 
                     if (!alarm.Filters.Gyms.Enabled)
                     {
-                        _logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName}: gym filter not enabled.");
+                        //_logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName}: gym filter not enabled.");
                         continue;
                     }
 
-                    var geofence = InGeofence(alarm.Geofences, new Location(gym.Latitude, gym.Longitude));
+                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(gym.Latitude, gym.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName} because not in geofence.");
@@ -730,6 +765,8 @@
         {
             if (gymDetails == null)
                 return;
+
+            Statistics.Instance.TotalReceivedGyms++;
 
             var keys = _alarms.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
@@ -747,10 +784,19 @@
                 for (var j = 0; j < gymDetailsAlarms.Count; j++)
                 {
                     var alarm = gymDetailsAlarms[j];
-                    var geofence = InGeofence(alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
+                    if (alarm.Filters.Gyms == null)
+                        continue;
+
+                    if (!alarm.Filters.Gyms.Enabled)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, Name={gym.Name}: gym filter not enabled.");
+                        continue;
+                    }
+
+                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
                     if (geofence == null)
                     {
-                        //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName} because not in geofence.");
+                        //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName}: not in geofence.");
                         continue;
                     }
 
@@ -800,26 +846,43 @@
                 if (alarms.Alarms?.Count == 0)
                     return;
 
-                //TODO: Filter weather alarms
-                for (var j = 0; j < alarms.Alarms.Count; j++)
+                var weatherAlarms = alarms.Alarms.FindAll(x => x.Filters?.Weather != null);
+                for (var j = 0; j < weatherAlarms.Count; j++)
                 {
-                    var alarm = alarms.Alarms[j];
-                    var geofence = InGeofence(alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
+                    var alarm = weatherAlarms[j];
+                    if (alarm.Filters.Weather == null)
+                        continue;
+
+                    if (!alarm.Filters.Weather.Enabled)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
+                        continue;
+                    }
+
+                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
                     if (geofence == null)
                     {
-                        //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName} because not in geofence.");
+                        //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName}: not in geofence.");
+                        continue;
+                    }
+
+                    if (!alarm.Filters.Weather.WeatherTypes.Contains(weather.GameplayCondition))
+                    {
+                        // Weather is not in list of accepted ones to send alarms for
                         continue;
                     }
 
                     if (!_weather.ContainsKey(weather.Id))
                     {
                         _weather.Add(weather.Id, weather.GameplayCondition);
+                        OnWeatherAlarmTriggered(weather, alarm, guildId);
+                        continue;
                     }
 
                     var oldWeather = _weather[weather.Id];
-                    var changed = oldWeather != weather.GameplayCondition;
-                    if (!changed)
-                        return;
+                    // If previous weather and current weather are the same then don't report it.
+                    if (oldWeather == weather.GameplayCondition)
+                        continue;
 
                     OnWeatherAlarmTriggered(weather, alarm, guildId);
                 }
@@ -830,20 +893,12 @@
 
         #region Geofence Utilities
 
-        public GeofenceItem InGeofence(List<GeofenceItem> geofences, Location location)
-        {
-            for (var i = 0; i < geofences.Count; i++)
-            {
-                var geofence = geofences[i];
-                if (!GeofenceService.Contains(geofence, location))
-                    continue;
-
-                return geofence;
-            }
-
-            return null;
-        }
-
+        /// <summary>
+        /// Get the geofence the provided location falls within.
+        /// </summary>
+        /// <param name="latitude">Latitude geocoordinate</param>
+        /// <param name="longitude">Longitude geocoordinate</param>
+        /// <returns>Returns a <see cref="GeofenceItem"/> object the provided location falls within.</returns>
         public GeofenceItem GetGeofence(double latitude, double longitude)
         {
             return GeofenceService.GetGeofence(Geofences

@@ -10,7 +10,6 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
-    using WhMgr.Diagnostics;
     using WhMgr.Extensions;
 
     [
@@ -22,8 +21,6 @@
     ]
     public class Settings
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("SETTINGS");
-
         private readonly Dependencies _dep;
 
         public Settings(Dependencies dep)
@@ -40,6 +37,7 @@
             [Description("")] string key,
             [Description("")] string value)
         {
+            // TODO: Provide list of available config options to set.
             if (!await ctx.Message.IsDirectMessageSupported())
                 return;
 
@@ -164,7 +162,7 @@
             eb.AddField($"Prune Quest Channels", guildConfig.PruneQuestChannels ? "Yes" : "No", true);
             eb.AddField($"Quest Channels", string.Join("\r\n", guildConfig.QuestChannelIds.Select(x => $"{ctx.Guild.GetChannel(x)?.Name}:{x}")), true);
             eb.AddField($"Enable Shiny Stats", guildConfig.ShinyStats?.Enabled ?? false ? "Yes" : "No", true);
-            eb.AddField($"Shiny Stats Channel", guildConfig.ShinyStats?.ChannelId.ToString(), true);
+            eb.AddField($"Shiny Stats Channel", guildConfig.ShinyStats?.ChannelId == 0 ? "Not Set" : $"{ctx.Guild.GetChannel(guildConfig.ShinyStats.ChannelId)?.Name}:{guildConfig.ShinyStats?.ChannelId}", true);
             eb.AddField($"Clear Previous Shiny Stats", guildConfig.ShinyStats?.ClearMessages ?? false ? "Yes" : "No", true);
             eb.AddField($"Icon Style", guildConfig.IconStyle, true);
             await ctx.RespondAsync(embed: eb);
@@ -179,8 +177,6 @@
         ]
         public class CityRoles
         {
-            private static readonly IEventLogger _logger = EventLogger.GetLogger("SETTINGS");
-
             private readonly Dependencies _dep;
 
             public CityRoles(Dependencies dep)

@@ -1,0 +1,16 @@
+{
+	"pokemon":
+	{
+		"enabled": true,
+		"pokemon": [],
+		"min_iv": 0,
+		"max_iv": 100,
+		"min_cp": 0,
+		"max_cp": 1500,
+		"great_league": true,
+		"min_rank": 1,
+		"max_rank": 1,
+		"type": "Include",
+		"ignoreMissing": true
+	}
+}

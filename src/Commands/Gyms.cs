@@ -12,8 +12,8 @@
 
     using ServiceStack.OrmLite;
 
-    using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
 
     [
         Group("gyms"),
@@ -24,7 +24,7 @@
     ]
     public class Gyms
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMS");
+        //private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMS");
         private readonly Dependencies _dep;
 
         public Gyms(Dependencies dep)
@@ -45,12 +45,12 @@
                 var convertedGyms = db.Select<Data.Models.Pokestop>(Strings.SQL_SELECT_CONVERTED_POKESTOPS);
                 if (convertedGyms?.Count == 0)
                 {
-                    await ctx.RespondEmbed(_dep.Language.Translate("GYM_NO_POKESTOPS_CONVERTED").FormatText(ctx.User.Username), DiscordColor.Yellow);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("GYM_NO_POKESTOPS_CONVERTED").FormatText(ctx.User.Username), DiscordColor.Yellow);
                     return;
                 }
 
                 var sb = new StringBuilder();
-                sb.AppendLine(_dep.Language.Translate("GYM_POKESTOPS_EMBED_TITLE"));
+                sb.AppendLine(Translator.Instance.Translate("GYM_POKESTOPS_EMBED_TITLE"));
                 sb.AppendLine();
                 var eb = new DiscordEmbedBuilder
                 {
@@ -64,12 +64,12 @@
                 for (var i = 0; i < convertedGyms.Count; i++)
                 {
                     var gym = convertedGyms[i];
-                    var name = string.IsNullOrEmpty(gym.Name) ? _dep.Language.Translate("GYM_UNKNOWN_NAME") : gym.Name;
-                    var imageUrl = string.IsNullOrEmpty(gym.Url) ? _dep.Language.Translate("GYM_UNKNOWN_IMAGE") : gym.Url;
+                    var name = string.IsNullOrEmpty(gym.Name) ? Translator.Instance.Translate("GYM_UNKNOWN_NAME") : gym.Name;
+                    var imageUrl = string.IsNullOrEmpty(gym.Url) ? Translator.Instance.Translate("GYM_UNKNOWN_IMAGE") : gym.Url;
                     var locationUrl = string.Format(Strings.GoogleMaps, gym.Latitude, gym.Longitude);
                     //eb.AddField($"{name} ({gym.Latitude},{gym.Longitude})", url);
-                    sb.AppendLine(_dep.Language.Translate("GYM_NAME").FormatText(name));
-                    sb.AppendLine(_dep.Language.Translate("GYM_DIRECTIONS_IMAGE_LINK").FormatText(locationUrl, imageUrl));
+                    sb.AppendLine(Translator.Instance.Translate("GYM_NAME").FormatText(name));
+                    sb.AppendLine(Translator.Instance.Translate("GYM_DIRECTIONS_IMAGE_LINK").FormatText(locationUrl, imageUrl));
                 }
                 eb.Description = sb.ToString();
                 await ctx.RespondAsync(embed: eb);
@@ -78,18 +78,18 @@
                 {
                     //Gyms are updated where the ids match.
                     var rowsAffected = db.ExecuteNonQuery(Strings.SQL_UPDATE_CONVERTED_POKESTOPS);
-                    await ctx.RespondEmbed(_dep.Language.Translate("GYM_POKESTOPS_CONVERTED").FormatText(ctx.User.Username, rowsAffected.ToString("N0")));
+                    await ctx.RespondEmbed(Translator.Instance.Translate("GYM_POKESTOPS_CONVERTED").FormatText(ctx.User.Username, rowsAffected.ToString("N0")));
 
                     //If no pokestops are updated.
                     if (rowsAffected == 0)
                     {
-                        await ctx.RespondEmbed(_dep.Language.Translate("GYM_NO_POKESTOPS_UPDATED").FormatText(ctx.User.Username), DiscordColor.Yellow);
+                        await ctx.RespondEmbed(Translator.Instance.Translate("GYM_NO_POKESTOPS_UPDATED").FormatText(ctx.User.Username), DiscordColor.Yellow);
                         return;
                     }
 
                     //Delete gyms from database where the ids match existing Pokestops.
                     rowsAffected = db.ExecuteNonQuery(Strings.SQL_DELETE_CONVERTED_POKESTOPS);
-                    await ctx.RespondEmbed(_dep.Language.Translate("GYM_POKESTOPS_DELETED").FormatText(ctx.User.Username, rowsAffected.ToString("N0")));
+                    await ctx.RespondEmbed(Translator.Instance.Translate("GYM_POKESTOPS_DELETED").FormatText(ctx.User.Username, rowsAffected.ToString("N0")));
                 }
             }
         }

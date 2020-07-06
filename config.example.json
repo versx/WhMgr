@@ -1,8 +1,9 @@
 {
+  "host": "10.0.0.10",
   "port": 8008,
   "locale": "en",
   "shortUrlApiUrl": null,
-  "stripeApiKey": ""
+  "stripeApiKey": "",
   "servers": {
     "000000000000000001": {
       "commandPrefix": ".",
@@ -37,7 +38,8 @@
       "iconStyle": "Default",
       "botChannelIds": [
         000000000000000000
-      ]
+      ],
+      "status": null
     },
     "000000000000000002": {
       "commandPrefix": ".",
@@ -72,7 +74,8 @@
       "iconStyle": "Default",
       "botChannelIds": [
         000000000000000000
-      ]
+      ],
+      "status": "Test #2"
     }
   },
   "database": {
@@ -82,20 +85,20 @@
       "username": "root",
       "password": "password",
       "database": "brock3"
-  },
+    },
     "scanner": {
       "host": "127.0.0.1",
       "port": 3306,
       "username": "root",
       "password": "password",
-      "database": "brock3"
-  },
+      "database": "rdmdb"
+    },
     "nests": {
       "host": "127.0.0.1",
       "port": 3306,
       "username": "root",
       "password": "password",
-      "database": "brock3"
+      "database": "manualdb"
     }
   },
   "eventPokemonIds": [
@@ -104,15 +107,31 @@
     320
   ],
   "urls": {
-    "pokemonImage": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png",
-    "eggImage": "https://cdn.example.com/images/shuffle/eggs/{0}.png",
-    "questImage": "https://cdn.example.com/images/shuffle/quests/{0}.png",
     "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png"
   },
   "iconStyles": {
-    "Default": "https://cdn.example.com/images/original/monsters/{0:D3}_{1:D3}.png",
-    "Shuffle": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png"
+    "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
+    "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
   },
-  "enableDST": false,
-  "enableLeapYear": true
+  "staticMaps": {
+    "pokemon": "pokemon.example.json",
+    "raids": "raids.example.json",
+    "quests": "quests.example.json",
+    "invasions": "invasions.example.json",
+    "lures": "lures.example.json",
+    "gyms": "gyms.example.json",
+    "nests": "nests.example.json",
+    "weather": "weather.example.json"
+  },
+  "twilio": {
+    "enabled": false,
+    "accountSid": "",
+    "authToken": "",
+    "from": "",
+	"userIds": "",
+	"pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
+	"minIV": 100
+  },
+  "debug": false,
+  "logLevel": "Trace"
 }

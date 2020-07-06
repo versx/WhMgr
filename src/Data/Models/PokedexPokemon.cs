@@ -4,31 +4,40 @@
     using System.Collections.Generic;
 
     using Newtonsoft.Json;
+
     using WhMgr.Net.Models;
 
     public class PokedexPokemon
     {
+        [JsonProperty("pokedex_id")]
+        public int PokedexId { get; set; }
+
         [JsonProperty("name")]
         public string Name { get; set; }
 
         [JsonProperty("forms")]
         public Dictionary<int, PokedexPokemon> Forms { get; set; }
 
+        [JsonProperty("default_form_id")]
+        public int? DefaultFormId { get; set; }
+
         [JsonProperty("default_form")]
-        public int? DefaultForm { get; set; }
+        public string DefaultForm { get; set; }
 
         [JsonProperty("evolved_form")]
         public int? EvolvedForm { get; set; }
 
         [JsonProperty("evolutions")]
-        //public List<int> Evolutions { get; set; }
-        public List<string> Evolutions { get; set; } //TODO: Check "657_0"
+        public List<string> Evolutions { get; set; }
+
+        [JsonProperty("evolutions_ids")]
+        public List<int> EvolutionsIds { get; set; }
+
+        [JsonProperty("form")]
+        public string Form { get; set; }
 
         [JsonProperty("types")]
         public List<PokemonType> Types { get; set; }
-
-        [JsonProperty("dex")]
-        public string Dex { get; set; }
 
         [JsonProperty("attack")]
         public int? Attack { get; set; }
@@ -45,49 +54,37 @@
         [JsonProperty("weight")]
         public double? Weight { get; set; }
 
-        [JsonProperty("male_percent")]
-        public double? MalePercent { get; set; }
-
-        [JsonProperty("female_percent")]
-        public double? FemalePercent { get; set; }
-
         [JsonProperty("flee_rate")]
         public double? FleeRate { get; set; }
 
-        [JsonProperty("quickmove")]
+        [JsonProperty("quick_moves")]
         public List<string> QuickMoves { get; set; }
 
-        [JsonProperty("chargedmove")]
+        [JsonProperty("charged_moves")]
         public List<string> ChargedMoves { get; set; }
 
-        [JsonProperty("candy")]
+        [JsonProperty("candy_to_evolve")]
         public int? Candy { get; set; }
 
         [JsonProperty("buddy_distance")]
         public int? BuddyDistance { get; set; }
 
-        [JsonProperty("third_move")]
-        public ThirdMove ThirdMove { get; set; }
-
-        [JsonProperty("evolution_item")]
-        public string EvolutionItem { get; set; }
-
         [JsonProperty("legendary")]
-        public string Legendary { get; set; }
+        public bool Legendary { get; set; }
 
-        [JsonProperty("gender_requirement")]
-        public string GenderRequirement { get; set; }
+        [JsonProperty("mythic")]
+        public bool Mythical { get; set; }
 
         [JsonProperty("buddy_distance_evolve")]
         public int? BuddyDistanceEvolve { get; set; }
-    }
 
-    public class ThirdMove
-    {
-        [JsonProperty("stardustToUnlock")]
-        public int StardustToUnlock { get; set; }
+        [JsonProperty("third_move_stardust")]
+        public int ThirdMoveStardust { get; set; }
 
-        [JsonProperty("candyToUnlock")]
-        public int CandyToUnlock { get; set; }
+        [JsonProperty("third_move_candy")]
+        public int ThirdMoveCandy { get; set; }
+
+        [JsonProperty("gym_defender_eligible")]
+        public bool GymDeployable { get; set; }
     }
 }

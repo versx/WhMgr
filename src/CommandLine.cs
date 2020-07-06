@@ -23,8 +23,6 @@
             _logger.Trace("CommandLine::ParseArgs");
 
             var dict = new Dictionary<string, object>();
-            var prefixList = new List<string>(prefixes);
-
             for (int i = 0; i < args.Length; i++)
             {
                 var prefix = GetPrefix(prefixes, args[i]);
