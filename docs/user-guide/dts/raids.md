@@ -10,6 +10,7 @@ Use any of the following in your alerts file to structure how notifications will
 | pkmn_id_3  | Raid boss pokedex ID (always 3 digits)  | 001
 | pkmn_name | Raid boss pokemon name | Bulbasaur
 | pkmn_img_url | Raid boss pokemon image url | http://example.com/your-specified-pokemon-url
+| form | Pokemon form name | Alolan
 | form_id | Form ID | 65
 | form_id_3 | Form ID (always 3 digits) | 065
 | is_egg | Returns if raid is egg and not hatched | false
@@ -25,6 +26,8 @@ Use any of the following in your alerts file to structure how notifications will
 | moveset | Fast & Charge move names | Quick Attack/Thunder
 | type_1 | Pokemon type | Dark
 | type_2 | Pokemon type | Water
+| type_1_emoji | Pokemon type emoji | <:00000:types_water>
+| type_2_emoji | Pokemon type emoji | <:00000:types_rock>
 | types | Both types (if 2nd exists) | Dark/Fire
 | types_emoji | Type Discord emoji | <:00000:types_fire> <00001:types_dark>
 | weaknesses | Raid boss weaknesses | Rock, Ground, Dark

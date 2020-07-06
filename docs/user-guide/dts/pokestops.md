@@ -29,6 +29,8 @@ Use any of the following in your alerts file to structure how notifications will
 | pokestop_id | Pokestop ID | 9382498723849792348798234.16
 | pokestop_name | Name of Pokestop | The Amazing Pokestop
 | pokestop_url | Image url of Gym | https://google.com/imgs/gym.png
+| lure_img_url | Image url of lure icon | https://google.com/imgs/lure_501.png
+| invasion_img_url | Image url of grunt type icon | https://google.com/imgs/grunt_50.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
 [ date_time | Current date and time | 12/12/2020 12:12:12 PM

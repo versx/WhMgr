@@ -10,6 +10,7 @@ Use any of the following in your alerts file to structure how notifications will
 | pkmn_id_3  | Pokedex ID (always 3 digits)  | 001
 | pkmn_name | Pokemon name | Bulbasaur
 | pkmn_img_url | Pokemon image url | http://example.com/your-specified-pokemon-url
+| form | Pokemon form name | Alolan
 | form_id | Form ID | 65
 | form_id_3 | Form ID (always 3 digits) | 065
 | costume | Costume name | Witch Hat
@@ -18,12 +19,15 @@ Use any of the following in your alerts file to structure how notifications will
 | cp | Combat Power value | 1525
 | lvl | Pokemon level | 25
 | gender | Pokemon gender | Gender icon
+| gender_emoji | Pokemon gender emoji | <:00000:gender_male>
 | size | Pokemon size | Big
 | move_1 | Fast move name | Quick Attack
 | move_2 | Charge move name | Thunder
 | moveset | Fast & Charge move names | Quick Attack/Thunder
 | type_1 | Pokemon type | Dark
 | type_2 | Pokemon type | Water
+| type_1_emoji | Pokemon type emoji | <:00000:types_water>
+| type_2_emoji | Pokemon type emoji | <:00000:types_rock>
 | types | Both types (if 2nd exists) | Dark/Fire
 | types_emoji | Type Discord emoji | <:00000:types_fire> <00001:types_dark>
 | atk_iv | Attack IV stat | 15
@@ -34,6 +38,8 @@ Use any of the following in your alerts file to structure how notifications will
 | is_great | Great League stats (bool) | true
 | is_ultra | Ultra League stats (bool) | false
 | is_pvp | Has either Great or Ultra league stats | true
+| great_league_emoji | Great League emoji icon | <000000:league_great>
+| ultra_league_emoji | Ultra League emoji icon | <000000:league_ultra>
 | pvp_stats | PvP stat ranking strings | 
 | height | Pokemon height | 0.79
 | weight | Pokemon weight | 116

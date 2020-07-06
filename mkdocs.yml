@@ -27,6 +27,8 @@ nav:
             - Quests: user-guide/dts/quests.md
             - Pokestops: user-guide/dts/pokestops.md
             - Gyms: user-guide/dts/gyms.md
+            - weather: user-guide/dts/weather.md
+            - nests: user-guide/dts/nests.md
     - Commands:
         - Subscriptions: commands/subscriptions.md
         - Owner: commands/owner.md

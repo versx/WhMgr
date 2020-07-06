@@ -171,6 +171,8 @@
                 { "applemaps_url", appleMapsLink },
                 { "wazemaps_url", wazeMapsLink },
 
+                { "date_time", DateTime.Now.ToString() },
+
                 //Misc properties
                 { "br", "\r\n" }
             };
