@@ -635,7 +635,7 @@
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
-                string.Join("**, **", pokemonNames),
+                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join("**, **", pokemonNames),
                 string.IsNullOrEmpty(city) ?
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
@@ -729,7 +729,7 @@
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
-                string.Join("**, **", pokemonNames),
+                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join("**, **", pokemonNames),
                 string.IsNullOrEmpty(city) ?
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
