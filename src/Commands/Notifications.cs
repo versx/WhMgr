@@ -138,6 +138,34 @@
         }
 
         [
+            Command("set-number"),
+            Description("Set the phone number to receive text message notifications for ultra rare pokemon.")
+        ]
+        public async Task SetPhoneNumberAsync(CommandContext ctx,
+            [Description("10 digit phone number to receive text message alerts for")] string phoneNumber)
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            // Check if user is in list of acceptable users to receive Pokemon text message notifications
+            if (!_dep.WhConfig.Twilio.UserIds.Contains(ctx.User.Id))
+                return;
+
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
+            if (subscription == null)
+            {
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            subscription.PhoneNumber = phoneNumber;
+            subscription.Save();
+
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_PHONE_NUMBER_SET").FormatText(ctx.User.Username, phoneNumber));
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        [
             Command("expire"),
             Aliases("expires"),
             Description("")
