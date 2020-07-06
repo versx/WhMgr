@@ -28,6 +28,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - External emoji server support.  
 - Custom static map format support.  
 - Support for language translation.  
+- Multi threaded, low processing consumption.  
 - Lots more...  
 
 ## Documentation:  

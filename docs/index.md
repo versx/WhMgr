@@ -24,7 +24,7 @@ Parses and sends Discord notifications based on pre-defined filters for Pokemon,
 - External emoji server support.  
 - Custom static map format support.  
 - Support for language translation.  
-- Lots more...  
+- Multi threaded, low processing consumption.  
 - Lots more...
 
 ### Frameworks and Libraries
