@@ -15,7 +15,6 @@
     {
         const string MasterFileName = "masterfile.json";
         const string CpMultipliersFileName = "cpMultipliers.json";
-        const string GruntTypesFileName = "grunttype.json";
         const string RarityFileName = "rarity.json";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");

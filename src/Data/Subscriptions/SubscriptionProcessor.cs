@@ -748,12 +748,10 @@
                         if (_whConfig.Twilio.UserIds.Contains(item.Member.Id) ||
                             _whConfig.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
                         {
-                            // TODO: Create text friendly message
                             // Send text message (max 160 characters)
                             if (IsUltraRare(_whConfig.Twilio, item.Pokemon))
                             {
-                                var msg = item.City + "\n" + item.Embed.Description.Replace("**", "").Substring(0, 120) + "\n" + item.Embed.Url;
-                                var result = Utils.SendSmsMessage(msg, _whConfig.Twilio, item.Subscription.PhoneNumber);
+                                var result = Utils.SendSmsMessage(StripEmbed(item), _whConfig.Twilio, item.Subscription.PhoneNumber);
                                 if (!result)
                                 {
                                     _logger.Error($"Failed to send text message to phone number '{item.Subscription.PhoneNumber}' for user {item.Subscription.UserId}");
@@ -774,8 +772,12 @@
 
         private bool IsUltraRare(TwilioConfig twilo, PokemonData pkmn)
         {
+            // If no Pokemon are set, do not send text messages
+            if (twilo.PokemonIds.Count == 0)
+                return false;
+
             // Check if Pokemon is in list of allowed IDs
-            if (!_whConfig.Twilio.PokemonIds.Contains(pkmn.Id))
+            if (!twilo.PokemonIds.Contains(pkmn.Id))
                 return false;
 
             // Send text message if Unown, Azelf, etc
@@ -787,6 +789,18 @@
                 return true;
 
             return false;
+        }
+
+        private static string StripEmbed(NotificationItem item)
+        {
+            const int MAX_TEXT_LENGTH = 120;
+            var text = item.Embed.Description;
+            text = text.Replace("**", null);
+            text = text.Length > MAX_TEXT_LENGTH
+                ? text.Substring(0, Math.Min(text.Length, MAX_TEXT_LENGTH))
+                : text;
+            // TODO: Construct text message instead of using embed description and url for google maps link
+            return $"{item.City}\n{text}\n{item.Embed.Url}";
         }
 
         #endregion
