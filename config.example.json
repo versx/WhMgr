@@ -1,31 +1,137 @@
 {
-  "token": "<DISCORD_BOT_TOKEN>",
-  "ownerId": 000000000000,
-  "supporterRoleId": 000000000000,
-  "moderators": [
-	000000000000
+  "host": "10.0.0.10",
+  "port": 8008,
+  "locale": "en",
+  "shortUrlApiUrl": null,
+  "stripeApiKey": "",
+  "servers": {
+    "000000000000000001": {
+      "commandPrefix": ".",
+      "guildId": 000000000000000001,
+      "emojiGuildId": 000000000000000001,
+      "ownerId": 000000000000000000,
+      "donorRoleIds": [
+        000000000000000000
+      ],
+      "moderatorIds": [
+        000000000000000000
+      ],
+      "token": "<DISCORD_BOT_TOKEN>",
+      "alarms": "alarms.json",
+      "enableSubscriptions": false,
+      "enableCities": false,
+      "cityRoles": [
+        "City1",
+        "City2"
+      ],
+      "citiesRequireSupporterRole": true,
+      "pruneQuestChannels": true,
+      "questChannelIds": [
+        000000000000000000
+      ],
+      "nestsChannelId": 000000000000000000,
+      "shinyStats": {
+        "enabled": true,
+        "clearMessages": false,
+        "channelId": 000000000000000000
+      },
+      "iconStyle": "Default",
+      "botChannelIds": [
+        000000000000000000
+      ],
+      "status": null
+    },
+    "000000000000000002": {
+      "commandPrefix": ".",
+      "guildId": 000000000000000001,
+      "emojiGuildId": 000000000000000001,
+      "ownerId": 000000000000000000,
+      "donorRoleIds": [
+        000000000000000000
+      ],
+      "moderatorIds": [
+        000000000000000000
+      ],
+      "token": "<DISCORD_BOT_TOKEN>",
+      "alarms": "alarms2.json",
+      "enableSubscriptions": false,
+      "enableCities": false,
+      "cityRoles": [
+        "City3",
+        "City4"
+      ],
+      "citiesRequireSupporterRole": true,
+      "pruneQuestChannels": true,
+      "questChannelIds": [
+        000000000000000000
+      ],
+      "nestsChannelId": 000000000000000000,
+      "shinyStats": {
+        "enabled": true,
+        "clearMessages": false,
+        "channelId": 000000000000000000
+      },
+      "iconStyle": "Default",
+      "botChannelIds": [
+        000000000000000000
+      ],
+      "status": "Test #2"
+    }
+  },
+  "database": {
+    "main": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "username": "root",
+      "password": "password",
+      "database": "brock3"
+    },
+    "scanner": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "username": "root",
+      "password": "password",
+      "database": "rdmdb"
+    },
+    "nests": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "username": "root",
+      "password": "password",
+      "database": "manualdb"
+    }
+  },
+  "eventPokemonIds": [
+    129,
+    456,
+    320
   ],
-  "guildId": 000000000000,
-  "webhookPort": 8002,
-  "enableSubscriptions": false,
-  "enableCities": false,
-  "citiesRequireSupporterRole": false,
-  "connectionString": "Uid=user;Password=pass123;Server=127.0.0.1;Port=3306;Database=brock;",
-  "scannerConnectionString": "Uid=user;Password=pass123;Server=127.0.0.1;Port=3306;Database=rdm;",
-  "cityRoles": [
-	"City1",
-	"City2"
-  ],
-  "commandPrefix": ".",
-  "questChannelIds": [
-      000000000000,
-      000000000001
-  ],
-  "eventPokemonIds": [],
-  "shortUrlApiUrl": "",
-  "shinyStats": {
-      "enabled": true,
-	  "clearMessages": false,
-	  "channelId": 000000000000
-  }
+  "urls": {
+    "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png"
+  },
+  "iconStyles": {
+    "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
+    "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
+  },
+  "staticMaps": {
+    "pokemon": "pokemon.example.json",
+    "raids": "raids.example.json",
+    "quests": "quests.example.json",
+    "invasions": "invasions.example.json",
+    "lures": "lures.example.json",
+    "gyms": "gyms.example.json",
+    "nests": "nests.example.json",
+    "weather": "weather.example.json"
+  },
+  "twilio": {
+    "enabled": false,
+    "accountSid": "",
+    "authToken": "",
+    "from": "",
+	"userIds": "",
+	"pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
+	"minIV": 100
+  },
+  "debug": false,
+  "logLevel": "Trace"
 }

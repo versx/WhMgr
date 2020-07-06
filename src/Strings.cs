@@ -2,31 +2,37 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Reflection;
 
     using WhMgr.Net.Models;
 
+    /// <summary>
+    /// Static strings class
+    /// </summary>
     internal static class Strings
     {
         public const string BotName = "Brock";
         public const string Creator = "versx";
+        public static readonly string Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
         public const string GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
-        public const string WazeMaps = "https://www.waze.com/ul?ll={0},{1}&navigate=yes";
-        //public const string GoogleMapsStaticImage = "https://maps.googleapis.com/maps/api/staticmap?center={0},{1}&markers=color:red%7C{0},{1}&maptype=roadmap&size=300x175&zoom=14";
-        //public const string GoogleMapsStaticImage = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+FF0000({1},{0})/{1},{0},14/300x175?access_token=pk.eyJ1IjoidmVyc3giLCJhIjoiY2p3dXNzYmR0MDFmNzRicXNlNHJ4YjJucSJ9.tBti0YjkEb98_hxhswsSOw";
+        public const string WazeMaps = "https://waze.com/ul?ll={0},{1}&navigate=yes";
 
-        public const string DataFolder = "Data";
-        public const string GeofenceFolder = "Geofences";
-        public const string AlertsFolder = "Alerts";
-        public const string FiltersFolder = "Filters";
-        public const string LibrariesFolder = "Libs";
+        public const string GeofenceFolder = "geofences";
+        public const string AlertsFolder = "alerts";
+        public const string FiltersFolder = "filters";
+        public const string LibrariesFolder = "libs";
         public const string StaticFolder = "static";
-        public static readonly string LocaleFolder = StaticFolder + System.IO.Path.DirectorySeparatorChar + "locale";
-        public static readonly string EmojisFolder = StaticFolder + System.IO.Path.DirectorySeparatorChar + "emojis";
-        public static readonly string OsmNestFilePath = StaticFolder + System.IO.Path.DirectorySeparatorChar + OsmNestFileName;
-        public const string StatsFolder = "Stats";
-        public const string LogsFolder = "Logs";
+        public const string TemplatesFolder = "templates";
+        public const string MigrationsFolder = "migrations";
+        public static readonly string DataFolder = StaticFolder + Path.DirectorySeparatorChar + "data";
+        public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locale";
+        public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
+        public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
+        public const string StatsFolder = "stats";
+        public const string LogsFolder = "logs";
 
         public const string DefaultResponseMessage = "WH Test Running!";
         public static readonly string[] LocalEndPoint = { "localhost", "127.0.0.1" };
@@ -38,20 +44,57 @@
         public const string ErrorLogFileName = "error.log";
         public const string StatsFileName = "notifications_{0}.csv";
 
+        public static readonly List<string> ValidGenders = new List<string> { "*", "m", "f" };
+
+        // Default filter settings for alarms and subscriptions
+        public const int MinimumIV = 0;
+        public const int MaximumIV = 100;
+        public const int MinimumLevel = 0;
+        public const int MaximumLevel = 35;
+        public const int MinimumCP = 0;
+        public const int MaximumCP = 99999;
+        public const int MinimumRank = 0;
+        public const int MaximumRank = 100;
+        public const int MinimumPercent = 0;
+        public const int MaximumPercent = 100;
+        public const int MinimumGreatLeagueCP = 1400;
+        public const int MaximumGreatLeagueCP = 1500;
+        public const int MinimumUltraLeagueCP = 2400;
+        public const int MaximumUltraLeagueCP = 2500;
+
         public const int MaxPokemonIds = 649;
 
         public const string All = "All";
 
+        // TODO: Make configurable.
         public const int MaxPokemonDisplayed = 70;
         public const int MaxPokemonSubscriptions = 25;
+        public const int MaxPvPSubscriptions = 15;
         public const int MaxRaidSubscriptions = 5;
+        public const int MaxGymSubscriptions = 3;
         public const int MaxQuestSubscriptions = 2;
         public const int MaxInvasionSubscriptions = 1;
         public const int CommonTypeMinimumIV = 90;
 
+        public const int MaxQueueCountWarning = 30;
+
+        public const string EmojiSchema = "<:{0}:{1}>";
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";
 
-        public const string CrashMessage = "WHM JUST CRASHED!";
+        public const string SQL_SELECT_CONVERTED_POKESTOPS = "SELECT pokestop.id, pokestop.lat, pokestop.lon, pokestop.name, pokestop.url FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id = gym.id;";
+        public const string SQL_UPDATE_CONVERTED_POKESTOPS = "UPDATE gym INNER JOIN pokestop ON pokestop.id = gym.id SET gym.name = pokestop.name, gym.url = pokestop.url;";
+        public const string SQL_DELETE_CONVERTED_POKESTOPS = "DELETE FROM pokestop WHERE id IN (SELECT id FROM gym)";
+        public const string SQL_DELETE_STALE_POKESTOPS = "DELETE FROM pokestop WHERE updated < UNIX_TIMESTAMP() - 90000;";
+        public const string SQL_CREATE_TABLE_METADATA = @"
+        CREATE TABLE IF NOT EXISTS metadata (
+            `key` VARCHAR(50) PRIMARY KEY NOT NULL,
+            `value` VARCHAR(50) DEFAULT NULL
+        );";
+        public const string SQL_INSERT_METADATA_FORMAT = @"
+        INSERT INTO metadata (`key`, `value`)
+        VALUES ('DB_VERSION', {0})
+        ON DUPLICATE KEY UPDATE `value` = {0};
+        ";
 
         public static readonly Dictionary<int, PokemonGenerationRange> PokemonGenerationRanges = new Dictionary<int, PokemonGenerationRange>
         {
@@ -59,31 +102,39 @@
             { 2, new PokemonGenerationRange { Generation = 2, Start = 152, End = 251 } },
             { 3, new PokemonGenerationRange { Generation = 3, Start = 252, End = 385 } },
             { 4, new PokemonGenerationRange { Generation = 4, Start = 386, End = 493 } },
-            { 5, new PokemonGenerationRange { Generation = 5, Start = 495, End = 649 } }
+            { 5, new PokemonGenerationRange { Generation = 5, Start = 495, End = 649 } },
+            { 6, new PokemonGenerationRange { Generation = 6, Start = 650, End = 721 } },
+            { 7, new PokemonGenerationRange { Generation = 7, Start = 722, End = 809 } },
+            { 8, new PokemonGenerationRange { Generation = 8, Start = 810, End = 890 } }
         };
 
+        // Required emoji list
         public static readonly string[] EmojiList =
         {
-            //Team emojis
+            // Team emojis
+            "neutral",
             "valor",
             "mystic",
             "instinct",
 
-            //Weather emojis
-            "weather_1", //Clear
-            "weather_2", //Rain
-            "weather_3", //PartlyCloudy/Overcast
-            "weather_4", //Cloudy
-            "weather_5", //Windy
-            "weather_6", //Snow
-            "weather_7", //Fog
+            // Capture rate emojis
+            "capture_1",
+            "capture_2",
+            "capture_3",
 
-            //Catch chances emojis
+            // Weather emojis
+            "weather_1", // Clear
+            "weather_2", // Rain
+            "weather_3", // PartlyCloudy/Overcast
+            "weather_4", // Cloudy
+            "weather_5", // Windy
+            "weather_6", // Snow
+            "weather_7", // Fog
 
-            //Ex gym emoji
+            // Ex gym emoji
             "ex",
 
-            //Type emojis
+            // Type emojis
             "types_fire",
             "types_grass",
             "types_ground",
@@ -101,19 +152,16 @@
             "types_dark",
             "types_normal",
             "types_flying",
-            "types_poison"
-        };
+            "types_poison",
 
-        public static IReadOnlyDictionary<WeatherType, string> WeatherEmojis => new Dictionary<WeatherType, string>
-        {
-            { WeatherType.None, "" },
-            { WeatherType.Clear, ":weather_1:" },//":sunny:" }, //☀️
-            { WeatherType.Rain, ":weather_2:" },//":umbrella:" }, //☔️
-            { WeatherType.PartlyCloudy, ":weather_3:" },//":partly_sunny:" }, //⛅
-            { WeatherType.Cloudy, ":weather_4:" },//":cloud:" }, //☁️
-            { WeatherType.Windy, ":weather_5:" },//":dash:" }, //💨
-            { WeatherType.Snow, ":weather_6:" },//":snowman:" }, //⛄️
-            { WeatherType.Fog, ":weather_7:" },//":foggy:" } //🌁
+            // PVP league emojis
+            "league_great",
+            "league_ultra",
+
+            // Gender emojis
+            "gender_male",
+            "gender_female",
+            "gender_genderless"
         };
 
         public static IReadOnlyDictionary<WeatherType, List<PokemonType>> WeatherBoosts => new Dictionary<WeatherType, List<PokemonType>>
@@ -129,12 +177,24 @@
         };
     }
 
+    /// <summary>
+    /// Pokemon generation range class
+    /// </summary>
     public class PokemonGenerationRange
     {
+        /// <summary>
+        /// Gets or sets the Pokemon generation number
+        /// </summary>
         public int Generation { get; set; }
 
+        /// <summary>
+        /// Gets or sets the pokedex ID the generation starts at
+        /// </summary>
         public int Start { get; set; }
 
+        /// <summary>
+        /// Gets or sets the pokedex ID the generation ends at
+        /// </summary>
         public int End { get; set; }
     }
 }

@@ -2,9 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
+
     using Newtonsoft.Json;
 
     using WhMgr.Alarms.Alerts;
@@ -12,8 +14,12 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
     using WhMgr.Utilities;
 
+    /// <summary>
+    /// RealDeviceMap Raid/Egg webhook model class.
+    /// </summary>
     public sealed class RaidData
     {
         public const string WebHookHeader = "raid";
@@ -85,10 +91,14 @@
         {
             get
             {
-                if (Database.Instance.Pokemon.ContainsKey(PokemonId) && !IsEgg)
+                if (MasterFile.Instance.Pokedex.ContainsKey(PokemonId) && !IsEgg)
                 {
                     var list = new List<PokemonType>();
-                    Database.Instance.Pokemon[PokemonId].Types.ForEach(x => x.GetWeaknesses().ForEach(y => list.Add(y)));
+                    var types = MasterFile.GetPokemon(PokemonId, Form)?.Types;
+                    if (types != null)
+                    {
+                        MasterFile.GetPokemon(PokemonId, Form)?.Types?.ForEach(x => list.AddRange(x.GetWeaknesses()));
+                    }
                     return list;
                 }
 
@@ -101,104 +111,95 @@
 
         #endregion
 
+        /// <summary>
+        /// Instantiate a new <see cref="RaidData"/> class.
+        /// </summary>
         public RaidData()
         {
             SetTimes();
         }
 
+        /// <summary>
+        /// Set expire times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
+        /// </summary>
         public void SetTimes()
         {
             StartTime = Start.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(StartTime))
-            //{
-            //    StartTime = StartTime.AddHours(1); //DST
-            //}
 
             EndTime = End.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(EndTime))
-            //{
-            //    EndTime = EndTime.AddHours(1); //DST
-            //}
         }
 
-        public DiscordEmbed GenerateRaidMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, string raidImageUrl)
+        /// <summary>
+        /// Generate a Discord embed Raid message
+        /// </summary>
+        /// <param name="guildId">Guild the notification is for</param>
+        /// <param name="client">Discord client</param>
+        /// <param name="whConfig">Webhook config</param>
+        /// <param name="alarm">Webhook alarm</param>
+        /// <param name="city">City the Raid was found in</param>
+        /// <returns>DiscordEmbedNotification object to send</returns>
+        public DiscordEmbedNotification GenerateRaidMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(client, whConfig, city);
+            var server = whConfig.Servers[guildId];
+            var raidImageUrl = IsEgg ?
+                this.GetRaidEggIcon(whConfig, server.IconStyle) :
+                PokemonId.GetPokemonIcon(Form, 0, whConfig, server.IconStyle);
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, raidImageUrl);
+            var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
+            var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
+            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
+            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = raidImageUrl,//DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
-                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                Description = mention + description,
                 Color = Level.BuildRaidColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
+                    Text = footerText,
+                    IconUrl = footerIconUrl
                 }
             };
-            return eb.Build();
+            var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
+            var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
+            return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string raidImageUrl)
         {
-            var pkmnInfo = Database.Instance.Pokemon[PokemonId];
-            var form = PokemonId.GetPokemonForm(Form.ToString());
+            var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
+            var form = Form.GetPokemonForm();
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
-            //var weather = raid.Weather?.ToString();
-            //var weatherEmoji = string.Empty;
-            //if (raid.Weather.HasValue && Strings.WeatherEmojis.ContainsKey(raid.Weather.Value) && raid.Weather != WeatherType.None)
-            //{
-            //    var isWeatherBoosted = pkmnInfo.IsWeatherBoosted(raid.Weather.Value);
-            //    var isWeatherBoostedText = isWeatherBoosted ? " (Boosted)" : null;
-            //    weatherEmoji = Strings.WeatherEmojis[raid.Weather.Value] + isWeatherBoostedText;
-            //}
-            var move1 = string.Empty;
-            var move2 = string.Empty;
-            if (MasterFile.Instance.Movesets.ContainsKey(FastMove))
-            {
-                move1 = MasterFile.Instance.Movesets[FastMove].Name;
-            }
-            if (MasterFile.Instance.Movesets.ContainsKey(ChargeMove))
-            {
-                move2 = MasterFile.Instance.Movesets[ChargeMove].Name;
-            }
-            var type1 = pkmnInfo?.Types?[0];
-            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1] : PokemonType.None;
-            var type1Emoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
-                pkmnInfo?.Types?[0].GetTypeEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
-                string.Empty;
-            var type2Emoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) && pkmnInfo?.Types?.Count > 1 ? 
-                pkmnInfo?.Types?[1].GetTypeEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
-                string.Empty;
+            var move1 = Translator.Instance.Translate("move_" + FastMove);
+            var move2 = Translator.Instance.Translate("move_" + ChargeMove);
+            var types = pkmnInfo?.Types;
+            var type1 = types?[0];
+            var type2 = types?.Count > 1 ? types?[1] : PokemonType.None;
+            var type1Emoji = types?[0].GetTypeEmojiIcons();
+            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? types?[1].GetTypeEmojiIcons() : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
-            var weaknessesEmoji = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
-                Weaknesses.GetWeaknessEmojiIcons(client.Guilds[whConfig.Discord.EmojiGuildId]) : 
-                string.Empty;
-            var weaknessesEmojiFormatted = weaknessesEmoji;
+            var weaknessesEmoji = types?.GetWeaknessEmojiIcons();
             var perfectRange = PokemonId.MaxCpAtLevel(20);
             var boostedRange = PokemonId.MaxCpAtLevel(25);
             var worstRange = PokemonId.MinCpAtLevel(20);
             var worstBoosted = PokemonId.MinCpAtLevel(25);
-            var exEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
-                client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId("ex") : 
-                0;
+            var exEmojiId = MasterFile.Instance.Emojis["ex"];
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ? 
-                client.Guilds[whConfig.Discord.EmojiGuildId].GetEmojiId(Team.ToString().ToLower()) : 
-                0;
+            var teamEmojiId = MasterFile.Instance.Emojis[Team.ToString().ToLower()];
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
 
-            var pkmnImage = IsEgg ? string.Format(whConfig.Urls.EggImage, Level) : PokemonId.GetPokemonImage(whConfig.Urls.PokemonImage, PokemonGender.Unset, Form);
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, pkmnImage, Latitude, Longitude);
+            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.RaidsTemplateFile);
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, Latitude, Longitude, raidImageUrl);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
@@ -210,7 +211,7 @@
                 //Raid boss properties
                 { "pkmn_id", PokemonId.ToString() },
                 { "pkmn_name", pkmnInfo.Name },
-                { "pkmn_img_url", pkmnImage },
+                { "pkmn_img_url", raidImageUrl },
                 { "form", form },
                 { "form_id", Form.ToString() },
                 { "form_id_3", Form.ToString("D3") },
@@ -232,7 +233,7 @@
                 { "types", $"{type1}/{type2}" },
                 { "types_emoji", typeEmojis },
                 { "weaknesses", weaknesses },
-                { "weaknesses_emoji", weaknessesEmojiFormatted },
+                { "weaknesses_emoji", weaknessesEmoji },
                 { "perfect_cp", perfectRange.ToString() },
                 { "perfect_cp_boosted", boostedRange.ToString() },
                 { "worst_cp", worstRange.ToString() },
@@ -261,6 +262,12 @@
                 { "gym_id", GymId },
                 { "gym_name", GymName },
                 { "gym_url", GymUrl },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
+
+                { "date_time", DateTime.Now.ToString() },
 
                 //Misc properties
                 { "br", "\r\n" }

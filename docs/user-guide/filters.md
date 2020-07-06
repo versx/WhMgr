@@ -1,0 +1,57 @@
+# Filters
+Filters allow you to narrow down what is reported. All filters are options and can be omitted. Plenty of examples in the repository under the [`examples/Filters`](https://github.com/versx/Brock-WhMgr/tree/v3/examples/Filters) directory for all different needs.  
+
+### Available Filter Options
+```js
+{
+	"pokemon":
+	{
+		"enabled": true, //Filter is enabled
+		"pokemon": [280,337,374], //List of Pokemon for the filter or empty for all
+		"min_iv": 0, //Minimum IV of Pokemon to send
+		"max_iv": 100, //Maximum IV of Pokemon to send
+		"min_cp": 0, //Minimum CP of Pokemon
+		"max_cp": 999999, //Maximum CP of Pokemon
+		"gender": "m", //Only send male (m,f,*)
+		"size": "Big", //Tiny, Small, Normal, Large, Big
+		"great_league": true, //Great League
+		"ultra_league": true, //Ultra League
+		"type": "Include", //Include or Exclude the `pokemon` list
+		"ignoreMissing": true //Ignore Pokemon missing stats
+	},
+	"eggs":
+	{
+		"enabled": true, //Filter is enabled
+		"min_lvl": 1, //Minimum egg level to send
+		"max_lvl": 5, //Maximum egg level to send
+		"onlyEx": false, //Only send ex-eligible raids.
+		"team": "All", //All, Valor, Mystic, Instinct, Neutral
+	},
+	"raids":
+	{
+		"enabled": true, //Filter is enabled
+		"pokemon": [], //Raid bosses to include or none for all.
+		"type": "Include", //Include or Exclude the `pokemon` list
+		"onlyEx": false, //Only send ex-eligible raids.
+		"team": "All", //All, Valor, Mystic, Instinct, Nuetral
+		"ignoreMissing": true //Ignore raids missing stats
+	},
+	"quests":
+	{
+		"enabled": true, //Filter is enabled
+        "rewards": ["spinda", "nincada"], //Quest reward string (Chansey, stardust, candy, etc.)
+        "type": "Include", //Include or Exclude the `rewards` list
+		"isShiny": false //Only shiny encounter quests.
+	},
+	"pokestops":
+	{
+		"enabled": true, //Filter is enabled
+		"lured": false, //Only send lured pokestops
+		"invasions": false //Only send Team Rocket invasion pokestops
+	},
+	"gyms":
+	{
+		"enabled": true //Filter is enabled
+	}
+}
+```

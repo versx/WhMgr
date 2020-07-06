@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-
+    using System.IO;
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
@@ -10,16 +10,18 @@
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
-    using WhMgr.Diagnostics;
+    using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
     using WhMgr.Utilities;
 
+    /// <summary>
+    /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
+    /// </summary>
     public sealed class PokestopData
     {
         public const string WebhookHeader = "pokestop";
         public const string WebhookHeaderInvasion = "invasion";
-
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("POKESTOPDATA");
 
         #region Properties
 
@@ -68,137 +70,54 @@
         [JsonProperty("updated")]
         public ulong Updated { get; set; }
 
+        [JsonIgnore]
         public bool HasLure => LureExpire > 0 && LureType != PokestopLureType.None && LureExpireTime > DateTime.Now;
 
+        [JsonIgnore]
         public bool HasInvasion => IncidentExpire > 0 && InvasionExpireTime > DateTime.Now;
 
         #endregion
 
+        #region Constructor
+
+        /// <summary>
+        /// Instantiate a new <see cref="PokestopData"/> class.
+        /// </summary>
         public PokestopData()
         {
             SetTimes();
         }
 
+        #endregion
+
         #region Public Methods
 
+        /// <summary>
+        /// Set expire times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
+        /// </summary>
         public void SetTimes()
         {
             LureExpireTime = LureExpire.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(LureExpireTime))
-            //{
-            //LureExpireTime = LureExpireTime.AddHours(1); //DST
-            //}
 
             InvasionExpireTime = IncidentExpire.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(InvasionExpireTime))
-            //{
-            //InvasionExpireTime = InvasionExpireTime.AddHours(1); //DST
-            //}
         }
 
-        public static string InvasionTypeToString(InvasionGruntType gruntType)
-        {
-            switch (gruntType)
-            {
-                case InvasionGruntType.Unset:
-                    return "None";
-                case InvasionGruntType.Blanche:
-                    return "Blanche";
-                case InvasionGruntType.Candela:
-                    return "Candela";
-                case InvasionGruntType.Spark:
-                    return "Spark";
-                case InvasionGruntType.MaleGrunt:
-                    return "Male Grunt";
-                case InvasionGruntType.FemaleGrunt:
-                    return "Female Grunt";
-                case InvasionGruntType.BugFemaleGrunt:
-                    return "Bug - Female Grunt";
-                case InvasionGruntType.BugMaleGrunt:
-                    return "Bug - Male Grunt";
-                case InvasionGruntType.DarknessFemaleGrunt:
-                    return "Ghost - Female Grunt";
-                case InvasionGruntType.DarknessMaleGrunt:
-                    return "Ghost - Male Grunt";
-                case InvasionGruntType.DarkFemaleGrunt:
-                    return "Dark - Female Grunt";
-                case InvasionGruntType.DarkMaleGrunt:
-                    return "Dark - Male Grunt";
-                case InvasionGruntType.DragonFemaleGrunt:
-                    return "Dragon - Female Grunt";
-                case InvasionGruntType.DragonMaleGrunt:
-                    return "Dragon - Male Grunt";
-                case InvasionGruntType.FairyFemaleGrunt:
-                    return "Fairy - Female Grunt";
-                case InvasionGruntType.FairyMaleGrunt:
-                    return "Fairy - Male Grunt";
-                case InvasionGruntType.FightingFemaleGrunt:
-                    return "Fighting - Female Grunt";
-                case InvasionGruntType.FightingMaleGrunt:
-                    return "Fighting - Male Grunt";
-                case InvasionGruntType.FireFemaleGrunt:
-                    return "Fire - Female Grunt";
-                case InvasionGruntType.FireMaleGrunt:
-                    return "Fire - Male Grunt";
-                case InvasionGruntType.FlyingFemaleGrunt:
-                    return "Flying - Female Grunt";
-                case InvasionGruntType.FlyingMaleGrunt:
-                    return "Flying - Male Grunt";
-                case InvasionGruntType.GrassFemaleGrunt:
-                    return "Grass - Female Grunt";
-                case InvasionGruntType.GrassMaleGrunt:
-                    return "Grass - Male Grunt";
-                case InvasionGruntType.GroundFemaleGrunt:
-                    return "Ground - Female Grunt";
-                case InvasionGruntType.GroundMaleGrunt:
-                    return "Ground - Male Grunt";
-                case InvasionGruntType.IceFemaleGrunt:
-                    return "Ice - Female Grunt";
-                case InvasionGruntType.IceMaleGrunt:
-                    return "Ice - Male Grunt";
-                case InvasionGruntType.MetalFemaleGrunt:
-                    return "Steel - Female Grunt";
-                case InvasionGruntType.MetalMaleGrunt:
-                    return "Steel - Male Grunt";
-                case InvasionGruntType.NormalFemaleGrunt:
-                    return "Normal - Female Grunt";
-                case InvasionGruntType.NormalMaleGrunt:
-                    return "Normal - Male Grunt";
-                case InvasionGruntType.PoisonFemaleGrunt:
-                    return "Poison - Female Grunt";
-                case InvasionGruntType.PoisonMaleGrunt:
-                    return "Poison - Male Grunt";
-                case InvasionGruntType.PsychicFemaleGrunt:
-                    return "Psychic - Female Grunt";
-                case InvasionGruntType.PsychicMaleGrunt:
-                    return "Psychic - Male Grunt";
-                case InvasionGruntType.RockFemaleGrunt:
-                    return "Rock - Female Grunt";
-                case InvasionGruntType.RockMaleGrunt:
-                    return "Rock - Male Grunt";
-                case InvasionGruntType.WaterFemaleGrunt:
-                    return "Water - Female Grunt";
-                case InvasionGruntType.WaterMaleGrunt:
-                    return "Water - Male Grunt";
-                case InvasionGruntType.PlayerTeamLeader:
-                    return "Player Team Leader";
-                default:
-                    return gruntType.ToString();
-            }
-        }
-
-        public DiscordEmbed GeneratePokestopMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(client, whConfig, city);
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city);
+            var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
+            var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
+            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
+            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
-                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Description = mention + description,
                 Color = HasInvasion ? DiscordColor.Red : HasLure ?
                     (LureType == PokestopLureType.Normal ? DiscordColor.HotPink
                     : LureType == PokestopLureType.Glacial ? DiscordColor.CornflowerBlue
@@ -207,70 +126,40 @@
                     : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
+                    Text = footerText,
+                    IconUrl = footerIconUrl
                 }
             };
-            return eb.Build();
+            var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
+            var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
+            return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
         }
 
         #endregion
 
-        public static string GetGruntLeaderString(InvasionGruntType gruntType)
-        {
-            switch (gruntType)
-            {
-                case InvasionGruntType.Blanche:
-                case InvasionGruntType.Candela:
-                case InvasionGruntType.Spark:
-                    return Convert.ToString(gruntType);
-                case InvasionGruntType.ExecutiveArlo:
-                    return "Executive Arlo";
-                case InvasionGruntType.ExecutiveCliff:
-                    return "Executive Cliff";
-                case InvasionGruntType.ExecutiveSierra:
-                    return "Executive Sierra";
-                case InvasionGruntType.Giovanni:
-                    return "Giovanni or Decoy";
-                case InvasionGruntType.DecoyFemale:
-                case InvasionGruntType.DecoyMale:
-                    return "Decoy";
-                case InvasionGruntType.PlayerTeamLeader:
-                    return "Player Team Leader";
-                default:
-                    return "Tier II";
-            }
-        }
-
         #region Private Methods
 
-        private IReadOnlyDictionary<string, string> GetProperties(DiscordClient client, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city)
         {
-            string icon;
-            if (HasInvasion)
-            {
-                //TODO: Load from local file
-                icon = "https://map.ver.sx/static/img/pokestop/i0.png";
-            }
-            else if (HasLure)
-            {
-                icon = string.Format(whConfig.Urls.QuestImage, Convert.ToInt32(LureType));
-            }
-            else
-            {
-                icon = Url;
-            }
+            var lureImageUrl = this.GetLureIcon(whConfig, whConfig.Servers[guild.Id].IconStyle);
+            var invasionImageUrl = this.GetInvasionIcon(whConfig, whConfig.Servers[guild.Id].IconStyle);
+            var imageUrl = HasInvasion ? invasionImageUrl : HasLure ? lureImageUrl : Url;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, icon, Latitude, Longitude);
+            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, HasInvasion ? whConfig.StaticMaps.InvasionsTemplateFile : HasLure ? whConfig.StaticMaps.LuresTemplateFile : whConfig.StaticMaps.LuresTemplateFile);
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, Latitude, Longitude, imageUrl);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
-            var invasion = new TeamRocketInvasion(GruntType);
-            var leaderString = GetGruntLeaderString(GruntType);
-            var invasionEncounters = invasion.GetPossibleInvasionEncounters();
+            var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
+            var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));
+            var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? Commands.Notifications.GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
+            var invasionTypeEmoji = pokemonType == PokemonType.None
+                ? leaderString
+                : pokemonType.GetTypeEmojiIcons();
+            var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : string.Empty;
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -281,12 +170,9 @@
                 { "lure_expire_time", LureExpireTime.ToLongTimeString() },
                 { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
                 { "has_invasion", Convert.ToString(HasInvasion) },
-                { "grunt_type", invasion.Type == PokemonType.None ? leaderString : invasion?.Type.ToString() },
-                { "grunt_type_emoji", invasion.Type == PokemonType.None ? leaderString : client.Guilds.ContainsKey(whConfig.Discord.EmojiGuildId) ?
-                    invasion.Type.GetTypeEmojiIcons(client.Guilds[whConfig.Discord.GuildId]) :
-                    string.Empty
-                },
-                { "grunt_gender", invasion.Gender.ToString() },
+                { "grunt_type", invasion?.Type },
+                { "grunt_type_emoji", invasionTypeEmoji },
+                { "grunt_gender", invasion?.Grunt },
                 { "invasion_expire_time", InvasionExpireTime.ToLongTimeString() },
                 { "invasion_expire_time_left", InvasionExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
                 { "invasion_encounters", $"**Encounter Reward Chance:**\r\n" + invasionEncounters },
@@ -308,6 +194,14 @@
                 { "pokestop_id", PokestopId ?? defaultMissingValue },
                 { "pokestop_name", Name ?? defaultMissingValue },
                 { "pokestop_url", Url ?? defaultMissingValue },
+                { "lure_img_url", lureImageUrl },
+                { "invasion_img_url", invasionImageUrl },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
+
+                { "date_time", DateTime.Now.ToString() },
 
                 //Misc properties
                 { "br", "\r\n" }
@@ -318,507 +212,61 @@
         #endregion
     }
 
-    public class TeamRocketInvasion
-    {
-        public InvasionGruntType InvasionGruntType { get; set; }
-
-        public PokemonType Type { get; set; }
-
-        public PokemonGender Gender { get; set; }
-
-        public bool SecondReward { get; set; }
-
-        public bool HasEncounter
-        {
-            get
-            {
-                return Encounters?.First?.Count > 0 || Encounters?.Second?.Count > 0 || Encounters?.Third?.Count > 0;
-            }
-        }
-
-        public TeamRocketEncounters Encounters { get; set; }
-
-        public TeamRocketInvasion()
-        {
-            Type = PokemonType.None;
-            Gender = PokemonGender.Unset;
-            Encounters = new TeamRocketEncounters();
-        }
-
-        public TeamRocketInvasion(InvasionGruntType gruntType)
-        {
-            InvasionGruntType = gruntType;
-            var gender = PokemonGender.Unset;
-            var type = PokemonType.None;
-            var secondReward = false;
-            var encounters = new TeamRocketEncounters();
-            switch (gruntType)
-            {
-                case InvasionGruntType.Unset:
-                case InvasionGruntType.Blanche:
-                case InvasionGruntType.Candela:
-                case InvasionGruntType.Spark:
-                    break;
-                case InvasionGruntType.MaleGrunt:
-                    gender = PokemonGender.Male;
-                    secondReward = true;
-                    encounters.First = new List<int> { 1, 4, 7 };
-                    encounters.Second = new List<int> { 2, 5, 8 };
-                    encounters.Third = new List<int> { 3, 6, 9 };
-                    break;
-                case InvasionGruntType.FemaleGrunt:
-                    gender = PokemonGender.Female;
-                    secondReward = false;
-                    encounters.First = new List<int> { 143, 131 };
-                    encounters.Second = new List<int> { 143, 62, 282 };
-                    encounters.Third = new List<int> { 143, 149, 130 };
-                    break;
-                case InvasionGruntType.BugFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Bug;
-                    break;
-                case InvasionGruntType.BugMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Bug;
-                    secondReward = false;
-                    encounters.First = new List<int> { 13, 48, 123 };
-                    encounters.Second = new List<int> { 14, 49, 212 };
-                    encounters.Third = new List<int> { 15, 123, 212 };
-                    break;
-                case InvasionGruntType.DarknessFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Ghost;
-                    break;
-                case InvasionGruntType.DarknessMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Ghost;
-                    secondReward = false;
-                    encounters.First = new List<int> { 302, 353, 355 };
-                    encounters.Second = new List<int> { 302, 354, 356 };
-                    encounters.Third = new List<int> { 302, 354, 477 };
-                    break;
-                case InvasionGruntType.DarkFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Dark;
-                    break;
-                case InvasionGruntType.DarkMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Dark;
-                    break;
-                case InvasionGruntType.DragonFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Dragon;
-                    secondReward = false;
-                    encounters.First = new List<int> { 147 };
-                    encounters.Second = new List<int> { 147, 148, 330 };
-                    encounters.Third = new List<int> { 130, 148, 149 };
-                    break;
-                case InvasionGruntType.DragonMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Dragon;
-                    break;
-                case InvasionGruntType.ElectricFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Electric;
-                    secondReward = false;
-                    encounters.First = new List<int> { 125, 179 };
-                    encounters.Second = new List<int> { 125, 180 };
-                    encounters.Third = new List<int> { 125, 181 };
-                    break;
-                case InvasionGruntType.ElectricMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Electric;
-                    break;
-                case InvasionGruntType.FairyFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Fairy;
-                    break;
-                case InvasionGruntType.FairyMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Fairy;
-                    break;
-                case InvasionGruntType.FightingFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Fighting;
-                    secondReward = false;
-                    encounters.First = new List<int> { 107 };
-                    encounters.Second = new List<int> { 107 };
-                    encounters.Third = new List<int> { 107 };
-                    break;
-                case InvasionGruntType.FightingMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Fighting;
-                    break;
-                case InvasionGruntType.FireFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Fire;
-                    secondReward = true;
-                    encounters.First = new List<int> { 58, 126, 228 };
-                    encounters.Second = new List<int> { 5, 229 };
-                    encounters.Third = new List<int> { 5, 59, 229 };
-                    break;
-                case InvasionGruntType.FireMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Fire;
-                    break;
-                case InvasionGruntType.FlyingFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Flying;
-                    secondReward = false;
-                    encounters.First = new List<int> { 41, 42 };
-                    encounters.Second = new List<int> { 42, 123, 169 };
-                    encounters.Third = new List<int> { 130, 149, 169 };
-                    break;
-                case InvasionGruntType.FlyingMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Flying;
-                    break;
-                case InvasionGruntType.GhostFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Ghost;
-                    break;
-                case InvasionGruntType.GhostMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Ghost;
-                    secondReward = false;
-                    encounters.First = new List<int> { 302, 353, 355 };
-                    encounters.Second = new List<int> { 302, 354, 356 };
-                    encounters.Third = new List<int> { 302, 354, 477 };
-                    break;
-                case InvasionGruntType.GrassFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Grass;
-                    break;
-                case InvasionGruntType.GrassMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Grass;
-                    secondReward = true;
-                    encounters.First = new List<int> { 273, 331, 387 };
-                    encounters.Second = new List<int> { 1, 2, 44 };
-                    encounters.Third = new List<int> { 45, 275, 332 };
-                    break;
-                case InvasionGruntType.GroundFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Ground;
-                    break;
-                case InvasionGruntType.GroundMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Ground;
-                    secondReward = false;
-                    encounters.First = new List<int> { 104, 246, 328 };
-                    encounters.Second = new List<int> { 104, 105, 329 };
-                    encounters.Third = new List<int> { 105, 130 };
-                    break;
-                case InvasionGruntType.IceFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Ice;
-                    break;
-                case InvasionGruntType.IceMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Ice;
-                    break;
-                case InvasionGruntType.MetalFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Steel;
-                    break;
-                case InvasionGruntType.MetalMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Steel;
-                    break;
-                case InvasionGruntType.NormalFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Normal;
-                    break;
-                case InvasionGruntType.NormalMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Normal;
-                    secondReward = true;
-                    encounters.First = new List<int> { 19, 41 };
-                    encounters.Second = new List<int> { 19, 20 };
-                    encounters.Third = new List<int> { 20, 143 };
-                    break;
-                case InvasionGruntType.PoisonFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Poison;
-                    secondReward = true;
-                    encounters.First = new List<int> { 41, 48, 88 };
-                    encounters.Second = new List<int> { 42, 88, 89 };
-                    encounters.Third = new List<int> { 42, 49, 89 };
-                    break;
-                case InvasionGruntType.PoisonMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Poison;
-                    break;
-                case InvasionGruntType.PsychicFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Psychic;
-                    break;
-                case InvasionGruntType.PsychicMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Psychic;
-                    secondReward = true;
-                    encounters.First = new List<int> { 63, 96, 280 };
-                    encounters.Second = new List<int> { 96, 97, 280 };
-                    encounters.Third = new List<int> { 64, 97, 281 };
-                    break;
-                case InvasionGruntType.RockFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Rock;
-                    break;
-                case InvasionGruntType.RockMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Rock;
-                    secondReward = false;
-                    encounters.First = new List<int> { 246 };
-                    encounters.Second = new List<int> { 246, 247 };
-                    encounters.Third = new List<int> { 247, 248 };
-                    break;
-                case InvasionGruntType.WaterFemaleGrunt:
-                    gender = PokemonGender.Female;
-                    type = PokemonType.Water;
-                    secondReward = false;
-                    encounters.First = new List<int> { 54, 60 };
-                    encounters.Second = new List<int> { 55, 61 };
-                    encounters.Third = new List<int> { 62, 186 };
-                    break;
-                case InvasionGruntType.WaterMaleGrunt:
-                    gender = PokemonGender.Male;
-                    type = PokemonType.Water;
-                    secondReward = false;
-                    encounters.First = new List<int> { 129 };
-                    encounters.Second = new List<int> { 129 };
-                    encounters.Third = new List<int> { 129, 130 };
-                    break;
-                case InvasionGruntType.PlayerTeamLeader:
-                case InvasionGruntType.DecoyFemale:
-                case InvasionGruntType.DecoyMale:
-                case InvasionGruntType.Giovanni:
-                case InvasionGruntType.ExecutiveCliff:
-                case InvasionGruntType.ExecutiveArlo:
-                case InvasionGruntType.ExecutiveSierra:
-                    break;
-            }
-
-            Type = type;
-            Gender = gender;
-            SecondReward = secondReward;
-            Encounters = encounters;
-        }
-
-        public static InvasionGruntType GruntTypeToTrInvasion(PokemonType type, PokemonGender gender)
-        {
-            switch (type)
-            {
-                case PokemonType.None:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.MaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.FemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Bug:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.BugMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.BugFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Dark:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.DarkMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.DarkFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Dragon:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.DragonMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.DragonFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Electric:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.ElectricMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.ElectricFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Fairy:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.FairyMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.FairyFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Fighting:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.FightingMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.FightingFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Fire:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.FireMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.FireFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Flying:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.FlyingMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.FlyingFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Ghost:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            //return InvasionGruntType.DarknessMaleGrunt;
-                            return InvasionGruntType.GhostMaleGrunt;
-                        case PokemonGender.Female:
-                            //return InvasionGruntType.DarknessFemaleGrunt;
-                            return InvasionGruntType.GhostFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Grass:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.GrassMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.GrassFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Ground:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.GroundMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.GroundFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Ice:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.IceMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.IceFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Normal:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.NormalMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.NormalFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Poison:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.PoisonMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.PoisonFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Psychic:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.PsychicMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.PsychicFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Rock:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.RockMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.RockFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Steel:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.MetalMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.MetalFemaleGrunt;
-                    }
-                    break;
-                case PokemonType.Water:
-                    switch (gender)
-                    {
-                        case PokemonGender.Male:
-                            return InvasionGruntType.WaterMaleGrunt;
-                        case PokemonGender.Female:
-                            return InvasionGruntType.WaterFemaleGrunt;
-                    }
-                    break;
-            }
-            return InvasionGruntType.Unset;
-        }
-    }
-
-    public class TeamRocketEncounters
-    {
-        public List<int> First { get; set; }
-
-        public List<int> Second { get; set; }
-
-        public List<int> Third { get; set; }
-
-        public TeamRocketEncounters()
-        {
-            First = new List<int>();
-            Second = new List<int>();
-            Third = new List<int>();
-        }
-    }
-
+    /// <summary>
+    /// Pokestop lure type
+    /// </summary>
     public enum PokestopLureType
     {
+        /// <summary>
+        /// No Pokestop lure deployed
+        /// </summary>
         None = 0,
+
+        /// <summary>
+        /// Normal Pokestop lure deployed
+        /// </summary>
         Normal = 501,
+
+        /// <summary>
+        /// Glacial Pokestop lure deployed
+        /// </summary>
         Glacial = 502,
+
+        /// <summary>
+        /// Mossy Pokestop lure deployed
+        /// </summary>
         Mossy = 503,
+
+        /// <summary>
+        /// Magnetic Pokestop lure deployed
+        /// </summary>
         Magnetic = 504
     }
 
+    /// <summary>
+    /// Pokestop display type
+    /// </summary>
     public enum PokestopDisplay
     {
+        /// <summary>
+        /// Normal Pokestop
+        /// </summary>
         Normal = 0,
+
+        /// <summary>
+        /// Team Rocket Invasion Pokestop
+        /// </summary>
         RocketInvasion,
+
+        /// <summary>
+        /// Team Rocket victory Pokestop
+        /// </summary>
         RocketVictory
     }
 
+    /// <summary>
+    /// Team Rocket Invasion grunt type
+    /// </summary>
     public enum InvasionGruntType
     {
         Unset = 0,

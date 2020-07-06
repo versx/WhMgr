@@ -2,19 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
 
-    using WhMgr.Diagnostics;
-
-    public class GeofenceService
+    public static class GeofenceService
     {
         //private static readonly IEventLogger _logger = EventLogger.GetLogger();
 
         //public bool Contains(GeofenceItem geofence, Location point)
         //{
         //    //Credits: https://stackoverflow.com/a/7739297/2313836
-
         //    var contains = false;
         //    for (int i = 0, j = geofence.Polygons.Count - 1; i < geofence.Polygons.Count; j = i++)
         //    {
@@ -41,7 +37,8 @@
         //    }
         //    return c;
         //}
-        public bool Contains(GeofenceItem geofence, Location point)
+
+        public static bool Contains(GeofenceItem geofence, Location point)
         {
             var numOfPoints = geofence.Polygons.Count;
             var lats = geofence.Polygons.Select(x => x.Latitude).ToList();
@@ -65,7 +62,27 @@
             return polygonContainsPoint;
         }
 
-        public GeofenceItem GetGeofence(List<GeofenceItem> geofences, Location point)
+        /// <summary>
+        /// Check if the provided location is within one of the provided geofences.
+        /// </summary>
+        /// <param name="geofences">List of geofences</param>
+        /// <param name="location">Location to check</param>
+        /// <returns></returns>
+        public static GeofenceItem InGeofence(List<GeofenceItem> geofences, Location location)
+        {
+            for (var i = 0; i < geofences.Count; i++)
+            {
+                var geofence = geofences[i];
+                if (!Contains(geofence, location))
+                    continue;
+
+                return geofence;
+            }
+
+            return null;
+        }
+
+        public static GeofenceItem GetGeofence(List<GeofenceItem> geofences, Location point)
         {
             foreach (var geofence in geofences)
             {
@@ -77,45 +94,5 @@
 
             return null;
         }
-
-        //public static List<GeofenceItem> FromFiles(List<string> filePaths)
-        //{
-        //    var list = new List<GeofenceItem>();
-
-        //    foreach (var filePath in filePaths)
-        //    {
-        //        if (!File.Exists(filePath))
-        //        {
-        //            _logger.Warn($"Geofence file {filePath} does not exist.");
-        //            continue;
-        //        }
-
-        //        list.Add(GeofenceItem.FromFile(filePath));
-        //    }
-
-        //    return list;
-        //}
-
-        //public static List<GeofenceItem> FromFolder(string geofenceFolder)
-        //{
-        //    return FromFiles(Directory.GetFiles(geofenceFolder, "*.txt").ToList());
-        //}
-
-        //public static List<GeofenceItem> FromFolder(string geofenceFolder, List<string> cities)
-        //{
-        //    var list = new List<GeofenceItem>();
-        //    foreach (var city in cities)
-        //    {
-        //        var filePath = Path.Combine(geofenceFolder, city + ".txt");
-        //        if (!File.Exists(filePath))
-        //        {
-        //            _logger.Warn($"Geofence file {filePath} does not exist.");
-        //            continue;
-        //        }
-
-        //        list.Add(GeofenceItem.FromFile(filePath));
-        //    }
-        //    return list;
-        //}
     }
 }

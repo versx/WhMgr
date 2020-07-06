@@ -3,48 +3,25 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
+    using DSharpPlus;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
+    using DSharpPlus.Entities;
+
+    using ServiceStack;
     using ServiceStack.DataAnnotations;
     using ServiceStack.OrmLite;
 
     using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
-    using WhMgr.Net.Models;
-
-    //public class NotificationStatistics
-    //{
-    //    public ulong GuildId { get; set; }
-
-    //    public ulong UserId { get; set; }
-
-    //    public ulong TotalPokemon { get; set; }
-
-    //    public ulong TotalRaids { get; set; }
-
-    //    public ulong TotalQuests { get; set; }
-
-    //    public ulong TotalInvasions { get; set; }
-    //}
+    using WhMgr.Localization;
 
     public class ShinyStats
     {
-        //TODO: Add possible shinies list to external file
-        private static readonly List<int> _possiblyShinies = new List<int> {
-            //1st Generation
-            1, 4, 7, 10, 16, 19, 23, 25, 27, 29, 32, 41, 43, 50, 52, 54, 56, 58, 60, 66, 72, 74, 77, 81, 86, 88, 90, 92, 95, 96, 98, 103, 104, 109, 116, 123, 127, 128, 129, 131, 133, 138, 140, 142, 147,
-            //2nd Generation
-            152, 155, 158, 161, 177, 179, 190, 191, 193, 198, 200, 204, 207, 209, 213, 215, 220, 225, 227, 228, 246,
-            //3rd Generation
-            252, 255, 258, 261, 263, 270, 276, 278, 280, 287, 296, 302, 303, 304, 307, 309, 311, 312, 315, 318, 320, 325, 327, 328, 333, 336, 337, 338, 339, 345, 347, 349, 351, 353, 355, 359, 361, 366, 370, 371, 374,
-            //4rd Generation
-            387, 403, 425, 427, 436,
-            //5th Generation
-            504, 506, 562
-        };
         private static readonly IEventLogger _logger = EventLogger.GetLogger("SHINY_STATS");
         private readonly Dependencies _dep;
 
@@ -55,100 +32,74 @@
 
         [
             Command("shiny-stats"),
-            DSharpPlus.CommandsNext.Attributes.Description(""),
-            RequireOwner
+            RequirePermissions(Permissions.KickMembers)
         ]
         public async Task GetShinyStatsAsync(CommandContext ctx)
         {
-            if (!_dep.WhConfig.ShinyStats.Enabled)
-                return;
-
-            if (_dep.WhConfig.ShinyStats.ClearMessages)
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
             {
-                await ctx.Message.DeleteAsync();
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
+                return;
             }
 
-            var statsChannel = await ctx.Client.GetChannelAsync(_dep.WhConfig.ShinyStats.ChannelId);
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            if (!server.ShinyStats.Enabled)
+                return;
+
+            var statsChannel = await ctx.Client.GetChannelAsync(server.ShinyStats.ChannelId);
             if (statsChannel == null)
             {
-                _logger.Warn($"Failed to get channel id {_dep.WhConfig.ShinyStats.ChannelId} to post shiny stats.");
+                _logger.Warn($"Failed to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
+                await ctx.RespondEmbed(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(ctx.User.Username), DiscordColor.Yellow);
+                return;
+            }
+
+            if (server.ShinyStats.ClearMessages)
+            {
+                await ctx.Client.DeleteMessages(server.ShinyStats.ChannelId);
+            }
+
+            await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString()));
+            await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
+            var stats = await GetShinyStats(_dep.WhConfig.Database.Scanner.ToString());
+            var sorted = stats.Keys.ToList();
+            sorted.Sort();
+
+            foreach (var pokemon in sorted)
+            {
+                if (pokemon == 0)
+                    continue;
+
+                if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
+                    continue;
+
+                var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
+                var pkmnStats = stats[pokemon];
+                var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
+                if (chance == 0)
+                {
+                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
+                }
+                else
+                {
+                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
+                }
+                Thread.Sleep(500);
+            }
+
+            var total = stats[0];
+            var totalRatio = total.Shiny == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Shiny);
+            if (totalRatio == 0)
+            {
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0")));
             }
             else
             {
-                if (_dep.WhConfig.ShinyStats.ClearMessages)
-                {
-                    await ctx.Client.DeleteMessages(_dep.WhConfig.ShinyStats.ChannelId);
-                }
-
-                await statsChannel.SendMessageAsync($"[**Shiny Pokemon stats for {DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString()}**]\r\n----------------------------------------------");
-                //var stats = await GetStats(_dep.WhConfig.ConnectionStrings.Scanner);
-                var stats = await GetShinyStats(_dep.WhConfig.ConnectionStrings.Scanner);
-                var sorted = stats.Keys.ToList();
-                sorted.Sort();
-
-                foreach (var pokemon in sorted)
-                {
-                    if (pokemon == 0)
-                        continue;
-
-                    if (!Database.Instance.Pokemon.ContainsKey((int)pokemon))
-                        continue;
-
-                    var pkmn = Database.Instance.Pokemon[(int)pokemon];
-                    var pkmnStats = stats[pokemon];
-                    var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
-                    var chanceMessage = chance == 0 ? null : $" with a **1/{chance}** ratio";
-                    await statsChannel.SendMessageAsync($"**{pkmn.Name} (#{pokemon})**  |  **{pkmnStats.Shiny.ToString("N0")}** shiny out of **{pkmnStats.Total.ToString("N0")}** total seen in the last 24 hours{chanceMessage}.");
-                }
-
-                var total = stats[0];
-                var ratio = total.Shiny == 0 || total.Total == 0 ? null : $" with a **1/{Convert.ToInt32(total.Total / total.Shiny)}** ratio in total";
-                await statsChannel.SendMessageAsync($"Found **{total.Shiny.ToString("N0")}** total shinies out of **{total.Total.ToString("N0")}** possiblities{ratio}.");
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
             }
         }
 
-        public static Task<Dictionary<int, ShinyPokemonStats>> GetStats(string scannerConnectionString)
-        {
-            var list = new Dictionary<int, ShinyPokemonStats>
-            {
-                { 0, new ShinyPokemonStats { PokemonId = 0 } }
-            };
-            try
-            {
-                using (var db = DataAccessLayer.CreateFactory(scannerConnectionString).Open())
-                {
-                    db.SetCommandTimeout(300);
-                    //var unixTimestamp = DateTimeOffset.ToUnixTimeSeconds();
-                    var twentyFourHoursAgo = DateTime.Now.Subtract(TimeSpan.FromHours(24));
-                    var pokemon = db.Select<PokemonData>().Where(x => x.Shiny.HasValue && x.Updated.FromUnix() > twentyFourHoursAgo).ToList();
-                    for (var i = 0; i < pokemon.Count; i++)
-                    {
-                        var curPkmn = pokemon[i];
-                        if (curPkmn.Id > 0 && _possiblyShinies.Contains(curPkmn.Id))
-                        {
-                            if (!list.ContainsKey(curPkmn.Id))
-                            {
-                                list.Add(curPkmn.Id, new ShinyPokemonStats { PokemonId = (uint)curPkmn.Id });
-                            }
-
-                            list[curPkmn.Id].PokemonId = (uint)curPkmn.Id;
-                            list[curPkmn.Id].Shiny += curPkmn.Shiny.HasValue ? Convert.ToInt32(curPkmn.Shiny.Value) : 0;
-                            list[curPkmn.Id].Total++;
-                        }
-                    }
-                    list.ForEach((x, y) => list[0].Shiny += y.Shiny);
-                    list.ForEach((x, y) => list[0].Total += y.Total);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-
-            return Task.FromResult(list);
-        }
-
-        public static Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStats(string scannerConnectionString)
+        internal static Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStats(string scannerConnectionString)
         {
             var list = new Dictionary<uint, ShinyPokemonStats>
             {
@@ -165,7 +116,7 @@
                     for (var i = 0; i < pokemonShiny.Count; i++)
                     {
                         var curPkmn = pokemonShiny[i];
-                        if (curPkmn.PokemonId > 0 && _possiblyShinies.Contains((int)curPkmn.PokemonId))
+                        if (curPkmn.PokemonId > 0)
                         {
                             if (!list.ContainsKey(curPkmn.PokemonId))
                             {
@@ -189,7 +140,7 @@
         }
 
         [Alias("pokemon_iv_stats")]
-        public class PokemonStatsIV
+        internal class PokemonStatsIV
         {
             [Alias("date")]
             public DateTime Date { get; set; }
@@ -202,7 +153,7 @@
         }
 
         [Alias("pokemon_shiny_stats")]
-        public class PokemonStatsShiny
+        internal class PokemonStatsShiny
         {
             [Alias("date")]
             public DateTime Date { get; set; }
@@ -214,19 +165,7 @@
             public ulong Count { get; set; }
         }
 
-        public class ShinyPokemonStat
-        {
-            public DateTime Date { get; set; }
-
-            public ulong Total { get; set; }
-
-            public ulong Shiny { get; set; }
-
-
-            public uint PokemonId { get; set; }
-        }
-
-        public class ShinyPokemonStats
+        internal class ShinyPokemonStats
         {
             public uint PokemonId { get; set; }
 

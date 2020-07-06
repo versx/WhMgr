@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.RegularExpressions;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using DSharpPlus;
@@ -13,6 +14,8 @@
 
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
+    using WhMgr.Localization;
+    using WhMgr.Net.Models;
 
     public static class DiscordExtensions
     {
@@ -21,6 +24,31 @@
         //private const string NoRegex = "[Nn][Oo]?";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("DISCORD_EXTENSIONS");
+
+        #region Messages
+
+        public static async Task<List<DiscordMessage>> RespondEmbed(this DiscordMessage msg, string message)
+        {
+            return await msg.RespondEmbed(message, DiscordColor.Green);
+        }
+
+        public static async Task<List<DiscordMessage>> RespondEmbed(this DiscordMessage discordMessage, string message, DiscordColor color)
+        {
+            var messagesSent = new List<DiscordMessage>();
+            var messages = message.SplitInParts(2048);
+            foreach (var msg in messages)
+            {
+                var eb = new DiscordEmbedBuilder
+                {
+                    Color = color,
+                    Description = msg
+                };
+
+                messagesSent.Add(await discordMessage.RespondAsync(embed: eb));
+                Thread.Sleep(500);
+            }
+            return messagesSent;
+        }
 
         public static async Task<List<DiscordMessage>> RespondEmbed(this CommandContext ctx, string message)
         {
@@ -40,7 +68,7 @@
                 };
 
                 await ctx.TriggerTypingAsync();
-                messagesSent.Add(await ctx.RespondAsync(string.Empty, false, eb));
+                messagesSent.Add(await ctx.RespondAsync(embed: eb));
             }
             return messagesSent;
         }
@@ -68,11 +96,12 @@
             {
                 //_logger.Error(ex);
                 _logger.Error($"Failed to send DM to user {user.Username}.");
-                //TODO: Delete user from subscriptions
             }
 
             return null;
         }
+
+        #endregion
 
         public static async Task<DiscordMember> GetMemberById(this DiscordClient client, ulong guildId, ulong id)
         {
@@ -114,38 +143,63 @@
             {
                 await ctx.TriggerTypingAsync();
             }
-            var message = await ctx.RespondEmbed($"{ctx.User.Username} This feature is only available to supporters, please donate to unlock this feature and more.\r\n\r\nDonation information can be found by typing the `donate` command.");
-            if (message.Count > 0)
-            {
-                return message[0];
-            }
-            return null;
+
+            var message = Translator.Instance.Translate("DONATE_MESSAGE", ctx.User.Username) ??
+                $"{ctx.User.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
+                $"Donation information can be found by typing the `$donate` command.\r\n\r\n" +
+                $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
+            var eb = await ctx.RespondEmbed(message);
+            return eb.FirstOrDefault();
         }
 
         internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message)
         {
-            if (message.Channel.Guild == null)
+            if (message?.Channel?.Guild == null)
             {
-                await message.RespondAsync($"{message.Author.Mention} DM is not supported for this command yet.");
+                await message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", message.Author.Username), DiscordColor.Yellow);
                 return false;
             }
 
             return true;
         }
 
-        public static bool IsSupporterOrHigher(this DiscordClient client, ulong userId, WhConfig config)
+        public static ulong ContextToGuild(this CommandContext ctx, Dictionary<ulong, DiscordClient> servers)
+        {
+            var keys = servers.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var guildId = keys[i];
+                if (!servers.ContainsKey(guildId))
+                    continue;
+
+                if (ctx.Client.CurrentUser.Id != servers[guildId].CurrentUser.Id)
+                    continue;
+
+                return guildId;
+            }
+            return 0;
+        }
+
+        #region Roles
+
+        public static bool IsSupporterOrHigher(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)
         {
             try
             {
-                var isAdmin = userId == config.Discord.OwnerId;
+                if (!config.Servers.ContainsKey(guildId))
+                    return false;
+
+                var server = config.Servers[guildId];
+
+                var isAdmin = userId == server.OwnerId;
                 if (isAdmin)
                     return true;
 
-                var isModerator = config.Discord.Moderators.Contains(userId);
+                var isModerator = server.Moderators.Contains(userId);
                 if (isModerator)
                     return true;
 
-                var isSupporter = client.HasSupporterRole(config.Discord.GuildId, userId, config.Discord.DonorRoleIds);
+                var isSupporter = client.HasSupporterRole(server.GuildId, userId, server.DonorRoleIds);
                 if (isSupporter)
                     return true;
             }
@@ -157,22 +211,30 @@
             return false;
         }
 
-        public static bool IsModeratorOrHigher(this ulong userId, WhConfig config)
+        public static bool IsModeratorOrHigher(this ulong userId, ulong guildId, WhConfig config)
         {
-            var isAdmin = IsAdmin(userId, config.Discord.OwnerId);
+            if (!config.Servers.ContainsKey(guildId))
+                return false;
+
+            var server = config.Servers[guildId];
+
+            var isAdmin = IsAdmin(userId, server.OwnerId);
             if (isAdmin)
                 return true;
 
-            var isModerator = config.Discord.Moderators.Contains(userId);
+            var isModerator = server.Moderators.Contains(userId);
             if (isModerator)
                 return true;
 
             return false;
         }
 
-        public static bool IsModerator(this ulong userId, WhConfig config)
+        public static bool IsModerator(this ulong userId, ulong guildId, WhConfig config)
         {
-            return config.Discord.Moderators.Contains(userId);
+            if (!config.Servers.ContainsKey(guildId))
+                return false;
+
+            return config.Servers[guildId].Moderators.Contains(userId);
         }
 
         public static bool IsAdmin(this ulong userId, ulong ownerId)
@@ -259,6 +321,8 @@
             return null;
         }
 
+        #endregion
+
         public static async Task<Tuple<DiscordChannel, long>> DeleteMessages(this DiscordClient client, ulong channelId)
         {
             var deleted = 0L;
@@ -313,11 +377,6 @@
             return Tuple.Create(channel, deleted);
         }
 
-        public static ulong? GetEmojiId(this DiscordGuild guild, string emojiName)
-        {
-            return guild.Emojis.FirstOrDefault(x => string.Compare(x.Name, emojiName, true) == 0)?.Id;
-        }
-
         public static async Task<bool> Confirm(this CommandContext ctx, string message)
         {
             await ctx.RespondEmbed(message);
@@ -336,6 +395,8 @@
 
             return Regex.IsMatch(m.Message.Content, YesRegex);
         }
+
+        #region Colors
 
         public static DiscordColor BuildColor(this string iv)
         {
@@ -376,5 +437,31 @@
 
             return DiscordColor.White;
         }
+
+        public static DiscordColor BuildWeatherColor(this WeatherType weather)
+        {
+            switch (weather)
+            {
+                case WeatherType.Clear:
+                    return DiscordColor.Yellow;
+                case WeatherType.Cloudy:
+                    return DiscordColor.Grayple;
+                case WeatherType.Fog:
+                    return DiscordColor.DarkGray;
+                case WeatherType.PartlyCloudy:
+                    return DiscordColor.LightGray;
+                case WeatherType.Rain:
+                    return DiscordColor.Blue;
+                case WeatherType.Snow:
+                    return DiscordColor.White;
+                case WeatherType.Windy:
+                    return DiscordColor.Purple;
+                case WeatherType.None:
+                default:
+                    return DiscordColor.Gray;
+            }
+        }
+
+        #endregion
     }
 }

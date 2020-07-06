@@ -8,26 +8,17 @@
         JsonObject("gyms"),
         Alias("gyms")
     ]
-    public class GymSubscription
+    public class GymSubscription : SubscriptionItem
     {
         [
-            JsonIgnore,
-            Alias("id"), 
-            PrimaryKey, 
-            AutoIncrement
-        ]
-        public int Id { get; set; }
-
-        [
-            JsonProperty("user_id"),
-            Alias("userId"), 
+            Alias("subscription_id"),
             ForeignKey(typeof(SubscriptionObject))
         ]
-        public ulong UserId { get; set; }
+        public int SubscriptionId { get; set; }
 
         [
             JsonProperty("name"),
-            Alias("name"), 
+            Alias("name"),
             Unique
         ]
         public string Name { get; set; }

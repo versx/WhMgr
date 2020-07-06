@@ -2,6 +2,9 @@
 {
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// RealDeviceMap Gym webhook model class.
+    /// </summary>
     public sealed class GymData
     {
         public const string WebhookHeader = "gym";

@@ -8,22 +8,13 @@
         JsonObject("raids"),
         Alias("raids")
     ]
-    public class RaidSubscription
+    public class RaidSubscription : SubscriptionItem
     {
         [
-            JsonIgnore,
-            Alias("id"), 
-            PrimaryKey, 
-            AutoIncrement
-        ]
-        public int Id { get; set; }
-
-        [
-            JsonProperty("user_id"),
-            Alias("userId"),
+            Alias("subscription_id"),
             ForeignKey(typeof(SubscriptionObject))
         ]
-        public ulong UserId { get; set; }
+        public int SubscriptionId { get; set; }
 
         [
             JsonProperty("pokemon_id"),

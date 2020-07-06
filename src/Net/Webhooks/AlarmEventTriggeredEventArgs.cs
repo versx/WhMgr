@@ -10,10 +10,13 @@
 
         public T Data { get; }
 
-        public AlarmEventTriggeredEventArgs(T data, AlarmObject alarm)
+        public ulong GuildId { get; }
+
+        public AlarmEventTriggeredEventArgs(T data, AlarmObject alarm, ulong guildId)
         {
             Data = data;
             Alarm = alarm;
+            GuildId = guildId;
         }
     }
 }

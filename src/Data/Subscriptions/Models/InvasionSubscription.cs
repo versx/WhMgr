@@ -4,35 +4,24 @@
 
     using Newtonsoft.Json;
 
-    using WhMgr.Net.Models;
-
     [
         JsonObject("invasions"),
         Alias("invasions")
     ]
-    public class InvasionSubscription
+    public class InvasionSubscription : SubscriptionItem
     {
         [
-            JsonIgnore,
-            Alias("id"),
-            PrimaryKey, 
-            AutoIncrement
-        ]
-        public int Id { get; set; }
-
-        [
-            JsonProperty("user_id"),
-            Alias("userId"),
+            Alias("subscription_id"),
             ForeignKey(typeof(SubscriptionObject))
         ]
-        public ulong UserId { get; set; }
+        public int SubscriptionId { get; set; }
 
         [
-            JsonProperty("grunt_type"),
-            Alias("grunt_type"), 
+            JsonProperty("reward_pokemon_id"),
+            Alias("reward_pokemon_id"),
             Required
         ]
-        public InvasionGruntType GruntType { get; set; }
+        public int RewardPokemonId { get; set; }
 
         [
             JsonProperty("city"),

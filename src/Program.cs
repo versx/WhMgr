@@ -1,43 +1,56 @@
 ﻿namespace WhMgr
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
 
     class Program
     {
-        public static string ManagerName { get; set; }
+        /// <summary>
+        /// Gets or sets the manager name
+        /// </summary>
+        public static string ManagerName { get; set; } = "Main";
 
-        static void Main(string[] args)
+        /// <summary>
+        /// Main entry point
+        /// </summary>
+        /// <param name="args">Command line arguments</param>
+        static void Main(string[] args) => MainAsync(args).GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Asynchronous main entry point
+        /// </summary>
+        /// <param name="args">Command line arguments</param>
+        /// <returns></returns>
+        static async Task MainAsync(string[] args)
         {
+            // Parse command line arguments if given
             var arguments = CommandLine.ParseArgs(new string[] { "--", "-" }, args);
-            var alarmsFilePath = string.Empty;
             var configFilePath = string.Empty;
             var managerName = string.Empty;
+            // Loop through the parsed command line arguments and set the key values associated with each argument provided
             var keys = arguments.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
-                switch (keys[i])
+                var key = keys[i];
+                switch (key.ToLower())
                 {
-                    case "alarms":
-                    case "a":
-                        alarmsFilePath = arguments.ContainsKey(keys[i]) ? arguments[keys[i]]?.ToString() : Strings.AlarmsFileName;
-                        break;
                     case "config":
                     case "c":
-                        configFilePath = arguments.ContainsKey(keys[i]) ? arguments[keys[i]]?.ToString() : Strings.ConfigFileName;
+                        configFilePath = arguments.ContainsKey(key) ? arguments[key]?.ToString() : Strings.ConfigFileName;
                         break;
                     case "name":
                     case "n":
-                        managerName = arguments.ContainsKey(keys[i]) ? arguments[keys[i]]?.ToString() : "Default";
+                        managerName = arguments.ContainsKey(key) ? arguments[key]?.ToString() : "Default";
                         break;
                 }
             }
 
-            alarmsFilePath = Path.Combine(Environment.CurrentDirectory, string.IsNullOrEmpty(alarmsFilePath) ? Strings.AlarmsFileName : alarmsFilePath);
             configFilePath = Path.Combine(Environment.CurrentDirectory, string.IsNullOrEmpty(configFilePath) ? Strings.ConfigFileName : configFilePath);
             ManagerName = managerName;
-            var logger = Diagnostics.EventLogger.GetLogger();
+            var logger = Diagnostics.EventLogger.GetLogger(managerName);
             var whConfig = Configuration.WhConfig.Load(configFilePath);
             if (whConfig == null)
             {
@@ -46,10 +59,12 @@
             }
             whConfig.FileName = configFilePath;
 
-            var bot = new Bot(whConfig, alarmsFilePath);
-            bot.Start();
+            // Start bot
+            var bot = new Bot(whConfig);
+            await bot.Start();
 
-            System.Diagnostics.Process.GetCurrentProcess().WaitForExit();
+            // Keep the process alive
+            Process.GetCurrentProcess().WaitForExit();
         }
     }
 }

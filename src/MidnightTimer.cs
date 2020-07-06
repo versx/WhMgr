@@ -16,6 +16,8 @@
     {
         #region Static Variables
 
+        private bool _disposed;
+
         /// <summary>
         /// Internal Timer
         /// </summary>
@@ -191,8 +193,28 @@
         /// </summary>
         public void Dispose()
         {
-            // Pass to Stop to unsubscribe the event handler of Windows System Time Changes
-            Stop();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (disposing)
+            {
+                // free managed resources
+                // Pass to Stop to unsubscribe the event handler of Windows System Time Changes
+                Stop();
+                s_timer.Dispose();
+            }
+
+            // free native resources if there are any.
+            //if (nativeResource != IntPtr.Zero)
+            //{
+            //}
+
+            _disposed = true;
         }
 
         #endregion

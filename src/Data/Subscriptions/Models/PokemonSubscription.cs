@@ -1,5 +1,7 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
+    using System.Collections.Generic;
+
     using ServiceStack.DataAnnotations;
 
     using Newtonsoft.Json;
@@ -8,26 +10,19 @@
         JsonObject("pokemon"),
         Alias("pokemon")
     ]
-    public class PokemonSubscription
+    public class PokemonSubscription : SubscriptionItem
     {
-        [
-            JsonIgnore,//JsonProperty("id"),
-            Alias("id"), 
-            PrimaryKey,
-            AutoIncrement
-        ]
-        public int Id { get; set; }
+        #region Properties
 
         [
-            JsonProperty("user_id"),
-            Alias("userId"), 
+            Alias("subscription_id"),
             ForeignKey(typeof(SubscriptionObject))
         ]
-        public ulong UserId { get; set; }
+        public int SubscriptionId { get; set; }
 
         [
             JsonProperty("pokemon_id"),
-            Alias("pokemon_id"), 
+            Alias("pokemon_id"),
             Required
         ]
         public int PokemonId { get; set; }
@@ -46,9 +41,15 @@
 
         [
             JsonProperty("min_iv"),
-            Alias("miv_iv")
+            Alias("min_iv")
         ]
         public int MinimumIV { get; set; }
+
+        [
+            JsonProperty("iv_list"),
+            Alias("iv_list")
+        ]
+        public List<string> IVList { get; set; }
 
         [
             JsonProperty("min_lvl"),
@@ -57,48 +58,45 @@
         public int MinimumLevel { get; set; }
 
         [
+            JsonProperty("max_lvl"),
+            Alias("max_lvl")
+        ]
+        public int MaximumLevel { get; set; }
+
+        [
             JsonProperty("gender"),
             Alias("gender")
         ]
         public string Gender { get; set; }
 
         [
-            JsonProperty("attack"),
-            Alias("attack")
+            JsonProperty("city"),
+            Alias("city")
         ]
-        public int Attack { get; set; }
-
-        [
-            JsonProperty("defense"),
-            Alias("defense")
-        ]
-        public int Defense { get; set; }
-
-        [
-            JsonProperty("stamina"),
-            Alias("stamina")
-        ]
-        public int Stamina { get; set; }
-
-        //[Alias("city")]
-        //public string City { get; set; }
+        public string City { get; set; }
 
         [
             JsonIgnore,
             Ignore
         ]
-        public bool HasStats => Attack > 0 || Defense > 0 || Stamina > 0;
+        public bool HasStats => (IVList?.Count ?? 0) > 0;
+
+        #endregion
+
+        #region Constructor
 
         public PokemonSubscription()
         {
             MinimumCP = 0;
             MinimumIV = 0;
             MinimumLevel = 0;
+            MaximumLevel = 35;
             Gender = "*";
-            Attack = 0;
-            Defense = 0;
-            Stamina = 0;
-            Form = string.Empty;
+            Form = null;
+            City = null;
+            IVList = new List<string>();
         }
+
+        #endregion
     }
 }

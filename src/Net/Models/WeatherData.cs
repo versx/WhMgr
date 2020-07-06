@@ -2,20 +2,36 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+
+    using DSharpPlus;
+    using DSharpPlus.Entities;
 
     using Newtonsoft.Json;
-
     using ServiceStack.DataAnnotations;
 
-    using WhMgr.Diagnostics;
+    using WhMgr.Alarms.Alerts;
+    using WhMgr.Alarms.Models;
+    using WhMgr.Configuration;
+    using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Osm.Models;
+    using WhMgr.Utilities;
 
+    public enum WeatherSeverity
+    {
+        None = 0,
+        Moderate,
+        Extreme
+    }
+
+    /// <summary>
+    /// RealDeviceMap Weather webhook model class.
+    /// </summary>
     [Alias("weather")]
     public sealed class WeatherData
     {
         public const string WebHookHeader = "weather";
-
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("WEATHERDATA");
 
         #region Properties
 
@@ -28,9 +44,8 @@
         [JsonProperty("longitude")]
         public double Longitude { get; set; }
 
-        //[JsonProperty("polygon")]
-        [JsonIgnore] //TODO: Implement weather polygons
-        public List<List<double>> Polygon { get; set; }
+        [JsonProperty("polygon")]
+        public MultiPolygon Polygon { get; set; }
 
         [JsonProperty("gameplay_condition")]
         public WeatherType GameplayCondition { get; set; }
@@ -57,7 +72,7 @@
         public ushort SpecialEffectLevel { get; set; }
 
         [JsonProperty("severity")]
-        public ushort? Severity { get; set; }
+        public WeatherSeverity? Severity { get; set; }
 
         [JsonProperty("warn_weather")]
         public bool? WarnWeather { get; set; }
@@ -72,6 +87,9 @@
 
         #region Constructor
 
+        /// <summary>
+        /// Instantiate a new <see cref="WeatherData"/> class.
+        /// </summary>
         public WeatherData()
         {
             SetTimes();
@@ -88,6 +106,109 @@
             //{
             //    UpdatedTime = UpdatedTime.AddHours(1);
             //}
+        }
+
+        public DiscordEmbedNotification GenerateWeatherMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        {
+            var alertType = AlertMessageType.Weather;
+            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
+            var server = whConfig.Servers[guildId];
+            var weatherImageUrl = this.GetWeatherIcon(whConfig, server.IconStyle);
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, weatherImageUrl);
+            var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
+            var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
+            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
+            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
+                ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                Description = mention + description,
+                Color = GameplayCondition.BuildWeatherColor(),
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = footerText,
+                    IconUrl = footerIconUrl
+                }
+            };
+            var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
+            var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
+            return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
+        }
+
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string weatherImageUrl)
+        {
+            var weather = GameplayCondition.ToString();
+            var weatherKey = $"weather_{Convert.ToInt32(GameplayCondition)}";
+            var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && GameplayCondition != WeatherType.None ? GameplayCondition.GetWeatherEmojiIcon() : string.Empty;
+            var hasWeather = GameplayCondition != WeatherType.None;
+            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
+            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.WeatherTemplateFile);
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap.Replace("/15/", "/11/"), Latitude, Longitude, weatherImageUrl);
+            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+
+            const string defaultMissingValue = "?";
+            var dict = new Dictionary<string, string>
+            {
+                //Main properties
+                { "id", Id.ToString() },
+                { "weather_condition", weather },
+                { "has_weather", Convert.ToString(hasWeather) },
+                { "weather", weather ?? defaultMissingValue },
+                { "weather_emoji", weatherEmoji ?? defaultMissingValue },
+                { "weather_img_url", weatherImageUrl },
+
+                { "wind_direction", WindDirection.ToString() },
+                { "wind_level", WindLevel.ToString() },
+                { "raid_level", RainLevel.ToString() },
+                { "cloud_level", CloudLevel.ToString() },
+                { "fog_level", FogLevel.ToString() },
+                { "snow_level", SnowLevel.ToString() },
+                { "warn_weather", Convert.ToString(WarnWeather ?? false) },
+                { "special_effect_level", SpecialEffectLevel.ToString() },
+                { "severity", Severity.ToString() },
+
+                //Location properties
+                { "geofence", city ?? defaultMissingValue },
+                { "lat", Latitude.ToString() },
+                { "lng", Longitude.ToString() },
+                { "lat_5", Math.Round(Latitude, 5).ToString() },
+                { "lng_5", Math.Round(Longitude, 5).ToString() },
+
+                //Location links
+                { "tilemaps_url", staticMapLink },
+                { "gmaps_url", gmapsLocationLink },
+                { "applemaps_url", appleMapsLocationLink },
+                { "wazemaps_url", wazeMapsLocationLink },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
+
+                { "date_time", DateTime.Now.ToString() },
+
+                //Misc properties
+                { "br", "\r\n" }
+            };
+            return dict;
+        }
+
+        public static MultiPolygon FixWeatherPolygon(MultiPolygon multiPolygon)
+        {
+            var newMultiPolygon = new MultiPolygon();
+            if (multiPolygon.Count == 0 || multiPolygon == null)
+                return newMultiPolygon;
+
+            multiPolygon.ForEach(x => newMultiPolygon.Add(new Polygon { x[1], x[0] }));
+            newMultiPolygon.Add(newMultiPolygon[newMultiPolygon.Count - 1]);
+            return newMultiPolygon;
         }
 
         #endregion

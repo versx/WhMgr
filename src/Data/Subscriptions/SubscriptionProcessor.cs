@@ -1,52 +1,64 @@
 ﻿namespace WhMgr.Data.Subscriptions
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
+    using ServiceStack.OrmLite;
 
+    using WhMgr.Alarms.Filters;
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
+    using Utils = WhMgr.Utilities.Utils;
 
+    /// <summary>
+    /// Discord user subscription processing class.
+    /// </summary>
     public class SubscriptionProcessor
     {
-        const int MaxQueueCountWarning = 30;
-
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION_PROCESSOR");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION");
 
-        private readonly DiscordClient _client;
+        private readonly Dictionary<ulong, DiscordClient> _servers;
         private readonly WhConfig _whConfig;
-        private readonly WebhookManager _whm;
-        //private readonly EmbedBuilder _embedBuilder;
+        private readonly WebhookController _whm;
         private readonly NotificationQueue _queue;
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// Get subscription manager class
+        /// </summary>
         public SubscriptionManager Manager { get; }
 
         #endregion
 
         #region Constructor
 
-        public SubscriptionProcessor(DiscordClient client, WhConfig config, WebhookManager whm)//, EmbedBuilder embedBuilder)
+        /// <summary>
+        /// Instantiate a new <see cref="SubscriptionProcessor"/> class.
+        /// </summary>
+        /// <param name="servers">Discord servers dictionary</param>
+        /// <param name="config">Configuration file</param>
+        /// <param name="whm">Webhook controller class</param>
+        public SubscriptionProcessor(Dictionary<ulong, DiscordClient> servers, WhConfig config, WebhookController whm)
         {
             _logger.Trace($"SubscriptionProcessor::SubscriptionProcessor");
 
-            _client = client;
+            _servers = servers;
             _whConfig = config;
             _whm = whm;
-            //_embedBuilder = embedBuilder;
             _queue = new NotificationQueue();
 
             Manager = new SubscriptionManager(_whConfig);
@@ -60,11 +72,7 @@
 
         public async Task ProcessPokemonSubscription(PokemonData pkmn)
         {
-            if (!_whConfig.Discord.EnableSubscriptions)
-                return;
-
-            var db = Database.Instance;
-            if (!db.Pokemon.ContainsKey(pkmn.Id))
+            if (!MasterFile.Instance.Pokedex.ContainsKey(pkmn.Id))
                 return;
 
             var loc = _whm.GetGeofence(pkmn.Latitude, pkmn.Longitude);
@@ -84,13 +92,11 @@
             SubscriptionObject user;
             PokemonSubscription subscribedPokemon;
             DiscordMember member = null;
-            var pokemon = db.Pokemon[pkmn.Id];
+            var pokemon = MasterFile.GetPokemon(pkmn.Id, pkmn.FormId);
             var matchesIV = false;
             var matchesLvl = false;
             var matchesGender = false;
-            var matchesAttack = false;
-            var matchesDefense = false;
-            var matchesStamina = false;
+            var matchesIVList = false;
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -102,9 +108,20 @@
                     if (!user.Enabled)
                         continue;
 
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
                     try
                     {
-                        member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
+                        member = await client.GetMemberById(user.GuildId, user.UserId);
                     }
                     catch (Exception ex)
                     {
@@ -113,7 +130,7 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.Discord.DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pokemon.Name}...");
                         continue;
@@ -128,6 +145,16 @@
                         continue;
                     }
 
+                    /*
+                    var exists = user.Pokemon.Exists(x => string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0));
+                    if (!exists)
+                    {
+                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.PokemonId} because the Pokemon is in city '{loc.Name}'.");
+                        continue;
+                    }
+                    */
+
+                    // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
@@ -139,38 +166,36 @@
                         }
                     }
 
-                    var form = pkmn.Id.GetPokemonForm(pkmn.FormId.ToString());
-                    subscribedPokemon = user.Pokemon.FirstOrDefault(x => x.PokemonId == pkmn.Id && ((x.Form == null || x.Form == string.Empty) || string.Compare(x.Form, form, true) == 0));
+                    var form = pkmn.FormId.GetPokemonForm();
+                    subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
+                        x.PokemonId == pkmn.Id &&
+                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
+                    );
                     if (subscribedPokemon == null)
                     {
-                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
+                        //_logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
-                    matchesIV = _whm.Filters.MatchesIV(pkmn.IV, subscribedPokemon.MinimumIV);
+                    matchesIV = Filters.MatchesIV(pkmn.IV, subscribedPokemon.MinimumIV);
                     //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
-                    matchesLvl = _whm.Filters.MatchesLvl(pkmn.Level, subscribedPokemon.MinimumLevel);
-                    matchesGender = _whm.Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
-                    matchesAttack = _whm.Filters.MatchesAttack(pkmn.Attack, subscribedPokemon.Attack);
-                    matchesDefense = _whm.Filters.MatchesDefense(pkmn.Defense, subscribedPokemon.Defense);
-                    matchesStamina = _whm.Filters.MatchesStamina(pkmn.Stamina, subscribedPokemon.Stamina);
+                    matchesLvl = Filters.MatchesLvl(pkmn.Level, (uint)subscribedPokemon.MinimumLevel, (uint)subscribedPokemon.MaximumLevel);
+                    matchesGender = Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
+                    matchesIVList = subscribedPokemon.IVList?.Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}") ?? false;
 
                     if (!(
-                        (!subscribedPokemon.HasStats && matchesIV && matchesLvl && matchesGender) || 
-                        (subscribedPokemon.HasStats && matchesAttack && matchesDefense && matchesStamina)
-                         ))
+                        (/*!subscribedPokemon.HasStats && */matchesIV && matchesLvl && matchesGender) ||
+                        (subscribedPokemon.HasStats && matchesIVList)
+                        ))
                         continue;
 
-                    //_logger.Debug($"Notifying user {member.Username} that a {pokemon.Name} {pkmn.CP}CP {pkmn.IV} IV L{pkmn.Level} has spawned...");
+                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name, pkmn));
+                    }
 
-                    var iconStyle = Manager.GetUserIconStyle(user);
-                    var embed = await pkmn.GeneratePokemonMessage(_client, _whConfig, pkmn, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], pkmn.Id, pkmn.FormId));
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-
-                    //if (!Manager.AddPokemonStatistic(member.Id, pkmn))
-                    //{
-                    //    _logger.Warn($"Failed to add {pokemon.Name} Pokemon statistic for user {user.Id}.");
-                    //}
                     Statistics.Instance.SubscriptionPokemonSent++;
                     Thread.Sleep(5);
                 }
@@ -186,18 +211,148 @@
             user = null;
             loc = null;
             pokemon = null;
-            db = null;
+
+            await Task.CompletedTask;
+        }
+
+        public async Task ProcessPvPSubscription(PokemonData pkmn)
+        {
+            if (!MasterFile.Instance.Pokedex.ContainsKey(pkmn.Id))
+                return;
+
+            var loc = _whm.GetGeofence(pkmn.Latitude, pkmn.Longitude);
+            if (loc == null)
+            {
+                //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                return;
+            }
+
+            var subscriptions = Manager.GetUserSubscriptionsByPvPPokemonId(pkmn.Id);
+            if (subscriptions == null)
+            {
+                _logger.Warn($"Failed to get subscriptions from database table.");
+                return;
+            }
+
+            SubscriptionObject user;
+            PvPSubscription subscribedPokemon;
+            DiscordMember member = null;
+            var pokemon = MasterFile.GetPokemon(pkmn.Id, pkmn.FormId);
+            var matchesGreat = false;
+            var matchesUltra = false;
+            for (var i = 0; i < subscriptions.Count; i++)
+            {
+                try
+                {
+                    user = subscriptions[i];
+                    if (user == null)
+                        continue;
+
+                    if (!user.Enabled)
+                        continue;
+
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
+                    try
+                    {
+                        member = await client.GetMemberById(user.GuildId, user.UserId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Debug($"FAILED TO GET MEMBER BY ID {user.UserId}");
+                        _logger.Error(ex);
+                        continue;
+                    }
+
+                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
+                    {
+                        _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pvp pokemon {pokemon.Name}...");
+                        continue;
+                    }
+
+                    if (member?.Roles == null || loc == null)
+                        continue;
+
+                    // If member does not have role associated with city and server does have city roles configured, skip subscription.
+                    if (!member.Roles.Select(x => x?.Name?.ToLower()).Contains(loc?.Name?.ToLower()) && _whConfig.Servers[user.GuildId].CityRoles?.Count > 0)
+                    {
+                        //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
+                        continue;
+                    }
+
+                    // Only check distance if user has it set
+                    if (user.DistanceM > 0)
+                    {
+                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                        if (user.DistanceM < distance)
+                        {
+                            //Skip if distance is set and is not with specified distance.
+                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM} meters.");
+                            continue;
+                        }
+                    }
+
+                    var form = pkmn.FormId.GetPokemonForm();
+                    subscribedPokemon = user.PvP.FirstOrDefault(x =>
+                        x.PokemonId == pkmn.Id &&
+                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
+                    );
+                    if (subscribedPokemon == null)
+                    {
+                        //_logger.Info($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
+                        continue;
+                    }
+
+                    matchesGreat = pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Great &&
+                                                                     (x.CP ?? 0) >= 2400 && (x.CP ?? 0) <= 2500 &&
+                                                                     (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
+                                                                     (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false;
+                    matchesUltra = pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Ultra &&
+                                                                     (x.CP ?? 0) >= 2400 && (x.CP ?? 0) <= 2500 &&
+                                                                     (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
+                                                                     (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false;
+
+                    if (!(matchesGreat || matchesUltra))
+                        continue;
+
+                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name));
+                    }
+
+                    Statistics.Instance.SubscriptionPokemonSent++;
+                    Thread.Sleep(5);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                }
+            }
+
+            subscriptions.Clear();
+            subscriptions = null;
+            member = null;
+            user = null;
+            loc = null;
+            pokemon = null;
 
             await Task.CompletedTask;
         }
 
         public async Task ProcessRaidSubscription(RaidData raid)
         {
-            if (!_whConfig.Discord.EnableSubscriptions)
-                return;
-
-            var db = Database.Instance;
-            if (!db.Pokemon.ContainsKey(raid.PokemonId))
+            if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
                 return;
 
             var loc = _whm.GetGeofence(raid.Latitude, raid.Longitude);
@@ -215,7 +370,7 @@
             }
 
             SubscriptionObject user;
-            var pokemon = db.Pokemon[raid.PokemonId];
+            var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -227,25 +382,31 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
+                    var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.Discord.DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
                         continue;
                     }
 
-                    //if (!member.Roles.Select(x => x.Name.ToLower()).Contains(loc.Name.ToLower()))
-                    //{
-                    //    _logger.Debug($"[{loc.Name}] Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name} because they do not have the city role '{loc.Name}'.");
-                    //    continue;
-                    //}
-
+                    // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
@@ -257,19 +418,23 @@
                         }
                     }
 
-                    if (user.Gyms.Count > 0 && !user.Gyms.Exists(x => !string.IsNullOrEmpty(x?.Name) && raid.GymName.ToLower().Contains(x.Name?.ToLower())))
+                    if (user.Gyms.Count > 0 && (!user.Gyms?.Exists(x =>
+                        !string.IsNullOrEmpty(x?.Name) &&
+                        (
+                            (raid.GymName?.ToLower()?.Contains(x.Name?.ToLower()) ?? false) ||
+                            (raid.GymName?.ToLower()?.StartsWith(x.Name?.ToLower()) ?? false)
+                        )
+                    ) ?? false))
                     {
                         //Skip if list is not empty and gym is not in list.
                         _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");
                         continue;
                     }
 
-                    var form = raid.PokemonId.GetPokemonForm(raid.Form.ToString());
+                    var form = raid.Form.GetPokemonForm();
                     var exists = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
-                        //(string.Compare(x.Form, form, true) == 0 || string.IsNullOrEmpty(x.Form)) &&
-                        (x.Form == null || x.Form == string.Empty || string.Compare(x.Form, form, true) == 0) &&
-                        //string.Compare(x.Form, form, true) == 0 &&
+                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;
                     if (!exists)
@@ -278,16 +443,12 @@
                         continue;
                     }
 
-                    //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
+                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name));
+                    }
 
-                    var iconStyle = Manager.GetUserIconStyle(user);
-                    var embed = raid.GenerateRaidMessage(_client, _whConfig, null, loc.Name, string.Format(_whConfig.IconStyles[iconStyle], raid.PokemonId, raid.Form));
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokemon.Name, embed));
-
-                    //if (!Manager.AddRaidStatistic(member.Id, raid))
-                    //{
-                    //    _logger.Warn($"Failed to add {pokemon.Name} raid statistic for user {user.Id}.");
-                    //}
                     Statistics.Instance.SubscriptionRaidsSent++;
                     Thread.Sleep(5);
                 }
@@ -301,17 +462,12 @@
             subscriptions = null;
             user = null;
             loc = null;
-            db = null;
 
             await Task.CompletedTask;
         }
 
         public async Task ProcessQuestSubscription(QuestData quest)
         {
-            if (!_whConfig.Discord.EnableSubscriptions)
-                return;
-
-            var db = Database.Instance;
             var reward = quest.Rewards[0].Info;
             var rewardKeyword = quest.GetReward();
             var questName = quest.GetQuestMessage();
@@ -332,8 +488,6 @@
 
             bool isSupporter;
             SubscriptionObject user;
-            //var embed = _embedBuilder.BuildQuestMessage(quest, loc.Name);
-            var embed = quest.GenerateQuestMessage(_client, _whConfig, null, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -345,14 +499,25 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
+                    var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
-                    isSupporter = member.HasSupporterRole(_whConfig.Discord.DonorRoleIds);
+                    isSupporter = member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds);
                     if (!isSupporter)
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping quest {questName}...");
@@ -369,6 +534,7 @@
                         continue;
                     }
 
+                    // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
@@ -380,13 +546,9 @@
                         }
                     }
 
-                    //_logger.Debug($"Notifying user {member.Username} that a {rewardKeyword} quest is available...");
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, questName, embed));
+                    var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    _queue.Enqueue(new NotificationItem(user, member, embed, questName, loc.Name));
 
-                    //if (!Manager.AddQuestStatistic(member.Id, quest))
-                    //{
-                    //    _logger.Warn($"Failed to add {quest.GetRewardString()} quest statistic for user {user.Id}.");
-                    //}
                     Statistics.Instance.SubscriptionQuestsSent++;
                     Thread.Sleep(5);
                 }
@@ -395,13 +557,17 @@
                     _logger.Error(ex);
                 }
             }
+
+            subscriptions.Clear();
+            subscriptions = null;
+            user = null;
+            loc = null;
+
+            await Task.CompletedTask;
         }
 
         public async Task ProcessInvasionSubscription(PokestopData pokestop)
         {
-            if (!_whConfig.Discord.EnableSubscriptions)
-                return;
-
             var loc = _whm.GetGeofence(pokestop.Latitude, pokestop.Longitude);
             if (loc == null)
             {
@@ -409,16 +575,25 @@
                 return;
             }
 
-            var subscriptions = Manager.GetUserSubscriptionsByGruntType(pokestop.GruntType);
+            var invasion = MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType) ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
+            var encounters = invasion?.GetEncounterRewards();
+            if (encounters == null)
+                return;
+
+            var subscriptions = Manager.GetUserSubscriptionsByEncounterReward(encounters);
             if (subscriptions == null)
             {
                 _logger.Warn($"Failed to get subscriptions from database table.");
                 return;
             }
 
+            if (!MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType))
+            {
+                //_logger.Error($"Failed to parse grunt type {pokestop.GruntType}, not in `grunttype.json` list.");
+                return;
+            }
+         
             SubscriptionObject user;
-            //var embed = _embedBuilder.BuildPokestopMessage(pokestop, loc.Name);
-            var embed = pokestop.GeneratePokestopMessage(_client, _whConfig, null, loc.Name);
             for (int i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -430,21 +605,32 @@
                     if (!user.Enabled)
                         continue;
 
-                    var member = await _client.GetMemberById(_whConfig.Discord.GuildId, user.UserId);
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
+                    var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warn($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.Discord.DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
                         continue;
                     }
 
                     var exists = user.Invasions.FirstOrDefault(x =>
-                        x.GruntType == pokestop.GruntType &&
+                        encounters.Contains(x.RewardPokemonId) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;
                     if (!exists)
@@ -453,6 +639,7 @@
                         continue;
                     }
 
+                    // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
                         var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
@@ -464,14 +651,12 @@
                         }
                     }
 
-                    //_logger.Debug($"Notifying user {member.Username} that a {raid.PokemonId} raid is available...");
+                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, loc.Name));
+                    }
 
-                    _queue.Enqueue(new Tuple<DiscordUser, string, DiscordEmbed>(member, pokestop.Name, embed));
-
-                    //if (!Manager.AddRaidStatistic(member.Id, raid))
-                    //{
-                    //    _logger.Warn($"Failed to add {pokemon.Name} raid statistic for user {user.Id}.");
-                    //}
                     Statistics.Instance.SubscriptionInvasionsSent++;
                     Thread.Sleep(5);
                 }
@@ -483,7 +668,6 @@
 
             subscriptions.Clear();
             subscriptions = null;
-            embed = null;
             user = null;
             loc = null;
 
@@ -498,9 +682,7 @@
         {
             _logger.Trace($"SubscriptionProcessor::ProcessQueue");
 
-#pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
             new Thread(async () =>
-#pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
             {
                 while (true)
                 {
@@ -510,26 +692,26 @@
                         continue;
                     }
 
-                    if (_queue.Count > MaxQueueCountWarning)
+                    if (_queue.Count > Strings.MaxQueueCountWarning)
                     {
-                        _logger.Warn($"Subscription queue is {_queue.Count.ToString("N0")} items long.");
+                        _logger.Warn($"Subscription queue is {_queue.Count:N0} items long.");
                     }
 
                     var item = _queue.Dequeue();
-                    if (item == null || item?.Item1 == null || item?.Item3 == null)
+                    if (item == null || item?.Subscription == null || item?.Member == null || item?.Embed == null)
                         continue;
 
-                    var member = item.Item1;
-                    var user = Manager.Subscriptions.FirstOrDefault(x => x.UserId == item.Item1.Id);
-                    if (user == null)
-                        continue;
-
-                    if (user.Limiter.IsLimited())
+                    // Check if user is receiving messages too fast.
+                    if (item.Subscription.Limiter.IsLimited())
                     {
-                        _logger.Warn($"{member.Username} notifications rate limited, waiting {(60 - user.Limiter.TimeLeft.TotalSeconds)} seconds...", user.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
-                        if (!user.RateLimitNotificationSent)
+                        _logger.Warn($"{item.Member.Username} notifications rate limited, waiting {(60 - item.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", item.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+                        // Send ratelimited notification to user if not already sent to adjust subscription settings to more reasonable settings.
+                        if (!item.Subscription.RateLimitNotificationSent)
                         {
-                            var rateLimitMessage = $"Your Pokemon notifications have exceeded {NotificationLimiter.MaxNotificationsPerMinute} per minute and you are now being rate limited. Please adjust your subscriptions to receive a maximum of {NotificationLimiter.MaxNotificationsPerMinute} notifications within a 60 second time span.";
+                            var guildName = _servers.ContainsKey(item.Subscription.GuildId) ? _servers[item.Subscription.GuildId].Guilds[item.Subscription.GuildId]?.Name : Strings.Creator;
+                            var guildIconUrl = _servers.ContainsKey(item.Subscription.GuildId) ? _servers[item.Subscription.GuildId].Guilds[item.Subscription.GuildId]?.IconUrl : string.Empty;
+                            var rateLimitMessage = $"Your notification subscriptions have exceeded the {NotificationLimiter.MaxNotificationsPerMinute:N0}) per minute and you are now being rate limited." +
+                                                   $"Please adjust your subscriptions to receive a maximum of {NotificationLimiter.MaxNotificationsPerMinute:N0} notifications within a 60 second time span.";
                             var eb = new DiscordEmbedBuilder
                             {
                                 Title = "Rate Limited",
@@ -537,24 +719,88 @@
                                 Color = DiscordColor.Red,
                                 Footer = new DiscordEmbedBuilder.EmbedFooter
                                 {
-                                    Text = $"{(_client.Guilds.ContainsKey(_whConfig.Discord.GuildId) ? _client.Guilds[_whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                                    IconUrl = _client.Guilds.ContainsKey(_whConfig.Discord.GuildId) ? _client.Guilds[_whConfig.Discord.GuildId]?.IconUrl : string.Empty
+                                    Text = $"{guildName} | {DateTime.Now}",
+                                    IconUrl = guildIconUrl
                                 }
                             };
-                            await _client.SendDirectMessage(member, string.Empty, eb.Build());
-                            user.RateLimitNotificationSent = true;
+                            if (!_servers.ContainsKey(item.Subscription.GuildId))
+                                continue;
+
+                            await _servers[item.Subscription.GuildId].SendDirectMessage(item.Member, string.Empty, eb.Build());
+                            item.Subscription.RateLimitNotificationSent = true;
                         }
                         continue;
                     }
 
-                    user.RateLimitNotificationSent = false;
+                    // Ratelimit is up, allow for ratelimiting again
+                    item.Subscription.RateLimitNotificationSent = false;
 
-                    await _client.SendDirectMessage(item.Item1, item.Item3);
-                    _logger.Info($"[WEBHOOK] Notified user {item.Item1.Username} of {item.Item2}.");
+                    if (!_servers.ContainsKey(item.Subscription.GuildId))
+                    {
+                        _logger.Error($"User subscription for guild that's not configured. UserId={item.Subscription.UserId} GuildId={item.Subscription.GuildId}");
+                        continue;
+                    }
+
+                    // Send text message notification to user if a phone number is set
+                    if (!string.IsNullOrEmpty(item.Subscription.PhoneNumber))
+                    {
+                        // Check if user is in the allowed text message list or server owner
+                        if (_whConfig.Twilio.UserIds.Contains(item.Member.Id) ||
+                            _whConfig.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
+                        {
+                            // Send text message (max 160 characters)
+                            if (IsUltraRare(_whConfig.Twilio, item.Pokemon))
+                            {
+                                var result = Utils.SendSmsMessage(StripEmbed(item), _whConfig.Twilio, item.Subscription.PhoneNumber);
+                                if (!result)
+                                {
+                                    _logger.Error($"Failed to send text message to phone number '{item.Subscription.PhoneNumber}' for user {item.Subscription.UserId}");
+                                }
+                            }
+                        }
+                    }
+
+                    // Send direct message notification to user
+                    var client = _servers[item.Subscription.GuildId];
+                    await client.SendDirectMessage(item.Member, item.Embed);
+                    _logger.Info($"[WEBHOOK] Notified user {item.Member.Username} of {item.Description}.");
                     Thread.Sleep(10);
                 }
             })
             { IsBackground = true }.Start();
+        }
+
+        private bool IsUltraRare(TwilioConfig twilo, PokemonData pkmn)
+        {
+            // If no Pokemon are set, do not send text messages
+            if (twilo.PokemonIds.Count == 0)
+                return false;
+
+            // Check if Pokemon is in list of allowed IDs
+            if (!twilo.PokemonIds.Contains(pkmn.Id))
+                return false;
+
+            // Send text message if Unown, Azelf, etc
+            if (pkmn.Id.IsRarePokemon())
+                return true;
+
+            // Send text message if 100% Gible, Deino, and Axew
+            if (Filters.MatchesIV(pkmn.IV, twilo.MinimumIV))
+                return true;
+
+            return false;
+        }
+
+        private static string StripEmbed(NotificationItem item)
+        {
+            const int MAX_TEXT_LENGTH = 120;
+            var text = item.Embed.Description;
+            text = text.Replace("**", null);
+            text = text.Length > MAX_TEXT_LENGTH
+                ? text.Substring(0, Math.Min(text.Length, MAX_TEXT_LENGTH))
+                : text;
+            // TODO: Construct text message instead of using embed description and url for google maps link
+            return $"{item.City}\n{text}\n{item.Embed.Url}";
         }
 
         #endregion

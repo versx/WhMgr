@@ -3,139 +3,70 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Net;
 
-    using DSharpPlus;
-    using DSharpPlus.Entities;
-
+    using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Data.Models;
+    using WhMgr.Data.Subscriptions.Models;
+    using WhMgr.Localization;
     using WhMgr.Net.Models;
 
     public static class PokemonExtensions
     {
-        private const string Alolan = "Alolan";
-        private const string Armored = "Armored";
-        private const string Shadow = "Shadow";
-        private const string Purified = "Purified";
         private const string Normal = "";
-        private const string Glasses = "Glasses";
         private const string NoEvolve = "No-Evolve";
-        private const string Anniversary = "Anniversary";
-        private const string Christmas = "Christmas";
-        private const string Birthday = "Birthday";
-        private const string Halloween = "Halloween";
-        private const string Sunny = "Sunny";
-        private const string Overcast = "Overcast";
-        private const string Rainy = "Rainy";
-        private const string Snowy = "Snowy";
-        private const string Attack = "Attack";
-        private const string Defense = "Defense";
-        private const string Speed = "Speed";
-        private const string Plant = "Plant";
-        private const string Sandy = "Sandy";
-        private const string Trash = "Trash";
-        private const string Altered = "Altered";
-        private const string Origin = "Origin";
-        private const string WestSea = "West Sea";
-        private const string EastSea = "East Sea";
 
-        private const string ExclaimationMark = "!";
-        private const string QuestionMark = "?";
-
-        //private static readonly IEventLogger _logger = EventLogger.GetLogger();
-
-        public static readonly double[] CpMultipliers =
-        {
-            0.094, 0.16639787, 0.21573247, 0.25572005, 0.29024988,
-            0.3210876, 0.34921268, 0.37523559, 0.39956728, 0.42250001,
-            0.44310755, 0.46279839, 0.48168495, 0.49985844, 0.51739395,
-            0.53435433, 0.55079269, 0.56675452, 0.58227891, 0.59740001,
-            0.61215729, 0.62656713, 0.64065295, 0.65443563, 0.667934,
-            0.68116492, 0.69414365, 0.70688421, 0.71939909, 0.7317,
-            0.73776948, 0.74378943, 0.74976104, 0.75568551, 0.76156384,
-            0.76739717, 0.7731865, 0.77893275, 0.78463697, 0.79030001
-        };
-        /**Game Master
-- 0.094,
-- 0.16639787,
-- 0.21573247,
-- 0.255720049,
-- 0.290249884,
-- 0.321087599,
-- 0.349212676,
-- 0.375235587,
-- 0.399567276,
-- 0.4225,
-- 0.443107545,
-- 0.462798387,
-- 0.481684953,
-- 0.499858439,
-- 0.517393947,
-- 0.534354329,
-- 0.550792694,
-- 0.56675452,
-- 0.582278907,
-- 0.5974,
-- 0.612157285,
-- 0.626567125,
-- 0.640652955,
-- 0.654435635,
-- 0.667934,
-- 0.68116492,
-- 0.694143653,
-- 0.706884205,
-- 0.719399095,
-- 0.7317,
-- 0.737769485,
-- 0.743789434,
-- 0.749761045,
-- 0.755685508,
-- 0.761563838,
-- 0.767397165,
-- 0.773186505,
-- 0.77893275,
-- 0.784637,
-- 0.7903
-         */
+        //private const string ExclaimationMark = "!";
+        //private const string QuestionMark = "?";
 
         public static int MaxCpAtLevel(this int id, int level)
         {
-            if (!Database.Instance.Pokemon.ContainsKey(id) || id == 0)
+            if (!MasterFile.Instance.Pokedex.ContainsKey(id) || id == 0)
                 return 0;
 
-            var pkmn = Database.Instance.Pokemon[id];
-            var multiplier = CpMultipliers[level - 1];
-            var maxAtk = (pkmn.BaseStats.Attack + 15) * multiplier;
-            var maxDef = (pkmn.BaseStats.Defense + 15) * multiplier;
-            var maxSta = (pkmn.BaseStats.Stamina + 15) * multiplier;
+            var pkmn = MasterFile.Instance.Pokedex[id];
+            var multiplier = MasterFile.Instance.CpMultipliers[level];
+            var maxAtk = ((pkmn.Attack + 15) * multiplier) ?? 0;
+            var maxDef = ((pkmn.Defense + 15) * multiplier) ?? 0;
+            var maxSta = ((pkmn.Stamina + 15) * multiplier) ?? 0;
 
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(maxAtk * maxAtk * maxDef * maxSta) / 10));
         }
 
         public static int MinCpAtLevel(this int id, int level)
         {
-            if (!Database.Instance.Pokemon.ContainsKey(id) || id == 0)
+            if (!MasterFile.Instance.Pokedex.ContainsKey(id) || id == 0)
                 return 0;
 
-            var pkmn = Database.Instance.Pokemon[id];
-            var multiplier = CpMultipliers[level - 1];
-            var minAtk = (pkmn.BaseStats.Attack + 10) * multiplier;
-            var minDef = (pkmn.BaseStats.Defense + 10) * multiplier;
-            var minSta = (pkmn.BaseStats.Stamina + 10) * multiplier;
+            var pkmn = MasterFile.Instance.Pokedex[id];
+            var multiplier = MasterFile.Instance.CpMultipliers[level];
+            var minAtk = ((pkmn.Attack + 10) * multiplier) ?? 0;
+            var minDef = ((pkmn.Defense + 10) * multiplier) ?? 0;
+            var minSta = ((pkmn.Stamina + 10) * multiplier) ?? 0;
 
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(minAtk * minAtk * minDef * minSta) / 10));
         }
 
+        public static bool IsCommonPokemon(this int pokeId)
+        {
+            return MasterFile.Instance.PokemonRarity[PokemonRarity.Common].Contains(pokeId);
+        }
+
+        public static bool IsRarePokemon(this int pokeId)
+        {
+            return MasterFile.Instance.PokemonRarity[PokemonRarity.Rare].Contains(pokeId);
+        }
+
+        /*
         public static int GetLevel(this int id, int cp, int atk, int def, int sta)
         {
-            if (!Database.Instance.Pokemon.ContainsKey(id))
+            if (!MasterFile.Instance.Pokedex.ContainsKey(id))
                 return 0;
 
-            var pkmn = Database.Instance.Pokemon[id];
-            for (var i = 0; i < CpMultipliers.Length; i++)
+            var pkmn = MasterFile.Instance.Pokedex[id];
+            for (var i = 0; i < MasterFile.Instance.CpMultipliers.Count; i++)
             {
-                var spawnCP = GetCP(pkmn.BaseStats.Attack + atk, pkmn.BaseStats.Defense + def, pkmn.BaseStats.Stamina + sta, CpMultipliers[i]);
+                var spawnCP = GetCP(pkmn.Attack ?? 0 + atk, pkmn.Defense ?? 0 + def, pkmn.Stamina ?? 0 + sta, MasterFile.Instance.CpMultipliers[i + 1]);
                 if (cp == spawnCP)
                 {
                     var level = i + 1;
@@ -151,15 +82,16 @@
             var cp = Math.Floor(attack * Math.Pow(defense, 0.5) * Math.Pow(stamina, 0.5) * Math.Pow(cpm, 2) / 10);
             return Convert.ToInt32(cp < 10 ? 10 : cp);
         }
+        */
 
         public static PokemonSize GetSize(this int id, float height, float weight)
         {
-            if (!Database.Instance.Pokemon.ContainsKey(id))
+            if (!MasterFile.Instance.Pokedex.ContainsKey(id))
                 return PokemonSize.Normal;
 
-            var stats = Database.Instance.Pokemon[id];
-            var weightRatio = weight / (float)stats.BaseStats.Weight;
-            var heightRatio = height / (float)stats.BaseStats.Height;
+            var stats = MasterFile.Instance.Pokedex[id];
+            var weightRatio = weight / Convert.ToDouble(stats?.Weight ?? 0);
+            var heightRatio = height / Convert.ToDouble(stats?.Height ?? 0);
             var size = heightRatio + weightRatio;
 
             if (size < 1.5)   return PokemonSize.Tiny;
@@ -169,814 +101,16 @@
             return PokemonSize.Big;
         }
 
-        public static string GetPokemonForm(this int pokeId, string formId)
+        public static string GetPokemonForm(this int formId)
         {
-            if (!int.TryParse(formId, out int form))
+            if (formId == 0)
                 return null;
 
-            if (form == 0)
-                return null;
-
-            switch (pokeId)
-            {
-                case 1: //Bulbasaur
-                    switch (form)
-                    {
-                        case 163: //Normal
-                            return Normal;
-                        case 164: //Shadow
-                            return Shadow;
-                        case 165: //Purified
-                            return Purified;
-                        case 604: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-                case 2: //Ivysaur
-                    switch (form)
-                    {
-                        case 166: //Normal
-                            return Normal;
-                        case 167: //Shadow
-                            return Shadow;
-                        case 168: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 3: //Venasaur
-                    switch (form)
-                    {
-                        case 169: //Normal
-                            return Normal;
-                        case 170: //Shadow
-                            return Shadow;
-                        case 171: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 4: //Charmander
-                    switch (form)
-                    {
-                        case 172: //Normal
-                            return Normal;
-                        case 173: //Shadow
-                            return Shadow;
-                        case 174: //Purified
-                            return Purified;
-                        case 605: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-                case 5: //Charmeleon
-                    switch (form)
-                    {
-                        case 175: //Normal
-                            return Normal;
-                        case 176: //Shadow
-                            return Shadow;
-                        case 177: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 6: //Charizard
-                    switch (form)
-                    {
-                        case 178: //Normal
-                            return Normal;
-                        case 179: //Shadow
-                            return Shadow;
-                        case 180: //Purified
-                            return Purified;
-                        case 606: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-                case 7: //Squirtle
-                    switch (form)
-                    {
-                        case 5: //Glasses
-                            return Glasses;
-                        case 181: //Normal
-                            return Normal;
-                        case 182: //Shadow
-                            return Shadow;
-                        case 183: //Purified
-                            return Purified;
-                        case 607: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-                case 8: //Wartortle
-                    switch (form)
-                    {
-                        case 184: //Normal
-                            return Normal;
-                        case 185: //Shadow
-                            return Shadow;
-                        case 186: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 9: //Blastoise
-                    switch (form)
-                    {
-                        case 187: //Normal
-                            return Normal;
-                        case 188: //Shadow
-                            return Shadow;
-                        case 189: //Purified
-                            return Purified;
-                        case 608: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-                case 19: //Rattata
-                    switch (form)
-                    {
-                        case 45: //Normal
-                            return Normal;
-                        case 46: //Alolan
-                            return Alolan;
-                        case 153: //Shadow
-                            return Shadow;
-                        case 154: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 20: //Raticate
-                    switch (form)
-                    {
-                        case 47: //Normal
-                            return Normal;
-                        case 48: //Alolan
-                            return Alolan;
-                        case 155: //Shadow
-                            return Shadow;
-                        case 156: //Purified
-                            return Purified;
-                        case 609: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-                case 25: //Pikachu
-                    switch (form)
-                    {
-                        case 1: //X-Mas Hat/Christmas
-                            return Christmas;
-                        case 2: //Party Hat/Birthday
-                            return Birthday;
-                        case 3: //Ash Hat/Anniversary
-                            return Anniversary;
-                        case 4: //Witch Hat/Halloween
-                            return Halloween;
-                        case 5: //Straw Hat/Sun Glasses
-                            return "Straw Hat";
-                        case 6: //FM/
-                            return "FM";
-                        case 598: //Normal
-                            return Normal;
-                        case 599: //No-Evolve
-                            return NoEvolve;
-                        case 894: //Fall
-                            return "Fall";
-                    }
-                    break;
-                case 26: //Raichu
-                    switch (form)
-                    {
-                        case 1: //X-Mas Hat/Christmas
-                            return Christmas;
-                        case 2: //Party Hat/Birthday
-                            return Birthday;
-                        case 3: //Ash Hat/Anniversary
-                            return Anniversary;
-                        case 4: //Witch Hat/Halloween
-                            return Halloween;
-                        case 5: //Straw Hat/Sun Glasses
-                            return "Straw Hat";
-                        case 6: //FM/
-                            return "FM";
-                        case 49: //Normal
-                            return Normal;
-                        case 50:
-                            return Alolan;
-                    }
-                    break;
-                case 27: //Sandshrew
-                    switch (form)
-                    {
-                        case 51: //Normal
-                            return Normal;
-                        case 52: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 28: //Sandslash
-                    switch (form)
-                    {
-                        case 53: //Normal
-                            return Normal;
-                        case 54: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 37: //Vulpix
-                    switch (form)
-                    {
-                        case 55: //Normal
-                            return Normal;
-                        case 56: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 38: //Ninetales
-                    switch (form)
-                    {
-                        case 57: //Normal
-                            return Normal;
-                        case 58: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 41:
-                    switch (form)
-                    {
-                        case 157: //Normal
-                            return Normal;
-                        case 158: //Shadow
-                            return Shadow;
-                        case 159: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 42:
-                    switch (form)
-                    {
-                        case 160: //Normal
-                            return Normal;
-                        case 161: //Shadow
-                            return Shadow;
-                        case 162: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 50: //Diglett
-                    switch (form)
-                    {
-                        case 59: //Normal
-                            return Normal;
-                        case 60: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 51: //Dugtrio
-                    switch (form)
-                    {
-                        case 61: //Normal
-                            return Normal;
-                        case 62: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 52: //Meowth
-                    switch (form)
-                    {
-                        case 63: //Normal
-                            return Normal;
-                        case 64: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 53: //Persian
-                    switch (form)
-                    {
-                        case 65: //Normal
-                            return Normal;
-                        case 66: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 58: //Growlithe
-                switch (form)
-                    {
-                        case 280: //Normal
-                            return Normal;
-                        case 281: //Shadow
-                            return Shadow;
-                        case 282: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 74: //Geodude
-                    switch (form)
-                    {
-                        case 67: //Normal
-                            return Normal;
-                        case 68: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 75: //Graveler
-                    switch (form)
-                    {
-                        case 69: //Normal
-                            return Normal;
-                        case 70: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 76: //Golem
-                    switch (form)
-                    {
-                        case 71: //Normal
-                            return Normal;
-                        case 72: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 88: //Grimer
-                    switch (form)
-                    {
-                        case 73: //Normal
-                            return Normal;
-                        case 74: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 89: //Muk
-                    switch (form)
-                    {
-                        case 75: //Normal
-                            return Normal;
-                        case 76: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 103: //Exeggutor
-                    switch (form)
-                    {
-                        case 77: //Normal
-                            return Normal;
-                        case 78: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 105: //Marowak
-                    switch (form)
-                    {
-                        case 79: //Normal
-                            return Normal;
-                        case 80: //Alolan
-                            return Alolan;
-                    }
-                    break;
-                case 115: //Kangaskhan
-                    switch (form)
-                    {
-                        case 839: //Normal
-                            return Normal;
-                        case 840: //Shadow
-                            return Shadow;
-                        case 841: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 127: //Pinsir
-                    switch (form)
-                    {
-                        case 898: //Normal
-                            return Normal;
-                        case 899: //Shadow
-                            return Shadow;
-                        case 900: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 143: //Snorlax
-                    switch (form)
-                    {
-                        case 199: //Normal
-                            return Normal;
-                        case 200: //Shadow
-                            return Shadow;
-                        case 201: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 147: //Dratini
-                    switch (form)
-                    {
-                        case 190: //Normal
-                            return Normal;
-                        case 191: //Shadow
-                            return Shadow;
-                        case 192: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 148: //Dragonair
-                    switch (form)
-                    {
-                        case 193: //Normal
-                            return Normal;
-                        case 194: //Shadow
-                            return Shadow;
-                        case 195: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 149: //Dragonite
-                    switch (form)
-                    {
-                        case 196: //Normal
-                            return Normal;
-                        case 197: //Shadow
-                            return Shadow;
-                        case 198: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 150: //Mewtwo
-                    switch (form)
-                    {
-                        case 133: //Armored
-                            return Armored;
-                        case 135: //Normal
-                            return Normal;
-                    }
-                    break;
-                case 169: //Crobat
-                    switch (form)
-                    {
-                        case 202: //Normal
-                            return Normal;
-                        case 203: //Shadow
-                            return Shadow;
-                        case 204: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 172: //Pichu
-                    switch (form)
-                    {
-                        case 1: //X-Mas Hat/Christmas
-                            return Christmas;
-                        case 2: //Party Hat/Birthday
-                            return Birthday;
-                        case 3: //Ash Hat/Anniversary
-                            return Anniversary;
-                        case 4: //Witch Hat/Halloween
-                            return Halloween;
-                        case 5: //Straw Hat/Sun Glasses
-                            return "Straw Hat";
-                        case 6: //FM/
-                            return "FM Hat";
-                    }
-                    break;
-                case 201: //Unown
-                    switch (form)
-                    {
-                        case 27: //!
-                            return ExclaimationMark;
-                        case 28: //?
-                            return QuestionMark;
-                        default:
-                            return form.NumberToAlphabet().ToString();
-                    }
-                case 202: //Wobbuffet
-                    switch (form)
-                    {
-                        case 602: //Normal
-                            return Normal;
-                        case 603: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-                case 258: //Mudkip
-                    switch (form)
-                    {
-                        case 205: //Normal
-                            return Normal;
-                        case 206: //Shadow
-                            return Shadow;
-                        case 207: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 259: //Marshtomp
-                    switch (form)
-                    {
-                        case 208: //Normal
-                            return Normal;
-                        case 209: //Shadow
-                            return Shadow;
-                        case 210: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 260: //Swampert
-                    switch (form)
-                    {
-                        case 211: //Normal
-                            return Normal;
-                        case 212: //Shadow
-                            return Shadow;
-                        case 213: //Purified
-                            return Purified;
-                    }
-                    break;
-                case 265: //Wurmple
-                    switch (form)
-                    {
-                        case 600: //Normal
-                            return Normal;
-                        case 601: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-                case 327: //Spinda
-                    switch (form)
-                    {
-                        case 37:
-                            return "01";
-                        case 38:
-                            return "02";
-                        case 39:
-                            return "03";
-                        case 40:
-                            return "04";
-                        case 41:
-                            return "05";
-                        case 42:
-                            return "06";
-                        case 43:
-                            return "07";
-                        case 44:
-                            return "08";
-                    }
-                    break;
-                case 351: //Castform
-                    switch (form)
-                    {
-                        case 29: //Normal
-                            return Normal;
-                        case 30: //Sunny
-                            return Sunny;
-                        case 31: //Water
-                            return Rainy;
-                        case 32: //Snow
-                            return Snowy;
-                    }
-                    break;
-                case 386: //Deoxys
-                    switch (form)
-                    {
-                        case 33: //Normal
-                            return Normal;
-                        case 34: //Attack
-                            return Attack;
-                        case 35: //Defense
-                            return Defense;
-                        case 36: //Speed
-                            return Speed;
-                    }
-                    break;
-                case 412: //Burmy
-                case 413: //Wormadam
-                    switch (form)
-                    {
-                        case 87: //Plant
-                        case 118:
-                            return Plant;
-                        case 88: //Sandy
-                        case 119:
-                            return Sandy;
-                        case 89: //Trash
-                        case 120:
-                            return Trash;
-                    }
-                    break;
-                case 421: //Cherrim
-                    switch (form)
-                    {
-                        case 94: //Overcast
-                            return Overcast;
-                        case 95: //Sunny
-                            return Sunny;
-                    }
-                    break;
-                case 422: //Shellos
-                    switch (form)
-                    {
-                        case 96:
-                            return WestSea;
-                        case 97:
-                            return EastSea;
-                    }
-                    break;
-                case 423: //Gastrodon
-                    switch (form)
-                    {
-                        case 98:
-                            return WestSea;
-                        case 99:
-                            return EastSea;
-                    }
-                    break;
-                case 479: //Rotom
-                    switch (form)
-                    {
-                        case 82: //Normal
-                            break;
-                        case 83: //Frost
-                            return "Frost";
-                        case 84: //Fan
-                            return "Fan";
-                        case 85: //Mow
-                            return "Mow";
-                        case 86: //Wash
-                            return "Wash";
-                        case 87: //Heat
-                            return "Heat";
-                    }
-                    break;
-                case 487: //Giratina
-                    switch (form)
-                    {
-                        case 90: //Altered
-                            return Altered;
-                        case 91: //Origin
-                            return Origin;
-                    }
-                    break;
-                case 492: //Shaymin
-                    switch (form)
-                    {
-                        case 92: //Sky
-                            return "Sky";
-                        case 93: //Land
-                            return "Land";
-                    }
-                    break;
-                case 493: //Arceus
-                    switch (form)
-                    {
-                        case 100: //Normal
-                            return Normal;
-                        case 101: //Fighting
-                            return "Fighting";
-                        case 102: //Flying
-                            return "Flying";
-                        case 103: //Poison
-                            return "Poison";
-                        case 104: //Ground
-                            return "Ground";
-                        case 105: //Rock
-                            return "Rock";
-                        case 106: //Bug
-                            return "Bug";
-                        case 107: //Ghost
-                            return "Ghost";
-                        case 108: //Steel
-                            return "Steel";
-                        case 109: //Fire
-                            return "Fire";
-                        case 110: //Water
-                            return "Water";
-                        case 111: //Grass
-                            return "Grass";
-                        case 112: //Electric
-                            return "Electric";
-                        case 113: //Psychic
-                            return "Psychic";
-                        case 114: //Ice
-                            return "Ice";
-                        case 115: //Dragon
-                            return "Dragon";
-                        case 116: //Dark
-                            return "Dark";
-                        case 117: //Fairy
-                            return "Fairy";
-                    }
-                    break;
-                case 550: //Basculin
-                    switch (form)
-                    {
-                        case 136: //Red Striped
-                            return "Red Striped";
-                        case 137: //Blue Striped
-                            return "Blue Striped";
-                    }
-                    break;
-                case 555: //Darmanitan
-                    switch (form)
-                    {
-                        case 138: //Standard
-                            return "Standard";
-                        case 139: //Zen
-                            return "Zen";
-                    }
-                    break;
-                case 585: //Deerling
-                    switch (form)
-                    {
-                        case 585: //Spring
-                            return "Spring";
-                        case 586: //Summer
-                            return "Summer";
-                        case 587: //Autumn
-                            return "Autumn";
-                        case 588: //Winter
-                            return "Winter";
-                    }
-                    break;
-                case 586: //Sawsbuck
-                    switch (form)
-                    {
-                        case 589: //Spring
-                            return "Spring";
-                        case 590: //Summer
-                            return "Summer";
-                        case 591: //Autumn
-                            return "Autumn";
-                        case 592: //Winter
-                            return "Winter";
-                    }
-                    break;
-                case 641: //Tornadus
-                    switch (form)
-                    {
-                        case 140: //Incarnate
-                            return "Incarnate";
-                        case 141: //Therian
-                            return "Therian";
-                    }
-                    break;
-                case 642: //Thundurus
-                    switch (form)
-                    {
-                        case 142: //Incarnate
-                            return "Incarnate";
-                        case 143: //Therian
-                            return "Therian";
-                    }
-                    break;
-                case 645: //Landorus
-                    switch (form)
-                    {
-                        case 144: //Incarnate
-                            return "Incarnate";
-                        case 145: //Therian
-                            return "Therian";
-                    }
-                    break;
-                case 646: //Kyurem
-                    switch (form)
-                    {
-                        case 146: //Normal
-                            return Normal;
-                        case 147: //Black
-                            return "Black";
-                        case 148: //White
-                            return "White";
-                    }
-                    break;
-                case 647: //Keldeo
-                    switch (form)
-                    {
-                        case 149: //Ordinary
-                            return "Ordinary";
-                        case 150: //Resolute
-                            return "Resolute";
-                    }
-                    break;
-                case 648: //Meloetta
-                    switch (form)
-                    {
-                        case 151: //Aria
-                            return "Aria";
-                        case 152: //Pirouette
-                            return "Pirouette";
-                    }
-                    break;
-                case 649: //Genesect
-                    switch (form)
-                    {
-                        case 593: //Normal
-                            return Normal;
-                        case 594: //Shock
-                            return "Shock";
-                        case 595: //Burn
-                            return "Burn";
-                        case 596: //Chill
-                            return "Chill";
-                        case 597: //Douse
-                            return "Douse";
-                    }
-                    break;
-            }
-
-            return null;
+            var form = Translator.Instance.Translate("form_" + formId);
+            // TODO: Localize
+            if (string.Compare(form, "Normal", true) == 0)
+                return string.Empty;
+            return form;
         }
 
         public static string GetCostume(this int pokeId, string costumeId)
@@ -1107,210 +241,118 @@
             return string.Empty;
         }
 
-        public static string GetPokemonImage(this int pokemonId, string pokemonImageUrl, PokemonGender gender, int form, int costume = 0)
+        public static string GetPokemonIcon(this int pokemonId, int formId, int costumeId, WhConfig whConfig, string style)
         {
-            if (form > 0)
-            {
-                return string.Format(pokemonImageUrl, pokemonId, form);
-            }
-
-            if (costume > 0)
-            {
-                return string.Format(pokemonImageUrl, pokemonId, costume);
-            }
-
-            var genderId = gender == PokemonGender.Female ? 1 : 0;
-            return string.Format(pokemonImageUrl, pokemonId, genderId);
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl : iconStyleUrl;
+            var id = string.Format("{0:D3}", pokemonId);
+            var form = formId > 0 ? formId.ToString() : "00";
+            return costumeId == 0
+                ? $"{url}/pokemon_icon_{id}_{form}.png"
+                : $"{url}/pokemon_icon_{id}_{form}_{costumeId}.png";
         }
 
-        //public static string GetPokemonImage(this int pokemonId, PokemonGender gender, string form, bool shiny)
-        //{
-        //    var isShiny = shiny ? "_shiny" : null;
-        //    var formTag = int.TryParse(form, out var formId) && formId > 0 ? "_" + string.Format("{0:D2}", formId) : null;
-        //    var genderId = (int)gender > 1 ? 0 : (int)gender;
-        //    var url = string.Format(Strings.PokemonImage, pokemonId, genderId, formTag, isShiny);
-        //    if (IsUrlExist(url))
-        //    {
-        //        return url;
-        //    }
+        public static string GetRaidEggIcon(this RaidData raid, WhConfig whConfig, string style)
+        {
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "eggs" : $"{iconStyleUrl}/eggs";
+            return $"{url}/{raid.Level}.png";
+        }
 
-        //    url = string.Format(Strings.PokemonImage, pokemonId, 0, int.TryParse(form, out formId) ? "_" + string.Format("{0:D2}", formId) : null, isShiny);
-        //    if (IsUrlExist(url))
-        //    {
-        //        return url;
-        //    }
+        public static string GetQuestIcon(this QuestData quest, WhConfig whConfig, string style)
+        {
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards" : $"{iconStyleUrl}/rewards";
+            switch (quest.Rewards?[0].Type)
+            {
+                case QuestRewardType.Candy:
+                    return $"{url}/reward_{Convert.ToInt32(ItemId.Rare_Candy)}_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
+                case QuestRewardType.Item:
+                    return $"{url}/reward_{(int)quest.Rewards?[0].Info.Item}_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
+                case QuestRewardType.PokemonEncounter:
+                    return (quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId).GetPokemonIcon(quest.Rewards?[0].Info.FormId ?? 0, quest.Rewards?[0].Info.CostumeId ?? 0, whConfig, style);
+                case QuestRewardType.Stardust:
+                    if ((quest.Rewards[0]?.Info?.Amount ?? 0) > 0)
+                    {
+                        return $"{url}/reward_stardust_{quest.Rewards[0].Info.Amount}.png";
+                    }
+                    return $"{url}/reward_stardust.png";
+                case QuestRewardType.AvatarClothing:
+                case QuestRewardType.Experience:
+                case QuestRewardType.Quest:
+                case QuestRewardType.Unset:
+                default:
+                    return null;
+            }
+        }
 
-        //    url = string.Format(Strings.PokemonImage, pokemonId, form, isShiny, string.Empty);
-        //    if (int.TryParse(form, out formId))
-        //    {
-        //        return url;
-        //    }
+        public static string GetLureIcon(this PokestopData pokestop, WhConfig whConfig, string style)
+        {
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "rewards" : $"{iconStyleUrl}/rewards";
+            return $"{url}/reward_{Convert.ToInt32(pokestop.LureType)}_1.png";
+        }
 
-        //    return string.Format(Strings.PokemonImage, pokemonId, genderId, isShiny, string.Empty);
-        //}
+        public static string GetInvasionIcon(this PokestopData pokestop, WhConfig whConfig, string style)
+        {
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "grunt/" : $"{iconStyleUrl}/grunt";
+            return $"{url}/{Convert.ToInt32(pokestop.GruntType)}.png";
+        }
+
+        public static string GetWeatherIcon(this WeatherData weather, WhConfig whConfig, string style)
+        {
+            var iconStyleUrl = whConfig.IconStyles[style];
+            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl + "weather/" : $"{iconStyleUrl}/weather";
+            return $"{url}/weather_{Convert.ToInt32(weather.GameplayCondition)}.png";
+        }
 
         public static string GetPokemonGenderIcon(this PokemonGender gender)
         {
             switch (gender)
             {
                 case PokemonGender.Male:
-                    return "♂";//\u2642
+                    return "♂"; //♂ \u2642
                 case PokemonGender.Female:
-                    return "♀";//\u2640
+                    return "♀"; //♀ \u2640
                 default:
-                    return "⚲";//?
-            }
-        }
-
-        public static string GetPokemonGenderIconValue(this PokemonGender gender)
-        {
-            switch (gender)
-            {
-                case PokemonGender.Male:
-                    return "-m";//"\u2642";//♂
-                case PokemonGender.Female:
-                    return "-f";//"\u2640";//♀
-                default:
-                    return "";//⚲
+                    return "⚲"; //⚲
             }
         }
 
         public static List<PokemonType> GetStrengths(this PokemonType type)
         {
-            var types = new PokemonType[0];
-            switch (type)
+            if (MasterFile.Instance.PokemonTypes.ContainsKey(type))
             {
-                case PokemonType.Normal:
-                    break;
-                case PokemonType.Fighting:
-                    types = new PokemonType[] { PokemonType.Normal, PokemonType.Rock, PokemonType.Steel, PokemonType.Ice, PokemonType.Dark };
-                    break;
-                case PokemonType.Flying:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Bug, PokemonType.Grass };
-                    break;
-                case PokemonType.Poison:
-                    types = new PokemonType[] { PokemonType.Grass, PokemonType.Fairy };
-                    break;
-                case PokemonType.Ground:
-                    types = new PokemonType[] { PokemonType.Poison, PokemonType.Rock, PokemonType.Steel, PokemonType.Fire, PokemonType.Electric };
-                    break;
-                case PokemonType.Rock:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Bug, PokemonType.Fire, PokemonType.Ice };
-                    break;
-                case PokemonType.Bug:
-                    types = new PokemonType[] { PokemonType.Grass, PokemonType.Psychic, PokemonType.Dark };
-                    break;
-                case PokemonType.Ghost:
-                    types = new PokemonType[] { PokemonType.Ghost, PokemonType.Psychic };
-                    break;
-                case PokemonType.Steel:
-                    types = new PokemonType[] { PokemonType.Rock, PokemonType.Ice };
-                    break;
-                case PokemonType.Fire:
-                    types = new PokemonType[] { PokemonType.Bug, PokemonType.Steel, PokemonType.Grass, PokemonType.Ice };
-                    break;
-                case PokemonType.Water:
-                    types = new PokemonType[] { PokemonType.Ground, PokemonType.Rock, PokemonType.Fire };
-                    break;
-                case PokemonType.Grass:
-                    types = new PokemonType[] { PokemonType.Ground, PokemonType.Rock, PokemonType.Water };
-                    break;
-                case PokemonType.Electric:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Water };
-                    break;
-                case PokemonType.Psychic:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Poison };
-                    break;
-                case PokemonType.Ice:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Ground, PokemonType.Grass, PokemonType.Dragon };
-                    break;
-                case PokemonType.Dragon:
-                    types = new PokemonType[] { PokemonType.Dragon };
-                    break;
-                case PokemonType.Dark:
-                    types = new PokemonType[] { PokemonType.Ghost, PokemonType.Psychic };
-                    break;
-                case PokemonType.Fairy:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Dragon, PokemonType.Dark };
-                    break;
+                return MasterFile.Instance.PokemonTypes[type].Strengths;
             }
-            return types.ToList();
+            return new List<PokemonType>();
         }
 
         public static List<PokemonType> GetWeaknesses(this PokemonType type)
         {
-            var types = new PokemonType[0];
-            switch (type)
+            if (MasterFile.Instance.PokemonTypes.ContainsKey(type))
             {
-                case PokemonType.Normal:
-                    types = new PokemonType[] { PokemonType.Fighting };
-                    break;
-                case PokemonType.Fighting:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Psychic, PokemonType.Fairy };
-                    break;
-                case PokemonType.Flying:
-                    types = new PokemonType[] { PokemonType.Rock, PokemonType.Electric, PokemonType.Ice };
-                    break;
-                case PokemonType.Poison:
-                    types = new PokemonType[] { PokemonType.Ground, PokemonType.Psychic };
-                    break;
-                case PokemonType.Ground:
-                    types = new PokemonType[] { PokemonType.Water, PokemonType.Grass, PokemonType.Ice };
-                    break;
-                case PokemonType.Rock:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Ground, PokemonType.Steel, PokemonType.Water, PokemonType.Grass };
-                    break;
-                case PokemonType.Bug:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Rock, PokemonType.Fire };
-                    break;
-                case PokemonType.Ghost:
-                    types = new PokemonType[] { PokemonType.Ghost, PokemonType.Dark };
-                    break;
-                case PokemonType.Steel:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Ground, PokemonType.Fire };
-                    break;
-                case PokemonType.Fire:
-                    types = new PokemonType[] { PokemonType.Ground, PokemonType.Rock, PokemonType.Water };
-                    break;
-                case PokemonType.Water:
-                    types = new PokemonType[] { PokemonType.Grass, PokemonType.Electric };
-                    break;
-                case PokemonType.Grass:
-                    types = new PokemonType[] { PokemonType.Flying, PokemonType.Poison, PokemonType.Bug, PokemonType.Fire, PokemonType.Ice };
-                    break;
-                case PokemonType.Electric:
-                    types = new PokemonType[] { PokemonType.Ground };
-                    break;
-                case PokemonType.Psychic:
-                    types = new PokemonType[] { PokemonType.Bug, PokemonType.Ghost, PokemonType.Dark };
-                    break;
-                case PokemonType.Ice:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Rock, PokemonType.Steel, PokemonType.Fire };
-                    break;
-                case PokemonType.Dragon:
-                    types = new PokemonType[] { PokemonType.Ice, PokemonType.Dragon, PokemonType.Fairy };
-                    break;
-                case PokemonType.Dark:
-                    types = new PokemonType[] { PokemonType.Fighting, PokemonType.Bug, PokemonType.Fairy };
-                    break;
-                case PokemonType.Fairy:
-                    types = new PokemonType[] { PokemonType.Poison, PokemonType.Steel };
-                    break;
+                return MasterFile.Instance.PokemonTypes[type].Weaknesses;
             }
-            return types.ToList();
-        }
+            return new List<PokemonType>();
+         }
 
-        public static string GetTypeEmojiIcons(this PokemonType pokemonType, DiscordGuild guild)
+        public static string GetTypeEmojiIcons(this PokemonType pokemonType)
         {
-            return GetTypeEmojiIcons(new List<PokemonType> { pokemonType }, guild);
+            return GetTypeEmojiIcons(new List<PokemonType> { pokemonType });
         }
 
-        public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes, DiscordGuild guild)
+        public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes)
         {
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
-                var emojiId = guild.GetEmojiId($"types_{type.ToString().ToLower()}");
+                var emojiKey = $"types_{type.ToString().ToLower()}";
+                if (!MasterFile.Instance.Emojis.ContainsKey(emojiKey))
+                    continue;
+
+                var emojiId = MasterFile.Instance.Emojis[emojiKey];
                 var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId) : type.ToString();
                 if (!list.Contains(emojiName))
                 {
@@ -1321,15 +363,39 @@
             return string.Join(" ", list);
         }
 
-        public static string GetWeatherEmojiIcon(this WeatherType weather, DiscordGuild guild)
+        public static string GetWeatherEmojiIcon(this WeatherType weather)
         {
-            var key = $"weather_" + Convert.ToInt32(weather);
-            var emojiId = guild.GetEmojiId(key);
-            var emojiName = emojiId > 0 ? $"<:{key}:{emojiId}>" : weather.ToString();
+            var key = $"weather_{Convert.ToInt32(weather)}";
+            var emojiId = MasterFile.Instance.Emojis[key];
+            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : weather.ToString();
             return emojiName;
         }
 
-        public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes, DiscordGuild guild)
+        public static string GetCaptureRateEmojiIcon(this CaptureRateType type)
+        {
+            var key = $"capture_{Convert.ToInt32(type)}";
+            var emojiId = MasterFile.Instance.Emojis[key];
+            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : type.ToString();
+            return emojiName;
+        }
+
+        public static string GetLeagueEmojiIcon(this PvPLeague league)
+        {
+            var key = $"league_{league.ToString().ToLower()}";
+            var emojiId = MasterFile.Instance.Emojis[key];
+            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : league.ToString();
+            return emojiName;
+        }
+
+        public static string GetGenderEmojiIcon(this PokemonGender gender)
+        {
+            var key = $"gender_{gender.ToString().ToLower()}";
+            var emojiId = MasterFile.Instance.Emojis[key];
+            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : gender.ToString();
+            return emojiName;
+        }
+
+        public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes)
         {
             if (pokemonTypes == null || pokemonTypes?.Count == 0)
                 return string.Empty;
@@ -1340,7 +406,7 @@
                 var weaknessLst = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
                 foreach (var weakness in weaknessLst)
                 {
-                    var emojiId = guild.GetEmojiId($"types_{weakness.ToString().ToLower()}");
+                    var emojiId = MasterFile.Instance.Emojis[$"types_{weakness.ToString().ToLower()}"];
                     var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId) : weakness.ToString();
                     if (!list.Contains(emojiName))
                     {
@@ -1357,49 +423,24 @@
             if (string.IsNullOrEmpty(name))
                 return 0;
 
-            var db = Database.Instance;
-            var pkmn = db.Pokemon.FirstOrDefault(x => string.Compare(x.Value.Name, name, true) == 0);
+            var pkmn = int.TryParse(name, out var id)
+                ? MasterFile.Instance.Pokedex.FirstOrDefault(x => x.Key == id)
+                : MasterFile.Instance.Pokedex.FirstOrDefault(x => string.Compare(x.Value.Name, name, true) == 0);
 
             if (pkmn.Key > 0)
                 return pkmn.Key;
 
-            foreach (var p in db.Pokemon)
+            foreach (var p in MasterFile.Instance.Pokedex)
                 if (p.Value.Name.ToLower().Contains(name.ToLower()))
                     return p.Key;
 
             if (!int.TryParse(name, out var pokeId))
                 return 0;
 
-            if (db.Pokemon.ContainsKey(pokeId))
+            if (MasterFile.Instance.Pokedex.ContainsKey(pokeId))
                 return pokeId;
 
             return 0;
-        }
-
-        private static bool UrlExist(string url)
-        {
-            try
-            {
-                //Creating the HttpWebRequest
-                var request = WebRequest.Create(url) as HttpWebRequest;
-
-                //Setting the Request method HEAD, you can also use GET too.
-                request.Method = "HEAD";
-
-                //Getting the Web Response.
-                using (var response = request.GetResponse() as HttpWebResponse)
-                {
-                    //Returns TRUE if the Status code == 200
-                    response.Close();
-
-                    return response.StatusCode == HttpStatusCode.OK;
-                }
-            }
-            catch
-            {
-                //Any exception will returns false.
-                return false;
-            }
         }
 
         public static PokemonValidation ValidatePokemon(this IEnumerable<string> pokemon)
@@ -1410,46 +451,47 @@
             {
                 string form = null;
                 var pokeIdStr = poke;
-                if (poke.Contains("-"))
-                {
-                    //Has form
-                    var formSplit = poke.Split('-');
-                    if (formSplit.Length != 2)
-                        continue;
-
-                    pokeIdStr = formSplit[0];
-                    form = formSplit[1];
-                }
-
                 var pokeId = pokeIdStr.PokemonIdFromName();
                 if (pokeId == 0)
                 {
-                    invalid.Add(poke);
-                    continue;
+                    if (poke.Contains("-"))
+                    {
+                        //Has form
+                        var formSplit = poke.Split('-');
+                        if (formSplit.Length != 2)
+                            continue;
+
+                        pokeIdStr = formSplit[0];
+                        pokeId = pokeIdStr.PokemonIdFromName();
+                        form = formSplit[1];
+                    }
+                    else
+                    {
+                        invalid.Add(poke);
+                        continue;
+                    }
                 }
 
-                if (!Database.Instance.Pokemon.ContainsKey(pokeId))
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pokeId))
                 {
                     invalid.Add(poke);
                     continue;
                 }
 
-                valid.Add(pokeId, form);
+                if (!valid.ContainsKey(pokeId))
+                {
+                    valid.Add(pokeId, form);
+                }
             }
 
             return new PokemonValidation { Valid = valid, Invalid = invalid };
         }
 
-        public static bool IsWeatherBoosted(this PokemonInfo pkmn, WeatherType weather)
+        public static bool IsWeatherBoosted(this PokedexPokemon pkmn, WeatherType weather)
         {
-            var types = pkmn.Types;
-            for (var i = 0; i < types.Count; i++)
-            {
-                if (Strings.WeatherBoosts[weather].Contains(types[i]))
-                    return true;
-            }
-
-            return false;
+            var types = pkmn?.Types;
+            var isBoosted = types?.Exists(x => Strings.WeatherBoosts[weather].Contains(x)) ?? false;
+            return isBoosted;
         }
     }
 

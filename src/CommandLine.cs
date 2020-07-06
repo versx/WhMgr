@@ -23,8 +23,6 @@
             _logger.Trace("CommandLine::ParseArgs");
 
             var dict = new Dictionary<string, object>();
-            var prefixList = new List<string>(prefixes);
-
             for (int i = 0; i < args.Length; i++)
             {
                 var prefix = GetPrefix(prefixes, args[i]);
@@ -37,7 +35,7 @@
                         var isCommand = !isEnd && args[i + 1].Contains(prefix);
                         if (isCommand || isEnd)
                         {
-                            dict.Add(key, true); //TODO: Provide better solution.
+                            dict.Add(key, true);
                             continue;
                         }
 

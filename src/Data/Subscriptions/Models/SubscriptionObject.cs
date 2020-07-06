@@ -11,22 +11,8 @@
         JsonObject("subscriptions"),
         Alias("subscriptions")
     ]
-    public class SubscriptionObject
+    public class SubscriptionObject : SubscriptionItem
     {
-        [
-            JsonIgnore,
-            Alias("id"),
-            AutoIncrement
-        ]
-        public int Id { get; set; }
-
-        [
-            JsonProperty("user_id"),
-            Alias("userId"), 
-            PrimaryKey
-        ]
-        public ulong UserId { get; set; }
-
         [
             JsonProperty("enabled"),
             Alias("enabled"), 
@@ -42,6 +28,13 @@
         public List<PokemonSubscription> Pokemon { get; set; }
 
         [
+            JsonProperty("pvp"),
+            Alias("pvp"),
+            Reference
+        ]
+        public List<PvPSubscription> PvP { get; set; }
+
+        [
             JsonProperty("raids"),
             Alias("raids"), 
             Reference]
@@ -49,7 +42,7 @@
 
         [
             JsonProperty("gyms"),
-            Alias("gyms"), 
+            Alias("gyms"),
             Reference
         ]
         public List<GymSubscription> Gyms { get; set; }
@@ -67,9 +60,6 @@
             Reference
         ]
         public List<InvasionSubscription> Invasions { get; set; }
-
-        //[Alias("snoozed_quests"), Reference]
-        //public List<SnoozedQuest> SnoozedQuests { get; set; }
 
         [
             JsonProperty("distance"),
@@ -99,14 +89,11 @@
         ]
         public string IconStyle { get; set; }
 
-        //[Alias("pokemon_stats"), Reference]
-        //public List<PokemonStatistics> PokemonStatistics { get; set; }
-
-        //[Alias("raid_stats"), Reference]
-        //public List<RaidStatistics> RaidStatistics { get; set; }
-
-        //[Alias("quest_stats"), Reference]
-        //public List<QuestStatistics> QuestStatistics { get; set; }
+        [
+            JsonProperty("phone_number"),
+            Alias("phone_number")
+        ]
+        public string PhoneNumber { get; set; }
 
         [
             JsonIgnore,
@@ -124,15 +111,17 @@
         {
             Enabled = true;
             Pokemon = new List<PokemonSubscription>();
+            PvP = new List<PvPSubscription>();
             Raids = new List<RaidSubscription>();
             Gyms = new List<GymSubscription>();
             Quests = new List<QuestSubscription>();
             Invasions = new List<InvasionSubscription>();
-            //SnoozedQuests = new List<SnoozedQuest>();
-            //PokemonStatistics = new List<PokemonStatistics>();
-            //RaidStatistics = new List<RaidStatistics>();
-            //QuestStatistics = new List<QuestStatistics>();
             Limiter = new NotificationLimiter();
+            DistanceM = 0;
+            Latitude = 0;
+            Longitude = 0;
+            IconStyle = "Default";
+            PhoneNumber = string.Empty;
         }
     }
 }

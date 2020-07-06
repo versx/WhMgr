@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Commands
 {
     using System;
+    using System.Text;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
@@ -11,8 +12,8 @@
 
     using ServiceStack.OrmLite;
 
-    using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
 
     [
         Group("gyms"),
@@ -23,7 +24,7 @@
     ]
     public class Gyms
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMS");
+        //private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMS");
         private readonly Dependencies _dep;
 
         public Gyms(Dependencies dep)
@@ -38,53 +39,57 @@
         public async Task ConvertedPokestopsToGymsAsync(CommandContext ctx,
             [Description("Real or dry run check (y/n)")] string yesNo = "y")
         {
-            using (var db = Data.DataAccessLayer.CreateFactory(_dep.WhConfig.ConnectionStrings.Scanner).Open())
+            using (var db = Data.DataAccessLayer.CreateFactory(_dep.WhConfig.Database.Scanner.ToString()).Open())
             {
                 //Select query where ids match for pokestops and gyms
-                var convertedGyms = db.Select<Data.Models.Pokestop>("SELECT pokestop.id, pokestop.lat, pokestop.lon, pokestop.name, pokestop.url FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id = gym.id;");
-                if (convertedGyms.Count == 0)
+                var convertedGyms = db.Select<Data.Models.Pokestop>(Strings.SQL_SELECT_CONVERTED_POKESTOPS);
+                if (convertedGyms?.Count == 0)
                 {
-                    await ctx.RespondEmbed($"No Pokestops have been converted to Gyms.", DiscordColor.Yellow);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("GYM_NO_POKESTOPS_CONVERTED").FormatText(ctx.User.Username), DiscordColor.Yellow);
                     return;
                 }
 
+                var sb = new StringBuilder();
+                sb.AppendLine(Translator.Instance.Translate("GYM_POKESTOPS_EMBED_TITLE"));
+                sb.AppendLine();
                 var eb = new DiscordEmbedBuilder
                 {
-                    Description = "**List of Pokestops converted to Gyms:**\r\n\r\n",
                     Color = DiscordColor.Blurple,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         IconUrl = ctx.Guild?.IconUrl,
-                        Text = $"versx | {DateTime.Now}"
+                        Text = $"{ctx.Guild?.Name ?? Strings.Creator} | {DateTime.Now}"
                     }
                 };
                 for (var i = 0; i < convertedGyms.Count; i++)
                 {
                     var gym = convertedGyms[i];
-                    var name = string.IsNullOrEmpty(gym.Name) ? "Unknown Gym Name" : gym.Name;
-                    var url = string.IsNullOrEmpty(gym.Url) ? "Unknown Image Url" : $"[Click here to view gym image]({gym.Url})";
+                    var name = string.IsNullOrEmpty(gym.Name) ? Translator.Instance.Translate("GYM_UNKNOWN_NAME") : gym.Name;
+                    var imageUrl = string.IsNullOrEmpty(gym.Url) ? Translator.Instance.Translate("GYM_UNKNOWN_IMAGE") : gym.Url;
                     var locationUrl = string.Format(Strings.GoogleMaps, gym.Latitude, gym.Longitude);
                     //eb.AddField($"{name} ({gym.Latitude},{gym.Longitude})", url);
-                    eb.Description += $"- **{name}** [[Directions]({locationUrl})]\r\n{url}\r\n";
+                    sb.AppendLine(Translator.Instance.Translate("GYM_NAME").FormatText(name));
+                    sb.AppendLine(Translator.Instance.Translate("GYM_DIRECTIONS_IMAGE_LINK").FormatText(locationUrl, imageUrl));
                 }
-                await ctx.RespondAsync(string.Empty, false, eb);
+                eb.Description = sb.ToString();
+                await ctx.RespondAsync(embed: eb);
 
                 if (Regex.IsMatch(yesNo, DiscordExtensions.YesRegex))
                 {
                     //Gyms are updated where the ids match.
-                    var rowsAffected = db.ExecuteNonQuery("UPDATE gym INNER JOIN pokestop ON pokestop.id = gym.id SET gym.name = pokestop.name, gym.url = pokestop.url;");
-                    await ctx.RespondEmbed($"{rowsAffected} Pokedstops updated to Gyms in the database.", DiscordColor.Green);
+                    var rowsAffected = db.ExecuteNonQuery(Strings.SQL_UPDATE_CONVERTED_POKESTOPS);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("GYM_POKESTOPS_CONVERTED").FormatText(ctx.User.Username, rowsAffected.ToString("N0")));
 
                     //If no pokestops are updated.
                     if (rowsAffected == 0)
                     {
-                        await ctx.RespondEmbed($"No Pokestops have been updated in the database.", DiscordColor.Yellow);
+                        await ctx.RespondEmbed(Translator.Instance.Translate("GYM_NO_POKESTOPS_UPDATED").FormatText(ctx.User.Username), DiscordColor.Yellow);
                         return;
                     }
 
                     //Delete gyms from database where the ids match existing Pokestops.
-                    rowsAffected = db.ExecuteNonQuery("DELETE pokestop FROM pokestop INNER JOIN gym ON pokestop.id = gym.id WHERE pokestop.id IS NOT NULL;");
-                    await ctx.RespondEmbed($"{rowsAffected.ToString("N0")} Pokestops deleted from the database.", DiscordColor.Green);
+                    rowsAffected = db.ExecuteNonQuery(Strings.SQL_DELETE_CONVERTED_POKESTOPS);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("GYM_POKESTOPS_DELETED").FormatText(ctx.User.Username, rowsAffected.ToString("N0")));
                 }
             }
         }

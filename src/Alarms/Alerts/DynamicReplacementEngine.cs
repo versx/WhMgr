@@ -5,10 +5,19 @@
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    public class DynamicReplacementEngine
+    public static class DynamicReplacementEngine
     {
+        /// <summary>
+        /// Replace text placeholders with Pokemon values
+        /// </summary>
+        /// <param name="alarmText">Placeholder alarm text</param>
+        /// <param name="pkmnInfo">Replacement values dictionary</param>
+        /// <returns></returns>
         public static string ReplaceText(string alarmText, IReadOnlyDictionary<string, string> pkmnInfo)
         {
+            if (string.IsNullOrEmpty(alarmText))
+                return string.Empty;
+
             var placeHolder = alarmText;
             var keys = pkmnInfo.Keys.ToList();
 
@@ -35,6 +44,13 @@
             return placeHolder;
         }
 
+        /// <summary>
+        /// Replace conditional block with value within itself
+        /// </summary>
+        /// <param name="text">Placeholder text to check</param>
+        /// <param name="property">Property key</param>
+        /// <param name="value">Default replacement value</param>
+        /// <returns></returns>
         private static string ReplaceBlock(string text, string property, bool value = false)
         { 
             var expr = @"\<#" + property + @">([^\}]+)\</" + property + @">";

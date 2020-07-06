@@ -29,7 +29,6 @@
                     }
 
                     msg = msg.Replace("{" + i + "}", args[i].ToString());
-                    msg = msg.Replace("\n", "\n");
                 }
                 return msg;
             }
@@ -50,15 +49,8 @@
 
             for (var i = 0; i < s.Length; i += partLength)
             {
-                yield return s.Substring(i, Math.Min(partLength, s.Length - 1));
+                yield return s.Substring(i, Math.Min(partLength, s.Length));
             }
-        }
-
-        public static string ToUppercaseFirstLetter(this string text)
-        {
-            var firstLetter = text[0].ToString().ToUpper();
-            var remainingLetters = text.Substring(1, text.Length - 1);
-            return firstLetter + remainingLetters;
         }
     }
 }

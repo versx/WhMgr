@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using DSharpPlus.CommandsNext;
@@ -11,6 +13,7 @@
 
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
 
     public class Feeds
     {
@@ -33,20 +36,27 @@
             if (!await ctx.Message.IsDirectMessageSupported())
                 return;
 
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            var cityRoles = server.CityRoles;
+            cityRoles.Sort();
+            var sb = new StringBuilder();
+            sb.AppendLine(Translator.Instance.Translate("FEEDS_AVAILABLE_CITY_ROLES"));
+            sb.AppendLine($"- {string.Join($"{Environment.NewLine}- ", cityRoles)}");
+            sb.AppendLine();
+            sb.AppendLine($"- {Strings.All}");
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.AppendLine(Translator.Instance.Translate("FEEDS_TYPE_COMMAND_ASSIGN_ROLE").FormatText(server.CommandPrefix));
             var eb = new DiscordEmbedBuilder
             {
                 Color = DiscordColor.Red,
-                Description = 
-                    "**Available City Roles:**\r\n" +
-                    $"- {string.Join($"{Environment.NewLine}- ", _dep.WhConfig.Discord.CityRoles)}" +
-                    Environment.NewLine +
-                    $"- {Strings.All}" +
-                    Environment.NewLine +
-                    Environment.NewLine +
-                    $"*Type `{_dep.WhConfig.Discord.CommandPrefix}feedme cityname` to assign yourself to that city role.*",
+                Description = sb.ToString(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
+                    Text = $"{ctx.Guild?.Name ?? Strings.Creator} | {DateTime.Now}",
                     IconUrl = ctx.Guild?.IconUrl
                 }
             };
@@ -57,7 +67,7 @@
 
         [
             Command("feedme"),
-            Description("Joins a city feed.\r\n\r\n**Example:** `.feedme Upland,Ontario`")
+            Description("Joins a city feed.\r\n\r\n**Example:** `.feedme City1,City2`")
         ]
         public async Task FeedMeAsync(CommandContext ctx,
             [Description("City name to join or all."), RemainingText] string cityName = null)
@@ -65,21 +75,20 @@
             if (!await ctx.Message.IsDirectMessageSupported())
                 return;
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
-            if (_dep.WhConfig.Discord.CitiesRequireSupporterRole && !isSupporter)
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, ctx.Guild.Id, _dep.WhConfig);
+            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+                return;
+
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            if (server.CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
             }
 
-            if (string.IsNullOrEmpty(cityName))
-            {
-                await ctx.RespondEmbed($"Please specific a city role name to assign.");
-                //TODO: Show message with reactions to assign.
-            }
-
             if (string.Compare(cityName, Strings.All, true) == 0)
             {
+                await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_PLEASE_WAIT", ctx.User.Username), DiscordColor.Green);
                 await AssignAllDefaultFeedRoles(ctx);
                 return;
             }
@@ -90,20 +99,19 @@
             try
             {
                 var cityNames = cityName.Replace(" ", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                var cityRoles = server.CityRoles.Select(x => x.ToLower());
                 foreach (var city in cityNames)
                 {
-                    var roles = new List<string>();
-                    roles.AddRange(_dep.WhConfig.Discord.CityRoles);
-                    if (roles.FirstOrDefault(x => string.Compare(city, x, true) == 0) == null)
+                    if (!cityRoles.Contains(city.ToLower()))
                     {
-                        await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} {city} is not a valid city name, type `.cities` to see a list of available cities.");
+                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(ctx.User.Username, city, server.CommandPrefix), DiscordColor.Red);
                         continue;
                     }
 
                     var cityRole = ctx.Client.GetRoleFromName(city);
                     if (cityRole == null)
                     {
-                        await ctx.RespondEmbed($"{ctx.User.Mention}#{ctx.User.Discriminator} {city} is not a valid city name.");
+                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME").FormatText(ctx.User.Username, city), DiscordColor.Red);
                         continue;
                     }
 
@@ -117,38 +125,36 @@
                         alreadyAssigned.Add(cityRole.Name);
                     }
 
-                    if (_dep.WhConfig.Discord.CityRoles.FirstOrDefault(x => string.Compare(x, city, true) == 0) != null)
+                    var cityRaidRole = ctx.Client.GetRoleFromName($"{city}Raids");
+                    if (cityRaidRole != null)
                     {
-                        var cityRaidRole = ctx.Client.GetRoleFromName($"{city}Raids");
-                        if (cityRaidRole != null)
+                        result = await AddFeedRole(ctx.Member, cityRaidRole);
+                        if (result)
                         {
-                            result = await AddFeedRole(ctx.Member, cityRaidRole);
-                            if (result)
-                            {
-                                assigned.Add(cityRaidRole.Name);
-                            }
-                            else
-                            {
-                                alreadyAssigned.Add(cityRaidRole.Name);
-                            }
+                            assigned.Add(cityRaidRole.Name);
+                        }
+                        else
+                        {
+                            alreadyAssigned.Add(cityRaidRole.Name);
                         }
                     }
+
+                    Thread.Sleep(200);
                 }
 
                 if (assigned.Count == 0 && alreadyAssigned.Count == 0)
                 {
                     ctx.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Debug, "Feeds", $"No roles assigned or already assigned for user {ctx.User.Username} ({ctx.User.Id}). Value: {string.Join(", ", cityNames)}", DateTime.Now);
-                    //await message.RespondAsync($"{message.Author.Mention} you did not provide valid values that I could recognize.");
                     return;
                 }
 
                 await ctx.RespondEmbed
                 (
                     (assigned.Count > 0
-                        ? $"{ctx.User.Username}#{ctx.User.Discriminator} has joined role{(assigned.Count > 1 ? "s" : null)} **{string.Join("**, **", assigned)}**."
+                        ? Translator.Instance.Translate("FEEDS_ASSIGNED_ROLES").FormatText(ctx.User.Username, string.Join("**, **", assigned))
                         : string.Empty) +
                     (alreadyAssigned.Count > 0
-                        ? $"\r\n{ctx.User.Username}#{ctx.User.Discriminator} is already assigned to **{string.Join("**, **", alreadyAssigned)}** role{(alreadyAssigned.Count > 1 ? "s" : null)}."
+                        ? Translator.Instance.Translate("FEEDS_UNASSIGNED_ROLES").FormatText(ctx.User.Username, string.Join("**, **", alreadyAssigned))
                         : string.Empty)
                 );
             }
@@ -168,8 +174,8 @@
             if (!await ctx.Message.IsDirectMessageSupported())
                 return;
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, _dep.WhConfig);
-            if (_dep.WhConfig.Discord.CitiesRequireSupporterRole && !isSupporter)
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, ctx.Guild.Id, _dep.WhConfig);
+            if (_dep.WhConfig.Servers[ctx.Guild.Id].CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
@@ -177,35 +183,35 @@
 
             if (string.Compare(cityName, Strings.All, true) == 0)
             {
+                await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_PLEASE_WAIT", ctx.User.Username), DiscordColor.Green);
                 await RemoveAllDefaultFeedRoles(ctx);
                 return;
             }
 
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
             var unassigned = new List<string>();
             var alreadyUnassigned = new List<string>();
 
             try
             {
                 var cityNames = cityName.Replace(" ", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                var cityRoles = server.CityRoles;
                 foreach (var city in cityNames)
                 {
-                    var roles = new List<string>();
-                    roles.AddRange(_dep.WhConfig.Discord.CityRoles);
-                    if (!roles.Exists(x => string.Compare(city, x, true) == 0))
+                    if (!cityRoles.Exists(x => string.Compare(city, x, true) == 0))
                     {
-                        await ctx.RespondAsync($"{ctx.User.Username}#{ctx.User.Discriminator} {city} is not a valid city name, type `.cities` to see a list of available cities.");
+                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(ctx.User.Username, city, server.CommandPrefix), DiscordColor.Red);
                         continue;
                     }
 
                     var cityRole = ctx.Client.GetRoleFromName(city);
                     if (cityRole == null)
                     {
-                        await ctx.RespondEmbed($"{ctx.User.Username}{ctx.User.Discriminator} {city} is not a valid city role name.");
+                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME").FormatText(ctx.User.Username, city), DiscordColor.Red);
                         continue;
                     }
 
-                    var result = await RemoveFeedRole(ctx.Member, cityRole);
-                    if (result)
+                    if (await RemoveFeedRole(ctx.Member, cityRole))
                     {
                         unassigned.Add(cityRole.Name);
                     }
@@ -215,27 +221,28 @@
                     }
 
                     var cityRaidRole = ctx.Client.GetRoleFromName($"{city}Raids");
-                    if (cityRaidRole != null)
+                    if (cityRaidRole == null)
+                        continue;
+
+                    if (await RemoveFeedRole(ctx.Member, cityRaidRole))
                     {
-                        result = await RemoveFeedRole(ctx.Member, cityRaidRole);
-                        if (result)
-                        {
-                            unassigned.Add(cityRaidRole.Name);
-                        }
-                        else
-                        {
-                            alreadyUnassigned.Add(cityRaidRole.Name);
-                        }
+                        unassigned.Add(cityRaidRole.Name);
                     }
+                    else
+                    {
+                        alreadyUnassigned.Add(cityRaidRole.Name);
+                    }
+
+                    Thread.Sleep(200);
                 }
 
                 await ctx.RespondEmbed
                 (
                     (unassigned.Count > 0
-                        ? $"{ctx.User.Username}#{ctx.User.Discriminator} has been removed from role{(unassigned.Count > 1 ? "s" : null)} **{string.Join("**, **", unassigned)}**."
+                        ? Translator.Instance.Translate("FEEDS_UNASSIGNED_ROLES").FormatText(ctx.User.Username, string.Join("**, **", unassigned))
                         : string.Empty) +
                     (alreadyUnassigned.Count > 0
-                        ? $"\r\n{ctx.User.Username}#{ctx.User.Discriminator} is not assigned to **{string.Join("**, **", alreadyUnassigned)}** roles{(alreadyUnassigned.Count > 1 ? "s" : null)}."
+                        ? Translator.Instance.Translate("FEEDS_UNASSIGNED_ROLES_ALREADY").FormatText(ctx.User.Username, string.Join("**, **", alreadyUnassigned))
                         : string.Empty)
                 );
             }
@@ -247,14 +254,16 @@
 
         private async Task AssignAllDefaultFeedRoles(CommandContext ctx)
         {
-            if (_dep.WhConfig.Discord.CityRoles == null)
+            if (_dep.WhConfig.Servers[ctx.Guild.Id].CityRoles == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
             }
 
-            foreach (var city in _dep.WhConfig.Discord.CityRoles)
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            for (var i = 0; i < server.CityRoles.Count; i++)
             {
+                var city = server.CityRoles[i];
                 var cityRole = ctx.Client.GetRoleFromName(city);
                 if (cityRole == null)
                 {
@@ -267,15 +276,25 @@
                 {
                     _logger.Error($"Failed to assign role {cityRole.Name} to user {ctx.User.Username} ({ctx.User.Id}).");
                 }
+
+                Thread.Sleep(500);
             }
 
-            await ctx.RespondAsync($"{ctx.User.Mention} was assigned all city feed roles.");
+            await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_ASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));
         }
 
         private async Task RemoveAllDefaultFeedRoles(CommandContext ctx)
         {
-            foreach (var city in _dep.WhConfig.Discord.CityRoles)
+            if (_dep.WhConfig.Servers[ctx.Guild.Id].CityRoles == null)
             {
+                _logger.Warn($"City roles empty.");
+                return;
+            }
+
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            for (var i = 0; i < server.CityRoles.Count; i++)
+            {
+                var city = server.CityRoles[i];
                 var cityRole = ctx.Client.GetRoleFromName(city);
                 if (cityRole == null)
                 {
@@ -288,34 +307,34 @@
                 {
                     _logger.Error($"Failed to remove role {cityRole.Name} from user {ctx.User.Username} ({ctx.User.Id}).");
                 }
+
+                Thread.Sleep(200);
             }
 
-            await ctx.RespondAsync($"{ctx.User.Mention} was unassigned all city feed roles.");
+            await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_UNASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));
         }
 
         private async Task<bool> AddFeedRole(DiscordMember member, DiscordRole city)
         {
-            var reason = "Default city role/raid role assignment.";
             if (city == null)
             {
                 _logger.Error($"Failed to find city role {city?.Name}, please make sure it exists.");
                 return false;
             }
 
-            await member.GrantRoleAsync(city, reason);
+            await member.GrantRoleAsync(city, "City role role assignment.");
             return true;
         }
 
         private async Task<bool> RemoveFeedRole(DiscordMember member, DiscordRole city)
         {
-            var reason = "Default city role/raid role removal.";
             if (city == null)
             {
                 _logger.Error($"Failed to find city role {city?.Name}, please make sure it exists.");
                 return false;
             }
 
-            await member.RevokeRoleAsync(city, reason);
+            await member.RevokeRoleAsync(city, "City role removal.");
             return true;
         }
     }

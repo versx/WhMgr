@@ -7,13 +7,15 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
+    using WhMgr.Data;
+    using WhMgr.Data.Subscriptions;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
     using WhMgr.Utilities;
 
     [
-        RequireOwner,
-        Hidden
+        RequireOwner
     ]
     public class Owner
     {
@@ -30,7 +32,8 @@
 
         [
             Command("isbanned"),
-            Description("Check if IP banned from NianticLabs or Pokemon Trainer Club.")
+            Description("Check if IP banned from NianticLabs or Pokemon Trainer Club."),
+            Hidden
         ]
         public async Task IsIPBannedAsync(CommandContext ctx)
         {
@@ -48,30 +51,31 @@
             };
             eb.AddField("Pokemon.com", isPtcBanned ? "Banned" : "Good", true);
             eb.AddField("NianticLabs.com", isNiaBanned ? "Banned" : "Good", true);
-            await ctx.RespondAsync(string.Empty, false, eb.Build());
+            await ctx.RespondAsync(embed: eb.Build());
         }
 
         [
             Command("clean-departed"),
-            Description("")
+            Description(""),
+            Hidden
         ]
         public async Task CleanDepartedAsync(CommandContext ctx)
         {
             _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
             var removed = 0;
-            var users = _dep.SubscriptionProcessor?.Manager?.Subscriptions;// GetUserSubscriptions();
+            var users = _dep.SubscriptionProcessor?.Manager?.Subscriptions;
             for (var i = 0; i < users.Count; i++)
             {
                 var user = users[i];
-                var discordUser = ctx.Client.GetMemberById(_dep.WhConfig.Discord.GuildId, user.UserId);
-                var isSupporter = ctx.Client.HasSupporterRole(_dep.WhConfig.Discord.GuildId, user.UserId, _dep.WhConfig.Discord.DonorRoleIds);
+                var discordUser = ctx.Client.GetMemberById(ctx.Guild.Id, user.UserId);
+                var isSupporter = ctx.Client.HasSupporterRole(ctx.Guild.Id, user.UserId, _dep.WhConfig.Servers[ctx.Guild.Id].DonorRoleIds);
                 if (discordUser == null || !isSupporter)
                 {
                     _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
-                    if (!_dep.SubscriptionProcessor.Manager.RemoveAllUserSubscriptions(user.UserId))
+                    if (!SubscriptionManager.RemoveAllUserSubscriptions(ctx.Guild.Id, user.UserId))
                     {
-                        _logger.Warn($"Could not remove user {user.UserId} subscription settings from the database.");
+                        _logger.Warn($"Unable to remove user {user.UserId} subscription settings from the database.");
                         continue;
                     }
 
@@ -80,7 +84,41 @@
                 }
             }
 
-            await ctx.RespondEmbed($"Removed {removed.ToString("N0")} of {users.Count.ToString("N0")} total members.");
+            await ctx.RespondEmbed(Translator.Instance.Translate("REMOVED_TOTAL_DEPARTED_MEMBERS").FormatText(removed.ToString("N0"), users.Count.ToString("N0")));
+        }
+
+        [
+            Command("sudo"), 
+            Description("Executes a command as another user."),
+            Hidden
+        ]
+        public async Task Sudo(CommandContext ctx, 
+            [Description("Member to execute as.")] DiscordMember member, 
+            [Description("Command text to execute."), RemainingText] string command)
+        {
+            await ctx.TriggerTypingAsync();
+
+            // get the command service, we need this for sudo purposes
+            var cmds = ctx.CommandsNext;
+            await cmds.SudoAsync(member, ctx.Channel, command);
+        }
+
+        [
+            Command("test-emoji"),
+            Description("")
+        ]
+        public async Task TestAsync(CommandContext ctx,
+            [Description("")] string emojiName)
+        {
+            var title = "Emoji Test";
+            var emojiId = MasterFile.Instance.Emojis[emojiName];
+            var emoji = string.Format(Strings.EmojiSchema, emojiName, emojiId);
+            var eb = new DiscordEmbedBuilder
+            {
+                Title = title,
+                Description = $"{emoji}"
+            };
+            await ctx.RespondAsync(emoji, false, embed: eb);
         }
     }
 }

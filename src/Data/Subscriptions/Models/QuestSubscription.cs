@@ -8,22 +8,13 @@
         JsonObject("quests"),
         Alias("quests")
     ]
-    public class QuestSubscription
+    public class QuestSubscription : SubscriptionItem
     {
         [
-            JsonIgnore,
-            Alias("id"),
-            PrimaryKey, 
-            AutoIncrement
-        ]
-        public int Id { get; set; }
-
-        [
-            JsonProperty("user_id"),
-            Alias("userId"),
+            Alias("subscription_id"), 
             ForeignKey(typeof(SubscriptionObject))
         ]
-        public ulong UserId { get; set; }
+        public int SubscriptionId { get; set; }
 
         [
             JsonProperty("reward"),

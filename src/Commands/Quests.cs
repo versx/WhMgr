@@ -1,14 +1,17 @@
 ﻿namespace WhMgr.Commands
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
+    using DSharpPlus;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
 
     public class Quests
     {
@@ -23,19 +26,20 @@
         [
             Command("reset-quests"),
             Hidden,
-            RequireOwner
+            RequirePermissions(Permissions.KickMembers)
         ]
         public async Task ResetChannelAsync(CommandContext ctx,
             [Description("Discord channel to reset.")] DiscordChannel channel = null)
         {
             if (channel == null)
             {
-                for (var i = 0; i < _dep.WhConfig.Discord.QuestChannelIds.Count; i++)
+                var channelIds = _dep.WhConfig.Servers[ctx.Guild.Id].QuestChannelIds;
+                for (var i = 0; i < channelIds.Count; i++)
                 {
-                    var qChannel = await ctx.Client.GetChannelAsync(_dep.WhConfig.Discord.QuestChannelIds[i]);
+                    var qChannel = await ctx.Client.GetChannelAsync(channelIds[i]);
                     if (qChannel == null)
                     {
-                        _logger.Warn($"Could not get quest channel from id '{_dep.WhConfig.Discord.QuestChannelIds[i]}'.");
+                        _logger.Warn($"Unable to get quest channel from id '{channelIds[i]}'.");
                         continue;
                     }
 
@@ -59,11 +63,12 @@
                         continue;
 
                     await message.DeleteAsync("Channel reset.");
+                    Thread.Sleep(100);
                 }
 
                 messages = await channel.GetMessagesAsync();
             }
-            await ctx.RespondEmbed($"{ctx.User.Username} Channel {channel.Mention} messages have been deleted.");
+            await ctx.RespondEmbed(Translator.Instance.Translate("CHANNEL_MESSAGES_DELETED").FormatText(ctx.User.Username, channel.Mention));
         }
     }
 }

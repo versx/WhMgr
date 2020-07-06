@@ -2,9 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
+
     using Newtonsoft.Json;
 
     using WhMgr.Alarms.Alerts;
@@ -13,105 +15,9 @@
     using WhMgr.Extensions;
     using WhMgr.Utilities;
 
-    /*
-[
-	{
-		"type":"quest",
-		"message":
-		{
-			"conditions":[],
-			"latitude":34.072844,
-			"template":"challenge_gym_try_easy_pkmn",
-			"rewards":
-			[
-				{
-					"info":
-					{
-						"pokemon_id":56,
-						"costume_id":0,
-						"shiny":false,
-						"ditto":false,
-						"gender_id":0,
-						"form_id":0
-					},
-					"type":7
-				}
-			],
-			"pokestop_id":"b47856e4583849c2a494691b654b40f1.16",
-			"pokestop_url":"http://lh5.ggpht.com/l_pBhHYciTp9yCjC6idcLUNaie9pNXn4j89oODbNVm7BZZg22PimZ3YUPtNcgS4RLJFz3_W56PihRRaLRGEm",
-			"pokestop_name":"Business Center Fountain",
-			"target":1,
-			"updated":1540863910,
-			"type":7,
-			"longitude":-117.562695
-		}
-	}
-]
-
-{
-    "message":
-    {
-        "rewards":
-        [
-            {
-                "info":
-                {
-                    "costume_id":0,
-                    "form_id":0,
-                    "gender_id":0,
-                    "shiny":false,
-                    "pokemon_id":327,
-                    "ditto":false
-                },
-                "type":7
-            }
-        ],
-        "pokestop_id":"73d7a307b0264316b104470fd37cb4f5.16",
-        "updated":1541350000,
-        "longitude":-117.667454,
-        "pokestop_url":"",
-        "type":16,
-        "pokestop_name":"Unknown",
-        "latitude":34.103494,
-        "template":"challenge_november_land_nice_curveball_plural",
-        "conditions":
-        [
-            {
-                "info":
-                {
-                    "throw_type_id":10,
-                    "hit":false
-                },
-                "type":8
-            },
-            {
-                "type":15
-            }
-        ],
-        "target":3
-    },
-    "type":"quest"
-}
-
-"conditions":
-[{
-    "info":
-    {
-        "pokemon_type_ids":[8]
-    },
-    "type":1
-}],
-{
-"conditions":
-[{
-    "info":
-    {
-        "pokemon_ids":[355,353]
-    },
-    "type":2
-}]
-     */
-
+    /// <summary>
+    /// RealDeviceMap Quest webhook model class.
+    /// </summary>
     public sealed class QuestData
     {
         public const string WebHookHeader = "quest";
@@ -164,44 +70,51 @@
 
         #endregion
 
+        /// <summary>
+        /// Instantiate a new <see cref="QuestData"/> class.
+        /// </summary>
         public QuestData()
         {
             Rewards = new List<QuestRewardMessage>();
             Conditions = new List<QuestConditionMessage>();
         }
 
-        public DiscordEmbed GenerateQuestMessage(DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbed GenerateQuestMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var alertType = AlertMessageType.Quests;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(whConfig, city);
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, this.GetQuestIcon(whConfig, whConfig.Servers[guildId].IconStyle));
+            var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
+            var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
+            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
+            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
-                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Description = mention + description,
                 Color = DiscordColor.Orange,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(whConfig.Discord.GuildId) ? client.Guilds[whConfig.Discord.GuildId]?.IconUrl : string.Empty
+                    Text = footerText,
+                    IconUrl = footerIconUrl
                 }
             };
             return eb.Build();
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string questRewardImageUrl)
         {
             var questMessage = this.GetQuestMessage();
             var questConditions = this.GetConditions();
             var questReward = this.GetReward();
-            var questRewardImageUrl = this.GetIconUrl(whConfig);
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            var staticMapLink = Utils.PrepareStaticMapUrl(whConfig.Urls.StaticMap, this.GetIconUrl(whConfig), Latitude, Longitude);
+            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.QuestsTemplateFile);
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, Latitude, Longitude, questRewardImageUrl);
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
@@ -236,6 +149,12 @@
                 { "pokestop_id", PokestopId ?? defaultMissingValue },
                 { "pokestop_name", PokestopName ?? defaultMissingValue },
                 { "pokestop_url", PokestopUrl ?? defaultMissingValue },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
+
+                { "date_time", DateTime.Now.ToString() },
 
                 //Misc properties
                 { "br", "\r\n" }
@@ -326,6 +245,8 @@
 
         [JsonProperty("raid_levels")]
         public List<int> RaidLevels { get; set; }
+
+        // TODO: Pokemon alignment
     }
 
     public enum QuestType
@@ -459,8 +380,8 @@
         Wepar_Berry = 704,
         Pinap_Berry = 705,
         Golden_Razz_Berry = 706,
-        Golden_Nanab_Berry = 707,
-        Golden_Pinap_Berry = 708,
+        Silver_Nanab_Berry = 707,
+        Silver_Pinap_Berry = 708,
         Special_Camera = 801,
         Incubator_Basic_Unlimited = 901,
         Incubator_Basic = 902,
@@ -472,6 +393,8 @@
         Metal_Coat = 1103,
         Dragon_Scale = 1104,
         Upgrade = 1105,
+        Sinnoh_Stone = 1106,
+        Unova_Stone = 1107,
         Move_Reroll_Fast_Attack = 1201,
         Move_Reroll_Special_Attack = 1202,
         Rare_Candy = 1301,
@@ -534,13 +457,13 @@
 
     public enum PokemonAlignment
     {
-        Shadow = 1, //alignment_1
-        Purified //alignment_2
+        Shadow = 1,
+        Purified
     }
 
     public enum CharacterCategory
     {
-        TeamLeader = 1, //character_category_1
-        Grunt //character_category_2
+        TeamLeader = 1,
+        Grunt
     }
 }
