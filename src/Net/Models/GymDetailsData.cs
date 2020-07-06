@@ -67,12 +67,12 @@
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl , properties),
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = mention + description,
                 Color = Team == PokemonTeam.Mystic ? DiscordColor.Blue :
-                    Team == PokemonTeam.Valor ? DiscordColor.Red :
-                    Team == PokemonTeam.Instinct ? DiscordColor.Yellow :
-                    DiscordColor.LightGray,
+                        Team == PokemonTeam.Valor ? DiscordColor.Red :
+                        Team == PokemonTeam.Instinct ? DiscordColor.Yellow :
+                        DiscordColor.LightGray,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = footerText,
@@ -87,11 +87,11 @@
         private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, GymDetailsData oldGym)
         {
             var exEmojiId = MasterFile.Instance.Emojis["ex"];
-            var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
+            var exEmoji = exEmojiId > 0 ? string.Format(Strings.EmojiSchema, "ex", exEmojiId): "EX";
             var teamEmojiId = MasterFile.Instance.Emojis[Team.ToString().ToLower()];
-            var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
+            var teamEmoji = teamEmojiId > 0 ? string.Format(Strings.EmojiSchema, Team.ToString().ToLower(), teamEmojiId) : Team.ToString();
             var oldTeamEmojiId = MasterFile.Instance.Emojis[oldGym.Team.ToString().ToLower()];
-            var oldTeamEmoji = oldTeamEmojiId > 0 ? $"<:{oldGym.Team.ToString().ToLower()}:{oldTeamEmojiId}>" : oldGym.Team.ToString();
+            var oldTeamEmoji = oldTeamEmojiId > 0 ? string.Format(Strings.EmojiSchema, oldGym.Team.ToString().ToLower(), oldTeamEmojiId) : oldGym.Team.ToString();
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);

@@ -32,7 +32,6 @@
     // TODO: List all subscriptions with info command
     // TODO: Manage subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
-    // TODO: Double check gym alarms
 
     public class Bot
     {

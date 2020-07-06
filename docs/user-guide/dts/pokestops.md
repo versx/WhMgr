@@ -31,4 +31,5 @@ Use any of the following in your alerts file to structure how notifications will
 | pokestop_url | Image url of Gym | https://google.com/imgs/gym.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
+[ date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
