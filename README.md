@@ -307,8 +307,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     }]
 }
 ```
-5.) Create directory `Geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
-6.) Create/copy geofence files to `Geofences` folder.  
+5.) Create directory `geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
+6.) Create/copy geofence files to `geofences` folder.  
 
 *Note:* Geofence file format is the following:  
 ```ini

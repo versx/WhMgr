@@ -20,19 +20,19 @@
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
         public const string WazeMaps = "https://waze.com/ul?ll={0},{1}&navigate=yes";
 
-        public const string GeofenceFolder = "Geofences";
-        public const string AlertsFolder = "Alerts";
-        public const string FiltersFolder = "Filters";
-        public const string LibrariesFolder = "Libs";
+        public const string GeofenceFolder = "geofences";
+        public const string AlertsFolder = "alerts";
+        public const string FiltersFolder = "filters";
+        public const string LibrariesFolder = "libs";
         public const string StaticFolder = "static";
-        public const string TemplatesFolder = "Templates";
-        public const string MigrationsFolder = "Migrations";
+        public const string TemplatesFolder = "templates";
+        public const string MigrationsFolder = "migrations";
         public static readonly string DataFolder = StaticFolder + Path.DirectorySeparatorChar + "data";
         public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locale";
         public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
         public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
-        public const string StatsFolder = "Stats";
-        public const string LogsFolder = "Logs";
+        public const string StatsFolder = "stats";
+        public const string LogsFolder = "logs";
 
         public const string DefaultResponseMessage = "WH Test Running!";
         public static readonly string[] LocalEndPoint = { "localhost", "127.0.0.1" };

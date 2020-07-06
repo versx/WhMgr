@@ -31,10 +31,10 @@ dotnet build
 
 :: Copy example config
 echo "Copying example files..."
-xcopy /s /e %prjDir%\examples\Alerts\* %binDir%\Alerts\
-xcopy /s /e %prjDir%\examples\Filters\* %binDir%\Filters\
-xcopy /s /e %prjDir%\examples\Geofences\* %binDir%\Geofences\
-xcopy /s /e %prjDir%\examples\Templates\* %binDir%\Templates\
+xcopy /s /e %prjDir%\examples\alerts\* %binDir%\alerts\
+xcopy /s /e %prjDir%\examples\filters\* %binDir%\filters\
+xcopy /s /e %prjDir%\examples\geofences\* %binDir%\geofences\
+xcopy /s /e %prjDir%\examples\templates\* %binDir%\templates\
 xcopy /s /e %prjDir%\static\* %binDir%\static\
 xcopy %prjDir%\alarms.example.json %binDir%\alarms.json*
 xcopy %prjDir%\config.example.json %binDir%\config.json*
