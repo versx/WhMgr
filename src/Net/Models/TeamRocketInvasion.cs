@@ -20,7 +20,7 @@
         public string Grunt { get; set; }
 
         [JsonProperty("second_reward")]
-        public bool SecondReward { get; set; }
+        public bool? SecondReward { get; set; }
 
         [JsonProperty("encounters")]
         public TeamRocketEncounters Encounters { get; set; }
@@ -48,7 +48,7 @@
             var second = string.Join(", ", Encounters.Second.Select(x => MasterFile.GetPokemon(toInt(x), 0)?.Name));
             //var third = string.Join(", ", invasion.Encounters.Third.Select(x => Database.Instance.Pokemon[x].Name));
             var msg = string.Empty;
-            if (SecondReward)
+            if (SecondReward ?? false)
             {
                 //85%/15% Rate
                 msg += $"85% - {first}\r\n";
@@ -68,7 +68,7 @@
             if (Encounters == null)
                 return list;
 
-            if (SecondReward)
+            if (SecondReward ?? false)
             {
                 //85%/15% Rate
                 for (var i = 0; i < Encounters.Second.Count; i++)
