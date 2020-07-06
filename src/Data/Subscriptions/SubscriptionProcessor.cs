@@ -749,7 +749,7 @@
                             _whConfig.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
                         {
                             // Send text message (max 160 characters)
-                            if (IsUltraRare(_whConfig.Twilio, item.Pokemon))
+                            if (item.Pokemon != null && IsUltraRare(_whConfig.Twilio, item.Pokemon))
                             {
                                 var result = Utils.SendSmsMessage(StripEmbed(item), _whConfig.Twilio, item.Subscription.PhoneNumber);
                                 if (!result)
