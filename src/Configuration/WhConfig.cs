@@ -81,6 +81,12 @@
         public StaticMaps StaticMaps { get; set; }
 
         /// <summary>
+        /// Gets or sets the Twilio config for sending text message notifications
+        /// </summary>
+        [JsonProperty("twilio")]
+        public TwilioConfig Twilio { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to log incoming webhook data to a file
         /// </summary>
         [JsonProperty("debug")]
@@ -113,6 +119,7 @@
             EventPokemonIds = new List<int>();
             IconStyles = new Dictionary<string, string>();
             StaticMaps = new StaticMaps();
+            Twilio = new TwilioConfig();
         }
 
         /// <summary>

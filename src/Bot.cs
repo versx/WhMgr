@@ -27,13 +27,10 @@
     using DSharpPlus.Interactivity;
 
     // TODO: Subscriptions, Pokemon, Raid, Quest, Invasion, Gym, Weather alarm statistics by day. date/pokemonId/count
-    // TODO: PvP ranks dts
-    // TODO: Separate subscriptions dts
     // TODO: Specific timezone per Discord
     // TODO: Account status alarms
-    // TODO: Update masterfile.json
     // TODO: List all subscriptions with info command
-    // TODO: Subscriptions via DM again
+    // TODO: Manage subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
     // TODO: Double check gym alarms
 

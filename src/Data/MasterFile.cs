@@ -15,8 +15,6 @@
     {
         const string MasterFileName = "masterfile.json";
         const string CpMultipliersFileName = "cpMultipliers.json";
-        const string GruntTypesFileName = "grunttype.json";
-        const string TypesFileName = "types.json";
         const string RarityFileName = "rarity.json";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");
@@ -29,39 +27,34 @@
         //[JsonProperty("moves")]
         //public IReadOnlyDictionary<int, Moveset> Movesets { get; set; }
 
+        [JsonProperty("quest_conditions")]
+        public IReadOnlyDictionary<string, QuestConditionModel> QuestConditions { get; set; }
+
+        [JsonProperty("quest_types")]
+        public IReadOnlyDictionary<int, QuestTypeModel> QuestTypes { get; set; }
+
+        [JsonProperty("quest_reward_types")]
+        public IReadOnlyDictionary<int, QuestRewardTypeModel> QuestRewardTypes { get; set; }
+
+        [JsonProperty("throw_types")]
+        public IReadOnlyDictionary<int, string> ThrowTypes { get; set; }
+
         [JsonProperty("items")]
-        public IReadOnlyDictionary<string, string> ItemsText { get; set; }
+        public IReadOnlyDictionary<int, ItemModel> Items { get; set; }
 
-        [JsonProperty("quest_condition")]
-        public IReadOnlyDictionary<string, string> QuestConditions { get; set; }
+        [JsonProperty("grunt_types")]
+        public IReadOnlyDictionary<InvasionGruntType, TeamRocketInvasion> GruntTypes { get; set; }
 
-        [JsonProperty("alignment")]
-        public IReadOnlyDictionary<int, string> Alignment { get; set; }
+        [JsonProperty("pokemon_types")]
+        public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }
 
-        [JsonProperty("character_category")]
-        public IReadOnlyDictionary<int, string> CharacterCategory { get; set; }
-
-        [JsonProperty("throw_type")]
-        public IReadOnlyDictionary<int, string> ThrowType { get; set; }
-
-        [JsonProperty("item")]
-        public IReadOnlyDictionary<int, string> Items { get; set; }
-
-        [JsonProperty("lure")]
-        public IReadOnlyDictionary<int, string> Lures { get; set; }
-
-        [JsonProperty("cpMultipliers")]
+        [JsonIgnore]
         public IReadOnlyDictionary<double, double> CpMultipliers { get; }
 
         [JsonIgnore]
         public Dictionary<string, ulong> Emojis { get; set; }
 
         [JsonIgnore]
-        public IReadOnlyDictionary<InvasionGruntType, TeamRocketInvasion> GruntTypes { get; set; }
-
-        [JsonIgnore]
-        public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }
-
         public IReadOnlyDictionary<PokemonRarity, List<int>> PokemonRarity { get; set; }
 
         #region Singletons
@@ -87,8 +80,6 @@
         public MasterFile()
         {
             CpMultipliers = LoadInit<Dictionary<double, double>>(Path.Combine(Strings.DataFolder, CpMultipliersFileName));
-            GruntTypes = LoadInit<Dictionary<InvasionGruntType, TeamRocketInvasion>>(Path.Combine(Strings.DataFolder, GruntTypesFileName));
-            PokemonTypes = LoadInit<Dictionary<PokemonType, PokemonTypes>>(Path.Combine(Strings.DataFolder, TypesFileName));
             PokemonRarity = LoadInit<Dictionary<PokemonRarity, List<int>>>(Path.Combine(Strings.DataFolder, RarityFileName));
             Emojis = new Dictionary<string, ulong>();
         }
@@ -131,8 +122,19 @@
         [JsonProperty("weaknesses")]
         public List<PokemonType> Weaknesses { get; set; }
 
+        [JsonProperty("resistances")]
+        public List<PokemonType> Resistances { get; set; }
+
         [JsonProperty("strengths")]
         public List<PokemonType> Strengths { get; set; }
+
+        public PokemonTypes()
+        {
+            Immune = new List<PokemonType>();
+            Weaknesses = new List<PokemonType>();
+            Resistances = new List<PokemonType>();
+            Strengths = new List<PokemonType>();
+        }
     }
 
     public class Emoji
@@ -149,5 +151,44 @@
     {
         Common,
         Rare
+    }
+
+    public class ItemModel
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+        
+        [JsonProperty("proto")]
+        public string ProtoName { get; set; }
+
+        [JsonProperty("min_trainer_level")]
+        public int MinimumTrainerLevel { get; set; }
+    }
+
+    public class QuestTypeModel
+    {
+        [JsonProperty("prototext")]
+        public string ProtoText { get; set; }
+
+        [JsonProperty("text")]
+        public string Text { get; set; }
+    }
+
+    public class QuestConditionModel
+    {
+        [JsonProperty("prototext")]
+        public string ProtoText { get; set; }
+
+        [JsonProperty("text")]
+        public string Text { get; set; }
+    }
+
+    public class QuestRewardTypeModel
+    {
+        [JsonProperty("prototext")]
+        public string ProtoText { get; set; }
+
+        [JsonProperty("text")]
+        public string Text { get; set; }
     }
 }

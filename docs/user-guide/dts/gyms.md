@@ -28,4 +28,6 @@ Use any of the following in your alerts file to structure how notifications will
 | gmaps_url | Google maps location url | https://maps.google.com/maps?q=5.980921321,3.109283009
 | applemaps_url | Apple maps location url | https://maps.apple.com/maps?daddr=5.980921321,3.109283009
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
+| guild_name | Name of Guild | Test Guild
+| guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
 | br | Newline break | `\r\n`

@@ -17,6 +17,7 @@
     using WhMgr.Extensions;
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
+    using Utils = WhMgr.Utilities.Utils;
 
     /// <summary>
     /// Discord user subscription processing class.
@@ -192,7 +193,7 @@
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
                     {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name));
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name, pkmn));
                     }
 
                     Statistics.Instance.SubscriptionPokemonSent++;
@@ -327,7 +328,7 @@
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
                     {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name));
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name));
                     }
 
                     Statistics.Instance.SubscriptionPokemonSent++;
@@ -445,7 +446,7 @@
                     var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
                     {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name));
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name));
                     }
 
                     Statistics.Instance.SubscriptionRaidsSent++;
@@ -546,7 +547,7 @@
                     }
 
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
-                    _queue.Enqueue(new NotificationItem(user, member, embed, questName));
+                    _queue.Enqueue(new NotificationItem(user, member, embed, questName, loc.Name));
 
                     Statistics.Instance.SubscriptionQuestsSent++;
                     Thread.Sleep(5);
@@ -653,7 +654,7 @@
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
                     foreach (var emb in embed.Embeds)
                     {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name));
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, loc.Name));
                     }
 
                     Statistics.Instance.SubscriptionInvasionsSent++;
@@ -740,7 +741,26 @@
                         continue;
                     }
 
-                    // Send notification to user
+                    // Send text message notification to user if a phone number is set
+                    if (!string.IsNullOrEmpty(item.Subscription.PhoneNumber))
+                    {
+                        // Check if user is in the allowed text message list or server owner
+                        if (_whConfig.Twilio.UserIds.Contains(item.Member.Id) ||
+                            _whConfig.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
+                        {
+                            // Send text message (max 160 characters)
+                            if (IsUltraRare(_whConfig.Twilio, item.Pokemon))
+                            {
+                                var result = Utils.SendSmsMessage(StripEmbed(item), _whConfig.Twilio, item.Subscription.PhoneNumber);
+                                if (!result)
+                                {
+                                    _logger.Error($"Failed to send text message to phone number '{item.Subscription.PhoneNumber}' for user {item.Subscription.UserId}");
+                                }
+                            }
+                        }
+                    }
+
+                    // Send direct message notification to user
                     var client = _servers[item.Subscription.GuildId];
                     await client.SendDirectMessage(item.Member, item.Embed);
                     _logger.Info($"[WEBHOOK] Notified user {item.Member.Username} of {item.Description}.");
@@ -748,6 +768,39 @@
                 }
             })
             { IsBackground = true }.Start();
+        }
+
+        private bool IsUltraRare(TwilioConfig twilo, PokemonData pkmn)
+        {
+            // If no Pokemon are set, do not send text messages
+            if (twilo.PokemonIds.Count == 0)
+                return false;
+
+            // Check if Pokemon is in list of allowed IDs
+            if (!twilo.PokemonIds.Contains(pkmn.Id))
+                return false;
+
+            // Send text message if Unown, Azelf, etc
+            if (pkmn.Id.IsRarePokemon())
+                return true;
+
+            // Send text message if 100% Gible, Deino, and Axew
+            if (Filters.MatchesIV(pkmn.IV, twilo.MinimumIV))
+                return true;
+
+            return false;
+        }
+
+        private static string StripEmbed(NotificationItem item)
+        {
+            const int MAX_TEXT_LENGTH = 120;
+            var text = item.Embed.Description;
+            text = text.Replace("**", null);
+            text = text.Length > MAX_TEXT_LENGTH
+                ? text.Substring(0, Math.Min(text.Length, MAX_TEXT_LENGTH))
+                : text;
+            // TODO: Construct text message instead of using embed description and url for google maps link
+            return $"{item.City}\n{text}\n{item.Embed.Url}";
         }
 
         #endregion
