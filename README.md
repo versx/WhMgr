@@ -21,6 +21,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Support for Donors/Supporters only notifications.  
 - Direct messages of Pokemon notifications based on city roles assigned.  
 - Custom prefix support as well as mentionable user support for commands.  
+- Subscriptions based on distance from a set location or specific gym names.  
 - Twilio text message alerts for ultra rare Pokemon.  
 - Custom image support for Discord alarm reports.  
 - Custom icon style selection for Discord user notifications.  
@@ -322,11 +323,10 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 33.02,-118.02
 33.03,-118.03
 ```
-7.) Run `schema.sql` to manually create necessary database tables.  
-8.) Add dotnet to your environment path if it isn't already (optional): `export PATH=~/.dotnet/dotnet:$PATH`  
-9.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
-10.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
-11.) Optional User Interface for members to create subscriptions from a website instead of using Discord commands. (Still WIP but mostly done) [WhMgr UI](https://github.com/versx/WhMgr-UI)  
+7.) Add dotnet to your environment path if it isn't already (optional): `export PATH=~/.dotnet/dotnet:$PATH`  
+8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
+9.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
+10.) Optional User Interface for members to create subscriptions from a website instead of using Discord commands. (Still WIP but mostly done) [WhMgr UI](https://github.com/versx/WhMgr-UI)  
 
 **Important Notes:**  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.  
