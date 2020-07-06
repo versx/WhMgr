@@ -79,7 +79,7 @@
 
                 try
                 {
-                    var pkmnImage = nest.PokemonId.GetPokemonIcon(0, 0, _dep.WhConfig, _dep.WhConfig.IconStyles[server.IconStyle]);
+                    var pkmnImage = nest.PokemonId.GetPokemonIcon(0, 0, _dep.WhConfig, server.IconStyle);
                     var eb = GenerateNestMessage(ctx.Guild.Id, ctx.Client, nest, pkmnImage);
                     var geofences = _dep.Whm.Geofences.Values.ToList();
                     var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
