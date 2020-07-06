@@ -137,7 +137,7 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
             var templatePath = Path.Combine(_dep.WhConfig.StaticMaps.TemplatesFolder, _dep.WhConfig.StaticMaps.NestsTemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, _dep.WhConfig.Urls.StaticMap, nest.Latitude, nest.Longitude, pkmnImage, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, _dep.WhConfig.Urls.StaticMap, nest.Latitude, nest.Longitude, pkmnImage, null, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
             var geofences = _dep.Whm.Geofences.Values.ToList();
             var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
             var city = geofence?.Name ?? "Unknown";

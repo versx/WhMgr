@@ -9,23 +9,27 @@
     using Twilio.Rest.Api.V2010.Account;
 
     using WhMgr.Configuration;
+    using WhMgr.Net.Models;
     using WhMgr.Osm;
     using WhMgr.Osm.Models;
 
     public static class Utils
     {
-        public static string GetStaticMapsUrl(string templateFileName, string staticMapUrl, double latitude, double longitude, string markerImageUrl, OsmFeature feature = null, MultiPolygon multiPolygon = null)
+        // TODO: Provide better way for replacement values
+        public static string GetStaticMapsUrl(string templateFileName, string staticMapUrl, double latitude, double longitude, string markerImageUrl, PokemonTeam? team, OsmFeature feature = null, MultiPolygon multiPolygon = null)
         {
             var staticMapData = Renderer.Parse(templateFileName, new
             {
                 lat = latitude,
                 lon = longitude,
+                team = team?.ToString(),
+                team_id = Convert.ToInt32(team ?? 0),
                 marker = markerImageUrl,
                 pkmn_img_url = markerImageUrl,
                 quest_reward_img_url = markerImageUrl,
                 weather_img_url = markerImageUrl,
                 tilemaps_url = staticMapUrl
-            });
+            }); ;
             StaticMapConfig staticMap = JsonConvert.DeserializeObject<StaticMapConfig>(staticMapData);
 
             var url = string.Format(staticMapUrl, latitude, longitude);
