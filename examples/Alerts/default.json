@@ -118,7 +118,7 @@
     },
     "nests": {
         "avatarUrl": "<pkmn_img_url>",
-        "content": "**Pokemon:** <pkmn_name><br>**Average Spawns:** <avg_spawns>/h | **Types:** <type_emojis><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)] [[Waze Maps](<wazemaps_url>)]**",
+        "content": "**Pokemon:** <pkmn_name><br>**Average Spawns:** <avg_spawns>/h | **Types:** <types_emojis><br>**[[Google Maps](<gmaps_url>)] [[Apple Maps](<applemaps_url>)] [[Waze Maps](<wazemaps_url>)]**",
         "iconUrl": "<pkmn_img_url>",
         "title": "<geofence>: <nest_name>",
         "url": "<gmaps_url>",
