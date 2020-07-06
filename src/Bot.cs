@@ -56,9 +56,6 @@
         /// <param name="whConfig">Configuration settings</param>
         public Bot(WhConfig whConfig)
         {
-            var master = MasterFile.Instance;
-            Console.WriteLine("Master: " + master);
-
             _logger.Trace($"WhConfig [Servers={whConfig.Servers.Count}, Port={whConfig.WebhookPort}]");
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;
