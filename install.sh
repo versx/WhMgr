@@ -16,7 +16,7 @@ rm dotnet-install.sh
 
 # Clone repository
 echo "Cloning repository..."
-git clone https://github.com/versx/WhMgr -b netcore
+git clone https://github.com/versx/WhMgr
 
 # Change directory into cloned repository
 echo "Changing directory..."
