@@ -329,8 +329,13 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 9.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
 10.) Optional User Interface for members to create subscriptions from a website instead of using Discord commands. (Still WIP but mostly done) [WhMgr UI](https://github.com/versx/WhMgr-UI)  
 
+## Updating  
+1.) Pull latest changes in root folder  
+2.) Build project `dotnet build`  
+3.) Run `dotnet bin/debug/netcoreapp2.1/WhMgr.dll`  
+
 **Important Notes:**  
-- Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created upon connecting to Discord.  
+- Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created in the specified `EmojiGuildId` upon connecting to Discord.  
 - Discord Permissions Needed:  
   * Read Messages  
   * Send Messages  
@@ -695,7 +700,6 @@ __**Quests**__
 ## TODO:  
 - Allow Pokemon id and name in Pokemon filter lists.  
 - Individual filters per Pokemon. (PA style, maybe)  
-- Reload config on change
 - PvP ranks DTS
 - Separate subscriptions DTS
 - Wiki.  
@@ -734,7 +738,6 @@ Discord Team Rocket Invasion Notifications:
 ![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
 
 ## Current Issues:  
-- Gender icon comes in as `?` so -m and -f are used for now.  
 
 ## Credits:  
 [versx](https://github.com/versx) - Developer  
