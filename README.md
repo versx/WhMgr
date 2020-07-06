@@ -65,7 +65,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             "commandPrefix": ".",
             // Discord server server ID.
             "guildId": 000000000000000001,
-            // Discord Emoji server ID. (Can be same as `guildId`, currently not implemented, set as `guildId`)  
+            // Discord Emoji server ID. (Can be same as `guildId`)  
             "emojiGuildId": 000000000000000001,
             // Discord server owner ID.
             "ownerId": 000000000000000000,
