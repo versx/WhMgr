@@ -50,4 +50,6 @@ Use any of the following in your alerts file to structure how notifications will
 | gym_id | Gym ID | 9382498723849792348798234.16
 | gym_name | Name of Gym | The Amazing Gym
 | gym_url | Image url of Gym | https://google.com/imgs/gym.png
+| guild_name | Name of Guild | Test Guild
+| guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
 | br | Newline break | `\r\n`
