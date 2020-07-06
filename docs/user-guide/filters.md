@@ -16,6 +16,8 @@ Filters allow you to narrow down what is reported. All filters are options and c
 		"size": "Big", //Tiny, Small, Normal, Large, Big
 		"great_league": true, //Great League
 		"ultra_league": true, //Ultra League
+		"min_rank": 1, //Minimum rank of #1 PVP stats
+		"max_rank": 5, //Maximum rank of #5 PVP stats
 		"type": "Include", //Include or Exclude the `pokemon` list
 		"ignoreMissing": true //Ignore Pokemon missing stats
 	},
@@ -40,8 +42,8 @@ Filters allow you to narrow down what is reported. All filters are options and c
 	{
 		"enabled": true, //Filter is enabled
         "rewards": ["spinda", "nincada"], //Quest reward string (Chansey, stardust, candy, etc.)
-        "type": "Include", //Include or Exclude the `rewards` list
-		"isShiny": false //Only shiny encounter quests.
+		"isShiny": false, //Only shiny encounter quests.
+		"type": "Include" //Include or Exclude the `rewards` list
 	},
 	"pokestops":
 	{
@@ -51,7 +53,14 @@ Filters allow you to narrow down what is reported. All filters are options and c
 	},
 	"gyms":
 	{
-		"enabled": true //Filter is enabled
+		"enabled": true, //Filter is enabled
+		"underAttack": true, //Only gyms that are under attack
+		"team": "All" //Team change to notify about (i.e. Neutral/Mystic/Valor/Instinct/All)
+	},
+	"weather":
+	{
+		"enabled": true, //Filter is enabled
+		"types": ["Clear", "Rain", "PartlyCloudy", "Cloudy", "Windy", "Snow", "Fog"] //Only send weather types that are in the list
 	}
 }
 ```

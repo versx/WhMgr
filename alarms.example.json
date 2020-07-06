@@ -12,6 +12,7 @@
 			"alerts": "default.json",
 			"filters":"all.json",
 			"geofence":"City1.txt",
+			"mentions":"<!@324234324> <iv> L<lvl> <geofence>",  
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -71,10 +72,10 @@
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
-			"name":"City2-Weather",
+			"name":"City1-Weather",
 			"alerts": "default.json",
 			"filters":"weather.json",
-			"geofence":"City2.txt",
+			"geofence":"City1.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{

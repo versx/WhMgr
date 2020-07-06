@@ -17,6 +17,8 @@ There is no limit to the amount of alarms you can add under the `alarms` propert
     "enablePokestops": true,
     //Enable or disable Gym alarms globally
     "enableGyms": true, 
+    //Enable or disable Weather alarms globally
+    "enableWeather": true,
     //List of alarms
 	"alarms":
 	[
@@ -27,6 +29,8 @@ There is no limit to the amount of alarms you can add under the `alarms` propert
             "alerts": "default.json",
             //Alarm filters
             "filters":"all.json",
+            //Mentionable string that supports DTS  
+            "mentions":"<!@324234324> <iv> L<lvl> <geofence>",  
             //Geofence file name
             "geofence":"City1.txt",
             //Discord webhook url address

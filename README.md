@@ -49,6 +49,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
   b.) Input your bot token and config options.  
 ```js
 {
+    // Http listening interface for raw webhook data.
+    "host": "10.0.0.10",
     // Http listener port for raw webhook data.
     "port": 8008,
     // Locale language translation
@@ -65,7 +67,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             "commandPrefix": ".",
             // Discord server server ID.
             "guildId": 000000000000000001,
-            // Discord Emoji server ID. (Can be same as `guildId`, currently not implemented, set as `guildId`)  
+            // Discord Emoji server ID. (Can be same as `guildId`)  
             "emojiGuildId": 000000000000000001,
             // Discord server owner ID.
             "ownerId": 000000000000000000,
@@ -170,7 +172,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             // Brock database name.
             "database": "brock3"
         },
-        // Scanner databse config
+        // Scanner database config
         "scanner": {
             // Database hostname or IP address.
             "host": "127.0.0.1",
@@ -213,14 +215,23 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
         "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
     },
+    // Custom static map template files for each alarm type
     "staticMaps": {
+        // Static map template for Pokemon
         "pokemon": "pokemon.example.json",
+        // Static map template for Raids and Eggs
         "raids": "raids.example.json",
+        // Static map template for field research quests
         "quests": "quests.example.json",
+        // Static map template for Team Rocket invasions
         "invasions": "invasions.example.json",
+        // Static map template for Pokestop lures
         "lures": "lures.example.json",
+        // Static map template for Gym team control changes
         "gyms": "gyms.example.json",
+        // Static map template for nest postings
         "nests": "nests.example.json",
+        // Static map template for weather changes
         "weather": "weather.example.json"
     },
     // Get text message alerts with Twilio.com
@@ -283,7 +294,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         "geofence":"geofence1.txt",
     
         //DTS compatible mention description.  
-        "mentions":"<!@324234324> <iv> L<lvl> <geofence>"  
+        "mentions":"<!@324234324> <iv> L<lvl> <geofence>",  
       
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
@@ -362,6 +373,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 * `info` List all Pokemon, Raid, Quest, Invasion, and Gym subscriptions and settings  
 * `set-distance`  Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in meters)  
 * `expire` / `expires` Check stripe API when Donor/Supporter subscription expires  
+* `set-number` Sets the phone number to use for text message alerts for ultra rare Pokemon  
 
 **Pokemon Subscriptions**  
 * `pokeme` Subscribe to specific Pokemon notifications  
@@ -734,7 +746,7 @@ Discord Team Rocket Invasion Notifications:
 ![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
 
 ## Current Issues:  
-- Gender icon comes in as `?` so -m and -f are used for now.  
+- Pokemon subscriptions are based on Discord city roles assigned currently, soon it will be based on specified cities.  
 
 ## Credits:  
 [versx](https://github.com/versx) - Developer  

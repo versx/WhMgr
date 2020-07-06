@@ -6,6 +6,8 @@
 **disable** - Disable direct message subscription notifications.  
 **info** - List all Pokemon, Raid, Quest, Invasion, and Gym subscriptions and settings.  
 **expire** / **expires** - Check stripe API when Donor/Supporter subscription expires.  
+**set-number** - Set a phone number to receive text message alerts for ultra rare Pokemon.  
+
 **set-distance** - Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in kilometers)  
 Usage: `set-distance <kilometers> <latitude>,<longitude>`  
 
@@ -23,7 +25,7 @@ Examples:
 Usage: `pokeme <pokemon> [iv] [level] [gender]`  
 
 * `<pokemon>` - Parameter can take a list of Ids or names or the `all` keyword for everything.  
-* `<iv>` - (Optional) Minimum IV value.  
+* `<iv>` - (Optional) Minimum IV value, or individual attack, defense, and stamina values i.e. `0-14-15`  
 * `<level>` - (Optional) Minimum level value.  
 * `<gender>` - (Optional) Specific gender `m` or `f` or `*` for all.  
 
@@ -31,6 +33,7 @@ Examples:
 
 * `.pokeme tyranitar`  
 * `.pokeme pikachu 100 35 f`  
+* `.pokeme Skarmory 0-15-15 12`  
 * `.pokeme pikachu 100`  
 * `.pokeme all 100 35`  
 <br>  
@@ -135,29 +138,27 @@ Examples:
 ### Team Rocket Invasions  
 
 **invme** - Subscribe to specific Team Rocket invasion notifications.  
-Usage: `invme <grunt_type>-<gender> [city]`  
+Usage: `invme <reward_pokemon> [city]`  
 
-* `<grunt_type>` - Grunt Pokemon type i.e. `fire`, `water`  
-* `<gender>` - Grunt gender i.e. `male` | `m` | `female` | `f`  
+* `<grunt_type>` - Reward Pokemon i.e. `Dratini`, `147`  
 * `[city]` - (Optional) City name to get the notifications for or leave blank for all available cities.  
 
 Examples:  
 
-* `.invme tier2-f`  
-* `.invme ground-male city1`  
+* `.invme Beldum`  
+* `.invme beldum city1`  
 <br>  
 
 **invmenot** - Unsubscribe from specific Team Rocket invasion notifications.  
-Usage: `invmenot <grunt_type>-<gender> [city]`  
+Usage: `invmenot <reward_pokemon> [city]`  
 
-* `<grunt_type>` - Grunt Pokemon type i.e. `fire`, `water`  
-* `<gender>` - Grunt gender i.e. `male` | `m` | `female` | `f`  
+* `<reward_pokemon>` - Pokemon reward i.e. `Pikachu`, `25`  
 * `[city]` - (Optional) City name to get the notifications for or leave blank for all available cities.  
 
 Examples:  
 
-* `.invmenot tier2-f`  
-* `.invmenot ground-male city1`  
+* `.invmenot Bulbasaur`  
+* `.invmenot Dratini city1`  
 * `.invmenot all`  
 <br>  
 

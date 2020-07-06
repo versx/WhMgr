@@ -32,6 +32,7 @@
     // TODO: List all subscriptions with info command
     // TODO: Manage subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
+    // TODO: Add map url to config and DTS options
 
     public class Bot
     {
