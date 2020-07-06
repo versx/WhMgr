@@ -80,6 +80,7 @@
     "NOTIFY_SETTINGS_EMBED_DISTANCE": "Distance: **{0}**",
     "NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET": "Not Set (Any Distance)",
     "NOTIFY_SETTINGS_EMBED_DISTANCE_KM": "{0} meters",
+    "NOTIFY_SETTINGS_EMBED_PHONE_NUMBER": "Phone Number: **{0}**",
     
     "NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED": "Default: {0}% ({1} unlisted)",
     "NOTIFY_SETTINGS_EMBED_POKEMON": "Pokemon Subscriptions: ({0}/{1} used)",
