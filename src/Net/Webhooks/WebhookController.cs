@@ -31,8 +31,8 @@
         private readonly Dictionary<ulong, AlarmList> _alarms;
         private readonly IReadOnlyDictionary<ulong, DiscordServerConfig> _servers;
         private readonly WhConfig _config;
-        private readonly Dictionary<string, GymDetailsData> _gyms;
         private readonly Dictionary<long, WeatherType> _weather;
+        private Dictionary<string, GymDetailsData> _gyms;
 
         #endregion
 
@@ -46,7 +46,17 @@
         /// <summary>
         /// Gyms cache
         /// </summary>
-        public IReadOnlyDictionary<string, GymDetailsData> Gyms => _gyms;
+        public IReadOnlyDictionary<string, GymDetailsData> Gyms
+        {
+            get
+            {
+                if (_gyms == null)
+                {
+                    _gyms = GymDetailsData.GetGyms(Data.DataAccessLayer.ScannerConnectionString);
+                }
+                return _gyms;
+            }
+        }
 
         /// <summary>
         /// Weather cells cache
@@ -800,16 +810,6 @@
                         continue;
                     }
 
-                    if (!_gyms.ContainsKey(gymDetails.GymId))
-                    {
-                        _gyms.Add(gymDetails.GymId, gymDetails);
-                    }
-
-                    var oldGym = _gyms[gymDetails.GymId];
-                    var changed = oldGym.Team != gymDetails.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
-                    if (!changed)
-                        return;
-
                     if ((alarm.Filters?.Gyms?.UnderAttack ?? false) && !gymDetails.InBattle)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName{gymDetails.GymName}, not under attack.");
@@ -821,6 +821,20 @@
                         //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName{gymDetails.GymName}, not specified team {alarm.Filters.Gyms.Team}.");
                         continue;
                     }
+
+                    if (!_gyms.ContainsKey(gymDetails.GymId))
+                    {
+                        _gyms.Add(gymDetails.GymId, gymDetails);
+                        //OnGymDetailsAlarmTriggered(gymDetails, alarm, guildId);
+                        //continue;
+                    }
+
+                    /*
+                    var oldGym = _gyms[gymDetails.GymId];
+                    var changed = oldGym.Team != gymDetails.Team || gymDetails.InBattle;
+                    if (!changed)
+                        return;
+                    */
 
                     OnGymDetailsAlarmTriggered(gymDetails, alarm, guildId);
                 }
@@ -890,6 +904,16 @@
         }
 
         #endregion
+
+        public void SetGym(string id, GymDetailsData gymDetails)
+        {
+            _gyms[id] = gymDetails;
+        }
+
+        public void SetWeather(long id, WeatherType type)
+        {
+            _weather[id] = type;
+        }
 
         #region Geofence Utilities
 

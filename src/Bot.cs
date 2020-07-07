@@ -33,6 +33,11 @@
     // TODO: Manage subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
     // TODO: Add map url to config and DTS options
+    // TODO: Add scanmap_url to DTS
+    // TODO: Move mentions string from alarms.json to alerts.json for alarm type as 'Description' property
+    // TODO: Google address option
+    // TODO: Cache gyms upon startup
+    // TODO: Only start database migrator if subscriptions are enabled
 
     public class Bot
     {
@@ -42,7 +47,6 @@
         private readonly WebhookController _whm;
         private WhConfig _whConfig;
         private readonly SubscriptionProcessor _subProcessor;
-        private readonly Dictionary<string, GymDetailsData> _gyms;
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("BOT");
 
@@ -59,7 +63,6 @@
             _logger.Trace($"WhConfig [Servers={whConfig.Servers.Count}, Port={whConfig.WebhookPort}]");
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;
-            _gyms = new Dictionary<string, GymDetailsData>();
             _whm = new WebhookController(_whConfig);
 
             // Set translation language
@@ -672,18 +675,13 @@
 
             try
             {
-                if (!_gyms.ContainsKey(gymDetails.GymId))
-                {
-                    _gyms.Add(gymDetails.GymId, gymDetails);
-                }
-
-                var oldGym = _gyms[gymDetails.GymId];
-                var changed = oldGym.Team != gymDetails.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
+                var oldGym = _whm.Gyms[gymDetails.GymId];
+                var changed = oldGym.Team != gymDetails.Team || gymDetails.InBattle || oldGym.SlotsAvailable != gymDetails.SlotsAvailable;
                 if (!changed)
                     return;
 
                 var client = _servers[e.GuildId];
-                var eb = gymDetails.GenerateGymMessage(e.GuildId, client, _whConfig, e.Alarm, oldGym, loc?.Name ?? e.Alarm.Name);
+                var eb = gymDetails.GenerateGymMessage(e.GuildId, client, _whConfig, e.Alarm, _whm.Gyms[gymDetails.GymId], loc?.Name ?? e.Alarm.Name);
                 var name = gymDetails.GymName;
                 var jsonEmbed = new DiscordWebhookMessage
                 {
@@ -693,7 +691,9 @@
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 Statistics.Instance.GymAlarmsSent++;
-                _gyms[gymDetails.GymId] = gymDetails;
+
+                // Gym team changed, set gym in gym cache
+                _whm.SetGym(gymDetails.GymId, gymDetails);
 
                 Statistics.Instance.GymAlarmsSent++;
             }
@@ -735,6 +735,9 @@
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
+
+                // Weather changed, set weather in weather cache
+                _whm.SetWeather(weather.Id, weather.GameplayCondition);
 
                 Statistics.Instance.WeatherAlarmsSent++;
             }

@@ -3,52 +3,85 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-
+    using System.Linq;
     using DSharpPlus;
     using DSharpPlus.Entities;
 
     using Newtonsoft.Json;
+    using ServiceStack.DataAnnotations;
+    using ServiceStack.OrmLite;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Diagnostics;
     using WhMgr.Utilities;
 
     /// <summary>
     /// RealDeviceMap Gym Details webhook model class.
     /// </summary>
+    [Alias("gym")]
     public sealed class GymDetailsData
     {
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMDETAILSDATA");
+
         public const string WebhookHeader = "gym_details";
 
         #region Properties
 
-        [JsonProperty("id")]
+        [
+            JsonProperty("id"),
+            Alias("id")
+        ]
         public string GymId { get; set; }
 
-        [JsonProperty("name")]
+        [
+            JsonProperty("name"),
+            Alias("name")
+        ]
         public string GymName { get; set; } = "Unknown";
 
-        [JsonProperty("url")]
+        [
+            JsonProperty("url"),
+            Alias("name")
+        ]
         public string Url { get; set; }
 
-        [JsonProperty("latitude")]
+        [
+            JsonProperty("latitude"),
+            Alias("lat")
+        ]
         public double Latitude { get; set; }
 
-        [JsonProperty("longitude")]
+        [
+            JsonProperty("longitude"),
+            Alias("lon")
+        ]
         public double Longitude { get; set; }
 
-        [JsonProperty("team")]
+        [
+            JsonProperty("team"),
+            Alias("team_id")
+        ]
         public PokemonTeam Team { get; set; } = PokemonTeam.Neutral;
 
-        [JsonProperty("slots_available")]
+        [
+            JsonProperty("slots_available"),
+            Alias("availble_slots") // TODO: Typflo
+        ]
         public ushort SlotsAvailable { get; set; }
 
-        [JsonProperty("sponsor_id")]
+        [
+            JsonProperty("sponsor_id"),
+            Alias("sponsor_id")
+        ]
         public bool SponsorId { get; set; }
 
-        [JsonProperty("in_battle")]
+        [
+            JsonProperty("in_battle"),
+            Alias("in_battle")
+        ]
         public bool InBattle { get; set; }
 
         #endregion
@@ -90,8 +123,8 @@
             var exEmoji = exEmojiId > 0 ? string.Format(Strings.EmojiSchema, "ex", exEmojiId): "EX";
             var teamEmojiId = MasterFile.Instance.Emojis[Team.ToString().ToLower()];
             var teamEmoji = teamEmojiId > 0 ? string.Format(Strings.EmojiSchema, Team.ToString().ToLower(), teamEmojiId) : Team.ToString();
-            var oldTeamEmojiId = MasterFile.Instance.Emojis[oldGym.Team.ToString().ToLower()];
-            var oldTeamEmoji = oldTeamEmojiId > 0 ? string.Format(Strings.EmojiSchema, oldGym.Team.ToString().ToLower(), oldTeamEmojiId) : oldGym.Team.ToString();
+            var oldTeamEmojiId = MasterFile.Instance.Emojis[oldGym?.Team.ToString().ToLower()];
+            var oldTeamEmoji = oldTeamEmojiId > 0 ? string.Format(Strings.EmojiSchema, oldGym?.Team.ToString().ToLower(), oldTeamEmojiId) : oldGym?.Team.ToString();
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
@@ -122,7 +155,11 @@
                 { "under_attack", Convert.ToString(InBattle) },
                 { "is_ex", Convert.ToString(SponsorId) },
                 { "ex_emoji", exEmoji },
-                { "slots_available", SlotsAvailable.ToString("N0") },
+                { "slots_available", SlotsAvailable == 0
+                                        ? "Full"
+                                        : SlotsAvailable == 6
+                                            ? "Empty"
+                                            : SlotsAvailable.ToString("N0") },
 
                 //Location properties
                 { "geofence", city ?? defaultMissingValue },
@@ -147,6 +184,28 @@
                 { "br", "\r\n" }
             };
             return dict;
+        }
+
+        internal static Dictionary<string, GymDetailsData> GetGyms(string connectionString = "")
+        {
+            if (string.IsNullOrEmpty(connectionString))
+                return null;
+
+            try
+            {
+                using (var db = DataAccessLayer.CreateFactory(connectionString).Open())
+                {
+                    var gyms = db.LoadSelect<GymDetailsData>();
+                    var dict = gyms?.ToDictionary(x => x.GymId, x => x);
+                    return dict;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return null;
         }
     }
 }
