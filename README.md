@@ -39,10 +39,10 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 1.) Run the following to install .NET Core runtime, clone respository, and copy example Alerts, Filters, Geofences, config and alarm files.  
 ```
 Linux/macOS:  
-wget https://raw.githubusercontent.com/versx/WhMgr/netcore/install.sh && chmod +x install.sh && ./install.sh && rm install.sh  
+wget https://raw.githubusercontent.com/versx/WhMgr/master/install.sh && chmod +x install.sh && ./install.sh && rm install.sh  
 
 Windows:  
-bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/netcore/install.bat install.bat | start install.bat  
+bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/master/install.bat install.bat | start install.bat  
 ```
 2.) Edit `config.json` either open in Notepad/++ or `vi config.json`.  
   a.) [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
