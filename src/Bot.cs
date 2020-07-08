@@ -33,7 +33,6 @@
     // TODO: Manage subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
     // TODO: Only start database migrator if subscriptions are enabled
-    // TODO: Shiny stats crash/fail first time
 
     public class Bot
     {
@@ -951,8 +950,15 @@
                 _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
                 // Subtract an hour to make sure it shows yesterday's date.
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
+                Thread.Sleep(500);
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
                 var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
+                if (stats == null)
+                {
+                    _logger.Error($"Failed to get list of shiny stats for guild {guildId}, skipping...");
+                    return;
+                }
+
                 var sorted = stats.Keys.ToList();
                 sorted.Sort();
 
@@ -975,6 +981,7 @@
                     {
                         await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
                     }
+                    Thread.Sleep(500);
                 }
 
                 var total = stats[0];
