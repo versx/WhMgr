@@ -79,30 +79,29 @@
             Conditions = new List<QuestConditionMessage>();
         }
 
-        public DiscordEmbed GenerateQuestMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbedNotification GenerateQuestMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var alertType = AlertMessageType.Quests;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = GetProperties(client.Guilds[guildId], whConfig, city, this.GetQuestIcon(whConfig, whConfig.Servers[guildId].IconStyle));
-            var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
-            var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
-            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
-            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
-                Description = mention + description,
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = DiscordColor.Orange,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = footerText,
-                    IconUrl = footerIconUrl
+                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
+                    IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties)
                 }
             };
-            return eb.Build();
+            var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
+            var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
+            var description = DynamicReplacementEngine.ReplaceText(alert.Description ?? string.Empty, properties);
+            return new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() });
         }
 
         private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string questRewardImageUrl)

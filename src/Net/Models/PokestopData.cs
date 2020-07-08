@@ -107,17 +107,13 @@
             var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = GetProperties(client.Guilds[guildId], whConfig, city);
-            var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
-            var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
-            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
-            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
-                Description = mention + description,
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = HasInvasion ? DiscordColor.Red : HasLure ?
                     (LureType == PokestopLureType.Normal ? DiscordColor.HotPink
                     : LureType == PokestopLureType.Glacial ? DiscordColor.CornflowerBlue
@@ -126,13 +122,14 @@
                     : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = footerText,
-                    IconUrl = footerIconUrl
+                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
+                    IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties)
                 }
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
             var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
-            return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
+            var description = DynamicReplacementEngine.ReplaceText(alert.Description ?? string.Empty, properties);
+            return new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() });
         }
 
         #endregion

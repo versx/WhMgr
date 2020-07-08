@@ -397,27 +397,24 @@
             var server = whConfig.Servers[guildId];
             var pokemonImageUrl = Id.GetPokemonIcon(FormId, Costume, whConfig, server.IconStyle);
             var properties = await GetProperties(client.Guilds[guildId], whConfig, city, pokemonImageUrl);
-            var mention = DynamicReplacementEngine.ReplaceText(alarm?.Mentions ?? string.Empty, properties);
-            var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
-            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
-            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
-                Description = mention + description,
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = IV.BuildColor(),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = footerText,
-                    IconUrl = footerIconUrl
+                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
+                    IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties)
                 }
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
             var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
-            return await Task.FromResult(new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() }));
+            var description = alert.Description?.Length > 0 ? DynamicReplacementEngine.ReplaceText(alert.Description, properties) : string.Empty;
+            return await Task.FromResult(new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() }));
         }
 
         #endregion
@@ -697,12 +694,15 @@
 
         public string IconUrl { get; set; }
 
+        public string Description { get; set; }
+
         public List<DiscordEmbed> Embeds { get; set; }
 
-        public DiscordEmbedNotification(string username, string iconUrl, List<DiscordEmbed> embeds)
+        public DiscordEmbedNotification(string username, string iconUrl, string description, List<DiscordEmbed> embeds)
         {
             Username = username;
             IconUrl = iconUrl;
+            Description = description;
             Embeds = embeds;
         }
     }

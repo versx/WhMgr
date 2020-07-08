@@ -67,8 +67,8 @@
         /// <summary>
         /// Gets or sets the Discord mentions string to use in the Discord message description
         /// </summary>
-        [JsonProperty("mentions")]
-        public string Mentions { get; set; }
+        //[JsonProperty("mentions")]
+        //public string Mentions { get; set; }
 
         /// <summary>
         /// Instantiate a new <see cref="AlarmObject"/> class

@@ -293,9 +293,6 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         //Path to geofence file.
         "geofence":"geofence1.txt",
     
-        //DTS compatible mention description.  
-        "mentions":"<!@324234324> <iv> L<lvl> <geofence>",  
-      
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
     },{
@@ -310,9 +307,6 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
       
         //Path to geofence file.
         "geofence":"geofence1.txt",
-    
-        //DTS compatible mention description.  
-        "mentions":""  
       
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"

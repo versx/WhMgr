@@ -32,8 +32,6 @@
     // TODO: List all subscriptions with info command
     // TODO: Manage subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
-    // TODO: Add map url to config and DTS options
-    // TODO: Add scanmap_url to DTS
     // TODO: Move mentions string from alarms.json to alerts.json for alarm type as 'Description' property
     // TODO: Google address option
     // TODO: Cache gyms upon startup
@@ -499,6 +497,7 @@
                 {
                     Username = eb.Username,
                     AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
@@ -545,6 +544,7 @@
                 {
                     Username = eb.Username,
                     AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
@@ -586,9 +586,10 @@
                 var eb = quest.GenerateQuestMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = quest.GetQuestMessage(),
-                    AvatarUrl = quest.GetQuestIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle),
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username,
+                    AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 Statistics.Instance.QuestAlarmsSent++;
@@ -628,6 +629,7 @@
                 {
                     Username = eb.Username ?? Translator.Instance.Translate("UNKNOWN_POKESTOP"),
                     AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
@@ -687,6 +689,7 @@
                 {
                     Username = eb.Username,
                     AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
@@ -732,6 +735,7 @@
                 {
                     Username = eb.Username,
                     AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
