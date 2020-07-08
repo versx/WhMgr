@@ -12,5 +12,11 @@
         /// </summary>
         [JsonProperty("staticMap")]
         public string StaticMap { get; set; }
+
+        /// <summary>
+        /// Gets or sets the scanner map url
+        /// </summary>
+        [JsonProperty("scannerMap")]
+        public string ScannerMap { get; set; }
     }
 }
