@@ -87,6 +87,12 @@
         public TwilioConfig Twilio { get; set; }
 
         /// <summary>
+        /// Gets or sets the Google maps key for location lookup
+        /// </summary>
+        [JsonProperty("gmapsKey")]
+        public string GoogleMapsKey { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to log incoming webhook data to a file
         /// </summary>
         [JsonProperty("debug")]

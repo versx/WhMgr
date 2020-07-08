@@ -32,10 +32,8 @@
     // TODO: List all subscriptions with info command
     // TODO: Manage subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
-    // TODO: Move mentions string from alarms.json to alerts.json for alarm type as 'Description' property
-    // TODO: Google address option
-    // TODO: Cache gyms upon startup
     // TODO: Only start database migrator if subscriptions are enabled
+    // TODO: Shiny stats crash/fail first time
 
     public class Bot
     {

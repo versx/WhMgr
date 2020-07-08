@@ -547,7 +547,10 @@
                     }
 
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
-                    _queue.Enqueue(new NotificationItem(user, member, embed, questName, loc.Name));
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, questName, loc.Name));
+                    }
 
                     Statistics.Instance.SubscriptionQuestsSent++;
                     Thread.Sleep(5);
