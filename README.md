@@ -236,7 +236,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     },
     // Get text message alerts with Twilio.com
     "twilio": {
-        // Determines if text message alerts are be enabled
+        // Determines if text message alerts are enabled
         "enabled": false,
         // Twilio account SID (Get via Twilio dashboard)
         "accountSid": "",
@@ -246,14 +246,14 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         "from": "",
         // List of Discord user ids that can receive text message alerts
         "userIds": "",
-        // List of acceptable Pokemon to receive text message alerts from
+        // List of acceptable Pokemon to receive text message alerts for
         "pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
-        // Minimum acceptable IV value for Pokemon to be if not ultra rare (Unown, Lake Trio)
+        // Minimum acceptable IV value for Pokemon if not ultra rare (Unown, Lake Trio)
         "minIV": 100
     },
     // Log webhook payloads to a file for debugging
     "debug": false,
-    // Only show logs with higher or equal priority levels
+    // Only show logs with higher or equal priority levels (Trace, Debug, Info, Warning, Error, Fatal, None)
     "logLevel": "Trace"
 }
 ```
