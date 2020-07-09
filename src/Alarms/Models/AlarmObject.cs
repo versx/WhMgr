@@ -41,6 +41,12 @@
         public string Name { get; set; }
 
         /// <summary>
+        /// Gets or sets the Discord message content outside of the embed message. (above it, can contain role/user mentions, DTS, etc)
+        /// </summary>
+        [JsonProperty("description")]
+        public string Description { get; set; }
+
+        /// <summary>
         /// Gets or sets the filters file to load
         /// </summary>
         [JsonProperty("filters")]
@@ -63,12 +69,6 @@
         /// </summary>
         [JsonProperty("webhook")]
         public string Webhook { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Discord mentions string to use in the Discord message description
-        /// </summary>
-        //[JsonProperty("mentions")]
-        //public string Mentions { get; set; }
 
         /// <summary>
         /// Instantiate a new <see cref="AlarmObject"/> class

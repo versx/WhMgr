@@ -413,7 +413,7 @@
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
             var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
-            var description = alert.Description?.Length > 0 ? DynamicReplacementEngine.ReplaceText(alert.Description, properties) : string.Empty;
+            var description = DynamicReplacementEngine.ReplaceText(alarm.Description, properties);
             return await Task.FromResult(new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() }));
         }
 

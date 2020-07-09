@@ -110,7 +110,7 @@
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
             var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
-            var description = DynamicReplacementEngine.ReplaceText(alert.Description, properties);
+            var description = DynamicReplacementEngine.ReplaceText(alarm.Description, properties);
             return new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() });
         }
 

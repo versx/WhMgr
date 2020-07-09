@@ -8,12 +8,6 @@
     public class AlertMessageSettings
     {
         /// <summary>
-        /// Gets or sets the Discord message content outside of the embed message. (above it)
-        /// </summary>
-        [JsonProperty("description")]
-        public string Description { get; set; }
-
-        /// <summary>
         /// Gets or sets the Discord message content within the embed message.
         /// </summary>
         [JsonProperty("content")]
