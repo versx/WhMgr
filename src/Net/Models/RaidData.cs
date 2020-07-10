@@ -170,11 +170,12 @@
         private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string raidImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
-            var form = Form.GetPokemonForm();
+            var name = IsEgg ? "Egg" /*TODO: Localize*/ : Translator.Instance.GetPokemonName(PokemonId);
+            var form = Translator.Instance.GetFormName(Form);
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
-            var move1 = Translator.Instance.Translate("move_" + FastMove);
-            var move2 = Translator.Instance.Translate("move_" + ChargeMove);
+            var move1 = Translator.Instance.GetMoveName(FastMove);
+            var move2 = Translator.Instance.GetMoveName(ChargeMove);
             var types = pkmnInfo?.Types;
             var type1 = types?[0];
             var type2 = types?.Count > 1 ? types?[1] : PokemonType.None;
@@ -210,7 +211,8 @@
             {
                 //Raid boss properties
                 { "pkmn_id", PokemonId.ToString() },
-                { "pkmn_name", pkmnInfo.Name },
+                { "pkmn_id_3", PokemonId.ToString("D3") },
+                { "pkmn_name", name },
                 { "pkmn_img_url", raidImageUrl },
                 { "form", form },
                 { "form_id", Form.ToString() },

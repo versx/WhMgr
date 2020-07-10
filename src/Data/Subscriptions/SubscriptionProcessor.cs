@@ -15,6 +15,7 @@
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Localization;
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
     using Utils = WhMgr.Utilities.Utils;
@@ -166,7 +167,7 @@
                         }
                     }
 
-                    var form = pkmn.FormId.GetPokemonForm();
+                    var form = Translator.Instance.GetFormName(pkmn.FormId);
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
                         (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
@@ -301,7 +302,7 @@
                         }
                     }
 
-                    var form = pkmn.FormId.GetPokemonForm();
+                    var form = Translator.Instance.GetFormName(pkmn.FormId);
                     subscribedPokemon = user.PvP.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
                         (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
@@ -431,7 +432,7 @@
                         continue;
                     }
 
-                    var form = raid.Form.GetPokemonForm();
+                    var form = Translator.Instance.GetFormName(raid.Form);
                     var exists = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
                         (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&

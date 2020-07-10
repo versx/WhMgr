@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using WhMgr.Data;
     using WhMgr.Data.Models;
     using WhMgr.Localization;
     using WhMgr.Net.Models;
@@ -57,7 +56,7 @@
             switch (condition.Type)
             {
                 case QuestConditionType.PokemonCategory:
-                    return string.Join(", ", condition.Info.PokemonIds?.Select(x => MasterFile.GetPokemon(x, 0)?.Name).ToList());
+                    return string.Join(", ", condition.Info.PokemonIds?.Select(x => Translator.Instance.GetPokemonName(x)).ToList());
                 case QuestConditionType.PokemonType:
                     return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((PokemonType)x))) + "-type";
                 case QuestConditionType.QuestContext:
@@ -66,9 +65,9 @@
                     return Translator.Instance.Translate(conditionKey, string.Join(", ", condition.Info.RaidLevels));
                 case QuestConditionType.SuperEffectiveCharge:
                 case QuestConditionType.ThrowType:
-                    return GetThrowName(condition.Info.ThrowTypeId);
+                    return Translator.Instance.GetThrowName(condition.Info.ThrowTypeId);
                 case QuestConditionType.ThrowTypeInARow:
-                    return Translator.Instance.Translate(conditionKey, GetThrowName(condition.Info.ThrowTypeId));
+                    return Translator.Instance.Translate(conditionKey, Translator.Instance.GetThrowName(condition.Info.ThrowTypeId));
                 case QuestConditionType.BadgeType:
                 case QuestConditionType.CurveBall:
                 case QuestConditionType.DailyCaptureBonus:
@@ -100,7 +99,7 @@
 
         public static string GetReward(this QuestData quest)
         {
-            return GetReward(quest.Rewards?[0]);
+            return GetReward(quest.Rewards?.FirstOrDefault());
         }
 
         public static string GetReward(this QuestRewardMessage reward)
@@ -110,7 +109,7 @@
 
         public static string GetReward(this Pokestop pokestop)
         {
-            return pokestop.QuestRewards[0].GetReward();
+            return pokestop.QuestRewards?.FirstOrDefault()?.GetReward();
         }
 
         public static string GetReward(this QuestRewardType type, int pokemonId, int amount, ItemId item, bool isDitto = false, bool isShiny = false)
@@ -126,25 +125,15 @@
                 case QuestRewardType.Experience:
                     return Translator.Instance.Translate(rewardKey, amount);
                 case QuestRewardType.Item:
-                    var itemName = GetItem(item);
+                    var itemName = Translator.Instance.GetItem(item);
                     return Translator.Instance.Translate(rewardKey, amount, itemName);
                 case QuestRewardType.PokemonEncounter:
-                    return (isShiny ? $"**SHINY** " : "") + MasterFile.GetPokemon(isDitto ? 132 : pokemonId, 0)?.Name;
+                    return (isShiny ? $"**SHINY** " : "") + Translator.Instance.GetPokemonName(isDitto ? 132 : pokemonId);
                 case QuestRewardType.Stardust:
                     return Translator.Instance.Translate(rewardKey, amount);
             }
 
             return "Unknown";
-        }
-
-        public static string GetItem(ItemId item)
-        {
-            return Translator.Instance.Translate("item_" + Convert.ToInt32(item));
-        }
-
-        public static string GetThrowName(this ActivityType throwTypeId)
-        {
-            return Translator.Instance.Translate("throw_type_" + Convert.ToInt32(throwTypeId));
         }
     }
 }

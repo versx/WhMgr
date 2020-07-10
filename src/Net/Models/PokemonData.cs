@@ -422,7 +422,8 @@
         private async Task<IReadOnlyDictionary<string, string>> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
-            var form = FormId.GetPokemonForm();
+            var pkmnName = Translator.Instance.GetPokemonName(Id);
+            var form = Translator.Instance.GetFormName(FormId);
             var costume = Id.GetCostume(Costume.ToString());
             var gender = Gender.GetPokemonGenderIcon();
             var genderEmoji = Gender.GetGenderEmojiIcon();
@@ -437,18 +438,18 @@
             var move2 = "Unknown";
             if (int.TryParse(FastMove, out var fastMoveId))
             {
-                move1 = Translator.Instance.Translate("move_" + fastMoveId);
+                move1 = Translator.Instance.GetMoveName(fastMoveId);
             }
             if (int.TryParse(ChargeMove, out var chargeMoveId))
             {
-                move2 = Translator.Instance.Translate("move_" + chargeMoveId);
+                move2 = Translator.Instance.GetMoveName(chargeMoveId);
             }
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
             var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
             var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
-            var catchPokemon = IsDitto ? MasterFile.Instance.Pokedex[DisplayPokemonId ?? Id] : pkmnInfo;
+            var catchPokemon = IsDitto ? Translator.Instance.GetPokemonName(DisplayPokemonId ?? Id) : pkmnName;
             var isShiny = Shiny ?? false;
             var height = double.TryParse(Height, out var realHeight) ? Math.Round(realHeight).ToString() : "";
             var weight = double.TryParse(Weight, out var realWeight) ? Math.Round(realWeight).ToString() : "";
@@ -479,7 +480,8 @@
             {
                 // Main properties
                 { "pkmn_id", Convert.ToString(Id) },
-                { "pkmn_name", pkmnInfo.Name },
+                { "pkmn_id_3", Id.ToString("D3") },
+                { "pkmn_name", pkmnName },
                 { "pkmn_img_url", pokemonImageUrl },
                 { "form", form },
                 { "form_id", Convert.ToString(FormId) },
@@ -533,7 +535,7 @@
                 { "is_ditto", Convert.ToString(IsDitto) },
                 { "original_pkmn_id", Convert.ToString(DisplayPokemonId) },
                 { "original_pkmn_id_3", (DisplayPokemonId ?? 0).ToString("D3") },
-                { "original_pkmn_name", catchPokemon?.Name },
+                { "original_pkmn_name", catchPokemon },
                 { "is_weather_boosted", Convert.ToString(isWeatherBoosted) },
                 { "has_weather", Convert.ToString(hasWeather) },
                 { "weather", weather ?? defaultMissingValue },

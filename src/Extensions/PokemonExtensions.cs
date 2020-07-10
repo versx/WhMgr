@@ -101,18 +101,6 @@
             return PokemonSize.Big;
         }
 
-        public static string GetPokemonForm(this int formId)
-        {
-            if (formId == 0)
-                return null;
-
-            var form = Translator.Instance.Translate("form_" + formId);
-            // TODO: Localize
-            if (string.Compare(form, "Normal", true) == 0)
-                return string.Empty;
-            return form;
-        }
-
         public static string GetCostume(this int pokeId, string costumeId)
         {
             if (!int.TryParse(costumeId, out int costume))
