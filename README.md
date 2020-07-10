@@ -207,8 +207,10 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     ],
     // Image URL config
     "urls": {
-        //Static tile map images template.
-        "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png"
+        // Static tile map images template.
+        "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png",
+        // Scanner map DTS option for embeds as `scanmaps_url`  
+        "scannerMap": "http://map.example.com/@/{0}/{1}/15"
     },
     // Available icon styles
     "iconStyles": {
@@ -286,7 +288,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         //Alarm name.
         "name":"Alarm1",
         
-          //DTS compatible mention description.      
+        //DTS compatible mention description.      
         "description":"<!@324234324> <iv> L<lvl> <geofence>",
       
         //Alerts file.
@@ -304,7 +306,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         //Alarm name.
         "name":"Alarm2",
         
-          //DTS compatible mention description.      
+        //DTS compatible mention description.      
         "description":"",
       
         //Alerts file.
