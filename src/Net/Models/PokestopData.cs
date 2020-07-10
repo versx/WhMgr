@@ -85,7 +85,7 @@
         /// </summary>
         public PokestopData()
         {
-            SetTimes();
+            //SetTimes();
         }
 
         #endregion
@@ -95,11 +95,11 @@
         /// <summary>
         /// Set expire times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
         /// </summary>
-        public void SetTimes()
+        public void SetTimes(string timeZone)
         {
-            LureExpireTime = LureExpire.FromUnix();
+            LureExpireTime = LureExpire.FromUnix(timeZone);
 
-            InvasionExpireTime = IncidentExpire.FromUnix();
+            InvasionExpireTime = IncidentExpire.FromUnix(timeZone);
         }
 
         public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)

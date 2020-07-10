@@ -92,16 +92,16 @@
         /// </summary>
         public WeatherData()
         {
-            SetTimes();
+            //SetTimes();
         }
 
         #endregion
 
         #region Public Methods
 
-        public void SetTimes()
+        public void SetTimes(string timeZone)
         {
-            UpdatedTime = Updated.FromUnix();
+            UpdatedTime = Updated.FromUnix(timeZone);
             //if (TimeZoneInfo.Local.IsDaylightSavingTime(Updated))
             //{
             //    UpdatedTime = UpdatedTime.AddHours(1);

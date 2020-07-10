@@ -369,15 +369,15 @@
         /// <summary>
         /// Set despawn times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
         /// </summary>
-        public void SetDespawnTime()
+        public void SetDespawnTime(string timeZone)
         {
-            DespawnTime = DisappearTime.FromUnix();
+            DespawnTime = DisappearTime.FromUnix(timeZone);
 
-            SecondsLeft = DespawnTime.Subtract(DateTime.Now);
+            SecondsLeft = DespawnTime.Subtract(DateTime.Now);// TODO: .ToTimeZone(timeZone));
 
-            FirstSeenTime = FirstSeen.FromUnix();
+            FirstSeenTime = FirstSeen.FromUnix(timeZone);
 
-            LastModifiedTime = LastModified.FromUnix();
+            LastModifiedTime = LastModified.FromUnix(timeZone);
         }
 
         /// <summary>

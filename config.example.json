@@ -39,7 +39,8 @@
       "botChannelIds": [
         000000000000000000
       ],
-      "status": null
+      "status": null,
+      "timeZone": "America/New_York"
     },
     "000000000000000002": {
       "commandPrefix": ".",
@@ -75,7 +76,8 @@
       "botChannelIds": [
         000000000000000000
       ],
-      "status": "Test #2"
+      "status": "Test #2",
+      "timeZone": "America/Denver"
     }
   },
   "database": {
@@ -129,9 +131,9 @@
     "accountSid": "",
     "authToken": "",
     "from": "",
-	"userIds": "",
-	"pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
-	"minIV": 100
+    "userIds": "",
+    "pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
+    "minIV": 100
   },
   "debug": false,
   "logLevel": "Trace"

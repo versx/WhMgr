@@ -116,17 +116,17 @@
         /// </summary>
         public RaidData()
         {
-            SetTimes();
+            //SetTimes();
         }
 
         /// <summary>
         /// Set expire times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
         /// </summary>
-        public void SetTimes()
+        public void SetTimes(string timeZone)
         {
-            StartTime = Start.FromUnix();
+            StartTime = Start.FromUnix(timeZone);
 
-            EndTime = End.FromUnix();
+            EndTime = End.FromUnix(timeZone);
         }
 
         /// <summary>

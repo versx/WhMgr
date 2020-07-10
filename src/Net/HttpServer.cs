@@ -304,7 +304,7 @@
                     return;
                 }
 
-                pokemon.SetDespawnTime();
+                // TODO: pokemon.SetDespawnTime();
                 /*
                 if (_processedPokemon.ContainsKey(pokemon.EncounterId))
                 {
@@ -339,7 +339,7 @@
                     return;
                 }
 
-                raid.SetTimes();
+                // TODO: raid.SetTimes();
 
                 if (_processedRaids.ContainsKey(raid.GymId))
                 {
@@ -416,7 +416,7 @@
                     return;
                 }
 
-                pokestop.SetTimes();
+                // TODO: pokestop.SetTimes();
 
                 if (_processedPokestops.ContainsKey(pokestop.PokestopId))
                 {

@@ -126,6 +126,12 @@
         public string Status { get; set; }
 
         /// <summary>
+        /// Gets or sets the time zone to use for the Discord server
+        /// </summary>
+        [JsonProperty("timeZone")]
+        public string TimeZone { get; set; }
+
+        /// <summary>
         /// Instantiate a new <see cref="DiscordServerConfig"/> class
         /// </summary>
         public DiscordServerConfig()
@@ -136,6 +142,7 @@
             IconStyle = "Default";
             QuestChannelIds = new List<ulong>();
             ShinyStats = new ShinyStatsConfig();
+            TimeZone = "America/New_York";
         }
     }
 }

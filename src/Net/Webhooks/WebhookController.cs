@@ -225,11 +225,13 @@
         private void Http_PokemonReceived(object sender, DataReceivedEventArgs<PokemonData> e)
         {
             var pkmn = e.Data;
+            /*
             if (DateTime.Now > pkmn.DespawnTime)
             {
                 _logger.Debug($"Pokemon {pkmn.Id} already despawned at {pkmn.DespawnTime}");
                 return;
             }
+            */
 
             // Check if Pokemon is in event Pokemon list
             if (_config.EventPokemonIds.Contains(pkmn.Id) && _config.EventPokemonIds.Count > 0)
@@ -251,11 +253,13 @@
         private void Http_RaidReceived(object sender, DataReceivedEventArgs<RaidData> e)
         {
             var raid = e.Data;
+            /*
             if (DateTime.Now > raid.EndTime)
             {
                 _logger.Debug($"Raid boss {raid.PokemonId} already despawned at {raid.EndTime}");
                 return;
             }
+            */
 
             ProcessRaid(raid);
             OnRaidSubscriptionTriggered(raid);
@@ -406,6 +410,8 @@
                         continue;
                     }
 
+                    pkmn.SetDespawnTime(_config.Servers[guildId].TimeZone);
+
                     var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(pkmn.Latitude, pkmn.Longitude));
                     if (geofence == null)
                     {
@@ -507,6 +513,9 @@
                 for (var j = 0; j < raidAlarms.Count; j++)
                 {
                     var alarm = raidAlarms[j];
+                    raid.SetTimes(_config.Servers[guildId].TimeZone);
+                    // TODO: Check if already expired
+
                     var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
                     if (geofence == null)
                     {
@@ -872,6 +881,8 @@
                         //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
                         continue;
                     }
+
+                    weather.SetTimes(_config.Servers[guildId].TimeZone);
 
                     var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
                     if (geofence == null)

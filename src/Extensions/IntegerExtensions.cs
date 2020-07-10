@@ -2,6 +2,8 @@
 {
     using System;
 
+    using TimeZoneConverter;
+
     public static class IntegerExtensions
     {
         /*
@@ -11,12 +13,19 @@
         }
         */
 
-        public static DateTime FromUnix(this long unixSeconds)
+        public static DateTime FromUnix(this long unixSeconds, string timeZone)
         {
             var epochTime = new DateTime(1970,1,1,0,0,0,0,DateTimeKind.Utc);
-            var localDateTime = epochTime.AddSeconds(unixSeconds).ToLocalTime();
+            var unixDateTime = epochTime.AddSeconds(unixSeconds);
+            var convertedDateTime = unixDateTime.ToTimeZone(timeZone);
+            return convertedDateTime;
+        }
 
-            return localDateTime;
+        public static DateTime ToTimeZone(this DateTime dateTime, string timeZone)
+        {
+            var tzi = TZConvert.GetTimeZoneInfo(timeZone);
+            var date = TimeZoneInfo.ConvertTimeFromUtc(dateTime, tzi);
+            return date;
         }
     }
 }
