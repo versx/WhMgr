@@ -128,7 +128,7 @@
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
             var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
-            var description = DynamicReplacementEngine.ReplaceText(alarm.Description ?? string.Empty, properties);
+            var description = DynamicReplacementEngine.ReplaceText(alarm?.Description, properties);
             return new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() });
         }
 
@@ -151,7 +151,7 @@
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? scannerMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            var googleAddress = Utils.GetGoogleAddress(Latitude, Longitude, whConfig.GoogleMapsKey);
+            var googleAddress = Utils.GetGoogleAddress(city, Latitude, Longitude, whConfig.GoogleMapsKey);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));

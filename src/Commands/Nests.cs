@@ -140,10 +140,10 @@
             var scannerMapsLink = string.Format(_dep.WhConfig.Urls.ScannerMap, nest.Latitude, nest.Longitude);
             var templatePath = Path.Combine(_dep.WhConfig.StaticMaps.TemplatesFolder, _dep.WhConfig.StaticMaps.NestsTemplateFile);
             var staticMapLink = Utils.GetStaticMapsUrl(templatePath, _dep.WhConfig.Urls.StaticMap, nest.Latitude, nest.Longitude, pkmnImage, null, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
-            var googleAddress = Utils.GetGoogleAddress(nest.Latitude, nest.Longitude, _dep.WhConfig.GoogleMapsKey);
             var geofences = _dep.Whm.Geofences.Values.ToList();
             var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
             var city = geofence?.Name ?? "Unknown";
+            var googleAddress = Utils.GetGoogleAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.GoogleMapsKey);
 
             var dict = new Dictionary<string, string>
             {

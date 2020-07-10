@@ -33,9 +33,7 @@
     // TODO: Manage subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
     // TODO: Only start database migrator if subscriptions are enabled
-    // TODO: Move 'description' back to alarms just include outside of embed as message description instead
     // TODO: Check nests again
-    // TODO: Random pokemon image in static map occasionally
 
     public class Bot
     {

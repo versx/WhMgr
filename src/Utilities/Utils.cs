@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net;
     using System.Text;
 
@@ -79,7 +80,7 @@
             return message.ErrorCode == null;
         }
 
-        public static Location GetGoogleAddress(double lat, double lng, string gmapsKey)
+        public static Location GetGoogleAddress(string city, double lat, double lng, string gmapsKey)
         {
             var apiKey = string.IsNullOrEmpty(gmapsKey) ? string.Empty : $"&key={gmapsKey}";
             var url = $"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lng}&sensor=true{apiKey}";
@@ -94,50 +95,19 @@
                     var data = reader.ReadToEnd();
                     var parseJson = JObject.Parse(data);
                     var status = Convert.ToString(parseJson["status"]);
-                    if (string.Compare(status, "OK", true) == 0)
+                    if (string.Compare(status, "OK", true) != 0)
                         return null;
 
-                    var jsonres = parseJson["results"][0];
-                    var address = Convert.ToString(jsonres["formatted_address"]);
-                    var addrComponents = jsonres["address_components"];
-                    var city = unknown;
-                    var items = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(addrComponents.ToString());
-                    foreach (var item in items)
-                    {
-                        foreach (var key in item)
-                        {
-                            if (string.Compare(key.Key, "types", true) != 0)
-                                continue;
-
-                            if (!(key.Value is JArray types))
-                                continue;
-
-                            foreach (var type in types)
-                            {
-                                var t = type.ToString();
-                                if (string.Compare(t, "locality", true) != 0)
-                                    continue;
-
-                                city = Convert.ToString(item["short_name"]);
-                                break;
-                            }
-
-                            if (city != unknown)
-                                break;
-                        }
-
-                        if (city != unknown)
-                            break;
-                    }
-
-                    return new Location(address, city, lat, lng);
+                    var result = parseJson["results"].FirstOrDefault();
+                    var address = Convert.ToString(result["formatted_address"]);
+                    //var area = Convert.ToString(result["address_components"][2]["long_name"]);
+                    return new Location(address, city ?? unknown, lat, lng);
                 }
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
             }
-
             return null;
         }
     }
