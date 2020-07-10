@@ -499,7 +499,7 @@ __**Pokemon**__
 | pokestop_url | Image url of nearby Pokestop | https://google.com/imgs/gym.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 __**Raids & Eggs**__  
@@ -555,7 +555,7 @@ __**Raids & Eggs**__
 | gym_url | Image url of Gym | https://google.com/imgs/gym.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 __**Quests**__  
@@ -583,7 +583,7 @@ __**Quests**__
 | pokestop_url | Image url of Gym | https://google.com/imgs/gym.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 **Pokestops**  
@@ -617,7 +617,7 @@ __**Quests**__
 | invasion_img_url | Image url of grunt type icon | https://google.com/imgs/grunt_50.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 **Gyms**  
@@ -648,7 +648,7 @@ __**Quests**__
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 **Nests**  
@@ -676,7 +676,7 @@ __**Quests**__
 | gmaps_url | Google maps location url | https://maps.google.com/maps?q=5.980921321,3.109283009
 | applemaps_url | Apple maps location url | https://maps.apple.com/maps?daddr=5.980921321,3.109283009
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 
@@ -709,7 +709,7 @@ __**Quests**__
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 
