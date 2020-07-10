@@ -138,6 +138,34 @@
         }
 
         [
+            Command("set-number"),
+            Description("Set the phone number to receive text message notifications for ultra rare pokemon.")
+        ]
+        public async Task SetPhoneNumberAsync(CommandContext ctx,
+            [Description("10 digit phone number to receive text message alerts for")] string phoneNumber)
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            // Check if user is in list of acceptable users to receive Pokemon text message notifications
+            if (!_dep.WhConfig.Twilio.UserIds.Contains(ctx.User.Id))
+                return;
+
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(ctx.Guild.Id, ctx.User.Id);
+            if (subscription == null)
+            {
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                return;
+            }
+
+            subscription.PhoneNumber = phoneNumber;
+            subscription.Save();
+
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_PHONE_NUMBER_SET").FormatText(ctx.User.Username, phoneNumber));
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        [
             Command("expire"),
             Aliases("expires"),
             Description("")
@@ -607,7 +635,7 @@
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
-                string.Join("**, **", pokemonNames),
+                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join("**, **", pokemonNames),
                 string.IsNullOrEmpty(city) ?
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
@@ -701,7 +729,7 @@
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
-                string.Join("**, **", pokemonNames),
+                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join("**, **", pokemonNames),
                 string.IsNullOrEmpty(city) ?
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
@@ -968,9 +996,10 @@
             }
             subscription.Save();
 
+            var valid = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
-                string.Join(", ", validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name)),
+                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", valid),
                 string.IsNullOrEmpty(city) ?
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
@@ -1057,9 +1086,10 @@
                 }
             }
 
+            var valid = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
-                string.Join(", ", validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name)),
+                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", valid),
                 string.IsNullOrEmpty(city) ?
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))

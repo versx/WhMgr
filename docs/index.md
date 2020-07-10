@@ -2,6 +2,7 @@
 
 Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
 
+Made in C#, runs on .NET Core CLR. Cross platform compatibility, can run on Windows, macOS, and Linux operating systems.  
 Parses and sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, gym team control changes, and weather changes. Also supports Discord user's subscribing to Pokemon, raid, quest, or Team Rocket invasion notifications via direct messages.
 
 ## Features:  
@@ -28,12 +29,15 @@ Parses and sends Discord notifications based on pre-defined filters for Pokemon,
 - Lots more...
 
 ### Frameworks and Libraries
-- .NET Framework v4.6.2  
-- DSharpPlus v3.2.3   
-- ServiceStack.OrmLite.MySql v5.7.0  
-- Stripe.net v34.1.0  
+- .NET Core v2.1.803  
+- DSharpPlus v3.2.3  
+- DSharpPlus.CommandsNext v3.2.3  
+- DSharpPlus.Interactivity v3.2.3  
+- Microsoft.Win32.SystemEvents v4.7.0  
 - Newtonsoft.Json v12.0.3  
-- MySql.Data v8.0.18  
+- ServiceStack.OrmLite.MySql v5.8.0  
+- Stripe.net v37.14.0  
+- Twilio v5.44.0  
 
 [Click here](user-guide/config) to get started!  
 

@@ -547,7 +547,10 @@
                     }
 
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
-                    _queue.Enqueue(new NotificationItem(user, member, embed, questName, loc.Name));
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, questName, loc.Name));
+                    }
 
                     Statistics.Instance.SubscriptionQuestsSent++;
                     Thread.Sleep(5);
@@ -749,7 +752,7 @@
                             _whConfig.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
                         {
                             // Send text message (max 160 characters)
-                            if (IsUltraRare(_whConfig.Twilio, item.Pokemon))
+                            if (item.Pokemon != null && IsUltraRare(_whConfig.Twilio, item.Pokemon))
                             {
                                 var result = Utils.SendSmsMessage(StripEmbed(item), _whConfig.Twilio, item.Subscription.PhoneNumber);
                                 if (!result)

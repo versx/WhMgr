@@ -79,8 +79,7 @@
 
                 try
                 {
-                    var pkmnImage = nest.PokemonId.GetPokemonIcon(0, 0, _dep.WhConfig, _dep.WhConfig.IconStyles[server.IconStyle]);
-                    var eb = GenerateNestMessage(ctx.Guild.Id, ctx.Client, nest, pkmnImage);
+                    var eb = GenerateNestMessage(ctx.Guild.Id, ctx.Client, nest);
                     var geofences = _dep.Whm.Geofences.Values.ToList();
                     var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
                     if (geofence == null)
@@ -101,23 +100,25 @@
             }
         }
 
-        public DiscordEmbed GenerateNestMessage(ulong guildId, DiscordClient client, Nest nest, string pokemonImageUrl)
+        public DiscordEmbed GenerateNestMessage(ulong guildId, DiscordClient client, Nest nest)
         {
             var alertMessageType = AlertMessageType.Nests;
             var alertMessage = /*alarm?.Alerts[alertMessageType] ??*/ AlertMessage.Defaults[alertMessageType]; // TODO: Add nestAlert config option
+            var server = _dep.WhConfig.Servers[guildId];
+            var pokemonImageUrl = nest.PokemonId.GetPokemonIcon(0, 0, _dep.WhConfig, server.IconStyle);
             var properties = GetProperties(nest, pokemonImageUrl);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alertMessage.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alertMessage.ImageUrl, properties),
-                ThumbnailUrl = pokemonImageUrl,
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alertMessage.IconUrl, properties),
                 Description = DynamicReplacementEngine.ReplaceText(alertMessage.Content, properties),
                 Color = DiscordColor.Green,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = $"{(client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.Name : Strings.Creator)} | {DateTime.Now}",
-                    IconUrl = client.Guilds.ContainsKey(guildId) ? client.Guilds[guildId]?.IconUrl : string.Empty
+                    Text = DynamicReplacementEngine.ReplaceText(alertMessage.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
+                    IconUrl = DynamicReplacementEngine.ReplaceText(alertMessage.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties)
                 }
             };
             return eb.Build();
@@ -136,11 +137,13 @@
             var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
+            var scannerMapsLink = string.Format(_dep.WhConfig.Urls.ScannerMap, nest.Latitude, nest.Longitude);
             var templatePath = Path.Combine(_dep.WhConfig.StaticMaps.TemplatesFolder, _dep.WhConfig.StaticMaps.NestsTemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, _dep.WhConfig.Urls.StaticMap, nest.Latitude, nest.Longitude, pkmnImage, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, _dep.WhConfig.Urls.StaticMap, nest.Latitude, nest.Longitude, pkmnImage, null, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
             var geofences = _dep.Whm.Geofences.Values.ToList();
             var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
             var city = geofence?.Name ?? "Unknown";
+            var googleAddress = Utils.GetGoogleAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.GoogleMapsKey);
 
             var dict = new Dictionary<string, string>
             {
@@ -170,6 +173,9 @@
                 { "gmaps_url", gmapsLink },
                 { "applemaps_url", appleMapsLink },
                 { "wazemaps_url", wazeMapsLink },
+                { "scanmaps_url", scannerMapsLink },
+
+                { "address", googleAddress?.Address },
 
                 { "date_time", DateTime.Now.ToString() },
 

@@ -1,9 +1,9 @@
 {
     "staticmap_url": "{{tilemaps_url}}",
     "markers": [{
-        "url": "{{pkmn_img_url}}",
-        "height": "32",
-        "width": "32",
+        "url": "{{weather_img_url}}",
+        "height": "48",
+        "width": "48",
         "x_offset": 0,
         "y_offset": 0,
         "latitude": "{{lat}}",

@@ -3,52 +3,85 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-
+    using System.Linq;
     using DSharpPlus;
     using DSharpPlus.Entities;
 
     using Newtonsoft.Json;
+    using ServiceStack.DataAnnotations;
+    using ServiceStack.OrmLite;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Diagnostics;
     using WhMgr.Utilities;
 
     /// <summary>
     /// RealDeviceMap Gym Details webhook model class.
     /// </summary>
+    [Alias("gym")]
     public sealed class GymDetailsData
     {
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMDETAILSDATA");
+
         public const string WebhookHeader = "gym_details";
 
         #region Properties
 
-        [JsonProperty("id")]
+        [
+            JsonProperty("id"),
+            Alias("id")
+        ]
         public string GymId { get; set; }
 
-        [JsonProperty("name")]
+        [
+            JsonProperty("name"),
+            Alias("name")
+        ]
         public string GymName { get; set; } = "Unknown";
 
-        [JsonProperty("url")]
+        [
+            JsonProperty("url"),
+            Alias("name")
+        ]
         public string Url { get; set; }
 
-        [JsonProperty("latitude")]
+        [
+            JsonProperty("latitude"),
+            Alias("lat")
+        ]
         public double Latitude { get; set; }
 
-        [JsonProperty("longitude")]
+        [
+            JsonProperty("longitude"),
+            Alias("lon")
+        ]
         public double Longitude { get; set; }
 
-        [JsonProperty("team")]
+        [
+            JsonProperty("team"),
+            Alias("team_id")
+        ]
         public PokemonTeam Team { get; set; } = PokemonTeam.Neutral;
 
-        [JsonProperty("slots_available")]
+        [
+            JsonProperty("slots_available"),
+            Alias("availble_slots") // TODO: Typflo
+        ]
         public ushort SlotsAvailable { get; set; }
 
-        [JsonProperty("sponsor_id")]
+        [
+            JsonProperty("sponsor_id"),
+            Alias("sponsor_id")
+        ]
         public bool SponsorId { get; set; }
 
-        [JsonProperty("in_battle")]
+        [
+            JsonProperty("in_battle"),
+            Alias("in_battle")
+        ]
         public bool InBattle { get; set; }
 
         #endregion
@@ -58,30 +91,27 @@
             var alertType = AlertMessageType.Gyms;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = GetProperties(client.Guilds[guildId], whConfig, city, oldGym);
-            var mention = DynamicReplacementEngine.ReplaceText(alarm.Mentions, properties);
-            var description = DynamicReplacementEngine.ReplaceText(alert.Content, properties);
-            var footerText = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? $"{Strings.Creator} | {DateTime.Now}", properties);
-            var footerIconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
-                Description = mention + description,
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = Team == PokemonTeam.Mystic ? DiscordColor.Blue :
                         Team == PokemonTeam.Valor ? DiscordColor.Red :
                         Team == PokemonTeam.Instinct ? DiscordColor.Yellow :
                         DiscordColor.LightGray,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = footerText,
-                    IconUrl = footerIconUrl
+                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
+                    IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties)
                 }
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
             var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
-            return new DiscordEmbedNotification(username, iconUrl, new List<DiscordEmbed> { eb.Build() });
+            var description = DynamicReplacementEngine.ReplaceText(alarm?.Description, properties);
+            return new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() });
         }
 
         private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, GymDetailsData oldGym)
@@ -90,20 +120,21 @@
             var exEmoji = exEmojiId > 0 ? string.Format(Strings.EmojiSchema, "ex", exEmojiId): "EX";
             var teamEmojiId = MasterFile.Instance.Emojis[Team.ToString().ToLower()];
             var teamEmoji = teamEmojiId > 0 ? string.Format(Strings.EmojiSchema, Team.ToString().ToLower(), teamEmojiId) : Team.ToString();
-            var oldTeamEmojiId = MasterFile.Instance.Emojis[oldGym.Team.ToString().ToLower()];
-            var oldTeamEmoji = oldTeamEmojiId > 0 ? string.Format(Strings.EmojiSchema, oldGym.Team.ToString().ToLower(), oldTeamEmojiId) : oldGym.Team.ToString();
+            var oldTeamEmojiId = MasterFile.Instance.Emojis[oldGym?.Team.ToString().ToLower()];
+            var oldTeamEmoji = oldTeamEmojiId > 0 ? string.Format(Strings.EmojiSchema, oldGym?.Team.ToString().ToLower(), oldTeamEmojiId) : oldGym?.Team.ToString();
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            // TODO: Use team icon for gym
-            var gymImage = "https://static.thenounproject.com/png/727778-200.png";
+            var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
             var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.GymsTemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap.Replace("/15/", "/11/"), Latitude, Longitude, gymImage);
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap.Replace("/15/", "/11/"), Latitude, Longitude, /*TODO: Add team image*/string.Empty, Team);
             //var staticMapLink = string.Format(whConfig.Urls.StaticMap, Latitude, Longitude);//whConfig.Urls.StaticMap.Gyms.Enabled ? string.Format(whConfig.Urls.StaticMap.Gyms.Url, Latitude, Longitude) : string.Empty
             var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? scannerMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
+            var googleAddress = Utils.GetGoogleAddress(city, Latitude, Longitude, whConfig.GoogleMapsKey);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
             const string defaultMissingValue = "?";
@@ -122,7 +153,11 @@
                 { "under_attack", Convert.ToString(InBattle) },
                 { "is_ex", Convert.ToString(SponsorId) },
                 { "ex_emoji", exEmoji },
-                { "slots_available", SlotsAvailable.ToString("N0") },
+                { "slots_available", SlotsAvailable == 0
+                                        ? "Full"
+                                        : SlotsAvailable == 6
+                                            ? "Empty"
+                                            : SlotsAvailable.ToString("N0") },
 
                 //Location properties
                 { "geofence", city ?? defaultMissingValue },
@@ -136,6 +171,9 @@
                 { "gmaps_url", gmapsLocationLink },
                 { "applemaps_url", appleMapsLocationLink },
                 { "wazemaps_url", wazeMapsLocationLink },
+                { "scanmaps_url", scannerMapsLocationLink },
+
+                { "address", googleAddress?.Address },
 
                 // Discord Guild properties
                 { "guild_name", guild?.Name },
@@ -147,6 +185,28 @@
                 { "br", "\r\n" }
             };
             return dict;
+        }
+
+        internal static Dictionary<string, GymDetailsData> GetGyms(string connectionString = "")
+        {
+            if (string.IsNullOrEmpty(connectionString))
+                return null;
+
+            try
+            {
+                using (var db = DataAccessLayer.CreateFactory(connectionString).Open())
+                {
+                    var gyms = db.LoadSelect<GymDetailsData>();
+                    var dict = gyms?.ToDictionary(x => x.GymId, x => x);
+                    return dict;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return null;
         }
     }
 }

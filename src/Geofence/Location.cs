@@ -6,6 +6,16 @@
     public class Location
     {
         /// <summary>
+        /// Gets the address for the location
+        /// </summary>
+        public string Address { get; set; }
+
+        /// <summary>
+        /// Gets the city of the address
+        /// </summary>
+        public string City { get; }
+
+        /// <summary>
         /// Gets the geocoordinate latitude
         /// </summary>
         public double Latitude { get; }
@@ -22,6 +32,21 @@
         /// <param name="lng">Geocoordinate longitude</param>
         public Location(double lat, double lng)
         {
+            Latitude = lat;
+            Longitude = lng;
+        }
+
+        /// <summary>
+        /// Instantiates a new <see cref="Location"/> class
+        /// </summary>
+        /// <param name="address">Address of geocoordinates</param>
+        /// <param name="city">City of address</param>
+        /// <param name="lat">Geocoordinate latitude</param>
+        /// <param name="lng">Geocoordinate longitude</param>
+        public Location(string address, string city, double lat, double lng)
+        {
+            Address = address;
+            City = city;
             Latitude = lat;
             Longitude = lng;
         }

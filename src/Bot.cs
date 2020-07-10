@@ -32,6 +32,8 @@
     // TODO: List all subscriptions with info command
     // TODO: Manage subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
+    // TODO: Only start database migrator if subscriptions are enabled
+    // TODO: Check nests again
 
     public class Bot
     {
@@ -41,7 +43,6 @@
         private readonly WebhookController _whm;
         private WhConfig _whConfig;
         private readonly SubscriptionProcessor _subProcessor;
-        private readonly Dictionary<string, GymDetailsData> _gyms;
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("BOT");
 
@@ -58,7 +59,6 @@
             _logger.Trace($"WhConfig [Servers={whConfig.Servers.Count}, Port={whConfig.WebhookPort}]");
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;
-            _gyms = new Dictionary<string, GymDetailsData>();
             _whm = new WebhookController(_whConfig);
 
             // Set translation language
@@ -495,6 +495,7 @@
                 {
                     Username = eb.Username,
                     AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
@@ -541,6 +542,7 @@
                 {
                     Username = eb.Username,
                     AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
@@ -582,9 +584,10 @@
                 var eb = quest.GenerateQuestMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
-                    Username = quest.GetQuestMessage(),
-                    AvatarUrl = quest.GetQuestIcon(_whConfig, _whConfig.Servers[e.GuildId].IconStyle),
-                    Embeds = new List<DiscordEmbed> { eb }
+                    Username = eb.Username,
+                    AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
+                    Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 Statistics.Instance.QuestAlarmsSent++;
@@ -624,6 +627,7 @@
                 {
                     Username = eb.Username ?? Translator.Instance.Translate("UNKNOWN_POKESTOP"),
                     AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
@@ -671,28 +675,26 @@
 
             try
             {
-                if (!_gyms.ContainsKey(gymDetails.GymId))
-                {
-                    _gyms.Add(gymDetails.GymId, gymDetails);
-                }
-
-                var oldGym = _gyms[gymDetails.GymId];
-                var changed = oldGym.Team != gymDetails.Team;// || /*oldGym.InBattle != gymDetails.InBattle ||*/ gymDetails.InBattle;
+                var oldGym = _whm.Gyms[gymDetails.GymId];
+                var changed = oldGym.Team != gymDetails.Team || gymDetails.InBattle || oldGym.SlotsAvailable != gymDetails.SlotsAvailable;
                 if (!changed)
                     return;
 
                 var client = _servers[e.GuildId];
-                var eb = gymDetails.GenerateGymMessage(e.GuildId, client, _whConfig, e.Alarm, oldGym, loc?.Name ?? e.Alarm.Name);
+                var eb = gymDetails.GenerateGymMessage(e.GuildId, client, _whConfig, e.Alarm, _whm.Gyms[gymDetails.GymId], loc?.Name ?? e.Alarm.Name);
                 var name = gymDetails.GymName;
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username,
                     AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
                 Statistics.Instance.GymAlarmsSent++;
-                _gyms[gymDetails.GymId] = gymDetails;
+
+                // Gym team changed, set gym in gym cache
+                _whm.SetGym(gymDetails.GymId, gymDetails);
 
                 Statistics.Instance.GymAlarmsSent++;
             }
@@ -731,9 +733,13 @@
                 {
                     Username = eb.Username,
                     AvatarUrl = eb.IconUrl,
+                    Content = eb.Description,
                     Embeds = eb.Embeds
                 }.Build();
                 NetUtil.SendWebhook(e.Alarm.Webhook, jsonEmbed);
+
+                // Weather changed, set weather in weather cache
+                _whm.SetWeather(weather.Id, weather.GameplayCondition);
 
                 Statistics.Instance.WeatherAlarmsSent++;
             }
@@ -945,8 +951,15 @@
                 _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
                 // Subtract an hour to make sure it shows yesterday's date.
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
+                Thread.Sleep(500);
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
                 var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
+                if (stats == null)
+                {
+                    _logger.Error($"Failed to get list of shiny stats for guild {guildId}, skipping...");
+                    return;
+                }
+
                 var sorted = stats.Keys.ToList();
                 sorted.Sort();
 
@@ -969,6 +982,7 @@
                     {
                         await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
                     }
+                    Thread.Sleep(500);
                 }
 
                 var total = stats[0];

@@ -49,6 +49,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
   b.) Input your bot token and config options.  
 ```js
 {
+    // Http listening interface for raw webhook data.
+    "host": "10.0.0.10",
     // Http listener port for raw webhook data.
     "port": 8008,
     // Locale language translation
@@ -170,7 +172,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             // Brock database name.
             "database": "brock3"
         },
-        // Scanner databse config
+        // Scanner database config
         "scanner": {
             // Database hostname or IP address.
             "host": "127.0.0.1",
@@ -213,19 +215,28 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
         "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
     },
+    // Custom static map template files for each alarm type
     "staticMaps": {
+        // Static map template for Pokemon
         "pokemon": "pokemon.example.json",
+        // Static map template for Raids and Eggs
         "raids": "raids.example.json",
+        // Static map template for field research quests
         "quests": "quests.example.json",
+        // Static map template for Team Rocket invasions
         "invasions": "invasions.example.json",
+        // Static map template for Pokestop lures
         "lures": "lures.example.json",
+        // Static map template for Gym team control changes
         "gyms": "gyms.example.json",
+        // Static map template for nest postings
         "nests": "nests.example.json",
+        // Static map template for weather changes
         "weather": "weather.example.json"
     },
     // Get text message alerts with Twilio.com
     "twilio": {
-        // Determines if text message alerts are be enabled
+        // Determines if text message alerts are enabled
         "enabled": false,
         // Twilio account SID (Get via Twilio dashboard)
         "accountSid": "",
@@ -235,14 +246,14 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         "from": "",
         // List of Discord user ids that can receive text message alerts
         "userIds": "",
-        // List of acceptable Pokemon to receive text message alerts from
+        // List of acceptable Pokemon to receive text message alerts for
         "pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
-        // Minimum acceptable IV value for Pokemon to be if not ultra rare (Unown, Lake Trio)
+        // Minimum acceptable IV value for Pokemon if not ultra rare (Unown, Lake Trio)
         "minIV": 100
     },
     // Log webhook payloads to a file for debugging
     "debug": false,
-    // Only show logs with higher or equal priority levels
+    // Only show logs with higher or equal priority levels (Trace, Debug, Info, Warning, Error, Fatal, None)
     "logLevel": "Trace"
 }
 ```
@@ -272,6 +283,9 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     "alarms": [{
         //Alarm name.
         "name":"Alarm1",
+        
+	      //DTS compatible mention description.  	
+        "description":"<!@324234324> <iv> L<lvl> <geofence>",
       
         //Alerts file.
         "alerts":"default.json",
@@ -282,14 +296,14 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         //Path to geofence file.
         "geofence":"geofence1.txt",
     
-        //DTS compatible mention description.  
-        "mentions":"<!@324234324> <iv> L<lvl> <geofence>"  
-      
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
     },{
         //Alarm name.
         "name":"Alarm2",
+        
+	      //DTS compatible mention description.  	
+        "description":"",
       
         //Alerts file.
         "alerts":"default.json",
@@ -299,9 +313,6 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
       
         //Path to geofence file.
         "geofence":"geofence1.txt",
-    
-        //DTS compatible mention description.  
-        "mentions":""  
       
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
@@ -367,6 +378,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 * `info` List all Pokemon, Raid, Quest, Invasion, and Gym subscriptions and settings  
 * `set-distance`  Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in meters)  
 * `expire` / `expires` Check stripe API when Donor/Supporter subscription expires  
+* `set-number` Sets the phone number to use for text message alerts for ultra rare Pokemon  
 
 **Pokemon Subscriptions**  
 * `pokeme` Subscribe to specific Pokemon notifications  
@@ -738,6 +750,7 @@ Discord Team Rocket Invasion Notifications:
 ![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
 
 ## Current Issues:  
+- Pokemon subscriptions are based on Discord city roles assigned currently, soon it will be based on specified cities.  
 
 ## Credits:  
 [versx](https://github.com/versx) - Developer  
