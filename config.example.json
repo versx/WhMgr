@@ -129,10 +129,11 @@
     "accountSid": "",
     "authToken": "",
     "from": "",
-	"userIds": "",
-	"pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
-	"minIV": 100
+    "userIds": "",
+    "pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
+    "minIV": 100
   },
+  "gmapsKey": "",
   "debug": false,
   "logLevel": "Trace"
 }
