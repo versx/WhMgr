@@ -629,7 +629,7 @@
                         continue;
                     }
                     var pkmn = MasterFile.Instance.Pokedex[pvp.PokemonId];
-                    var form = pkmn.Forms.ContainsKey(FormId) ? " (" + pkmn.Forms[pvp.FormId].Name + ")" : string.Empty;
+                    var form = pkmn.Forms.ContainsKey(FormId) ? (string.Compare(pkmn.Forms[pvp.FormId].Name, "Normal", true) == 0 /*TODO: Localize*/ ? string.Empty : " (" + pkmn.Forms[pvp.FormId].Name + ")") : string.Empty;
                     if ((pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP) && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumGreatLeagueCP)
                     {
                         sb.AppendLine($"Rank #{pvp.Rank.Value} {pkmn.Name}{form} {pvp.CP.Value}CP @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
@@ -664,7 +664,7 @@
                         continue;
                     }
                     var pkmn = MasterFile.Instance.Pokedex[pvp.PokemonId];
-                    var form = pkmn.Forms.ContainsKey(FormId) ? " (" + pkmn.Forms[pvp.FormId].Name + ")" : string.Empty;
+                    var form = pkmn.Forms.ContainsKey(FormId) ? (string.Compare(pkmn.Forms[pvp.FormId].Name, "Normal", true) == 0 /*TODO: Localize*/ ? string.Empty : " (" + pkmn.Forms[pvp.FormId].Name + ")") : string.Empty;
                     if ((pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP) && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumUltraLeagueCP)
                     {
                         sb.AppendLine($"Rank #{pvp.Rank.Value} {pkmn.Name}{form} {pvp.CP.Value}CP @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
