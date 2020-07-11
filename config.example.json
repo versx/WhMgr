@@ -134,6 +134,7 @@
     "minIV": 100
   },
   "gmapsKey": "",
+  "despawnTimeMinimumMinutes": 5,
   "debug": false,
   "logLevel": "Trace"
 }

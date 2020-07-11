@@ -37,7 +37,6 @@
     // TODO: Allow roles with spaces
     // TODO: IV wildcards
     // TODO: Egg subscriptions (maybe)
-    // TODO: Ignore spawns under x minutes
 
     public class Bot
     {

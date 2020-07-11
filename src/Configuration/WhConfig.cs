@@ -93,6 +93,12 @@
         public string GoogleMapsKey { get; set; }
 
         /// <summary>
+        /// Gets or sets the minimum despawn time in minutes a Pokemon must have in order to send the alarm
+        /// </summary>
+        [JsonProperty("despawnTimeMinimumMinutes")]
+        public int DespawnTimeMinimumMinutes { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to log incoming webhook data to a file
         /// </summary>
         [JsonProperty("debug")]
@@ -126,6 +132,7 @@
             IconStyles = new Dictionary<string, string>();
             StaticMaps = new StaticMaps();
             Twilio = new TwilioConfig();
+            DespawnTimeMinimumMinutes = 5;
         }
 
         /// <summary>

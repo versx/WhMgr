@@ -253,6 +253,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     },
     // Needed if you want to use the address lookup DTS
     "gmapsKey": "",
+    // Minimum despawn time in minutes a Pokemon must have in order to send the alarm (default: 5 minutes)
+    "despawnTimeMinimumMinutes": 5,
     // Log webhook payloads to a file for debugging
     "debug": false,
     // Only show logs with higher or equal priority levels (Trace, Debug, Info, Warning, Error, Fatal, None)

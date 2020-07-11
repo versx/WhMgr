@@ -33,6 +33,7 @@
         private readonly Dictionary<long, WeatherData> _processedWeather;
         private HttpListener _server;
         private bool _initialized = false;
+        private readonly int _despawnTimerMinimumMinutes = 5;
 
         #endregion
 
@@ -118,8 +119,10 @@
         /// <summary>
         /// Instantiates a new <see cref="HttpServer"/> class.
         /// </summary>
+        /// <param name="host">Listing host interface</param>
         /// <param name="port">Listening port</param>
-        public HttpServer(string host, ushort port)
+        /// <param name="despawnTimerMinimum">Minimum despawn timer amount in minutes to process Pokemon</param>
+        public HttpServer(string host, ushort port, int despawnTimerMinimum)
         {
             Host = host;
             Port = port;
@@ -130,6 +133,7 @@
             _processedQuests = new Dictionary<string, QuestData>();
             _processedInvasions = new Dictionary<string, TeamRocketInvasion>();
             _processedWeather = new Dictionary<long, WeatherData>();
+            _despawnTimerMinimumMinutes = despawnTimerMinimum;
 
             Initialize();
         }
@@ -305,6 +309,11 @@
                 }
 
                 pokemon.SetDespawnTime();
+
+                // Only process Pokemon with despawn timers that meet a specific minimum
+                if (pokemon.SecondsLeft.TotalMinutes < _despawnTimerMinimumMinutes)
+                    return;
+
                 /*
                 if (_processedPokemon.ContainsKey(pokemon.EncounterId))
                 {
