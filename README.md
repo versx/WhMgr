@@ -207,8 +207,10 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     ],
     // Image URL config
     "urls": {
-        //Static tile map images template.
-        "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png"
+        // Static tile map images template.
+        "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png",
+        // Scanner map DTS option for embeds as `scanmaps_url`  
+        "scannerMap": "http://map.example.com/@/{0}/{1}/15"
     },
     // Available icon styles
     "iconStyles": {
@@ -288,7 +290,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         //Alarm name.
         "name":"Alarm1",
         
-          //DTS compatible mention description.      
+        //DTS compatible mention description.      
         "description":"<!@324234324> <iv> L<lvl> <geofence>",
       
         //Alerts file.
@@ -306,7 +308,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         //Alarm name.
         "name":"Alarm2",
         
-          //DTS compatible mention description.      
+        //DTS compatible mention description.      
         "description":"",
       
         //Alerts file.
@@ -499,7 +501,7 @@ __**Pokemon**__
 | pokestop_url | Image url of nearby Pokestop | https://google.com/imgs/gym.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 __**Raids & Eggs**__  
@@ -555,7 +557,7 @@ __**Raids & Eggs**__
 | gym_url | Image url of Gym | https://google.com/imgs/gym.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 __**Quests**__  
@@ -583,7 +585,7 @@ __**Quests**__
 | pokestop_url | Image url of Gym | https://google.com/imgs/gym.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 **Pokestops**  
@@ -617,7 +619,7 @@ __**Quests**__
 | invasion_img_url | Image url of grunt type icon | https://google.com/imgs/grunt_50.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 **Gyms**  
@@ -648,7 +650,7 @@ __**Quests**__
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 **Nests**  
@@ -676,7 +678,7 @@ __**Quests**__
 | gmaps_url | Google maps location url | https://maps.google.com/maps?q=5.980921321,3.109283009
 | applemaps_url | Apple maps location url | https://maps.apple.com/maps?daddr=5.980921321,3.109283009
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 
@@ -709,7 +711,7 @@ __**Quests**__
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`
 
 
