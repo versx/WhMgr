@@ -215,7 +215,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     // Available icon styles
     "iconStyles": {
         "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
-        "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
+        "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/",
+        "Home": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/pmsf_OS_128/"
     },
     // Custom static map template files for each alarm type
     "staticMaps": {
