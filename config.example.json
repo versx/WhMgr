@@ -112,7 +112,8 @@
   },
   "iconStyles": {
     "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
-    "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
+    "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/",
+    "Home": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/pmsf_OS_128/"
   },
   "staticMaps": {
     "pokemon": "pokemon.example.json",
