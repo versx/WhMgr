@@ -106,7 +106,7 @@
             var alertMessage = /*alarm?.Alerts[alertMessageType] ??*/ AlertMessage.Defaults[alertMessageType]; // TODO: Add nestAlert config option
             var server = _dep.WhConfig.Servers[guildId];
             var pokemonImageUrl = nest.PokemonId.GetPokemonIcon(0, 0, _dep.WhConfig, server.IconStyle);
-            var properties = GetProperties(nest, pokemonImageUrl);
+            var properties = GetProperties(client.Guilds[guildId], nest, pokemonImageUrl);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alertMessage.Title, properties),
@@ -124,7 +124,7 @@
             return eb.Build();
         }
 
-        public IReadOnlyDictionary<string, string> GetProperties(Nest nest, string pokemonImageUrl)
+        public IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, Nest nest, string pokemonImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(nest.PokemonId, 0);
             var pkmnImage = pokemonImageUrl;
@@ -159,7 +159,7 @@
                 { "type_1_emoji", type1Emoji },
                 { "type_2_emoji", type2Emoji },
                 { "types", $"{type1} | {type2}" },
-                { "types_emoji", typeEmojis },
+                { "types_emojis", typeEmojis },
 
                 //Location properties
                 { "geofence", city },
@@ -176,6 +176,10 @@
                 { "scanmaps_url", scannerMapsLink },
 
                 { "address", googleAddress?.Address },
+
+                // Discord Guild properties
+                { "guild_name", guild?.Name },
+                { "guild_img_url", guild?.IconUrl },
 
                 { "date_time", DateTime.Now.ToString() },
 

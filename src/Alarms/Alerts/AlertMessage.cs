@@ -163,7 +163,7 @@
             {
                 AlertMessageType.Nests, new AlertMessageSettings
                 {
-                    AvatarUrl = "",
+                    AvatarUrl = "<pkmn_img_url>",
                     Content = "**Pokemon:** <pkmn_name><br>**Average Spawns:** <avg_spawns>/h | **Types:** <types_emojis><br>**[[Google](<gmaps_url>)] [[Apple](<applemaps_url>)] [[Waze](<wazemaps_url>)] [[Scanner](<scanmaps_url>)]**",
                     IconUrl = "<pkmn_img_url>",
                     Title = "<geofence>: <nest_name>",
