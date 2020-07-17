@@ -546,6 +546,7 @@
 
                 // Time properties
                 { "despawn_time", DespawnTime.ToString("hh:mm:ss tt") },
+                { "despawn_time_24h", DespawnTime.ToString("HH:mm:ss") },
                 { "despawn_time_verified", DisappearTimeVerified ? "" : "~" },
                 { "is_despawn_time_verified", Convert.ToString(DisappearTimeVerified) },
                 { "time_left", SecondsLeft.ToReadableString(true) ?? defaultMissingValue },
