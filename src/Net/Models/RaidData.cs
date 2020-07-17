@@ -243,8 +243,10 @@
 
                 //Time properties
                 { "start_time", StartTime.ToLongTimeString() },
+                { "start_time_24h", StartTime.ToString("HH:mm:ss") },
                 { "start_time_left", DateTime.Now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds() },
                 { "end_time", EndTime.ToLongTimeString() },
+                { "end_time_24h", EndTime.ToString("HH:mm:ss") },
                 { "end_time_left", EndTime.GetTimeRemaining().ToReadableStringNoSeconds() },
 
                 //Location properties

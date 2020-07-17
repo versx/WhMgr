@@ -215,7 +215,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     // Available icon styles
     "iconStyles": {
         "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
-        "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/"
+        "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/",
+        "Home": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/pmsf_OS_128/"
     },
     // Custom static map template files for each alarm type
     "staticMaps": {
@@ -483,6 +484,7 @@ __**Pokemon**__
 | spawnpoint_id | Spawnpoint ID Pokemon near | 3920849203840983204980
 | encounter_id | Encounter ID of Pokemon | 392874987239487924
 | despawn_time | Pokemon despawn time | 07:33:01 PM
+| despawn_time_24h | Pokemon despawn time (24-hour format) | 19:33:01
 | despawn_time_verified | Indicates if time is confirmed or not | `~` for not verified
 | is_despawn_time_verified | Returns if despawn time is verified | true
 | time_left | Minutes and seconds of time left until despawn | 29m, 30s
@@ -539,8 +541,10 @@ __**Raids & Eggs**__
 | worst_cp | Worst IV CP | 1530 
 | worst_cp_boosted | Worst IV CP if Weather boosted | 1339
 | start_time | Raid start time | 08:32:00 AM
+| start_time_24h | Raid start time (24-hour format) | 08:32:00
 | start_time_left | Time left until raid starts | 43m, 33s
 | end_time | Raid end time | 09:15:10 AM
+| end_time_24h | Raid end time (24-hour format) | 09:15:10
 | end_time_left | Time left until raid ends | 45, 11s
 | time_left | Minutes and seconds of time left until despawn | 29m, 30s
 | geofence | Geofence name raid boss is in | City1
@@ -595,12 +599,14 @@ __**Quests**__
 | has_lure | Returns if Pokestop has active lure module deployed | true
 | lure_type | Pokestop lure module type | Glacial
 | lure_expire_time | Time lure module will expire | 07:33:19 PM
+| lure_expire_time_24h | Time lure module will expire (24-hour format) | 19:33:19
 | lure_expire_time_left | Time left until lure module expires | 13m, 2s
 | has_invasion | Returns if Pokestop has active Team Rocket invasion | false
 | grunt_type | Grunt type | Water
 | grunt_type_emoji | Emoji icon of grunt type | <:938294:types_water>
 | grunt_gender | Grunt gender | Male
 | invasion_expire_time | Time the invasion expires | 02:17:11 PM
+| invasion_expire_time_24h | Time the invasion expires (24-hour format) | 14:17:11
 | invasion_expire_time_left | Time left until invasion expires | 12m, 56s
 | invasion_encounters | Possible invasions reward encounters | 80% Bulbasaur
 | geofence | Geofence name raid boss is in | City1
