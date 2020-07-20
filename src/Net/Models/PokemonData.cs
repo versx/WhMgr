@@ -344,6 +344,11 @@
         #endregion
 
         [
+            JsonProperty("is_event"),
+            Ignore]
+        public bool IsEvent { get; set; }
+
+        [
             JsonIgnore,
             Ignore
         ]

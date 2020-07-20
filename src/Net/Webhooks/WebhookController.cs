@@ -413,6 +413,12 @@
                         continue;
                     }
 
+                    if (alarm.Filters.Pokemon.IsEvent && !pkmn.IsEvent)
+                    {
+                        // Pokemon does not have event flag indicating it was checked with event account and event filter is set, skip.
+                        continue;
+                    }
+
                     if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
                     {
                         //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: filter {alarm.Filters.Pokemon.FilterType}.");

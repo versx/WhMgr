@@ -106,6 +106,12 @@
         public FilterType FilterType { get; set; }
 
         /// <summary>
+        /// Event Pokemon flag indicating it was checked with an event account
+        /// </summary>
+        [JsonProperty("is_event")]
+        public bool IsEvent { get; set; }
+
+        /// <summary>
         /// Ignore Pokemon missing stats
         /// </summary>
         [JsonProperty("ignoreMissing")]
