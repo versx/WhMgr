@@ -346,7 +346,7 @@
         [
             JsonProperty("is_event"),
             Ignore]
-        public bool IsEvent { get; set; }
+        public bool? IsEvent { get; set; }
 
         [
             JsonIgnore,
