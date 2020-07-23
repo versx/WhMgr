@@ -37,7 +37,6 @@
     // TODO: Allow roles with spaces
     // TODO: IV wildcards
     // TODO: Egg subscriptions (maybe)
-    // TODO: Set log level for each class
     // TODO: Osm nominatim reverse geocoding
     // TODO: Fix race condition between incoming messages and when emojis list is initialized
 
