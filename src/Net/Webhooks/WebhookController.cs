@@ -25,7 +25,7 @@
     {
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("WHM");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("WHM", Program.LogLevel);
 
         private readonly HttpServer _http;
         private readonly Dictionary<ulong, AlarmList> _alarms;

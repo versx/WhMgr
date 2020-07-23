@@ -22,7 +22,7 @@
     {
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("HTTP");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("HTTP", Program.LogLevel);
         private static readonly object _lock = new object();
         private readonly Dictionary<ulong, PokemonData> _processedPokemon;
         private readonly Dictionary<string, RaidData> _processedRaids;

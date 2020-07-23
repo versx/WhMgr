@@ -12,7 +12,7 @@
 
     public class OsmManager
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("OSM");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("OSM", Program.LogLevel);
 
         public OsmFeatureCollection Nests { get; private set; }
 

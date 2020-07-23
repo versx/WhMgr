@@ -24,7 +24,7 @@
     [Alias("gym")]
     public sealed class GymDetailsData
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMDETAILSDATA");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMDETAILSDATA", Program.LogLevel);
 
         public const string WebhookHeader = "gym_details";
 

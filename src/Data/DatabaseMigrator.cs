@@ -16,7 +16,7 @@
     /// </summary>
     public class DatabaseMigrator
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("MIGRATOR");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("MIGRATOR", Program.LogLevel);
 
         /// <summary>
         /// Gets a value determining whether the migration has finished or not

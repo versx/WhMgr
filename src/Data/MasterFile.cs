@@ -18,7 +18,7 @@
         const string EmojisFileName = "emojis.json";
         const string RarityFileName = "rarity.json";
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER", Program.LogLevel);
 
         #region Properties
 

@@ -10,7 +10,7 @@
 
     public class StaticMaps
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("STATICMAPS");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("STATICMAPS", Program.LogLevel);
 
         [JsonProperty("pokemon")]
         public string PokemonTemplateFile { get; set; }

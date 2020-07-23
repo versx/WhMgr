@@ -11,7 +11,7 @@
 
     public class TeamRocketInvasion
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("TR-INVASION");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("TR-INVASION", Program.LogLevel);
 
         [JsonProperty("type")]
         public string Type { get; set; }

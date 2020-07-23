@@ -26,7 +26,7 @@
 
     public class Nests
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("NESTS");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("NESTS", Program.LogLevel);
 
         private readonly Dependencies _dep;
 

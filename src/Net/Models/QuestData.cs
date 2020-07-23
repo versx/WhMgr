@@ -22,7 +22,7 @@
     {
         public const string WebHookHeader = "quest";
 
-        //private static readonly IEventLogger _logger = EventLogger.GetLogger("QUESTDATA");
+        //private static readonly IEventLogger _logger = EventLogger.GetLogger("QUESTDATA", Program.LogLevel);
 
         #region Properties
 

@@ -14,7 +14,7 @@
     {
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("MANAGER");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("MANAGER", Program.LogLevel);
 
         private readonly WhConfig _whConfig;
         private List<SubscriptionObject> _subscriptions;

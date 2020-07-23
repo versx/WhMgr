@@ -22,7 +22,7 @@
 
     public class ShinyStats
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("SHINY_STATS");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("SHINY_STATS", Program.LogLevel);
         private readonly Dependencies _dep;
 
         public ShinyStats(Dependencies dep)

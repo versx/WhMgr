@@ -21,7 +21,7 @@
 
     public static class Utils
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("UTILS");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("UTILS", Program.LogLevel);
 
         // TODO: Provide better way for replacement values
         public static string GetStaticMapsUrl(string templateFileName, string staticMapUrl, double latitude, double longitude, string markerImageUrl, PokemonTeam? team, OsmFeature feature = null, MultiPolygon multiPolygon = null)

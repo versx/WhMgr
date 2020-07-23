@@ -34,7 +34,7 @@
 
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("POKEMONDATA");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("POKEMONDATA", Program.LogLevel);
 
         #endregion
 

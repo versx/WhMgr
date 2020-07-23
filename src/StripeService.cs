@@ -15,7 +15,7 @@
     {
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("STRIPE");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("STRIPE", Program.LogLevel);
 
         private readonly RequestOptions _requestOptions;
         private readonly CustomerService _customerService;

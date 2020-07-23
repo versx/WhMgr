@@ -7,7 +7,7 @@
 
     public static class StringExtensions
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("STRING_EXTENSIONS");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("STRING_EXTENSIONS", Program.LogLevel);
 
         public static string FormatText(this string text, params object[] args)
         {

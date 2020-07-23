@@ -25,7 +25,7 @@
     ]
     public class CommunityDay
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("COMMUNITYDAY");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("COMMUNITYDAY", Program.LogLevel);
 
         private readonly Dependencies _dep;
 

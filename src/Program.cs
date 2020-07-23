@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
+    using WhMgr.Diagnostics;
 
     class Program
     {
@@ -12,6 +13,11 @@
         /// Gets or sets the manager name
         /// </summary>
         public static string ManagerName { get; set; } = "Main";
+
+        /// <summary>
+        /// Gets or sets the global log level to use
+        /// </summary>
+        public static LogLevel LogLevel { get; set; } = LogLevel.Trace;
 
         /// <summary>
         /// Main entry point
@@ -50,7 +56,7 @@
 
             configFilePath = Path.Combine(Environment.CurrentDirectory, string.IsNullOrEmpty(configFilePath) ? Strings.ConfigFileName : configFilePath);
             ManagerName = managerName;
-            var logger = Diagnostics.EventLogger.GetLogger(managerName);
+            var logger = EventLogger.GetLogger(managerName);
             var whConfig = Configuration.WhConfig.Load(configFilePath);
             if (whConfig == null)
             {

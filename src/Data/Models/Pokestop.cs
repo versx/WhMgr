@@ -16,7 +16,7 @@
     public class Pokestop
     {
         private static Dictionary<string, Pokestop> _pokestops;
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("POKESTOP");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("POKESTOP", Program.LogLevel);
 
         #region Database Properties
 

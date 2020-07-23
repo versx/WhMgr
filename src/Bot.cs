@@ -39,7 +39,6 @@
     // TODO: Egg subscriptions (maybe)
     // TODO: Set log level for each class
     // TODO: Osm nominatim reverse geocoding
-    // TODO: External emoji.json list (set emoji instead of emoji id)
     // TODO: Fix race condition between incoming messages and when emojis list is initialized
 
     public class Bot

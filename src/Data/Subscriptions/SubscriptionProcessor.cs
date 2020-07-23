@@ -27,7 +27,7 @@
     {
         #region Variables
 
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION");
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION", Program.LogLevel);
 
         private readonly Dictionary<ulong, DiscordClient> _servers;
         private readonly WhConfig _whConfig;
