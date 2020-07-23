@@ -65,8 +65,6 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         "000000000000000001": {
             // Bot command prefix, leave blank to use @mention <command>
             "commandPrefix": ".",
-            // Discord server server ID.
-            "guildId": 000000000000000001,
             // Discord Emoji server ID. (Can be same as `guildId`)  
             "emojiGuildId": 000000000000000001,
             // Discord server owner ID.
@@ -122,7 +120,6 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         },
         "000000000000000002": {
             "commandPrefix": ".",
-            "guildId": 000000000000000001,
             "emojiGuildId": 000000000000000001,
             "ownerId": 000000000000000000,
             "donorRoleIds": [

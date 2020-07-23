@@ -201,7 +201,7 @@
                 return;
             }
 
-            var guildId = ctx.Guild?.Id ?? _dep.WhConfig.Servers[ctx.Guild.Id].GuildId;
+            var guildId = ctx.Guild.Id;// ?? _dep.WhConfig.Servers[ctx.Guild.Id].GuildId;
             var user = await ctx.Client.GetUserAsync(realUserId);
             var message = BuildExpirationMessage(guildId, user);
             await ctx.Client.SendDirectMessage(ctx.User, message);
@@ -1563,7 +1563,7 @@
 
         private async Task<List<string>> BuildUserSubscriptionSettings(DiscordClient client, DiscordUser user, ulong guildId)
         {
-            var member = await client.GetMemberById(_dep.WhConfig.Servers[guildId].GuildId, user.Id);
+            var member = await client.GetMemberById(guildId, user.Id);
             if (member == null)
             {
                 var error = $"Failed to get discord member from id {user.Id}.";

@@ -15,12 +15,6 @@
         public string CommandPrefix { get; set; }
 
         /// <summary>
-        /// Gets or sets the guild id
-        /// </summary>
-        [JsonProperty("guildId")]
-        public ulong GuildId { get; set; }
-
-        /// <summary>
         /// Gets or sets the emoji guild id
         /// </summary>
         [JsonProperty("emojiGuildId")]

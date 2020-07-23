@@ -7,7 +7,6 @@
   "servers": {
     "000000000000000001": {
       "commandPrefix": ".",
-      "guildId": 000000000000000001,
       "emojiGuildId": 000000000000000001,
       "ownerId": 000000000000000000,
       "donorRoleIds": [],
@@ -35,7 +34,6 @@
     },
     "000000000000000002": {
       "commandPrefix": ".",
-      "guildId": 000000000000000001,
       "emojiGuildId": 000000000000000001,
       "ownerId": 000000000000000000,
       "donorRoleIds": [],

@@ -923,7 +923,7 @@
                 var client = _servers[guildId];
                 if (server.ShinyStats.Enabled)
                 {
-                    await PostShinyStats(client, server);
+                    await PostShinyStats(client, guildId, server);
                 }
 
                 if (server.PruneQuestChannels)
@@ -937,7 +937,7 @@
             CleanupDepartedMembers();
         }
 
-        private async Task PostShinyStats(DiscordClient client, DiscordServerConfig server)
+        private async Task PostShinyStats(DiscordClient client, ulong guildId, DiscordServerConfig server)
         {
             var statsChannel = await client.GetChannelAsync(server.ShinyStats.ChannelId);
             if (statsChannel == null)
@@ -952,7 +952,7 @@
                     await client.DeleteMessages(server.ShinyStats.ChannelId);
                 }
 
-                var guildId = server.GuildId;
+                //var guildId = server.GuildId;
                 _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
                 // Subtract an hour to make sure it shows yesterday's date.
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));

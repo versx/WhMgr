@@ -199,7 +199,7 @@
                 if (isModerator)
                     return true;
 
-                var isSupporter = client.HasSupporterRole(server.GuildId, userId, server.DonorRoleIds);
+                var isSupporter = client.HasSupporterRole(guildId, userId, server.DonorRoleIds);
                 if (isSupporter)
                     return true;
             }
