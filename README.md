@@ -727,7 +727,7 @@ __**Quests**__
 
 
 ## Examples:  
-*All examples are completely customizable using Dynamic Text Replacement/Substitution*
+*All examples are completely customizable using Dynamic Text Replacement/Substitution*  
 Discord Pokemon Notifications:  
 ![Pokemon Notifications](images/pkmn.png "Pokemon Notifications")  
 
