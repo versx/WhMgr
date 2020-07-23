@@ -117,11 +117,21 @@
         private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, GymDetailsData oldGym)
         {
             var exEmojiId = MasterFile.Instance.Emojis["ex"];
-            var exEmoji = exEmojiId > 0 ? string.Format(Strings.EmojiSchema, "ex", exEmojiId): "EX";
+            var exEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis["ex"]) ? exEmojiId > 0
+                ? string.Format(Strings.EmojiSchema, "ex", exEmojiId): "EX"
+                : MasterFile.Instance.CustomEmojis["ex"];
             var teamEmojiId = MasterFile.Instance.Emojis[Team.ToString().ToLower()];
-            var teamEmoji = teamEmojiId > 0 ? string.Format(Strings.EmojiSchema, Team.ToString().ToLower(), teamEmojiId) : Team.ToString();
+            var teamEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[Team.ToString().ToLower()])
+                ? teamEmojiId > 0
+                    ? string.Format(Strings.EmojiSchema, Team.ToString().ToLower(), teamEmojiId)
+                    : Team.ToString()
+                : MasterFile.Instance.CustomEmojis[Team.ToString().ToLower()];
             var oldTeamEmojiId = MasterFile.Instance.Emojis[oldGym?.Team.ToString().ToLower()];
-            var oldTeamEmoji = oldTeamEmojiId > 0 ? string.Format(Strings.EmojiSchema, oldGym?.Team.ToString().ToLower(), oldTeamEmojiId) : oldGym?.Team.ToString();
+            var oldTeamEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[oldGym?.Team.ToString().ToLower()])
+                ? oldTeamEmojiId > 0
+                    ? string.Format(Strings.EmojiSchema, oldGym?.Team.ToString().ToLower(), oldTeamEmojiId)
+                    : oldGym?.Team.ToString()
+                : MasterFile.Instance.CustomEmojis[oldGym.Team.ToString().ToLower()];
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);

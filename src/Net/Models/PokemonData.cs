@@ -438,7 +438,11 @@
             var hasWeather = Weather.HasValue && Weather != WeatherType.None;
             var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherType.None);
             var weatherKey = $"weather_{Convert.ToInt32(Weather ?? WeatherType.None)}";
-            var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && Weather != WeatherType.None ? (Weather ?? WeatherType.None).GetWeatherEmojiIcon() : string.Empty;
+            var weatherEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[weatherKey])
+                ? MasterFile.Instance.CustomEmojis.ContainsKey(weatherKey) && Weather != WeatherType.None
+                    ? (Weather ?? WeatherType.None).GetWeatherEmojiIcon()
+                    : string.Empty
+                : MasterFile.Instance.CustomEmojis[weatherKey];
             var move1 = "Unknown";
             var move2 = "Unknown";
             if (int.TryParse(FastMove, out var fastMoveId))

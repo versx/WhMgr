@@ -337,11 +337,15 @@
             foreach (var type in pokemonTypes)
             {
                 var emojiKey = $"types_{type.ToString().ToLower()}";
-                if (!MasterFile.Instance.Emojis.ContainsKey(emojiKey))
-                    continue;
+                //if (!MasterFile.Instance.Emojis.ContainsKey(emojiKey))
+                //    continue;
 
                 var emojiId = MasterFile.Instance.Emojis[emojiKey];
-                var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId) : type.ToString();
+                var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[emojiKey])
+                    ? emojiId > 0
+                        ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId)
+                        : type.ToString()
+                    : MasterFile.Instance.CustomEmojis[emojiKey];
                 if (!list.Contains(emojiName))
                 {
                     list.Add(emojiName);
@@ -363,7 +367,11 @@
         {
             var key = $"capture_{Convert.ToInt32(type)}";
             var emojiId = MasterFile.Instance.Emojis[key];
-            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : type.ToString();
+            var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
+                ? emojiId > 0
+                    ? string.Format(Strings.EmojiSchema, key, emojiId)
+                    : type.ToString()
+                : MasterFile.Instance.CustomEmojis[key];
             return emojiName;
         }
 
@@ -371,7 +379,11 @@
         {
             var key = $"league_{league.ToString().ToLower()}";
             var emojiId = MasterFile.Instance.Emojis[key];
-            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : league.ToString();
+            var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
+                ? emojiId > 0
+                    ? string.Format(Strings.EmojiSchema, key, emojiId)
+                    : league.ToString()
+                : MasterFile.Instance.CustomEmojis[key];
             return emojiName;
         }
 
@@ -379,7 +391,11 @@
         {
             var key = $"gender_{gender.ToString().ToLower()}";
             var emojiId = MasterFile.Instance.Emojis[key];
-            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : gender.ToString();
+            var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
+                ? emojiId > 0
+                    ? string.Format(Strings.EmojiSchema, key, emojiId)
+                    : gender.ToString()
+                : MasterFile.Instance.CustomEmojis[key];
             return emojiName;
         }
 
@@ -391,11 +407,16 @@
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
-                var weaknessLst = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
-                foreach (var weakness in weaknessLst)
+                var weaknesses = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
+                foreach (var weakness in weaknesses)
                 {
-                    var emojiId = MasterFile.Instance.Emojis[$"types_{weakness.ToString().ToLower()}"];
-                    var emojiName = emojiId > 0 ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId) : weakness.ToString();
+                    var typeKey = $"types_{weakness.ToString().ToLower()}";
+                    var emojiId = MasterFile.Instance.Emojis[typeKey];
+                    var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[typeKey])
+                        ? emojiId > 0
+                            ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId)
+                            : weakness.ToString()
+                        : MasterFile.Instance.CustomEmojis[typeKey];
                     if (!list.Contains(emojiName))
                     {
                         list.Add(emojiName);

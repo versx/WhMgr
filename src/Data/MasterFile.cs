@@ -15,6 +15,7 @@
     {
         const string MasterFileName = "masterfile.json";
         const string CpMultipliersFileName = "cpMultipliers.json";
+        const string EmojisFileName = "emojis.json";
         const string RarityFileName = "rarity.json";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER");
@@ -55,6 +56,9 @@
         public Dictionary<string, ulong> Emojis { get; set; }
 
         [JsonIgnore]
+        public Dictionary<string, string> CustomEmojis { get; set; }
+
+        [JsonIgnore]
         public IReadOnlyDictionary<PokemonRarity, List<int>> PokemonRarity { get; set; }
 
         #region Singletons
@@ -82,6 +86,7 @@
             CpMultipliers = LoadInit<Dictionary<double, double>>(Path.Combine(Strings.DataFolder, CpMultipliersFileName));
             PokemonRarity = LoadInit<Dictionary<PokemonRarity, List<int>>>(Path.Combine(Strings.DataFolder, RarityFileName));
             Emojis = new Dictionary<string, ulong>();
+            CustomEmojis = LoadInit<Dictionary<string, string>>(Path.Combine(Strings.DataFolder, EmojisFileName));
         }
 
         public static PokedexPokemon GetPokemon(int pokemonId, int formId)
