@@ -568,6 +568,18 @@
                             continue;
                         }
 
+                        if (!int.TryParse(raid.Level, out var level))
+                        {
+                            _logger.Warn($"[{alarm.Name}] [{geofence.Name}] Failed to parse '{raid.Level}' as raid level.");
+                            continue;
+                        }
+
+                        if (!(level >= alarm.Filters.Raids.MinimumLevel && level <= alarm.Filters.Raids.MaximumLevel))
+                        {
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid {raid.PokemonId}: '{raid.Level}' does not meet the MinimumLevel={alarm.Filters.Raids.MinimumLevel} and MaximumLevel={alarm.Filters.Raids.MaximumLevel} filters.");
+                            continue;
+                        }
+
                         if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Pokemon.Contains(raid.PokemonId))
                         {
                             //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: filter {alarm.Filters.Raids.FilterType}.");

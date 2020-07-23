@@ -19,6 +19,18 @@
         public bool Enabled { get; set; }
 
         /// <summary>
+        /// Minimum raid level
+        /// </summary>
+        [JsonProperty("min_lvl")]
+        public uint MinimumLevel { get; set; }
+
+        /// <summary>
+        /// Maximum raid level
+        /// </summary>
+        [JsonProperty("max_lvl")]
+        public uint MaximumLevel { get; set; }
+
+        /// <summary>
         /// Raid boss pokedex ID list to filter against
         /// </summary>
         //TODO: Allow pokemon names and ids for raid filter.
@@ -54,6 +66,8 @@
         /// </summary>
         public FilterRaidObject()
         {
+            MinimumLevel = 1;
+            MaximumLevel = 5;
             Team = PokemonTeam.All;
         }
     }

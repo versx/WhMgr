@@ -2,6 +2,8 @@
 	"raids":
 	{
 		"enabled": true,
+		"min_lvl": 1,
+		"max_lvl": 5,
 		"pokemon": [403],
 		"type": "Include",
 		"onlyEx": false,

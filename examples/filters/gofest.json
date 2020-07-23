@@ -1,0 +1,12 @@
+{
+	"pokemon":
+	{
+		"enabled": true, //Filter is enabled
+		"pokemon": [], //List of Pokemon for the filter or empty for all
+		"min_iv": 0, //Minimum IV of Pokemon to send
+		"max_iv": 100, //Maximum IV of Pokemon to send
+		"type": "Include", //Include or Exclude the `pokemon` list
+		"is_event": true, //Only send Pokemon checked with event accounts (GoFest, etc)
+		"ignoreMissing": true //Ignore Pokemon missing stats
+	}
+}
