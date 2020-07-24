@@ -29,6 +29,8 @@
 	{
 		"enabled": true, //Filter is enabled
 		"pokemon": [], //Raid bosses to include or none for all.
+		"min_lvl": 1, //Minimum raid level to send
+		"max_lvl": 5, //Maximum raid level to send
 		"type": "Include", //Include or Exclude the `pokemon` list
 		"onlyEx": false, //Only send ex-eligible raids.
 		"team": "All", //All, Valor, Mystic, Instinct, Nuetral
