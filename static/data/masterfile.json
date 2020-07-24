@@ -1475,7 +1475,7 @@
 					"proto": "PIKACHU_PURIFIED"
 				},
 				"2332": {
-					"name": "Costume",
+					"name": "Costume 2020",
 					"proto": "PIKACHU_COSTUME_2020"
 				}
 			},
@@ -1759,7 +1759,20 @@
 		"29": {
 			"name": "Nidoran♀",
 			"default_form": "",
-			"forms": {},
+			"forms": {
+				"776": {
+					"name": "Normal",
+					"evolved_form": "779"
+				},
+				"777": {
+					"name": "Shadow",
+					"evolved_form": "780"
+				},
+				"778": {
+					"name": "Purified",
+					"evolved_form": "781"
+				}
+			},
 			"pokedex_id": 29,
 			"types": [
 				"Poison"
@@ -1808,15 +1821,18 @@
 			"forms": {
 				"779": {
 					"name": "Normal",
-					"proto": "NIDORINA_NORMAL"
+					"proto": "NIDORINA_NORMAL",
+					"evolved_form": "782"
 				},
 				"780": {
 					"name": "Shadow",
-					"proto": "NIDORINA_SHADOW"
+					"proto": "NIDORINA_SHADOW",
+					"evolved_form": "783"
 				},
 				"781": {
 					"name": "Purified",
-					"proto": "NIDORINA_PURIFIED"
+					"proto": "NIDORINA_PURIFIED",
+					"evolved_form": "784"
 				}
 			},
 			"pokedex_id": 30,
@@ -1916,7 +1932,20 @@
 		"32": {
 			"name": "Nidoran♂",
 			"default_form": "",
-			"forms": {},
+			"forms": {
+				"776": {
+					"name": "Normal",
+					"evolved_form": "785"
+				},
+				"777": {
+					"name": "Shadow",
+					"evolved_form": "786"
+				},
+				"778": {
+					"name": "Purified",
+					"evolved_form": "787"
+				}
+			},
 			"pokedex_id": 32,
 			"types": [
 				"Poison"
@@ -1965,15 +1994,18 @@
 			"forms": {
 				"785": {
 					"name": "Normal",
-					"proto": "NIDORINO_NORMAL"
+					"proto": "NIDORINO_NORMAL",
+					"evolved_form": "788"
 				},
 				"786": {
 					"name": "Shadow",
-					"proto": "NIDORINO_SHADOW"
+					"proto": "NIDORINO_SHADOW",
+					"evolved_form": "789"
 				},
 				"787": {
 					"name": "Purified",
-					"proto": "NIDORINO_PURIFIED"
+					"proto": "NIDORINO_PURIFIED",
+					"evolved_form": "790"
 				}
 			},
 			"pokedex_id": 33,
@@ -3997,15 +4029,18 @@
 			"forms": {
 				"809": {
 					"name": "Normal",
-					"proto": "MACHOP_NORMAL"
+					"proto": "MACHOP_NORMAL",
+					"evolved_form": "812"
 				},
 				"810": {
 					"name": "Shadow",
-					"proto": "MACHOP_SHADOW"
+					"proto": "MACHOP_SHADOW",
+					"evolved_form": "813"
 				},
 				"811": {
 					"name": "Purified",
-					"proto": "MACHOP_PURIFIED"
+					"proto": "MACHOP_PURIFIED",
+					"evolved_form": "814"
 				}
 			},
 			"pokedex_id": 66,
@@ -4057,15 +4092,18 @@
 			"forms": {
 				"812": {
 					"name": "Normal",
-					"proto": "MACHOKE_NORMAL"
+					"proto": "MACHOKE_NORMAL",
+					"evolved_form": "815"
 				},
 				"813": {
 					"name": "Shadow",
-					"proto": "MACHOKE_SHADOW"
+					"proto": "MACHOKE_SHADOW",
+					"evolved_form": "816"
 				},
 				"814": {
 					"name": "Purified",
-					"proto": "MACHOKE_PURIFIED"
+					"proto": "MACHOKE_PURIFIED",
+					"evolved_form": "817"
 				}
 			},
 			"pokedex_id": 67,
@@ -4707,6 +4745,10 @@
 				"1013": {
 					"name": "Purified",
 					"proto": "PONYTA_PURIFIED"
+				},
+				"2336": {
+					"name": "Galarian",
+					"proto": "PONYTA_GALARIAN"
 				}
 			},
 			"pokedex_id": 77,
@@ -4767,6 +4809,10 @@
 				"1016": {
 					"name": "Purified",
 					"proto": "RAPIDASH_PURIFIED"
+				},
+				"2337": {
+					"name": "Galarian",
+					"proto": "RAPIDASH_GALARIAN"
 				}
 			},
 			"pokedex_id": 78,
@@ -4816,6 +4862,10 @@
 				"1019": {
 					"name": "Purified",
 					"proto": "SLOWPOKE_PURIFIED"
+				},
+				"2582": {
+					"name": "Galarian",
+					"proto": "SLOWPOKE_GALARIAN"
 				}
 			},
 			"pokedex_id": 79,
@@ -4883,6 +4933,10 @@
 				"1022": {
 					"name": "Purified",
 					"proto": "SLOWBRO_PURIFIED"
+				},
+				"2583": {
+					"name": "Galarian",
+					"proto": "SLOWBRO_GALARIAN"
 				}
 			},
 			"pokedex_id": 80,
@@ -5739,6 +5793,10 @@
 				"1046": {
 					"name": "Purified",
 					"proto": "GENGAR_PURIFIED"
+				},
+				"2586": {
+					"name": "Costume",
+					"proto": "GENGAR_COSTUME_2020"
 				}
 			},
 			"pokedex_id": 94,
@@ -7837,6 +7895,10 @@
 				"324": {
 					"name": "Purified",
 					"proto": "LAPRAS_PURIFIED"
+				},
+				"2585": {
+					"name": "Costume",
+					"proto": "LAPRAS_COSTUME_2020"
 				}
 			},
 			"pokedex_id": 131,
@@ -12011,15 +12073,18 @@
 			"forms": {
 				"1244": {
 					"name": "Normal",
-					"proto": "PINECO_NORMAL"
+					"proto": "PINECO_NORMAL",
+					"evolved_form": "1247"
 				},
 				"1245": {
 					"name": "Shadow",
-					"proto": "PINECO_SHADOW"
+					"proto": "PINECO_SHADOW",
+					"evolved_form": "1248"
 				},
 				"1246": {
 					"name": "Purified",
-					"proto": "PINECO_PURIFIED"
+					"proto": "PINECO_PURIFIED",
+					"evolved_form": "1249"
 				}
 			},
 			"pokedex_id": 204,
@@ -12996,6 +13061,10 @@
 				"1285": {
 					"name": "Purified",
 					"proto": "CORSOLA_PURIFIED"
+				},
+				"2340": {
+					"name": "Galarian",
+					"proto": "CORSOLA_GALARIAN"
 				}
 			},
 			"pokedex_id": 222,
@@ -27815,7 +27884,6 @@
 			"stamina": 225,
 			"height": 0.4,
 			"weight": 4,
-			"flee_rate": 0.1,
 			"capture_rate": 100,
 			"quick_moves": [
 				"Confusion",
@@ -27824,14 +27892,14 @@
 			"charged_moves": [
 				"Overheat",
 				"Focus Blast",
-				"Psychic"
+				"Psychic",
+				"V Create"
 			],
 			"evolutions": [],
 			"evolutions_ids": [],
 			"evolution_branch": [],
 			"legendary": false,
 			"mythic": true,
-			"candy_to_evolve": 25,
 			"buddy_group_number": 2,
 			"buddy_distance": 20,
 			"third_move_stardust": 100000,
@@ -31476,6 +31544,10 @@
 				"2086": {
 					"name": "Purified",
 					"proto": "YAMASK_PURIFIED"
+				},
+				"2344": {
+					"name": "Galarian",
+					"proto": "YAMASK_GALARIAN"
 				}
 			},
 			"pokedex_id": 562,
@@ -36027,7 +36099,6 @@
 			"charged_moves": [
 				"Dragon Claw",
 				"Blizzard",
-				"Icy Wind",
 				"Draco Meteor"
 			],
 			"evolutions": [],
@@ -38322,6 +38393,18 @@
 		},
 		"340": {
 			"name": "Techno Blast Shock"
+		},
+		"341": {
+			"name": "Fly",
+			"proto": "COMBAT_V0341_MOVE_FLY",
+			"type": "Flying",
+			"power": 80
+		},
+		"342": {
+			"name": "V Create",
+			"proto": "COMBAT_V0342_MOVE_V_CREATE",
+			"type": "Fire",
+			"power": 95
 		}
 	},
 	"throw_types": {
@@ -38666,7 +38749,7 @@
 			"second_reward": "false",
 			"encounters": {
 				"first": [
-					"131_00"
+					"143_00"
 				],
 				"second": [
 					"062_00",
@@ -38691,7 +38774,8 @@
 			"encounters": {
 				"first": [
 					"013_00",
-					"048_00"
+					"048_00",
+					"213_00"
 				],
 				"second": [
 					"014_00",
@@ -38731,7 +38815,21 @@
 		},
 		"10": {
 			"type": "Dark",
-			"grunt": "Female"
+			"grunt": "Female",
+			"second_reward": "false",
+			"encounters": {
+				"first": [
+					"434_00"
+				],
+				"second": [
+					"302_00",
+					"434_00",
+					"435_00"
+				],
+				"third": [
+					"435_00"
+				]
+			}
 		},
 		"11": {
 			"type": "Dark",
@@ -38739,7 +38837,22 @@
 		},
 		"12": {
 			"type": "Dragon",
-			"grunt": "Female"
+			"grunt": "Female",
+			"second_reward": "false",
+			"encounters": {
+				"first": [
+					"147_00"
+				],
+				"second": [
+					"148_00",
+					"330_00"
+				],
+				"third": [
+					"148_00",
+					"149_00",
+					"371_00"
+				]
+			}
 		},
 		"13": {
 			"type": "Dragon",
@@ -38759,14 +38872,16 @@
 			"second_reward": "false",
 			"encounters": {
 				"first": [
+					"066_00",
 					"106_00",
 					"107_00"
 				],
 				"second": [
-					"107_00"
+					"066_00",
+					"106_00"
 				],
 				"third": [
-					"107_00"
+					"067_00"
 				]
 			}
 		},
@@ -38785,12 +38900,10 @@
 					"228_00"
 				],
 				"second": [
-					"005_00",
 					"038_00",
 					"229_00"
 				],
 				"third": [
-					"005_00",
 					"059_00",
 					"229_00"
 				]
@@ -38835,7 +38948,8 @@
 			"second_reward": "true",
 			"encounters": {
 				"first": [
-					"102_00"
+					"102_00",
+					"387_00"
 				],
 				"second": [
 					"002_00",
@@ -38859,9 +38973,7 @@
 			"second_reward": "false",
 			"encounters": {
 				"first": [
-					"027_00",
-					"246_00",
-					"328_00"
+					"207_00"
 				],
 				"second": [
 					"105_00",
@@ -38869,14 +38981,28 @@
 					"329_00"
 				],
 				"third": [
-					"105_00",
-					"330_00"
+					"330_00",
+					"472_00"
 				]
 			}
 		},
 		"26": {
 			"type": "Ice",
-			"grunt": "Female"
+			"grunt": "Female",
+			"second_reward": "false",
+			"encounters": {
+				"first": [
+					"459_00"
+				],
+				"second": [
+					"459_00",
+					"460_00"
+				],
+				"third": [
+					"131_00",
+					"460_00"
+				]
+			}
 		},
 		"27": {
 			"type": "Ice",
@@ -38900,9 +39026,12 @@
 			"second_reward": "false",
 			"encounters": {
 				"first": [
+					"019_00",
+					"041_00",
 					"137_00"
 				],
 				"second": [
+					"020_00",
 					"233_00"
 				],
 				"third": [
@@ -38913,7 +39042,23 @@
 		},
 		"32": {
 			"type": "Poison",
-			"grunt": "Female"
+			"grunt": "Female",
+			"second_reward": "false",
+			"encounters": {
+				"first": [
+					"029_00",
+					"032_00"
+				],
+				"second": [
+					"042_00",
+					"088_00",
+					"089_00"
+				],
+				"third": [
+					"030_00",
+					"033_00"
+				]
+			}
 		},
 		"33": {
 			"type": "Poison",
@@ -38929,9 +39074,8 @@
 			"second_reward": "true",
 			"encounters": {
 				"first": [
-					"063_00",
-					"202_00",
-					"280_00"
+					"096_00",
+					"202_00"
 				],
 				"second": [
 					"096_00",
@@ -38956,7 +39100,7 @@
 			"encounters": {
 				"first": [
 					"138_00",
-					"246_00"
+					"213_00"
 				],
 				"second": [
 					"246_00",
@@ -38974,8 +39118,8 @@
 			"second_reward": "false",
 			"encounters": {
 				"first": [
-					"258_00",
-					"318_00"
+					"054_00",
+					"258_00"
 				],
 				"second": [
 					"055_00",
@@ -38989,7 +39133,19 @@
 		},
 		"39": {
 			"type": "Water",
-			"grunt": "Male"
+			"grunt": "Male",
+			"second_reward": "false",
+			"encounters": {
+				"first": [
+					"129_00"
+				],
+				"second": [
+					"129_00"
+				],
+				"third": [
+					"129_00"
+				]
+			}
 		},
 		"40": {
 			"type": "Player Team Leader",
@@ -39001,11 +39157,11 @@
 			"second_reward": "false",
 			"encounters": {
 				"first": [
-					"127_00"
+					"088_00"
 				],
 				"second": [
-					"105_00",
-					"138_00",
+					"068_00",
+					"139_00",
 					"466_00"
 				],
 				"third": [
@@ -39021,7 +39177,7 @@
 			"second_reward": "false",
 			"encounters": {
 				"first": [
-					"303_00"
+					"204_00"
 				],
 				"second": [
 					"006_00",
@@ -39041,7 +39197,7 @@
 			"second_reward": "false",
 			"encounters": {
 				"first": [
-					"374_00"
+					"131_00"
 				],
 				"second": [
 					"103_00",
@@ -39050,7 +39206,7 @@
 				],
 				"third": [
 					"065_00",
-					"228_00",
+					"229_00",
 					"275_00"
 				]
 			}
@@ -39061,7 +39217,7 @@
 			"second_reward": "false",
 			"encounters": {
 				"first": [
-					"244_00"
+					"245_00"
 				]
 			}
 		},
@@ -39071,7 +39227,22 @@
 		},
 		"46": {
 			"type": "Decoy",
-			"grunt": "Female"
+			"grunt": "Female",
+			"second_reward": "false",
+			"encounters": {
+				"first": [
+					"069_00"
+				],
+				"second": [
+					"020_00",
+					"070_00",
+					"445_00"
+				],
+				"third": [
+					"020_00",
+					"143_00"
+				]
+			}
 		},
 		"47": {
 			"type": "Ghost",
@@ -39503,6 +39674,12 @@
 		"1600": {
 			"name": "Global Event Ticket",
 			"proto": "ITEM_GLOBAL_EVENT_TICKET",
+			"type": "Global Event Ticket",
+			"category": "Global Event Ticket"
+		},
+		"1601": {
+			"name": "Event Ticket Pink",
+			"proto": "ITEM_EVENT_TICKET_PINK",
 			"type": "Global Event Ticket",
 			"category": "Global Event Ticket"
 		}
