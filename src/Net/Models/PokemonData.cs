@@ -587,7 +587,7 @@
                 { "guild_img_url", guild?.IconUrl },
 
                 // Event properties
-                { "is_event", Convert.ToString(IsEvent) },
+                { "is_event", Convert.ToString(IsEvent.HasValue && IsEvent.Value) },
 
                 { "date_time", DateTime.Now.ToString() },
 

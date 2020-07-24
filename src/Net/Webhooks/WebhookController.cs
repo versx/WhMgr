@@ -413,9 +413,11 @@
                         continue;
                     }
 
-                    if (alarm.Filters.Pokemon.IsEvent && !(pkmn.IsEvent.HasValue && pkmn.IsEvent.Value))
+                    if ((alarm.Filters.Pokemon.IsEvent && !(pkmn.IsEvent.HasValue && pkmn.IsEvent.Value)) ||
+                        (!alarm.Filters.Pokemon.IsEvent && pkmn.IsEvent.HasValue && pkmn.IsEvent.Value))
                     {
                         // Pokemon does not have event flag indicating it was checked with event account and event filter is set, skip.
+                        // or Pokemon has event but filter is set to not include them
                         continue;
                     }
 
