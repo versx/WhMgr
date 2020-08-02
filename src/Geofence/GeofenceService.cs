@@ -62,6 +62,35 @@
             return polygonContainsPoint;
         }
 
+        /*
+        public static bool Contains(GeofenceItem geofence, Location point)
+        {
+            var lats = geofence.Polygons.Select(x => x.Latitude).ToList();
+            var lngs = geofence.Polygons.Select(x => x.Longitude).ToList();
+            var length = lats.Count; // -1?
+            var odd = false;
+            var pX = lats;
+            var pY = lngs;
+            for (var i = 0; i < lats.Count; i++)
+            {
+                if (((pY[i] < point.Longitude
+                    && pY[length] >= point.Longitude)
+                    || (pY[length] < point.Longitude
+                    && pY[i] >= point.Longitude))
+                    && (pX[i] <= point.Latitude
+                    || pX[length] <= point.Latitude))
+                {
+                    odd ^= (pX[i] + (point.Longitude - pY[i])
+                        * (pX[length] - pX[i])
+                        / (pY[length] - pY[i]))
+                        < point.Latitude;
+                }
+                length = i;
+            }
+            return odd;
+        }
+        */
+
         /// <summary>
         /// Check if the provided location is within one of the provided geofences.
         /// </summary>
