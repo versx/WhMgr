@@ -1,8 +1,8 @@
 {
 	"pokemon":
 	{
-		"enabled": false,
-		"pokemon": [13,14,15],
+		"enabled": true,
+		"pokemon": [129, 130],
 		"min_iv": 90,
 		"max_iv": 100,
 		"type": "Include",
