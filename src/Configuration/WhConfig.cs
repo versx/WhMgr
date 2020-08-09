@@ -99,10 +99,10 @@
         public int DespawnTimeMinimumMinutes { get; set; }
 
         /// <summary>
-        /// Gets or sets the interval in seconds to reload subscriptions to accomodate the UI changes
+        /// Gets or sets the interval in minutes to reload subscriptions to accomodate the UI changes
         /// </summary>
-        [JsonProperty("reloadSubscriptionChangesSeconds")]
-        public ushort ReloadSubscriptionChangesSeconds { get; set; }
+        [JsonProperty("reloadSubscriptionChangesMinutes")]
+        public ushort ReloadSubscriptionChangesMinutes { get; set; }
 
         /// <summary>
         /// Gets or sets whether to log incoming webhook data to a file
