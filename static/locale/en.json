@@ -158,7 +158,12 @@
     "EVENT_POKEMON_REMOVE": "{0} event Pokemon `{1}` removed.",
 	
 	"DIRECT_MESSAGE_NOT_SUPPORTED": "{0} Direct message is not supported for this command.",
-    
+
+	"PVP_GREAT_LEAGUE": "Great League",
+	"PVP_ULTRA_LEAGUE": "Ultra League",
+	"PVP_RANK": "Rank",
+	"PVP_CP": "CP",
+
     "quest_1": "{0} time(s) First Catch OTD",
     "quest_2": "{0} time(s) First Pokestop OTD",
     "quest_3": "Multi Part Quest",

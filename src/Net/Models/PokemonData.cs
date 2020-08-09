@@ -628,6 +628,8 @@
             var sb = new StringBuilder();
             if (GreatLeague != null)
             {
+                var rankText = Translator.Instance.Translate("PVP_RANK");
+                var cpText = Translator.Instance.Translate("PVP_CP");
                 for (var i = 0; i < GreatLeague.Count; i++)
                 {
                     var pvp = GreatLeague[i];
@@ -641,19 +643,21 @@
                         _logger.Error($"Pokemon database doesn't contain pokemon id {pvp.PokemonId}");
                         continue;
                     }
-                    var pkmn = MasterFile.Instance.Pokedex[pvp.PokemonId];
-                    var form = pkmn.Forms.ContainsKey(FormId) ? (string.Compare(pkmn.Forms[pvp.FormId].Name, "Normal", true) == 0 /*TODO: Localize*/ ? string.Empty : " (" + pkmn.Forms[pvp.FormId].Name + ")") : string.Empty;
+                    var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
+                    var form = Translator.Instance.GetFormName(pvp.FormId);
+                    var pkmnName = string.Compare(form, "Normal", true) == 0 ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
                     if ((pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP) && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumGreatLeagueCP)
                     {
-                        sb.AppendLine($"Rank #{pvp.Rank.Value} {pkmn.Name}{form} {pvp.CP.Value}CP @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
+                        sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
                     }
                 }
             }
             var result = sb.ToString();
             if (!string.IsNullOrEmpty(result))
             {
+                var greatLeagueText = Translator.Instance.Translate("GREAT_LEAGUE");
                 var greatLeagueEmoji = PvPLeague.Great.GetLeagueEmojiIcon();
-                result = greatLeagueEmoji + " **Great League:**\r\n" + result;
+                result = greatLeagueEmoji + $" **{greatLeagueText}:**\r\n" + result;
             }
             return await Task.FromResult(result);
         }
@@ -663,6 +667,8 @@
             var sb = new StringBuilder();
             if (UltraLeague != null)
             {
+                var rankText = Translator.Instance.Translate("PVP_RANK");
+                var cpText = Translator.Instance.Translate("PVP_CP");
                 for (var i = 0; i < UltraLeague.Count; i++)
                 {
                     var pvp = UltraLeague[i];
@@ -676,19 +682,21 @@
                         _logger.Warn($"Pokemon database doesn't contain pokemon id {pvp.PokemonId}");
                         continue;
                     }
-                    var pkmn = MasterFile.Instance.Pokedex[pvp.PokemonId];
-                    var form = pkmn.Forms.ContainsKey(FormId) ? (string.Compare(pkmn.Forms[pvp.FormId].Name, "Normal", true) == 0 /*TODO: Localize*/ ? string.Empty : " (" + pkmn.Forms[pvp.FormId].Name + ")") : string.Empty;
+                    var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
+                    var form = Translator.Instance.GetFormName(pvp.FormId);
+                    var pkmnName = string.Compare(form, "Normal", true) == 0 ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
                     if ((pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP) && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumUltraLeagueCP)
                     {
-                        sb.AppendLine($"Rank #{pvp.Rank.Value} {pkmn.Name}{form} {pvp.CP.Value}CP @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
+                        sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
                     }
                 }
             }
             var result = sb.ToString();
             if (!string.IsNullOrEmpty(result))
             {
+                var ultraLeagueText = Translator.Instance.Translate("ULTRA_LEAGUE");
                 var ultraLeagueEmoji = PvPLeague.Ultra.GetLeagueEmojiIcon();
-                result = ultraLeagueEmoji + " **Ultra League:**\r\n" + result;
+                result = ultraLeagueEmoji + $" **{ultraLeagueText}:**\r\n" + result;
             }
             return await Task.FromResult(result);
         }
