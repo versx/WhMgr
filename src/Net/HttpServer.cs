@@ -505,11 +505,22 @@
 
                 if (_processedWeather.ContainsKey(weather.Id))
                 {
-                    if (_processedWeather[weather.Id].GameplayCondition == weather.GameplayCondition)
+                    if (_processedWeather[weather.Id].GameplayCondition == weather.GameplayCondition &&
+                        _processedWeather[weather.Id].CloudLevel == weather.CloudLevel &&
+                        _processedWeather[weather.Id].FogLevel == weather.FogLevel &&
+                        _processedWeather[weather.Id].RainLevel == weather.RainLevel &&
+                        _processedWeather[weather.Id].Severity == weather.Severity &&
+                        _processedWeather[weather.Id].SnowLevel == weather.SnowLevel &&
+                        _processedWeather[weather.Id].WindLevel == weather.WindLevel &&
+                        _processedWeather[weather.Id].SpecialEffectLevel == weather.SpecialEffectLevel &&
+                        _processedWeather[weather.Id].WarnWeather == weather.WarnWeather &&
+                        _processedWeather[weather.Id].WindDirection == weather.WindDirection)
                     {
                         // Processed weather already
                         return;
                     }
+
+                    _processedWeather[weather.Id] = weather;
                 }
                 else
                 {
