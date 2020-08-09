@@ -139,7 +139,7 @@
             StaticMaps = new StaticMaps();
             Twilio = new TwilioConfig();
             DespawnTimeMinimumMinutes = 5;
-            ReloadSubscriptionChangesSeconds = 1;
+            ReloadSubscriptionChangesMinutes = 1;
         }
 
         /// <summary>
