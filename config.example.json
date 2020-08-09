@@ -118,6 +118,7 @@
   },
   "gmapsKey": "",
   "despawnTimeMinimumMinutes": 5,
+  "reloadSubscriptionChangesSeconds": 1,
   "debug": false,
   "logLevel": "Trace"
 }

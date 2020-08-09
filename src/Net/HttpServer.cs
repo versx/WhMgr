@@ -284,7 +284,7 @@
                         case PokestopData.WebhookHeaderInvasion:
                             ParsePokestop(message.Message);
                             break;
-                        case WeatherData.WebHookHeader:
+                        case WeatherData.WebhookHeader:
                             ParseWeather(message.Message);
                             break;
                     }

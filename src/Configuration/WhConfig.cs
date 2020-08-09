@@ -99,6 +99,12 @@
         public int DespawnTimeMinimumMinutes { get; set; }
 
         /// <summary>
+        /// Gets or sets the interval in seconds to reload subscriptions to accomodate the UI changes
+        /// </summary>
+        [JsonProperty("reloadSubscriptionChangesSeconds")]
+        public ushort ReloadSubscriptionChangesSeconds { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to log incoming webhook data to a file
         /// </summary>
         [JsonProperty("debug")]
@@ -133,6 +139,7 @@
             StaticMaps = new StaticMaps();
             Twilio = new TwilioConfig();
             DespawnTimeMinimumMinutes = 5;
+            ReloadSubscriptionChangesSeconds = 1;
         }
 
         /// <summary>

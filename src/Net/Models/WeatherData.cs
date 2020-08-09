@@ -31,7 +31,7 @@
     [Alias("weather")]
     public sealed class WeatherData
     {
-        public const string WebHookHeader = "weather";
+        public const string WebhookHeader = "weather";
 
         #region Properties
 

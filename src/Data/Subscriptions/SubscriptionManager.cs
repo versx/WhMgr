@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Timers;
 
     using ServiceStack.OrmLite;
 
@@ -21,6 +22,8 @@
 
         private readonly OrmLiteConnectionFactory _connFactory;
         //private readonly OrmLiteConnectionFactory _scanConnFactory;
+
+        private readonly Timer _reloadTimer;
 
         #endregion
 
@@ -59,6 +62,18 @@
             {
                 _logger.Error("FAiled to create default tables");
             }
+
+            // Reload subscriptions every 60 seconds to account for UI changes
+            _reloadTimer = new Timer(_whConfig.ReloadSubscriptionChangesSeconds * 1000);
+            _reloadTimer.Elapsed += OnReloadTimerElapsed;
+            _reloadTimer.Start();
+
+            ReloadSubscriptions();
+        }
+
+        private void OnReloadTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            // TODO: Only reload based on last_changed timestamp in metadata table
             ReloadSubscriptions();
         }
 

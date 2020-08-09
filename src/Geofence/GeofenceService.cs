@@ -67,7 +67,7 @@
         {
             var lats = geofence.Polygons.Select(x => x.Latitude).ToList();
             var lngs = geofence.Polygons.Select(x => x.Longitude).ToList();
-            var length = lats.Count; // -1?
+            var length = lats.Count - 1; // -1?
             var odd = false;
             var pX = lats;
             var pY = lngs;
