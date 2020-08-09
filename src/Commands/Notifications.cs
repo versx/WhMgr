@@ -322,6 +322,16 @@
                 return;
             }
 
+            if (string.Compare(poke, Strings.All, true) == 0)
+            {
+                if (realIV < 90)
+                {
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_IV").FormatText(ctx.User.Username), DiscordColor.Red);
+                    return;
+                }
+            }
+
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
