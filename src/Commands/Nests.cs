@@ -42,13 +42,15 @@
         ]
         public async Task PostNestsAsync(CommandContext ctx)
         {
-            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 
-            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            var server = _dep.WhConfig.Servers[guildId];
             var channelId = server.NestsChannelId;
             var channel = await ctx.Client.GetChannelAsync(channelId);
             if (channel == null)
@@ -79,7 +81,7 @@
 
                 try
                 {
-                    var eb = GenerateNestMessage(ctx.Guild.Id, ctx.Client, nest);
+                    var eb = GenerateNestMessage(guildId, ctx.Client, nest);
                     var geofences = _dep.Whm.Geofences.Values.ToList();
                     var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
                     if (geofence == null)
@@ -195,6 +197,8 @@
         ]
         public async Task ListNestsAsync(CommandContext ctx, string pokemon = null)
         {
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+
             var pokeId = pokemon.PokemonIdFromName();
             if (pokeId == 0)
             {
@@ -221,7 +225,7 @@
                 return;
             }
 
-            var cities = _dep.WhConfig.Servers[ctx.Guild.Id].CityRoles.Select(x => x.ToLower()).ToList();
+            var cities = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower()).ToList();
             var groupedNests = GroupNests(nests);
             foreach (var nest in groupedNests)
             {

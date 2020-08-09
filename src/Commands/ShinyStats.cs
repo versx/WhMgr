@@ -36,13 +36,15 @@
         ]
         public async Task GetShinyStatsAsync(CommandContext ctx)
         {
-            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 
-            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            var server = _dep.WhConfig.Servers[guildId];
             if (!server.ShinyStats.Enabled)
                 return;
 

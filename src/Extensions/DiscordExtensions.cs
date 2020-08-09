@@ -11,7 +11,7 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Entities;
     using DSharpPlus.Interactivity;
-
+    using ServiceStack;
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
     using WhMgr.Localization;
@@ -152,11 +152,14 @@
             return eb.FirstOrDefault();
         }
 
-        internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message)
+        //internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message, DiscordServerConfig servers)
+        internal static async Task<bool> IsDirectMessageSupported(this CommandContext ctx, WhConfig config)
         {
-            if (message?.Channel?.Guild == null)
+            var exists = ctx.Client.Guilds.Keys.FirstOrDefault(x => config.Servers.ContainsKey(x)) > 0;
+            //if (message?.Channel?.Guild == null)
+            if (!exists)
             {
-                await message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", message.Author.Username), DiscordColor.Yellow);
+                await ctx.Message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", ctx.Message.Author.Username), DiscordColor.Yellow);
                 return false;
             }
 

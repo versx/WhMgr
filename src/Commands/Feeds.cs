@@ -33,13 +33,14 @@
         ]
         public async Task FeedsAsync(CommandContext ctx)
         {
-            if (!await ctx.Message.IsDirectMessageSupported())
+            if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
                 return;
 
-            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
                 return;
 
-            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            var server = _dep.WhConfig.Servers[guildId];
             var cityRoles = server.CityRoles;
             cityRoles.Sort();
             var sb = new StringBuilder();
@@ -72,14 +73,16 @@
         public async Task FeedMeAsync(CommandContext ctx,
             [Description("City name to join or all."), RemainingText] string cityName = null)
         {
-            if (!await ctx.Message.IsDirectMessageSupported())
+            if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
                 return;
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, ctx.Guild.Id, _dep.WhConfig);
-            if (!_dep.WhConfig.Servers.ContainsKey(ctx.Guild.Id))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
                 return;
 
-            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            var server = _dep.WhConfig.Servers[guildId];
             if (server.CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
@@ -171,11 +174,13 @@
         public async Task FeedMeNotAsync(CommandContext ctx,
             [Description("City name to leave or all."), RemainingText] string cityName)
         {
-            if (!await ctx.Message.IsDirectMessageSupported())
+            if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
                 return;
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, ctx.Guild.Id, _dep.WhConfig);
-            if (_dep.WhConfig.Servers[ctx.Guild.Id].CitiesRequireSupporterRole && !isSupporter)
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+
+            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            if (_dep.WhConfig.Servers[guildId].CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
@@ -188,7 +193,7 @@
                 return;
             }
 
-            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            var server = _dep.WhConfig.Servers[guildId];
             var unassigned = new List<string>();
             var alreadyUnassigned = new List<string>();
 
@@ -254,13 +259,15 @@
 
         private async Task AssignAllDefaultFeedRoles(CommandContext ctx)
         {
-            if (_dep.WhConfig.Servers[ctx.Guild.Id].CityRoles == null)
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+
+            if (_dep.WhConfig.Servers[guildId].CityRoles == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
             }
 
-            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            var server = _dep.WhConfig.Servers[guildId];
             for (var i = 0; i < server.CityRoles.Count; i++)
             {
                 var city = server.CityRoles[i];
@@ -285,13 +292,15 @@
 
         private async Task RemoveAllDefaultFeedRoles(CommandContext ctx)
         {
-            if (_dep.WhConfig.Servers[ctx.Guild.Id].CityRoles == null)
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+
+            if (_dep.WhConfig.Servers[guildId].CityRoles == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
             }
 
-            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
+            var server = _dep.WhConfig.Servers[guildId];
             for (var i = 0; i < server.CityRoles.Count; i++)
             {
                 var city = server.CityRoles[i];

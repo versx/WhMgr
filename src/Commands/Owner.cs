@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Commands
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using DSharpPlus.CommandsNext;
@@ -63,17 +64,19 @@
         {
             _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+
             var removed = 0;
             var users = _dep.SubscriptionProcessor?.Manager?.Subscriptions;
             for (var i = 0; i < users.Count; i++)
             {
                 var user = users[i];
-                var discordUser = ctx.Client.GetMemberById(ctx.Guild.Id, user.UserId);
-                var isSupporter = ctx.Client.HasSupporterRole(ctx.Guild.Id, user.UserId, _dep.WhConfig.Servers[ctx.Guild.Id].DonorRoleIds);
+                var discordUser = ctx.Client.GetMemberById(guildId, user.UserId);
+                var isSupporter = ctx.Client.HasSupporterRole(guildId, user.UserId, _dep.WhConfig.Servers[guildId].DonorRoleIds);
                 if (discordUser == null || !isSupporter)
                 {
                     _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
-                    if (!SubscriptionManager.RemoveAllUserSubscriptions(ctx.Guild.Id, user.UserId))
+                    if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, user.UserId))
                     {
                         _logger.Warn($"Unable to remove user {user.UserId} subscription settings from the database.");
                         continue;

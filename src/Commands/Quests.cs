@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Commands
 {
     using System;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -31,9 +32,11 @@
         public async Task ResetChannelAsync(CommandContext ctx,
             [Description("Discord channel to reset.")] DiscordChannel channel = null)
         {
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+
             if (channel == null)
             {
-                var channelIds = _dep.WhConfig.Servers[ctx.Guild.Id].QuestChannelIds;
+                var channelIds = _dep.WhConfig.Servers[guildId].QuestChannelIds;
                 for (var i = 0; i < channelIds.Count; i++)
                 {
                     var qChannel = await ctx.Client.GetChannelAsync(channelIds[i]);
