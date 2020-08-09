@@ -655,7 +655,7 @@
             var result = sb.ToString();
             if (!string.IsNullOrEmpty(result))
             {
-                var greatLeagueText = Translator.Instance.Translate("GREAT_LEAGUE");
+                var greatLeagueText = Translator.Instance.Translate("PVP_GREAT_LEAGUE");
                 var greatLeagueEmoji = PvPLeague.Great.GetLeagueEmojiIcon();
                 result = greatLeagueEmoji + $" **{greatLeagueText}:**\r\n" + result;
             }
@@ -694,7 +694,7 @@
             var result = sb.ToString();
             if (!string.IsNullOrEmpty(result))
             {
-                var ultraLeagueText = Translator.Instance.Translate("ULTRA_LEAGUE");
+                var ultraLeagueText = Translator.Instance.Translate("PVP_ULTRA_LEAGUE");
                 var ultraLeagueEmoji = PvPLeague.Ultra.GetLeagueEmojiIcon();
                 result = ultraLeagueEmoji + $" **{ultraLeagueText}:**\r\n" + result;
             }
