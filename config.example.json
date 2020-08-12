@@ -89,7 +89,7 @@
     320
   ],
   "urls": {
-    "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png",
+    "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/{2}/300/175/1/png",
     "scannerMap": "http://map.example.com/@/{0}/{1}/15"
   },
   "iconStyles": {
@@ -98,14 +98,38 @@
     "Home": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/pmsf_OS_128/"
   },
   "staticMaps": {
-    "pokemon": "pokemon.example.json",
-    "raids": "raids.example.json",
-    "quests": "quests.example.json",
-    "invasions": "invasions.example.json",
-    "lures": "lures.example.json",
-    "gyms": "gyms.example.json",
-    "nests": "nests.example.json",
-    "weather": "weather.example.json"
+    "pokemon": {
+        "file": "pokemon.example.json",
+        "zoom": 15
+    },
+    "raids": {
+        "file": "raids.example.json",
+        "zoom": 15
+    },
+    "quests": {
+        "file": "quests.example.json",
+        "zoom": 15
+    },
+    "invasions": {
+        "file": "invasions.example.json",
+        "zoom": 15
+    },
+    "lures": {
+        "file": "lures.example.json",
+        "zoom":  15
+    },
+    "gyms": {
+        "file": "gyms.example.json",
+        "zoom": 11
+    },
+    "nests": {
+        "file": "nests.example.json",
+        "zoom": 15
+    },
+    "weather": {
+        "file": "weather.example.json",
+        "zoom": 11
+    }
   },
   "twilio": {
     "enabled": false,
