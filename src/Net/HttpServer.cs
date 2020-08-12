@@ -499,7 +499,7 @@
                 WeatherData weather = JsonConvert.DeserializeObject<WeatherData>(Convert.ToString(message));
                 if (weather == null)
                 {
-                    _logger.Error($"Failed to parse gym details webhook object: {message}");
+                    _logger.Error($"Failed to parse weather webhook object: {message}");
                     return;
                 }
 
