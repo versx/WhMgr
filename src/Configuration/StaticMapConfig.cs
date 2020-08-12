@@ -13,28 +13,28 @@
         private static readonly IEventLogger _logger = EventLogger.GetLogger("STATICMAPS", Program.LogLevel);
 
         [JsonProperty("pokemon")]
-        public string PokemonTemplateFile { get; set; }
+        public StaticMapTemplateConfig Pokemon { get; set; }
 
         [JsonProperty("raids")]
-        public string RaidsTemplateFile { get; set; }
+        public StaticMapTemplateConfig Raids { get; set; }
 
         [JsonProperty("quests")]
-        public string QuestsTemplateFile { get; set; }
+        public StaticMapTemplateConfig Quests { get; set; }
 
         [JsonProperty("invasions")]
-        public string InvasionsTemplateFile { get; set; }
+        public StaticMapTemplateConfig Invasions { get; set; }
 
         [JsonProperty("lures")]
-        public string LuresTemplateFile { get; set; }
+        public StaticMapTemplateConfig Lures { get; set; }
 
         [JsonProperty("gyms")]
-        public string GymsTemplateFile { get; set; }
+        public StaticMapTemplateConfig Gyms { get; set; }
 
         [JsonProperty("nests")]
-        public string NestsTemplateFile { get; set; }
+        public StaticMapTemplateConfig Nests { get; set; }
 
         [JsonProperty("weather")]
-        public string WeatherTemplateFile { get; set; }
+        public StaticMapTemplateConfig Weather { get; set; }
 
         [JsonIgnore]
         public string TemplatesFolder => Path.Combine(Directory.GetCurrentDirectory(), Strings.TemplatesFolder);
@@ -47,6 +47,15 @@
                 return;
             }
         }
+    }
+
+    public class StaticMapTemplateConfig
+    {
+        [JsonProperty("file")]
+        public string TemplateFile { get; set; }
+
+        [JsonProperty("zoom")]
+        public int ZoomLevel { get; set; }
     }
 
     public class StaticMapConfig

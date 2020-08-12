@@ -24,7 +24,7 @@
         private static readonly IEventLogger _logger = EventLogger.GetLogger("UTILS", Program.LogLevel);
 
         // TODO: Provide better way for replacement values
-        public static string GetStaticMapsUrl(string templateFileName, string staticMapUrl, double latitude, double longitude, string markerImageUrl, PokemonTeam? team, OsmFeature feature = null, MultiPolygon multiPolygon = null)
+        public static string GetStaticMapsUrl(string templateFileName, string staticMapUrl, int staticMapZoom, double latitude, double longitude, string markerImageUrl, PokemonTeam? team, OsmFeature feature = null, MultiPolygon multiPolygon = null)
         {
             var staticMapData = Renderer.Parse(templateFileName, new
             {
@@ -40,7 +40,7 @@
             }); ;
             StaticMapConfig staticMap = JsonConvert.DeserializeObject<StaticMapConfig>(staticMapData);
 
-            var url = string.Format(staticMapUrl, latitude, longitude);
+            var url = string.Format(staticMapUrl, latitude, longitude, staticMapZoom);
             var markerUrl = staticMap.Markers.Count > 0 ? url + "?markers=" + Uri.EscapeDataString(JsonConvert.SerializeObject(staticMap.Markers)) : string.Empty;
 
             if (feature != null)
