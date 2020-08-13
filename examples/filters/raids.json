@@ -11,7 +11,7 @@
 		"min_lvl": 1,
 		"max_lvl": 4,
 		"pokemon": [],
-		"type": "Exclude",
+		"type": "Include",
 		"ignoreMissing": false
 	}
 }
