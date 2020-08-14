@@ -35,7 +35,7 @@
 
         #region Properties
 
-        [JsonProperty("id")]
+        [JsonProperty("s2_cell_id")]
         public long Id { get; set; }
 
         [JsonProperty("latitude")]
