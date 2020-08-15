@@ -37,7 +37,7 @@
                 quest_reward_img_url = markerImageUrl,
                 weather_img_url = markerImageUrl,
                 tilemaps_url = staticMapUrl
-            }); ;
+            });
             StaticMapConfig staticMap = JsonConvert.DeserializeObject<StaticMapConfig>(staticMapData);
 
             var url = string.Format(staticMapUrl, latitude, longitude, staticMapZoom);

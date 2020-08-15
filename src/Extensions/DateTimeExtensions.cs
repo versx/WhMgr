@@ -2,6 +2,9 @@
 {
     using System;
 
+    using GeoTimeZone;
+    using TimeZoneConverter;
+
     public static class DateTimeExtensions
     {
         public static TimeSpan GetTimeRemaining(this DateTime endTime)
@@ -36,6 +39,15 @@
                 Console.WriteLine("Registry data on the Central Standard Time zone has been corrupted.");
             }
             return timeUtc;
+        }
+
+        public static DateTime ConvertTimeFromCoordinates(this DateTime date, double lat, double lon)
+        {
+            var tzIana = TimeZoneLookup.GetTimeZone(lat, lon).Result;
+            var tzMs = TZConvert.IanaToWindows(tzIana);
+            var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(tzMs);
+            var convertedTime = TimeZoneInfo.ConvertTimeFromUtc(date, tzInfo);
+            return convertedTime;
         }
     }
 }

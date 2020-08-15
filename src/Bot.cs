@@ -27,10 +27,8 @@
     using DSharpPlus.Interactivity;
 
     // TODO: Subscriptions, Pokemon, Raid, Quest, Invasion, Gym, Weather alarm statistics by day. date/pokemonId/count
-    // TODO: Specific timezone per Discord
     // TODO: Account status alarms
     // TODO: List all subscriptions with info command
-    // TODO: Manage subscriptions via DM again
     // TODO: Multiple discord bot tokens per server
     // TODO: Only start database migrator if subscriptions are enabled
     // TODO: Check nests again
