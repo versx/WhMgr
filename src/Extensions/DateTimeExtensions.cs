@@ -46,7 +46,8 @@
             var tzIana = TimeZoneLookup.GetTimeZone(lat, lon).Result;
             var tzMs = TZConvert.IanaToWindows(tzIana);
             var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(tzMs);
-            var convertedTime = TimeZoneInfo.ConvertTimeFromUtc(date, tzInfo);
+            var dt = DateTime.SpecifyKind(date, DateTimeKind.Utc);
+            var convertedTime = TimeZoneInfo.ConvertTimeFromUtc(dt, tzInfo);
             return convertedTime;
         }
     }
