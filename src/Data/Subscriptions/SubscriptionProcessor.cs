@@ -765,10 +765,21 @@
                     }
 
                     // Send direct message notification to user
-                    var client = _servers[item.Subscription.GuildId];
-                    await client.SendDirectMessage(item.Member, item.Embed);
-                    _logger.Info($"[WEBHOOK] Notified user {item.Member.Username} of {item.Description}.");
-                    Thread.Sleep(10);
+                    if (item.Pokemon != null) {
+                        var client = _servers[item.Subscription.GuildId];
+                        var pokemonImageUrl = item.Pokemon.Id.GetPokemonIcon(item.Pokemon.FormId, item.Pokemon.Costume, _whConfig, _whConfig.Servers[item.Member.Guild.Id].IconStyle);
+                        var properties = await item.Pokemon.GetProperties(item.Member.Guild, _whConfig, item.City, pokemonImageUrl);
+                        var description = Alarms.Alerts.DynamicReplacementEngine.ReplaceText("<pkmn_name> <iv> L<lvl> <#near_pokestop>**Near Pokestop:** <pokestop_name></near_pokestop> | <geofence>", properties);
+                        await client.SendDirectMessage(item.Member, description, item.Embed);
+                        _logger.Info($"[WEBHOOK] Notified user {item.Member.Username} of {item.Description}.");
+                        Thread.Sleep(10);
+                    } else {
+                        // Send direct message notification to user
+                        var client = _servers[item.Subscription.GuildId];
+                        await client.SendDirectMessage(item.Member, item.Embed);
+                        _logger.Info($"[WEBHOOK] Notified user {item.Member.Username} of {item.Description}.");
+                        Thread.Sleep(10);
+                    }
                 }
             })
             { IsBackground = true }.Start();

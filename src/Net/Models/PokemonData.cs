@@ -424,7 +424,7 @@
 
         #endregion
 
-        private async Task<IReadOnlyDictionary<string, string>> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
+        public async Task<IReadOnlyDictionary<string, string>> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
             var pkmnName = Translator.Instance.GetPokemonName(Id);
