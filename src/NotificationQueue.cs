@@ -65,5 +65,10 @@
             City = city;
             Pokemon = pokemon;
         }
+
+        public override string ToString()
+        {
+            return $"Subscription Id: {Subscription?.Id}, Member Id: {Member?.Id}, Embed: {Embed?.Description}, Description: {Description}, City: {City}, Pokemon: {Pokemon?.Id}";
+        }
     }
 }
