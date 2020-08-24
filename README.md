@@ -245,7 +245,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         // Twilio phone number that will be sending the text message alert
         "from": "",
         // List of Discord user ids that can receive text message alerts
-        "userIds": "",
+        "userIds": [],
         // List of acceptable Pokemon to receive text message alerts for
         "pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
         // Minimum acceptable IV value for Pokemon if not ultra rare (Unown, Lake Trio)
