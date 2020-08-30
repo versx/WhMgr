@@ -83,10 +83,5 @@
         {
             return Translate($"item_{(int)item}");
         }
-
-        public string GetWeather(WeatherType weather)
-        {
-            return Translate($"weather_{(int)weather}");
-        }
     }
 }

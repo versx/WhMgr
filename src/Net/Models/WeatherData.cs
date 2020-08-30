@@ -15,7 +15,6 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
-    using WhMgr.Localization;
     using WhMgr.Osm.Models;
     using WhMgr.Utilities;
 
@@ -136,7 +135,7 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string weatherImageUrl)
         {
-            var weather = Translator.Instance.GetWeather(GameplayCondition);
+            var weather = GameplayCondition.ToString();
             var weatherKey = $"weather_{Convert.ToInt32(GameplayCondition)}";
             var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && GameplayCondition != WeatherType.None ? GameplayCondition.GetWeatherEmojiIcon() : string.Empty;
             var hasWeather = GameplayCondition != WeatherType.None;
