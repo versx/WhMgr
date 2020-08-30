@@ -74,6 +74,9 @@
         [JsonProperty("form")]
         public int Form { get; set; }
 
+        [JsonProperty("evolution")]
+        public int Evolution { get; set; }
+
         [JsonProperty("gender")]
         public PokemonGender Gender { get; set; }
 
@@ -172,6 +175,7 @@
             var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
             var name = IsEgg ? "Egg" /*TODO: Localize*/ : Translator.Instance.GetPokemonName(PokemonId);
             var form = Translator.Instance.GetFormName(Form);
+            var evo = Translator.Instance.GetEvolutionName(Evolution);
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
             var move1 = Translator.Instance.GetMoveName(FastMove);
@@ -214,6 +218,7 @@
                 { "pkmn_id_3", PokemonId.ToString("D3") },
                 { "pkmn_name", name },
                 { "pkmn_img_url", raidImageUrl },
+                { "evolution", evo },
                 { "form", form },
                 { "form_id", Form.ToString() },
                 { "form_id_3", Form.ToString("D3") },
