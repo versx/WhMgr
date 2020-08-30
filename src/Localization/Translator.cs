@@ -66,6 +66,18 @@
             return form;
         }
 
+        public string GetEvolutionName(int evoId)
+        {
+            if (evoId == 0)
+                return null;
+
+            var evo = Translate("evo_" + evoId);
+            // TODO: Localize
+            if (string.Compare(evo, "Normal", true) == 0)
+                return string.Empty;
+            return evo;
+        }
+
         public string GetMoveName(int moveId)
         {
             if (moveId == 0)
