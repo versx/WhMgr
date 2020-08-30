@@ -323,7 +323,7 @@
                                                                      (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
                                                                      (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false;
 
-                    if (!(matchesGreat || matchesUltra))
+                    if (!matchesGreat && !matchesUltra)
                         continue;
 
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
