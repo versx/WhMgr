@@ -94,7 +94,7 @@
             League = PvPLeague.Great;
             MinimumRank = 25;
             MinimumPercent = 90;
-            City = "all";
+            City = null;// "all";
         }
     }
 }

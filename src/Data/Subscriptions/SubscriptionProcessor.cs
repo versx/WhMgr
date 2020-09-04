@@ -314,14 +314,14 @@
                         continue;
                     }
 
-                    matchesGreat = pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Great &&
+                    matchesGreat = pkmn.GreatLeague != null && (pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Great &&
+                                                                     (x.CP ?? 0) >= 1400 && (x.CP ?? 0) <= 1500 &&
+                                                                     (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
+                                                                     (x.Percentage ?? 0) * 100 >= subscribedPokemon.MinimumPercent) ?? false);
+                    matchesUltra = pkmn.UltraLeague != null && (pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Ultra &&
                                                                      (x.CP ?? 0) >= 2400 && (x.CP ?? 0) <= 2500 &&
                                                                      (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
-                                                                     (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false;
-                    matchesUltra = pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Ultra &&
-                                                                     (x.CP ?? 0) >= 2400 && (x.CP ?? 0) <= 2500 &&
-                                                                     (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
-                                                                     (x.Percentage ?? 0) >= subscribedPokemon.MinimumPercent) ?? false;
+                                                                     (x.Percentage ?? 0) * 100 >= subscribedPokemon.MinimumPercent) ?? false);
 
                     if (!matchesGreat && !matchesUltra)
                         continue;
