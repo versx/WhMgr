@@ -44,8 +44,11 @@
         public static DateTime ConvertTimeFromCoordinates(this DateTime date, double lat, double lon)
         {
             var tzIana = TimeZoneLookup.GetTimeZone(lat, lon).Result;
-            var tzMs = TZConvert.IanaToWindows(tzIana);
-            var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(tzMs);
+#if Windows
+            // Convert to Windows acceptable TimeZone
+            tzIana = TZConvert.IanaToWindows(tzIana);
+#endif
+            var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(tzIana);
             var dt = DateTime.SpecifyKind(date, DateTimeKind.Utc);
             var convertedTime = TimeZoneInfo.ConvertTimeFromUtc(dt, tzInfo);
             return convertedTime;
