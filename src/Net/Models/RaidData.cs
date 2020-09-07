@@ -127,9 +127,13 @@
         /// </summary>
         public void SetTimes()
         {
-            StartTime = Start.FromUnix();
+            StartTime = Start
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
 
-            EndTime = End.FromUnix();
+            EndTime = End
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
         /// <summary>
