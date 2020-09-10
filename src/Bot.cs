@@ -27,11 +27,8 @@
     using DSharpPlus.Interactivity;
 
     // TODO: Subscriptions, Pokemon, Raid, Quest, Invasion, Gym, Weather alarm statistics by day. date/pokemonId/count
-    // TODO: Specific timezone per Discord
-    // TODO: Account status alarms
     // TODO: List all subscriptions with info command
     // TODO: Multiple discord bot tokens per server
-    // TODO: Only start database migrator if subscriptions are enabled
     // TODO: Check nests again
     // TODO: IV wildcards
     // TODO: Egg subscriptions (maybe)
@@ -71,13 +68,6 @@
             DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
             DataAccessLayer.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
 
-            // Start database migrator
-            var migrator = new DatabaseMigrator();
-            while (!migrator.Finished)
-            {
-                Thread.Sleep(50);
-            }
-
             // Set unhandled exception event handler
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
 
@@ -87,8 +77,16 @@
             midnight.Start();
 
             // Initialize the subscription processor if at least one Discord server wants custom notifications
+            // and start database migrator
             if (_whConfig.Servers.Values.ToList().Exists(x => x.EnableSubscriptions))
             {
+                // Start database migrator
+                var migrator = new DatabaseMigrator();
+                while (!migrator.Finished)
+                {
+                    Thread.Sleep(50);
+                }
+
                 _subProcessor = new SubscriptionProcessor(_servers, _whConfig, _whm);
             }
 
