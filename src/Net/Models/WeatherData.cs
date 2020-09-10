@@ -134,6 +134,10 @@
             return new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() });
         }
 
+        #endregion
+
+        #region Private Methods
+
         private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string weatherImageUrl)
         {
             var weather = Translator.Instance.GetWeather(GameplayCondition);
@@ -150,7 +154,15 @@
             var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? scannerMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            var googleAddress = Utils.GetGoogleAddress(city, Latitude, Longitude, whConfig.GoogleMapsKey);
+            Geofence.Location address;
+            if (!string.IsNullOrEmpty(whConfig.GoogleMapsKey))
+            {
+                address = Utils.GetGoogleAddress(city, Latitude, Longitude, whConfig.GoogleMapsKey);
+            }
+            else
+            {
+                address = Utils.GetNominatimAddress(city, Latitude, Longitude, whConfig.NominatimEndpoint);
+            }
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
             const string defaultMissingValue = "?";
@@ -188,7 +200,7 @@
                 { "wazemaps_url", wazeMapsLocationLink },
                 { "scanmaps_url", scannerMapsLocationLink },
 
-                { "address", googleAddress?.Address },
+                { "address", address?.Address },
 
                 // Discord Guild properties
                 { "guild_name", guild?.Name },

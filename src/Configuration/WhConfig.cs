@@ -93,6 +93,12 @@
         public string GoogleMapsKey { get; set; }
 
         /// <summary>
+        /// Gets or sets the OpenStreetMaps Nominatim endpoint to use for reverse location lookup
+        /// </summary>
+        [JsonProperty("nominatim")]
+        public string NominatimEndpoint { get; set; }
+
+        /// <summary>
         /// Gets or sets the minimum despawn time in minutes a Pokemon must have in order to send the alarm
         /// </summary>
         [JsonProperty("despawnTimeMinimumMinutes")]

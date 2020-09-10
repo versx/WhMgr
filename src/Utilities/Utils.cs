@@ -110,5 +110,27 @@
             }
             return null;
         }
+
+        public static Location GetNominatimAddress(string city, double lat, double lng, string endpoint)
+        {
+            var unknown = "Unknown";
+            var url = $"{endpoint}/reverse?format=jsonv2&lat={lat}&lon={lng}";
+            try
+            {
+                using (var wc = new WebClient())
+                {
+                    wc.Proxy = null;
+                    wc.Headers.Add("User-Agent", Strings.BotName);
+                    var json = wc.DownloadString(url);
+                    dynamic obj = JsonConvert.DeserializeObject(json);
+                    return new Location(Convert.ToString(obj.display_name), city ?? unknown, Convert.ToDouble(obj.lat), Convert.ToDouble(obj.lon));
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+            return null;
+        }
     }
 }
