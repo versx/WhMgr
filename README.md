@@ -718,7 +718,7 @@ __**Quests**__
 | br | Newline break | `\r\n`
 
 
-## TODO:  
+## TODO  
 - Allow Pokemon id and name in Pokemon filter lists.  
 - Individual filters per Pokemon. (PA style, maybe)  
 - PvP ranks DTS
@@ -726,16 +726,19 @@ __**Quests**__
 - Wiki.  
 
 
-## Examples:  
+## Previews  
 *All examples are completely customizable using Dynamic Text Replacement/Substitution*  
 Discord Pokemon Notifications:  
 ![Pokemon Notifications](images/pkmn.png "Pokemon Notifications")  
 
+Discord Pokemon PVP Notifications:  
+![Pokemon Notifications](images/pvp.png "Pokemon PVP Notifications")  
+
 Discord Raid Notifications:  
-![Raid Notifications](images/raid.png "Raid Notifications")  
+![Raid Notifications](images/raids.png "Raid Notifications")  
 
 Discord Raid Egg Notifications:  
-![Egg Notifications](images/egg.png "Egg Notifications")  
+![Egg Notifications](images/eggs.png "Egg Notifications")  
 
 Discord Quest Notifications:  
 ![Quest Notifications](images/quests.png "Quest Notifications")  
@@ -758,10 +761,14 @@ Discord Gym Team Takeover Notifications:
 Discord Team Rocket Invasion Notifications:  
 ![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
 
-## Current Issues:  
+Discord Weather Notifications:  
+![Weather Notifications](images/weather.png "Weather Notifications")  
+
+
+## Current Issues  
 - Pokemon subscriptions are based on Discord city roles assigned currently, soon it will be based on specified cities.  
 
-## Credits:  
+## Credits  
 [versx](https://github.com/versx) - Developer  
 [PokeAlarm](https://github.com/PokeAlarm/PokeAlarm) - Dynamic Text Substitution idea  
 [WDR](https://github.com/PartTimeJS/WDR) - masterfile.json file  

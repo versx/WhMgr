@@ -645,7 +645,7 @@
                     }
                     var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
                     var form = Translator.Instance.GetFormName(pvp.FormId);
-                    var pkmnName = string.Compare(form, "Normal", true) == 0 ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
+                    var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
                     if ((pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP) && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumGreatLeagueCP)
                     {
                         sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
@@ -684,7 +684,7 @@
                     }
                     var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
                     var form = Translator.Instance.GetFormName(pvp.FormId);
-                    var pkmnName = string.Compare(form, "Normal", true) == 0 ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
+                    var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
                     if ((pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP) && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumUltraLeagueCP)
                     {
                         sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
