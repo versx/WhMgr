@@ -860,10 +860,10 @@
                 }
             }
 
-            await LoadEmojis();
+            await CacheGuildEmojisList();
         }
 
-        private async Task LoadEmojis()
+        private async Task CacheGuildEmojisList()
         {
             _logger.Trace($"LoadEmojis");
 
