@@ -33,7 +33,6 @@
     // TODO: Multiple discord bot tokens per server
     // TODO: Only start database migrator if subscriptions are enabled
     // TODO: Check nests again
-    // TODO: Allow roles with spaces
     // TODO: IV wildcards
     // TODO: Egg subscriptions (maybe)
     // TODO: Osm nominatim reverse geocoding

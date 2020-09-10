@@ -101,7 +101,7 @@
 
             try
             {
-                var cityNames = cityName.Replace(" ", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                var cityNames = cityName.Replace(", ", "").Replace(" ,", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
                 var cityRoles = server.CityRoles.Select(x => x.ToLower());
                 foreach (var city in cityNames)
                 {
@@ -199,7 +199,7 @@
 
             try
             {
-                var cityNames = cityName.Replace(" ", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                var cityNames = cityName.Replace(", ", "").Replace(" ,", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
                 var cityRoles = server.CityRoles;
                 foreach (var city in cityNames)
                 {
