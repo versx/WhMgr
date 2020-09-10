@@ -97,9 +97,13 @@
         /// </summary>
         public void SetTimes()
         {
-            LureExpireTime = LureExpire.FromUnix();
+            LureExpireTime = LureExpire
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
 
-            InvasionExpireTime = IncidentExpire.FromUnix();
+            InvasionExpireTime = IncidentExpire
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
         public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)

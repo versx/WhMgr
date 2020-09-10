@@ -61,7 +61,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     "stripeApiKey": ""
     // List of Discord servers to connect and post webhook messages to.
     "servers": {
-        // Discord server #1 guild ID
+        // Discord server #1 guild ID (replace `000000000000000001` with guild id of server)
         "000000000000000001": {
             // Bot command prefix, leave blank to use @mention <command>
             "commandPrefix": ".",

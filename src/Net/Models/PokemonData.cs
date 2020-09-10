@@ -376,13 +376,18 @@
         /// </summary>
         public void SetDespawnTime()
         {
-            DespawnTime = DisappearTime.FromUnix();
+            DespawnTime = DisappearTime.FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
 
-            SecondsLeft = DespawnTime.Subtract(DateTime.Now);
+            SecondsLeft = DespawnTime.Subtract(DateTime.Now.ConvertTimeFromCoordinates(Latitude, Longitude));
 
-            FirstSeenTime = FirstSeen.FromUnix();
+            FirstSeenTime = FirstSeen
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
 
-            LastModifiedTime = LastModified.FromUnix();
+            LastModifiedTime = LastModified
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
         /// <summary>

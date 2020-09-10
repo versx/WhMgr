@@ -102,11 +102,9 @@
 
         public void SetTimes()
         {
-            UpdatedTime = Updated.FromUnix();
-            //if (TimeZoneInfo.Local.IsDaylightSavingTime(Updated))
-            //{
-            //    UpdatedTime = UpdatedTime.AddHours(1);
-            //}
+            UpdatedTime = Updated
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
         public DiscordEmbedNotification GenerateWeatherMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
