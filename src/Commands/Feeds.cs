@@ -267,24 +267,33 @@
                 return;
             }
 
-            var server = _dep.WhConfig.Servers[guildId];
-            for (var i = 0; i < server.CityRoles.Count; i++)
+            try
             {
-                var city = server.CityRoles[i];
-                var cityRole = ctx.Client.GetRoleFromName(city);
-                if (cityRole == null)
+                var server = _dep.WhConfig.Servers[guildId];
+                for (var i = 0; i < server.CityRoles.Count; i++)
                 {
-                    _logger.Error($"Failed to get city raid role from city {city}.");
-                    continue;
-                }
+                    var city = server.CityRoles[i];
+                    var cityRole = ctx.Client.GetRoleFromName(city);
+                    if (cityRole == null)
+                    {
+                        _logger.Error($"Failed to get city raid role from city {city}.");
+                        continue;
+                    }
 
-                var result = await AddFeedRole(ctx.Member, cityRole);
-                if (!result)
-                {
-                    _logger.Error($"Failed to assign role {cityRole.Name} to user {ctx.User.Username} ({ctx.User.Id}).");
-                }
+                    var result = await AddFeedRole(ctx.Member, cityRole);
+                    if (!result)
+                    {
+                        _logger.Error($"Failed to assign role {cityRole.Name} to user {ctx.User.Username} ({ctx.User.Id}).");
+                    }
 
-                Thread.Sleep(500);
+                    Thread.Sleep(500);
+                }
+            }
+            catch (Exception)
+            {
+                _logger.Error($"Failed to add feed role, make sure bot has correct permissions.");
+                await ctx.RespondEmbed($"Failed to add feed role, make sure bot has correct permissions.");
+                return;
             }
 
             await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_ASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));
@@ -300,24 +309,33 @@
                 return;
             }
 
-            var server = _dep.WhConfig.Servers[guildId];
-            for (var i = 0; i < server.CityRoles.Count; i++)
+            try
             {
-                var city = server.CityRoles[i];
-                var cityRole = ctx.Client.GetRoleFromName(city);
-                if (cityRole == null)
+                var server = _dep.WhConfig.Servers[guildId];
+                for (var i = 0; i < server.CityRoles.Count; i++)
                 {
-                    _logger.Error($"Failed to get city role from city {city}.");
-                    continue;
-                }
+                    var city = server.CityRoles[i];
+                    var cityRole = ctx.Client.GetRoleFromName(city);
+                    if (cityRole == null)
+                    {
+                        _logger.Error($"Failed to get city role from city {city}.");
+                        continue;
+                    }
 
-                var result = await RemoveFeedRole(ctx.Member, cityRole);
-                if (!result)
-                {
-                    _logger.Error($"Failed to remove role {cityRole.Name} from user {ctx.User.Username} ({ctx.User.Id}).");
-                }
+                    var result = await RemoveFeedRole(ctx.Member, cityRole);
+                    if (!result)
+                    {
+                        _logger.Error($"Failed to remove role {cityRole.Name} from user {ctx.User.Username} ({ctx.User.Id}).");
+                    }
 
-                Thread.Sleep(200);
+                    Thread.Sleep(200);
+                }
+            }
+            catch (Exception)
+            {
+                _logger.Error($"Failed to remove feed role, make sure bot has correct permissions.");
+                await ctx.RespondEmbed($"Failed to remove feed role, make sure bot has correct permissions.");
+                return;
             }
 
             await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_UNASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));
