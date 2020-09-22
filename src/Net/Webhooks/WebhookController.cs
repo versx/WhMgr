@@ -225,7 +225,7 @@
         private void Http_PokemonReceived(object sender, DataReceivedEventArgs<PokemonData> e)
         {
             var pkmn = e.Data;
-            if (DateTime.Now.ConvertTimeFromCoordinates(pkmn.Latitude, pkmn.Longitude) > pkmn.DespawnTime)
+            if (DateTime.UtcNow.ConvertTimeFromCoordinates(pkmn.Latitude, pkmn.Longitude) > pkmn.DespawnTime)
             {
                 _logger.Debug($"Pokemon {pkmn.Id} already despawned at {pkmn.DespawnTime}");
                 return;
@@ -251,7 +251,7 @@
         private void Http_RaidReceived(object sender, DataReceivedEventArgs<RaidData> e)
         {
             var raid = e.Data;
-            if (DateTime.Now.ConvertTimeFromCoordinates(raid.Latitude, raid.Longitude) > raid.EndTime)
+            if (DateTime.UtcNow.ConvertTimeFromCoordinates(raid.Latitude, raid.Longitude) > raid.EndTime)
             {
                 _logger.Debug($"Raid boss {raid.PokemonId} already despawned at {raid.EndTime}");
                 return;

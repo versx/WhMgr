@@ -379,7 +379,7 @@
             DespawnTime = DisappearTime.FromUnix()
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
 
-            SecondsLeft = DespawnTime.Subtract(DateTime.Now.ConvertTimeFromCoordinates(Latitude, Longitude));
+            SecondsLeft = DespawnTime.Subtract(DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude));
 
             FirstSeenTime = FirstSeen
                 .FromUnix()
