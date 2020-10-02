@@ -159,7 +159,7 @@
             {
                 address = Utils.GetGoogleAddress(city, Latitude, Longitude, whConfig.GoogleMapsKey);
             }
-            else
+            else if (!string.IsNullOrEmpty(whConfig.NominatimEndpoint))
             {
                 address = Utils.GetNominatimAddress(city, Latitude, Longitude, whConfig.NominatimEndpoint);
             }
