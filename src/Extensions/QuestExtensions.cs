@@ -86,12 +86,14 @@
                 case QuestConditionType.PvpCombat:
                 case QuestConditionType.Location:
                 case QuestConditionType.Distance:
+                case QuestConditionType.WithBuddy:
                     return Translator.Instance.Translate(conditionKey);
                 case QuestConditionType.PokemonAlignment:
-                    //return Translator.Instance.Translate("quest_condition_" + Convert.ToInt32(condition.Type), condition.Info.Alignments);
-                    return "Pokemon Alignment"; //TODO: Finish Pokemon Alignment(s): %{alignments}
+                    return string.Join(", ", condition.Info.AlignmentIds?.Select(x => Translator.Instance.GetAlignmentName((PokemonAlignment)x)));
                 case QuestConditionType.InvasionsCharacter:
-                    return "Invasion Category"; //TODO: Finish Invasion Category(s): %{categories}
+                    return string.Join(", ", condition.Info.CharacterCategoryIds?.Select(x => Translator.Instance.GetCharacterCategoryName((CharacterCategory)x)));
+                case QuestConditionType.MegaEvolution:
+                    return string.Join(", ", condition.Info.RaidPokemonEvolutions?.Select(x => Translator.Instance.GetEvolutionName((MegaEvolution)x)));
             }
 
             return null;

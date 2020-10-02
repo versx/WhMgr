@@ -100,5 +100,20 @@
         {
             return Translate($"weather_{(int)weather}");
         }
+
+        public string GetAlignmentName(PokemonAlignment alignment)
+        {
+            return Translate($"alignment_{(int)alignment}");
+        }
+
+        public string GetCharacterCategoryName(CharacterCategory category)
+        {
+            return Translate($"character_category_{(int)category}");
+        }
+
+        public string GetEvolutionName(MegaEvolution evolution)
+        {
+            return Translate($"evo_{(int)evolution}");
+        }
     }
 }

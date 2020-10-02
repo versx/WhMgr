@@ -202,6 +202,15 @@
         [JsonProperty("raid_levels")]
         public List<int> RaidLevels { get; set; }
 
+        [JsonProperty("alignment_ids")]
+        public List<int> AlignmentIds { get; set; }
+
+        [JsonProperty("character_category_ids")]
+        public List<int> CharacterCategoryIds { get; set; }
+
+        [JsonProperty("raid_pokemon_evolutions")]
+        public List<int> RaidPokemonEvolutions { get; set; }
+
         public QuestCondition()
         {
             ThrowTypeId = ActivityType.Unknown;
@@ -286,7 +295,10 @@
         CompleteCombat,
         TakeSnapshot,
         BattleTeamRocket,
-        PurifyPokemon
+        PurifyPokemon,
+        FindTeamRocket,
+        UseIncense = 39,
+        MegaEvolve = 43
     }
 
     public enum QuestRewardType
@@ -298,7 +310,10 @@
         Candy,
         AvatarClothing,
         Quest,
-        PokemonEncounter
+        PokemonEncounter,
+        Pokecoin,
+        Sticker = 11,
+        MegaEnergy
     }
 
     public enum QuestConditionType
@@ -330,7 +345,11 @@
         Location,
         Distance,
         PokemonAlignment,
-        InvasionsCharacter
+        InvasionsCharacter,
+        WithBuddy,
+        InterestingPOI,
+        DailyBuddyAffection,
+        MegaEvolution = 37
     }
 
     public enum PokemonType
@@ -470,5 +489,12 @@
     {
         TeamLeader = 1,
         Grunt
+    }
+
+    public enum MegaEvolution
+    {
+        Mega = 1,
+        MegaX,
+        MegaY
     }
 }
