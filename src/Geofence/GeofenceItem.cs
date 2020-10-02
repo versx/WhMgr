@@ -74,6 +74,10 @@
             for (var i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
+                // Skip empty lines
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
                 // If the line starts with '[' then parse the Geofence name
                 if (line.StartsWith("[", StringComparison.Ordinal))
                 {
