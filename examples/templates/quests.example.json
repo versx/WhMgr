@@ -6,7 +6,7 @@
         "width": "32",
         "x_offset": 0,
         "y_offset": 0,
-	      "latitude": "{{lat}}",
+        "latitude": "{{lat}}",
         "longitude": "{{lon}}"
     },{
         "url": "{{quest_reward_img_url}}",
