@@ -71,10 +71,10 @@
         public ulong Updated { get; set; }
 
         [JsonIgnore]
-        public bool HasLure => LureExpire > 0 && LureType != PokestopLureType.None && LureExpireTime > DateTime.Now;
+        public bool HasLure => LureExpire > 0 && LureType != PokestopLureType.None && LureExpireTime > DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
 
         [JsonIgnore]
-        public bool HasInvasion => IncidentExpire > 0 && InvasionExpireTime > DateTime.Now;
+        public bool HasInvasion => IncidentExpire > 0 && InvasionExpireTime > DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
 
         #endregion
 
