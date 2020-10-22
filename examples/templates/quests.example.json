@@ -1,11 +1,19 @@
 {
     "staticmap_url": "{{tilemaps_url}}",
     "markers": [{
-        "url": "{{quest_reward_img_url}}",
+        "url": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/misc/pokestop.png",
         "height": "32",
         "width": "32",
         "x_offset": 0,
         "y_offset": 0,
+        "latitude": "{{lat}}",
+        "longitude": "{{lon}}"
+    },{
+        "url": "{{quest_reward_img_url}}",
+        "height": "32",
+        "width": "32",
+        "x_offset": 0,
+        "y_offset": -25,
         "latitude": "{{lat}}",
         "longitude": "{{lon}}"
     }]
