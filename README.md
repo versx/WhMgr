@@ -343,6 +343,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
 9.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
 10.) Optional User Interface for members to create subscriptions from a website instead of using Discord commands. (Still WIP but mostly done) [WhMgr UI](https://github.com/versx/WhMgr-UI)  
+11.) Optional reverse location lookup with OpenStreetMaps Nominatim instead of Google Maps, install instructions [here](https://nominatim.org/release-docs/develop/admin/Installation/)  
 
 ## Updating  
 1.) Pull latest changes in root folder  

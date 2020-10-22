@@ -145,7 +145,15 @@
             var geofences = _dep.Whm.Geofences.Values.ToList();
             var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
             var city = geofence?.Name ?? "Unknown";
-            var googleAddress = Utils.GetGoogleAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.GoogleMapsKey);
+            Location address;
+            if (!string.IsNullOrEmpty(_dep.WhConfig.GoogleMapsKey))
+            {
+                address = Utils.GetGoogleAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.GoogleMapsKey);
+            }
+            else
+            {
+                address = Utils.GetNominatimAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.NominatimEndpoint);
+            }
 
             var dict = new Dictionary<string, string>
             {
@@ -177,7 +185,7 @@
                 { "wazemaps_url", wazeMapsLink },
                 { "scanmaps_url", scannerMapsLink },
 
-                { "address", googleAddress?.Address },
+                { "address", address?.Address },
 
                 // Discord Guild properties
                 { "guild_name", guild?.Name },
