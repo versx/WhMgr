@@ -314,7 +314,7 @@
                 return;
             }
 
-            // Check if gender is a value gender provided
+            // Check if gender is a valid gender provided
             if (!Strings.ValidGenders.Contains(gender.ToLower()))
             {
                 await ctx.TriggerTypingAsync();
@@ -347,6 +347,10 @@
                 return;
             }
 
+            var cities = string.IsNullOrEmpty(city) || string.Compare(city, Strings.All, true) == 0
+                ? _dep.WhConfig.Servers[guildId].CityRoles
+                : new List<string> { city };
+
             // Loop through each valid pokemon entry provided
             var keys = validation.Valid.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
@@ -378,48 +382,55 @@
                 var minLvl = pokemonId.IsRarePokemon() ? 0 : minLevel;
                 var maxLvl = pokemonId.IsRarePokemon() ? 35 : maxLevel;
                 var hasStatsSet = attack >= 0 || defense >= 0 || stamina >= 0;
-                if (subPkmn == null)
-                {
-                    // Does not exist, create.
-                    subscription.Pokemon.Add(new PokemonSubscription
-                    {
-                        GuildId = guildId,
-                        UserId = ctx.User.Id,
-                        PokemonId = pokemonId,
-                        Form = form,
-                        MinimumIV = minIV,
-                        MinimumLevel = minLvl,
-                        MaximumLevel = maxLvl,
-                        Gender = gender,
-                        IVList = hasStatsSet ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>()
-                    });
-                    subscribed.Add(name);
-                    continue;
-                }
 
-                // Exists, check if anything changed.
-                if (realIV != subPkmn.MinimumIV ||
-                    string.Compare(form, subPkmn.Form, true) != 0 ||
-                    minLvl != subPkmn.MinimumLevel ||
-                    maxLvl != subPkmn.MaximumLevel ||
-                    gender != subPkmn.Gender ||
-                    (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && hasStatsSet))
+                foreach (var area in cities)
                 {
-                    subPkmn.Form = form;
-                    subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : realIV;
-                    subPkmn.MinimumLevel = minLvl;
-                    subPkmn.MaximumLevel = maxLvl;
-                    subPkmn.Gender = gender;
-                    if (hasStatsSet)
+                    if (subPkmn == null)
                     {
-                        subPkmn.IVList.Add($"{attack}/{defense}/{stamina}");
+                        // Does not exist, create.
+                        subscription.Pokemon.Add(new PokemonSubscription
+                        {
+                            GuildId = guildId,
+                            UserId = ctx.User.Id,
+                            PokemonId = pokemonId,
+                            Form = form,
+                            MinimumIV = minIV,
+                            MinimumLevel = minLvl,
+                            MaximumLevel = maxLvl,
+                            Gender = gender,
+                            IVList = hasStatsSet ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>(),
+                            City = area
+                        });
+                        subscribed.Add(name);
+                        continue;
                     }
-                    subscribed.Add(name);
-                    continue;
-                }
 
-                // Already subscribed to the same Pokemon and form
-                alreadySubscribed.Add(name);
+                    // Exists, check if anything changed.
+                    if (realIV != subPkmn.MinimumIV ||
+                        string.Compare(form, subPkmn.Form, true) != 0 ||
+                        minLvl != subPkmn.MinimumLevel ||
+                        maxLvl != subPkmn.MaximumLevel ||
+                        gender != subPkmn.Gender ||
+                        (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && hasStatsSet) ||
+                        string.Compare(city, area, true) != 0)
+                    {
+                        subPkmn.Form = form;
+                        subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : realIV;
+                        subPkmn.MinimumLevel = minLvl;
+                        subPkmn.MaximumLevel = maxLvl;
+                        subPkmn.Gender = gender;
+                        if (hasStatsSet)
+                        {
+                            subPkmn.IVList.Add($"{attack}/{defense}/{stamina}");
+                        }
+                        subPkmn.City = area;
+                        subscribed.Add(name);
+                        continue;
+                    }
+
+                    // Already subscribed to the same Pokemon and form
+                    alreadySubscribed.Add(name);
+                }
             }
 
             subscription.Save();

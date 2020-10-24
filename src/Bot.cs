@@ -56,6 +56,7 @@
         /// <param name="whConfig">Configuration settings</param>
         public Bot(WhConfig whConfig)
         {
+            var matches = WhMgr.Alarms.Filters.Filters.MatchesIV("0", 0);
             _logger.Trace($"WhConfig [Servers={whConfig.Servers.Count}, Port={whConfig.WebhookPort}]");
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;

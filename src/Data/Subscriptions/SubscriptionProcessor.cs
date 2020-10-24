@@ -140,20 +140,20 @@
                     if (member?.Roles == null || loc == null)
                         continue;
 
+                    /*
                     if (!member.Roles.Select(x => x?.Name?.ToLower()).Contains(loc?.Name?.ToLower()))
                     {
                         //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
                         continue;
                     }
+                    */
 
-                    /*
                     var exists = user.Pokemon.Exists(x => string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0));
                     if (!exists)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.PokemonId} because the Pokemon is in city '{loc.Name}'.");
                         continue;
                     }
-                    */
 
                     // Only check distance if user has it set
                     if (user.DistanceM > 0)
