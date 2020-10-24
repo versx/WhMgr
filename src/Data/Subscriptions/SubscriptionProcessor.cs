@@ -134,6 +134,9 @@
                     if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pokemon.Name}...");
+                        // Automatically disable users subscriptions if not supporter to prevent issues
+                        user.Enabled = false;
+                        user.Save(false);
                         continue;
                     }
 
@@ -277,6 +280,9 @@
                     if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pvp pokemon {pokemon.Name}...");
+                        // Automatically disable users subscriptions if not supporter to prevent issues
+                        user.Enabled = false;
+                        user.Save(false);
                         continue;
                     }
 
@@ -404,6 +410,9 @@
                     if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
+                        // Automatically disable users subscriptions if not supporter to prevent issues
+                        user.Enabled = false;
+                        user.Save(false);
                         continue;
                     }
 
@@ -522,6 +531,9 @@
                     if (!isSupporter)
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping quest {questName}...");
+                        // Automatically disable users subscriptions if not supporter to prevent issues
+                        user.Enabled = false;
+                        user.Save(false);
                         continue;
                     }
 
@@ -630,6 +642,9 @@
                     if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
+                        // Automatically disable users subscriptions if not supporter to prevent issues
+                        user.Enabled = false;
+                        user.Save(false);
                         continue;
                     }
 
