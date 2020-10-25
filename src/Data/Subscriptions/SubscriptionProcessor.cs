@@ -131,6 +131,9 @@
                         continue;
                     }
 
+                    if (member?.Roles == null || loc == null)
+                        continue;
+
                     if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pokemon.Name}...");
@@ -139,9 +142,6 @@
                         user.Save(false);
                         continue;
                     }
-
-                    if (member?.Roles == null || loc == null)
-                        continue;
 
                     /*
                     if (!member.Roles.Select(x => x?.Name?.ToLower()).Contains(loc?.Name?.ToLower()))
@@ -277,6 +277,9 @@
                         continue;
                     }
 
+                    if (member?.Roles == null || loc == null)
+                        continue;
+
                     if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pvp pokemon {pokemon.Name}...");
@@ -286,15 +289,14 @@
                         continue;
                     }
 
-                    if (member?.Roles == null || loc == null)
-                        continue;
-
                     // If member does not have role associated with city and server does have city roles configured, skip subscription.
+                    /*
                     if (!member.Roles.Select(x => x?.Name?.ToLower()).Contains(loc?.Name?.ToLower()) && _whConfig.Servers[user.GuildId].CityRoles?.Count > 0)
                     {
                         //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
                         continue;
                     }
+                    */
 
                     // Only check distance if user has it set
                     if (user.DistanceM > 0)
