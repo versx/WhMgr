@@ -4,21 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Data.Models;
     using WhMgr.Data.Subscriptions.Models;
-    using WhMgr.Localization;
     using WhMgr.Net.Models;
 
     public static class PokemonExtensions
     {
-        private const string Normal = "";
-        private const string NoEvolve = "No-Evolve";
-
-        //private const string ExclaimationMark = "!";
-        //private const string QuestionMark = "?";
-
         public static int MaxCpAtLevel(this int id, int level)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id) || id == 0)
@@ -99,134 +91,6 @@
             if (size < 2.25)  return PokemonSize.Normal;
             if (size <= 2.5)  return PokemonSize.Large;
             return PokemonSize.Big;
-        }
-
-        public static string GetCostume(this int pokeId, string costumeId)
-        {
-            if (!int.TryParse(costumeId, out int costume))
-                return null;
-
-            if (costume == 0)
-                return null;
-
-            switch (pokeId)
-            {
-                case 7:
-                    switch (costume)
-                    {
-                        case 0:
-                            break;
-                    }
-                    break;
-                case 25: //Pikachu
-                    switch (costume)
-                    {
-                        /*
-  case unset // = 0
-  case holiday2016 // = 1
-  case anniversary // = 2
-  case oneYearAnniversary // = 3
-  case halloween2017 // = 4
-  case summer2018 // = 5
-  case fall2018 // = 6
-  case november2018 // = 7
-  case winter2018 // = 8
-  case feb2019 // = 9
-  case may2019Noevolve // = 10
-                         */
-                        case 0: //Unset
-                            return null;
-                        case 1: //X-Mas Hat/Christmas /holiday2016
-                            return "Santa Hat";
-                        case 2: //Party Hat/Birthday /anniversary
-                            return "Party Hat";
-                        case 3: //Ash Hat /Anniversary
-                            return "Ash Hat";
-                        case 4: //Witch Hat/Halloween /halloween2017
-                            return "Witch Hat";
-                        case 5: //Straw Hat/Sun Glasses /summer2018
-                            return "Summer Hat";
-                        case 6: //FM /fall2018
-                            return "Fragment Hat";
-                        case 7: // /november2018
-                            return "Flower Crown";
-                        case 8: // /winter2018
-                            return "Beanie";
-                        case 9: // /feb2019
-                            return "Detective";
-                        case 10: // /may2019Noevolve
-                            return "Straw Hat";
-                        case 598: //Normal
-                            return Normal;
-                        case 599: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-                case 26: //Raichu
-                    switch (costume)
-                    {
-                        case 0: //Unset
-                            return null;
-                        case 1: //X-Mas Hat/Christmas /holiday2016
-                            return "Santa Hat";
-                        case 2: //Party Hat/Birthday /anniversary
-                            return "Party Hat";
-                        case 3: //Ash Hat /oneYearAnniversary
-                            return "Ash Hat";
-                        case 4: //Witch Hat/Halloween /halloween2017
-                            return "Witch Hat";
-                        case 5: //Straw Hat/Sun Glasses /summer2018
-                            return "Summer Hat";
-                        case 6: //FM /fall2018
-                            return "Fragment Hat";
-                        case 7: // /november2018
-                            return "Flower Crown";
-                        case 8: // /winter2018
-                            return "Beanie";
-                        case 9: // /feb2019
-                            return "Detective";
-                        //case 10: // /may2019Noevolve
-                        //    return "One Piece";
-                        case 598: //Normal
-                            return Normal;
-                        case 599: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-                case 172:
-                    switch (costume)
-                    {
-                        case 0: //Unset
-                            return null;
-                        case 1: //X-Mas Hat/Christmas /holiday2016
-                            return "Santa Hat";
-                        case 2: //Party Hat/Birthday /anniversary
-                            return "Party Hat";
-                        case 3: //Ash Hat /oneYearAnniversary
-                            return "Ash Hat";
-                        case 4: //Witch Hat/Halloween /halloween2017
-                            return "Witch Hat";
-                        case 5: //Straw Hat/Sun Glasses /summer2018
-                            return "Summer Hat";
-                        //case 6: //FM /fall2018
-                        //    return "Fragment Hat";
-                        //case 7: // /november2018
-                        //    return "Flower Crown";
-                        //case 8: // /winter2018
-                        //    return "Beanie";
-                        //case 9: // /feb2019
-                        //    return "Detective";
-                        case 10: // /may2019Noevolve
-                            return "Straw Hat";
-                        case 598: //Normal
-                            return Normal;
-                        case 599: //No-Evolve
-                            return NoEvolve;
-                    }
-                    break;
-            }
-
-            return string.Empty;
         }
 
         public static string GetPokemonGenderIcon(this PokemonGender gender)

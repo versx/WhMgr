@@ -434,7 +434,7 @@
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
             var pkmnName = Translator.Instance.GetPokemonName(Id);
             var form = Translator.Instance.GetFormName(FormId);
-            var costume = Id.GetCostume(Costume.ToString());
+            var costume = Translator.Instance.GetCostumeName(Costume);
             var gender = Gender.GetPokemonGenderIcon();
             var genderEmoji = Gender.GetGenderEmojiIcon();
             var level = Level;
