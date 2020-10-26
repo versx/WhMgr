@@ -457,12 +457,14 @@
                         continue;
                     }
 
+                    var skipGreat = false;
+                    var skipUltra = false;
                     if (alarm.Filters.Pokemon.IsPvpGreatLeague &&
                         !(pkmn.MatchesGreatLeague && pkmn.GreatLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
                             && x.CP >= 1400 && x.CP <= 1500)))
                     {
-                        continue;
+                        skipGreat = true;
                     }
 
                     if (alarm.Filters.Pokemon.IsPvpUltraLeague &&
@@ -470,8 +472,12 @@
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
                             && x.CP >= 2400 && x.CP <= 2500)))
                     {
-                        continue;
+                        skipUltra = true;
                     }
+
+                    // Skip Pokemon if no matching pvp stats at all
+                    if (skipGreat && skipUltra)
+                        continue;
 
                     //if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
                     //{
