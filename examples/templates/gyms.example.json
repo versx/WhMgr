@@ -1,7 +1,7 @@
 {
     "staticmap_url": "{{tilemaps_url}}",
     "markers": [{
-        "url": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/gyms/gym_{{team_id}}.png",
+        "url": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{{team_id}}.png",
         "height": "32",
         "width": "32",
         "x_offset": 0,
