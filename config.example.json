@@ -93,9 +93,7 @@
     "scannerMap": "http://map.example.com/@/{0}/{1}/15"
   },
   "iconStyles": {
-    "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
-    "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/",
-    "Home": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/pmsf_OS_128/"
+	"Default": "https://raw.githubusercontent.com/Mygod/pokicons/master/v2/"
   },
   "staticMaps": {
     "pokemon": {

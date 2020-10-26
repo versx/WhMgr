@@ -74,6 +74,9 @@
         [JsonProperty("form")]
         public int Form { get; set; }
 
+        [JsonProperty("costume")]
+        public int Costume { get; set; }
+
         [JsonProperty("evolution")]
         public int Evolution { get; set; }
 
@@ -152,7 +155,7 @@
             var server = whConfig.Servers[guildId];
             var raidImageUrl = IsEgg ?
                 this.GetRaidEggIcon(whConfig, server.IconStyle) :
-                PokemonId.GetPokemonIcon(Form, 0, whConfig, server.IconStyle);
+                IconFetcher.Instance.GetPokemonIcon(server.IconStyle, PokemonId, Form, Evolution, Gender, Costume, false);
             var properties = GetProperties(client.Guilds[guildId], whConfig, city, raidImageUrl);
             var eb = new DiscordEmbedBuilder
             {

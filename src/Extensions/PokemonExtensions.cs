@@ -229,17 +229,6 @@
             return string.Empty;
         }
 
-        public static string GetPokemonIcon(this int pokemonId, int formId, int costumeId, WhConfig whConfig, string style)
-        {
-            var iconStyleUrl = whConfig.IconStyles[style];
-            var url = iconStyleUrl.EndsWith('/') ? iconStyleUrl : iconStyleUrl;
-            var id = string.Format("{0:D3}", pokemonId);
-            var form = formId > 0 ? formId.ToString() : "00";
-            return costumeId == 0
-                ? $"{url}/pokemon_icon_{id}_{form}.png"
-                : $"{url}/pokemon_icon_{id}_{form}_{costumeId}.png";
-        }
-
         public static string GetRaidEggIcon(this RaidData raid, WhConfig whConfig, string style)
         {
             var iconStyleUrl = whConfig.IconStyles[style];
@@ -258,7 +247,16 @@
                 case QuestRewardType.Item:
                     return $"{url}/reward_{(int)quest.Rewards?[0].Info.Item}_{(quest.Rewards?[0].Info.Amount ?? 1)}.png";
                 case QuestRewardType.PokemonEncounter:
-                    return (quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId).GetPokemonIcon(quest.Rewards?[0].Info.FormId ?? 0, quest.Rewards?[0].Info.CostumeId ?? 0, whConfig, style);
+                    return IconFetcher.Instance.GetPokemonIcon
+                    (
+                        style,
+                        quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId,
+                        quest.Rewards?[0].Info.FormId ?? 0,
+                        0, //quest.Rewards?[0].Info.EvolutionId ?? 0,
+                        PokemonGender.Unset,
+                        quest.Rewards?[0].Info.CostumeId ?? 0,
+                        quest.Rewards?[0].Info.Shiny ?? false
+                    );
                 case QuestRewardType.Stardust:
                     if ((quest.Rewards[0]?.Info?.Amount ?? 0) > 0)
                     {
