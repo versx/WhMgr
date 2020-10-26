@@ -12,6 +12,7 @@
     using DSharpPlus.Entities;
     using DSharpPlus.Interactivity;
     using ServiceStack;
+
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
     using WhMgr.Localization;
@@ -152,11 +153,9 @@
             return eb.FirstOrDefault();
         }
 
-        //internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message, DiscordServerConfig servers)
         internal static async Task<bool> IsDirectMessageSupported(this CommandContext ctx, WhConfig config)
         {
             var exists = ctx.Client.Guilds.Keys.FirstOrDefault(x => config.Servers.ContainsKey(x)) > 0;
-            //if (message?.Channel?.Guild == null)
             if (!exists)
             {
                 await ctx.Message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", ctx.Message.Author.Username), DiscordColor.Yellow);
@@ -221,7 +220,7 @@
 
             var server = config.Servers[guildId];
 
-            var isAdmin = IsAdmin(userId, server.OwnerId);
+            var isAdmin = IsOwner(userId, server.OwnerId);
             if (isAdmin)
                 return true;
 
@@ -240,7 +239,7 @@
             return config.Servers[guildId].Moderators.Contains(userId);
         }
 
-        public static bool IsAdmin(this ulong userId, ulong ownerId)
+        public static bool IsOwner(this ulong userId, ulong ownerId)
         {
             return userId == ownerId;
         }
@@ -435,6 +434,7 @@
                 case 4:
                     return DiscordColor.Yellow;
                 case 5:
+                case 6:
                     return DiscordColor.Purple;
             }
 

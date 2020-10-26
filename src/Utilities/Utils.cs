@@ -26,7 +26,7 @@
         // TODO: Provide better way for replacement values
         public static string GetStaticMapsUrl(string templateFileName, string staticMapUrl, int staticMapZoom, double latitude, double longitude, string markerImageUrl, PokemonTeam? team, OsmFeature feature = null, MultiPolygon multiPolygon = null)
         {
-            var staticMapData = Renderer.Parse(templateFileName, new
+            var staticMapData = Renderer.ParseFile(templateFileName, new
             {
                 lat = latitude,
                 lon = longitude,

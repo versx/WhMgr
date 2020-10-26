@@ -1,4 +1,5 @@
-﻿namespace WhMgr.Alarms.Alerts
+﻿/*
+namespace WhMgr.Alarms.Alerts
 {
     using System;
     using System.Collections.Generic;
@@ -65,3 +66,4 @@
         }
     }
 }
+*/
