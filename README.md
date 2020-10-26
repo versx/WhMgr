@@ -4,7 +4,7 @@
 [![Discord](https://img.shields.io/discord/552003258000998401.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/zZ9h9Xa)  
 # Webhook Manager v4  
 
-### PokeAlarm, Poracle, WDR, etc alternative.  
+### PokeAlarm, PoracleJS, WDR, Novabot, etc alternative.  
 Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
 
 
