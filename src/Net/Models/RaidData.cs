@@ -154,7 +154,7 @@
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var server = whConfig.Servers[guildId];
             var raidImageUrl = IsEgg ?
-                this.GetRaidEggIcon(whConfig, server.IconStyle) :
+                IconFetcher.Instance.GetRaidEggIcon(server.IconStyle, Convert.ToInt32(Level), false, IsExEligible) :
                 IconFetcher.Instance.GetPokemonIcon(server.IconStyle, PokemonId, Form, Evolution, Gender, Costume, false);
             var properties = GetProperties(client.Guilds[guildId], whConfig, city, raidImageUrl);
             var eb = new DiscordEmbedBuilder

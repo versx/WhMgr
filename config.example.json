@@ -93,7 +93,8 @@
     "scannerMap": "http://map.example.com/@/{0}/{1}/15"
   },
   "iconStyles": {
-	"Default": "https://raw.githubusercontent.com/Mygod/pokicons/master/v2/"
+    "Default": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/",
+    "Shuffle": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
   },
   "staticMaps": {
     "pokemon": {
