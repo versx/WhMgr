@@ -6,6 +6,7 @@
     using System.Linq;
 
     using Newtonsoft.Json;
+
     using WhMgr.Data.Factories;
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
@@ -32,21 +33,6 @@
 
         [Column("lon")]
         public double Longitude { get; set; }
-
-        [Column("lure_expire_timestamp")]
-        public long LureExpireTimestamp { get; set; }
-
-        [Column("enabled")]
-        public bool Enabled { get; set; }
-
-        [Column("quest_type")]
-        public QuestType QuestType { get; set; }
-
-        [Column("quest_timestamp")]
-        public long QuestTimestamp { get; set; }
-
-        [Column("quest_target")]
-        public int QuestTarget { get; set; }
 
         [Column("quest_conditions")]
         public string QuestConditionsJson { get; set; }
@@ -83,21 +69,6 @@
                 return _questRewards;
             }
         }
-
-        [Column("quest_template")]
-        public string QuestTemplate { get; set; }
-
-        [Column("quest_pokemon_id")]
-        public int QuestPokemonId { get; set; }
-
-        [Column("quest_reward_type")]
-        public QuestRewardType QuestRewardType { get; set; }
-
-        [Column("quest_item_id")]
-        public ItemId QuestItemId { get; set; }
-
-        [Column("cell_id")]
-        public long CellId { get; set; }
 
         #endregion
 

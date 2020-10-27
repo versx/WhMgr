@@ -86,13 +86,13 @@
             JsonProperty("rewards"),
             Column("quest_rewards")
         ]
-        public IList<QuestRewardMessage> Rewards { get; set; }
+        public List<QuestRewardMessage> Rewards { get; set; }
 
         [
             JsonProperty("conditions"),
             Column("quest_conditions")
         ]
-        public IList<QuestConditionMessage> Conditions { get; set; }
+        public List<QuestConditionMessage> Conditions { get; set; }
 
         [
             JsonIgnore,
