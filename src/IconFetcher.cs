@@ -37,7 +37,7 @@
         {
             if (!_availablePokemonForms.ContainsKey(style))
             {
-                return _iconStyles[style] + "0.png"; // Substitute Pokemon
+                return _iconStyles[style] + "pokemon/0.png"; // Substitute Pokemon
             }
             var evolutionSuffixes = (evolution > 0 ? new [] { "-e" + evolution, string.Empty }   : new [] { string.Empty }).ToList();
             var formSuffixes      = (form      > 0 ? new [] { "-f" + form, string.Empty }        : new [] { string.Empty }).ToList();
@@ -57,7 +57,7 @@
                                 var result = $"{pokemonId}{evolutionSuffix}{formSuffix}{costumeSuffix}{genderSuffix}{shinySuffix}";
                                 if (_availablePokemonForms[style].Contains(result))
                                 {
-                                    return _iconStyles[style] + result + ".png";
+                                    return _iconStyles[style] + $"pokemon/{result}.png";
                                 }
                             }
                         }
@@ -70,16 +70,18 @@
         public string GetRaidEggIcon(string style, int level, bool hatched = false, bool ex = false)
         {
             var sb = new StringBuilder();
+            sb.Append("raid/");
             sb.Append(level);
             if (hatched) sb.Append("-hatched");
             if (ex)      sb.Append("-ex");
             sb.Append(".png");
-            return _iconStyles[style] + "raid/" + sb.ToString();
+            return _iconStyles[style] + sb.ToString();
         }
 
         public string GetQuestIcon(string style, QuestData quest)
         {
             var sb = new StringBuilder();
+            sb.Append("reward/");
             var questRewardType = quest.Rewards[0].Type;
             switch (questRewardType)
             {
@@ -118,7 +120,7 @@
                 default:
                     return null;
             }
-            return _iconStyles[style] + "reward/" + sb.ToString();
+            return _iconStyles[style] + sb.ToString();
         }
 
         public string GetLureIcon(string style, PokestopLureType lureType)
