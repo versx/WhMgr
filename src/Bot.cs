@@ -244,6 +244,7 @@
                 _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
                 _whm.InvasionSubscriptionTriggered += OnInvasionSubscriptionTriggered;
             }
+            _whm.Start();
 
             _logger.Info("WebhookManager is running...");
         }
@@ -285,7 +286,7 @@
                 _whm.QuestSubscriptionTriggered -= OnQuestSubscriptionTriggered;
                 _whm.InvasionSubscriptionTriggered -= OnInvasionSubscriptionTriggered;
             }
-            _whm.Start();
+            _whm.Stop();
 
             _logger.Info("WebhookManager is stopped...");
         }
