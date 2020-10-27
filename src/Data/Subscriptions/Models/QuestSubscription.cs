@@ -1,31 +1,34 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
-    using ServiceStack.DataAnnotations;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     using Newtonsoft.Json;
 
     [
         JsonObject("quests"),
-        Alias("quests")
+        Table("quests")
     ]
     public class QuestSubscription : SubscriptionItem
     {
         [
-            Alias("subscription_id"), 
-            ForeignKey(typeof(SubscriptionObject))
+            JsonProperty("subscription_id"),
+            Column("subscription_id"),
+            ForeignKey("subscription_id"),
+            Required
         ]
         public int SubscriptionId { get; set; }
 
         [
             JsonProperty("reward"),
-            Alias("reward"), 
+            Column("reward"),
             Required
         ]
         public string RewardKeyword { get; set; }
 
         [
             JsonProperty("city"),
-            Alias("city"), 
+            Column("city"),
             Required
         ]
         public string City { get; set; }

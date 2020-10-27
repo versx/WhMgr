@@ -8,7 +8,6 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-    using ServiceStack.OrmLite;
 
     using WhMgr.Alarms.Filters;
     using WhMgr.Configuration;
@@ -76,6 +75,7 @@
             if (!MasterFile.Instance.Pokedex.ContainsKey(pkmn.Id))
                 return;
 
+            // Try to get geofence name from coordinates
             var loc = _whm.GetGeofence(pkmn.Latitude, pkmn.Longitude);
             if (loc == null)
             {

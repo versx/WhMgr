@@ -15,6 +15,7 @@
     using Newtonsoft.Json;
 
     using WhMgr.Data;
+    using WhMgr.Data.Factories;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
@@ -88,22 +89,23 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            if (subscription == null)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
+                var subscription = db.Subscriptions.FirstOrDefault(x => x.GuildId == guildId && x.UserId == ctx.User.Id);
+                if (subscription == null)
+                {
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                    return;
+                }
+                var cmd = ctx.Message.Content.TrimStart('.', ' ');
+                subscription.Enabled = cmd.ToLower().Contains("enable");
+                db.SaveChanges();
+
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ENABLE_DISABLE").FormatText(ctx.User.Username, cmd));
+                _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
             }
-
-            var cmd = ctx.Message.Content.TrimStart('.', ' ');
-            subscription.Enabled = cmd.ToLower().Contains("enable");
-            subscription.Save();
-
-            await ctx.TriggerTypingAsync();
-            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ENABLE_DISABLE").FormatText(ctx.User.Username, cmd));
-            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
         [
@@ -126,17 +128,19 @@
                 return;
             }
 
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            if (subscription == null)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
+                var subscription = db.Subscriptions.FirstOrDefault(x => x.GuildId == guildId && x.UserId == ctx.User.Id);
+                if (subscription == null)
+                {
+                    await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                    return;
+                }
+                subscription.DistanceM = distance;
+                subscription.Latitude = lat;
+                subscription.Longitude = lng;
+                db.SaveChanges();
             }
-
-            subscription.DistanceM = distance;
-            subscription.Latitude = lat;
-            subscription.Longitude = lng;
-            subscription.Save();
 
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_DISTANCE_SET").FormatText(ctx.User.Username, distance, lat, lng));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -158,15 +162,23 @@
             if (!_dep.WhConfig.Twilio.UserIds.Contains(ctx.User.Id))
                 return;
 
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            if (subscription == null)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
-            }
+                var subscription = db.Subscriptions.FirstOrDefault(x => x.GuildId == guildId && x.UserId == ctx.User.Id);
+                if (subscription == null)
+                {
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                    return;
+                }
+                var cmd = ctx.Message.Content.TrimStart('.', ' ');
+                subscription.PhoneNumber = phoneNumber;
+                db.SaveChanges();
 
-            subscription.PhoneNumber = phoneNumber;
-            subscription.Save();
+                await ctx.TriggerTypingAsync();
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ENABLE_DISABLE").FormatText(ctx.User.Username, cmd));
+                _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+            }
 
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_PHONE_NUMBER_SET").FormatText(ctx.User.Username, phoneNumber));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -349,80 +361,85 @@
 
             // Loop through each valid pokemon entry provided
             var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-
-                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
-                    continue;
-                }
+                    var pokemonId = keys[i];
+                    var form = validation.Valid[pokemonId];
 
-                var pokemon = MasterFile.Instance.Pokedex[pokemonId];
-                var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
-
-                // Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
-                if (pokemonId.IsCommonPokemon() && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
-                {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_COMMON_TYPE_POKEMON").FormatText(ctx.User.Username, pokemon.Name, Strings.CommonTypeMinimumIV), DiscordColor.Red);
-                    continue;
-                }
-
-                var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
-                // Always ignore the user's input for Unown and set it to 0 by default.
-                var minIV = pokemonId.IsRarePokemon() ? 0 : realIV;
-                var minLvl = pokemonId.IsRarePokemon() ? 0 : minLevel;
-                var maxLvl = pokemonId.IsRarePokemon() ? 35 : maxLevel;
-                var hasStatsSet = attack >= 0 || defense >= 0 || stamina >= 0;
-                if (subPkmn == null)
-                {
-                    // Does not exist, create.
-                    subscription.Pokemon.Add(new PokemonSubscription
+                    if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                     {
-                        GuildId = guildId,
-                        UserId = ctx.User.Id,
-                        PokemonId = pokemonId,
-                        Form = form,
-                        MinimumIV = minIV,
-                        MinimumLevel = minLvl,
-                        MaximumLevel = maxLvl,
-                        Gender = gender,
-                        IVList = hasStatsSet ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>()
-                    });
-                    subscribed.Add(name);
-                    continue;
-                }
-
-                // Exists, check if anything changed.
-                if (realIV != subPkmn.MinimumIV ||
-                    string.Compare(form, subPkmn.Form, true) != 0 ||
-                    minLvl != subPkmn.MinimumLevel ||
-                    maxLvl != subPkmn.MaximumLevel ||
-                    gender != subPkmn.Gender ||
-                    (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && hasStatsSet))
-                {
-                    subPkmn.Form = form;
-                    subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : realIV;
-                    subPkmn.MinimumLevel = minLvl;
-                    subPkmn.MaximumLevel = maxLvl;
-                    subPkmn.Gender = gender;
-                    if (hasStatsSet)
-                    {
-                        subPkmn.IVList.Add($"{attack}/{defense}/{stamina}");
+                        await ctx.TriggerTypingAsync();
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
+                        continue;
                     }
-                    subscribed.Add(name);
-                    continue;
+
+                    var pokemon = MasterFile.Instance.Pokedex[pokemonId];
+                    var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
+
+                    // Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
+                    if (pokemonId.IsCommonPokemon() && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
+                    {
+                        await ctx.TriggerTypingAsync();
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_COMMON_TYPE_POKEMON").FormatText(ctx.User.Username, pokemon.Name, Strings.CommonTypeMinimumIV), DiscordColor.Red);
+                        continue;
+                    }
+
+                    var subPkmn = db.Pokemon.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
+                                                                 x.PokemonId == pokemonId &&
+                                                                 string.Compare(x.Form, form, true) == 0);
+                    // Always ignore the user's input for Unown and set it to 0 by default.
+                    var minIV = pokemonId.IsRarePokemon() ? 0 : realIV;
+                    var minLvl = pokemonId.IsRarePokemon() ? 0 : minLevel;
+                    var maxLvl = pokemonId.IsRarePokemon() ? 35 : maxLevel;
+                    var hasStatsSet = attack >= 0 || defense >= 0 || stamina >= 0;
+                    if (subPkmn == null)
+                    {
+                        // Does not exist, create.
+                        db.Pokemon.Add(new PokemonSubscription
+                        {
+                            SubscriptionId = subscription.Id,
+                            GuildId = guildId,
+                            UserId = ctx.User.Id,
+                            PokemonId = pokemonId,
+                            Form = form,
+                            MinimumIV = minIV,
+                            MinimumLevel = minLvl,
+                            MaximumLevel = maxLvl,
+                            Gender = gender,
+                            IVList = hasStatsSet ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>()
+                        });
+                        subscribed.Add(name);
+                        continue;
+                    }
+
+                    // Exists, check if anything changed.
+                    if (realIV != subPkmn.MinimumIV ||
+                        string.Compare(form, subPkmn.Form, true) != 0 ||
+                        minLvl != subPkmn.MinimumLevel ||
+                        maxLvl != subPkmn.MaximumLevel ||
+                        gender != subPkmn.Gender ||
+                        (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && hasStatsSet))
+                    {
+                        subPkmn.Form = form;
+                        subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : realIV;
+                        subPkmn.MinimumLevel = minLvl;
+                        subPkmn.MaximumLevel = maxLvl;
+                        subPkmn.Gender = gender;
+                        if (hasStatsSet)
+                        {
+                            subPkmn.IVList.Add($"{attack}/{defense}/{stamina}");
+                        }
+                        subscribed.Add(name);
+                        continue;
+                    }
+
+                    // Already subscribed to the same Pokemon and form
+                    alreadySubscribed.Add(name);
                 }
-
-                // Already subscribed to the same Pokemon and form
-                alreadySubscribed.Add(name);
+                db.SaveChanges();
             }
-
-            subscription.Save();
             await ctx.TriggerTypingAsync();
             if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
             {
@@ -483,7 +500,14 @@
                     return;
 
                 // Loop through all Pokemon subscriptions and remove them
-                subscription.Pokemon.ForEach(x => x.Id.Remove<PokemonSubscription>());
+                using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
+                {
+                    db.Pokemon
+                        .Where(x => x.SubscriptionId == subscription.Id)
+                        .ToList()?
+                        .ForEach(x => db.Remove(x));
+                    db.SaveChanges();
+                }
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -508,19 +532,30 @@
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             var error = false;
             var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-                var pkmnSub = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
-                if (pkmnSub == null)
-                    continue;
-
-                var result = pkmnSub.Id.Remove<PokemonSubscription>();
-                if (!result)
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    error = true;
-                    //TODO: Collect list of failed.
+                    var pokemonId = keys[i];
+                    var form = validation.Valid[pokemonId];
+                    var pkmnSub = db.Pokemon.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
+                                                            x.PokemonId == pokemonId &&
+                                                            string.Compare(x.Form, form, true) == 0);
+                    if (pkmnSub == null)
+                        continue;
+
+                    var result = db.Remove(pkmnSub);
+                    //var result = pkmnSub.Id.Remove<PokemonSubscription>();
+                    if (result.State != Microsoft.EntityFrameworkCore.EntityState.Deleted)
+                    {
+                        error = true;
+                        //TODO: Collect list of failed.
+                    }
+                }
+                var rowsChanged = db.SaveChanges();
+                if (!error)
+                {
+                    error = rowsChanged == 0;
                 }
             }
 
@@ -637,32 +672,37 @@
             }
 
             var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-                var cities = string.IsNullOrEmpty(city)
-                    ? _dep.WhConfig.Servers[guildId].CityRoles
-                    : new List<string> { city };
-                foreach (var area in cities)
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId &&
-                                                                         string.Compare(x.Form, form, true) == 0 &&
-                                                                         string.Compare(x.City, area, true) == 0);
-                    if (subRaid != null)
-                        continue; //Already exists
-
-                    subscription.Raids.Add(new RaidSubscription
+                    var pokemonId = keys[i];
+                    var form = validation.Valid[pokemonId];
+                    var cities = string.IsNullOrEmpty(city)
+                        ? _dep.WhConfig.Servers[guildId].CityRoles
+                        : new List<string> { city };
+                    foreach (var area in cities)
                     {
-                        GuildId = guildId,
-                        UserId = ctx.User.Id,
-                        PokemonId = pokemonId,
-                        Form = form,
-                        City = area
-                    });
+                        var subRaid = db.Raids.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
+                                                                             x.PokemonId == pokemonId &&
+                                                                             string.Compare(x.Form, form, true) == 0 &&
+                                                                             string.Compare(x.City, area, true) == 0);
+                        if (subRaid != null)
+                            continue; //Already exists
+
+                        db.Raids.Add(new RaidSubscription
+                        {
+                            SubscriptionId = subscription.Id,
+                            GuildId = guildId,
+                            UserId = ctx.User.Id,
+                            PokemonId = pokemonId,
+                            Form = form,
+                            City = area
+                        });
+                    }
                 }
+                db.SaveChanges();
             }
-            subscription.Save();
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
@@ -721,7 +761,14 @@
                 if (!result)
                     return;
 
-                subscription.Raids.ForEach(x => x.Id.Remove<RaidSubscription>());
+                using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
+                {
+                    db.Raids
+                        .Where(x => x.SubscriptionId == subscription.Id)
+                        .ToList()?
+                        .ForEach(x => db.Remove(x));
+                    db.SaveChanges();
+                }
 
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username));
@@ -738,26 +785,31 @@
 
             //var notSubscribed = new List<string>();
             //var unsubscribed = new List<string>();
-            foreach (var item in validation.Valid)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                var pokemonId = item.Key;
-                var form = item.Value;
-                var cities = string.IsNullOrEmpty(city)
-                    ? _dep.WhConfig.Servers[guildId].CityRoles
-                    : new List<string> { city };
-                foreach (var area in cities)
+                foreach (var item in validation.Valid)
                 {
-                    var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId &&
-                                                                         string.Compare(x.Form, form, true) == 0 &&
-                                                                         string.Compare(x.City, area, true) == 0);
-                    if (subRaid == null)
-                        continue; //Already removed
-
-                    if (!subRaid.Id.Remove<RaidSubscription>())
+                    var pokemonId = item.Key;
+                    var form = item.Value;
+                    var cities = string.IsNullOrEmpty(city)
+                        ? _dep.WhConfig.Servers[guildId].CityRoles
+                        : new List<string> { city };
+                    foreach (var area in cities)
                     {
-                        _logger.Error($"Unable to remove raid subscription for user id {subRaid.UserId} from guild id {subRaid.GuildId}");
+                        var subRaid = db.Raids.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
+                                                                   x.PokemonId == pokemonId &&
+                                                                   string.Compare(x.Form, form, true) == 0 &&
+                                                                   string.Compare(x.City, area, true) == 0);
+                        if (subRaid == null)
+                            continue; //Already removed
+
+                        if (db.Remove(subRaid).State != Microsoft.EntityFrameworkCore.EntityState.Deleted)
+                        {
+                            _logger.Error($"Unable to remove raid subscription for user id {subRaid.UserId} from guild id {subRaid.GuildId}");
+                        }
                     }
                 }
+                db.SaveChanges();
             }
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
@@ -802,23 +854,28 @@
                 ? _dep.WhConfig.Servers[guildId].CityRoles
                 : new List<string> { city };
 
-            foreach (var area in cities)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                var subQuest = subscription.Quests.FirstOrDefault(x => string.Compare(x.RewardKeyword, rewardKeyword, true) == 0 &&
-                                                                       string.Compare(x.City, area, true) == 0);
-                if (subQuest != null)
-                    continue; //Already exists
-
-                subscription.Quests.Add(new QuestSubscription
+                foreach (var area in cities)
                 {
-                    GuildId = guildId,
-                    UserId = ctx.User.Id,
-                    RewardKeyword = rewardKeyword,
-                    City = area
-                });
+                    var subQuest = subscription.Quests.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
+                                                                           string.Compare(x.RewardKeyword, rewardKeyword, true) == 0 &&
+                                                                           string.Compare(x.City, area, true) == 0);
+                    if (subQuest != null)
+                        continue; //Already exists
+
+                    db.Quests.Add(new QuestSubscription
+                    {
+                        SubscriptionId = subscription.Id,
+                        GuildId = guildId,
+                        UserId = ctx.User.Id,
+                        RewardKeyword = rewardKeyword,
+                        City = area
+                    });
+                }
+                db.SaveChanges();
             }
 
-            subscription.Save();
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
                 rewardKeyword,
@@ -876,7 +933,11 @@
                 if (!removeAllResult)
                     return;
 
-                subscription.Quests.ForEach(x => x.Id.Remove<QuestSubscription>());
+                using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
+                {
+                    subscription.Quests.ForEach(x => db.Remove(x));
+                    db.SaveChanges();
+                }
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_CONFIRM_SUCCESS_ALL_QUEST_SUBSCRIPTIONS").FormatText(ctx.User.Username));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -887,13 +948,17 @@
                         ? _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower())
                         : new List<string> { city.ToLower() };
 
-            subscription.Quests
-                .Where(x =>
-                       string.Compare(x.RewardKeyword, rewardKeyword, true) == 0 &&
-                       cities.Contains(x.City.ToLower()))?
-                .ToList()?
-                .ForEach(x => x.Id.Remove<QuestSubscription>());
-            subscription.Save();
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
+            {
+                db.Quests
+                    .Where(x =>
+                        x.SubscriptionId == subscription.Id &&
+                        string.Compare(x.RewardKeyword, rewardKeyword, true) == 0 &&
+                        cities.Contains(x.City.ToLower()))?
+                    .ToList()?
+                    .ForEach(x => db.Remove(x));
+                db.SaveChanges();
+            }
 
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
@@ -929,13 +994,17 @@
                 return;
             }
 
-            subscription.Gyms.Add(new GymSubscription
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                GuildId = guildId,
-                UserId = ctx.User.Id,
-                Name = gymName
-            });
-            subscription.Save();
+                db.Gyms.Add(new GymSubscription
+                {
+                    SubscriptionId = subscription.Id,
+                    GuildId = guildId,
+                    UserId = ctx.User.Id,
+                    Name = gymName
+                });
+                db.SaveChanges();
+            }
 
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_ADDED").FormatText(ctx.User.Username, gymName));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -960,16 +1029,27 @@
                 if (!result)
                     return;
 
-                subscription.Gyms.ForEach(x => x.Id.Remove<GymSubscription>());
+                using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
+                {
+                    db.Gyms
+                        .Where(x => x.SubscriptionId == subscription.Id)
+                        .ToList()?
+                        .ForEach(x => db.Remove(x));
+                    db.SaveChanges();
+                }
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(ctx.User.Username));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
             }
 
-            subscription.Gyms
-                .Where(x => string.Compare(x.Name, gymName, true) == 0)?
-                .ToList()?
-                .ForEach(x => x.Id.Remove<GymSubscription>());
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
+            {
+                db.Gyms
+                    .Where(x => x.SubscriptionId == subscription.Id && string.Compare(x.Name, gymName, true) == 0)?
+                    .ToList()?
+                    .ForEach(x => db.Remove(x));
+                db.SaveChanges();
+            }
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_REMOVED").FormatText(ctx.User.Username, gymName));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -1015,30 +1095,35 @@
             }
 
             var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                var pokemonId = keys[i];
-                //var form = validation.Valid[pokemonId];
-                var cities = string.IsNullOrEmpty(city)
-                    ? _dep.WhConfig.Servers[guildId].CityRoles
-                    : new List<string> { city };
-                foreach (var area in cities)
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId &&
-                                                                                 string.Compare(x.City, area, true) == 0);
-                    if (subInvasion != null)
-                        continue; //Already exists
-
-                    subscription.Invasions.Add(new InvasionSubscription
+                    var pokemonId = keys[i];
+                    //var form = validation.Valid[pokemonId];
+                    var cities = string.IsNullOrEmpty(city)
+                        ? _dep.WhConfig.Servers[guildId].CityRoles
+                        : new List<string> { city };
+                    foreach (var area in cities)
                     {
-                        GuildId = guildId,
-                        UserId = ctx.User.Id,
-                        RewardPokemonId = pokemonId,
-                        City = area
-                    });
+                        var subInvasion = db.Invasions.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
+                                                                           x.RewardPokemonId == pokemonId &&
+                                                                           string.Compare(x.City, area, true) == 0);
+                        if (subInvasion != null)
+                            continue; //Already exists
+
+                        db.Add(new InvasionSubscription
+                        {
+                            SubscriptionId = subscription.Id,
+                            GuildId = guildId,
+                            UserId = ctx.User.Id,
+                            RewardPokemonId = pokemonId,
+                            City = area
+                        });
+                    }
                 }
+                db.SaveChanges();
             }
-            subscription.Save();
 
             var valid = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
@@ -1097,7 +1182,14 @@
                 if (!result)
                     return;
 
-                subscription.Invasions.ForEach(x => x.Id.Remove<InvasionSubscription>());
+                using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
+                {
+                    db.Invasions
+                        .Where(x => x.SubscriptionId == subscription.Id)
+                        .ToList()
+                        .ForEach(x => db.Remove(x));
+                    db.SaveChanges();
+                }
 
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username));
@@ -1112,22 +1204,25 @@
                 return;
             }
 
-            foreach (var item in validation.Valid)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                var pokemonId = item.Key;
-                var cities = string.IsNullOrEmpty(city)
-                    ? _dep.WhConfig.Servers[guildId].CityRoles
-                    : new List<string> { city };
-                foreach (var area in cities)
+                foreach (var item in validation.Valid)
                 {
-                    var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId &&
-                                                                                 string.Compare(x.City, area, true) == 0);
-                    if (subInvasion == null)
-                        continue; //Already removed
-
-                    if (!subInvasion.Id.Remove<InvasionSubscription>())
+                    var pokemonId = item.Key;
+                    var cities = string.IsNullOrEmpty(city)
+                        ? _dep.WhConfig.Servers[guildId].CityRoles
+                        : new List<string> { city };
+                    foreach (var area in cities)
                     {
-                        _logger.Error($"Unable to remove invasions subscription for user id {subInvasion.UserId} from guild id {subInvasion.GuildId}");
+                        var subInvasion = db.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId &&
+                                                                           string.Compare(x.City, area, true) == 0);
+                        if (subInvasion == null)
+                            continue; //Already removed
+
+                        if (db.Remove(subInvasion).State != Microsoft.EntityFrameworkCore.EntityState.Deleted)
+                        {
+                            _logger.Error($"Unable to remove invasions subscription for user id {subInvasion.UserId} from guild id {subInvasion.GuildId}");
+                        }
                     }
                 }
             }
@@ -1247,54 +1342,58 @@
             }
 
             var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-
-                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
-                    continue;
-                }
+                    var pokemonId = keys[i];
+                    var form = validation.Valid[pokemonId];
 
-                var pokemon = MasterFile.Instance.Pokedex[pokemonId];
-                var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
-                var subPkmn = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId &&
-                                                                   string.Compare(x.Form, form, true) == 0 &&
-                                                                   x.League == pvpLeague);
-                if (subPkmn == null)
-                {
-                    //Does not exist, create.
-                    subscription.PvP.Add(new PvPSubscription
+                    if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                     {
-                        GuildId = guildId,
-                        UserId = ctx.User.Id,
-                        PokemonId = pokemonId,
-                        Form = form,
-                        League = pvpLeague,
-                        MinimumRank = minimumRank,
-                        MinimumPercent = minimumPercent
-                    });
-                    subscribed.Add(name);
-                    continue;
-                }
+                        await ctx.TriggerTypingAsync();
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
+                        continue;
+                    }
 
-                //Exists, check if anything changed.
-                if (minimumRank != subPkmn.MinimumRank || minimumPercent != subPkmn.MinimumPercent)
-                {
-                    subPkmn.MinimumRank = minimumRank;
-                    subPkmn.MinimumPercent = minimumPercent;
-                    subscribed.Add(name);
-                    continue;
-                }
+                    var pokemon = MasterFile.Instance.Pokedex[pokemonId];
+                    var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
+                    var subPkmn = db.PvP.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
+                                                             x.PokemonId == pokemonId &&
+                                                             string.Compare(x.Form, form, true) == 0 &&
+                                                             x.League == pvpLeague);
+                    if (subPkmn == null)
+                    {
+                        //Does not exist, create.
+                        db.Add(new PvPSubscription
+                        {
+                            SubscriptionId = subscription.Id,
+                            GuildId = guildId,
+                            UserId = ctx.User.Id,
+                            PokemonId = pokemonId,
+                            Form = form,
+                            League = pvpLeague,
+                            MinimumRank = minimumRank,
+                            MinimumPercent = minimumPercent
+                        });
+                        subscribed.Add(name);
+                        continue;
+                    }
 
-                //Already subscribed to the same Pokemon and form
-                alreadySubscribed.Add(name);
+                    //Exists, check if anything changed.
+                    if (minimumRank != subPkmn.MinimumRank || minimumPercent != subPkmn.MinimumPercent)
+                    {
+                        subPkmn.MinimumRank = minimumRank;
+                        subPkmn.MinimumPercent = minimumPercent;
+                        subscribed.Add(name);
+                        continue;
+                    }
+
+                    //Already subscribed to the same Pokemon and form
+                    alreadySubscribed.Add(name);
+                }
+                db.SaveChanges();
             }
-
-            var result = subscription.Save();
 
             await ctx.TriggerTypingAsync();
             if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
@@ -1367,10 +1466,14 @@
                 if (!confirm)
                     return;
 
-                subscription.PvP
-                    .Where(x => x.League == pvpLeague)?
-                    .ToList()?
-                    .ForEach(x => x.Id.Remove<PvPSubscription>());
+                using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
+                {
+                    db.PvP
+                        .Where(x => x.League == pvpLeague && x.SubscriptionId == subscription.Id)?
+                        .ToList()?
+                        .ForEach(x => db.Remove(x));
+                    db.SaveChanges();
+                }
 
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, pvpLeague));
@@ -1386,13 +1489,18 @@
             }
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
-            subscription.PvP
-                .Where(x =>
-                    validation.Valid.ContainsKey(x.PokemonId) &&
-                    string.Compare(x.Form, validation.Valid[x.PokemonId], true) == 0 &&
-                    x.League == pvpLeague)?
-                .ToList()?
-                .ForEach(x => x.Id.Remove<PvPSubscription>());
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
+            {
+                subscription.PvP
+                    .Where(x =>
+                        x.SubscriptionId == subscription.Id &&
+                        validation.Valid.ContainsKey(x.PokemonId) &&
+                        string.Compare(x.Form, validation.Valid[x.PokemonId], true) == 0 &&
+                        x.League == pvpLeague)?
+                    .ToList()?
+                    .ForEach(x => db.Remove(x));
+                db.SaveChanges();
+            }
 
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join("**, **", pokemonNames), pvpLeague));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -1432,7 +1540,7 @@
             var oldSubscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (oldSubscription != null)
             {
-                var result = Data.Subscriptions.SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id);
+                var result = await Data.Subscriptions.SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id);
                 if (!result)
                 {
                     _logger.Error($"Failed to clear old user subscriptions for {ctx.User.Username} ({ctx.User.Id}) in guild {ctx.Guild?.Name} ({ctx.Guild?.Id}) before importing.");
@@ -1445,7 +1553,12 @@
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_IMPORT_MALFORMED_DATA").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
-            subscription.Save();
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
+            {
+                db.Remove(oldSubscription);
+                db.Add(subscription);
+                db.SaveChanges();
+            }
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_IMPORT_SUCCESS").FormatText(ctx.User.Username));
         }
 
@@ -1527,15 +1640,17 @@
                 return;
             }
 
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            if (subscription == null)
+            using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
+                var subscription = db.Subscriptions.FirstOrDefault(x => x.GuildId == guildId && x.UserId == ctx.User.Id);
+                if (subscription == null)
+                {
+                    await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                    return;
+                }
+                subscription.IconStyle = iconStyle;
+                db.SaveChanges();
             }
-
-            subscription.IconStyle = iconStyle;
-            subscription.Save();
 
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ICON_STYLE_CHANGE").FormatText(ctx.User.Username, iconStyle));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();

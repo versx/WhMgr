@@ -2,11 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
     using System.IO;
-
+    using System.Linq;
     using DSharpPlus;
     using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
 
     using WhMgr.Alarms.Alerts;
@@ -26,46 +27,89 @@
 
         #region Properties
 
-        [JsonProperty("pokestop_id")]
+        [
+            JsonProperty("pokestop_id"),
+            Column("id"),
+            Key
+        ]
         public string PokestopId { get; set; }
 
-        [JsonProperty("latitude")]
+        [
+            JsonProperty("latitude"),
+            Column("lat")
+        ]
         public double Latitude { get; set; }
 
-        [JsonProperty("longitude")]
+        [
+            JsonProperty("longitude"),
+            Column("lon")
+        ]
         public double Longitude { get; set; }
 
-        [JsonProperty("pokestop_name")]
+        [
+            JsonProperty("pokestop_name"),
+            Column("name")
+        ]
         public string PokestopName { get; set; }
 
-        [JsonProperty("pokestop_url")]
+        [
+            JsonProperty("pokestop_url"),
+            Column("url")
+        ]
         public string PokestopUrl { get; set; }
 
-        [JsonProperty("type")]
+        [
+            JsonProperty("type"),
+            Column("quest_type")
+        ]
         public QuestType Type { get; set; }
 
-        [JsonProperty("target")]
+        [
+            JsonProperty("target"),
+            Column("quest_target")
+        ]
         public int Target { get; set; }
 
-        [JsonProperty("template")]
+        [
+            JsonProperty("template"),
+            Column("quest_template")
+        ]
         public string Template { get; set; }
 
-        [JsonProperty("updated")]
+        [
+            JsonProperty("updated"),
+            Column("updated")
+        ]
         public long Updated { get; set; }
 
-        [JsonProperty("rewards")]
-        public List<QuestRewardMessage> Rewards { get; set; }
+        [
+            JsonProperty("rewards"),
+            Column("quest_rewards")
+        ]
+        public IList<QuestRewardMessage> Rewards { get; set; }
 
-        [JsonProperty("conditions")]
-        public List<QuestConditionMessage> Conditions { get; set; }
+        [
+            JsonProperty("conditions"),
+            Column("quest_conditions")
+        ]
+        public IList<QuestConditionMessage> Conditions { get; set; }
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped
+        ]
         public TimeSpan TimeLeft => DateTime.Today.AddDays(1) - DateTime.Now;
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped
+        ]
         public bool IsDitto => Rewards?[0]?.Info?.Ditto ?? false;
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped
+        ]
         public bool IsShiny => Rewards?[0]?.Info?.Shiny ?? false;
 
         #endregion

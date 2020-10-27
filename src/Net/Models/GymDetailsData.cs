@@ -2,26 +2,27 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
     using System.IO;
     using System.Linq;
+
     using DSharpPlus;
     using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
-    using ServiceStack.DataAnnotations;
-    using ServiceStack.OrmLite;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Data.Factories;
     using WhMgr.Diagnostics;
     using WhMgr.Utilities;
 
     /// <summary>
     /// RealDeviceMap Gym Details webhook model class.
     /// </summary>
-    [Alias("gym")]
+    [Table("gym")]
     public sealed class GymDetailsData
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMDETAILSDATA", Program.LogLevel);
@@ -32,55 +33,56 @@
 
         [
             JsonProperty("id"),
-            Alias("id")
+            Column("id"),
+            Key
         ]
         public string GymId { get; set; }
 
         [
             JsonProperty("name"),
-            Alias("name")
+            Column("name")
         ]
         public string GymName { get; set; } = "Unknown";
 
         [
             JsonProperty("url"),
-            Alias("name")
+            Column("name")
         ]
         public string Url { get; set; }
 
         [
             JsonProperty("latitude"),
-            Alias("lat")
+            Column("lat")
         ]
         public double Latitude { get; set; }
 
         [
             JsonProperty("longitude"),
-            Alias("lon")
+            Column("lon")
         ]
         public double Longitude { get; set; }
 
         [
             JsonProperty("team"),
-            Alias("team_id")
+            Column("team_id")
         ]
         public PokemonTeam Team { get; set; } = PokemonTeam.Neutral;
 
         [
             JsonProperty("slots_available"),
-            Alias("availble_slots") // TODO: Typflo
+            Column("availble_slots") // TODO: Typflo
         ]
         public ushort SlotsAvailable { get; set; }
 
         [
             JsonProperty("sponsor_id"),
-            Alias("sponsor_id")
+            Column("sponsor_id")
         ]
         public bool SponsorId { get; set; }
 
         [
             JsonProperty("in_battle"),
-            Alias("in_battle")
+            Column("in_battle")
         ]
         public bool InBattle { get; set; }
 
@@ -214,11 +216,9 @@
 
             try
             {
-                using (var db = DataAccessLayer.CreateFactory(connectionString).Open())
+                using (var db = DbContextFactory.CreateScannerDbContext(connectionString))
                 {
-                    var gyms = db.LoadSelect<GymDetailsData>();
-                    var dict = gyms?.ToDictionary(x => x.GymId, x => x);
-                    return dict;
+                    return db.Gyms?.ToDictionary(x => x.GymId, x => x);
                 }
             }
             catch (Exception ex)

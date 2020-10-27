@@ -25,6 +25,8 @@
     using DSharpPlus.EventArgs;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
+    using WhMgr.Data.Subscriptions.Models;
+    using WhMgr.Data.Factories;
 
     // TODO: Subscriptions, Pokemon, Raid, Quest, Invasion, Gym, Weather alarm statistics by day. date/pokemonId/count
     // TODO: List all subscriptions with info command
@@ -56,6 +58,11 @@
         /// <param name="whConfig">Configuration settings</param>
         public Bot(WhConfig whConfig)
         {
+            //var ctx = DbContextFactory.CreateScannerDbContext(whConfig.Database.Scanner.ToString());
+            var ctx = DbContextFactory.CreateSubscriptionContext(whConfig.Database.Main.ToString());
+            var version = ctx.Metadata.Find("DB_VERSION");
+            var user = ctx.Pokemon.Where(x => x.GuildId == 342025055510855680 && x.UserId == 266771160253988875).ToList().Where(x => x.IVList.Count > 0);
+
             _logger.Trace($"WhConfig [Servers={whConfig.Servers.Count}, Port={whConfig.WebhookPort}]");
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;
@@ -65,8 +72,8 @@
             Translator.Instance.SetLocale(_whConfig.Locale);
 
             // Set database connection strings to static properties so we can access within our extension classes
-            DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
-            DataAccessLayer.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
+            DbContextFactory.ConnectionString = _whConfig.Database.Main.ToString();
+            DbContextFactory.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
 
             // Set unhandled exception event handler
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
@@ -930,7 +937,7 @@
                 Thread.Sleep(10 * 1000);
             }
 
-            CleanupDepartedMembers();
+            await CleanupDepartedMembers();
         }
 
         private async Task PostShinyStats(DiscordClient client, ulong guildId, DiscordServerConfig server)
@@ -1021,7 +1028,7 @@
             }
         }
 
-        private void CleanupDepartedMembers()
+        private async Task CleanupDepartedMembers()
         {
             _logger.Trace("CleanupDepartedMembers");
 
@@ -1044,7 +1051,7 @@
                     if (discordUser == null)
                     {
                         _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
-                        if (!SubscriptionManager.RemoveAllUserSubscriptions(user.GuildId, user.UserId))
+                        if (!(await SubscriptionManager.RemoveAllUserSubscriptions(user.GuildId, user.UserId)))
                         {
                             _logger.Warn($"Unable to remove user {user.UserId} subscription settings from the database.");
                             continue;

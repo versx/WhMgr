@@ -1,19 +1,21 @@
 ﻿namespace WhMgr.Data.Models
 {
-    using ServiceStack.DataAnnotations;
+    using System.ComponentModel;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
-    [Alias("metadata")]
+    [Table("metadata")]
     public class Metadata
     {
         [
-            Alias("key"),
-            PrimaryKey
+            Column("key"),
+            Key
         ]
         public string Key { get; set; }
 
         [
-            Alias("value"),
-            Default(null)
+            Column("value"),
+            DefaultValue(null)
         ]
         public string Value { get; set; }
     }

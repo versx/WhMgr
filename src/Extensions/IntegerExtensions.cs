@@ -11,6 +11,11 @@
         }
         */
 
+        public static DateTime FromUnix(this ulong unixSeconds)
+        {
+            return FromUnix(Convert.ToInt64(unixSeconds));
+        }
+
         public static DateTime FromUnix(this long unixSeconds)
         {
             var epochTime = new DateTime(1970,1,1,0,0,0,0,DateTimeKind.Utc);

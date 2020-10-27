@@ -25,7 +25,7 @@
             return GetConditions(quest.Conditions);
         }
 
-        public static string GetConditions(this List<QuestConditionMessage> conditions)
+        public static string GetConditions(this IList<QuestConditionMessage> conditions)
         {
             if (conditions == null)
                 return null;

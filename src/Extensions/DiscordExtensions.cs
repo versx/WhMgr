@@ -11,7 +11,7 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Entities;
     using DSharpPlus.Interactivity;
-    using ServiceStack;
+
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
     using WhMgr.Localization;

@@ -2,17 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
 
-    using ServiceStack.DataAnnotations;
-    using ServiceStack.OrmLite;
-
     using Newtonsoft.Json;
-
+    using WhMgr.Data.Factories;
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
-    [Alias("pokestop")]
+    [Table("pokestop")]
     public class Pokestop
     {
         private static Dictionary<string, Pokestop> _pokestops;
@@ -20,41 +18,41 @@
 
         #region Database Properties
 
-        [Alias("id")]
+        [Column("id")]
         public string Id { get; set; }
 
-        [Alias("name")]
+        [Column("name")]
         public string Name { get; set; }
 
-        [Alias("url")]
+        [Column("url")]
         public string Url { get; set; }
 
-        [Alias("lat")]
+        [Column("lat")]
         public double Latitude { get; set; }
 
-        [Alias("lon")]
+        [Column("lon")]
         public double Longitude { get; set; }
 
-        [Alias("lure_expire_timestamp")]
+        [Column("lure_expire_timestamp")]
         public long LureExpireTimestamp { get; set; }
 
-        [Alias("enabled")]
+        [Column("enabled")]
         public bool Enabled { get; set; }
 
-        [Alias("quest_type")]
+        [Column("quest_type")]
         public QuestType QuestType { get; set; }
 
-        [Alias("quest_timestamp")]
+        [Column("quest_timestamp")]
         public long QuestTimestamp { get; set; }
 
-        [Alias("quest_target")]
+        [Column("quest_target")]
         public int QuestTarget { get; set; }
 
-        [Alias("quest_conditions")]
+        [Column("quest_conditions")]
         public string QuestConditionsJson { get; set; }
 
         private List<QuestConditionMessage> _questConditions;
-        [Ignore]
+        [NotMapped]
         public List<QuestConditionMessage> QuestConditions
         {
             get
@@ -68,11 +66,11 @@
             }
         }
 
-        [Alias("quest_rewards")]
+        [Column("quest_rewards")]
         public string QuestRewardsJson { get; set; }
 
         private List<QuestRewardMessage> _questRewards;
-        [Ignore]
+        [NotMapped]
         public List<QuestRewardMessage> QuestRewards
         {
             get
@@ -86,19 +84,19 @@
             }
         }
 
-        [Alias("quest_template")]
+        [Column("quest_template")]
         public string QuestTemplate { get; set; }
 
-        [Alias("quest_pokemon_id")]
+        [Column("quest_pokemon_id")]
         public int QuestPokemonId { get; set; }
 
-        [Alias("quest_reward_type")]
+        [Column("quest_reward_type")]
         public QuestRewardType QuestRewardType { get; set; }
 
-        [Alias("quest_item_id")]
+        [Column("quest_item_id")]
         public ItemId QuestItemId { get; set; }
 
-        [Alias("cell_id")]
+        [Column("cell_id")]
         public long CellId { get; set; }
 
         #endregion
@@ -109,7 +107,7 @@
             {
                 if (_pokestops == null)
                 {
-                    _pokestops = GetPokestops(DataAccessLayer.ScannerConnectionString);
+                    _pokestops = GetPokestops(DbContextFactory.ScannerConnectionString);
                 }
                 return _pokestops;
             }
@@ -122,10 +120,9 @@
 
             try
             {
-                using (var db = DataAccessLayer.CreateFactory(connectionString).Open())
+                using (var db = DbContextFactory.CreateScannerDbContext(connectionString))
                 {
-                    var pokestops = db.LoadSelect<Pokestop>();
-                    var dict = pokestops?.ToDictionary(x => x.Id, x => x);
+                    var dict = db.Pokestops?.ToDictionary(x => x.Id, x => x);
                     return dict;
                 }
             }

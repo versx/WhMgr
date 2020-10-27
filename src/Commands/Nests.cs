@@ -12,8 +12,6 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
-    using ServiceStack.OrmLite;
-
     using WhMgr.Alarms.Alerts;
     using WhMgr.Data;
     using WhMgr.Data.Models;
@@ -23,6 +21,7 @@
     using WhMgr.Geofence;
     using WhMgr.Net.Models;
     using WhMgr.Utilities;
+    using WhMgr.Data.Factories;
 
     public class Nests
     {
@@ -341,10 +340,9 @@
 
             try
             {
-                using (var db = DataAccessLayer.CreateFactory(nestsConnectionString).Open())
+                using (var db = DbContextFactory.CreateManualDbContext(nestsConnectionString))
                 {
-                    var nests = db.LoadSelect<Nest>();
-                    return nests;
+                    return db.Nests.ToList();
                 }
             }
             catch (Exception ex)

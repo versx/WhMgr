@@ -1,8 +1,10 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
-    using Newtonsoft.Json;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-    using ServiceStack.DataAnnotations;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// Base subscription object all subscription items inherit from
@@ -14,9 +16,9 @@
         /// </summary>
         [
             JsonIgnore,//JsonProperty("id"),
-            Alias("id"),
-            PrimaryKey,
-            AutoIncrement
+            Column("id"),
+            Key,
+            DatabaseGenerated(DatabaseGeneratedOption.Identity)
         ]
         public int Id { get; set; }
 
@@ -24,9 +26,9 @@
         /// Gets or sets the guild Id for the subscription item
         /// </summary>
         [
-             JsonProperty("guild_id"),
-             Alias("guild_id"),
-             Required
+            JsonProperty("guild_id"),
+            Column("guild_id"),
+            Required
         ]
         public virtual ulong GuildId { get; set; }
 
@@ -35,7 +37,7 @@
         /// </summary>
         [
             JsonProperty("user_id"),
-            Alias("user_id"),
+            Column("user_id"),
             Required
         ]
         public virtual ulong UserId { get; set; }

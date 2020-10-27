@@ -1,13 +1,18 @@
-﻿namespace WhMgr.Extensions
+﻿/*
+namespace WhMgr.Extensions
 {
-    using ServiceStack.OrmLite;
+    using System.Linq;
 
-    using WhMgr.Data;
+    using WhMgr.Data.Factories;
 
     public static class SqlExtensions
     {
         public static bool Remove<T>(this int id)
         {
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(" CONNECTION STRING "))
+            {
+                ctx.SaveChanges();
+            }
             using (var conn = DataAccessLayer.CreateFactory().Open())
             {
                 var result = conn.DeleteById<T>(id);
@@ -23,14 +28,6 @@
                 return inserted;
             }
         }
-
-        public static bool Update<T>(this T obj)
-        {
-            using (var conn = DataAccessLayer.CreateFactory().Open())
-            {
-                var result = conn.Update(obj);
-                return result == 1;
-            }
-        }
     }
 }
+*/

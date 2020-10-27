@@ -6,10 +6,10 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using ServiceStack.OrmLite;
-
     using WhMgr.Diagnostics;
     using WhMgr.Data.Models;
+    using WhMgr.Data.Factories;
+    using Microsoft.EntityFrameworkCore;
 
     /// <summary>
     /// Database migration class
@@ -158,14 +158,14 @@
         /// <returns>Returns the result value from the statement</returns>
         public static async Task<int> Execute(string sql)
         {
-            if (string.IsNullOrEmpty(DataAccessLayer.ConnectionString))
+            if (string.IsNullOrEmpty(DbContextFactory.ConnectionString))
                 return default;
 
             try
             {
-                using (var db = DataAccessLayer.CreateFactory(DataAccessLayer.ConnectionString).Open())
+                using (var db = DbContextFactory.CreateSubscriptionContext(DbContextFactory.ConnectionString))
                 {
-                    var query = await db.ExecuteSqlAsync(sql);
+                    var query = await db.Database.ExecuteSqlRawAsync(sql);// ExecuteSqlAsync(sql);
                     return query;
                 }
             }
@@ -183,23 +183,14 @@
         /// <returns>Returns the metadata key and value</returns>
         public static Metadata GetMetadata(string key)
         {
-            if (string.IsNullOrEmpty(DataAccessLayer.ConnectionString))
+            if (string.IsNullOrEmpty(DbContextFactory.ConnectionString))
                 return default;
 
             try
             {
-                using (var db = DataAccessLayer.CreateFactory(DataAccessLayer.ConnectionString).Open())
+                using (var db = DbContextFactory.CreateSubscriptionContext(DbContextFactory.ConnectionString))
                 {
-                    /*
-                    if (!db.CreateTableIfNotExists<Metadata>())
-                    {
-                        // Metadata table already exists
-                    }
-                    */
-                    var where = db.From<Metadata>();
-                    var query = db.LoadSelect(where);
-                    var data = query?.FirstOrDefault(x => string.Compare(x.Key, key, true) == 0);
-                    return data;
+                    return db.Metadata.Find(key);
                 }
             }
             catch (MySql.Data.MySqlClient.MySqlException ex)

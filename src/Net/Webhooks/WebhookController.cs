@@ -11,6 +11,7 @@
     using WhMgr.Alarms.Filters;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
+    using WhMgr.Data.Factories;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
@@ -52,7 +53,7 @@
             {
                 if (_gyms == null)
                 {
-                    _gyms = GymDetailsData.GetGyms(Data.DataAccessLayer.ScannerConnectionString);
+                    _gyms = GymDetailsData.GetGyms(DbContextFactory.ScannerConnectionString);
                 }
                 return _gyms;
             }
@@ -457,12 +458,14 @@
                         continue;
                     }
 
+                    var matchesGreat = true;
+                    var matchesUltra = true;
                     if (alarm.Filters.Pokemon.IsPvpGreatLeague &&
                         !(pkmn.MatchesGreatLeague && pkmn.GreatLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
                             && x.CP >= 1400 && x.CP <= 1500)))
                     {
-                        continue;
+                        matchesGreat = false;
                     }
 
                     if (alarm.Filters.Pokemon.IsPvpUltraLeague &&
@@ -470,8 +473,11 @@
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
                             && x.CP >= 2400 && x.CP <= 2500)))
                     {
-                        continue;
+                        matchesUltra = false;
                     }
+
+                    if (!matchesGreat && !matchesUltra)
+                        continue;
 
                     //if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
                     //{

@@ -10,12 +10,10 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-
-    using ServiceStack;
-    using ServiceStack.DataAnnotations;
-    using ServiceStack.OrmLite;
+    using Microsoft.EntityFrameworkCore;
 
     using WhMgr.Data;
+    using WhMgr.Data.Factories;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Localization;
@@ -103,68 +101,47 @@
 
         internal static Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStats(string scannerConnectionString)
         {
-            var list = new Dictionary<uint, ShinyPokemonStats>
+            var dict = new Dictionary<uint, ShinyPokemonStats>
             {
                 { 0, new ShinyPokemonStats { PokemonId = 0 } }
             };
             try
             {
-                using (var db = DataAccessLayer.CreateFactory(scannerConnectionString).Open())
+                using (var db = DbContextFactory.CreateScannerDbContext(scannerConnectionString))
                 {
-                    db.SetCommandTimeout(300);
+                    db.Database.SetCommandTimeout(300);
                     var yesterday = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToString("yyyy/MM/dd");
-                    var pokemonShiny = db.Select<PokemonStatsShiny>().Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0).ToList();
-                    var pokemonIV = db.Select<PokemonStatsIV>().Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0)?.ToDictionary(x => x.PokemonId);
+                    var pokemonShiny = db.PokemonStatsShiny.Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0).ToList();
+                    var pokemonIV = db.PokemonStatsIV.Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0)?.ToDictionary(x => x.PokemonId);
                     for (var i = 0; i < pokemonShiny.Count; i++)
                     {
                         var curPkmn = pokemonShiny[i];
                         if (curPkmn.PokemonId > 0)
                         {
-                            if (!list.ContainsKey(curPkmn.PokemonId))
+                            if (!dict.ContainsKey(curPkmn.PokemonId))
                             {
-                                list.Add(curPkmn.PokemonId, new ShinyPokemonStats { PokemonId = curPkmn.PokemonId });
+                                dict.Add(curPkmn.PokemonId, new ShinyPokemonStats { PokemonId = curPkmn.PokemonId });
                             }
 
-                            list[curPkmn.PokemonId].PokemonId = curPkmn.PokemonId;
-                            list[curPkmn.PokemonId].Shiny += Convert.ToInt32(curPkmn.Count);
-                            list[curPkmn.PokemonId].Total += pokemonIV.ContainsKey(curPkmn.PokemonId) ? Convert.ToInt32(pokemonIV[curPkmn.PokemonId].Count) : 0;
+                            dict[curPkmn.PokemonId].PokemonId = curPkmn.PokemonId;
+                            dict[curPkmn.PokemonId].Shiny += Convert.ToInt32(curPkmn.Count);
+                            dict[curPkmn.PokemonId].Total += pokemonIV.ContainsKey(curPkmn.PokemonId) ? Convert.ToInt32(pokemonIV[curPkmn.PokemonId].Count) : 0;
                         }
                     }
-                    list.ForEach((x, y) => list[0].Shiny += y.Shiny);
-                    list.ForEach((x, y) => list[0].Total += y.Total);
+                    dict.Select(kv => kv.Value)
+                        .ToList()
+                        .ForEach(v =>
+                        {
+                            dict[0].Shiny += v.Shiny;
+                            dict[0].Total += v.Total;
+                        });
                 }
             }
             catch (Exception ex)
             {
                 _logger.Error(ex);
             }
-            return Task.FromResult(list);
-        }
-
-        [Alias("pokemon_iv_stats")]
-        internal class PokemonStatsIV
-        {
-            [Alias("date")]
-            public DateTime Date { get; set; }
-
-            [Alias("pokemon_id")]
-            public uint PokemonId { get; set; }
-
-            [Alias("count")]
-            public ulong Count { get; set; }
-        }
-
-        [Alias("pokemon_shiny_stats")]
-        internal class PokemonStatsShiny
-        {
-            [Alias("date")]
-            public DateTime Date { get; set; }
-
-            [Alias("pokemon_id")]
-            public uint PokemonId { get; set; }
-
-            [Alias("count")]
-            public ulong Count { get; set; }
+            return Task.FromResult(dict);
         }
 
         internal class ShinyPokemonStats

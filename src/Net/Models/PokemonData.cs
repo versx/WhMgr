@@ -2,15 +2,15 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
-    using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
@@ -26,7 +26,7 @@
     /// <summary>
     /// RealDeviceMap Pokemon webhook and database model class.
     /// </summary>
-    [Alias("pokemon")]
+    [Table("pokemon")]
     public sealed class PokemonData
     {
         public const string WebHookHeader = "pokemon";
@@ -41,20 +41,27 @@
         #region Properties
 
         [
+            JsonProperty("encounter_id"),
+            Column("id"),
+            Key
+        ]
+        public string EncounterId { get; set; }
+
+        [
             JsonProperty("pokemon_id"),
-            Alias("pokemon_id")
+            Column("pokemon_id")
         ]
         public int Id { get; set; }
 
         [
             JsonProperty("cp"),
-            Alias("cp")
+            Column("cp")
         ]
         public string CP { get; set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public string IV
         {
@@ -73,7 +80,7 @@
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public string IVRounded
         {
@@ -92,181 +99,175 @@
 
         [
             JsonProperty("individual_stamina"),
-            Alias("sta_iv")
+            Column("sta_iv")
         ]
         public string Stamina { get; set; }
 
         [
             JsonProperty("individual_attack"),
-            Alias("atk_iv")
+            Column("atk_iv")
         ]
         public string Attack { get; set; }
 
         [
             JsonProperty("individual_defense"),
-            Alias("def_iv")
+            Column("def_iv")
         ]
         public string Defense { get; set; }
 
         [
             JsonProperty("gender"),
-            Alias("gender")
+            Column("gender")
         ]
         public PokemonGender Gender { get; set; }
 
         [
             JsonProperty("costume"),
-            Alias("costume")
+            Column("costume")
         ]
         public int Costume { get; set; }
 
         [
             JsonProperty("pokemon_level"),
-            Alias("level")
+            Column("level")
         ]
         public string Level { get; set; }
 
         [
             JsonProperty("latitude"),
-            Alias("lat")
+            Column("lat")
         ]
         public double Latitude { get; set; }
 
         [
             JsonProperty("longitude"),
-            Alias("lon")
+            Column("lon")
         ]
         public double Longitude { get; set; }
 
         [
             JsonProperty("move_1"),
-            Alias("move_1")
+            Column("move_1")
         ]
         public string FastMove { get; set; }
 
         [
             JsonProperty("move_2"),
-            Alias("move_2")
+            Column("move_2")
         ]
         public string ChargeMove { get; set; }
 
         [
             JsonProperty("height"),
-            Alias("size")
+            Column("size")
         ]
         public string Height { get; set; }
 
         [
             JsonProperty("weight"),
-            Alias("weight")
+            Column("weight")
         ]
         public string Weight { get; set; }
 
         [
-            JsonProperty("encounter_id"),
-            Alias("id")
-        ]
-        public string EncounterId { get; set; }
-
-        [
             JsonProperty("spawnpoint_id"),
-            Alias("spawn_id")
+            Column("spawn_id")
         ]
         public string SpawnpointId { get; set; }
 
         [
             JsonProperty("disappear_time"),
-            Alias("expire_timestamp")
+            Column("expire_timestamp")
         ]
         public long DisappearTime { get; set; }
 
         [
             JsonProperty("disappear_time_verified"),
-            Alias("expire_timestamp_verified")
+            Column("expire_timestamp_verified")
         ]
         public bool DisappearTimeVerified { get; set; }
 
         [
             JsonProperty("first_seen"),
-            Alias("first_seen_timestamp")
+            Column("first_seen_timestamp")
         ]
         public long FirstSeen { get; set; }
 
         [
             JsonProperty("last_modified_time"),
-            Alias("changed")
+            Column("changed")
         ]
         public long LastModified { get; set; }
 
         [
             JsonProperty("pokestop_id"),
-            Alias("pokestop_id")
+            Column("pokestop_id")
         ]
         public string PokestopId { get; set; }
 
         [
             JsonProperty("weather"),
-            Alias("weather")
+            Column("weather")
         ]
         public WeatherType? Weather { get; set; }
 
         [
             JsonProperty("form"),
-            Alias("form")
+            Column("form")
         ]
         public int FormId { get; set; }
 
         [
             JsonProperty("shiny"),
-            Alias("shiny")
+            Column("shiny")
         ]
         public bool? Shiny { get; set; }
 
         [
             JsonProperty("username"),
-            Alias("username")
+            Column("username")
         ]
         public string Username { get; set; }
 
         [
             JsonProperty("updated"),
-            Alias("updated")
+            Column("updated")
         ]
         public long Updated { get; set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public DateTime DespawnTime { get; private set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public TimeSpan SecondsLeft { get; private set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public DateTime FirstSeenTime { get; set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public DateTime LastModifiedTime { get; set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public DateTime UpdatedTime { get; set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public PokemonSize? Size
         {
@@ -282,13 +283,13 @@
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public bool IsDitto => Id == 132;
 
         [
             JsonProperty("display_pokemon_id"),
-            Alias("display_pokemon_id")
+            Column("display_pokemon_id")
         ]
         public int? DisplayPokemonId { get; set; }
 
@@ -296,26 +297,26 @@
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public bool MatchesGreatLeague => GreatLeague?.Exists(x => x.Rank <= MaximumRankPVP && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP) ?? false;
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public bool MatchesUltraLeague => UltraLeague?.Exists(x => x.Rank <= MaximumRankPVP && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP) ?? false;
 
 
         [
             JsonProperty("pvp_rankings_great_league"),
-            Ignore
+            NotMapped
         ]
         public List<PVPRank> GreatLeague { get; set; }
 
         [
             JsonProperty("pvp_rankings_ultra_league"),
-            Ignore
+            NotMapped
         ]
         public List<PVPRank> UltraLeague { get; set; }
 
@@ -325,19 +326,19 @@
 
         [
             JsonProperty("capture_1"),
-            Alias("capture_1")
+            Column("capture_1")
         ]
         public double? CatchRate1 { get; set; }
 
         [
             JsonProperty("capture_2"),
-            Alias("capture_2")
+            Column("capture_2")
         ]
         public double? CatchRate2 { get; set; }
 
         [
             JsonProperty("capture_3"),
-            Alias("capture_3")
+            Column("capture_3")
         ]
         public double? CatchRate3 { get; set; }
 
@@ -345,12 +346,13 @@
 
         [
             JsonProperty("is_event"),
-            Ignore]
+            NotMapped
+        ]
         public bool? IsEvent { get; set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public bool IsMissingStats => string.IsNullOrEmpty(Level);
 

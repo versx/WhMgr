@@ -2,11 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
     using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
 
     using WhMgr.Alarms.Alerts;
@@ -20,76 +21,144 @@
     /// <summary>
     /// RealDeviceMap Raid/Egg webhook model class.
     /// </summary>
+    //[Table("gym")]
     public sealed class RaidData
     {
         public const string WebHookHeader = "raid";
 
         #region Properties
 
-        [JsonProperty("gym_id")]
+        [
+            JsonProperty("gym_id"),
+            Column("id"),
+            Key
+        ]
         public string GymId { get; set; }
 
-        [JsonProperty("gym_name")]
+        [
+            JsonProperty("gym_name"),
+            Column("name")
+        ]
         public string GymName { get; set; }
 
-        [JsonProperty("gym_url")]
+        [
+            JsonProperty("gym_url"),
+            Column("url")
+        ]
         public string GymUrl { get; set; }
 
-        [JsonProperty("pokemon_id")]
+        [
+            JsonProperty("pokemon_id"),
+            Column("raid_pokemon_id")
+        ]
         public int PokemonId { get; set; }
 
-        [JsonProperty("team_id")]
+        [
+            JsonProperty("team_id"),
+            Column("team_id")
+        ]
         public PokemonTeam Team { get; set; } = PokemonTeam.Neutral;
 
-        [JsonProperty("level")]
+        [
+            JsonProperty("level"),
+            Column("raid_level")
+        ]
         public string Level { get; set; }
 
-        [JsonProperty("cp")]
+        [
+            JsonProperty("cp"),
+            Column("raid_pokemon_cp")
+        ]
         public string CP { get; set; }
 
-        [JsonProperty("move_1")]
+        [
+            JsonProperty("move_1"),
+            Column("raid_pokemon_move_1")
+        ]
         public int FastMove { get; set; }
 
-        [JsonProperty("move_2")]
+        [
+            JsonProperty("move_2"),
+            Column("raid_pokemon_move_2")
+        ]
         public int ChargeMove { get; set; }
 
-        [JsonProperty("latitude")]
+        [
+            JsonProperty("latitude"),
+            Column("lat")
+        ]
         public double Latitude { get; set; }
 
-        [JsonProperty("longitude")]
+        [
+            JsonProperty("longitude"),
+            Column("lon")
+        ]
         public double Longitude { get; set; }
 
-        [JsonProperty("start")]
+        [
+            JsonProperty("start"),
+            Column("raid_battle_timestamp")
+        ]
         public long Start { get; set; }
 
-        [JsonProperty("end")]
+        [
+            JsonProperty("end"),
+            Column("raid_end_timestamp")
+        ]
         public long End { get; set; }
 
-        [JsonProperty("ex_raid_eligible")]
+        [
+            JsonProperty("ex_raid_eligible"),
+            Column("ex_raid_eligible")
+        ]
         public bool IsExEligible { get; set; }
 
-        [JsonProperty("sponsor_id")]
+        [
+            JsonProperty("sponsor_id"),
+            Column("sponsor_id")
+        ]
         public bool SponsorId { get; set; }
 
-        [JsonProperty("form")]
+        [
+            JsonProperty("form"),
+            Column("raid_pokemon_form")
+        ]
         public int Form { get; set; }
 
-        [JsonProperty("evolution")]
+        [
+            JsonProperty("evolution"),
+            Column("raid_pokemon_evolution")
+        ]
         public int Evolution { get; set; }
 
-        [JsonProperty("gender")]
+        [
+            JsonProperty("gender"),
+            Column("raid_pokemon_gender")
+        ]
         public PokemonGender Gender { get; set; }
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped
+        ]
         public DateTime StartTime { get; private set; }
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped
+        ]
         public DateTime EndTime { get; private set; }
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped
+        ]
         public bool IsEgg => PokemonId == 0;
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped
+        ]
         public List<PokemonType> Weaknesses
         {
             get
@@ -109,7 +178,10 @@
             }
         }
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped
+        ]
         public bool IsMissingStats => FastMove == 0;
 
         #endregion

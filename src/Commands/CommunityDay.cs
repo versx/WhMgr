@@ -9,9 +9,9 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-    using ServiceStack.OrmLite;
-
+    using Microsoft.EntityFrameworkCore;
     using WhMgr.Data;
+    using WhMgr.Data.Factories;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Localization;
@@ -326,15 +326,21 @@
 
         public static List<T> ExecuteQuery<T>(string sql, Dictionary<string, object> args)
         {
-            if (string.IsNullOrEmpty(DataAccessLayer.ScannerConnectionString))
+            if (string.IsNullOrEmpty(DbContextFactory.ScannerConnectionString))
                 return default;
 
             try
             {
-                using (var db = DataAccessLayer.CreateFactory(DataAccessLayer.ScannerConnectionString).Open())
+                /*
+                using (var db = DbContextFactory.CreateScannerDbContext(DbContextFactory.ScannerConnectionString))
                 {
                     var query = db.Select<T>(sql, args);
                     return query;
+                }
+                */
+                using (var db = DbContextFactory.CreateScannerDbContext(DbContextFactory.ScannerConnectionString))
+                {
+                    db.Database.ExecuteSqlRaw(sql, args);
                 }
             }
             catch (MySql.Data.MySqlClient.MySqlException ex)

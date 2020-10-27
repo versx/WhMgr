@@ -2,13 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
     using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
-    using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
@@ -29,59 +29,108 @@
     /// <summary>
     /// RealDeviceMap Weather webhook model class.
     /// </summary>
-    [Alias("weather")]
+    [Table("weather")]
     public sealed class WeatherData
     {
         public const string WebhookHeader = "weather";
 
         #region Properties
 
-        [JsonProperty("s2_cell_id")]
+        [
+            JsonProperty("s2_cell_id"),
+            Column("id"),
+            Key
+        ]
         public long Id { get; set; }
 
-        [JsonProperty("latitude")]
+        [
+            JsonProperty("latitude"),
+            Column("latitude")
+        ]
         public double Latitude { get; set; }
 
-        [JsonProperty("longitude")]
+        [
+            JsonProperty("longitude"),
+            Column("longitude")
+        ]
         public double Longitude { get; set; }
 
-        [JsonProperty("polygon")]
+        [
+            JsonProperty("polygon"),
+            NotMapped
+        ]
         public MultiPolygon Polygon { get; set; }
 
-        [JsonProperty("gameplay_condition")]
+        [
+            JsonProperty("gameplay_condition"),
+            Column("gameplay_condition")
+        ]
         public WeatherType GameplayCondition { get; set; }
 
-        [JsonProperty("wind_direction")]
+        [
+            JsonProperty("wind_direction"),
+            Column("wind_direction")
+        ]
         public int WindDirection { get; set; }
 
-        [JsonProperty("cloud_level")]
+        [
+            JsonProperty("cloud_level"),
+            Column("cloud_level")
+        ]
         public ushort CloudLevel { get; set; }
 
-        [JsonProperty("rain_level")]
+        [
+            JsonProperty("rain_level"),
+            Column("rain_level")
+        ]
         public ushort RainLevel { get; set; }
 
-        [JsonProperty("wind_level")]
+        [
+            JsonProperty("wind_level"),
+            Column("wind_level")
+        ]
         public ushort WindLevel { get; set; }
 
-        [JsonProperty("snow_level")]
+        [
+            JsonProperty("snow_level"),
+            Column("snow_level")
+        ]
         public ushort SnowLevel { get; set; }
 
-        [JsonProperty("fog_level")]
+        [
+            JsonProperty("fog_level"),
+            Column("fog_level")
+        ]
         public ushort FogLevel { get; set; }
 
-        [JsonProperty("special_effect_level")]
+        [
+            JsonProperty("special_effect_level"),
+            Column("special_effect_level")
+        ]
         public ushort SpecialEffectLevel { get; set; }
 
-        [JsonProperty("severity")]
+        [
+            JsonProperty("severity"),
+            Column("severity")
+        ]
         public WeatherSeverity? Severity { get; set; }
 
-        [JsonProperty("warn_weather")]
+        [
+            JsonProperty("warn_weather"),
+            Column("warn_weather")
+        ]
         public bool? WarnWeather { get; set; }
 
-        [JsonProperty("updated")]
+        [
+            JsonProperty("updated"),
+            Column("updated")
+        ]
         public long Updated { get; set; }
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped
+        ]
         public DateTime UpdatedTime { get; set; }
 
         #endregion

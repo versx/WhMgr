@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Commands
 {
     using System;
+    using System.Linq;
     using System.Text;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
@@ -9,9 +10,8 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-
-    using ServiceStack.OrmLite;
-
+    using Microsoft.EntityFrameworkCore;
+    using WhMgr.Data.Factories;
     using WhMgr.Extensions;
     using WhMgr.Localization;
 
@@ -39,11 +39,12 @@
         public async Task ConvertedPokestopsToGymsAsync(CommandContext ctx,
             [Description("Real or dry run check (y/n)")] string yesNo = "y")
         {
-            using (var db = Data.DataAccessLayer.CreateFactory(_dep.WhConfig.Database.Scanner.ToString()).Open())
+            using (var db = DbContextFactory.CreateScannerDbContext(_dep.WhConfig.Database.Scanner.ToString()))
             {
                 //Select query where ids match for pokestops and gyms
-                var convertedGyms = db.Select<Data.Models.Pokestop>(Strings.SQL_SELECT_CONVERTED_POKESTOPS);
-                if (convertedGyms?.Count == 0)
+                var convertedGyms = db.Pokestops.Where(stop => db.Gyms.Select(gym => gym.GymId).Contains(stop.Id)).ToList();
+                //var convertedGyms = db.Database.ExecuteSqlRaw(Strings.SQL_SELECT_CONVERTED_POKESTOPS);
+                if (convertedGyms.Count == 0)
                 {
                     await ctx.RespondEmbed(Translator.Instance.Translate("GYM_NO_POKESTOPS_CONVERTED").FormatText(ctx.User.Username), DiscordColor.Yellow);
                     return;
@@ -77,7 +78,7 @@
                 if (Regex.IsMatch(yesNo, DiscordExtensions.YesRegex))
                 {
                     //Gyms are updated where the ids match.
-                    var rowsAffected = db.ExecuteNonQuery(Strings.SQL_UPDATE_CONVERTED_POKESTOPS);
+                    var rowsAffected = db.Database.ExecuteSqlRaw(Strings.SQL_UPDATE_CONVERTED_POKESTOPS);
                     await ctx.RespondEmbed(Translator.Instance.Translate("GYM_POKESTOPS_CONVERTED").FormatText(ctx.User.Username, rowsAffected.ToString("N0")));
 
                     //If no pokestops are updated.
@@ -88,7 +89,7 @@
                     }
 
                     //Delete gyms from database where the ids match existing Pokestops.
-                    rowsAffected = db.ExecuteNonQuery(Strings.SQL_DELETE_CONVERTED_POKESTOPS);
+                    rowsAffected = db.Database.ExecuteSqlRaw(Strings.SQL_DELETE_CONVERTED_POKESTOPS);
                     await ctx.RespondEmbed(Translator.Instance.Translate("GYM_POKESTOPS_DELETED").FormatText(ctx.User.Username, rowsAffected.ToString("N0")));
                 }
             }

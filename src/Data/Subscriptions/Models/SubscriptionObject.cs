@@ -2,108 +2,109 @@
 {
     using System;
     using System.Collections.Generic;
-
-    using ServiceStack.DataAnnotations;
+    using System.ComponentModel;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     using Newtonsoft.Json;
 
     [
         JsonObject("subscriptions"),
-        Alias("subscriptions")
+        Table("subscriptions")
     ]
     public class SubscriptionObject : SubscriptionItem
     {
         [
             JsonProperty("enabled"),
-            Alias("enabled"), 
-            Default(1)
+            Column("enabled"),
+            DefaultValue(1)
         ]
         public bool Enabled { get; set; }
 
         [
             JsonProperty("pokemon"),
-            Alias("pokemon"), 
-            Reference
+            NotMapped,
+            //Reference
         ]
         public List<PokemonSubscription> Pokemon { get; set; }
 
         [
             JsonProperty("pvp"),
-            Alias("pvp"),
-            Reference
+            NotMapped
+            //Reference
         ]
         public List<PvPSubscription> PvP { get; set; }
 
         [
             JsonProperty("raids"),
-            Alias("raids"), 
-            Reference]
+            NotMapped
+            //Reference
+        ]
         public List<RaidSubscription> Raids { get; set; }
 
         [
             JsonProperty("gyms"),
-            Alias("gyms"),
-            Reference
+            NotMapped
+            //Reference
         ]
         public List<GymSubscription> Gyms { get; set; }
 
         [
             JsonProperty("quests"),
-            Alias("quests"),
-            Reference
+            NotMapped,
+            //Reference
         ]
         public List<QuestSubscription> Quests { get; set; }
 
         [
             JsonProperty("invasions"),
-            Alias("invasions"),
-            Reference
+            NotMapped,
+            //Reference
         ]
         public List<InvasionSubscription> Invasions { get; set; }
 
         [
             JsonProperty("distance"),
-            Alias("distance"),
-            Default(0)
+            Column("distance"),
+            DefaultValue(0)
         ]
         public int DistanceM { get; set; }
 
         [
             JsonProperty("latitude"),
-            Alias("latitude"),
-            Default(0)
+            Column("latitude"),
+            DefaultValue(0)
         ]
         public double Latitude { get; set; }
 
         [
             JsonProperty("longitude"),
-            Alias("longitude"), 
-            Default(0)
+            Column("longitude"),
+            DefaultValue(0)
         ]
         public double Longitude { get; set; }
 
         [
             JsonProperty("icon_style"),
-            Alias("icon_style"),
-            Default("Default")
+            Column("icon_style"),
+            DefaultValue("Default")
         ]
         public string IconStyle { get; set; }
 
         [
             JsonProperty("phone_number"),
-            Alias("phone_number")
+            Column("phone_number")
         ]
         public string PhoneNumber { get; set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public NotificationLimiter Limiter { get; set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public bool RateLimitNotificationSent { get; set; }
 

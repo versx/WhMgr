@@ -1,83 +1,86 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
     using System.Collections.Generic;
-
-    using ServiceStack.DataAnnotations;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
     using Newtonsoft.Json;
 
     [
         JsonObject("pokemon"),
-        Alias("pokemon")
+        Table("pokemon")
     ]
     public class PokemonSubscription : SubscriptionItem
     {
         #region Properties
 
         [
-            Alias("subscription_id"),
-            ForeignKey(typeof(SubscriptionObject))
+            JsonProperty("subscription_id"),
+            Column("subscription_id"),
+            ForeignKey("SubscriptionId"),
+            Required
         ]
         public int SubscriptionId { get; set; }
 
         [
             JsonProperty("pokemon_id"),
-            Alias("pokemon_id"),
+            Column("pokemon_id"),
             Required
         ]
         public int PokemonId { get; set; }
 
         [
             JsonProperty("form"),
-            Alias("form")
+            Column("form")
         ]
         public string Form { get; set; }
 
         [
             JsonProperty("min_cp"),
-            Alias("min_cp")
+            Column("min_cp")
         ]
         public int MinimumCP { get; set; }
 
         [
             JsonProperty("min_iv"),
-            Alias("min_iv")
+            Column("min_iv")
         ]
         public int MinimumIV { get; set; }
 
         [
             JsonProperty("iv_list"),
-            Alias("iv_list")
+            // TODO: Map from string to list Column("iv_list"),
+            Column("iv_list")
         ]
         public List<string> IVList { get; set; }
 
         [
             JsonProperty("min_lvl"),
-            Alias("min_lvl")
+            Column("min_lvl")
         ]
         public int MinimumLevel { get; set; }
 
         [
             JsonProperty("max_lvl"),
-            Alias("max_lvl")
+            Column("max_lvl")
         ]
         public int MaximumLevel { get; set; }
 
         [
             JsonProperty("gender"),
-            Alias("gender")
+            Column("gender")
         ]
         public string Gender { get; set; }
 
         [
             JsonProperty("city"),
-            Alias("city")
+            Column("city")
         ]
         public string City { get; set; }
 
         [
             JsonIgnore,
-            Ignore
+            NotMapped
         ]
         public bool HasStats => (IVList?.Count ?? 0) > 0;
 
