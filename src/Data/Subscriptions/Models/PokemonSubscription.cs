@@ -49,7 +49,6 @@
 
         [
             JsonProperty("iv_list"),
-            // TODO: Map from string to list Column("iv_list"),
             Column("iv_list")
         ]
         public List<string> IVList { get; set; }

@@ -1,12 +1,10 @@
 ﻿namespace WhMgr.Data.Contexts
 {
     using System;
-    using System.Collections.Generic;
 
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-    using Newtonsoft.Json;
 
+    using WhMgr.Data.Factories;
     using WhMgr.Data.Models;
     using WhMgr.Data.Subscriptions.Models;
 
@@ -41,10 +39,9 @@
                     .HasConversion(x => x.ToString(),
                         x => (PvPLeague)Enum.Parse(typeof(PvPLeague), x));
             });
-            var jsonListConverter = new ValueConverter<List<string>, string>(v => JsonConvert.SerializeObject(v), v => JsonConvert.DeserializeObject<List<string>>(v));
             modelBuilder.Entity<PokemonSubscription>()
                 .Property(nameof(PokemonSubscription.IVList))
-                .HasConversion(jsonListConverter);
+                .HasConversion(DbContextFactory.CreateJsonValueConverter<string>());
             base.OnModelCreating(modelBuilder);
         }
     }

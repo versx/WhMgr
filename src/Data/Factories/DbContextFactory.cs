@@ -1,6 +1,11 @@
 ﻿namespace WhMgr.Data.Factories
 {
+    using System;
+    using System.Collections.Generic;
+
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+    using Newtonsoft.Json;
 
     using WhMgr.Data.Contexts;
 
@@ -15,6 +20,7 @@
         /// Gets or sets the scanner database connection string to use
         /// </summary>
         public static string ScannerConnectionString { get; set; }
+
 
         public static SubscriptionsDbContext CreateSubscriptionContext(string connectionString)
         {
@@ -44,6 +50,16 @@
             var context = new ScannerDbContext(optionsBuilder.Options);
             context.Database.EnsureCreated();
             return context;
+        }
+
+
+        public static ValueConverter<List<T>, string> CreateJsonValueConverter<T>()
+        {
+            return new ValueConverter<List<T>, string>
+            (
+                v => JsonConvert.SerializeObject(v),
+                v => JsonConvert.DeserializeObject<List<T>>(v)
+            );
         }
     }
 }

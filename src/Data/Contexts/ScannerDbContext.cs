@@ -1,10 +1,10 @@
 ﻿namespace WhMgr.Data.Contexts
 {
     using System;
-    using System.Collections.Generic;
+
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-    using Newtonsoft.Json;
+
+    using WhMgr.Data.Factories;
     using WhMgr.Data.Models;
     using WhMgr.Net.Models;
 
@@ -62,14 +62,12 @@
                     .HasConversion(x => x.ToString(),
                         x => (WeatherType)Enum.Parse(typeof(WeatherType), x));
             });
-            var jsonRewardListConverter = new ValueConverter<IList<QuestRewardMessage>, string>(v => JsonConvert.SerializeObject(v), v => JsonConvert.DeserializeObject<List<QuestRewardMessage>>(v));
             modelBuilder.Entity<QuestData>()
                 .Property(nameof(QuestData.Rewards))
-                .HasConversion(jsonRewardListConverter);
-            var jsonConditionListConverter = new ValueConverter<IList<QuestConditionMessage>, string>(v => JsonConvert.SerializeObject(v), v => JsonConvert.DeserializeObject<List<QuestConditionMessage>>(v));
+                .HasConversion(DbContextFactory.CreateJsonValueConverter<QuestRewardMessage>());
             modelBuilder.Entity<QuestData>()
                 .Property(nameof(QuestData.Conditions))
-                .HasConversion(jsonConditionListConverter);
+                .HasConversion(DbContextFactory.CreateJsonValueConverter<QuestConditionMessage>());
             base.OnModelCreating(modelBuilder);
         }
     }

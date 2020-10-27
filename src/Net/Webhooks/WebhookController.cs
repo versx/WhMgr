@@ -458,14 +458,12 @@
                         continue;
                     }
 
-                    var matchesGreat = true;
-                    var matchesUltra = true;
                     if (alarm.Filters.Pokemon.IsPvpGreatLeague &&
                         !(pkmn.MatchesGreatLeague && pkmn.GreatLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
                             && x.CP >= 1400 && x.CP <= 1500)))
                     {
-                        matchesGreat = false;
+                        continue;
                     }
 
                     if (alarm.Filters.Pokemon.IsPvpUltraLeague &&
@@ -473,11 +471,8 @@
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
                             && x.CP >= 2400 && x.CP <= 2500)))
                     {
-                        matchesUltra = false;
-                    }
-
-                    if (!matchesGreat && !matchesUltra)
                         continue;
+                    }
 
                     //if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
                     //{
