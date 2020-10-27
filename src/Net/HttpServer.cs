@@ -4,9 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Net;
-    using System.Net.NetworkInformation;
-    using System.Net.Sockets;
-    using System.Security.Principal;
     using System.Text;
     using System.Threading;
 
@@ -34,6 +31,7 @@
         private HttpListener _server;
         private bool _initialized = false;
         private readonly int _despawnTimerMinimumMinutes = 5;
+        private static string _endpoint;
 
         #endregion
 
@@ -124,7 +122,8 @@
         /// <param name="despawnTimerMinimum">Minimum despawn timer amount in minutes to process Pokemon</param>
         public HttpServer(string host, ushort port, int despawnTimerMinimum)
         {
-            Host = host;
+            // If no host is set use wildcard for all host interfaces
+            Host = host ?? "*";
             Port = port;
             _processedPokemon = new Dictionary<ulong, PokemonData>();
             _processedRaids = new Dictionary<string, RaidData>();
@@ -161,8 +160,23 @@
                 return;
             }
 
-            _logger.Info($"Starting...");
-            _server.Start();
+            try
+            {
+                _logger.Info($"Starting...");
+                _server.Start();
+            }
+            catch (HttpListenerException ex)
+            {
+                if (ex.ErrorCode == 5)
+                {
+                    _logger.Warn("You need to run the following command in order to not have to run as Administrator or root every start:");
+                    _logger.Warn($"netsh http add urlacl url={_endpoint} user={Environment.UserDomainName}\\{Environment.UserName} listen=yes");
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             if (_server.IsListening)
             {
@@ -546,23 +560,10 @@
             try
             {
                 _server = CreateListener();
-
-                var addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Wireless80211);
-                if (addresses.Count == 0)
+                _endpoint = $"http://{Host}:{Port}/";
+                if (!_server.Prefixes.Contains(_endpoint))
                 {
-                    addresses = GetLocalIPv4Addresses(NetworkInterfaceType.Ethernet);
-                }
-
-                if (!IsAdministrator())
-                {
-                    _logger.Error("Failed to start listener, please run as administrator/root!");
-                    return;
-                }
-
-                var endpoint = PrepareEndPoint(Host, Port);
-                if (!_server.Prefixes.Contains(endpoint))
-                {
-                    _server.Prefixes.Add(endpoint);
+                    _server.Prefixes.Add(_endpoint);
                 }
                 _initialized = true;
             }
@@ -592,7 +593,7 @@
 
             //if (_requestThread != null)
             //{
-            //    _logger.Info($"Existing HttpServer main thread...");
+            //    _logger.Info($"Exiting HttpServer main thread...");
             //    _requestThread.Abort();
             //    _requestThread = null;
             //}
@@ -604,51 +605,6 @@
         }
 
         #endregion
-
-        #region Static Methods
-
-        private static List<string> GetLocalIPv4Addresses(NetworkInterfaceType type)
-        {
-            var list = new List<string>();
-            var interfaces = NetworkInterface.GetAllNetworkInterfaces();
-
-            for (int i = 0; i < interfaces.Length; i++)
-            {
-                var netInterface = interfaces[i];
-                var isUp = netInterface.NetworkInterfaceType == type &&
-                           netInterface.OperationalStatus == OperationalStatus.Up;
-                if (!isUp) continue;
-
-                foreach (var ipAddress in netInterface.GetIPProperties().UnicastAddresses)
-                {
-                    var isIpv4 = ipAddress.Address.AddressFamily == AddressFamily.InterNetwork;
-                    if (isIpv4)
-                    {
-                        list.Add(ipAddress.Address.ToString());
-                        break;
-                    }
-                }
-            }
-            return list;
-        }
-
-        private static string PrepareEndPoint(string ip, ushort port)
-        {
-            return $"http://{ip}:{port}/";
-        }
-
-        private static bool IsAdministrator()
-        {
-#if Windows
-            var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-#else
-            return true;
-#endif
-        }
-
-#endregion
 
         private class WebhookMessage
         {
