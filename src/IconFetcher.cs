@@ -154,7 +154,7 @@
                     continue;
 
                 // Get the remote form index file from the icon repository
-                var formsListJson = NetUtil.Get(style.Value + "index.json");
+                var formsListJson = NetUtil.Get(style.Value + "pokemon/index.json");
                 if (string.IsNullOrEmpty(formsListJson))
                 {
                     // Failed to get form list, add empty form set and skip to the next style
