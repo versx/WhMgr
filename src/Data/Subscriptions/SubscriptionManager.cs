@@ -54,9 +54,6 @@
                 throw new NullReferenceException(err);
             }
 
-            //_connFactory = new OrmLiteConnectionFactory(_whConfig.Database.Main.ToString(), MySqlDialect.Provider);
-            //_scanConnFactory = new OrmLiteConnectionFactory(_whConfig.Database.Scanner.ToString(), MySqlDialect.Provider);
-
             // Reload subscriptions every 60 seconds to account for UI changes
             _reloadTimer = new Timer(_whConfig.ReloadSubscriptionChangesMinutes * 1000);
             _reloadTimer.Elapsed += OnReloadTimerElapsed;
@@ -179,6 +176,22 @@
                 return;
 
             _subscriptions = subs;
+        }
+
+        public static bool SetUserSubscriptionsStatus(ulong guildId, ulong userId, bool enabled)
+        {
+            using (var db = DbContextFactory.CreateSubscriptionContext(DbContextFactory.ConnectionString))
+            {
+                var subscription = db.Subscriptions.FirstOrDefault(x => x.GuildId == guildId && x.UserId == userId);
+                if (subscription == null)
+                {
+                    // Failed to get user subscription
+                    return false;
+                }                    
+                subscription.Enabled = enabled;
+                var result = db.SaveChanges();
+                return result > 0;
+            }            
         }
 
         #endregion
