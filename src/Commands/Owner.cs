@@ -76,7 +76,7 @@
                 if (discordUser == null || !isSupporter)
                 {
                     _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");
-                    if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, user.UserId))
+                    if (!(await SubscriptionManager.RemoveAllUserSubscriptions(guildId, user.UserId)))
                     {
                         _logger.Warn($"Unable to remove user {user.UserId} subscription settings from the database.");
                         continue;
