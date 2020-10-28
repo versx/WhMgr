@@ -48,9 +48,9 @@ wget https://raw.githubusercontent.com/versx/WhMgr/master/install.sh && chmod +x
 Windows:  
 bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/master/install.bat install.bat | start install.bat  
 ```
-1.) Edit `config.json` either open in Notepad/++ or `vi config.json`.  
-  1. [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
-  1. Input your bot token and config options.  
+2.) Edit `config.json` either open in Notepad/++ or `vi config.json`.  
+  - [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
+  - Input your bot token and config options.  
 ```js
 {
     // Http listening interface for raw webhook data.
@@ -265,8 +265,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     "logLevel": "Trace"
 }
 ```
-1.) Edit `alarms.json` either open in Notepad/++ or `vi alarms.json`.  
-1.) Fill out the alarms file.  
+3.) Edit `alarms.json` either open in Notepad/++ or `vi alarms.json`.  
+4.) Fill out the alarms file.  
 ```js
 {
     //Global switch for Pokemon notifications.
@@ -327,8 +327,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     }]
 }
 ```
-1.) Create directory `geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
-1.) Create/copy geofence files to `geofences` folder.  
+5.) Create directory `geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
+6.) Create/copy geofence files to `geofences` folder.  
 
 *Note:* Geofence file format is the following:  
 ```ini
@@ -343,16 +343,16 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 33.02,-118.02
 33.03,-118.03
 ```
-1.) Add dotnet to your environment path if it isn't already (optional): `export PATH=~/.dotnet/dotnet:$PATH`  
-1.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
-1.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
-1.) Optional User Interface for members to create subscriptions from a website instead of using Discord commands. (Still WIP but mostly done) [WhMgr UI](https://github.com/versx/WhMgr-UI)  
-1.) Optional reverse location lookup with OpenStreetMaps Nominatim instead of Google Maps, install instructions [here](https://nominatim.org/release-docs/develop/admin/Installation/)  
+7.) Add dotnet to your environment path if it isn't already (optional): `export PATH=~/.dotnet/dotnet:$PATH`  
+8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
+9.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
+10.) Optional User Interface for members to create subscriptions from a website instead of using Discord commands. [WhMgr UI](https://github.com/versx/WhMgr-UI)  
+11.) Optional reverse location lookup with OpenStreetMaps Nominatim instead of Google Maps, install instructions [here](https://nominatim.org/release-docs/develop/admin/Installation/)  
 
 ## Updating  
-1.) Pull latest changes in root folder  
-1.) Build project `dotnet build`  
-1.) Run `dotnet bin/debug/netcoreapp2.1/WhMgr.dll`  
+1. Pull latest changes in root folder  
+1. Build project `dotnet build`  
+1. Run `dotnet bin/debug/netcoreapp2.1/WhMgr.dll`  
 
 **Important Notes:**  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created in the specified `EmojiGuildId` upon connecting to Discord.  
