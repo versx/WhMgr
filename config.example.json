@@ -23,6 +23,7 @@
       "pruneQuestChannels": true,
       "questChannelIds": [],
       "nestsChannelId": 0,
+      "nestsMinimumPerHour": 2,
       "shinyStats": {
         "enabled": true,
         "clearMessages": false,
@@ -50,6 +51,7 @@
       "pruneQuestChannels": true,
       "questChannelIds": [],
       "nestsChannelId": 0,
+      "nestsMinimumPerHour": 2,
       "shinyStats": {
         "enabled": true,
         "clearMessages": false,

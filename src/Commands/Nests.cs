@@ -89,7 +89,11 @@
                         //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
                         continue;
                     }
+
                     if (!cities.Contains(geofence.Name.ToLower()))
+                        continue;
+
+                    if (nest.Average < server.NestsMinimumPerHour)
                         continue;
 
                     await channel.SendMessageAsync(embed: eb);

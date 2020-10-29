@@ -104,6 +104,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             ],
             // Channel ID to post nests.
             "nestsChannelId": 000000000000000000,
+            // Minimum amount of average spawn count per hour for nest to post
+            "nestsMinimumPerHour": 2,
             // Shiny stats configuration
             "shinyStats": {
                 // Enable shiny stats posting.
@@ -146,6 +148,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
                 000000000000000000
             ],
             "nestsChannelId": 000000000000000000,
+            "nestsMinimumPerHour": 2,
             "shinyStats": {
                 "enabled": true,
                 "clearMessages": false,
