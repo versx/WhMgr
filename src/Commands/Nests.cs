@@ -106,7 +106,7 @@
             var alertMessageType = AlertMessageType.Nests;
             var alertMessage = /*alarm?.Alerts[alertMessageType] ??*/ AlertMessage.Defaults[alertMessageType]; // TODO: Add nestAlert config option
             var server = _dep.WhConfig.Servers[guildId];
-            var pokemonImageUrl = nest.PokemonId.GetPokemonIcon(0, 0, _dep.WhConfig, server.IconStyle);
+            var pokemonImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, nest.PokemonId);
             var properties = GetProperties(client.Guilds[guildId], nest, pokemonImageUrl);
             var eb = new DiscordEmbedBuilder
             {

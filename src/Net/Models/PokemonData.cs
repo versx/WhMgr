@@ -407,7 +407,7 @@
             var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var server = whConfig.Servers[guildId];
-            var pokemonImageUrl = Id.GetPokemonIcon(FormId, Costume, whConfig, server.IconStyle);
+            var pokemonImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
             var properties = await GetProperties(client.Guilds[guildId], whConfig, city, pokemonImageUrl);
             var eb = new DiscordEmbedBuilder
             {
@@ -436,7 +436,7 @@
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
             var pkmnName = Translator.Instance.GetPokemonName(Id);
             var form = Translator.Instance.GetFormName(FormId);
-            var costume = Id.GetCostume(Costume.ToString());
+            var costume = Translator.Instance.GetCostumeName(Costume);
             var gender = Gender.GetPokemonGenderIcon();
             var genderEmoji = Gender.GetGenderEmojiIcon();
             var level = Level;

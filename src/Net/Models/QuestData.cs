@@ -127,7 +127,7 @@
         {
             var alertType = AlertMessageType.Quests;
             var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(client.Guilds[guildId], whConfig, city, this.GetQuestIcon(whConfig, whConfig.Servers[guildId].IconStyle));
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, IconFetcher.Instance.GetQuestIcon(whConfig.Servers[guildId].IconStyle, this));
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),

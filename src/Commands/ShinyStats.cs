@@ -109,7 +109,7 @@
             {
                 using (var db = DbContextFactory.CreateScannerDbContext(scannerConnectionString))
                 {
-                    db.Database.SetCommandTimeout(300);
+                    db.Database.SetCommandTimeout(10 * 1000); // 10 seconds timeout
                     var yesterday = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToString("yyyy/MM/dd");
                     var pokemonShiny = db.PokemonStatsShiny.Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0).ToList();
                     var pokemonIV = db.PokemonStatsIV.Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0)?.ToDictionary(x => x.PokemonId);

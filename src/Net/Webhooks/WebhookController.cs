@@ -214,9 +214,22 @@
             _http.GymDetailsReceived += Http_GymDetailsReceived;
             _http.WeatherReceived += Http_WeatherReceived;
             _http.IsDebug = _config.Debug;
-            _http.Start();
 
             new System.Threading.Thread(LoadAlarmsOnChange).Start();
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public void Start()
+        {
+            _http?.Start();
+        }
+
+        public void Stop()
+        {
+            _http?.Stop();
         }
 
         #endregion
@@ -235,13 +248,13 @@
             // Check if Pokemon is in event Pokemon list
             if (_config.EventPokemonIds.Contains(pkmn.Id) && _config.EventPokemonIds.Count > 0)
             {
-                //Skip Pokemon if no IV stats.
+                // Skip Pokemon if no IV stats.
                 if (pkmn.IsMissingStats)
                     return;
 
                 var iv = PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina);
-                //Skip Pokemon if IV is less than 90%, not 0%, and does not match any PvP league stats.
-                if ((iv < 90 && iv != 0) || !pkmn.MatchesGreatLeague || !pkmn.MatchesUltraLeague)
+                // Skip Pokemon if IV is greater than 0%, less than 90%, and does not match any PvP league stats.
+                if (iv > 0 && iv < 90 && !pkmn.MatchesGreatLeague && !pkmn.MatchesUltraLeague)
                     return;
             }
 
@@ -458,21 +471,27 @@
                         continue;
                     }
 
+                    var skipGreat = false;
+                    var skipUltra = false;
                     if (alarm.Filters.Pokemon.IsPvpGreatLeague &&
                         !(pkmn.MatchesGreatLeague && pkmn.GreatLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= 1400 && x.CP <= 1500)))
+                            && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP)))
                     {
-                        continue;
+                        skipGreat = true;
                     }
 
                     if (alarm.Filters.Pokemon.IsPvpUltraLeague &&
                         !(pkmn.MatchesUltraLeague && pkmn.UltraLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= 2400 && x.CP <= 2500)))
+                            && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP)))
                     {
-                        continue;
+                        skipUltra = true;
                     }
+
+                    // Skip Pokemon if no matching pvp stats at all
+                    if (skipGreat && skipUltra)
+                        continue;
 
                     //if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
                     //{

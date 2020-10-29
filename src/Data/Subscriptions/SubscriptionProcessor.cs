@@ -306,14 +306,15 @@
                     }
 
                     matchesGreat = pkmn.GreatLeague != null && (pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Great &&
-                                                                     (x.CP ?? 0) >= 1400 && (x.CP ?? 0) <= 1500 &&
+                                                                     (x.CP ?? 0) >= Strings.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.MaximumGreatLeagueCP &&
                                                                      (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
                                                                      (x.Percentage ?? 0) * 100 >= subscribedPokemon.MinimumPercent) ?? false);
                     matchesUltra = pkmn.UltraLeague != null && (pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Ultra &&
-                                                                     (x.CP ?? 0) >= 2400 && (x.CP ?? 0) <= 2500 &&
+                                                                     (x.CP ?? 0) >= Strings.MinimumUltraLeagueCP && (x.CP ?? 0) <= Strings.MaximumUltraLeagueCP &&
                                                                      (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
                                                                      (x.Percentage ?? 0) * 100 >= subscribedPokemon.MinimumPercent) ?? false);
 
+                    // Check if Pokemon IV stats match any relevant great or ultra league ranks, if not skip.
                     if (!matchesGreat && !matchesUltra)
                         continue;
 
