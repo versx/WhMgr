@@ -89,6 +89,9 @@
                 }
 
                 _subProcessor = new SubscriptionProcessor(_servers, _whConfig, _whm);
+                var user = _subProcessor.Manager.GetUserPokemonSubscriptions(342025055510855680, 266771160253988875);
+                var pkmn = user.FirstOrDefault(x => x.PokemonId == 25);
+                Console.WriteLine(pkmn);
             }
 
             // Create a DiscordClient object per Discord server in config
