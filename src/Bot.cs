@@ -61,6 +61,9 @@
             _whConfig = whConfig;
             _whm = new WebhookController(_whConfig);
 
+            // Build form lists for icons
+            IconFetcher.Instance.SetIconStyles(_whConfig.IconStyles);
+
             // Set translation language
             Translator.Instance.SetLocale(_whConfig.Locale);
 
