@@ -15,7 +15,7 @@
         [
             JsonProperty("subscription_id"),
             Column("subscription_id"),
-            ForeignKey("rk_pvp_subscription_id"),
+            ForeignKey("subscription_id"),
             Required
         ]
         public int SubscriptionId { get; set; }
