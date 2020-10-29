@@ -13,54 +13,26 @@
     ]
     public class SubscriptionObject : SubscriptionItem
     {
+        /*
+        public List<PokemonSubscription> Pokemon { get; set; }
+
+        public List<PvPSubscription> PvP { get; set; }
+
+        public List<RaidSubscription> Raids { get; set; }
+
+        public List<QuestSubscription> Quests { get; set; }
+
+        public List<GymSubscription> Gyms { get; set; }
+
+        public List<InvasionSubscription> Invasions { get; set; }
+        */
+
         [
             JsonProperty("enabled"),
             Column("enabled"),
             DefaultValue(1)
         ]
         public bool Enabled { get; set; }
-
-        [
-            JsonProperty("pokemon"),
-            NotMapped,
-            //Reference
-        ]
-        public List<PokemonSubscription> Pokemon { get; set; }
-
-        [
-            JsonProperty("pvp"),
-            NotMapped
-            //Reference
-        ]
-        public List<PvPSubscription> PvP { get; set; }
-
-        [
-            JsonProperty("raids"),
-            NotMapped
-            //Reference
-        ]
-        public List<RaidSubscription> Raids { get; set; }
-
-        [
-            JsonProperty("gyms"),
-            NotMapped
-            //Reference
-        ]
-        public List<GymSubscription> Gyms { get; set; }
-
-        [
-            JsonProperty("quests"),
-            NotMapped,
-            //Reference
-        ]
-        public List<QuestSubscription> Quests { get; set; }
-
-        [
-            JsonProperty("invasions"),
-            NotMapped,
-            //Reference
-        ]
-        public List<InvasionSubscription> Invasions { get; set; }
 
         [
             JsonProperty("distance"),
@@ -110,13 +82,15 @@
 
         public SubscriptionObject()
         {
-            Enabled = true;
+            /*
             Pokemon = new List<PokemonSubscription>();
             PvP = new List<PvPSubscription>();
             Raids = new List<RaidSubscription>();
-            Gyms = new List<GymSubscription>();
             Quests = new List<QuestSubscription>();
+            Gyms = new List<GymSubscription>();
             Invasions = new List<InvasionSubscription>();
+            */
+            Enabled = true;
             Limiter = new NotificationLimiter();
             DistanceM = 0;
             Latitude = 0;

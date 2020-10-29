@@ -67,7 +67,7 @@
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
             var removed = 0;
-            var users = _dep.SubscriptionProcessor?.Manager?.Subscriptions;
+            var users = _dep.SubscriptionProcessor?.Manager?.Subscriptions.ToList();
             for (var i = 0; i < users.Count; i++)
             {
                 var user = users[i];

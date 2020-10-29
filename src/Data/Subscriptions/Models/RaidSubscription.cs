@@ -20,6 +20,11 @@
         public int SubscriptionId { get; set; }
 
         [
+            JsonProperty("subscription"),
+        ]
+        public SubscriptionObject Subscription { get; set; }
+
+        [
             JsonProperty("pokemon_id"),
             Column("pokemon_id"),
             Required

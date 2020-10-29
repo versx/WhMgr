@@ -1037,7 +1037,7 @@
 
                 _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
-                var users = _subProcessor.Manager.Subscriptions;
+                var users = _subProcessor.Manager.Subscriptions.ToList();
                 for (var j = 0; j < users.Count; j++)
                 {
                     var user = users[j];

@@ -15,10 +15,15 @@
         [
             JsonProperty("subscription_id"),
             Column("subscription_id"),
-            ForeignKey("subscription_id"),
+            ForeignKey("rk_pvp_subscription_id"),
             Required
         ]
         public int SubscriptionId { get; set; }
+
+        [
+            JsonProperty("subscription"),
+        ]
+        public SubscriptionObject Subscription { get; set; }
 
         [
             JsonProperty("pokemon_id"),

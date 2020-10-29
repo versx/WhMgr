@@ -28,6 +28,10 @@
     <OutputPath>../bin/debug</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\bin\release</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="DotLiquid" Version="2.0.361" />
     <PackageReference Include="DSharpPlus" Version="3.2.3" />

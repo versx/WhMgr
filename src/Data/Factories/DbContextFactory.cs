@@ -29,6 +29,7 @@
 
             var context = new SubscriptionsDbContext(optionsBuilder.Options);
             context.Database.EnsureCreated();
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
             return context;
         }
 

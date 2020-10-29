@@ -91,18 +91,17 @@
             }
 
             SubscriptionObject user;
-            PokemonSubscription subscribedPokemon;
             DiscordMember member = null;
             var pokemon = MasterFile.GetPokemon(pkmn.Id, pkmn.FormId);
             var matchesIV = false;
             var matchesLvl = false;
             var matchesGender = false;
             var matchesIVList = false;
-            for (var i = 0; i < subscriptions.Count; i++)
+            foreach (var subscribedPokemon in subscriptions)
             {
                 try
                 {
-                    user = subscriptions[i];
+                    user = Manager.Subscriptions.FirstOrDefault(x => x.Id == subscribedPokemon.SubscriptionId);
                     if (user == null)
                         continue;
 
@@ -168,12 +167,9 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
-                    subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
-                        x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
-                    );
-                    if (subscribedPokemon == null)
+                    var isMatch = (string.IsNullOrEmpty(subscribedPokemon.Form) || string.Compare(subscribedPokemon.Form, form, true) == 0) &&
+                                  (string.IsNullOrEmpty(subscribedPokemon.City) || (!string.IsNullOrEmpty(subscribedPokemon.City) && string.Compare(loc.Name, subscribedPokemon.City, true) == 0));
+                    if (!isMatch)
                     {
                         //_logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
@@ -206,7 +202,6 @@
                 }
             }
 
-            subscriptions.Clear();
             subscriptions = null;
             member = null;
             user = null;
@@ -236,16 +231,15 @@
             }
 
             SubscriptionObject user;
-            PvPSubscription subscribedPokemon;
             DiscordMember member = null;
             var pokemon = MasterFile.GetPokemon(pkmn.Id, pkmn.FormId);
             var matchesGreat = false;
             var matchesUltra = false;
-            for (var i = 0; i < subscriptions.Count; i++)
+            foreach (var subscribedPokemon in subscriptions)
             {
                 try
                 {
-                    user = subscriptions[i];
+                    user = Manager.Subscriptions.FirstOrDefault(x => x.Id == subscribedPokemon.SubscriptionId);
                     if (user == null)
                         continue;
 
@@ -303,12 +297,9 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
-                    subscribedPokemon = user.PvP.FirstOrDefault(x =>
-                        x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
-                    );
-                    if (subscribedPokemon == null)
+                    var isMatch = (string.IsNullOrEmpty(subscribedPokemon.Form) || string.Compare(subscribedPokemon.Form, form, true) == 0) &&
+                                  (string.IsNullOrEmpty(subscribedPokemon.City) || (!string.IsNullOrEmpty(subscribedPokemon.City) && string.Compare(loc.Name, subscribedPokemon.City, true) == 0));
+                    if (!isMatch)
                     {
                         //_logger.Info($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
@@ -341,7 +332,6 @@
                 }
             }
 
-            subscriptions.Clear();
             subscriptions = null;
             member = null;
             user = null;
@@ -372,11 +362,11 @@
 
             SubscriptionObject user;
             var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
-            for (int i = 0; i < subscriptions.Count; i++)
+            foreach (var subscribedRaid in subscriptions)
             {
                 try
                 {
-                    user = subscriptions[i];
+                    user = Manager.Subscriptions.FirstOrDefault(x => x.Id == subscribedRaid.SubscriptionId);
                     if (user == null)
                         continue;
 
@@ -419,26 +409,42 @@
                         }
                     }
 
-                    if (user.Gyms.Count > 0 && (!user.Gyms?.Exists(x =>
-                        !string.IsNullOrEmpty(x?.Name) &&
-                        (
-                            (raid.GymName?.ToLower()?.Contains(x.Name?.ToLower()) ?? false) ||
-                            (raid.GymName?.ToLower()?.StartsWith(x.Name?.ToLower()) ?? false)
-                        )
-                    ) ?? false))
+                    var gymSubscriptions = Manager.GetUserGymSubscriptions(user.GuildId, user.UserId);
+                    if (gymSubscriptions.Count > 0)
                     {
-                        //Skip if list is not empty and gym is not in list.
-                        _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");
-                        continue;
+                        if (!gymSubscriptions.Exists(x => !string.IsNullOrEmpty(x?.Name) &&
+                            (
+                                (raid.GymName?.ToLower()?.Contains(x.Name?.ToLower()) ?? false) ||
+                                (raid.GymName?.ToLower()?.StartsWith(x.Name?.ToLower()) ?? false)
+                            )
+                        ))
+                        {
+                            //Skip if list is not empty and gym is not in list.
+                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");
+                            continue;
+                        }
                     }
+                    /*
+                    if (user.Gyms != null && user.Gyms.Count > 0)
+                    {
+                        if (!user.Gyms.Exists(x => !string.IsNullOrEmpty(x?.Name) &&
+                            (
+                                (raid.GymName?.ToLower()?.Contains(x.Name?.ToLower()) ?? false) ||
+                                (raid.GymName?.ToLower()?.StartsWith(x.Name?.ToLower()) ?? false)
+                            )
+                        ))
+                        {
+                            //Skip if list is not empty and gym is not in list.
+                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");
+                            continue;
+                        }
+                    }
+                    */
 
                     var form = Translator.Instance.GetFormName(raid.Form);
-                    var exists = user.Raids.FirstOrDefault(x =>
-                        x.PokemonId == raid.PokemonId &&
-                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
-                    ) != null;
-                    if (!exists)
+                    var isMatch = (string.IsNullOrEmpty(subscribedRaid.Form) || string.Compare(subscribedRaid.Form, form, true) == 0) &&
+                                  (string.IsNullOrEmpty(subscribedRaid.City) || (!string.IsNullOrEmpty(subscribedRaid.City) && string.Compare(loc.Name, subscribedRaid.City, true) == 0));
+                    if (!isMatch)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
                         continue;
@@ -459,7 +465,6 @@
                 }
             }
 
-            subscriptions.Clear();
             subscriptions = null;
             user = null;
             loc = null;
@@ -480,7 +485,8 @@
                 return;
             }
 
-            var subscriptions = Manager.GetUserSubscriptions();
+            //var subscriptions = Manager.GetUserSubscriptions();
+            var subscriptions = Manager.GetUserSubscriptionsByQuestReward(rewardKeyword);
             if (subscriptions == null)
             {
                 _logger.Warn($"Failed to get subscriptions from database table.");
@@ -489,11 +495,11 @@
 
             bool isSupporter;
             SubscriptionObject user;
-            for (int i = 0; i < subscriptions.Count; i++)
+            foreach (var subscribedQuest in subscriptions)
             {
                 try
                 {
-                    user = subscriptions[i];
+                    user = Manager.Subscriptions.FirstOrDefault(x => x.Id == subscribedQuest.SubscriptionId);
                     if (user == null)
                         continue;
 
@@ -525,11 +531,8 @@
                         continue;
                     }
 
-                    var exists = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) &&
-                    (
-                        string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
-                    )) != null;
-                    if (!exists)
+                    var isMatch = string.IsNullOrEmpty(subscribedQuest.City) || (!string.IsNullOrEmpty(subscribedQuest.City) && string.Compare(loc.Name, subscribedQuest.City, true) == 0);
+                    if (!isMatch)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
                         continue;
@@ -562,7 +565,6 @@
                 }
             }
 
-            subscriptions.Clear();
             subscriptions = null;
             user = null;
             loc = null;
@@ -598,11 +600,11 @@
             }
          
             SubscriptionObject user;
-            for (int i = 0; i < subscriptions.Count; i++)
+            foreach (var subscribedInvasion in subscriptions)
             {
                 try
                 {
-                    user = subscriptions[i];
+                    user = Manager.Subscriptions.FirstOrDefault(x => x.Id == subscribedInvasion.SubscriptionId);
                     if (user == null)
                         continue;
 
@@ -633,11 +635,8 @@
                         continue;
                     }
 
-                    var exists = user.Invasions.FirstOrDefault(x =>
-                        encounters.Contains(x.RewardPokemonId) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
-                    ) != null;
-                    if (!exists)
+                    var isMatch = string.IsNullOrEmpty(subscribedInvasion.City) || (!string.IsNullOrEmpty(subscribedInvasion.City) && string.Compare(loc.Name, subscribedInvasion.City, true) == 0);
+                    if (!isMatch)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
                         continue;
@@ -670,7 +669,6 @@
                 }
             }
 
-            subscriptions.Clear();
             subscriptions = null;
             user = null;
             loc = null;

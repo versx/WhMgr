@@ -386,9 +386,14 @@
                         continue;
                     }
 
-                    var subPkmn = db.Pokemon.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
-                                                                 x.PokemonId == pokemonId &&
-                                                                 string.Compare(x.Form, form, true) == 0);
+                    var start = DateTime.Now;
+                    var subPkmn = db.Pokemon
+                                    .Where(x => x.SubscriptionId == subscription.Id && x.PokemonId == pokemonId)
+                                    .AsEnumerable()
+                                    .FirstOrDefault(x => string.Compare(x.Form, form, true) == 0);
+                    var end = DateTime.Now;
+                    var took = end.Subtract(start);
+                    Console.WriteLine("Pokemon search took: " + took);
                     // Always ignore the user's input for Unown and set it to 0 by default.
                     var minIV = pokemonId.IsRarePokemon() ? 0 : realIV;
                     var minLvl = pokemonId.IsRarePokemon() ? 0 : minLevel;
@@ -484,7 +489,8 @@
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            if (subscription == null || subscription?.Pokemon.Count == 0)
+            var pokemonSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserPokemonSubscriptions(guildId, ctx.User.Id);
+            if (subscription == null || pokemonSubscriptions?.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -495,7 +501,7 @@
             if (string.Compare(poke, Strings.All, true) == 0)
             {
                 // Send a confirmation confirming the user actually wants to remove all of their Pokemon subscriptions
-                var confirm = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Pokemon.Count.ToString("N0")));
+                var confirm = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username, pokemonSubscriptions.Count.ToString("N0")));
                 if (!confirm)
                     return;
 
@@ -521,14 +527,6 @@
                 return;
             }
 
-            //subscription.Pokemon
-            //    .Where(x =>
-            //           validation.Valid.ContainsKey(x.PokemonId) &&
-            //           string.Compare(validation.Valid[x.PokemonId], x.Form, true) == 0)?
-            //    .ToList()?
-            //    .ForEach(x => x.Id.Remove<PokemonSubscription>()
-            //);
-
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             var error = false;
             var keys = validation.Valid.Keys.ToList();
@@ -538,14 +536,15 @@
                 {
                     var pokemonId = keys[i];
                     var form = validation.Valid[pokemonId];
-                    var pkmnSub = db.Pokemon.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
-                                                            x.PokemonId == pokemonId &&
-                                                            string.Compare(x.Form, form, true) == 0);
+                    var pkmnSub = db.Pokemon
+                                    .Where(x => x.SubscriptionId == subscription.Id && x.PokemonId == pokemonId)
+                                    .AsEnumerable()
+                                    .FirstOrDefault(x => string.Compare(x.Form, form, true) == 0);
+                    // Check if already removed or doesn't exist
                     if (pkmnSub == null)
                         continue;
 
                     var result = db.Remove(pkmnSub);
-                    //var result = pkmnSub.Id.Remove<PokemonSubscription>();
                     if (result.State != Microsoft.EntityFrameworkCore.EntityState.Deleted)
                     {
                         error = true;
@@ -683,10 +682,10 @@
                         : new List<string> { city };
                     foreach (var area in cities)
                     {
-                        var subRaid = db.Raids.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
-                                                                             x.PokemonId == pokemonId &&
-                                                                             string.Compare(x.Form, form, true) == 0 &&
-                                                                             string.Compare(x.City, area, true) == 0);
+                        var subRaid = db.Raids
+                                        .Where(x => x.SubscriptionId == subscription.Id && x.PokemonId == pokemonId)
+                                        .AsEnumerable()
+                                        .FirstOrDefault(x => string.Compare(x.Form, form, true) == 0 && string.Compare(x.City, area, true) == 0);
                         if (subRaid != null)
                             continue; //Already exists
 
@@ -744,7 +743,8 @@
             }
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            if (subscription == null || subscription?.Raids.Count == 0)
+            var raidSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserRaidSubscriptions(guildId, ctx.User.Id);
+            if (subscription == null || raidSubscriptions?.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city) ?
@@ -757,14 +757,15 @@
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Raids.Count.ToString("N0")));
+                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username, raidSubscriptions.Count.ToString("N0")));
                 if (!result)
                     return;
 
                 using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
                 {
                     db.Raids
-                        .Where(x => x.SubscriptionId == subscription.Id)
+                        .Where(x => x.SubscriptionId == subscription.Id)?
+                        .AsEnumerable()?
                         .ToList()?
                         .ForEach(x => db.Remove(x));
                     db.SaveChanges();
@@ -796,10 +797,10 @@
                         : new List<string> { city };
                     foreach (var area in cities)
                     {
-                        var subRaid = db.Raids.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
-                                                                   x.PokemonId == pokemonId &&
-                                                                   string.Compare(x.Form, form, true) == 0 &&
-                                                                   string.Compare(x.City, area, true) == 0);
+                        var subRaid = db.Raids
+                                        .Where(x => x.SubscriptionId == subscription.Id && x.PokemonId == pokemonId)
+                                        .AsEnumerable()
+                                        .FirstOrDefault(x => string.Compare(x.Form, form, true) == 0 && string.Compare(x.City, area, true) == 0);
                         if (subRaid == null)
                             continue; //Already removed
 
@@ -858,9 +859,10 @@
             {
                 foreach (var area in cities)
                 {
-                    var subQuest = subscription.Quests.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
-                                                                           string.Compare(x.RewardKeyword, rewardKeyword, true) == 0 &&
-                                                                           string.Compare(x.City, area, true) == 0);
+                    var subQuest = db.Quests
+                                    .Where(x => x.SubscriptionId == subscription.Id)
+                                    .AsEnumerable()
+                                    .FirstOrDefault(x => string.Compare(x.RewardKeyword, rewardKeyword, true) == 0 && string.Compare(x.City, area, true) == 0);
                     if (subQuest != null)
                         continue; //Already exists
 
@@ -909,7 +911,8 @@
             }
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            if (subscription == null || subscription?.Quests.Count == 0)
+            var questSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserQuestSubscriptions(guildId, ctx.User.Id);
+            if (subscription == null || questSubscriptions?.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_QUEST_SUBSCRIPTIONS").FormatText(
@@ -929,13 +932,13 @@
 
             if (string.Compare(rewardKeyword, Strings.All, true) == 0)
             {
-                var removeAllResult = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_QUEST_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Quests.Count.ToString("N0")));
+                var removeAllResult = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_QUEST_SUBSCRIPTIONS").FormatText(ctx.User.Username, questSubscriptions.Count.ToString("N0")));
                 if (!removeAllResult)
                     return;
 
                 using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
                 {
-                    subscription.Quests.ForEach(x => db.Remove(x));
+                    questSubscriptions.ForEach(x => db.Remove(x));
                     db.SaveChanges();
                 }
                 await ctx.TriggerTypingAsync();
@@ -951,11 +954,10 @@
             using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
                 db.Quests
-                    .Where(x =>
-                        x.SubscriptionId == subscription.Id &&
-                        string.Compare(x.RewardKeyword, rewardKeyword, true) == 0 &&
-                        cities.Contains(x.City.ToLower()))?
-                    .ToList()?
+                    .Where(x => x.SubscriptionId == subscription.Id)
+                    .AsEnumerable()
+                    .Where(x => string.Compare(x.RewardKeyword, rewardKeyword, true) == 0 && cities.Contains(x.City.ToLower()))
+                    .ToList()
                     .ForEach(x => db.Remove(x));
                 db.SaveChanges();
             }
@@ -985,9 +987,9 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            var subGym = subscription.Gyms.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
+            var gymSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserGymSubscriptions(guildId, ctx.User.Id);
+            var subGym = gymSubscriptions.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
             if (subGym != null)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_EXISTS").FormatText(ctx.User.Username, gymName), DiscordColor.Red);
@@ -1021,11 +1023,11 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            var gymSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserGymSubscriptions(guildId, ctx.User.Id);
             if (string.Compare(Strings.All, gymName, true) == 0)
             {
-                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Gyms.Count.ToString("N0")));
+                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(ctx.User.Username, gymSubscriptions.Count.ToString("N0")));
                 if (!result)
                     return;
 
@@ -1045,7 +1047,9 @@
             using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
                 db.Gyms
-                    .Where(x => x.SubscriptionId == subscription.Id && string.Compare(x.Name, gymName, true) == 0)?
+                    .Where(x => x.SubscriptionId == subscription.Id)?
+                    .AsEnumerable()
+                    .Where(x => string.Compare(x.Name, gymName, true) == 0)
                     .ToList()?
                     .ForEach(x => db.Remove(x));
                 db.SaveChanges();
@@ -1106,9 +1110,10 @@
                         : new List<string> { city };
                     foreach (var area in cities)
                     {
-                        var subInvasion = db.Invasions.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
-                                                                           x.RewardPokemonId == pokemonId &&
-                                                                           string.Compare(x.City, area, true) == 0);
+                        var subInvasion = db.Invasions
+                                        .Where(x => x.SubscriptionId == subscription.Id)
+                                        .AsEnumerable()
+                                        .FirstOrDefault(x => x.RewardPokemonId == pokemonId && string.Compare(x.City, area, true) == 0);
                         if (subInvasion != null)
                             continue; //Already exists
 
@@ -1165,7 +1170,8 @@
             }
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            if (subscription == null || subscription?.Invasions.Count == 0)
+            var invasionSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserInvasionSubscriptions(guildId, ctx.User.Id);
+            if (subscription == null || invasionSubscriptions?.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city) ?
@@ -1178,7 +1184,7 @@
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Invasions.Count.ToString("N0")));
+                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username, invasionSubscriptions.Count.ToString("N0")));
                 if (!result)
                     return;
 
@@ -1214,8 +1220,10 @@
                         : new List<string> { city };
                     foreach (var area in cities)
                     {
-                        var subInvasion = db.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId &&
-                                                                           string.Compare(x.City, area, true) == 0);
+                        var subInvasion = db.Invasions
+                                            .Where(x => x.SubscriptionId == subscription.Id)
+                                            .AsEnumerable()
+                                            .FirstOrDefault(x => x.RewardPokemonId == pokemonId && string.Compare(x.City, area, true) == 0);
                         if (subInvasion == null)
                             continue; //Already removed
 
@@ -1358,10 +1366,10 @@
 
                     var pokemon = MasterFile.Instance.Pokedex[pokemonId];
                     var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
-                    var subPkmn = db.PvP.FirstOrDefault(x => x.SubscriptionId == subscription.Id &&
-                                                             x.PokemonId == pokemonId &&
-                                                             string.Compare(x.Form, form, true) == 0 &&
-                                                             x.League == pvpLeague);
+                    var subPkmn = db.PvP
+                                    .Where(x => x.SubscriptionId == subscription.Id && x.PokemonId == pokemonId)
+                                    .AsEnumerable()
+                                    .FirstOrDefault(x => string.Compare(x.Form, form, true) == 0 && x.League == pvpLeague);
                     if (subPkmn == null)
                     {
                         //Does not exist, create.
@@ -1439,7 +1447,8 @@
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            if (subscription == null || subscription?.Pokemon?.Count == 0)
+            var pvpSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserPvPSubscriptions(guildId, ctx.User.Id);
+            if (subscription == null || pvpSubscriptions?.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -1462,14 +1471,14 @@
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var confirm = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.PvP.Count(x => x.League == pvpLeague).ToString("N0"), pvpLeague));
+                var confirm = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, pvpSubscriptions.Count(x => x.League == pvpLeague).ToString("N0"), pvpLeague));
                 if (!confirm)
                     return;
 
                 using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
                 {
                     db.PvP
-                        .Where(x => x.League == pvpLeague && x.SubscriptionId == subscription.Id)?
+                        .Where(x => x.SubscriptionId == subscription.Id && x.League == pvpLeague)?
                         .ToList()?
                         .ForEach(x => db.Remove(x));
                     db.SaveChanges();
@@ -1491,12 +1500,13 @@
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
-                subscription.PvP
+                db.PvP
                     .Where(x =>
                         x.SubscriptionId == subscription.Id &&
                         validation.Valid.ContainsKey(x.PokemonId) &&
-                        string.Compare(x.Form, validation.Valid[x.PokemonId], true) == 0 &&
                         x.League == pvpLeague)?
+                    .AsEnumerable()
+                    .Where(x => string.Compare(x.Form, validation.Valid[x.PokemonId], true) == 0)
                     .ToList()?
                     .ForEach(x => db.Remove(x));
                 db.SaveChanges();
@@ -1756,13 +1766,20 @@
             }
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, user.Id);
-            var isSubbed = subscription?.Pokemon.Count > 0 || subscription?.PvP.Count > 0 || subscription?.Raids.Count > 0 || subscription?.Quests.Count > 0 || subscription?.Invasions.Count > 0 || subscription?.Gyms.Count > 0;
-            var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
-            var hasPvP = isSubbed && subscription?.PvP.Count > 0;
-            var hasRaids = isSubbed && subscription?.Raids.Count > 0;
-            var hasGyms = isSubbed && subscription?.Gyms.Count > 0;
-            var hasQuests = isSubbed && subscription?.Quests.Count > 0;
-            var hasInvasions = isSubbed && subscription?.Invasions.Count > 0;
+            var pokemonSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserPokemonSubscriptions(guildId, user.Id);
+            var pvpSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserPvPSubscriptions(guildId, user.Id);
+            var raidSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserRaidSubscriptions(guildId, user.Id);
+            var questSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserQuestSubscriptions(guildId, user.Id);
+            var gymSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserGymSubscriptions(guildId, user.Id);
+            var invasionSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserInvasionSubscriptions(guildId, user.Id);
+            
+            var hasPokemon = pokemonSubscriptions.Count > 0;
+            var hasPvP = pvpSubscriptions.Count > 0;
+            var hasRaids = raidSubscriptions.Count > 0;
+            var hasGyms = gymSubscriptions.Count > 0;
+            var hasQuests = questSubscriptions.Count > 0;
+            var hasInvasions = invasionSubscriptions.Count > 0;
+            var isSubbed = hasPokemon || hasPvP || hasRaids || hasQuests || hasInvasions || hasGyms;
             var messages = new List<string>();
             var isSupporter = client.IsSupporterOrHigher(user.Id, guildId, _dep.WhConfig);
 
@@ -1785,8 +1802,8 @@
 
             if (hasPokemon)
             {
-                var pokemon = subscription.Pokemon;
-                pokemon.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
+                var pokemon = pokemonSubscriptions;
+                // TODO: pokemon.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
 
                 var exceedsLimits = pokemon.Count > Strings.MaxPokemonDisplayed;
                 var defaultIV = 0;
@@ -1810,7 +1827,7 @@
                 }
 
 
-                foreach (var poke in subscription.Pokemon)
+                foreach (var poke in pokemonSubscriptions)
                 {
                     if (poke.MinimumIV == defaultIV && poke.IVList.Count == 0 && exceedsLimits)
                         continue;
@@ -1832,7 +1849,7 @@
             var sb2 = new StringBuilder();
             if (hasPvP)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP").FormatText(subscription.PvP.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxPvPSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP").FormatText(pvpSubscriptions.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxPvPSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetPvPSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1842,7 +1859,7 @@
 
             if (hasRaids)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_RAIDS").FormatText(subscription.Raids.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxRaidSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_RAIDS").FormatText(raidSubscriptions.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxRaidSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetRaidSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1852,7 +1869,7 @@
 
             if (hasGyms)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_GYMS").FormatText(subscription.Gyms.Count.ToString("N0"), isSupporter ? "" : Strings.MaxGymSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_GYMS").FormatText(gymSubscriptions.Count.ToString("N0"), isSupporter ? "" : Strings.MaxGymSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetGymSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1862,7 +1879,7 @@
 
             if (hasQuests)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_QUESTS").FormatText(subscription.Quests.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxQuestSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_QUESTS").FormatText(questSubscriptions.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxQuestSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetQuestSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1872,7 +1889,7 @@
 
             if (hasInvasions)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_INVASIONS").FormatText(subscription.Invasions.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxInvasionSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_INVASIONS").FormatText(invasionSubscriptions.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxInvasionSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetInvasionSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1891,10 +1908,10 @@
         private List<string> GetPvPSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
-            var subscribedPvP = subscription.PvP;
-            subscribedPvP.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
-            foreach (var pvp in subscribedPvP)
+            //var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
+            var pvpSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserPvPSubscriptions(guildId, userId);
+            pvpSubscriptions.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
+            foreach (var pvp in pvpSubscriptions)
             {
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
                     continue;
@@ -1905,19 +1922,16 @@
 
                 list.Add($"{pvp.PokemonId}: {pokemon.Name} {(string.IsNullOrEmpty(pvp.Form) ? string.Empty : $"Form: {pvp.Form} ")}({pvp.League} League Rank: 1-{pvp.MinimumRank} Percent: {pvp.MinimumPercent}%+)");
             }
-
             return list;
         }
 
         private List<string> GetRaidSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
-            var subscribedRaids = subscription.Raids;
-            subscribedRaids.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
+            var raidSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserRaidSubscriptions(guildId, userId);
+            raidSubscriptions.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
             var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
-
-            var results = subscribedRaids.GroupBy(x => x.PokemonId, (key, g) => new { PokemonId = key, Cities = g.ToList() });
+            var results = raidSubscriptions.GroupBy(x => x.PokemonId, (key, g) => new { PokemonId = key, Cities = g.ToList() });
             foreach (var raid in results)
             {
                 if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
@@ -1930,57 +1944,48 @@
                 var isAllCities = cityRoles.ScrambledEquals(raid.Cities.Select(x => x.City).ToList(), StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
                 list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(pokemon.Name, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", raid.Cities.Select(x => x.City))));
             }
-
             return list;
         }
 
         private List<string> GetGymSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
-            var subscribedGyms = subscription.Gyms;
-            subscribedGyms.Sort((x, y) => x.Name.CompareTo(y.Name));
-            foreach (var gym in subscribedGyms)
+            var gymSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserGymSubscriptions(guildId, userId);
+            gymSubscriptions.Sort((x, y) => x.Name.CompareTo(y.Name));
+            foreach (var gym in gymSubscriptions)
             {
                 list.Add(gym.Name);
             }
-
             return list;
         }
 
         private List<string> GetQuestSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
-            var subscribedQuests = subscription.Quests;
-            subscribedQuests.Sort((x, y) => string.Compare(x.RewardKeyword.ToLower(), y.RewardKeyword.ToLower(), true));
+            var questSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserQuestSubscriptions(guildId, userId);
+            questSubscriptions.Sort((x, y) => string.Compare(x.RewardKeyword.ToLower(), y.RewardKeyword.ToLower(), true));
             var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
-
-            var results = subscribedQuests.GroupBy(p => p.RewardKeyword, (key, g) => new { Reward = key, Cities = g.ToList() });
+            var results = questSubscriptions.GroupBy(p => p.RewardKeyword, (key, g) => new { Reward = key, Cities = g.ToList() });
             foreach (var quest in results)
             {
                 var isAllCities = cityRoles.ScrambledEquals(quest.Cities.Select(x => x.City.ToLower()).ToList(), StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
                 list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(quest.Reward, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", quest.Cities.Select(x => x.City))));
             }
-
             return list;
         }
 
         private List<string> GetInvasionSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
-            var subscribedInvasions = subscription.Invasions;
-            subscribedInvasions.Sort((x, y) => string.Compare(MasterFile.GetPokemon(x.RewardPokemonId, 0).Name, MasterFile.GetPokemon(y.RewardPokemonId, 0).Name, true));
+            var invasionSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserInvasionSubscriptions(guildId, userId);
+            invasionSubscriptions.Sort((x, y) => string.Compare(MasterFile.GetPokemon(x.RewardPokemonId, 0).Name, MasterFile.GetPokemon(y.RewardPokemonId, 0).Name, true));
             var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
-
-            var results = subscribedInvasions.GroupBy(p => p.RewardPokemonId, (key, g) => new { RewardPokemon = key, Cities = g.ToList() });
+            var results = invasionSubscriptions.GroupBy(p => p.RewardPokemonId, (key, g) => new { RewardPokemon = key, Cities = g.ToList() });
             foreach (var invasion in results)
             {
                 var isAllCities = cityRoles.ScrambledEquals(invasion.Cities.Select(x => x.City.ToLower()).ToList(), StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
                 list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(MasterFile.GetPokemon(invasion.RewardPokemon, 0).Name, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", invasion.Cities.Select(x => x.City))));
             }
-
             return list;
         }
 

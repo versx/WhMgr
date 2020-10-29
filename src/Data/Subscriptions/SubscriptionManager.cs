@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Timers;
 
@@ -20,15 +21,13 @@
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MANAGER", Program.LogLevel);
 
         private readonly WhConfig _whConfig;
-        private List<SubscriptionObject> _subscriptions;
-
-        private readonly Timer _reloadTimer;
+        private readonly System.Timers.Timer _reloadTimer;
 
         #endregion
 
         #region Properties
 
-        public IReadOnlyList<SubscriptionObject> Subscriptions => _subscriptions;
+        public IEnumerable<SubscriptionObject> Subscriptions { get; private set; }
 
         #endregion
 
@@ -55,11 +54,11 @@
             }
 
             // Reload subscriptions every 60 seconds to account for UI changes
-            _reloadTimer = new Timer(_whConfig.ReloadSubscriptionChangesMinutes * 1000);
+            _reloadTimer = new System.Timers.Timer(_whConfig.ReloadSubscriptionChangesMinutes * 60 * 1000);
             _reloadTimer.Elapsed += OnReloadTimerElapsed;
             _reloadTimer.Start();
 
-            ReloadSubscriptions();
+            ThreadPool.QueueUserWorkItem(x => ReloadSubscriptions());
         }
 
         private void OnReloadTimerElapsed(object sender, ElapsedEventArgs e)
@@ -86,6 +85,12 @@
                 using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
                 {
                     var sub = ctx.Subscriptions
+                        //.Include(x => x.Pokemon)
+                        //.Include(x => x.PvP)
+                        //.Include(x => x.Raids)
+                        //.Include(x => x.Quests)
+                        //.Include(x => x.Gyms)
+                        //.Include(x => x.Invasions)
                         .FirstOrDefault(x => x.GuildId == guildId && x.UserId == userId);
                     return sub ?? new SubscriptionObject { UserId = userId, GuildId = guildId };
                 }
@@ -97,47 +102,135 @@
             }
         }
 
-        public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(int pokeId)
+        public List<PokemonSubscription> GetUserPokemonSubscriptions(ulong guildId, ulong userId)
         {
-            return _subscriptions?.Where(x =>
-                x.Enabled && x.Pokemon != null &&
-                x.Pokemon.Exists(y => y.PokemonId == pokeId)
-            )?.ToList();
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.Pokemon.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
+            }
         }
 
-        public List<SubscriptionObject> GetUserSubscriptionsByPvPPokemonId(int pokeId)
+        public List<PvPSubscription> GetUserPvPSubscriptions(ulong guildId, ulong userId)
         {
-            return _subscriptions?.Where(x =>
-                x.Enabled && x.PvP != null &&
-                x.PvP.Exists(y => y.PokemonId == pokeId)
-            )?.ToList();
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.PvP.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
+            }
         }
 
-        public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
+        public List<RaidSubscription> GetUserRaidSubscriptions(ulong guildId, ulong userId)
         {
-            return _subscriptions?.Where(x =>
-                x.Enabled && x.Raids != null &&
-                x.Raids.Exists(y => y.PokemonId == pokeId)
-            )?.ToList();
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.Raids.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
+            }
         }
 
-        public List<SubscriptionObject> GetUserSubscriptionsByQuestReward(string reward)
+        public List<QuestSubscription> GetUserQuestSubscriptions(ulong guildId, ulong userId)
         {
-            return _subscriptions?.Where(x =>
-                x.Enabled && x.Quests != null &&
-                x.Quests.Exists(y => reward.Contains(y.RewardKeyword))
-            )?.ToList();
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.Quests.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
+            }
         }
 
-        public List<SubscriptionObject> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
+        public List<GymSubscription> GetUserGymSubscriptions(ulong guildId, ulong userId)
         {
-            return _subscriptions?.Where(x =>
-                x.Enabled && x.Invasions != null &&
-                x.Invasions.Exists(y => encounterRewards.Contains(y.RewardPokemonId))
-            )?.ToList();
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.Gyms.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
+            }
         }
 
-        public List<SubscriptionObject> GetUserSubscriptions()
+        public List<InvasionSubscription> GetUserInvasionSubscriptions(ulong guildId, ulong userId)
+        {
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.Invasions.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
+            }
+        }
+
+        public IEnumerable<PokemonSubscription> GetUserSubscriptionsByPokemonId(int pokeId)
+        {
+            /*
+            return _subscriptions
+                .Where(x => x.Enabled && x.Pokemon.Count > 0)
+                .Select(x => x.Pokemon)
+                .SelectMany(x => x)
+                .Where(x => x.PokemonId == pokeId)
+                .ToList();
+            */
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.Pokemon.Where(x => x.PokemonId == pokeId);
+            }
+        }
+
+        public IEnumerable<PvPSubscription> GetUserSubscriptionsByPvPPokemonId(int pokeId)
+        {
+            /*
+            return _subscriptions
+                .Where(x => x.Enabled && x.PvP.Count > 0)
+                .Select(x => x.PvP)
+                .SelectMany(x => x)
+                .Where(x => x.PokemonId == pokeId)
+                .ToList();
+            */
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.PvP.Where(x => x.PokemonId == pokeId);
+            }
+        }
+
+        public IEnumerable<RaidSubscription> GetUserSubscriptionsByRaidBossId(int pokeId)
+        {
+            /*
+            return _subscriptions
+                .Where(x => x.Enabled && x.Raids.Count > 0)
+                .Select(x => x.Raids)
+                .SelectMany(x => x)
+                .Where(x => x.PokemonId == pokeId)
+                .ToList();
+            */
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.Raids.Where(x => x.PokemonId == pokeId);
+            }
+        }
+
+        public IEnumerable<QuestSubscription> GetUserSubscriptionsByQuestReward(string reward)
+        {
+            /*
+            return _subscriptions
+                .Where(x => x.Enabled && x.Quests.Count > 0)
+                .Select(x => x.Quests)
+                .SelectMany(x => x)
+                .Where(x => reward.ToLower().Contains(x.RewardKeyword.ToLower()))
+                .ToList();
+            */
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.Quests.Where(x => reward.ToLower().Contains(x.RewardKeyword.ToLower()));
+            }
+        }
+
+        public IEnumerable<InvasionSubscription> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
+        {
+            /*
+            return _subscriptions
+                .Where(x => x.Enabled && x.Invasions.Count > 0)
+                .Select(x => x.Invasions)
+                .SelectMany(x => x)
+                .Where(x => encounterRewards.Contains(x.RewardPokemonId))
+                .ToList();
+            */
+            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
+            {
+                return ctx.Invasions.Where(x => encounterRewards.Contains(x.RewardPokemonId));
+            }
+        }
+
+        public IEnumerable<SubscriptionObject> GetUserSubscriptions()
         {
             try
             {
@@ -150,9 +243,15 @@
 
                 using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
                 {
-                    return ctx.Subscriptions
-                        .Where(x => x.Enabled)
-                        .ToList();
+                    Subscriptions = ctx.Subscriptions;
+                        //.Include(sub => sub.Pokemon)
+                        //.Include(sub => sub.PvP)
+                        //.Include(sub => sub.Raids)
+                        //.Include(sub => sub.Quests)
+                        //.Include(sub => sub.Gyms)
+                        //.Include(sub => sub.Invasions)
+                        //.ToList();
+                    return Subscriptions;
                 }
             }
             catch (OutOfMemoryException mex)
@@ -175,7 +274,7 @@
             if (subs == null)
                 return;
 
-            _subscriptions = subs;
+            Subscriptions = subs;
         }
 
         public static bool SetUserSubscriptionsStatus(ulong guildId, ulong userId, bool enabled)
@@ -207,12 +306,24 @@
                 // Delete all user subscriptions for guild
                 using (var db = DbContextFactory.CreateSubscriptionContext(DbContextFactory.ConnectionString))
                 {
-                    await db.Pokemon.Where(x => x.GuildId == guildId && x.UserId == userId).ForEachAsync(x => db.Pokemon.Remove(x));
-                    await db.PvP.Where(x => x.GuildId == guildId && x.UserId == userId).ForEachAsync(x => db.PvP.Remove(x));
-                    await db.Raids.Where(x => x.GuildId == guildId && x.UserId == userId).ForEachAsync(x => db.Raids.Remove(x));
-                    await db.Quests.Where(x => x.GuildId == guildId && x.UserId == userId).ForEachAsync(x => db.Quests.Remove(x));
-                    await db.Gyms.Where(x => x.GuildId == guildId && x.UserId == userId).ForEachAsync(x => db.Gyms.Remove(x));
-                    await db.Invasions.Where(x => x.GuildId == guildId && x.UserId == userId).ForEachAsync(x => db.Invasions.Remove(x));
+                    await db.Pokemon
+                        .Where(x => x.GuildId == guildId && x.UserId == userId)
+                        .ForEachAsync(x => db.Pokemon.Remove(x));
+                    await db.PvP
+                        .Where(x => x.GuildId == guildId && x.UserId == userId)
+                        .ForEachAsync(x => db.PvP.Remove(x));
+                    await db.Raids
+                        .Where(x => x.GuildId == guildId && x.UserId == userId)
+                        .ForEachAsync(x => db.Raids.Remove(x));
+                    await db.Quests
+                        .Where(x => x.GuildId == guildId && x.UserId == userId)
+                        .ForEachAsync(x => db.Quests.Remove(x));
+                    await db.Gyms
+                        .Where(x => x.GuildId == guildId && x.UserId == userId)
+                        .ForEachAsync(x => db.Gyms.Remove(x));
+                    await db.Invasions
+                        .Where(x => x.GuildId == guildId && x.UserId == userId)
+                        .ForEachAsync(x => db.Invasions.Remove(x));
                 }
                 return true;
             }
