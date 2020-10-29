@@ -534,9 +534,9 @@
 
                 // Catch rate properties
                 { "has_capture_rates",  Convert.ToString(CatchRate1.HasValue && CatchRate2.HasValue && CatchRate3.HasValue) },
-                { "capture_1", CatchRate1.HasValue ? Math.Round(CatchRate1.Value * 100, 2).ToString() : string.Empty },
-                { "capture_2", CatchRate2.HasValue ? Math.Round(CatchRate2.Value * 100, 2).ToString() : string.Empty },
-                { "capture_3", CatchRate3.HasValue ? Math.Round(CatchRate3.Value * 100, 2).ToString() : string.Empty },
+                { "capture_1", CatchRate1.HasValue ? Math.Round(CatchRate1.Value * 100).ToString() : string.Empty },
+                { "capture_2", CatchRate2.HasValue ? Math.Round(CatchRate2.Value * 100).ToString() : string.Empty },
+                { "capture_3", CatchRate3.HasValue ? Math.Round(CatchRate3.Value * 100).ToString() : string.Empty },
                 { "capture_1_emoji", CaptureRateType.PokeBall.GetCaptureRateEmojiIcon() },
                 { "capture_2_emoji", CaptureRateType.GreatBall.GetCaptureRateEmojiIcon() },
                 { "capture_3_emoji", CaptureRateType.UltraBall.GetCaptureRateEmojiIcon() },
