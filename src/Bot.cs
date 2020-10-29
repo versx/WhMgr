@@ -1037,10 +1037,9 @@
 
                 _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
-                var users = _subProcessor.Manager.Subscriptions.ToList();
-                for (var j = 0; j < users.Count; j++)
+                var users = _subProcessor.Manager.Subscriptions;
+                foreach (var user in users)
                 {
-                    var user = users[j];
                     var discordUser = client.GetMemberById(guildId, user.UserId);
                     if (discordUser == null)
                     {
