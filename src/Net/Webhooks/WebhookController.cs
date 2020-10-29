@@ -213,9 +213,22 @@
             _http.GymDetailsReceived += Http_GymDetailsReceived;
             _http.WeatherReceived += Http_WeatherReceived;
             _http.IsDebug = _config.Debug;
-            _http.Start();
 
             new System.Threading.Thread(LoadAlarmsOnChange).Start();
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public void Start()
+        {
+            _http?.Start();
+        }
+
+        public void Stop()
+        {
+            _http?.Stop();
         }
 
         #endregion
