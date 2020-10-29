@@ -470,29 +470,19 @@
                         continue;
                     }
 
-                    //var skipGreat = false;
-                    //var skipUltra = false;
-                    if (alarm.Filters.Pokemon.IsPvpGreatLeague &&
+                    var skipGreatLeague = (alarm.Filters.Pokemon.IsPvpGreatLeague &&
                         !(pkmn.MatchesGreatLeague && pkmn.GreatLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP)))
-                    {
-                        //skipGreat = true;
+                            && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP)));
+                    if (skipGreatLeague)
                         continue;
-                    }
 
-                    if (alarm.Filters.Pokemon.IsPvpUltraLeague &&
+                    var skipUltraLeague = (alarm.Filters.Pokemon.IsPvpUltraLeague &&
                         !(pkmn.MatchesUltraLeague && pkmn.UltraLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP)))
-                    {
-                        //skipUltra = true;
+                            && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP)));
+                    if (skipUltraLeague)
                         continue;
-                    }
-
-                    // Skip Pokemon if no matching pvp stats at all
-                    //if (skipGreat && skipUltra)
-                    //    continue;
 
                     //if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
                     //{
