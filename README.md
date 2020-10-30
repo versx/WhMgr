@@ -1,4 +1,5 @@
 [![Build](https://github.com/versx/WhMgr/workflows/.NET%20Core/badge.svg)](https://github.com/versx/WhMgr/actions)
+[![Documentation Status](https://readthedocs.org/projects/whmgr/badge/?version=latest)](https://whmgr.readthedocs.io/en/latest/?badge=latest)
 [![GitHub Release](https://img.shields.io/github/release/versx/WhMgr.svg)](https://github.com/versx/WhMgr/releases/)
 [![GitHub Contributors](https://img.shields.io/github/contributors/versx/WhMgr.svg)](https://github.com/versx/WhMgr/graphs/contributors/)
 [![Discord](https://img.shields.io/discord/552003258000998401.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/zZ9h9Xa)  
@@ -9,7 +10,7 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 
 
 ## Description:  
-Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, and Team Rocket invasion notifications via DM.
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, and Team Rocket invasion notifications via DM.
 
 
 ## Features:  
@@ -24,6 +25,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Automatic quest message purge at midnight.  
 - Support for Donors/Supporters only notifications.  
 - Direct messages of Pokemon notifications based on city roles assigned.  
+- Pokemon and Raid subscription notifications based on specific forms.  
 - Custom prefix support as well as mentionable user support for commands.  
 - Subscriptions based on distance from a set location or specific gym names.  
 - Twilio text message alerts for ultra rare Pokemon.  
