@@ -113,7 +113,7 @@
         }
 
         [JsonIgnore]
-        public bool IsMissingStats => FastMove == 0;
+        public bool IsMissingStats => FastMove == 0 || ChargeMove == 0;
 
         #endregion
 
