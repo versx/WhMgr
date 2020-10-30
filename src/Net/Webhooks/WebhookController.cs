@@ -14,6 +14,7 @@
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
+    using WhMgr.Localization;
     using WhMgr.Net;
     using WhMgr.Net.Models;
     using WhMgr.Utilities;
@@ -443,6 +444,19 @@
                     if (alarm.Filters.Pokemon.FilterType == FilterType.Include && alarm.Filters.Pokemon.Pokemon?.Count > 0 && !alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
                     {
                         //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: filter {alarm.Filters.Pokemon.FilterType}.");
+                        continue;
+                    }
+
+                    var formName = Translator.Instance.GetFormName(pkmn.FormId).ToLower();
+                    if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Forms.Select(x => x.ToLower()).Contains(formName))
+                    {
+                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id} with form {pkmn.FormId} ({formName}): filter {alarm.Filters.Pokemon.FilterType}.");
+                        continue;
+                    }
+
+                    if (alarm.Filters.Pokemon.FilterType == FilterType.Include && alarm.Filters.Pokemon.Forms?.Count > 0 && !alarm.Filters.Pokemon.Forms.Select(x => x.ToLower()).Contains(formName))
+                    {
+                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id} with form {pkmn.FormId} ({formName}): filter {alarm.Filters.Pokemon.FilterType}.");
                         continue;
                     }
 

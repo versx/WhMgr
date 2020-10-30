@@ -26,6 +26,12 @@
         public List<int> Pokemon { get; set; }
 
         /// <summary>
+        /// List of pokemon Form strings to filter against
+        /// </summary>
+        [JsonProperty("forms")]
+        public List<string> Forms { get; set; }
+
+        /// <summary>
         /// Minimum IV value to report
         /// </summary>
         [JsonProperty("min_iv")]
@@ -122,6 +128,8 @@
         /// </summary>
         public FilterPokemonObject()
         {
+            Pokemon = new List<int>();
+            Forms = new List<string>();
             MinimumIV = 0;
             MaximumIV = 100;
             MinimumCP = 0;

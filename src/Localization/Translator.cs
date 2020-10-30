@@ -54,14 +54,14 @@
             return Translate($"poke_{pokeId}");
         }
 
-        public string GetFormName(int formId)
+        public string GetFormName(int formId, bool includeNormal = false)
         {
             if (formId == 0)
                 return null;
 
             var form = Translate("form_" + formId);
             // TODO: Localize
-            if (string.Compare(form, "Normal", true) == 0)
+            if (!includeNormal && string.Compare(form, "Normal", true) == 0)
                 return string.Empty;
             return form;
         }

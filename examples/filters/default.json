@@ -2,7 +2,8 @@
 	"pokemon":
 	{
 		"enabled": true, //Filter is enabled
-		"pokemon": [280,337,374], //List of Pokemon for the filter or empty for all
+		"pokemon": [19,618], //List of Pokemon for the filter or empty for all
+		"forms": ["Alola","Galarian"], //List of forms for the filter or empty for all
 		"min_iv": 0, //Minimum IV of Pokemon to send
 		"max_iv": 100, //Maximum IV of Pokemon to send
 		"min_cp": 0, //Minimum CP of Pokemon
@@ -13,7 +14,7 @@
 		"ultra_league": true, //Ultra League
 		"min_rank": 1, //Minimum rank of #1 PVP stats
 		"max_rank": 5, //Maximum rank of #5 PVP stats
-		"type": "Include", //Include or Exclude the `pokemon` list
+		"type": "Include", //Include or Exclude the `pokemon` and `forms` lists
 		"is_event": false, //Only send Pokemon checked with event accounts (GoFest, etc)
 		"ignoreMissing": true //Ignore Pokemon missing stats
 	},
