@@ -8,7 +8,6 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
     using ServiceStack.DataAnnotations;
 
@@ -402,9 +401,9 @@
         public async Task<DiscordEmbedNotification> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             // If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
-            var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
-            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var server = whConfig.Servers[guildId];
+            var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
+            var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
             var pokemonImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
             var properties = await GetProperties(client.Guilds[guildId], whConfig, city, pokemonImageUrl);
             var eb = new DiscordEmbedBuilder

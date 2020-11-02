@@ -108,8 +108,9 @@
 
         public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
+            var server = whConfig.Servers[guildId];
             var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
-            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
+            var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = GetProperties(client.Guilds[guildId], whConfig, city);
             var eb = new DiscordEmbedBuilder
             {

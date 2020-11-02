@@ -150,9 +150,9 @@
         /// <returns>DiscordEmbedNotification object to send</returns>
         public DiscordEmbedNotification GenerateRaidMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
-            var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;
-            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var server = whConfig.Servers[guildId];
+            var alertType = PokemonId > 0 ? AlertMessageType.Raids : AlertMessageType.Eggs;
+            var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
             var raidImageUrl = IsEgg ?
                 IconFetcher.Instance.GetRaidEggIcon(server.IconStyle, Convert.ToInt32(Level), false, IsExEligible) :
                 IconFetcher.Instance.GetPokemonIcon(server.IconStyle, PokemonId, Form, Evolution, Gender, Costume, false);
