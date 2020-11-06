@@ -213,9 +213,22 @@
             _http.GymDetailsReceived += Http_GymDetailsReceived;
             _http.WeatherReceived += Http_WeatherReceived;
             _http.IsDebug = _config.Debug;
-            _http.Start();
 
             new System.Threading.Thread(LoadAlarmsOnChange).Start();
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        public void Start()
+        {
+            _http?.Start();
+        }
+
+        public void Stop()
+        {
+            _http?.Stop();
         }
 
         #endregion
@@ -234,13 +247,13 @@
             // Check if Pokemon is in event Pokemon list
             if (_config.EventPokemonIds.Contains(pkmn.Id) && _config.EventPokemonIds.Count > 0)
             {
-                //Skip Pokemon if no IV stats.
+                // Skip Pokemon if no IV stats.
                 if (pkmn.IsMissingStats)
                     return;
 
                 var iv = PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina);
-                //Skip Pokemon if IV is less than 90%, not 0%, and does not match any PvP league stats.
-                if ((iv < 90 && iv != 0) || !pkmn.MatchesGreatLeague || !pkmn.MatchesUltraLeague)
+                // Skip Pokemon if IV is greater than 0%, less than 90%, and does not match any PvP league stats.
+                if (iv > 0 && iv < 90 && !pkmn.MatchesGreatLeague && !pkmn.MatchesUltraLeague)
                     return;
             }
 
@@ -385,10 +398,10 @@
                 var alarms = _alarms[guildId];
 
                 if (!alarms.EnablePokemon)
-                    return;
+                    continue;
 
                 if (alarms.Alarms?.Count == 0)
-                    return;
+                    continue;
 
                 var pokemonAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Pokemon?.Pokemon != null);
                 if (pokemonAlarms == null)
@@ -457,21 +470,19 @@
                         continue;
                     }
 
-                    if (alarm.Filters.Pokemon.IsPvpGreatLeague &&
+                    var skipGreatLeague = alarm.Filters.Pokemon.IsPvpGreatLeague &&
                         !(pkmn.MatchesGreatLeague && pkmn.GreatLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= 1400 && x.CP <= 1500)))
-                    {
+                            && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP));
+                    if (skipGreatLeague)
                         continue;
-                    }
 
-                    if (alarm.Filters.Pokemon.IsPvpUltraLeague &&
+                    var skipUltraLeague = alarm.Filters.Pokemon.IsPvpUltraLeague &&
                         !(pkmn.MatchesUltraLeague && pkmn.UltraLeague.Exists(x =>
                             Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= 2400 && x.CP <= 2500)))
-                    {
+                            && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP));
+                    if (skipUltraLeague)
                         continue;
-                    }
 
                     //if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
                     //{
@@ -479,7 +490,7 @@
                     //    continue;
                     //}
 
-                    if (!(float.TryParse(pkmn.Height, out var height) && float.TryParse(pkmn.Weight, out var weight) && Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters?.Pokemon?.Size)))
+                    if ((alarm.Filters?.Pokemon?.IgnoreMissing ?? false) && !(float.TryParse(pkmn.Height, out var height) && float.TryParse(pkmn.Weight, out var weight) && Filters.MatchesSize(pkmn.Id.GetSize(height, weight), alarm.Filters?.Pokemon?.Size)))
                     {
                         continue;
                     }
@@ -506,10 +517,10 @@
                 var alarms = _alarms[guildId];
 
                 if (!alarms.EnableRaids)
-                    return;
+                    continue;
 
                 if (alarms.Alarms?.Count == 0)
-                    return;
+                    continue;
 
                 var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null);
                 for (var j = 0; j < raidAlarms.Count; j++)
@@ -632,10 +643,10 @@
                 var alarms = _alarms[guildId];
 
                 if (!alarms.EnableQuests)
-                    return;
+                    continue;
 
                 if (alarms.Alarms?.Count == 0)
-                    return;
+                    continue;
 
                 var rewardKeyword = quest.GetReward();
                 var questAlarms = alarms.Alarms.FindAll(x => x.Filters?.Quests?.RewardKeywords != null);
@@ -704,11 +715,11 @@
 
                 //Skip if EnablePokestops is disabled in the config.
                 if (!alarms.EnablePokestops)
-                    return;
+                    continue;
 
                 //Skip if alarms list is null or empty.
                 if (alarms.Alarms?.Count == 0)
-                    return;
+                    continue;
 
                 var pokestopAlarms = alarms.Alarms.FindAll(x => x.Filters?.Pokestops != null);
                 for (var j = 0; j < pokestopAlarms.Count; j++)
@@ -761,10 +772,10 @@
                 var alarms = _alarms[guildId];
 
                 if (!alarms.EnableGyms)
-                    return;
+                    continue;
 
                 if (alarms.Alarms?.Count == 0)
-                    return;
+                    continue;
 
                 var gymAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null);
                 for (var j = 0; j < gymAlarms.Count; j++)
@@ -805,10 +816,10 @@
                 var alarms = _alarms[guildId];
 
                 if (!alarms.EnableGyms) //GymDetails
-                    return;
+                    continue;
 
                 if (alarms.Alarms?.Count == 0)
-                    return;
+                    continue;
 
                 var gymDetailsAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null);
                 for (var j = 0; j < gymDetailsAlarms.Count; j++)
@@ -875,10 +886,10 @@
                 var alarms = _alarms[guildId];
 
                 if (!alarms.EnableWeather)
-                    return;
+                    continue;
 
                 if (alarms.Alarms?.Count == 0)
-                    return;
+                    continue;
 
                 var weatherAlarms = alarms.Alarms.FindAll(x => x.Filters?.Weather != null);
                 for (var j = 0; j < weatherAlarms.Count; j++)

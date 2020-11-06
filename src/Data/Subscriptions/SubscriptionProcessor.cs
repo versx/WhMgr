@@ -162,20 +162,21 @@
                         if (user.DistanceM < distance)
                         {
                             //Skip if distance is set and is not with specified distance.
-                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM} meters.");
+                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
                             continue;
                         }
+                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                     }
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     );
                     if (subscribedPokemon == null)
                     {
-                        //_logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
+                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
@@ -297,15 +298,16 @@
                         if (user.DistanceM < distance)
                         {
                             //Skip if distance is set and is not with specified distance.
-                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM} meters.");
+                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
                             continue;
                         }
+                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                     }
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
                     subscribedPokemon = user.PvP.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     );
                     if (subscribedPokemon == null)
@@ -315,14 +317,15 @@
                     }
 
                     matchesGreat = pkmn.GreatLeague != null && (pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Great &&
-                                                                     (x.CP ?? 0) >= 1400 && (x.CP ?? 0) <= 1500 &&
+                                                                     (x.CP ?? 0) >= Strings.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.MaximumGreatLeagueCP &&
                                                                      (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
                                                                      (x.Percentage ?? 0) * 100 >= subscribedPokemon.MinimumPercent) ?? false);
                     matchesUltra = pkmn.UltraLeague != null && (pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Ultra &&
-                                                                     (x.CP ?? 0) >= 2400 && (x.CP ?? 0) <= 2500 &&
+                                                                     (x.CP ?? 0) >= Strings.MinimumUltraLeagueCP && (x.CP ?? 0) <= Strings.MaximumUltraLeagueCP &&
                                                                      (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
                                                                      (x.Percentage ?? 0) * 100 >= subscribedPokemon.MinimumPercent) ?? false);
 
+                    // Check if Pokemon IV stats match any relevant great or ultra league ranks, if not skip.
                     if (!matchesGreat && !matchesUltra)
                         continue;
 
@@ -414,9 +417,10 @@
                         if (user.DistanceM < distance)
                         {
                             //Skip if distance is set and is not met.
-                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM} meters.");
+                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
                             continue;
                         }
+                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}: {distance}/{user.DistanceM}");
                     }
 
                     if (user.Gyms.Count > 0 && (!user.Gyms?.Exists(x =>
@@ -435,7 +439,7 @@
                     var form = Translator.Instance.GetFormName(raid.Form);
                     var exists = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
-                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;
                     if (!exists)
@@ -542,9 +546,10 @@
                         if (user.DistanceM < distance)
                         {
                             //Skip if distance is set and is not met.
-                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Quest {quest.Template}, Quest is farther than set distance of '{user.DistanceM} meters.");
+                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Quest {quest.Template}, Quest is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
                             continue;
                         }
+                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Quest {questName}: {distance}/{user.DistanceM}");
                     }
 
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
@@ -650,9 +655,10 @@
                         if (user.DistanceM < distance)
                         {
                             //Skip if distance is set and is not met.
-                            _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}, TR Invasion is farther than set distance of '{user.DistanceM} meters.");
+                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}, TR Invasion is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
                             continue;
                         }
+                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}: {distance}/{user.DistanceM}");
                     }
 
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
@@ -732,6 +738,11 @@
 
                             await _servers[item.Subscription.GuildId].SendDirectMessage(item.Member, string.Empty, eb.Build());
                             item.Subscription.RateLimitNotificationSent = true;
+                            item.Subscription.Enabled = false;
+                            if (!item.Subscription.Update())
+                            {
+                                _logger.Error($"Failed to disable {item.Subscription.UserId}'s subscriptions");
+                            }
                         }
                         continue;
                     }

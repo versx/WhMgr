@@ -108,8 +108,9 @@
 
         public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
+            var server = whConfig.Servers[guildId];
             var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
-            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
+            var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = GetProperties(client.Guilds[guildId], whConfig, city);
             var eb = new DiscordEmbedBuilder
             {
@@ -142,8 +143,8 @@
 
         private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city)
         {
-            var lureImageUrl = this.GetLureIcon(whConfig, whConfig.Servers[guild.Id].IconStyle);
-            var invasionImageUrl = this.GetInvasionIcon(whConfig, whConfig.Servers[guild.Id].IconStyle);
+            var lureImageUrl = IconFetcher.Instance.GetLureIcon(whConfig.Servers[guild.Id].IconStyle, LureType);
+            var invasionImageUrl = IconFetcher.Instance.GetInvasionIcon(whConfig.Servers[guild.Id].IconStyle, GruntType);
             var imageUrl = HasInvasion ? invasionImageUrl : HasLure ? lureImageUrl : Url;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);

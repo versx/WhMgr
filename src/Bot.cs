@@ -32,8 +32,6 @@
     // TODO: Check nests again
     // TODO: IV wildcards
     // TODO: Egg subscriptions (maybe)
-    // TODO: Osm nominatim reverse geocoding
-    // TODO: Fix race condition between incoming messages and when emojis list is initialized
 
     public class Bot
     {
@@ -60,6 +58,9 @@
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;
             _whm = new WebhookController(_whConfig);
+
+            // Build form lists for icons
+            IconFetcher.Instance.SetIconStyles(_whConfig.IconStyles);
 
             // Set translation language
             Translator.Instance.SetLocale(_whConfig.Locale);
@@ -96,6 +97,7 @@
             {
                 var guildId = keys[i];
                 var server = _whConfig.Servers[guildId];
+                server.LoadDmAlerts();
                 var client = new DiscordClient(new DiscordConfiguration
                 {
                     AutomaticGuildSync = true,
@@ -244,6 +246,7 @@
                 _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
                 _whm.InvasionSubscriptionTriggered += OnInvasionSubscriptionTriggered;
             }
+            _whm.Start();
 
             _logger.Info("WebhookManager is running...");
         }
@@ -285,6 +288,7 @@
                 _whm.QuestSubscriptionTriggered -= OnQuestSubscriptionTriggered;
                 _whm.InvasionSubscriptionTriggered -= OnInvasionSubscriptionTriggered;
             }
+            _whm.Stop();
 
             _logger.Info("WebhookManager is stopped...");
         }

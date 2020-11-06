@@ -109,10 +109,10 @@
 
         public DiscordEmbedNotification GenerateWeatherMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
-            var alertType = AlertMessageType.Weather;
-            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var server = whConfig.Servers[guildId];
-            var weatherImageUrl = this.GetWeatherIcon(whConfig, server.IconStyle);
+            var alertType = AlertMessageType.Weather;
+            var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
+            var weatherImageUrl = IconFetcher.Instance.GetWeatherIcon(server.IconStyle, GameplayCondition);
             var properties = GetProperties(client.Guilds[guildId], whConfig, city, weatherImageUrl);
             var eb = new DiscordEmbedBuilder
             {

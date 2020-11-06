@@ -64,7 +64,7 @@
             }
 
             // Reload subscriptions every 60 seconds to account for UI changes
-            _reloadTimer = new Timer(_whConfig.ReloadSubscriptionChangesMinutes * 1000);
+            _reloadTimer = new Timer(_whConfig.ReloadSubscriptionChangesMinutes * 60 * 1000);
             _reloadTimer.Elapsed += OnReloadTimerElapsed;
             _reloadTimer.Start();
 

@@ -66,15 +66,21 @@
             return form;
         }
 
+        public string GetCostumeName(int costumeId)
+        {
+            if (costumeId == 0)
+                return null;
+
+            var costume = Translate("costume_" + costumeId);
+            return costume;
+        }
+
         public string GetEvolutionName(int evoId)
         {
             if (evoId == 0)
                 return null;
 
             var evo = Translate("evo_" + evoId);
-            // TODO: Localize
-            if (string.Compare(evo, "Normal", true) == 0)
-                return string.Empty;
             return evo;
         }
 
