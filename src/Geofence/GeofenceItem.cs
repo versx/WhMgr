@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.IO;
 
     /// <summary>
@@ -67,16 +68,14 @@
         public static List<GeofenceItem> FromFile(string filePath)
         {
             var list = new List<GeofenceItem>();
-            var lines = File.ReadAllLines(filePath);
+            // Read all lines of the file and remove all null, empty, or whitespace lines
+            var lines = File.ReadAllLines(filePath).Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
             var geofence = new GeofenceItem();
 
             // Loop through each new line of the file
             for (var i = 0; i < lines.Length; i++)
             {
                 var line = lines[i];
-                // Skip empty lines
-                if (string.IsNullOrEmpty(line))
-                    continue;
 
                 // If the line starts with '[' then parse the Geofence name
                 if (line.StartsWith("[", StringComparison.Ordinal))

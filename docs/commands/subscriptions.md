@@ -24,14 +24,18 @@ Examples:
 **pokeme** - Subscribe to specific Pokemon notifications.  
 Usage: `pokeme <pokemon> [iv] [level] [gender]`  
 
-* `<pokemon>` - Parameter can take a list of Ids or names or the `all` keyword for everything.  
+* `<pokemon>[-form]` - Parameter can take a list of Ids or names or the `all` keyword for everything as well as `gen3` for all 3rd generation Pokemon. You can also subscribe to specific forms with a hyphen then the form name.  
 * `<iv>` - (Optional) Minimum IV value, or individual attack, defense, and stamina values i.e. `0-14-15`  
-* `<level>` - (Optional) Minimum level value.  
+* `<level>[-max_level]` - (Optional) Minimum level value or minimum and maximum level range.  
 * `<gender>` - (Optional) Specific gender `m` or `f` or `*` for all.  
 
 Examples:  
 
+* `.pokeme gen3 100`
+* `.pokeme 1-151 100`
 * `.pokeme tyranitar`  
+* `.pokeme Marowak-Alola 100`
+* `.pokeme Dragonite 0 20-35`
 * `.pokeme pikachu 100 35 f`  
 * `.pokeme Skarmory 0-15-15 12`  
 * `.pokeme pikachu 100`  
@@ -41,11 +45,12 @@ Examples:
 **pokemenot** - Unsubscribe from specific Pokemon notifications.  
 Usage: `pokemenot <pokemon>`  
 
-* `<pokemon>` - Parameter can take a list of Ids or names or the `all` keyword for everything.  
+* `<pokemon>[-form]` - Parameter can take a list of Ids or names or the `all` keyword for everything.  
 
 Examples:  
 
-* `.pokemenot pikachu`  
+* `.pokemenot pikachu`
+* `.pokemenot Ratatta-Alola`  
 * `.pokemenot all`  
 <br>  
 
@@ -83,19 +88,20 @@ Examples:
 **raidme** - Subscribe to specific Raid notifications.  
 Usage: `raidme <pokemon> [city]`  
 
-* `<pokemon>` - Parameter can take a list of Ids or names or the `all` keyword for everything.  
+* `<pokemon>[-form]` - Parameter can take a list of Ids or names or the `all` keyword for everything as well as `gen3` for all 3rd generation Pokemon. You can also subscribe to specific forms with a hyphen then the form name.  
 * `[city]` - (Optional) City name to get the notifications for or leave blank for all available cities.  
 
 Examples:  
 
 * `.raidme Tyranitar`  
+* `.raidme Ponyta-Galarian`
 * `.raidme mewtwo city1`  
 <br>  
 
 **raidmenot** - Unsubscribe from specific Raid notifications.  
 Usage: `raidmenot <pokemon> [city]`  
 
-* `<pokemon>` - Parameter can take a list of Ids or names or the `all` keyword for everything.  
+* `<pokemon>[-form]` - Parameter can take a list of Ids or names or the `all` keyword for everything as well as `gen3` for all 3rd generation Pokemon. You can also subscribe to specific forms with a hyphen then the form name.  
 * `[city]` - (Optional) City name to get the notifications for or leave blank for all available cities.  
 
 Examples:  

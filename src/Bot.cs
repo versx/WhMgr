@@ -61,6 +61,9 @@
             _whConfig = whConfig;
             _whm = new WebhookController(_whConfig);
 
+            // Build form lists for icons
+            IconFetcher.Instance.SetIconStyles(_whConfig.IconStyles);
+
             // Set translation language
             Translator.Instance.SetLocale(_whConfig.Locale);
 
@@ -244,6 +247,7 @@
                 _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
                 _whm.InvasionSubscriptionTriggered += OnInvasionSubscriptionTriggered;
             }
+            _whm.Start();
 
             _logger.Info("WebhookManager is running...");
         }
@@ -285,6 +289,7 @@
                 _whm.QuestSubscriptionTriggered -= OnQuestSubscriptionTriggered;
                 _whm.InvasionSubscriptionTriggered -= OnInvasionSubscriptionTriggered;
             }
+            _whm.Stop();
 
             _logger.Info("WebhookManager is stopped...");
         }
