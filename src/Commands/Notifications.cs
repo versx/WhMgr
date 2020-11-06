@@ -1771,12 +1771,12 @@
             var gymSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserGymSubscriptions(guildId, user.Id);
             var invasionSubscriptions = _dep.SubscriptionProcessor.Manager.GetUserInvasionSubscriptions(guildId, user.Id);
             
-            var hasPokemon = pokemonSubscriptions.Count > 0;
-            var hasPvP = pvpSubscriptions.Count > 0;
-            var hasRaids = raidSubscriptions.Count > 0;
-            var hasGyms = gymSubscriptions.Count > 0;
-            var hasQuests = questSubscriptions.Count > 0;
-            var hasInvasions = invasionSubscriptions.Count > 0;
+            var hasPokemon = pokemonSubscriptions?.Count > 0;
+            var hasPvP = pvpSubscriptions?.Count > 0;
+            var hasRaids = raidSubscriptions?.Count > 0;
+            var hasGyms = gymSubscriptions?.Count > 0;
+            var hasQuests = questSubscriptions?.Count > 0;
+            var hasInvasions = invasionSubscriptions?.Count > 0;
             var isSubbed = hasPokemon || hasPvP || hasRaids || hasQuests || hasInvasions || hasGyms;
             var messages = new List<string>();
             var isSupporter = client.IsSupporterOrHigher(user.Id, guildId, _dep.WhConfig);

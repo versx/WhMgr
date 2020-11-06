@@ -324,6 +324,7 @@
                     await db.Invasions
                         .Where(x => x.GuildId == guildId && x.UserId == userId)
                         .ForEachAsync(x => db.Invasions.Remove(x));
+                    db.SaveChanges();
                 }
                 return true;
             }
