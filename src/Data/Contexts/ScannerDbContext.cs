@@ -35,18 +35,12 @@
         {
             modelBuilder.Entity<PokemonStatsShiny>(entity => entity.HasNoKey());
             modelBuilder.Entity<PokemonStatsIV>(entity => entity.HasNoKey());
-            modelBuilder.Entity<PokemonData>(entity =>
-            {
-                entity.Property(e => e.Gender)
-                    .HasConversion(x => x.ToString(),
-                        x => (PokemonGender)Enum.Parse(typeof(PokemonGender), x));
-            });
-            modelBuilder.Entity<RaidData>(entity =>
-            {
-                entity.Property(e => e.Gender)
-                    .HasConversion(x => x.ToString(),
-                        x => (PokemonGender)Enum.Parse(typeof(PokemonGender), x));
-            });
+            modelBuilder.Entity<PokemonData>()
+                        .Property(e => e.Gender)
+                        .HasConversion(x => x.ToString(), x => (PokemonGender)Enum.Parse(typeof(PokemonGender), x));
+            modelBuilder.Entity<RaidData>()
+                        .Property(e => e.Gender)
+                        .HasConversion(x => x.ToString(), x => (PokemonGender)Enum.Parse(typeof(PokemonGender), x));
             /*
             modelBuilder.Entity<Pokestop>(entity =>
             {
@@ -58,18 +52,15 @@
                         x => (InvasionGruntType)Enum.Parse(typeof(InvasionGruntType), x));
             });
             */
-            modelBuilder.Entity<WeatherData>(entity =>
-            {
-                entity.Property(e => e.GameplayCondition)
-                    .HasConversion(x => x.ToString(),
-                        x => (WeatherType)Enum.Parse(typeof(WeatherType), x));
-            });
+            modelBuilder.Entity<WeatherData>()
+                        .Property(e => e.GameplayCondition)
+                        .HasConversion(x => x.ToString(), x => (WeatherType)Enum.Parse(typeof(WeatherType), x));
             modelBuilder.Entity<QuestData>()
-                .Property(nameof(QuestData.Rewards))
-                .HasConversion(DbContextFactory.CreateJsonValueConverter<QuestRewardMessage>());
+                        .Property(nameof(QuestData.Rewards))
+                        .HasConversion(DbContextFactory.CreateJsonValueConverter<QuestRewardMessage>());
             modelBuilder.Entity<QuestData>()
-                .Property(nameof(QuestData.Conditions))
-                .HasConversion(DbContextFactory.CreateJsonValueConverter<QuestConditionMessage>());
+                        .Property(nameof(QuestData.Conditions))
+                        .HasConversion(DbContextFactory.CreateJsonValueConverter<QuestConditionMessage>());
             base.OnModelCreating(modelBuilder);
         }
     }

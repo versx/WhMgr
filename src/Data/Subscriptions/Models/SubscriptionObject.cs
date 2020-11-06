@@ -1,7 +1,6 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,20 +12,6 @@
     ]
     public class SubscriptionObject : SubscriptionItem
     {
-        /*
-        public List<PokemonSubscription> Pokemon { get; set; }
-
-        public List<PvPSubscription> PvP { get; set; }
-
-        public List<RaidSubscription> Raids { get; set; }
-
-        public List<QuestSubscription> Quests { get; set; }
-
-        public List<GymSubscription> Gyms { get; set; }
-
-        public List<InvasionSubscription> Invasions { get; set; }
-        */
-
         [
             JsonProperty("enabled"),
             Column("enabled"),
@@ -82,14 +67,6 @@
 
         public SubscriptionObject()
         {
-            /*
-            Pokemon = new List<PokemonSubscription>();
-            PvP = new List<PvPSubscription>();
-            Raids = new List<RaidSubscription>();
-            Quests = new List<QuestSubscription>();
-            Gyms = new List<GymSubscription>();
-            Invasions = new List<InvasionSubscription>();
-            */
             Enabled = true;
             Limiter = new NotificationLimiter();
             DistanceM = 0;

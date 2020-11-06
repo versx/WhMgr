@@ -73,13 +73,6 @@
 
         public SubscriptionObject GetUserSubscriptions(ulong guildId, ulong userId)
         {
-            /*
-            if (!IsDbConnectionOpen())
-            {
-                throw new Exception("Not connected to database.");
-            }
-            */
-
             try
             {
                 using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
@@ -152,14 +145,6 @@
 
         public List<PokemonSubscription> GetUserSubscriptionsByPokemonId(int pokeId)
         {
-            /*
-            return _subscriptions
-                .Where(x => x.Enabled && x.Pokemon.Count > 0)
-                .Select(x => x.Pokemon)
-                .SelectMany(x => x)
-                .Where(x => x.PokemonId == pokeId)
-                .ToList();
-            */
             using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
             {
                 return ctx.Pokemon.Where(x => x.PokemonId == pokeId).ToList();
@@ -168,14 +153,6 @@
 
         public List<PvPSubscription> GetUserSubscriptionsByPvPPokemonId(int pokeId)
         {
-            /*
-            return _subscriptions
-                .Where(x => x.Enabled && x.PvP.Count > 0)
-                .Select(x => x.PvP)
-                .SelectMany(x => x)
-                .Where(x => x.PokemonId == pokeId)
-                .ToList();
-            */
             using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
             {
                 return ctx.PvP.Where(x => x.PokemonId == pokeId).ToList();
@@ -184,14 +161,6 @@
 
         public List<RaidSubscription> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
-            /*
-            return _subscriptions
-                .Where(x => x.Enabled && x.Raids.Count > 0)
-                .Select(x => x.Raids)
-                .SelectMany(x => x)
-                .Where(x => x.PokemonId == pokeId)
-                .ToList();
-            */
             using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
             {
                 return ctx.Raids.Where(x => x.PokemonId == pokeId).ToList();
@@ -200,14 +169,6 @@
 
         public List<QuestSubscription> GetUserSubscriptionsByQuestReward(string reward)
         {
-            /*
-            return _subscriptions
-                .Where(x => x.Enabled && x.Quests.Count > 0)
-                .Select(x => x.Quests)
-                .SelectMany(x => x)
-                .Where(x => reward.ToLower().Contains(x.RewardKeyword.ToLower()))
-                .ToList();
-            */
             using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
             {
                 return ctx.Quests.Where(x => reward.ToLower().Contains(x.RewardKeyword.ToLower())).ToList();
@@ -216,14 +177,6 @@
 
         public List<InvasionSubscription> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
         {
-            /*
-            return _subscriptions
-                .Where(x => x.Enabled && x.Invasions.Count > 0)
-                .Select(x => x.Invasions)
-                .SelectMany(x => x)
-                .Where(x => encounterRewards.Contains(x.RewardPokemonId))
-                .ToList();
-            */
             using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
             {
                 return ctx.Invasions.Where(x => encounterRewards.Contains(x.RewardPokemonId)).ToList();
@@ -234,13 +187,6 @@
         {
             try
             {
-                /*
-                if (!IsDbConnectionOpen())
-                {
-                    throw new Exception("Not connected to database.");
-                }
-                */
-
                 using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
                 {
                     Subscriptions = ctx.Subscriptions.ToList();

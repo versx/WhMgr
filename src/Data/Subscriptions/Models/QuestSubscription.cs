@@ -19,11 +19,6 @@
         ]
         public int SubscriptionId { get; set; }
 
-        //[
-        //    JsonProperty("subscription"),
-        //]
-        //public SubscriptionObject Subscription { get; set; }
-
         [
             JsonProperty("reward"),
             Column("reward"),

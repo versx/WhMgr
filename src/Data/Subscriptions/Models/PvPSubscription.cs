@@ -20,11 +20,6 @@
         ]
         public int SubscriptionId { get; set; }
 
-        //[
-        //    JsonProperty("subscription"),
-        //]
-        //public SubscriptionObject Subscription { get; set; }
-
         [
             JsonProperty("pokemon_id"),
             Column("pokemon_id"),
@@ -62,8 +57,7 @@
 
         [
             JsonProperty("city"),
-            Column("city"),
-            //Default("all")
+            Column("city")
         ]
         public string City { get; set; }
 
@@ -73,7 +67,7 @@
             League = PvPLeague.Great;
             MinimumRank = 25;
             MinimumPercent = 90;
-            City = null;// "all";
+            City = null;
         }
     }
 }
