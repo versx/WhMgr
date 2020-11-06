@@ -129,6 +129,7 @@
             JsonProperty("evolution"),
             Column("raid_pokemon_evolution")
         ]
+        public int Evolution { get; set; }
   
         [
             JsonProperty("costume"),

@@ -168,7 +168,7 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
-                    var isMatch = (string.IsNullOrEmpty(subscribedPokemon.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(subscribedPokemon.Form, form, true) == 0)) &&
+                    var isMatch = (string.IsNullOrEmpty(subscribedPokemon.Form) || (!string.IsNullOrEmpty(subscribedPokemon.Form) && string.Compare(subscribedPokemon.Form, form, true) == 0)) &&
                                   (string.IsNullOrEmpty(subscribedPokemon.City) || (!string.IsNullOrEmpty(subscribedPokemon.City) && string.Compare(loc.Name, subscribedPokemon.City, true) == 0));
                     if (!isMatch)
                     {
