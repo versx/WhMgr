@@ -348,6 +348,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 33.02,-118.02
 33.03,-118.03
 ```
+**GeoJSON to individual INI format geofence files converter:** https://gist.github.com/versx/a0915c6bd95a080b6ff60cd539d4feb6  
 7.) Add dotnet to your environment path if it isn't already (optional): `export PATH=~/.dotnet/dotnet:$PATH`  
 8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
 9.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  
