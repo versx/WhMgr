@@ -171,7 +171,7 @@
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     );
                     if (subscribedPokemon == null)
@@ -307,7 +307,7 @@
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
                     subscribedPokemon = user.PvP.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     );
                     if (subscribedPokemon == null)
@@ -439,7 +439,7 @@
                     var form = Translator.Instance.GetFormName(raid.Form);
                     var exists = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
-                        (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
+                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;
                     if (!exists)
