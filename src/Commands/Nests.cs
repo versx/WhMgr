@@ -87,6 +87,7 @@
                         Description = string.Empty,
                         Color = DiscordColor.Green
                     };
+                    var message = string.Empty;
                     foreach (var nest in groupedNests[key])
                     {
                         if (nest.Average < server.NestsMinimumPerHour)
@@ -96,11 +97,11 @@
                         var pkmnName = Translator.Instance.GetPokemonName(pkmn.PokedexId);
                         var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
                         // TODO: Check if possible shiny
-                        eb.Description += $"[**{nest.Name}**]({gmapsLink}): {pkmnName} (#{nest.PokemonId}) {nest.Average:N0} per hour\r\n";
-                        if (eb.Description.Length >= 2048)
+                        message += $"[**{nest.Name}**]({gmapsLink}): {pkmnName} (#{nest.PokemonId}) {nest.Average:N0} per hour\r\n";
+                        if (message.Length >= 2048)
                         {
-                            var message = eb.Description.Substring(0, Math.Min(eb.Description.Length, 2048));
-                            eb.Description = message;
+                            eb.Description = message.Substring(0, Math.Min(message.Length, 2048));
+                            message = string.Empty;
                             await channel.SendMessageAsync(embed: eb);
                             eb = new DiscordEmbedBuilder
                             {
@@ -110,8 +111,10 @@
                             };
                         }
                     }
-                    if (eb.Description.Length > 0)
+                    if (message.Length > 0)
                     {
+                        eb.Description = message;
+                        message = string.Empty;
                         await channel.SendMessageAsync(embed: eb);
                     }
                     Thread.Sleep(1000);
@@ -144,7 +147,7 @@
                             continue;
 
                         await channel.SendMessageAsync(embed: eb);
-                        System.Threading.Thread.Sleep(200);
+                        Thread.Sleep(200);
                     }
                     catch (Exception ex)
                     {
@@ -263,20 +266,21 @@
                     _logger.Warn($"Failed to find geofence for nest {nest.Name}.");
                     continue;
                 }
+                var geofenceName = geofence.Name;
                 var server = _dep.WhConfig.Servers[guildId];
                 var cities = server.CityRoles.Select(x => x.ToLower());
-                if (!cities.Contains(geofence.Name.ToLower()))
+                if (!cities.Contains(geofenceName.ToLower()))
                     continue;
 
-                if (dict.ContainsKey(geofence.Name))
+                if (dict.ContainsKey(geofenceName))
                 {
-                    dict[geofence.Name].Add(nest);
+                    dict[geofenceName].Add(nest);
                 }
                 else
                 {
-                    dict.Add(geofence.Name, new List<Nest> { nest });
+                    dict.Add(geofenceName, new List<Nest> { nest });
                 }
-                dict[geofence.Name].Sort((x, y) => x.Name.CompareTo(y.Name));
+                dict[geofenceName].Sort((x, y) => x.Name.CompareTo(y.Name));
             }
             return dict;
         }
