@@ -737,7 +737,8 @@
                             await _servers[item.Subscription.GuildId].SendDirectMessage(item.Member, string.Empty, eb.Build());
                             item.Subscription.RateLimitNotificationSent = true;
                             item.Subscription.Enabled = false;
-                            if (!item.Subscription.Update())
+
+                            if (!SubscriptionManager.SetUserSubscriptionsStatus(item.Subscription.GuildId, item.Subscription.UserId, false))
                             {
                                 _logger.Error($"Failed to disable {item.Subscription.UserId}'s subscriptions");
                             }

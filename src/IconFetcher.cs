@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+
     using Newtonsoft.Json;
-    using ServiceStack;
-    using Stripe;
+
     using WhMgr.Net.Models;
     using WhMgr.Utilities;
 

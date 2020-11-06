@@ -290,7 +290,7 @@
                 subscription.Enabled = enabled;
                 var result = db.SaveChanges();
                 return result > 0;
-            }            
+            }
         }
 
         #endregion
