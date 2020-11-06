@@ -2,14 +2,14 @@
 {
     using System;
     using System.IO;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using Microsoft.EntityFrameworkCore;
 
     using WhMgr.Diagnostics;
     using WhMgr.Data.Models;
     using WhMgr.Data.Factories;
-    using Microsoft.EntityFrameworkCore;
 
     /// <summary>
     /// Database migration class
