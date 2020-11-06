@@ -33,8 +33,6 @@
     // TODO: Check nests again
     // TODO: IV wildcards
     // TODO: Egg subscriptions (maybe)
-    // TODO: Osm nominatim reverse geocoding
-    // TODO: Fix race condition between incoming messages and when emojis list is initialized
 
     public class Bot
     {
@@ -100,6 +98,7 @@
             {
                 var guildId = keys[i];
                 var server = _whConfig.Servers[guildId];
+                server.LoadDmAlerts();
                 var client = new DiscordClient(new DiscordConfiguration
                 {
                     AutomaticGuildSync = true,

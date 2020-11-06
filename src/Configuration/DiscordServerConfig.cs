@@ -1,7 +1,13 @@
 ﻿namespace WhMgr.Configuration
 {
+    using System;
     using System.Collections.Generic;
+    using System.IO;
+
     using Newtonsoft.Json;
+
+    using WhMgr.Alarms.Alerts;
+    using WhMgr.Data;
 
     /// <summary>
     /// Discord server configuration class
@@ -96,6 +102,12 @@
         public ulong NestsChannelId { get; set; }
 
         /// <summary>
+        /// Gets or sets the minimum nest spawns per hour to limit nest posts by
+        /// </summary>
+        [JsonProperty("nestsMinimumPerHour")]
+        public int NestsMinimumPerHour { get; set; }
+
+        /// <summary>
         /// Gets or sets the shiny stats configuration class
         /// </summary>
         [JsonProperty("shinyStats")]
@@ -119,6 +131,12 @@
         [JsonProperty("status")]
         public string Status { get; set; }
 
+        [JsonProperty("dmAlertsFile")]
+        public string DmAlertsFile { get; set; }
+
+        [JsonIgnore]
+        public AlertMessage DmAlerts { get; set; }
+
         /// <summary>
         /// Instantiate a new <see cref="DiscordServerConfig"/> class
         /// </summary>
@@ -130,6 +148,16 @@
             IconStyle = "Default";
             QuestChannelIds = new List<ulong>();
             ShinyStats = new ShinyStatsConfig();
+            NestsMinimumPerHour = 1;
+            DmAlertsFile = "default.json";
+
+            LoadDmAlerts();
+        }
+
+        public void LoadDmAlerts()
+        {
+            var path = Path.Combine(Strings.AlertsFolder, DmAlertsFile);
+            DmAlerts = MasterFile.LoadInit<AlertMessage>(path);
         }
     }
 }

@@ -81,9 +81,6 @@
                 return null;
 
             var evo = Translate("evo_" + evoId);
-            // TODO: Localize
-            if (string.Compare(evo, "Normal", true) == 0)
-                return string.Empty;
             return evo;
         }
 

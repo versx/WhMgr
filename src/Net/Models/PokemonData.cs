@@ -404,9 +404,9 @@
         public async Task<DiscordEmbedNotification> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             // If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
-            var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
-            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var server = whConfig.Servers[guildId];
+            var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
+            var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
             var pokemonImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
             var properties = await GetProperties(client.Guilds[guildId], whConfig, city, pokemonImageUrl);
             var eb = new DiscordEmbedBuilder
@@ -536,9 +536,9 @@
 
                 // Catch rate properties
                 { "has_capture_rates",  Convert.ToString(CatchRate1.HasValue && CatchRate2.HasValue && CatchRate3.HasValue) },
-                { "capture_1", CatchRate1.HasValue ? Math.Round(CatchRate1.Value * 100, 2).ToString() : string.Empty },
-                { "capture_2", CatchRate2.HasValue ? Math.Round(CatchRate2.Value * 100, 2).ToString() : string.Empty },
-                { "capture_3", CatchRate3.HasValue ? Math.Round(CatchRate3.Value * 100, 2).ToString() : string.Empty },
+                { "capture_1", CatchRate1.HasValue ? Math.Round(CatchRate1.Value * 100).ToString() : string.Empty },
+                { "capture_2", CatchRate2.HasValue ? Math.Round(CatchRate2.Value * 100).ToString() : string.Empty },
+                { "capture_3", CatchRate3.HasValue ? Math.Round(CatchRate3.Value * 100).ToString() : string.Empty },
                 { "capture_1_emoji", CaptureRateType.PokeBall.GetCaptureRateEmojiIcon() },
                 { "capture_2_emoji", CaptureRateType.GreatBall.GetCaptureRateEmojiIcon() },
                 { "capture_3_emoji", CaptureRateType.UltraBall.GetCaptureRateEmojiIcon() },

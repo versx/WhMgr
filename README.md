@@ -1,4 +1,5 @@
 [![Build](https://github.com/versx/WhMgr/workflows/.NET%20Core/badge.svg)](https://github.com/versx/WhMgr/actions)
+[![Documentation Status](https://readthedocs.org/projects/whmgr/badge/?version=latest)](https://whmgr.rtfd.io)
 [![GitHub Release](https://img.shields.io/github/release/versx/WhMgr.svg)](https://github.com/versx/WhMgr/releases/)
 [![GitHub Contributors](https://img.shields.io/github/contributors/versx/WhMgr.svg)](https://github.com/versx/WhMgr/graphs/contributors/)
 [![Discord](https://img.shields.io/discord/552003258000998401.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/zZ9h9Xa)  
@@ -9,7 +10,7 @@ Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)
 
 
 ## Description:  
-Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, and Team Rocket invasion notifications via DM.
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, and Team Rocket invasion notifications via DM.
 
 
 ## Features:  
@@ -24,6 +25,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Automatic quest message purge at midnight.  
 - Support for Donors/Supporters only notifications.  
 - Direct messages of Pokemon notifications based on city roles assigned.  
+- Pokemon and Raid subscription notifications based on specific forms.  
 - Custom prefix support as well as mentionable user support for commands.  
 - Subscriptions based on distance from a set location or specific gym names.  
 - Twilio text message alerts for ultra rare Pokemon.  
@@ -104,6 +106,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             ],
             // Channel ID to post nests.
             "nestsChannelId": 000000000000000000,
+            // Minimum amount of average spawn count per hour for nest to post
+            "nestsMinimumPerHour": 2,
             // Shiny stats configuration
             "shinyStats": {
                 // Enable shiny stats posting.
@@ -146,6 +150,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
                 000000000000000000
             ],
             "nestsChannelId": 000000000000000000,
+            "nestsMinimumPerHour": 2,
             "shinyStats": {
                 "enabled": true,
                 "clearMessages": false,
@@ -343,6 +348,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 33.02,-118.02
 33.03,-118.03
 ```
+**GeoJSON to individual INI format geofence files converter:** https://gist.github.com/versx/a0915c6bd95a080b6ff60cd539d4feb6  
 7.) Add dotnet to your environment path if it isn't already (optional): `export PATH=~/.dotnet/dotnet:$PATH`  
 8.) Build executable `dotnet build ../../..` (if dotnet is in your path) otherwise `~/.dotnet/dotnet build ../../..`  
 9.) Start WhMgr `dotnet WhMgr.dll` (if dotnet is in your path) otherwise `~/.dotnet/dotnet WhMgr.dll` (If Windows, run as Administrator)  

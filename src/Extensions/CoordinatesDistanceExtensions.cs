@@ -17,47 +17,31 @@
 
     public static class CoordinatesDistanceExtensions
     {
-        public static double DistanceTo(this Coordinates baseCoordinates, Coordinates targetCoordinates)
+        /// <summary>
+        ///     Returns the distance between the latitude and longitude coordinates that are specified by this Coordinate and
+        ///     another specified Coordinate.
+        /// </summary>
+        /// <returns>
+        ///     The distance between the two coordinates, in meters.
+        /// </returns>
+        /// <param name="from">The Coordinate for the location to calculate the distance from.</param>
+        /// <param name="to">The Coordinate for the location to calculate the distance to.</param>
+        public static double DistanceTo(this Coordinates from, Coordinates to)
         {
-            return DistanceTo(baseCoordinates, targetCoordinates, UnitOfLength.Meters);
-        }
+            if (double.IsNaN(from.Latitude) || double.IsNaN(from.Longitude) ||
+                double.IsNaN(to.Latitude) || double.IsNaN(to.Longitude))
+            {
+                throw new ArgumentException("Argument latitude or longitude is not a number");
+            }
 
-        public static double DistanceTo(this Coordinates baseCoordinates, Coordinates targetCoordinates, UnitOfLength unitOfLength)
-        {
-            var baseRad = Math.PI * baseCoordinates.Latitude / 180;
-            var targetRad = Math.PI * targetCoordinates.Latitude / 180;
-            var theta = baseCoordinates.Longitude - targetCoordinates.Longitude;
-            var thetaRad = Math.PI * theta / 180;
+            var d1 = from.Latitude * (Math.PI / 180.0);
+            var num1 = from.Longitude * (Math.PI / 180.0);
+            var d2 = to.Latitude * (Math.PI / 180.0);
+            var num2 = to.Longitude * (Math.PI / 180.0) - num1;
+            var d3 = Math.Pow(Math.Sin((d2 - d1) / 2.0), 2.0) +
+                     Math.Cos(d1) * Math.Cos(d2) * Math.Pow(Math.Sin(num2 / 2.0), 2.0);
 
-            double dist =
-                Math.Sin(baseRad) * Math.Sin(targetRad) + Math.Cos(baseRad) *
-                Math.Cos(targetRad) * Math.Cos(thetaRad);
-            dist = Math.Acos(dist);
-
-            dist = dist * 180 / Math.PI;
-            dist = dist * 60 * 1.1515;
-
-            return unitOfLength.ConvertFromMiles(dist);
-        }
-    }
-
-    public class UnitOfLength
-    {
-        public static UnitOfLength Kilometers = new UnitOfLength(1.609344);
-        public static UnitOfLength Meters = new UnitOfLength(0.01609344);
-        public static UnitOfLength NauticalMiles = new UnitOfLength(0.8684);
-        public static UnitOfLength Miles = new UnitOfLength(1);
-
-        private readonly double _fromMilesFactor;
-
-        private UnitOfLength(double fromMilesFactor)
-        {
-            _fromMilesFactor = fromMilesFactor;
-        }
-
-        public double ConvertFromMiles(double input)
-        {
-            return input * _fromMilesFactor;
+            return 6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3)));
         }
     }
 }

@@ -23,6 +23,7 @@
       "pruneQuestChannels": true,
       "questChannelIds": [],
       "nestsChannelId": 0,
+      "nestsMinimumPerHour": 2,
       "shinyStats": {
         "enabled": true,
         "clearMessages": false,
@@ -30,7 +31,8 @@
       },
       "iconStyle": "Default",
       "botChannelIds": [],
-      "status": null
+      "status": null,
+      "dmAlertsFile": "default.json"
     },
     "000000000000000002": {
       "commandPrefix": ".",
@@ -50,6 +52,7 @@
       "pruneQuestChannels": true,
       "questChannelIds": [],
       "nestsChannelId": 0,
+      "nestsMinimumPerHour": 2,
       "shinyStats": {
         "enabled": true,
         "clearMessages": false,
@@ -57,7 +60,8 @@
       },
       "iconStyle": "Default",
       "botChannelIds": [],
-      "status": "Test #2"
+      "status": "Test #2",
+      "dmAlertsFile": "default.json"
     }
   },
   "database": {
