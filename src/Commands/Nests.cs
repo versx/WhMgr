@@ -2,9 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Immutable;
     using System.IO;
     using System.Linq;
-    using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
 
     using DSharpPlus;
@@ -12,6 +13,7 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
+    using ServiceStack;
     using ServiceStack.OrmLite;
 
     using WhMgr.Alarms.Alerts;
@@ -40,10 +42,10 @@
             Description(""),
             RequirePermissions(Permissions.KickMembers)
         ]
-        public async Task PostNestsAsync(CommandContext ctx)
+        public async Task PostNestsAsync(CommandContext ctx,
+            [Description("")] string args = null)
         {
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-
             if (!_dep.WhConfig.Servers.ContainsKey(guildId))
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
@@ -72,36 +74,82 @@
                 return;
             }
 
-            var cities = server.CityRoles.Select(x => x.ToLower());
-            for (var i = 0; i < nests.Count; i++)
+            var postNestAsList = string.Compare(args, "list", true) == 0;
+            if (postNestAsList)
             {
-                var nest = nests[i];
-                if (nest.Average == 0)
-                    continue;
-
-                try
+                var groupedNests = GroupNests(guildId, nests);
+                groupedNests.ToImmutableSortedDictionary();
+                var sortedKeys = groupedNests.Keys.ToList();
+                sortedKeys.Sort();
+                foreach (var key in sortedKeys)
                 {
-                    var eb = GenerateNestMessage(guildId, ctx.Client, nest);
-                    var geofences = _dep.Whm.Geofences.Values.ToList();
-                    var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
-                    if (geofence == null)
+                    var eb = new DiscordEmbedBuilder
                     {
-                        //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
-                        continue;
+                        Title = key,
+                        Description = string.Empty,
+                        Color = DiscordColor.Green
+                    };
+                    foreach (var nest in groupedNests[key])
+                    {
+                        if (nest.Average < server.NestsMinimumPerHour)
+                            continue;
+
+                        var pkmn = MasterFile.GetPokemon(nest.PokemonId, 0);
+                        var pkmnName = Translator.Instance.GetPokemonName(pkmn.PokedexId);
+                        var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
+                        // TODO: Check if possible shiny
+                        eb.Description += $"[**{nest.Name}**]({gmapsLink}): {pkmnName} (#{nest.PokemonId}) {nest.Average:N0} per hour\r\n";
+                        if (eb.Description.Length >= 2300)
+                        {
+                            await channel.SendMessageAsync(embed: eb);
+                            eb = new DiscordEmbedBuilder
+                            {
+                                Title = key,
+                                Description = string.Empty,
+                                Color = DiscordColor.Green
+                            };
+                        }
                     }
-
-                    if (!cities.Contains(geofence.Name.ToLower()))
-                        continue;
-
-                    if (nest.Average < server.NestsMinimumPerHour)
-                        continue;
-
-                    await channel.SendMessageAsync(embed: eb);
-                    System.Threading.Thread.Sleep(200);
+                    if (eb.Description.Length > 0)
+                    {
+                        await channel.SendMessageAsync(embed: eb);
+                    }
+                    Thread.Sleep(1000);
                 }
-                catch (Exception ex)
+            }
+            else
+            {
+                var cities = server.CityRoles.Select(x => x.ToLower());
+                for (var i = 0; i < nests.Count; i++)
                 {
-                    _logger.Error(ex);
+                    var nest = nests[i];
+                    if (nest.Average == 0)
+                        continue;
+
+                    try
+                    {
+                        var eb = GenerateNestMessage(guildId, ctx.Client, nest);
+                        var geofences = _dep.Whm.Geofences.Values.ToList();
+                        var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
+                        if (geofence == null)
+                        {
+                            //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
+                            continue;
+                        }
+
+                        if (!cities.Contains(geofence.Name.ToLower()))
+                            continue;
+
+                        if (nest.Average < server.NestsMinimumPerHour)
+                            continue;
+
+                        await channel.SendMessageAsync(embed: eb);
+                        System.Threading.Thread.Sleep(200);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error(ex);
+                    }
                 }
             }
         }
@@ -149,12 +197,12 @@
             var geofences = _dep.Whm.Geofences.Values.ToList();
             var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
             var city = geofence?.Name ?? "Unknown";
-            Location address;
+            Location address = null;
             if (!string.IsNullOrEmpty(_dep.WhConfig.GoogleMapsKey))
             {
                 address = Utils.GetGoogleAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.GoogleMapsKey);
             }
-            else
+            else if (!string.IsNullOrEmpty(_dep.WhConfig.NominatimEndpoint))
             {
                 address = Utils.GetNominatimAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.NominatimEndpoint);
             }
@@ -203,134 +251,34 @@
             return dict;
         }
 
-        [
-            Command("list-nests"),
-            Description("")
-        ]
-        public async Task ListNestsAsync(CommandContext ctx, string pokemon = null)
-        {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-
-            var pokeId = pokemon.PokemonIdFromName();
-            if (pokeId == 0)
-            {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID_OR_NAME").FormatText(ctx.User.Username, pokemon), DiscordColor.Red);
-                return;
-            }
-
-            var pkmn = MasterFile.GetPokemon(pokeId, 0);
-            var eb = new DiscordEmbedBuilder
-            {
-                Title = $"Local {pkmn.Name} Nests",
-                Color = DiscordColor.Blurple,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
-                    IconUrl = ctx.Guild?.IconUrl
-                }
-            };
-
-            var nests = GetNestsByPokemon(_dep.WhConfig.Database.Nests.ToString())?.Where(x => x.Key == pokeId);
-            if (nests == null)
-            {
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username), DiscordColor.Red);
-                return;
-            }
-
-            var cities = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower()).ToList();
-            var groupedNests = GroupNests(nests);
-            foreach (var nest in groupedNests)
-            {
-                var sb = new StringBuilder();
-                foreach (var gn in nest.Value)
-                {
-                    if (gn.Average == 0)
-                        continue;
-
-                    var geofence = _dep.Whm.GetGeofence(gn.Latitude, gn.Longitude);
-                    if (!cities.Contains(geofence?.Name))
-                        continue;
-
-                    sb.AppendLine($"[{gn.Name}]({string.Format(Strings.GoogleMaps, gn.Latitude, gn.Longitude)}) Avg/h: {gn.Average:N0}");
-                }
-                eb.AddField($"{nest.Key}", sb.ToString(), true);
-            }
-            if (eb.Fields.Count == 0)
-            {
-                eb.Description = $"{ctx.User.Username} No local nests found for `{pkmn.Name}`.";
-                eb.Color = DiscordColor.Yellow;
-            }
-
-            await ctx.RespondAsync(embed: eb);
-        }
-
-        /// <summary>
-        /// Group nests based on city name
-        /// </summary>
-        /// <param name="nests"></param>
-        /// <returns></returns>
-        private Dictionary<string, List<Nest>> GroupNests(IEnumerable<KeyValuePair<int, List<Nest>>> nests)
+        private Dictionary<string, List<Nest>> GroupNests(ulong guildId, IEnumerable<Nest> nests)
         {
             var dict = new Dictionary<string, List<Nest>>();
             foreach (var nest in nests)
             {
-                foreach (var nest2 in nest.Value)
+                var geofences = _dep.Whm.Geofences.Values.ToList();
+                var geofence = GeofenceService.GetGeofence(geofences, new Location(nest.Latitude, nest.Longitude));
+                if (geofence == null)
                 {
-                    var geofences = _dep.Whm.Geofences.Values.ToList();
-                    var geofence = GeofenceService.GetGeofence(geofences, new Location(nest2.Latitude, nest2.Longitude));
-                    if (geofence == null)
-                    {
-                        _logger.Warn($"Failed to find geofence for nest {nest.Key}.");
-                        continue;
-                    }
-
-                    if (dict.ContainsKey(geofence.Name))
-                    {
-                        dict[geofence.Name].Add(nest2);
-                    }
-                    else
-                    {
-                        dict.Add(geofence.Name, new List<Nest> { nest2 });
-                    }
+                    _logger.Warn($"Failed to find geofence for nest {nest.Name}.");
+                    continue;
                 }
+                var server = _dep.WhConfig.Servers[guildId];
+                var cities = server.CityRoles.Select(x => x.ToLower());
+                if (!cities.Contains(geofence.Name.ToLower()))
+                    continue;
+
+                if (dict.ContainsKey(geofence.Name))
+                {
+                    dict[geofence.Name].Add(nest);
+                }
+                else
+                {
+                    dict.Add(geofence.Name, new List<Nest> { nest });
+                }
+                dict[geofence.Name].Sort((x, y) => x.Name.CompareTo(y.Name));
             }
             return dict;
-        }
-
-        /// <summary>
-        /// Group nests based on Pokemon
-        /// </summary>
-        /// <param name="nestsConnectionString"></param>
-        /// <returns></returns>
-        public static Dictionary<int, List<Nest>> GetNestsByPokemon(string nestsConnectionString = null)
-        {
-            if (string.IsNullOrEmpty(nestsConnectionString))
-                return null;
-
-            try
-            {
-                var nests = GetNests(nestsConnectionString);
-                var dict = new Dictionary<int, List<Nest>>();
-                for (var i = 0; i < nests.Count; i++)
-                {
-                    var nest = nests[i];
-                    if (dict.ContainsKey(nest.PokemonId))
-                    {
-                        dict[nest.PokemonId].Add(nest);
-                        continue;
-                    }
-
-                    dict.Add(nest.PokemonId, new List<Nest> { nest });
-                }
-                //var dict = nests.ToDictionary(x => x.PokemonId, x => x);
-                return dict;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-
-            return null;
         }
 
         /// <summary>
