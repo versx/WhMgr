@@ -33,6 +33,8 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<PokemonStatsShiny>(entity => entity.HasNoKey());
+            modelBuilder.Entity<PokemonStatsIV>(entity => entity.HasNoKey());
             modelBuilder.Entity<PokemonData>(entity =>
             {
                 entity.Property(e => e.Gender)

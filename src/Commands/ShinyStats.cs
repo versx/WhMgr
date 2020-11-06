@@ -10,7 +10,6 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-    using Microsoft.EntityFrameworkCore;
 
     using WhMgr.Data;
     using WhMgr.Data.Factories;
@@ -109,13 +108,12 @@
             {
                 using (var db = DbContextFactory.CreateScannerDbContext(scannerConnectionString))
                 {
-                    db.Database.SetCommandTimeout(10 * 1000); // 10 seconds timeout
                     var yesterday = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToString("yyyy/MM/dd");
-                    var pokemonShiny = db.PokemonStatsShiny.Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0).ToList();
-                    var pokemonIV = db.PokemonStatsIV.Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0)?.ToDictionary(x => x.PokemonId);
-                    for (var i = 0; i < pokemonShiny.Count; i++)
+                    var pokemonShiny = db.PokemonStatsShiny.AsEnumerable().Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0).ToList();
+                    var pokemonIV = db.PokemonStatsIV.AsEnumerable().Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0).ToDictionary(x => x.PokemonId, y => y);
+
+                    foreach (var curPkmn in pokemonShiny)
                     {
-                        var curPkmn = pokemonShiny[i];
                         if (curPkmn.PokemonId > 0)
                         {
                             if (!dict.ContainsKey(curPkmn.PokemonId))
