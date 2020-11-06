@@ -28,7 +28,6 @@
             optionsBuilder.UseMySQL(connectionString);
 
             var context = new SubscriptionsDbContext(optionsBuilder.Options);
-            context.Database.EnsureCreated();
             context.ChangeTracker.AutoDetectChangesEnabled = false;
             return context;
         }
@@ -39,7 +38,6 @@
             optionsBuilder.UseMySQL(connectionString);
 
             var context = new ManualDbContext(optionsBuilder.Options);
-            context.Database.EnsureCreated();
             return context;
         }
 
@@ -49,7 +47,6 @@
             optionsBuilder.UseMySQL(connectionString);
 
             var context = new ScannerDbContext(optionsBuilder.Options);
-            context.Database.EnsureCreated();
             return context;
         }
 

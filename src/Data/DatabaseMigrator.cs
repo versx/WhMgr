@@ -3,7 +3,6 @@
     using System;
     using System.IO;
     using System.Threading;
-    using System.Threading.Tasks;
 
     using Microsoft.EntityFrameworkCore;
 
@@ -38,7 +37,7 @@
         public DatabaseMigrator()
         {
             // Create the metadata table
-            Execute(Strings.SQL_CREATE_TABLE_METADATA).GetAwaiter().GetResult();
+            Execute(Strings.SQL_CREATE_TABLE_METADATA);
 
             // Get current version from metadata table
             var currentVersion = int.Parse(GetMetadata("DB_VERSION")?.Value ?? "0");
@@ -48,7 +47,14 @@
             _logger.Info($"Current: {currentVersion}, Latest: {newestVersion}");
 
             // Attempt to migrate the database
-            Migrate(currentVersion, newestVersion).GetAwaiter().GetResult();
+            if (currentVersion < newestVersion)
+            {
+                // Wait 30 seconds and let user know we are about to migrate the database and for them to make
+                // a backup until we handle backups and rollbacks.
+                _logger.Info("MIGRATION IS ABOUT TO START IN 30 SECONDS, PLEASE MAKE SURE YOU HAVE A BACKUP!!!");
+                Thread.Sleep(30 * 1000);
+            }
+            Migrate(currentVersion, newestVersion);
         }
 
         /// <summary>
@@ -76,15 +82,10 @@
         /// <param name="fromVersion">Database version to migrate from</param>
         /// <param name="toVersion">Database version to migrate to</param>
         /// <returns></returns>
-        private async Task Migrate(int fromVersion, int toVersion)
+        private void Migrate(int fromVersion, int toVersion)
         {
             if (fromVersion < toVersion)
             {
-                // Wait 30 seconds and let user know we are about to migrate the database and for them to make
-                // a backup until we handle backups and rollbacks.
-                _logger.Info("MIGRATION IS ABOUT TO START IN 30 SECONDS, PLEASE MAKE SURE YOU HAVE A BACKUP!!!");
-                Thread.Sleep(30 * 1000);
-
                 _logger.Info($"Migrating database to version {fromVersion + 1}");
                 var sqlFile = Path.Combine(MigrationsFolder, (fromVersion + 1) + ".sql");
 
@@ -104,7 +105,7 @@
                     try
                     {
                         // Execute the SQL query
-                        var result = await Execute(sql);
+                        var result = Execute(sql);
                         if (result != 0)
                         {
                             // Failed to execute query
@@ -128,7 +129,7 @@
                 try
                 {
                     // Execute update version SQL
-                    var result = await Execute(updateVersionSQL);
+                    var result = Execute(updateVersionSQL);
                     if (result > 0)
                     {
                         // Success
@@ -141,14 +142,13 @@
                     Environment.Exit(-1);
                 }
                 _logger.Info("Migration successful");
-                await Migrate(newVersion, toVersion);
+                Migrate(newVersion, toVersion);
             }
             if (fromVersion == toVersion)
             {
                 _logger.Info("Migration done");
                 Finished = true;
             }
-            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -156,7 +156,7 @@
         /// </summary>
         /// <param name="sql">SQL statement to execute</param>
         /// <returns>Returns the result value from the statement</returns>
-        public static async Task<int> Execute(string sql)
+        public static int Execute(string sql)
         {
             if (string.IsNullOrEmpty(DbContextFactory.ConnectionString))
                 return default;
@@ -165,7 +165,7 @@
             {
                 using (var db = DbContextFactory.CreateSubscriptionContext(DbContextFactory.ConnectionString))
                 {
-                    var query = await db.Database.ExecuteSqlRawAsync(sql);// ExecuteSqlAsync(sql);
+                    var query = db.Database.ExecuteSqlRaw(sql);
                     return query;
                 }
             }
