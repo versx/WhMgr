@@ -201,6 +201,9 @@
                     continue;
 
                 var alarms = LoadAlarms(server.Value.AlarmsFile);
+                if (alarms == null)
+                    continue;
+
                 _alarms.Add(server.Key, alarms);
             }
             _config = config;
@@ -397,6 +400,8 @@
             {
                 var guildId = keys[i];
                 var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnablePokemon)
                     continue;
@@ -516,6 +521,8 @@
             {
                 var guildId = keys[i];
                 var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnableRaids)
                     continue;
@@ -642,6 +649,8 @@
             {
                 var guildId = keys[i];
                 var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnableQuests)
                     continue;
@@ -713,6 +722,8 @@
             {
                 var guildId = keys[i];
                 var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 //Skip if EnablePokestops is disabled in the config.
                 if (!alarms.EnablePokestops)
@@ -771,6 +782,8 @@
             {
                 var guildId = keys[i];
                 var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnableGyms)
                     continue;
@@ -815,6 +828,8 @@
             {
                 var guildId = keys[i];
                 var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnableGyms) //GymDetails
                     continue;
@@ -885,6 +900,8 @@
             {
                 var guildId = keys[i];
                 var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnableWeather)
                     continue;

@@ -27,7 +27,7 @@
 
         #region Properties
 
-        public IEnumerable<SubscriptionObject> Subscriptions { get; private set; }
+        public List<SubscriptionObject> Subscriptions { get; private set; }
 
         #endregion
 
@@ -150,7 +150,7 @@
             }
         }
 
-        public IEnumerable<PokemonSubscription> GetUserSubscriptionsByPokemonId(int pokeId)
+        public List<PokemonSubscription> GetUserSubscriptionsByPokemonId(int pokeId)
         {
             /*
             return _subscriptions
@@ -162,11 +162,11 @@
             */
             using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
             {
-                return ctx.Pokemon.Where(x => x.PokemonId == pokeId);
+                return ctx.Pokemon.Where(x => x.PokemonId == pokeId).ToList();
             }
         }
 
-        public IEnumerable<PvPSubscription> GetUserSubscriptionsByPvPPokemonId(int pokeId)
+        public List<PvPSubscription> GetUserSubscriptionsByPvPPokemonId(int pokeId)
         {
             /*
             return _subscriptions
@@ -178,11 +178,11 @@
             */
             using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
             {
-                return ctx.PvP.Where(x => x.PokemonId == pokeId);
+                return ctx.PvP.Where(x => x.PokemonId == pokeId).ToList();
             }
         }
 
-        public IEnumerable<RaidSubscription> GetUserSubscriptionsByRaidBossId(int pokeId)
+        public List<RaidSubscription> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
             /*
             return _subscriptions
@@ -194,11 +194,11 @@
             */
             using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
             {
-                return ctx.Raids.Where(x => x.PokemonId == pokeId);
+                return ctx.Raids.Where(x => x.PokemonId == pokeId).ToList();
             }
         }
 
-        public IEnumerable<QuestSubscription> GetUserSubscriptionsByQuestReward(string reward)
+        public List<QuestSubscription> GetUserSubscriptionsByQuestReward(string reward)
         {
             /*
             return _subscriptions
@@ -210,11 +210,11 @@
             */
             using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
             {
-                return ctx.Quests.Where(x => reward.ToLower().Contains(x.RewardKeyword.ToLower()));
+                return ctx.Quests.Where(x => reward.ToLower().Contains(x.RewardKeyword.ToLower())).ToList();
             }
         }
 
-        public IEnumerable<InvasionSubscription> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
+        public List<InvasionSubscription> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
         {
             /*
             return _subscriptions
@@ -226,11 +226,11 @@
             */
             using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
             {
-                return ctx.Invasions.Where(x => encounterRewards.Contains(x.RewardPokemonId));
+                return ctx.Invasions.Where(x => encounterRewards.Contains(x.RewardPokemonId)).ToList();
             }
         }
 
-        public IEnumerable<SubscriptionObject> GetUserSubscriptions()
+        public List<SubscriptionObject> GetUserSubscriptions()
         {
             try
             {
@@ -243,14 +243,14 @@
 
                 using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
                 {
-                    Subscriptions = ctx.Subscriptions;
-                        //.Include(sub => sub.Pokemon)
-                        //.Include(sub => sub.PvP)
-                        //.Include(sub => sub.Raids)
-                        //.Include(sub => sub.Quests)
-                        //.Include(sub => sub.Gyms)
-                        //.Include(sub => sub.Invasions)
-                        //.ToList();
+                    Subscriptions = ctx.Subscriptions.ToList();
+                    //.Include(sub => sub.Pokemon)
+                    //.Include(sub => sub.PvP)
+                    //.Include(sub => sub.Raids)
+                    //.Include(sub => sub.Quests)
+                    //.Include(sub => sub.Gyms)
+                    //.Include(sub => sub.Invasions)
+                    //.ToList();
                     return Subscriptions;
                 }
             }
@@ -273,7 +273,7 @@
             var subs = GetUserSubscriptions();
             if (subs == null)
                 return;
-
+                        
             Subscriptions = subs;
         }
 

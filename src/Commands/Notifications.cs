@@ -386,14 +386,10 @@
                         continue;
                     }
 
-                    var start = DateTime.Now;
                     var subPkmn = db.Pokemon
                                     .Where(x => x.SubscriptionId == subscription.Id && x.PokemonId == pokemonId)
                                     .AsEnumerable()
                                     .FirstOrDefault(x => string.Compare(x.Form, form, true) == 0);
-                    var end = DateTime.Now;
-                    var took = end.Subtract(start);
-                    Console.WriteLine("Pokemon search took: " + took);
                     // Always ignore the user's input for Unown and set it to 0 by default.
                     var minIV = pokemonId.IsRarePokemon() ? 0 : realIV;
                     var minLvl = pokemonId.IsRarePokemon() ? 0 : minLevel;
@@ -437,6 +433,7 @@
                             subPkmn.IVList.Add($"{attack}/{defense}/{stamina}");
                         }
                         subscribed.Add(name);
+                        db.Update(subPkmn);
                         continue;
                     }
 
@@ -1394,6 +1391,7 @@
                         subPkmn.MinimumRank = minimumRank;
                         subPkmn.MinimumPercent = minimumPercent;
                         subscribed.Add(name);
+                        db.Update(subPkmn);
                         continue;
                     }
 
