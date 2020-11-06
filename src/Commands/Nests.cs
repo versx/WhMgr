@@ -99,9 +99,10 @@
                         var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
                         // TODO: Check if possible shiny
                         eb.Description += $"[**{nest.Name}**]({gmapsLink}): {pkmnName} (#{nest.PokemonId}) {nest.Average:N0} per hour\r\n";
-                        if (eb.Description.Length >= 2000)
+                        if (eb.Description.Length >= 2048)
                         {
-                            var message = eb.Description.Substring(0, Math.Min(eb.Description.Length, 2000));
+                            var message = eb.Description.Substring(0, Math.Min(eb.Description.Length, 2048));
+                            eb.Description = message;
                             await channel.SendMessageAsync(embed: eb);
                             eb = new DiscordEmbedBuilder
                             {
