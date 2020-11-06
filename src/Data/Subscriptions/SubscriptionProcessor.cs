@@ -175,7 +175,7 @@
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
                         (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
+                        (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
                     );
                     if (subscribedPokemon == null)
                     {
@@ -316,7 +316,7 @@
                     subscribedPokemon = user.PvP.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
                         (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
+                        (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
                     );
                     if (subscribedPokemon == null)
                     {
@@ -451,7 +451,7 @@
                     var exists = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
                         (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
+                        (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
                     ) != null;
                     if (!exists)
                     {
@@ -543,10 +543,9 @@
                         continue;
                     }
 
-                    var exists = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) &&
-                    (
-                        string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
-                    )) != null;
+                    var exists = user.Quests.FirstOrDefault(x =>
+                        rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) &&
+                        !string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0) != null;
                     if (!exists)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
@@ -657,7 +656,7 @@
 
                     var exists = user.Invasions.FirstOrDefault(x =>
                         encounters.Contains(x.RewardPokemonId) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
+                        !string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0
                     ) != null;
                     if (!exists)
                     {
