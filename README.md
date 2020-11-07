@@ -40,6 +40,12 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 ## Documentation:  
 [ReadTheDocs](https://whmgr.rtfd.io/)  
 
+## Terminology:  
+- **Alerts:** Discord message structures for channel messages or direct message subscriptions
+- **Subscriptions:** Custom user defined Pokemon, Raid, Quest, Invasion, or Gym direct messages subscriptions
+- **Geofences:** Area restrictions per Alarm
+- **Alarms:** Discord channel messages
+
 ## Getting Started:  
 
 1.) Run the following to install .NET Core runtime, clone respository, and copy example Alerts, Filters, Geofences, config and alarm files.  
