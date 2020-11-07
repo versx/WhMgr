@@ -23,6 +23,13 @@
         private readonly WhConfig _whConfig;
         private readonly System.Timers.Timer _reloadTimer;
 
+        private static List<PokemonSubscription> _pokemonSubscriptions;
+        private static List<PvPSubscription> _pvpSubscriptions;
+        private static List<RaidSubscription> _raidSubscriptions;
+        private static List<QuestSubscription> _questSubscriptions;
+        private static List<InvasionSubscription> _invasionSubscriptions;
+        private static List<GymSubscription> _gymSubscriptions;
+
         #endregion
 
         #region Properties
@@ -103,90 +110,79 @@
 
         public List<PokemonSubscription> GetUserPokemonSubscriptions(ulong guildId, ulong userId)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.Pokemon.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
-            }
+            return _pokemonSubscriptions?
+                .Where(x => x.GuildId == guildId && x.UserId == userId)?
+                .ToList();
         }
 
         public List<PvPSubscription> GetUserPvPSubscriptions(ulong guildId, ulong userId)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.PvP.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
-            }
+            return _pvpSubscriptions?
+                .Where(x => x.GuildId == guildId && x.UserId == userId)?
+                .ToList();
         }
 
         public List<RaidSubscription> GetUserRaidSubscriptions(ulong guildId, ulong userId)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.Raids.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
-            }
+            return _raidSubscriptions?
+                .Where(x => x.GuildId == guildId && x.UserId == userId)?
+                .ToList();
         }
 
         public List<QuestSubscription> GetUserQuestSubscriptions(ulong guildId, ulong userId)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.Quests.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
-            }
+            return _questSubscriptions?
+                .Where(x => x.GuildId == guildId && x.UserId == userId)?
+                .ToList();
         }
 
         public List<GymSubscription> GetUserGymSubscriptions(ulong guildId, ulong userId)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.Gyms.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
-            }
+            return _gymSubscriptions?
+                .Where(x => x.GuildId == guildId && x.UserId == userId)?
+                .ToList();
         }
 
         public List<InvasionSubscription> GetUserInvasionSubscriptions(ulong guildId, ulong userId)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.Invasions.Where(x => x.GuildId == guildId && x.UserId == userId)?.ToList();
-            }
+            return _invasionSubscriptions?
+                .Where(x => x.GuildId == guildId && x.UserId == userId)?
+                .ToList();
         }
 
         public List<PokemonSubscription> GetUserSubscriptionsByPokemonId(int pokeId)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.Pokemon.Where(x => x.PokemonId == pokeId).ToList();
-            }
+            return _pokemonSubscriptions?
+                .Where(x => x.PokemonId == pokeId)?
+                .ToList();
         }
 
         public List<PvPSubscription> GetUserSubscriptionsByPvPPokemonId(int pokeId)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.PvP.Where(x => x.PokemonId == pokeId).ToList();
-            }
+            return _pvpSubscriptions?
+                .Where(x => x.PokemonId == pokeId)?
+                .ToList();
         }
 
         public List<RaidSubscription> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.Raids.Where(x => x.PokemonId == pokeId).ToList();
-            }
+            return _raidSubscriptions?
+                .Where(x => x.PokemonId == pokeId)?
+                .ToList();
         }
 
         public List<QuestSubscription> GetUserSubscriptionsByQuestReward(string reward)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.Quests.Where(x => reward.ToLower().Contains(x.RewardKeyword.ToLower())).ToList();
-            }
+            return _questSubscriptions?
+                .Where(x => reward.ToLower().Contains(x.RewardKeyword.ToLower()))?
+                .ToList();
         }
 
         public List<InvasionSubscription> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
         {
-            using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
-            {
-                return ctx.Invasions.Where(x => encounterRewards.Contains(x.RewardPokemonId)).ToList();
-            }
+            return _invasionSubscriptions?
+                .Where(x => encounterRewards.Contains(x.RewardPokemonId))?
+                .ToList();
         }
 
         public void ReloadSubscriptions()
@@ -196,6 +192,12 @@
                 using (var ctx = DbContextFactory.CreateSubscriptionContext(_whConfig.Database.Main.ToString()))
                 {
                     Subscriptions = ctx.Subscriptions.ToList();
+                    _pokemonSubscriptions = ctx.Pokemon.ToList();
+                    _pvpSubscriptions = ctx.PvP.ToList();
+                    _raidSubscriptions = ctx.Raids.ToList();
+                    _questSubscriptions = ctx.Quests.ToList();
+                    _gymSubscriptions = ctx.Gyms.ToList();
+                    _invasionSubscriptions = ctx.Invasions.ToList();
                     //.Include(sub => sub.Pokemon)
                     //.Include(sub => sub.PvP)
                     //.Include(sub => sub.Raids)
