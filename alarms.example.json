@@ -12,7 +12,7 @@
 			"description": "<!@324234324> <iv> L<lvl> <geofence>",
 			"alerts": "default.json",
 			"filters":"all.json",
-			"geofence":"City1.txt",
+			"geofences":["City1.txt", "City2.txt"],
 			"mentions":"<!@324234324> <iv> L<lvl> <geofence>",  
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
@@ -21,7 +21,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"100iv.json",
-			"geofence":"City1.txt",
+			"geofences":["City1.txt", "City2.txt"],
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -29,7 +29,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"raids.json",
-			"geofence":"City1.txt",
+			"geofences":["City1.txt", "City2.txt"],
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -37,7 +37,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"legendary_raids.json",
-			"geofence":"City1.txt",
+			"geofences":["City1.txt", "City2.txt"],
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -45,7 +45,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"ex_raids.json",
-			"geofence":"City1.txt",
+			"geofences":["City1.txt", "City2.txt"],
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -53,7 +53,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters": "quests.json",
-			"geofence": "City1.txt",
+			"geofences":["City1.txt", "City2.txt"],
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -61,7 +61,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters": "lures.json",
-			"geofence": "City1.txt",
+			"geofences":["City1.txt", "City2.txt"],
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -69,7 +69,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters": "invasions.json",
-			"geofence": "City1.txt",
+			"geofences":["City1.txt", "City2.txt"],
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -77,7 +77,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters": "gyms.json",
-			"geofence": "City1.txt",
+			"geofences":["City1.txt", "City2.txt"],
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -85,7 +85,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"weather.json",
-			"geofence":"City1.txt",
+			"geofences":["City1.txt", "City2.txt"],
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -93,7 +93,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"all.json",
-			"geofence":"City2.txt",
+			"geofences":"City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -101,7 +101,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"100iv.json",
-			"geofence":"City2.txt",
+			"geofences":"City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -109,7 +109,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"raids.json",
-			"geofence":"City2.txt",
+			"geofences":"City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -117,7 +117,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"legendary_raids.json",
-			"geofence":"City2.txt",
+			"geofences":"City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -125,7 +125,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"ex_raids.json",
-			"geofence":"City2.txt",
+			"geofences":"City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -133,7 +133,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters": "quests.json",
-			"geofence": "City2.txt",
+			"geofences": "City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -141,7 +141,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters": "lures.json",
-			"geofence": "City2.txt",
+			"geofences": "City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -149,7 +149,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters": "invasions.json",
-			"geofence": "City2.txt",
+			"geofences": "City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -157,7 +157,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters": "gyms.json",
-			"geofence": "City2.txt",
+			"geofences": "City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -165,7 +165,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"quests_absol.json",
-			"geofence":"City2.txt",
+			"geofences":"City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		},
 		{
@@ -173,7 +173,7 @@
 			"description": "",
 			"alerts": "default.json",
 			"filters":"weather.json",
-			"geofence":"City2.txt",
+			"geofences":"City2.txt",
 			"webhook":"<DISCORD_WEBHOOK_URL>"
 		}
 	]
