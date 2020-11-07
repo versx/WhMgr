@@ -98,10 +98,10 @@
                     await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
                     return;
                 }
-                var cmd = ctx.Message.Content.TrimStart('.', ' ');
+                var cmd = ctx.Message.Content.TrimStart(_dep.WhConfig.Servers[guildId].CommandPrefix?[0] ?? '\0', ' ');
                 subscription.Enabled = cmd.ToLower().Contains("enable");
-                db.SaveChanges();
-
+                db.Update(subscription);
+                db.SaveChanges(false);
                 await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ENABLE_DISABLE").FormatText(ctx.User.Username, cmd));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -363,6 +363,7 @@
             var keys = validation.Valid.Keys.ToList();
             using (var db = DbContextFactory.CreateSubscriptionContext(_dep.WhConfig.Database.Main.ToString()))
             {
+                db.Subscriptions.Update(subscription);
                 for (var i = 0; i < keys.Count; i++)
                 {
                     var pokemonId = keys[i];
@@ -440,7 +441,7 @@
                     // Already subscribed to the same Pokemon and form
                     alreadySubscribed.Add(name);
                 }
-                db.SaveChanges();
+                db.SaveChanges(false);
             }
             await ctx.TriggerTypingAsync();
             if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
@@ -697,7 +698,7 @@
                         });
                     }
                 }
-                db.SaveChanges();
+                db.SaveChanges(false);
             }
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
@@ -872,7 +873,7 @@
                         City = area
                     });
                 }
-                db.SaveChanges();
+                db.SaveChanges(false);
             }
 
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
@@ -1002,7 +1003,7 @@
                     UserId = ctx.User.Id,
                     Name = gymName
                 });
-                db.SaveChanges();
+                db.SaveChanges(false);
             }
 
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_ADDED").FormatText(ctx.User.Username, gymName));
@@ -1124,7 +1125,7 @@
                         });
                     }
                 }
-                db.SaveChanges();
+                db.SaveChanges(false);
             }
 
             var valid = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
@@ -1398,7 +1399,7 @@
                     //Already subscribed to the same Pokemon and form
                     alreadySubscribed.Add(name);
                 }
-                db.SaveChanges();
+                db.SaveChanges(false);
             }
 
             await ctx.TriggerTypingAsync();

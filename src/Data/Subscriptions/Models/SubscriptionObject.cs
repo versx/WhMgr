@@ -73,7 +73,7 @@
             Latitude = 0;
             Longitude = 0;
             IconStyle = "Default";
-            PhoneNumber = string.Empty;
+            PhoneNumber = null;
         }
     }
 }

@@ -53,6 +53,7 @@ ALTER TABLE invasions MODIFY COLUMN `guild_id` bigint(20) unsigned NOT NULL;
 
 UPDATE subscriptions SET latitude=0 WHERE latitude IS NULL;
 UPDATE subscriptions SET longitude=0 WHERE longitude IS NULL;
+UPDATE subscriptions SET phone_number=NULL WHERE phone_number='';
 
 UPDATE pokemon SET form=NULL WHERE form='';
 UPDATE pokemon SET city=NULL WHERE city='';

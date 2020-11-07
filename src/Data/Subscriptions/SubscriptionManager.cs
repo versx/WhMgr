@@ -85,7 +85,13 @@
                         //.Include(x => x.Gyms)
                         //.Include(x => x.Invasions)
                         .FirstOrDefault(x => x.GuildId == guildId && x.UserId == userId);
-                    return sub ?? new SubscriptionObject { UserId = userId, GuildId = guildId };
+                    if (sub == null)
+                    {
+                        ctx.Add(new SubscriptionObject { UserId = userId, GuildId = guildId });
+                        ctx.SaveChanges(false);
+                        return GetUserSubscriptions(guildId, userId);
+                    }
+                    return sub;
                 }
             }
             catch (MySql.Data.MySqlClient.MySqlException ex)
