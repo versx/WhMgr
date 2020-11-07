@@ -643,7 +643,7 @@
                 var form = validation.Valid[pokemonId];
                 var cities = string.IsNullOrEmpty(city)
                     ? _dep.WhConfig.Servers[guildId].CityRoles
-                    : new List<string> { city };
+                    : new List<string>(city.Split(','));
                 foreach (var area in cities)
                 {
                     var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId &&
@@ -744,7 +744,7 @@
                 var form = item.Value;
                 var cities = string.IsNullOrEmpty(city)
                     ? _dep.WhConfig.Servers[guildId].CityRoles
-                    : new List<string> { city };
+                    : new List<string>(city.Split(','));
                 foreach (var area in cities)
                 {
                     var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId &&
@@ -800,7 +800,7 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             var cities = string.IsNullOrEmpty(city)
                 ? _dep.WhConfig.Servers[guildId].CityRoles
-                : new List<string> { city };
+                : new List<string>(city.Split(','));
 
             foreach (var area in cities)
             {
@@ -885,7 +885,7 @@
 
             var cities = string.IsNullOrEmpty(city)
                         ? _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower())
-                        : new List<string> { city.ToLower() };
+                        : new List<string>(city.Split(','));
 
             subscription.Quests
                 .Where(x =>
@@ -1021,7 +1021,7 @@
                 //var form = validation.Valid[pokemonId];
                 var cities = string.IsNullOrEmpty(city)
                     ? _dep.WhConfig.Servers[guildId].CityRoles
-                    : new List<string> { city };
+                    : new List<string>(city.Split(','));
                 foreach (var area in cities)
                 {
                     var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId &&
@@ -1117,7 +1117,7 @@
                 var pokemonId = item.Key;
                 var cities = string.IsNullOrEmpty(city)
                     ? _dep.WhConfig.Servers[guildId].CityRoles
-                    : new List<string> { city };
+                    : new List<string>(city.Split(','));
                 foreach (var area in cities)
                 {
                     var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId &&
