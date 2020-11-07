@@ -164,7 +164,7 @@
                             //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
                             continue;
                         }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
+                        //_logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                     }
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
@@ -172,7 +172,7 @@
                                   (string.IsNullOrEmpty(subscribedPokemon.City) || (!string.IsNullOrEmpty(subscribedPokemon.City) && string.Compare(loc.Name, subscribedPokemon.City, true) == 0));
                     if (!isMatch)
                     {
-                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
+                        //_logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
@@ -295,7 +295,7 @@
                             //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
                             continue;
                         }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
+                        //_logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                     }
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
@@ -410,7 +410,7 @@
                             //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
                             continue;
                         }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}: {distance}/{user.DistanceM}");
+                        //_logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}: {distance}/{user.DistanceM}");
                     }
 
                     var gymSubscriptions = Manager.GetUserGymSubscriptions(user.GuildId, user.UserId);
@@ -552,7 +552,7 @@
                             //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Quest {quest.Template}, Quest is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
                             continue;
                         }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Quest {questName}: {distance}/{user.DistanceM}");
+                        //_logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Quest {questName}: {distance}/{user.DistanceM}");
                     }
 
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
@@ -657,7 +657,7 @@
                             //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}, TR Invasion is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
                             continue;
                         }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}: {distance}/{user.DistanceM}");
+                        //_logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}: {distance}/{user.DistanceM}");
                     }
 
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
