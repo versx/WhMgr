@@ -189,7 +189,7 @@
             }
         }
 
-        public List<SubscriptionObject> GetUserSubscriptions()
+        public void ReloadSubscriptions()
         {
             try
             {
@@ -203,7 +203,6 @@
                     //.Include(sub => sub.Gyms)
                     //.Include(sub => sub.Invasions)
                     //.ToList();
-                    return Subscriptions;
                 }
             }
             catch (OutOfMemoryException mex)
@@ -216,17 +215,6 @@
             {
                 _logger.Error(ex);
             }
-
-            return null;
-        }
-
-        public void ReloadSubscriptions()
-        {
-            var subs = GetUserSubscriptions();
-            if (subs == null)
-                return;
-                        
-            Subscriptions = subs;
         }
 
         public static bool SetUserSubscriptionsStatus(ulong guildId, ulong userId, bool enabled)
