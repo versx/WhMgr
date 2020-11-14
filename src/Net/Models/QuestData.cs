@@ -81,8 +81,9 @@
 
         public DiscordEmbedNotification GenerateQuestMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
+            var server = whConfig.Servers[guildId];
             var alertType = AlertMessageType.Quests;
-            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
+            var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
             var properties = GetProperties(client.Guilds[guildId], whConfig, city, IconFetcher.Instance.GetQuestIcon(whConfig.Servers[guildId].IconStyle, this));
             var eb = new DiscordEmbedBuilder
             {
@@ -115,10 +116,10 @@
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
             var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.Quests.TemplateFile);
             var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, whConfig.StaticMaps.Quests.ZoomLevel, Latitude, Longitude, questRewardImageUrl, null);
-            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? scannerMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
+            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? scannerMapsLink : UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
             Geofence.Location address = null;
             if (!string.IsNullOrEmpty(whConfig.GoogleMapsKey))
             {
