@@ -397,7 +397,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 * `enable` Enable direct message subscriptions  
 * `disable` Disable direct message subscriptions  
 * `info` List all Pokemon, Raid, Quest, Invasion, and Gym subscriptions and settings  
-* `set-distance`  Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in meters)  
+* `set-distance`  Set minimum distance to Pokemon, PvP, raids, quests, invasions and gyms need to be within. (Measured in meters) If a distance is set, subscribed geofences will be ignored.  
 * `expire` / `expires` Check stripe API when Donor/Supporter subscription expires  
 * `set-number` Sets the phone number to use for text message alerts for ultra rare Pokemon  
 

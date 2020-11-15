@@ -926,7 +926,7 @@
                     await PostShinyStats(client, guildId, server);
                 }
 
-                if (server.PruneQuestChannels)
+                if (server.PruneQuestChannels && server.QuestChannelIds.Count > 0)
                 {
                     await PruneQuestChannels(client, server);
                 }
