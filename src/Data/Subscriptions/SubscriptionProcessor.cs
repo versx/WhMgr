@@ -155,6 +155,18 @@
                         continue;
                     }
 
+                    matchesIV = Filters.MatchesIV(pkmn.IV, subscribedPokemon.MinimumIV);
+                    //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
+                    matchesLvl = Filters.MatchesLvl(pkmn.Level, (uint)subscribedPokemon.MinimumLevel, (uint)subscribedPokemon.MaximumLevel);
+                    matchesGender = Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
+                    matchesIVList = subscribedPokemon.IVList?.Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}") ?? false;
+
+                    if (!(
+                        (/*!subscribedPokemon.HasStats && */matchesIV && matchesLvl && matchesGender) ||
+                        (subscribedPokemon.HasStats && matchesIVList)
+                        ))
+                        continue;
+
                     // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
@@ -167,21 +179,12 @@
                         }
                         _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                     }
-
-                    if (!subscribedPokemon.Areas.Contains(loc.Name.ToLower()))
-                        continue;
-
-                    matchesIV = Filters.MatchesIV(pkmn.IV, subscribedPokemon.MinimumIV);
-                    //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
-                    matchesLvl = Filters.MatchesLvl(pkmn.Level, (uint)subscribedPokemon.MinimumLevel, (uint)subscribedPokemon.MaximumLevel);
-                    matchesGender = Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
-                    matchesIVList = subscribedPokemon.IVList?.Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}") ?? false;
-
-                    if (!(
-                        (/*!subscribedPokemon.HasStats && */matchesIV && matchesLvl && matchesGender) ||
-                        (subscribedPokemon.HasStats && matchesIVList)
-                        ))
-                        continue;
+                    else
+                    {
+                        // Otherwise check if in subscribed geofences
+                        if (!subscribedPokemon.Areas.Contains(loc.Name.ToLower()))
+                            continue;
+                    }
 
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
@@ -278,19 +281,6 @@
                         continue;
                     }
 
-                    // Only check distance if user has it set
-                    if (user.DistanceM > 0)
-                    {
-                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                        if (user.DistanceM < distance)
-                        {
-                            //Skip if distance is set and is not with specified distance.
-                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
-                            continue;
-                        }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
-                    }
-
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
                     subscribedPokemon = user.PvP.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
@@ -302,9 +292,6 @@
                         //_logger.Info($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
-
-                    if (!subscribedPokemon.Areas.Contains(loc.Name.ToLower()))
-                        continue;
 
                     matchesGreat = pkmn.GreatLeague != null && (pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Great &&
                                                                      (x.CP ?? 0) >= Strings.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.MaximumGreatLeagueCP &&
@@ -318,6 +305,25 @@
                     // Check if Pokemon IV stats match any relevant great or ultra league ranks, if not skip.
                     if (!matchesGreat && !matchesUltra)
                         continue;
+
+                    // Only check distance if user has it set
+                    if (user.DistanceM > 0)
+                    {
+                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                        if (user.DistanceM < distance)
+                        {
+                            //Skip if distance is set and is not with specified distance.
+                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
+                            continue;
+                        }
+                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
+                    }
+                    else
+                    {
+                        // Otherwise check if in subscribed geofences
+                        if (!subscribedPokemon.Areas.Contains(loc.Name.ToLower()))
+                            continue;
+                    }
 
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
@@ -403,19 +409,6 @@
                         continue;
                     }
 
-                    // Only check distance if user has it set
-                    if (user.DistanceM > 0)
-                    {
-                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
-                        if (user.DistanceM < distance)
-                        {
-                            //Skip if distance is set and is not met.
-                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
-                            continue;
-                        }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}: {distance}/{user.DistanceM}");
-                    }
-
                     if (user.Gyms.Count > 0 && (!user.Gyms?.Exists(x =>
                         !string.IsNullOrEmpty(x?.Name) &&
                         (
@@ -441,11 +434,24 @@
                         continue;
                     }
 
-                    if (!subPkmn.Areas.Contains(loc.Name.ToLower()))
-                        continue;
-
-                    // TODO: Distance else geofence
-                    // TODO: Check city
+                    // Only check distance if user has it set
+                    if (user.DistanceM > 0)
+                    {
+                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
+                        if (user.DistanceM < distance)
+                        {
+                            //Skip if distance is set and is not met.
+                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
+                            continue;
+                        }
+                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}: {distance}/{user.DistanceM}");
+                    }
+                    else
+                    {
+                        // Otherwise check if in subscribed geofences
+                        if (!subPkmn.Areas.Contains(loc.Name.ToLower()))
+                            continue;
+                    }
 
                     var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
@@ -551,9 +557,12 @@
                         }
                         _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Quest {questName}: {distance}/{user.DistanceM}");
                     }
-
-                    if (!subQuest.Areas.Contains(loc.Name.ToLower()))
-                        continue;
+                    else
+                    {
+                        // Otherwise check if in subscribed geofences
+                        if (!subQuest.Areas.Contains(loc.Name.ToLower()))
+                            continue;
+                    }
 
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
@@ -664,9 +673,12 @@
                         }
                         _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}: {distance}/{user.DistanceM}");
                     }
-
-                    if (!subInvasion.Areas.Contains(loc.Name.ToLower()))
-                        continue;
+                    else
+                    {
+                        // Otherwise check if in subscribed geofences
+                        if (!subInvasion.Areas.Contains(loc.Name.ToLower()))
+                            continue;
+                    }
 
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
                     foreach (var emb in embed.Embeds)
