@@ -928,7 +928,7 @@
                 else
                 {
                     _logger.Debug($"Shiny Stat posting not enabled...skipping");
-                {
+                }
 
                 if (server.PruneQuestChannels)
                 {
