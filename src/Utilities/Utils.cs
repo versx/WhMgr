@@ -144,5 +144,10 @@
             }
             return null;
         }
+
+        public static double GetUnixTimestamp()
+        {
+            return DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+        }
     }
 }
