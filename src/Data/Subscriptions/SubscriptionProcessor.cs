@@ -143,18 +143,15 @@
                         continue;
                     }
 
-                    /*
-                    if (!member.Roles.Select(x => x?.Name?.ToLower()).Contains(loc?.Name?.ToLower()))
+                    var form = Translator.Instance.GetFormName(pkmn.FormId);
+                    subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
+                        x.PokemonId == pkmn.Id &&
+                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
+                    );
+                    // Not subscribed to Pokemon
+                    if (subscribedPokemon == null)
                     {
-                        //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
-                        continue;
-                    }
-                    */
-
-                    var exists = user.Pokemon.Exists(x => string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0));
-                    if (!exists)
-                    {
-                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.PokemonId} because the Pokemon is in city '{loc.Name}'.");
+                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
@@ -171,17 +168,8 @@
                         _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                     }
 
-                    var form = Translator.Instance.GetFormName(pkmn.FormId);
-                    subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
-                        x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
-                        (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
-                    );
-                    if (subscribedPokemon == null)
-                    {
-                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
+                    if (!subscribedPokemon.Areas.Contains(loc.Name.ToLower()))
                         continue;
-                    }
 
                     matchesIV = Filters.MatchesIV(pkmn.IV, subscribedPokemon.MinimumIV);
                     //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
@@ -290,15 +278,6 @@
                         continue;
                     }
 
-                    // If member does not have role associated with city and server does have city roles configured, skip subscription.
-                    /*
-                    if (!member.Roles.Select(x => x?.Name?.ToLower()).Contains(loc?.Name?.ToLower()) && _whConfig.Servers[user.GuildId].CityRoles?.Count > 0)
-                    {
-                        //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
-                        continue;
-                    }
-                    */
-
                     // Only check distance if user has it set
                     if (user.DistanceM > 0)
                     {
@@ -315,14 +294,17 @@
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
                     subscribedPokemon = user.PvP.FirstOrDefault(x =>
                         x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
-                        (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
+                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
                     );
+                    // Not subscribed to Pokemon
                     if (subscribedPokemon == null)
                     {
                         //_logger.Info($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
+
+                    if (!subscribedPokemon.Areas.Contains(loc.Name.ToLower()))
+                        continue;
 
                     matchesGreat = pkmn.GreatLeague != null && (pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Great &&
                                                                      (x.CP ?? 0) >= Strings.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.MaximumGreatLeagueCP &&
@@ -448,16 +430,22 @@
                     }
 
                     var form = Translator.Instance.GetFormName(raid.Form);
-                    var exists = user.Raids.FirstOrDefault(x =>
+                    var subPkmn = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
-                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
-                        (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)
-                    ) != null;
-                    if (!exists)
+                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
+                    );
+                    // Not subscribed to Pokemon
+                    if (subPkmn == null)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
                         continue;
                     }
+
+                    if (!subPkmn.Areas.Contains(loc.Name.ToLower()))
+                        continue;
+
+                    // TODO: Distance else geofence
+                    // TODO: Check city
 
                     var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
@@ -543,10 +531,9 @@
                         continue;
                     }
 
-                    var exists = user.Quests.FirstOrDefault(x =>
-                        rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()) &&
-                        !string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0) != null;
-                    if (!exists)
+                    var subQuest = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
+                    // Not subscribed to quest
+                    if (subQuest == null)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
                         continue;
@@ -564,6 +551,9 @@
                         }
                         _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Quest {questName}: {distance}/{user.DistanceM}");
                     }
+
+                    if (!subQuest.Areas.Contains(loc.Name.ToLower()))
+                        continue;
 
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
@@ -654,11 +644,9 @@
                         continue;
                     }
 
-                    var exists = user.Invasions.FirstOrDefault(x =>
-                        encounters.Contains(x.RewardPokemonId) &&
-                        !string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0
-                    ) != null;
-                    if (!exists)
+                    var subInvasion = user.Invasions.FirstOrDefault(x => encounters.Contains(x.RewardPokemonId));
+                    // Not subscribed to invasion
+                    if (subInvasion == null)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
                         continue;
@@ -676,6 +664,9 @@
                         }
                         _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}: {distance}/{user.DistanceM}");
                     }
+
+                    if (!subInvasion.Areas.Contains(loc.Name.ToLower()))
+                        continue;
 
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
                     foreach (var emb in embed.Embeds)
