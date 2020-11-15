@@ -78,7 +78,7 @@
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             if (!_dep.WhConfig.Servers.ContainsKey(guildId))
                 return;
 
@@ -179,7 +179,7 @@
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             if (_dep.WhConfig.Servers[guildId].CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();

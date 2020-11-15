@@ -44,8 +44,8 @@
         /// <summary>
         /// Gets or sets the moderators of the Discord server
         /// </summary>
-        [JsonProperty("moderatorIds")]
-        public List<ulong> Moderators { get; set; }
+        [JsonProperty("moderatorRoleIds")]
+        public List<ulong> ModeratorRoleIds { get; set; }
 
         /// <summary>
         /// Gets or sets the Discord bot token
@@ -143,7 +143,7 @@
         public DiscordServerConfig()
         {
             //Locale = "en";
-            Moderators = new List<ulong>();
+            ModeratorRoleIds = new List<ulong>();
             CityRoles = new List<string>();
             IconStyle = "Default";
             QuestChannelIds = new List<ulong>();

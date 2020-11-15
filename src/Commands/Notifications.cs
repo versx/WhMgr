@@ -52,7 +52,8 @@
                 return;
             }
 
-            if (!ctx.User.Id.IsModeratorOrHigher(guildId, _dep.WhConfig))
+            var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            if (!isModOrHigher)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(ctx.User.Mention), DiscordColor.Red);
                 return;
@@ -338,7 +339,7 @@
 
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
-            var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(guildId, _dep.WhConfig);
+            var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             // Validate the provided pokemon list
             var validation = ValidatePokemonList(poke);
             if (validation == null || validation.Valid.Count == 0)
@@ -1649,7 +1650,7 @@
             var hasQuests = isSubbed && subscription?.Quests.Count > 0;
             var hasInvasions = isSubbed && subscription?.Invasions.Count > 0;
             var messages = new List<string>();
-            var isSupporter = client.IsSupporterOrHigher(user.Id, guildId, _dep.WhConfig);
+            var isSupporter = await client.IsSupporterOrHigher(user.Id, guildId, _dep.WhConfig);
 
             var feeds = member?.Roles?.Select(x => x.Name).Where(x => _dep.WhConfig.Servers[guildId].CityRoles.Contains(x))?.ToList();
             if (feeds == null)
@@ -1965,7 +1966,7 @@
                 return false;
             }
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             if (!isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
