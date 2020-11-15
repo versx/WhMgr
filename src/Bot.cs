@@ -938,7 +938,7 @@
                 else
                 {
                     _logger.Debug($"Quest cleanup not enabled...skipping");
-                {
+                }
 
                 Thread.Sleep(10 * 1000);
             }
