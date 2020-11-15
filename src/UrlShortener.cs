@@ -52,6 +52,8 @@
         /// <returns></returns>
         public static string CreateShortUrl(string baseApiUrl, string url)
         {
+            if (string.IsNullOrEmpty(baseApiUrl))
+                return url;
             try
             {
                 var apiUrl = $"{baseApiUrl}&action=shorturl&url={HttpUtility.UrlEncode(url)}&format=json";
