@@ -112,7 +112,7 @@
                     if (!_whConfig.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))
@@ -250,7 +250,7 @@
                     if (!_whConfig.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))
@@ -385,7 +385,7 @@
                     if (!_whConfig.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))
@@ -512,7 +512,7 @@
                     if (!_whConfig.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))
@@ -629,7 +629,7 @@
                     if (!_whConfig.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].EnableSubscriptions)
+                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))

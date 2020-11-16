@@ -93,8 +93,23 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             "token": "<DISCORD_BOT_TOKEN>",
             // Alarms file path.
             "alarms": "alarms.json",
-            // Enable custom direct message notification subscriptions.
-            "enableSubscriptions": false,
+            // Custom user subscriptions
+            "subscriptions": {
+                // Enable or disable custom direct message notification subscriptions per user.
+                "enabled": false,
+                // Maximum amount of Pokemon subscriptions a user can set, set as 0 for no limit.
+                "maxPokemonSubscriptions": 0,
+                // Maximum amount of PvP subscriptions a user can set, set as 0 for no limit.
+                "maxPvPSubscriptions": 0,
+                // Maximum amount of Raid subscriptions a user can set, set as 0 for no limit.
+                "maxRaidSubscriptions": 0,
+                // Maximum amount of Quest subscriptions a user can set, set as 0 for no limit.
+                "maxQuestSubscriptions": 0,
+                // Maximum amount of Invasion subscriptions a user can set, set as 0 for no limit.
+                "maxInvasionSubscriptions": 0,
+                // Maximum amount of Gym subscriptions a user can set, set as 0 for no limit.
+                "maxGymSubscriptions": 0
+            },
             // Enable city role assignments.
             "enableCities": false,
             // City/geofence role(s)
@@ -144,7 +159,23 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             ],
             "token": "<DISCORD_BOT_TOKEN>",
             "alarms": "alarms2.json",
-            "enableSubscriptions": false,
+            // Custom user subscriptions
+            "subscriptions": {
+                // Enable or disable custom direct message notification subscriptions per user.
+                "enabled": false,
+                // Maximum amount of Pokemon subscriptions a user can set, set as 0 for no limit.
+                "maxPokemonSubscriptions": 0,
+                // Maximum amount of PvP subscriptions a user can set, set as 0 for no limit.
+                "maxPvPSubscriptions": 0,
+                // Maximum amount of Raid subscriptions a user can set, set as 0 for no limit.
+                "maxRaidSubscriptions": 0,
+                // Maximum amount of Quest subscriptions a user can set, set as 0 for no limit.
+                "maxQuestSubscriptions": 0,
+                // Maximum amount of Invasion subscriptions a user can set, set as 0 for no limit.
+                "maxInvasionSubscriptions": 0,
+                // Maximum amount of Gym subscriptions a user can set, set as 0 for no limit.
+                "maxGymSubscriptions": 0
+            },
             "enableCities": false,
             "cityRoles": [
                 "City3",

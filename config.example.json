@@ -13,7 +13,15 @@
       "moderatorIds": [],
       "token": "<DISCORD_BOT_TOKEN>",
       "alarms": "alarms.json",
-      "enableSubscriptions": false,
+      "subscriptions": {
+        "enabled": false,
+        "maxPokemonSubscriptions": 0,
+        "maxPvPSubscriptions": 0,
+        "maxRaidSubscriptions": 0,
+        "maxQuestSubscriptions": 0,
+        "maxInvasionSubscriptions": 0,
+        "maxGymSubscriptions": 0
+      },
       "enableCities": false,
       "cityRoles": [
         "City1",
@@ -42,7 +50,15 @@
       "moderatorIds": [],
       "token": "<DISCORD_BOT_TOKEN>",
       "alarms": "alarms2.json",
-      "enableSubscriptions": false,
+      "subscriptions": {
+        "enabled": false,
+        "maxPokemonSubscriptions": 0,
+        "maxPvPSubscriptions": 0,
+        "maxRaidSubscriptions": 0,
+        "maxQuestSubscriptions": 0,
+        "maxInvasionSubscriptions": 0,
+        "maxGymSubscriptions": 0
+      },
       "enableCities": false,
       "cityRoles": [
         "City3",

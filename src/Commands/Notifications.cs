@@ -231,6 +231,10 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return;
+
+            var server = _dep.WhConfig.Servers[guildId];
 
             //if (!int.TryParse(cpArg, out int cp))
             //{
@@ -337,6 +341,14 @@
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            // Check subscription limits
+            if (server.Subscriptions.MaxPokemonSubscriptions > 0 && subscription.Pokemon.Count >= server.Subscriptions.MaxPokemonSubscriptions)
+            {
+                // Max limit for Pokemon subscriptions reached
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxPokemonSubscriptions), DiscordColor.Red);
+                return;
+            }
+
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
             var isModOrHigher = ctx.User.Id.IsModeratorOrHigher(guildId, _dep.WhConfig);
@@ -633,7 +645,19 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return;
+
+            var server = _dep.WhConfig.Servers[guildId];
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            // Check subscription limits
+            if (server.Subscriptions.MaxRaidSubscriptions > 0 && subscription.Raids.Count >= server.Subscriptions.MaxRaidSubscriptions)
+            {
+                // Max limit for Raid subscriptions reached
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_RAID_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxRaidSubscriptions), DiscordColor.Red);
+                return;
+            }
+
             var validation = ValidatePokemonList(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
@@ -794,7 +818,19 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return;
+
+            var server = _dep.WhConfig.Servers[guildId];
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            // Check subscription limits
+            if (server.Subscriptions.MaxQuestSubscriptions > 0 && subscription.Quests.Count >= server.Subscriptions.MaxQuestSubscriptions)
+            {
+                // Max limit for Quest subscriptions reached
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_QUEST_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxQuestSubscriptions), DiscordColor.Red);
+                return;
+            }
+
             var areas = GetAreas(guildId, city);
             var subQuest = subscription.Quests.FirstOrDefault(x => string.Compare(x.RewardKeyword, rewardKeyword, true) == 0);
             if (subQuest != null)
@@ -933,8 +969,19 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return;
 
+            var server = _dep.WhConfig.Servers[guildId];
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            // Check subscription limits
+            if (server.Subscriptions.MaxGymSubscriptions > 0 && subscription.Gyms.Count >= server.Subscriptions.MaxGymSubscriptions)
+            {
+                // Max limit for Gym subscriptions reached
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_GYM_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxGymSubscriptions), DiscordColor.Red);
+                return;
+            }
+
             var subGym = subscription.Gyms.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
             if (subGym != null)
             {
@@ -1003,7 +1050,19 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return;
+
+            var server = _dep.WhConfig.Servers[guildId];
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            // Check subscription limits
+            if (server.Subscriptions.MaxInvasionSubscriptions > 0 && subscription.Invasions.Count >= server.Subscriptions.MaxInvasionSubscriptions)
+            {
+                // Max limit for Invasion subscriptions reached
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_INVASION_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxInvasionSubscriptions), DiscordColor.Red);
+                return;
+            }
+
             var validation = ValidatePokemonList(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
@@ -1213,7 +1272,10 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return;
 
+            var server = _dep.WhConfig.Servers[guildId];
             var pvpLeague = string.Compare(league, "great", true) == 0 ?
                 PvPLeague.Great :
                 string.Compare(league, "ultra", true) == 0 ?
@@ -1244,6 +1306,14 @@
             }
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            // Check subscription limits
+            if (server.Subscriptions.MaxPvPSubscriptions > 0 && subscription.PvP.Count >= server.Subscriptions.MaxPvPSubscriptions)
+            {
+                // Max limit for PvP subscriptions reached
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxPvPSubscriptions), DiscordColor.Red);
+                return;
+            }
+
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
             var validation = ValidatePokemonList(poke);
@@ -1680,6 +1750,10 @@
                 return new List<string> { error };
             }
 
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return null;
+
+            var server = _dep.WhConfig.Servers[guildId];
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, user.Id);
             var isSubbed = subscription?.Pokemon.Count > 0 || subscription?.PvP.Count > 0 || subscription?.Raids.Count > 0 || subscription?.Quests.Count > 0 || subscription?.Invasions.Count > 0 || subscription?.Gyms.Count > 0;
             var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
@@ -1721,7 +1795,7 @@
                     }
                 }
 
-                sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_POKEMON").FormatText(pokemon.Count, isSupporter ? "∞" : Strings.MaxPokemonSubscriptions.ToString("N0")));
+                sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_POKEMON").FormatText(pokemon.Count, server.Subscriptions.MaxPokemonSubscriptions == 0 ? "∞" : server.Subscriptions.MaxPokemonSubscriptions.ToString("N0")));
                 sb.Append("```");
 
                 if (exceedsLimits)
@@ -1729,7 +1803,7 @@
                     sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED").FormatText(defaultIV, defaultCount.ToString("N0")));
                 }
 
-                var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles;
+                var cityRoles = server.CityRoles;
                 foreach (var poke in subscription.Pokemon)
                 {
                     if (poke.MinimumIV == defaultIV && poke.IVList.Count == 0 && exceedsLimits)
@@ -1754,7 +1828,7 @@
             var sb2 = new StringBuilder();
             if (hasPvP)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP").FormatText(subscription.PvP.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxPvPSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP").FormatText(subscription.PvP.Count.ToString("N0"), server.Subscriptions.MaxPvPSubscriptions == 0 ? "∞" : server.Subscriptions.MaxPvPSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetPvPSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1764,7 +1838,7 @@
 
             if (hasRaids)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_RAIDS").FormatText(subscription.Raids.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxRaidSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_RAIDS").FormatText(subscription.Raids.Count.ToString("N0"), server.Subscriptions.MaxRaidSubscriptions == 0 ? "∞" : server.Subscriptions.MaxRaidSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetRaidSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1774,7 +1848,7 @@
 
             if (hasGyms)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_GYMS").FormatText(subscription.Gyms.Count.ToString("N0"), isSupporter ? "" : Strings.MaxGymSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_GYMS").FormatText(subscription.Gyms.Count.ToString("N0"), server.Subscriptions.MaxGymSubscriptions == 0 ? "" : server.Subscriptions.MaxGymSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetGymSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1784,7 +1858,7 @@
 
             if (hasQuests)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_QUESTS").FormatText(subscription.Quests.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxQuestSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_QUESTS").FormatText(subscription.Quests.Count.ToString("N0"), server.Subscriptions.MaxQuestSubscriptions == 0 ? "∞" : server.Subscriptions.MaxQuestSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetQuestSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1794,7 +1868,7 @@
 
             if (hasInvasions)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_INVASIONS").FormatText(subscription.Invasions.Count.ToString("N0"), isSupporter ? "∞" : Strings.MaxInvasionSubscriptions.ToString("N0")));
+                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_INVASIONS").FormatText(subscription.Invasions.Count.ToString("N0"), server.Subscriptions.MaxInvasionSubscriptions == 0 ? "∞" : server.Subscriptions.MaxInvasionSubscriptions.ToString("N0")));
                 sb2.Append("```");
                 sb2.Append(string.Join(Environment.NewLine, GetInvasionSubscriptionNames(guildId, user.Id)));
                 sb2.Append("```");
@@ -1993,7 +2067,7 @@
             if (guildId == 0 || !_dep.WhConfig.Servers.ContainsKey(guildId))
                 return false;
 
-            if (!_dep.WhConfig.Servers[guildId].EnableSubscriptions)
+            if (!_dep.WhConfig.Servers[guildId].Subscriptions.Enabled)
             {
                 await ctx.RespondEmbed(string.Format(Translator.Instance.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
                 return false;
