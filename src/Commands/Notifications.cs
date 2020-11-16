@@ -1690,12 +1690,6 @@
             var hasInvasions = isSubbed && subscription?.Invasions.Count > 0;
             var messages = new List<string>();
             var isSupporter = client.IsSupporterOrHigher(user.Id, guildId, _dep.WhConfig);
-
-            var feeds = member?.Roles?.Select(x => x.Name).Where(x => _dep.WhConfig.Servers[guildId].CityRoles.Contains(x))?.ToList();
-            if (feeds == null)
-                return messages;
-            feeds.Sort();
-
             var locationLink = string.Format(Strings.GoogleMaps, subscription.Latitude, subscription.Longitude);
             var sb = new StringBuilder();
             sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ENABLED").FormatText(subscription.Enabled ? "Yes" : "No"));
@@ -1707,7 +1701,7 @@
             {
                 sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PHONE_NUMBER").FormatText(subscription.PhoneNumber));
             }
-            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_CITIES").FormatText(string.Join(", ", feeds)));
+            sb.AppendLine(Environment.NewLine);
 
             if (hasPokemon)
             {
@@ -1735,7 +1729,7 @@
                     sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED").FormatText(defaultIV, defaultCount.ToString("N0")));
                 }
 
-
+                var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles;
                 foreach (var poke in subscription.Pokemon)
                 {
                     if (poke.MinimumIV == defaultIV && poke.IVList.Count == 0 && exceedsLimits)
@@ -1746,7 +1740,9 @@
 
                     var pkmn = MasterFile.Instance.Pokedex[poke.PokemonId];
                     var form = string.IsNullOrEmpty(poke.Form) ? string.Empty : $" ({poke.Form})";
-                    sb.AppendLine($"{poke.PokemonId}: {pkmn.Name}{form} {(poke.MinimumIV + "%+ " + (poke.HasStats ? string.Join(", ", poke.IVList) : string.Empty))}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}");
+                    var msg = $"{poke.PokemonId}: {pkmn.Name}{form} {(poke.MinimumIV + "%+ " + (poke.HasStats ? string.Join(", ", poke.IVList) : string.Empty))}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}";
+                    var isAllCities = cityRoles.ScrambledEquals(poke.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
+                    sb.AppendLine(Translator.Instance.Translate("NOTIFY_FROM").FormatText(msg, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", poke.Areas)));
                 }
 
                 sb.Append("```");
@@ -1843,8 +1839,7 @@
             subscribedRaids.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
             var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
 
-            var results = subscribedRaids.GroupBy(x => x.PokemonId, (key, g) => new { PokemonId = key, Cities = g.ToList() });
-            foreach (var raid in results)
+            foreach (var raid in subscribedRaids)
             {
                 if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
                     continue;
@@ -1853,8 +1848,8 @@
                 if (pokemon == null)
                     continue;
 
-                //var isAllCities = cityRoles.ScrambledEquals(raid.Cities.Select(x => x.City).ToList(), StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                //list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(pokemon.Name, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", raid.Cities.Select(x => x.City))));
+                var isAllCities = cityRoles.ScrambledEquals(raid.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(pokemon.Name, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", raid.Areas)));
             }
 
             return list;
@@ -1882,11 +1877,10 @@
             subscribedQuests.Sort((x, y) => string.Compare(x.RewardKeyword.ToLower(), y.RewardKeyword.ToLower(), true));
             var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
 
-            var results = subscribedQuests.GroupBy(p => p.RewardKeyword, (key, g) => new { Reward = key, Cities = g.Select(x => x.Areas) });
-            foreach (var quest in results)
+            foreach (var quest in subscribedQuests)
             {
-                //var isAllCities = cityRoles.ScrambledEquals(quest.Cities, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                //list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(quest.Reward, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", quest.Cities)));
+                var isAllCities = cityRoles.ScrambledEquals(quest.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(quest.RewardKeyword, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", quest.Areas)));
             }
 
             return list;
@@ -1900,11 +1894,10 @@
             subscribedInvasions.Sort((x, y) => string.Compare(MasterFile.GetPokemon(x.RewardPokemonId, 0).Name, MasterFile.GetPokemon(y.RewardPokemonId, 0).Name, true));
             var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
 
-            var results = subscribedInvasions.GroupBy(p => p.RewardPokemonId, (key, g) => new { RewardPokemon = key, Cities = g.ToList() });
-            foreach (var invasion in results)
+            foreach (var invasion in subscribedInvasions)
             {
-                //var isAllCities = cityRoles.ScrambledEquals(invasion.Cities.Select(x => x.Areas).ToList(), StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                //list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(MasterFile.GetPokemon(invasion.RewardPokemon, 0).Name, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", invasion.Cities.Select(x => x.Areas))));
+                var isAllCities = cityRoles.ScrambledEquals(invasion.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(MasterFile.GetPokemon(invasion.RewardPokemonId, 0).Name, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", invasion.Areas)));
             }
 
             return list;
@@ -2018,13 +2011,17 @@
 
         #endregion
 
+        #region Area/City Validation
+
         private List<string> GetAreas(ulong guildId, string city)
         {
+            var server = _dep.WhConfig.Servers[guildId];
             var cities = string.IsNullOrEmpty(city) || string.Compare(city, Strings.All, true) == 0
-                ? _dep.WhConfig.Servers[guildId].CityRoles
+                ? server.CityRoles
                 : city.Replace(" ,", ",").Replace(", ", ",").Split(',').ToList();
-            return cities;
+            return GetValidatedAreas(cities, server.CityRoles);
         }
+
         private bool ContainsCity(List<string> oldCities, List<string> newCities)
         {
             var oldAreas = oldCities.Select(x => x.ToLower());
@@ -2038,5 +2035,18 @@
             }
             return true;
         }
+
+        private List<string> GetValidatedAreas(List<string> areas, List<string> availableAreas)
+        {
+            var list = new List<string>();
+            var availableAreaNames = availableAreas.Select(x => x.ToLower());
+            areas
+                .Where(x => availableAreaNames.Contains(x.ToLower()))
+                .ToList()
+                .ForEach(x => list.Add(x));
+            return areas;
+        }
+
+        #endregion
     }
 }
