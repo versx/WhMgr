@@ -740,6 +740,12 @@
                         continue;
                     }
 
+                    if (!alarm.Filters.Pokestops.LureTypes.Select(x => x.ToLower()).Contains(pokestop.LureType.ToString()) && alarm.Filters.Pokestops?.LureTypes?.Count > 0)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}, LureType={pokestop.LureType}: lure type not included.");
+                        continue;
+                    }
+
                     if (!alarm.Filters.Pokestops.Invasions && pokestop.HasInvasion)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: invasion filter not enabled.");
