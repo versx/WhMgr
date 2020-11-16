@@ -904,7 +904,6 @@
         private async Task OnMidnightTimer()
         {
             _logger.Debug($"MIDNIGHT {DateTime.Now}");
-            _logger.Debug($"Starting automatic quest messages cleanup...");
 
             Statistics.WriteOut();
             Statistics.Instance.Reset();
@@ -923,12 +922,22 @@
                 var client = _servers[guildId];
                 if (server.ShinyStats.Enabled)
                 {
+                    _logger.Debug($"Starting Shiny Stat posting...");
                     await PostShinyStats(client, guildId, server);
+                }
+                else
+                {
+                    _logger.Debug($"Shiny Stat posting not enabled...skipping");
                 }
 
                 if (server.PruneQuestChannels && server.QuestChannelIds.Count > 0)
                 {
+                    _logger.Debug($"Starting automatic quest messages cleanup...");
                     await PruneQuestChannels(client, server);
+                }
+                else
+                {
+                    _logger.Debug($"Quest cleanup not enabled...skipping");
                 }
 
                 Thread.Sleep(10 * 1000);

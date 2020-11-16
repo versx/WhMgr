@@ -248,6 +248,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
         456,
         320
     ],
+	// Minimum IV value for an event Pokemon to have to meet in order to post via Discord channel alarm or direct message subscription.
+    "eventMinimumIV": "90",
     // Image URL config
     "urls": {
         // Static tile map images template.

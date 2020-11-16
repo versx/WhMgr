@@ -219,10 +219,12 @@
                 if (context.Request?.InputStream == null)
                     continue;
 
+                // Read from the POST data input stream of the request
                 using (var sr = new StreamReader(context.Request.InputStream))
                 {
                     try
                     {
+                        // Read to the end of the stream as a string
                         var data = sr.ReadToEnd();
                         ParseData(data);
                     }
@@ -237,12 +239,15 @@
 
                 try
                 {
+                    // Convert the default response message to UTF8 encoded bytes
                     var buffer = Encoding.UTF8.GetBytes(Strings.DefaultResponseMessage);
                     response.ContentLength64 = buffer.Length;
                     if (response?.OutputStream != null)
                     {
+                        // Write the response buffer to the output stream
                         response.OutputStream.Write(buffer, 0, buffer.Length);
                     }
+                    // Close the response
                     context.Response.Close();
                 }
                 catch (Exception ex)
