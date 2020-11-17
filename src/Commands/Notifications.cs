@@ -1770,7 +1770,7 @@
             sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ICON_STYLE").FormatText(subscription.IconStyle));
             sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(subscription.DistanceM == 0 ?
                 Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET") :
-                Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_KM").FormatText(subscription.DistanceM, locationLink)));
+                Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_KM").FormatText(subscription.DistanceM.ToString("N0"), locationLink)));
             if (!string.IsNullOrEmpty(subscription.PhoneNumber))
             {
                 sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PHONE_NUMBER").FormatText(subscription.PhoneNumber));
