@@ -47,7 +47,7 @@
   "NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS": "{0} are you sure you want to remove **all** {1} of your {2} League PvP Pokemon subscriptions? Please reply back with `y` or `yes` to confirm.",
   "NOTIFY_CONFIRM_REMOVE_ALL_QUEST_SUBSCRIPTIONS": "{0} are you sure you want to remove **all** {1} of your field research quest subscriptions? Please reply back with `y` or `yes` to confirm.",
   "NOTIFY_CONFIRM_REMOVE_ALL_RAID_SUBSCRIPTIONS": "{0} are you sure you want to remove **all** {1} of your raid boss subscriptions? Please reply back with `y` or `yes` to confirm.",
-  "NOTIFY_DISTANCE_SET": "{0} Notifications only within a {1} kilometer radius of location {2},{3} will be sent.",
+  "NOTIFY_DISTANCE_SET": "{0} Notifications only within a {1} meters radius of location {2},{3} will be sent.",
   "NOTIFY_ENABLE_DISABLE": "{0} has **{1}d** Pokemon, Raid, Quest, and Invasion notifications.",
   "NOTIFY_EXPORT_NO_SUBSCRIPTIONS": "{0} does not have any subscriptions to export.",
   "NOTIFY_EXPORT_SUCCESS": "{0} Download your subscription settings here.",

@@ -13,7 +13,7 @@
     "BOT_CRASH_MESSAGE": "WHM JUST CRASHED!",
     "NOTIFY_ENABLE_DISABLE": "{0} has **{1}d** Pokemon, Raid, Quest, and Invasion notifications.",
     "NOTIFY_INVALID_COORDINATES": "{0} Unable not parse {1} as valid coordinates.",
-    "NOTIFY_DISTANCE_SET": "{0} Notifications only within a {1} kilometer radius of location {2},{3} will be sent.",
+    "NOTIFY_DISTANCE_SET": "{0} Notifications only within a {1} meters radius of location {2},{3} will be sent.",
     "NOTIFY_PHONE_NUMBER_SET": "{0} Text message notifications for ultra rare Pokemon will be sent to {1}.",
     "NOTIFY_INVALID_IV_VALUES": "{0} {1} is not a valid value. (Example: `0-15-6`)",
     "NOTIFY_INVALID_ATTACK_VALUE": "{0} {1} is not a valid attack value. Must be between `0-15`.",
