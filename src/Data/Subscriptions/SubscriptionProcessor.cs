@@ -285,25 +285,20 @@
                         //_logger.Info($"User {member.Username} does not have city role {loc.Name}, skipping pokemon {pokemon.Name}.");
                         continue;
                     }
-
-                    // Only check distance if user has it set
-                    if (user.DistanceM > 0)
-                    {
-                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                        if (user.DistanceM < distance)
+                    
+                    var form = Translator.Instance.GetFormName(pkmn.FormId);
+                    subscribedPokemon = user.PvP.FirstOrDefault ( x =>
+                        if (( user.DistanceM > 0 && user.DistanceM > new Coordinates ( user.Latitude, user.Longitude ).DistanceTo ( new Coordinates ( pkmn.Latitude, pkmn.Longitude )))
+                            || ( string.IsNullOrEmpty ( x.City ) || ( !string.IsNullOrEmpty ( x.City ) && string.Compare ( loc.Name, x.City, true ) == 0 )))
                         {
-                            //Skip if distance is set and is not with specified distance.
-                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
+                            _logger.Debug ( $"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}" );
+                            x.PokemonId == pkmn.Id
+                                && ( string.IsNullOrEmpty ( x.Form ) || ( !string.IsNullOrEmpty ( x.Form ) && string.Compare ( x.Form, form, true ) == 0 ))
+                        }
+                        else
+                        {
                             continue;
                         }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
-                    }
-
-                    var form = Translator.Instance.GetFormName(pkmn.FormId);
-                    subscribedPokemon = user.PvP.FirstOrDefault(x =>
-                        x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     );
                     if (subscribedPokemon == null)
                     {
