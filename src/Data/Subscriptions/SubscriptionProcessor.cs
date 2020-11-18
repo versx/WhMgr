@@ -519,8 +519,6 @@
                             || ( string.IsNullOrEmpty ( x.City ) || ( !string.IsNullOrEmpty ( x.City ) && string.Compare ( loc.Name, x.City, true ) == 0 )))
                         {
                             _logger.Debug ( $"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}" );
-                            x.PokemonId == pkmn.Id
-                                && ( string.IsNullOrEmpty ( x.Form ) || ( !string.IsNullOrEmpty ( x.Form ) && string.Compare ( x.Form, form, true ) == 0 ))
                         }
                         else
                         {
@@ -625,8 +623,6 @@
                             && encounters.Contains (x.RewardPokemonId) )
                         {
                             _logger.Debug ( $"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}" );
-                            x.PokemonId == pkmn.Id
-                                && ( string.IsNullOrEmpty ( x.Form ) || ( !string.IsNullOrEmpty ( x.Form ) && string.Compare ( x.Form, form, true ) == 0 ))
                         }
                         else
                         {
