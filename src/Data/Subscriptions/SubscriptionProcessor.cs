@@ -400,19 +400,6 @@
                         continue;
                     }
 
-                    // Only check distance if user has it set
-                    if (user.DistanceM > 0)
-                    {
-                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
-                        if (user.DistanceM < distance)
-                        {
-                            //Skip if distance is set and is not met.
-                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
-                            continue;
-                        }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}: {distance}/{user.DistanceM}");
-                    }
-
                     if (user.Gyms.Count > 0 && (!user.Gyms?.Exists(x =>
                         !string.IsNullOrEmpty(x?.Name) &&
                         (
@@ -427,12 +414,20 @@
                     }
 
                     var form = Translator.Instance.GetFormName(raid.Form);
-                    var exists = user.Raids.FirstOrDefault(x =>
-                        x.PokemonId == raid.PokemonId &&
-                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0)) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
-                    ) != null;
-                    if (!exists)
+                    var exists = user.Raids.FirstOrDefault ( x =>
+                        if (( user.DistanceM > 0 && user.DistanceM > new Coordinates ( user.Latitude, user.Longitude ).DistanceTo ( new Coordinates ( pkmn.Latitude, pkmn.Longitude )))
+                            || ( string.IsNullOrEmpty ( x.City ) || ( !string.IsNullOrEmpty ( x.City ) && string.Compare ( loc.Name, x.City, true ) == 0 )))
+                        {
+                            _logger.Debug ( $"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}" );
+                            x.PokemonId == raid.PokemonId
+                                && ( string.IsNullOrEmpty ( x.Form ) || ( !string.IsNullOrEmpty ( x.Form ) && string.Compare ( x.Form, form, true ) == 0 ))
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    );
+                    if ( !exists )
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
                         continue;
