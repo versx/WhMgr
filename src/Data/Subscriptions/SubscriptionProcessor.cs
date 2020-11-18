@@ -619,27 +619,24 @@
                         continue;
                     }
 
-                    var exists = user.Invasions.FirstOrDefault(x =>
-                        encounters.Contains(x.RewardPokemonId) &&
-                        (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
+                    var exists = user.Invasions.FirstOrDefault ( x =>
+                        if (( user.DistanceM > 0 && user.DistanceM > new Coordinates ( user.Latitude, user.Longitude ).DistanceTo ( new Coordinates ( pkmn.Latitude, pkmn.Longitude )))
+                            || ( string.IsNullOrEmpty ( x.City ) || ( !string.IsNullOrEmpty ( x.City ) && string.Compare ( loc.Name, x.City, true ) == 0 ))
+                            && encounters.Contains (x.RewardPokemonId) )
+                        {
+                            _logger.Debug ( $"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}" );
+                            x.PokemonId == pkmn.Id
+                                && ( string.IsNullOrEmpty ( x.Form ) || ( !string.IsNullOrEmpty ( x.Form ) && string.Compare ( x.Form, form, true ) == 0 ))
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     ) != null;
-                    if (!exists)
+                    if ( !exists )
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
                         continue;
-                    }
-
-                    // Only check distance if user has it set
-                    if (user.DistanceM > 0)
-                    {
-                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
-                        if (user.DistanceM < distance)
-                        {
-                            //Skip if distance is set and is not met.
-                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}, TR Invasion is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
-                            continue;
-                        }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}: {distance}/{user.DistanceM}");
                     }
 
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
