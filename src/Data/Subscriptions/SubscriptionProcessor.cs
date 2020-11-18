@@ -161,6 +161,7 @@
                         if ((user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)))
                             || (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)))
                         {
+                            var distance = if (user.DistanceM > 0) { new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)) } else { 0 }
                             _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                             x.PokemonId == pkmn.Id
                                 && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
@@ -293,6 +294,7 @@
                         if ((user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)))
                             || (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)))
                         {
+                            var distance = if (user.DistanceM > 0) { new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)) } else { 0 }
                             _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                             x.PokemonId == pkmn.Id
                                 && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
@@ -421,6 +423,7 @@
                         if ((user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)))
                             || (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)))
                         {
+                            var distance = if (user.DistanceM > 0) { new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)) } else { 0 }
                             _logger.Debug( $"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                             x.PokemonId == raid.PokemonId
                                 && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
@@ -522,6 +525,7 @@
                         if ((user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)))
                             || (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)))
                         {
+                            var distance = if (user.DistanceM > 0) { new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)) } else { 0 }
                             _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                         }
                         else
@@ -627,6 +631,7 @@
                             || (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                             && encounters.Contains(x.RewardPokemonId))
                         {
+                            var distance = if (user.DistanceM > 0) { new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)) } else { 0 }
                             _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                         }
                         else
