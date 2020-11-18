@@ -222,9 +222,9 @@
         ]
         public async Task PokeMeAsync(CommandContext ctx,
             [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to Pokemon spawn notifications.")] string poke,
-            [Description("Minimum IV to receive notifications for, use 0 to disregard IV.")] string iv = "0",
-            [Description("Minimum level and maximum level to receive notifications for, use 0 to disregard level.")] string lvl = "0",
-            [Description("Specific gender the Pokemon must be, use * to disregard gender.")] string gender = "*",
+            [Description("Minimum IV to receive notifications for, use 0 to disregard IV. i.e. 100 or 0-15-15")] string iv = "0",
+            [Description("Minimum level and maximum level to receive notifications for, use 0 to disregard level. Set a maximum value with 15-35.")] string lvl = "0",
+            [Description("Specific gender the Pokemon must be, use * to disregard gender. (*, m, f)")] string gender = "*",
             [Description("City")] string city = "all")
         {
             if (!await CanExecute(ctx))
