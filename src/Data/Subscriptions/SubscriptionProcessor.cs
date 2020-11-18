@@ -423,7 +423,7 @@
                         {
                             _logger.Debug( $"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
                             x.PokemonId == raid.PokemonId
-                                && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
+                                && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
                         }
                         else
                         {
