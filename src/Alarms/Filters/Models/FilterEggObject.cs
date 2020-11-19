@@ -45,7 +45,7 @@
         public FilterEggObject()
         {
             MinimumLevel = 1;
-            MaximumLevel = 5;
+            MaximumLevel = 6;
 
             Team = PokemonTeam.All;
         }
