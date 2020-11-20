@@ -518,7 +518,7 @@
                     }
 
                     var exists = user.Quests.FirstOrDefault (x => 
-                        user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude))) ||
+                        (user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude))) ||
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     ) != null;
                     if ( !exists )
@@ -613,7 +613,7 @@
                         continue;
                     }
 
-                    var exists = user.Invasions.FirstOrDefault (x => 
+                    var exists = user.Invasions.FirstOrDefault (x =>
                         (user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude))) ||
                         (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)) &&
                         encounters.Contains(x.RewardPokemonId)
