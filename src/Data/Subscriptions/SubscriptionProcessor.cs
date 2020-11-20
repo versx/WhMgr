@@ -167,24 +167,12 @@
                         ))
                         continue;
 
-                    // Only check distance if user has it set
-                    if (user.DistanceM > 0)
-                    {
-                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                        if (user.DistanceM < distance)
-                        {
-                            //Skip if distance is set and is not with specified distance.
-                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
-                            continue;
-                        }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
-                    }
-                    else
-                    {
-                        // Otherwise check if in subscribed geofences
-                        if (!subscribedPokemon.Areas.Contains(loc.Name.ToLower()))
-                            continue;
-                    }
+                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                    var geofenceMatches = subscribedPokemon.Areas.Contains(loc.Name.ToLower());
+
+                    // If set distance does not match and no geofences match, then skip Pokemon...
+                    if (!distanceMatches && !geofenceMatches)
+                        continue;
 
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
@@ -306,24 +294,12 @@
                     if (!matchesGreat && !matchesUltra)
                         continue;
 
-                    // Only check distance if user has it set
-                    if (user.DistanceM > 0)
-                    {
-                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                        if (user.DistanceM < distance)
-                        {
-                            //Skip if distance is set and is not with specified distance.
-                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}, Pokemon is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
-                            continue;
-                        }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for PvP Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
-                    }
-                    else
-                    {
-                        // Otherwise check if in subscribed geofences
-                        if (!subscribedPokemon.Areas.Contains(loc.Name.ToLower()))
-                            continue;
-                    }
+                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                    var geofenceMatches = subscribedPokemon.Areas.Contains(loc.Name.ToLower());
+
+                    // If set distance does not match and no geofences match, then skip Pokemon...
+                    if (!distanceMatches && !geofenceMatches)
+                        continue;
 
                     var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
@@ -434,24 +410,12 @@
                         continue;
                     }
 
-                    // Only check distance if user has it set
-                    if (user.DistanceM > 0)
-                    {
-                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
-                        if (user.DistanceM < distance)
-                        {
-                            //Skip if distance is set and is not met.
-                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
-                            continue;
-                        }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}: {distance}/{user.DistanceM}");
-                    }
-                    else
-                    {
-                        // Otherwise check if in subscribed geofences
-                        if (!subPkmn.Areas.Contains(loc.Name.ToLower()))
-                            continue;
-                    }
+                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
+                    var geofenceMatches = subPkmn.Areas.Contains(loc.Name.ToLower());
+
+                    // If set distance does not match and no geofences match, then skip Pokemon...
+                    if (!distanceMatches && !geofenceMatches)
+                        continue;
 
                     var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
@@ -545,24 +509,12 @@
                         continue;
                     }
 
-                    // Only check distance if user has it set
-                    if (user.DistanceM > 0)
-                    {
-                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
-                        if (user.DistanceM < distance)
-                        {
-                            //Skip if distance is set and is not met.
-                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Quest {quest.Template}, Quest is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
-                            continue;
-                        }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Quest {questName}: {distance}/{user.DistanceM}");
-                    }
-                    else
-                    {
-                        // Otherwise check if in subscribed geofences
-                        if (!subQuest.Areas.Contains(loc.Name.ToLower()))
-                            continue;
-                    }
+                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
+                    var geofenceMatches = subQuest.Areas.Contains(loc.Name.ToLower());
+
+                    // If set distance does not match and no geofences match, then skip Pokemon...
+                    if (!distanceMatches && !geofenceMatches)
+                        continue;
 
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
@@ -661,24 +613,12 @@
                         continue;
                     }
 
-                    // Only check distance if user has it set
-                    if (user.DistanceM > 0)
-                    {
-                        var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
-                        if (user.DistanceM < distance)
-                        {
-                            //Skip if distance is set and is not met.
-                            //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}, TR Invasion is farther than set distance of '{user.DistanceM:N0}' meters at '{distance:N0}' meters away.");
-                            continue;
-                        }
-                        _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for TR Invasion {pokestop.Name}: {distance}/{user.DistanceM}");
-                    }
-                    else
-                    {
-                        // Otherwise check if in subscribed geofences
-                        if (!subInvasion.Areas.Contains(loc.Name.ToLower()))
-                            continue;
-                    }
+                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
+                    var geofenceMatches = subInvasion.Areas.Contains(loc.Name.ToLower());
+
+                    // If set distance does not match and no geofences match, then skip Pokemon...
+                    if (!distanceMatches && !geofenceMatches)
+                        continue;
 
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
                     foreach (var emb in embed.Embeds)
