@@ -167,7 +167,7 @@
                         }
                         else
                         {
-                            continue;
+                            false;
                         }
                     });
                     if ( subscribedPokemon == null )
@@ -295,12 +295,11 @@
                         {
                             var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
                             _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
-                            x.PokemonId == pkmn.Id
-                                && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
+                            x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
                         }
                         else
                         {
-                            continue;
+                            false;
                         }
                     });
                     if (subscribedPokemon == null)
@@ -428,7 +427,7 @@
                         }
                         else
                         {
-                            continue;
+                            false;
                         }
                     }) != null;
                     if ( !exists )
@@ -520,16 +519,8 @@
 
                     var exists = user.Quests.FirstOrDefault (x =>
                     {
-                        if ((user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)))
-                            || (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0)))
-                        {
-                            var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                            _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
-                        }
-                        else
-                        {
-                            continue;
-                        }
+                        (user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)))
+                            || (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                     }) != null;
                     if ( !exists )
                     {
@@ -625,17 +616,9 @@
 
                     var exists = user.Invasions.FirstOrDefault (x =>
                     {
-                        if ((user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)))
+                        (user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)))
                             || (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
-                            && encounters.Contains(x.RewardPokemonId))
-                        {
-                            var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                            _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
-                        }
-                        else
-                        {
-                            continue;
-                        }
+                            && encounters.Contains(x.RewardPokemonId)
                     }) != null;
                     if ( !exists )
                     {
