@@ -1995,7 +1995,7 @@
                 return null;
             }
             var expires = customerData.ExpireDate.Value;
-            var remaining = expires.GetTimeRemaining();
+            var remaining = DateTime.Now.GetTimeRemaining(expires);
             return new DiscordEmbedBuilder
             {
                 Title = $"{user.Username}#{user.Discriminator} ({user.Id}) Subscription Expires",

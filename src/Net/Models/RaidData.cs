@@ -217,6 +217,10 @@
             var address = Utils.GetAddress(city, Latitude, Longitude, whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
+            var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+            var startTimeLeft = now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds();
+            var endTimeLeft = now.GetTimeRemaining(EndTime).ToReadableStringNoSeconds();
+
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
             {
@@ -259,10 +263,10 @@
                 //Time properties
                 { "start_time", StartTime.ToLongTimeString() },
                 { "start_time_24h", StartTime.ToString("HH:mm:ss") },
-                { "start_time_left", DateTime.Now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds() },
+                { "start_time_left", startTimeLeft },
                 { "end_time", EndTime.ToLongTimeString() },
                 { "end_time_24h", EndTime.ToString("HH:mm:ss") },
-                { "end_time_left", EndTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+                { "end_time_left", endTimeLeft },
 
                 //Location properties
                 { "geofence", city ?? defaultMissingValue },

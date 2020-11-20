@@ -167,6 +167,10 @@
                 : pokemonType.GetTypeEmojiIcons();
             var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : string.Empty;
 
+            var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+            var lureExpireTimeLeft = now.GetTimeRemaining(LureExpireTime).ToReadableStringNoSeconds();
+            var invasionExpireTimeLeft = now.GetTimeRemaining(InvasionExpireTime).ToReadableStringNoSeconds();
+
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
             {
@@ -175,14 +179,14 @@
                 { "lure_type", LureType.ToString() },
                 { "lure_expire_time", LureExpireTime.ToLongTimeString() },
                 { "lure_expire_time_24h", LureExpireTime.ToString("HH:mm:ss") },
-                { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+                { "lure_expire_time_left", lureExpireTimeLeft },
                 { "has_invasion", Convert.ToString(HasInvasion) },
                 { "grunt_type", invasion?.Type },
                 { "grunt_type_emoji", invasionTypeEmoji },
                 { "grunt_gender", invasion?.Grunt },
                 { "invasion_expire_time", InvasionExpireTime.ToLongTimeString() },
                 { "invasion_expire_time_24h", InvasionExpireTime.ToString("HH:mm:ss") },
-                { "invasion_expire_time_left", InvasionExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+                { "invasion_expire_time_left", invasionExpireTimeLeft },
                 { "invasion_encounters", $"**Encounter Reward Chance:**\r\n" + invasionEncounters },
 
                 //Location properties
