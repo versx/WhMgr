@@ -168,7 +168,7 @@
                         continue;
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                    var geofenceMatches = subscribedPokemon.Areas.Contains(loc.Name.ToLower());
+                    var geofenceMatches = subscribedPokemon.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
                     if (!distanceMatches && !geofenceMatches)
@@ -295,7 +295,7 @@
                         continue;
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                    var geofenceMatches = subscribedPokemon.Areas.Contains(loc.Name.ToLower());
+                    var geofenceMatches = subscribedPokemon.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
                     if (!distanceMatches && !geofenceMatches)
@@ -411,7 +411,7 @@
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
-                    var geofenceMatches = subPkmn.Areas.Contains(loc.Name.ToLower());
+                    var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
                     if (!distanceMatches && !geofenceMatches)
@@ -510,7 +510,7 @@
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
-                    var geofenceMatches = subQuest.Areas.Contains(loc.Name.ToLower());
+                    var geofenceMatches = subQuest.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
                     if (!distanceMatches && !geofenceMatches)
@@ -614,7 +614,7 @@
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
-                    var geofenceMatches = subInvasion.Areas.Contains(loc.Name.ToLower());
+                    var geofenceMatches = subInvasion.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
                     if (!distanceMatches && !geofenceMatches)
