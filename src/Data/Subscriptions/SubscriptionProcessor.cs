@@ -163,11 +163,11 @@
                         {
                             var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
                             _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
-                            x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
+                            return x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
                         }
                         else
                         {
-                            false;
+                            return false;
                         }
                     });
                     if ( subscribedPokemon == null )
@@ -295,11 +295,11 @@
                         {
                             var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
                             _logger.Debug($"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
-                            x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
+                            return x.PokemonId == pkmn.Id && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
                         }
                         else
                         {
-                            false;
+                            return false;
                         }
                     });
                     if (subscribedPokemon == null)
@@ -423,11 +423,11 @@
                         {
                             var distance = new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
                             _logger.Debug( $"Distance matches for user {member.DisplayName} ({member.Id}) for Pokemon {pokemon.Name}: {distance}/{user.DistanceM}");
-                            x.PokemonId == raid.PokemonId && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
+                            return x.PokemonId == raid.PokemonId && (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0));
                         }
                         else
                         {
-                            false;
+                            return false;
                         }
                     }) != null;
                     if ( !exists )
@@ -518,10 +518,9 @@
                     }
 
                     var exists = user.Quests.FirstOrDefault (x =>
-                    {
                         (user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)))
                             || (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0));
-                    }) != null;
+                    ) != null;
                     if ( !exists )
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
@@ -615,11 +614,10 @@
                     }
 
                     var exists = user.Invasions.FirstOrDefault (x =>
-                    {
                         (user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude)))
                             || (string.IsNullOrEmpty(x.City) || (!string.IsNullOrEmpty(x.City) && string.Compare(loc.Name, x.City, true) == 0))
                             && encounters.Contains(x.RewardPokemonId);
-                    }) != null;
+                    ) != null;
                     if ( !exists )
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
