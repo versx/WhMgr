@@ -58,8 +58,7 @@
 
             try
             {
-                var timestamp = Utils.GetUnixTimestamp();
-                var apiUrl = $"{baseApiUrl}&action=shorturl&url={HttpUtility.UrlEncode(url)}&format=json&timestamp={timestamp}";
+                var apiUrl = $"{baseApiUrl}&action=shorturl&url={HttpUtility.UrlEncode(url)}&format=json";
                 var json = NetUtil.Get(apiUrl);
                 if (string.IsNullOrEmpty(json))
                     return url;
