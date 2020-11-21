@@ -16,6 +16,21 @@
         public const string Creator = "versx";
         public static readonly string Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
+        public const string BannerAsciiText = @"
+ __      __      ___.   .__                   __     
+/  \    /  \ ____\_ |__ |  |__   ____   ____ |  | __ 
+\   \/\/   // __ \| __ \|  |  \ /  _ \ /  _ \|  |/ / 
+ \        /\  ___/| \_\ \   Y  (  <_> |  <_> )    <  
+  \__/\  /  \___  >___  /___|  /\____/ \____/|__|_ \ 
+       \/       \/    \/     \/                   \/ 
+   _____                                             
+  /     \ _____    ____ _____     ____   ___________ 
+ /  \ /  \\__  \  /    \\__  \   / ___\_/ __ \_  __ \
+/    Y    \/ __ \|   |  \/ __ \_/ /_/  >  ___/|  | \/
+\____|__  (____  /___|  (____  /\___  / \___  >__|   
+        \/     \/     \/     \//_____/      \/       
+        ";
+
         public const string GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
         public const string WazeMaps = "https://waze.com/ul?ll={0},{1}&navigate=yes";
