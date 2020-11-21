@@ -94,7 +94,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to download data: {ex}");
+                    Console.WriteLine($"Failed to download data from {url}: {ex}");
                 }
             }
 
