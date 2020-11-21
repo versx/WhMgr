@@ -113,7 +113,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             },
             // Enable city role assignments.
             "enableCities": false,
-            // City/geofence role(s)
+            // City/geofence role(s) used to assign city roles (if enabled) as well as depict what
+	    // geofences are related to which Discord guild. **NOT** used for subscriptions.
             "cityRoles": [
                 "City1",
                 "City2"
@@ -155,7 +156,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             "donorRoleIds": [
                 000000000000000000
             ],
-            "moderatorIds": [
+            "moderatorRoleIds": [
                 000000000000000000
             ],
             "token": "<DISCORD_BOT_TOKEN>",
@@ -304,7 +305,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
     "gmapsKey": "",
     // Minimum despawn time in minutes a Pokemon must have in order to send the alarm (default: 5 minutes)
     "despawnTimeMinimumMinutes": 5,
-    // Log webhook payloads to a file for debugging
+    // Log webhook payloads to a file for debugging (do not enable unless you're having issues receiving data
     "debug": false,
     // Only show logs with higher or equal priority levels (Trace, Debug, Info, Warning, Error, Fatal, None)
     "logLevel": "Trace"
