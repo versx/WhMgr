@@ -10,15 +10,16 @@ Parses and sends Discord notifications based on pre-defined filters for Pokemon,
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
 - Per user custom Discord notifications for Pokemon, raids, quests, and invasions.  
 - User interface to configure Discord notifications with ease (as well as Discord commands). (https://github.com/versx/WhMgr-UI)  
-- Notifications based on pre-defined distance.  
+- Subscription notifications based on pre-defined distance.  
 - Customizable alert messages with dynamic text replacement.  
-- Support for multiple cities/areas using roles and geofences per server.  
+- Support for multiple cities/areas using geofences per server.  
 - Daily shiny stats reporting.  
 - Automatic quest message purge at midnight.  
 - Support for Donors/Supporters only notifications.  
 - Direct messages of Pokemon notifications based on city roles assigned.  
+- Pokemon and Raid subscription notifications based on specific forms.  
 - Custom prefix support as well as mentionable user support for commands.  
-- Subscriptions based on distance from a set location or specific gym names.  
+- Raid subscription notifications for specific gyms.  
 - Twilio text message alerts for ultra rare Pokemon.  
 - Custom image support for Discord alarm reports.  
 - Custom icon style selection for Discord user notifications.  
@@ -26,7 +27,9 @@ Parses and sends Discord notifications based on pre-defined filters for Pokemon,
 - Custom static map format support.  
 - Support for language translation.  
 - Multi threaded, low processing consumption.  
-- Lots more...
+- [I.C.O.N.S.](https://github.com/Mygod/pokemon-icon-postprocessor) standard image support.
+- Lots more...  
+
 
 ### Frameworks and Libraries
 - .NET Core v2.1.803  
