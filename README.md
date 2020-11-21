@@ -18,16 +18,16 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
 - Per user custom Discord notifications for Pokemon, raids, quests, and invasions.  
 - User interface to configure Discord notifications with ease (as well as Discord commands). (https://github.com/versx/WhMgr-UI)  
-- Notifications based on pre-defined distance.  
+- Subscription notifications based on pre-defined distance.  
 - Customizable alert messages with dynamic text replacement.  
-- Support for multiple cities/areas using roles and geofences per server.  
+- Support for multiple cities/areas using geofences per server.  
 - Daily shiny stats reporting.  
 - Automatic quest message purge at midnight.  
 - Support for Donors/Supporters only notifications.  
 - Direct messages of Pokemon notifications based on city roles assigned.  
 - Pokemon and Raid subscription notifications based on specific forms.  
 - Custom prefix support as well as mentionable user support for commands.  
-- Subscriptions based on distance from a set location or specific gym names.  
+- Raid subscription notifications for specific gyms.  
 - Twilio text message alerts for ultra rare Pokemon.  
 - Custom image support for Discord alarm reports.  
 - Custom icon style selection for Discord user notifications.  
@@ -35,6 +35,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Custom static map format support.  
 - Support for language translation.  
 - Multi threaded, low processing consumption.  
+- [I.C.O.N.S.](https://github.com/Mygod/pokemon-icon-postprocessor) standard image support.
 - Lots more...  
 
 ## Documentation:  
@@ -93,8 +94,23 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             "token": "<DISCORD_BOT_TOKEN>",
             // Alarms file path.
             "alarms": "alarms.json",
-            // Enable custom direct message notification subscriptions.
-            "enableSubscriptions": false,
+            // Custom user subscriptions
+            "subscriptions": {
+                // Enable or disable custom direct message notification subscriptions per user.
+                "enabled": false,
+                // Maximum amount of Pokemon subscriptions a user can set, set as 0 for no limit.
+                "maxPokemonSubscriptions": 0,
+                // Maximum amount of PvP subscriptions a user can set, set as 0 for no limit.
+                "maxPvPSubscriptions": 0,
+                // Maximum amount of Raid subscriptions a user can set, set as 0 for no limit.
+                "maxRaidSubscriptions": 0,
+                // Maximum amount of Quest subscriptions a user can set, set as 0 for no limit.
+                "maxQuestSubscriptions": 0,
+                // Maximum amount of Invasion subscriptions a user can set, set as 0 for no limit.
+                "maxInvasionSubscriptions": 0,
+                // Maximum amount of Gym subscriptions a user can set, set as 0 for no limit.
+                "maxGymSubscriptions": 0
+            },
             // Enable city role assignments.
             "enableCities": false,
             // City/geofence role(s)
@@ -144,7 +160,23 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             ],
             "token": "<DISCORD_BOT_TOKEN>",
             "alarms": "alarms2.json",
-            "enableSubscriptions": false,
+            // Custom user subscriptions
+            "subscriptions": {
+                // Enable or disable custom direct message notification subscriptions per user.
+                "enabled": false,
+                // Maximum amount of Pokemon subscriptions a user can set, set as 0 for no limit.
+                "maxPokemonSubscriptions": 0,
+                // Maximum amount of PvP subscriptions a user can set, set as 0 for no limit.
+                "maxPvPSubscriptions": 0,
+                // Maximum amount of Raid subscriptions a user can set, set as 0 for no limit.
+                "maxRaidSubscriptions": 0,
+                // Maximum amount of Quest subscriptions a user can set, set as 0 for no limit.
+                "maxQuestSubscriptions": 0,
+                // Maximum amount of Invasion subscriptions a user can set, set as 0 for no limit.
+                "maxInvasionSubscriptions": 0,
+                // Maximum amount of Gym subscriptions a user can set, set as 0 for no limit.
+                "maxGymSubscriptions": 0
+            },
             "enableCities": false,
             "cityRoles": [
                 "City3",
@@ -399,7 +431,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 * `enable` Enable direct message subscriptions  
 * `disable` Disable direct message subscriptions  
 * `info` List all Pokemon, Raid, Quest, Invasion, and Gym subscriptions and settings  
-* `set-distance`  Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in meters)  
+* `set-distance`  Set minimum distance to Pokemon, PvP, raids, quests, invasions and gyms need to be within. (Measured in meters) If a distance is set, subscribed geofences will be ignored.  
 * `expire` / `expires` Check stripe API when Donor/Supporter subscription expires  
 * `set-number` Sets the phone number to use for text message alerts for ultra rare Pokemon  
 

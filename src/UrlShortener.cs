@@ -52,9 +52,14 @@
         /// <returns></returns>
         public static string CreateShortUrl(string baseApiUrl, string url)
         {
+            // If base `yourls` url not set, return original url
+            if (string.IsNullOrEmpty(baseApiUrl))
+                return url;
+
             try
             {
-                var apiUrl = $"{baseApiUrl}&action=shorturl&url={HttpUtility.UrlEncode(url)}&format=json";
+                var timestamp = Utils.GetUnixTimestamp();
+                var apiUrl = $"{baseApiUrl}&action=shorturl&url={HttpUtility.UrlEncode(url)}&format=json&timestamp={timestamp}";
                 var json = NetUtil.Get(apiUrl);
                 if (string.IsNullOrEmpty(json))
                     return url;

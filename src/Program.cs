@@ -58,6 +58,9 @@
             configFilePath = Path.Combine(Environment.CurrentDirectory, string.IsNullOrEmpty(configFilePath) ? Strings.ConfigFileName : configFilePath);
             ManagerName = managerName;
             var logger = EventLogger.GetLogger(managerName);
+            logger.Info(Strings.BannerAsciiText);
+            logger.Info($"Version: {Strings.Version}");
+            logger.Info($".NET Runtime Version: {System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion}\n");
             var whConfig = Configuration.WhConfig.Load(configFilePath);
             if (whConfig == null)
             {

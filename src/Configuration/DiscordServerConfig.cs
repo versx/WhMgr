@@ -62,8 +62,10 @@
         /// <summary>
         /// Gets or sets whether to enable custom direct message subscriptions
         /// </summary>
-        [JsonProperty("enableSubscriptions")]
-        public bool EnableSubscriptions { get; set; }
+        //[JsonProperty("enableSubscriptions")]
+        //public bool EnableSubscriptions { get; set; }
+        [JsonProperty("subscriptions")]
+        public SubscriptionsConfig Subscriptions { get; set; }
 
         /// <summary>
         /// Gets or sets whether to enable Discord city roles
@@ -148,6 +150,7 @@
             IconStyle = "Default";
             QuestChannelIds = new List<ulong>();
             ShinyStats = new ShinyStatsConfig();
+            Subscriptions = new SubscriptionsConfig();
             NestsMinimumPerHour = 1;
             DmAlertsFile = "default.json";
 

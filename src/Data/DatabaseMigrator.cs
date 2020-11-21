@@ -48,6 +48,13 @@
             _logger.Info($"Current: {currentVersion}, Latest: {newestVersion}");
 
             // Attempt to migrate the database
+            if (currentVersion < newestVersion)
+            {
+                // Wait 30 seconds and let user know we are about to migrate the database and for them to make
+                // a backup until we handle backups and rollbacks.
+                _logger.Info("MIGRATION IS ABOUT TO START IN 30 SECONDS, PLEASE MAKE SURE YOU HAVE A BACKUP!!!");
+                Thread.Sleep(30 * 1000);
+            }
             Migrate(currentVersion, newestVersion).GetAwaiter().GetResult();
         }
 
@@ -80,11 +87,6 @@
         {
             if (fromVersion < toVersion)
             {
-                // Wait 30 seconds and let user know we are about to migrate the database and for them to make
-                // a backup until we handle backups and rollbacks.
-                _logger.Info("MIGRATION IS ABOUT TO START IN 30 SECONDS, PLEASE MAKE SURE YOU HAVE A BACKUP!!!");
-                Thread.Sleep(30 * 1000);
-
                 _logger.Info($"Migrating database to version {fromVersion + 1}");
                 var sqlFile = Path.Combine(MigrationsFolder, (fromVersion + 1) + ".sql");
 
