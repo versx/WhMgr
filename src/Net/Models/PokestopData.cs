@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
@@ -152,19 +153,11 @@
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
             var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, HasInvasion ? whConfig.StaticMaps.Invasions.TemplateFile : HasLure ? whConfig.StaticMaps.Lures.TemplateFile : whConfig.StaticMaps.Lures.TemplateFile);
             var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, HasInvasion ? whConfig.StaticMaps.Invasions.ZoomLevel : HasLure ? whConfig.StaticMaps.Lures.ZoomLevel : whConfig.StaticMaps.Lures.ZoomLevel, Latitude, Longitude, imageUrl, null);
-            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? scannerMapsLink : UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            Geofence.Location address = null;
-            if (!string.IsNullOrEmpty(whConfig.GoogleMapsKey))
-            {
-                address = Utils.GetGoogleAddress(city, Latitude, Longitude, whConfig.GoogleMapsKey);
-            }
-            else if (!string.IsNullOrEmpty(whConfig.NominatimEndpoint))
-            {
-                address = Utils.GetNominatimAddress(city, Latitude, Longitude, whConfig.NominatimEndpoint);
-            }
+            var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
+            var address = Utils.GetAddress(city, Latitude, Longitude, whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));
@@ -174,6 +167,10 @@
                 : pokemonType.GetTypeEmojiIcons();
             var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : string.Empty;
 
+            var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+            var lureExpireTimeLeft = now.GetTimeRemaining(LureExpireTime).ToReadableStringNoSeconds();
+            var invasionExpireTimeLeft = now.GetTimeRemaining(InvasionExpireTime).ToReadableStringNoSeconds();
+
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
             {
@@ -182,14 +179,14 @@
                 { "lure_type", LureType.ToString() },
                 { "lure_expire_time", LureExpireTime.ToLongTimeString() },
                 { "lure_expire_time_24h", LureExpireTime.ToString("HH:mm:ss") },
-                { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+                { "lure_expire_time_left", lureExpireTimeLeft },
                 { "has_invasion", Convert.ToString(HasInvasion) },
                 { "grunt_type", invasion?.Type },
                 { "grunt_type_emoji", invasionTypeEmoji },
                 { "grunt_gender", invasion?.Grunt },
                 { "invasion_expire_time", InvasionExpireTime.ToLongTimeString() },
                 { "invasion_expire_time_24h", InvasionExpireTime.ToString("HH:mm:ss") },
-                { "invasion_expire_time_left", InvasionExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+                { "invasion_expire_time_left", invasionExpireTimeLeft },
                 { "invasion_encounters", $"**Encounter Reward Chance:**\r\n" + invasionEncounters },
 
                 //Location properties

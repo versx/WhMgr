@@ -73,7 +73,7 @@
             JsonProperty("city"),
             Alias("city")
         ]
-        public string City { get; set; }
+        public List<string> Areas { get; set; }
 
         [
             JsonIgnore,
@@ -93,7 +93,8 @@
             MaximumLevel = 35;
             Gender = "*";
             Form = null;
-            City = null;
+            //City = null;
+            Areas = new List<string>();
             IVList = new List<string>();
         }
 

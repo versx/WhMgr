@@ -9,6 +9,7 @@
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
+    using Org.BouncyCastle.Crypto.Tls;
     using Twilio;
     using Twilio.Rest.Api.V2010.Account;
 
@@ -80,6 +81,17 @@
             return message.ErrorCode == null;
         }
 
+        public static Location GetAddress(string city, double lat, double lng, WhConfig config)
+        {
+            if (!string.IsNullOrEmpty(config.GoogleMapsKey))
+                return GetGoogleAddress(city, lat, lng, config.GoogleMapsKey);
+
+            if (!string.IsNullOrEmpty(config.NominatimEndpoint))
+                return GetNominatimAddress(city, lat, lng, config.NominatimEndpoint);
+
+            return null;
+        }
+
         public static Location GetGoogleAddress(string city, double lat, double lng, string gmapsKey)
         {
             var apiKey = string.IsNullOrEmpty(gmapsKey) ? string.Empty : $"&key={gmapsKey}";
@@ -131,6 +143,11 @@
                 _logger.Error(ex);
             }
             return null;
+        }
+
+        public static double GetUnixTimestamp()
+        {
+            return DateTime.Now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
         }
     }
 }
