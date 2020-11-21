@@ -210,20 +210,16 @@
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
             var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.Raids.TemplateFile);
             var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, whConfig.StaticMaps.Raids.ZoomLevel, Latitude, Longitude, raidImageUrl, Team);
-            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? scannerMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            Geofence.Location address = null;
-            if (!string.IsNullOrEmpty(whConfig.GoogleMapsKey))
-            {
-                address = Utils.GetGoogleAddress(city, Latitude, Longitude, whConfig.GoogleMapsKey);
-            }
-            else if (!string.IsNullOrEmpty(whConfig.NominatimEndpoint))
-            {
-                address = Utils.GetNominatimAddress(city, Latitude, Longitude, whConfig.NominatimEndpoint);
-            }
+            var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
+            var address = Utils.GetAddress(city, Latitude, Longitude, whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+
+            var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+            var startTimeLeft = now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds();
+            var endTimeLeft = now.GetTimeRemaining(EndTime).ToReadableStringNoSeconds();
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -267,10 +263,10 @@
                 //Time properties
                 { "start_time", StartTime.ToLongTimeString() },
                 { "start_time_24h", StartTime.ToString("HH:mm:ss") },
-                { "start_time_left", DateTime.Now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds() },
+                { "start_time_left", startTimeLeft },
                 { "end_time", EndTime.ToLongTimeString() },
                 { "end_time_24h", EndTime.ToString("HH:mm:ss") },
-                { "end_time_left", EndTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+                { "end_time_left", endTimeLeft },
 
                 //Location properties
                 { "geofence", city ?? defaultMissingValue },

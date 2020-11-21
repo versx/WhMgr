@@ -1,5 +1,8 @@
 ﻿namespace WhMgr.Alarms.Filters.Models
 {
+    using System;
+    using System.Collections.Generic;
+
     using Newtonsoft.Json;
 
     /// <summary>
@@ -19,10 +22,18 @@
         [JsonProperty("lured")]
         public bool Lured { get; set; }
 
+        [JsonProperty("lure_types")]
+        public List<string> LureTypes { get; set; }
+
         /// <summary>
         /// Only report Team Rocket invasion Pokestops
         /// </summary>
         [JsonProperty("invasions")]
         public bool Invasions { get; set; }
+
+        public FilterPokestopObject()
+        {
+            LureTypes = new List<string>();
+        }
     }
 }

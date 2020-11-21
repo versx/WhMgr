@@ -79,7 +79,7 @@
 
             // Initialize the subscription processor if at least one Discord server wants custom notifications
             // and start database migrator
-            if (_whConfig.Servers.Values.ToList().Exists(x => x.EnableSubscriptions))
+            if (_whConfig.Servers.Values.ToList().Exists(x => x.Subscriptions.Enabled))
             {
                 // Start database migrator
                 var migrator = new DatabaseMigrator();
@@ -182,7 +182,7 @@
                 commands.RegisterCommands<Gyms>();
                 commands.RegisterCommands<Quests>();
                 commands.RegisterCommands<Settings>();
-                if (server.EnableSubscriptions)
+                if (server.Subscriptions.Enabled)
                 {
                     commands.RegisterCommands<Notifications>();
                 }
@@ -238,7 +238,7 @@
             _whm.GymDetailsAlarmTriggered += OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered += OnWeatherAlarmTriggered;
             // At least one server wants subscriptions
-            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null)
+            if (_whConfig.Servers.FirstOrDefault(x => x.Value.Subscriptions.Enabled).Value != null)
             {
                 // Register subscription event handlers
                 _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
@@ -280,7 +280,7 @@
             _whm.GymAlarmTriggered -= OnGymAlarmTriggered;
             _whm.GymDetailsAlarmTriggered -= OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered -= OnWeatherAlarmTriggered;
-            if (_whConfig.Servers.FirstOrDefault(x => x.Value.EnableSubscriptions).Value != null)
+            if (_whConfig.Servers.FirstOrDefault(x => x.Value.Subscriptions.Enabled).Value != null)
             {
                 //At least one server wanted subscriptions, unregister the subscription event handlers
                 _whm.PokemonSubscriptionTriggered -= OnPokemonSubscriptionTriggered;
@@ -904,7 +904,6 @@
         private async Task OnMidnightTimer()
         {
             _logger.Debug($"MIDNIGHT {DateTime.Now}");
-            _logger.Debug($"Starting automatic quest messages cleanup...");
 
             Statistics.WriteOut();
             Statistics.Instance.Reset();
@@ -923,12 +922,22 @@
                 var client = _servers[guildId];
                 if (server.ShinyStats.Enabled)
                 {
+                    _logger.Debug($"Starting Shiny Stat posting...");
                     await PostShinyStats(client, guildId, server);
                 }
-
-                if (server.PruneQuestChannels)
+                else
                 {
+                    _logger.Debug($"Shiny Stat posting not enabled...skipping");
+                }
+
+                if (server.PruneQuestChannels && server.QuestChannelIds.Count > 0)
+                {
+                    _logger.Debug($"Starting automatic quest messages cleanup...");
                     await PruneQuestChannels(client, server);
+                }
+                else
+                {
+                    _logger.Debug($"Quest cleanup not enabled...skipping");
                 }
 
                 Thread.Sleep(10 * 1000);
@@ -1035,7 +1044,7 @@
                 var guildId = keys[i];
                 var client = _servers[guildId];
                 var server = _whConfig.Servers[guildId];
-                if (!server.EnableSubscriptions)
+                if (!server.Subscriptions.Enabled)
                     return;
 
                 _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
