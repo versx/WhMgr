@@ -86,8 +86,8 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
             "donorRoleIds": [
                 000000000000000000
             ],
-            // Moderator Discord ID(s).
-            "moderatorIds": [
+            // Moderator Discord role ID(s).
+            "moderatorRoleIds": [
                 000000000000000000
             ],
             // Discord bot token with user.

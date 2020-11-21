@@ -52,21 +52,23 @@ __**Image Urls**__ `urls`
 ### Example
 ```js
 {
+    // Http listening interface for raw webhook data.
+    "host": "10.0.0.10",
     // Http listener port for raw webhook data.
     "port": 8008,
     // Locale language translation
     "locale": "en",
-    // ShortURL API (yourls.org API)
+    // ShortURL API (yourls.org API, i.e. `https://domain.com/yourls-api.php?signature=XXXXXX`)
     "shortUrlApiUrl": null,
-    // Stripe API key
+    // Stripe API key (Stripe production API key, i.e. rk_3824802934
     "stripeApiKey": ""
     // List of Discord servers to connect and post webhook messages to.
     "servers": {
-        // Discord server #1
+        // Discord server #1 guild ID (replace `000000000000000001` with guild id of server)
         "000000000000000001": {
             // Bot command prefix, leave blank to use @mention <command>
             "commandPrefix": ".",
-            // Discord Emoji server ID. (Can be same as `guildId`)
+            // Discord Emoji server ID. (Can be same as `guildId`)  
             "emojiGuildId": 000000000000000001,
             // Discord server owner ID.
             "ownerId": 000000000000000000,
@@ -74,8 +76,8 @@ __**Image Urls**__ `urls`
             "donorRoleIds": [
                 000000000000000000
             ],
-            // Moderator Discord ID(s).
-            "moderatorIds": [
+            // Moderator Discord role ID(s).
+            "moderatorRoleIds": [
                 000000000000000000
             ],
             // Discord bot token with user.
@@ -101,6 +103,8 @@ __**Image Urls**__ `urls`
             ],
             // Channel ID to post nests.
             "nestsChannelId": 000000000000000000,
+            // Minimum amount of average spawn count per hour for nest to post
+            "nestsMinimumPerHour": 2,
             // Shiny stats configuration
             "shinyStats": {
                 // Enable shiny stats posting.
@@ -115,7 +119,9 @@ __**Image Urls**__ `urls`
             // Channel ID(s) bot commands can be executed in.
             "botChannelIds": [
                 000000000000000000
-            ]
+            ],
+            // Custom Discord status per server, leave blank or null to use current version.  
+            "status": ""
         },
         "000000000000000002": {
             "commandPrefix": ".",
@@ -141,6 +147,7 @@ __**Image Urls**__ `urls`
                 000000000000000000
             ],
             "nestsChannelId": 000000000000000000,
+            "nestsMinimumPerHour": 2,
             "shinyStats": {
                 "enabled": true,
                 "clearMessages": false,
@@ -149,7 +156,8 @@ __**Image Urls**__ `urls`
             "iconStyle": "Default",
             "botChannelIds": [
                 000000000000000000
-            ]
+            ],
+            "status": null
         }
     },
     // Database configuration
@@ -167,7 +175,7 @@ __**Image Urls**__ `urls`
             // Brock database name.
             "database": "brock3"
         },
-        // Scanner databse config
+        // Scanner database config
         "scanner": {
             // Database hostname or IP address.
             "host": "127.0.0.1",
@@ -194,27 +202,132 @@ __**Image Urls**__ `urls`
             "database": "manualdb"
         }
     },
-    // List of Pokemon IDs to treat as event and restrict postings and subscriptions to 90% IV or higher.
+    // List of Pokemon IDs to treat as event and restrict postings and subscriptions to 90% IV or higher. (Filled in automatically with `event set` command)  
     "eventPokemonIds": [
         129,
         456,
         320
     ],
+	// Minimum IV value for an event Pokemon to have to meet in order to post via Discord channel alarm or direct message subscription.
+    "eventMinimumIV": "90",
     // Image URL config
     "urls": {
-        //Pokemon images repository path.
-        "pokemonImage": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png",
-        //Raid egg images repository path.
-        "eggImage": "https://cdn.example.com/images/shuffle/eggs/{0}.png",
-        //Field research quest images repository path.
-        "questImage": "https://cdn.example.com/images/shuffle/quests/{0}.png",
-        //Static tile map images template.
-        "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png"
+        // Static tile map images template.
+        "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png",
+        // Scanner map DTS option for embeds as `scanmaps_url`  
+        "scannerMap": "http://map.example.com/@/{0}/{1}/15"
     },
     // Available icon styles
     "iconStyles": {
-        "Default": "https://cdn.example.com/images/original/monsters/{0:D3}_{1:D3}.png",
-        "Shuffle": "https://cdn.example.com/images/shuffle/monsters/{0:D3}_{1:D3}.png"
-    }
+        "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
+        "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/",
+        "Home": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/pmsf_OS_128/"
+    },
+    // Custom static map template files for each alarm type
+    "staticMaps": {
+        // Static map template for Pokemon
+        "pokemon": "pokemon.example.json",
+        // Static map template for Raids and Eggs
+        "raids": "raids.example.json",
+        // Static map template for field research quests
+        "quests": "quests.example.json",
+        // Static map template for Team Rocket invasions
+        "invasions": "invasions.example.json",
+        // Static map template for Pokestop lures
+        "lures": "lures.example.json",
+        // Static map template for Gym team control changes
+        "gyms": "gyms.example.json",
+        // Static map template for nest postings
+        "nests": "nests.example.json",
+        // Static map template for weather changes
+        "weather": "weather.example.json"
+    },
+    // Get text message alerts with Twilio.com
+    "twilio": {
+        // Determines if text message alerts are enabled
+        "enabled": false,
+        // Twilio account SID (Get via Twilio dashboard)
+        "accountSid": "",
+        // Twilio account auth token (Get via Twilio dashboard)
+        "authToken": "",
+        // Twilio phone number that will be sending the text message alert
+        "from": "",
+        // List of Discord user ids that can receive text message alerts
+        "userIds": [],
+        // List of acceptable Pokemon to receive text message alerts for
+        "pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
+        // Minimum acceptable IV value for Pokemon if not ultra rare (Unown, Lake Trio)
+        "minIV": 100
+    },
+    // Needed if you want to use the address lookup DTS
+    "gmapsKey": "",
+    // Minimum despawn time in minutes a Pokemon must have in order to send the alarm (default: 5 minutes)
+    "despawnTimeMinimumMinutes": 5,
+    // Log webhook payloads to a file for debugging
+    "debug": false,
+    // Only show logs with higher or equal priority levels (Trace, Debug, Info, Warning, Error, Fatal, None)
+    "logLevel": "Trace"
+}
+```
+3.) Edit `alarms.json` either open in Notepad/++ or `vi alarms.json`.  
+4.) Fill out the alarms file.  
+```js
+{
+    //Global switch for Pokemon notifications.
+    "enablePokemon": false,
+  
+    //Global switch for Raid/Egg notifications.
+    "enableRaids": false,
+  
+    //Global switch for Quest notifications.
+    "enableQuests": false,
+  
+    //Global switch for Pokestop notifications.
+    "enablePokestops": false,
+  
+    //Global switch for Gym notifications.
+    "enableGyms": false,
+    
+    //Global switch for Weather notifications.
+    "enableWeather": false,
+  
+    //List of alarms
+    "alarms": [{
+        //Alarm name.
+        "name":"Alarm1",
+        
+        //DTS compatible mention description.      
+        "description":"<!@324234324> <iv> L<lvl> <geofence>",
+      
+        //Alerts file.
+        "alerts":"default.json",
+      
+        //Alarm filters.
+        "filters":"default.json",
+      
+        //Path to geofence file.
+        "geofence":"geofence1.txt",
+    
+        //Discord webhook url address.
+        "webhook":"<DISCORD_WEBHOOK_URL>"
+    },{
+        //Alarm name.
+        "name":"Alarm2",
+        
+        //DTS compatible mention description.      
+        "description":"",
+      
+        //Alerts file.
+        "alerts":"default.json",
+      
+        //Alarm filters.
+        "filters":"100iv.json",
+      
+        //Path to geofence file.
+        "geofence":"geofence1.txt",
+      
+        //Discord webhook url address.
+        "webhook":"<DISCORD_WEBHOOK_URL>"
+    }]
 }
 ```

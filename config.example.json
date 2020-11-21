@@ -10,7 +10,7 @@
       "emojiGuildId": 000000000000000001,
       "ownerId": 000000000000000000,
       "donorRoleIds": [],
-      "moderatorIds": [],
+      "moderatorRoleIds": [],
       "token": "<DISCORD_BOT_TOKEN>",
       "alarms": "alarms.json",
       "subscriptions": {
@@ -47,7 +47,7 @@
       "emojiGuildId": 000000000000000001,
       "ownerId": 000000000000000000,
       "donorRoleIds": [],
-      "moderatorIds": [],
+      "moderatorRoleIds": [],
       "token": "<DISCORD_BOT_TOKEN>",
       "alarms": "alarms2.json",
       "subscriptions": {
