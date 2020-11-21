@@ -1,5 +1,8 @@
 # Subscription Commands  
 
+Parameters in `<>` are required parameters.  
+Parameters in `[]` are optional parameters and default values will be used if not provided.  
+
 ### General  
 
 **enable** - Enable direct message subscription notifications.  
@@ -26,7 +29,7 @@ Usage: `pokeme <pokemon> [iv] [level] [gender] [city]`
 
 * `<pokemon>[-form]` - Parameter can take a list of Ids or names or the `all` keyword for everything as well as `gen3` for all 3rd generation Pokemon. You can also subscribe to specific forms with a hyphen then the form name.  
 * `<iv>` - (Optional) Minimum IV value, or individual attack, defense, and stamina values i.e. `0-14-15`  
-* `<level>[-max_level]` - (Optional) Minimum level value or minimum and maximum level range.  
+* `<min_level>[-max_level]` - (Optional) Minimum level value or minimum and maximum level range.  
 * `<gender>` - (Optional) Specific gender `m` or `f` or `*` for all.  
 * `<city>` - (Optional) Specify a specific city or all. Omitting the city will assume all cities.  
 
@@ -38,6 +41,7 @@ Examples:
 * `.pokeme Marowak-Alola 100`
 * `.pokeme Dragonite 0 20-35`
 * `.pokeme pikachu 100 35 f`  
+* `.pokeme pikachu 100 35 f city1,city2`  
 * `.pokeme Skarmory 0-15-15 12`  
 * `.pokeme pikachu 100`  
 * `.pokeme all 100 35`  
