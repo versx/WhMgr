@@ -120,12 +120,11 @@
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
-                Color = HasInvasion ? DiscordColor.Red : HasLure ?
-                    (LureType == PokestopLureType.Normal ? DiscordColor.HotPink
-                    : LureType == PokestopLureType.Glacial ? DiscordColor.CornflowerBlue
-                    : LureType == PokestopLureType.Mossy ? DiscordColor.SapGreen
-                    : LureType == PokestopLureType.Magnetic ? DiscordColor.Gray
-                    : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue,
+                Color = HasInvasion
+                    ? new DiscordColor(server.DiscordEmbedColors.Pokestops.Invasions)
+                    : HasLure
+                        ? LureType.BuildLureColor(server)
+                        : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),

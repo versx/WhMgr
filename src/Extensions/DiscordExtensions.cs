@@ -152,7 +152,6 @@
             return eb.FirstOrDefault();
         }
 
-        //internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message, DiscordServerConfig servers)
         internal static async Task<bool> IsDirectMessageSupported(this CommandContext ctx, WhConfig config)
         {
             var exists = ctx.Client.Guilds.Keys.FirstOrDefault(x => config.Servers.ContainsKey(x)) > 0;
@@ -415,68 +414,111 @@
 
         #region Colors
 
-        public static DiscordColor BuildColor(this string iv)
+        public static DiscordColor BuildPokemonIVColor(this string iv, DiscordServerConfig server)
         {
-            if (double.TryParse(iv.Substring(0, iv.Length - 1), out var result))
+            if (!double.TryParse(iv.Substring(0, iv.Length - 1), out var result))
             {
-                if (Math.Abs(result - 100) < double.Epsilon)
-                    return DiscordColor.Green;
-                else if (result >= 90 && result < 100)
-                    return DiscordColor.Orange;
-                else if (result < 90)
-                    return DiscordColor.Yellow;
+                return DiscordColor.White;
             }
-
-            return DiscordColor.White;
+            var color = server.DiscordEmbedColors.Pokemon.IV.FirstOrDefault(x => result >= x.Minimum && result <= x.Maximum);
+            return new DiscordColor(color.Color);
         }
 
-        public static DiscordColor BuildRaidColor(this string level)
+        public static DiscordColor BuildPokemonPvPColor(this int rank, DiscordServerConfig server)
         {
-            if (!int.TryParse(level, out var lvl))
-                return DiscordColor.Black;
-
-            return BuildRaidColor(lvl);
+            if (rank <= 0)
+            {
+                return DiscordColor.White;
+            }
+            var color = server.DiscordEmbedColors.Pokemon.PvP.FirstOrDefault(x => rank >= x.Minimum && rank <= x.Maximum);
+            return new DiscordColor(color.Color);
         }
 
-        public static DiscordColor BuildRaidColor(this int level)
+        public static DiscordColor BuildRaidColor(this int level, DiscordServerConfig server)
         {
+            if (level == 0)
+            {
+                return DiscordColor.White;
+            }
+            var color = string.Empty;
             switch (level)
             {
                 case 1:
+                    color = server.DiscordEmbedColors.Raids.Level1;
+                    break;
                 case 2:
-                    return DiscordColor.HotPink;
+                    color = server.DiscordEmbedColors.Raids.Level2;
+                    break;
                 case 3:
+                    color = server.DiscordEmbedColors.Raids.Level3;
+                    break;
                 case 4:
-                    return DiscordColor.Yellow;
+                    color = server.DiscordEmbedColors.Raids.Level4;
+                    break;
                 case 5:
-                    return DiscordColor.Purple;
+                    color = server.DiscordEmbedColors.Raids.Level5;
+                    break;
+                case 6:
+                    color = server.DiscordEmbedColors.Raids.Level6;
+                    break;
+                default:
+                    color = server.DiscordEmbedColors.Raids.Ex;
+                    break;
             }
-
-            return DiscordColor.White;
+            return new DiscordColor(color);
         }
 
-        public static DiscordColor BuildWeatherColor(this WeatherType weather)
+        public static DiscordColor BuildLureColor(this PokestopLureType lureType, DiscordServerConfig server)
         {
+            string color;
+            switch (lureType)
+            {
+                case PokestopLureType.Normal:
+                    color = server.DiscordEmbedColors.Pokestops.Lures.Normal;
+                    break;
+                case PokestopLureType.Glacial:
+                    color = server.DiscordEmbedColors.Pokestops.Lures.Glacial;
+                    break;
+                case PokestopLureType.Mossy:
+                    color = server.DiscordEmbedColors.Pokestops.Lures.Mossy;
+                    break;
+                case PokestopLureType.Magnetic:
+                    color = server.DiscordEmbedColors.Pokestops.Lures.Magnetic;
+                    break;
+                default:
+                    return DiscordColor.White;
+            }
+            return new DiscordColor(color);
+        }
+
+        public static DiscordColor BuildWeatherColor(this WeatherType weather, DiscordServerConfig server)
+        {
+            var color = "#808080";
             switch (weather)
             {
                 case WeatherType.Clear:
-                    return DiscordColor.Yellow;
+                    color = server.DiscordEmbedColors.Weather.Clear;
+                    break;
                 case WeatherType.Cloudy:
-                    return DiscordColor.Grayple;
+                    color = server.DiscordEmbedColors.Weather.Cloudy;
+                    break;
                 case WeatherType.Fog:
-                    return DiscordColor.DarkGray;
+                    color = server.DiscordEmbedColors.Weather.Fog;
+                    break;
                 case WeatherType.PartlyCloudy:
-                    return DiscordColor.LightGray;
+                    color = server.DiscordEmbedColors.Weather.PartlyCloudy;
+                    break;
                 case WeatherType.Rain:
-                    return DiscordColor.Blue;
+                    color = server.DiscordEmbedColors.Weather.Rain;
+                    break;
                 case WeatherType.Snow:
-                    return DiscordColor.White;
+                    color = server.DiscordEmbedColors.Weather.Snow;
+                    break;
                 case WeatherType.Windy:
-                    return DiscordColor.Purple;
-                case WeatherType.None:
-                default:
-                    return DiscordColor.Gray;
+                    color = server.DiscordEmbedColors.Weather.Windy;
+                    break;
             }
+            return new DiscordColor(color);
         }
 
         #endregion
