@@ -556,6 +556,11 @@
                         //TODO: Collect list of failed.
                     }
                 }
+                else
+                {
+                    // Save/update Pokemon subscription if cities still assigned
+                    subPkmn.Save();
+                }
             }
 
             if (error)
@@ -1496,6 +1501,11 @@
                         error = true;
                         //TODO: Collect list of failed.
                     }
+                }
+                else
+                {
+                    // Save/update PvP Pokemon subscription if cities still assigned
+                    subPvP.Save();
                 }
             }
 
