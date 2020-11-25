@@ -437,7 +437,7 @@
                     }
                     foreach (var area in areas)
                     {
-                        if (!subPkmn.Areas.Select(x => x.ToLower()).Contains(area))
+                        if (!subPkmn.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                         {
                             subPkmn.Areas.Add(area);
                         }
@@ -539,9 +539,10 @@
 
                 foreach (var area in areas)
                 {
-                    if (subPkmn.Areas.Select(x => x.ToLower()).Contains(area))
+                    if (subPkmn.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                     {
-                        subPkmn.Areas.Remove(area);
+                        var index = subPkmn.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                        subPkmn.Areas.RemoveAt(index);
                     }
                 }
 
@@ -684,7 +685,7 @@
                     // Loop all areas, check if the area is already in subs, if not add it
                     foreach (var area in areas)
                     {
-                        if (!subRaid.Areas.Select(x => x.ToLower()).Contains(area))
+                        if (!subRaid.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                         {
                             subRaid.Areas.Add(area);
                         }
@@ -775,9 +776,10 @@
 
                 foreach (var area in areas)
                 {
-                    if (subRaid.Areas.Select(x => x.ToLower()).Contains(area))
+                    if (subRaid.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                     {
-                        subRaid.Areas.Remove(area);
+                        var index = subRaid.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                        subRaid.Areas.RemoveAt(index);
                     }
                 }
 
@@ -845,7 +847,7 @@
                 // Loop all areas, check if the area is already in subs, if not add it
                 foreach (var area in areas)
                 {
-                    if (!subQuest.Areas.Select(x => x.ToLower()).Contains(area))
+                    if (!subQuest.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                     {
                         subQuest.Areas.Add(area);
                     }
@@ -928,9 +930,10 @@
 
             foreach (var area in areas)
             {
-                if (subQuest.Areas.Select(x => x.ToLower()).Contains(area))
+                if (subQuest.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                 {
-                    subQuest.Areas.Remove(area);
+                    var index = subQuest.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                    subQuest.Areas.RemoveAt(index);
                 }
             }
 
@@ -1089,7 +1092,7 @@
                     // Loop all areas, check if the area is already in subs, if not add it
                     foreach (var area in areas)
                     {
-                        if (!subInvasion.Areas.Select(x => x.ToLower()).Contains(area))
+                        if (!subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                         {
                             subInvasion.Areas.Add(area);
                         }
@@ -1179,9 +1182,10 @@
 
                 foreach (var area in areas)
                 {
-                    if (subInvasion.Areas.Select(x => x.ToLower()).Contains(area))
+                    if (subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                     {
-                        subInvasion.Areas.Remove(area);
+                        var index = subInvasion.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                        subInvasion.Areas.RemoveAt(index);
                     }
                 }
 
@@ -1367,10 +1371,19 @@
                 }
 
                 //Exists, check if anything changed.
-                if (minimumRank != subPkmn.MinimumRank || minimumPercent != subPkmn.MinimumPercent)
+                if (minimumRank != subPkmn.MinimumRank ||
+                    minimumPercent != subPkmn.MinimumPercent ||
+                    !ContainsCity(subPkmn.Areas, areas))
                 {
                     subPkmn.MinimumRank = minimumRank;
                     subPkmn.MinimumPercent = minimumPercent;
+                    foreach (var area in areas)
+                    {
+                        if (!subPkmn.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                        {
+                            subPkmn.Areas.Add(area);
+                        }
+                    }
                     subscribed.Add(name);
                     continue;
                 }
@@ -1485,9 +1498,10 @@
 
                 foreach (var area in areas)
                 {
-                    if (subPvP.Areas.Select(x => x.ToLower()).Contains(area))
+                    if (subPvP.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                     {
-                        subPvP.Areas.Remove(area);
+                        var index = subPvP.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                        subPvP.Areas.RemoveAt(index);
                     }
                 }
 
@@ -2134,7 +2148,7 @@
             areas
                 .Where(x => availableAreaNames.Contains(x.ToLower()))
                 .ToList()
-                .ForEach(x => list.Add(x));
+                .ForEach(x => list.Add(x.ToLower()));
             return areas;
         }
 
