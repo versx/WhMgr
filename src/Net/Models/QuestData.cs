@@ -139,8 +139,8 @@
                 { "geofence", city ?? defaultMissingValue },
                 { "lat", Latitude.ToString() },
                 { "lng", Longitude.ToString() },
-                { "lat_5", Math.Round(Latitude, 5).ToString() },
-                { "lng_5", Math.Round(Longitude, 5).ToString() },
+                { "lat_5", Latitude.ToString("0.00000") },
+                { "lng_5", Longitude.ToString("0.00000") },
 
                 //Location links
                 { "tilemaps_url", staticMapLink },

@@ -221,11 +221,17 @@
 
         #region Public Methods
 
+        /// <summary>
+        /// Start webhook HTTP listener
+        /// </summary>
         public void Start()
         {
             _http?.Start();
         }
 
+        /// <summary>
+        /// Stop webhook HTTP listener
+        /// </summary>
         public void Stop()
         {
             _http?.Stop();

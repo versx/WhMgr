@@ -405,7 +405,13 @@
             var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
             var pokemonImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
-            var properties = await GetProperties(client.Guilds[guildId], whConfig, city, pokemonImageUrl);
+            var properties = await GetProperties(new MessageProperties
+            {
+                Guild = client.Guilds[guildId],
+                Config = whConfig,
+                City = city,
+                ImageUrl = pokemonImageUrl,
+            });
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -428,7 +434,7 @@
 
         #endregion
 
-        private async Task<IReadOnlyDictionary<string, string>> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
+        private async Task<IReadOnlyDictionary<string, string>> GetProperties(MessageProperties properties)// DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
             var pkmnName = Translator.Instance.GetPokemonName(Id);
@@ -447,16 +453,8 @@
                     ? (Weather ?? WeatherType.None).GetWeatherEmojiIcon()
                     : string.Empty
                 : MasterFile.Instance.CustomEmojis[weatherKey];
-            var move1 = "Unknown";
-            var move2 = "Unknown";
-            if (int.TryParse(FastMove, out var fastMoveId))
-            {
-                move1 = Translator.Instance.GetMoveName(fastMoveId);
-            }
-            if (int.TryParse(ChargeMove, out var chargeMoveId))
-            {
-                move2 = Translator.Instance.GetMoveName(chargeMoveId);
-            }
+            var move1 = int.TryParse(FastMove, out var fastMoveId) ? Translator.Instance.GetMoveName(fastMoveId) : "Unknown";
+            var move2 = int.TryParse(ChargeMove, out var chargeMoveId) ? Translator.Instance.GetMoveName(chargeMoveId) : "Unknown";
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
             var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
@@ -470,14 +468,14 @@
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
-            var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
-            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.Pokemon.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, whConfig.StaticMaps.Pokemon.ZoomLevel, Latitude, Longitude, pokemonImageUrl, null);
-            var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            var address = Utils.GetAddress(city, Latitude, Longitude, whConfig);
+            var scannerMapsLink = string.Format(properties.Config.Urls.ScannerMap, Latitude, Longitude);
+            var templatePath = Path.Combine(properties.Config.StaticMaps.TemplatesFolder, properties.Config.StaticMaps.Pokemon.TemplateFile);
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, properties.Config.Urls.StaticMap, properties.Config.StaticMaps.Pokemon.ZoomLevel, Latitude, Longitude, properties.ImageUrl, null);
+            var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, scannerMapsLink);
+            var address = Utils.GetAddress(properties.City, Latitude, Longitude, properties.Config);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var pokestop = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
 
@@ -495,7 +493,7 @@
                 { "pkmn_id", Convert.ToString(Id) },
                 { "pkmn_id_3", Id.ToString("D3") },
                 { "pkmn_name", pkmnName },
-                { "pkmn_img_url", pokemonImageUrl },
+                { "pkmn_img_url", properties.ImageUrl },
                 { "form", form },
                 { "form_id", Convert.ToString(FormId) },
                 { "form_id_3", FormId.ToString("D3") },
@@ -565,11 +563,11 @@
                 { "time_left", SecondsLeft.ToReadableString(true) ?? defaultMissingValue },
 
                 // Location properties
-                { "geofence", city ?? defaultMissingValue },
+                { "geofence", properties.City ?? defaultMissingValue },
                 { "lat", Convert.ToString(Latitude) },
                 { "lng", Convert.ToString(Longitude) },
-                { "lat_5", Convert.ToString(Math.Round(Latitude, 5)) },
-                { "lng_5", Convert.ToString(Math.Round(Longitude, 5)) },
+                { "lat_5", Latitude.ToString("0.00000") },
+                { "lng_5", Longitude.ToString("0.00000") },
 
                 // Location links
                 { "tilemaps_url", staticMapLink },
@@ -587,8 +585,8 @@
                 { "pokestop_url", pokestop?.Url ?? defaultMissingValue },
 
                 // Discord Guild properties
-                { "guild_name", guild?.Name },
-                { "guild_img_url", guild?.IconUrl },
+                { "guild_name", properties.Guild?.Name },
+                { "guild_img_url", properties.Guild?.IconUrl },
 
                 // Event properties
                 { "is_event", Convert.ToString(IsEvent.HasValue && IsEvent.Value) },
@@ -706,6 +704,17 @@
         }
 
         #endregion
+    }
+
+    public class MessageProperties
+    {
+        public DiscordGuild Guild { get; set; }
+
+        public WhConfig Config { get; set; }
+
+        public string City { get; set; }
+
+        public string ImageUrl { get; set; }
     }
 
     /// <summary>
