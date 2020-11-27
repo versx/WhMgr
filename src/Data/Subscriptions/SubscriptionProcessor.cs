@@ -285,7 +285,7 @@
                                                                      (x.CP ?? 0) >= Strings.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.MaximumGreatLeagueCP &&
                                                                      (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
                                                                      (x.Percentage ?? 0) * 100 >= subscribedPokemon.MinimumPercent) ?? false);
-                    matchesUltra = pkmn.UltraLeague != null && (pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Ultra &&
+                    matchesUltra = pkmn.UltraLeague != null && (pkmn.UltraLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Ultra &&
                                                                      (x.CP ?? 0) >= Strings.MinimumUltraLeagueCP && (x.CP ?? 0) <= Strings.MaximumUltraLeagueCP &&
                                                                      (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
                                                                      (x.Percentage ?? 0) * 100 >= subscribedPokemon.MinimumPercent) ?? false);

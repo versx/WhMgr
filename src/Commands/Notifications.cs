@@ -533,12 +533,13 @@
             {
                 var pokemonId = keys[i];
                 var form = validation.Valid[pokemonId];
-                var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
+                var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
                 if (subPkmn == null)
                     continue;
 
                 foreach (var area in areas)
                 {
+                    // TODO: Remove all areas to prevent lingering ones?
                     if (subPkmn.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                     {
                         var index = subPkmn.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
@@ -769,7 +770,7 @@
             {
                 var pokemonId = item.Key;
                 var form = item.Value;
-                var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
+                var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
                 // Check if subscribed
                 if (subRaid == null)
                     continue;
@@ -1350,7 +1351,7 @@
                 var pokemon = MasterFile.Instance.Pokedex[pokemonId];
                 var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
                 var subPkmn = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId &&
-                                                                   string.Compare(x.Form, form, true) == 0 &&
+                                                                   (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
                                                                    x.League == pvpLeague);
                 if (subPkmn == null)
                 {
@@ -1492,7 +1493,7 @@
             {
                 var pokemonId = keys[i];
                 var form = validation.Valid[pokemonId];
-                var subPvP = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0 && x.League == pvpLeague);
+                var subPvP = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) && x.League == pvpLeague);
                 if (subPvP == null)
                     continue;
 
