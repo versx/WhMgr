@@ -440,10 +440,10 @@
         private DiscordColor GetPvPColor(List<PVPRank> greatLeague, List<PVPRank> ultraLeague, DiscordServerConfig server)
         {
             if (greatLeague != null)
-                greatLeague.Sort((x, y) => x.Rank.Value.CompareTo(y.Rank));
+                greatLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
 
             if (ultraLeague != null)
-                ultraLeague.Sort((x, y) => x.Rank.Value.CompareTo(y.Rank));
+                ultraLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
 
             var greatRank = greatLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP);
             var ultraRank = ultraLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP);
