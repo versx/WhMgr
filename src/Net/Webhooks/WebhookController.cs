@@ -221,11 +221,17 @@
 
         #region Public Methods
 
+        /// <summary>
+        /// Start webhook HTTP listener
+        /// </summary>
         public void Start()
         {
             _http?.Start();
         }
 
+        /// <summary>
+        /// Stop webhook HTTP listener
+        /// </summary>
         public void Stop()
         {
             _http?.Stop();
@@ -253,7 +259,7 @@
 
                 var iv = PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina);
                 // Skip Pokemon if IV is greater than 0%, less than 90%, and does not match any PvP league stats.
-                if (iv > 0 && iv < 90 && !pkmn.MatchesGreatLeague && !pkmn.MatchesUltraLeague)
+                if (iv > 0 && iv < _config.EventMinimumIV && !pkmn.MatchesGreatLeague && !pkmn.MatchesUltraLeague)
                     return;
             }
 
@@ -737,6 +743,12 @@
                     if (!alarm.Filters.Pokestops.Lured && pokestop.HasLure)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: lure filter not enabled.");
+                        continue;
+                    }
+
+                    if (!alarm.Filters.Pokestops.LureTypes.Select(x => x.ToLower()).Contains(pokestop.LureType.ToString()) && alarm.Filters.Pokestops?.LureTypes?.Count > 0)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}, LureType={pokestop.LureType}: lure type not included.");
                         continue;
                     }
 

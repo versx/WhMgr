@@ -44,8 +44,8 @@
         /// <summary>
         /// Gets or sets the moderators of the Discord server
         /// </summary>
-        [JsonProperty("moderatorIds")]
-        public List<ulong> Moderators { get; set; }
+        [JsonProperty("moderatorRoleIds")]
+        public List<ulong> ModeratorRoleIds { get; set; }
 
         /// <summary>
         /// Gets or sets the Discord bot token
@@ -62,8 +62,10 @@
         /// <summary>
         /// Gets or sets whether to enable custom direct message subscriptions
         /// </summary>
-        [JsonProperty("enableSubscriptions")]
-        public bool EnableSubscriptions { get; set; }
+        //[JsonProperty("enableSubscriptions")]
+        //public bool EnableSubscriptions { get; set; }
+        [JsonProperty("subscriptions")]
+        public SubscriptionsConfig Subscriptions { get; set; }
 
         /// <summary>
         /// Gets or sets whether to enable Discord city roles
@@ -143,11 +145,12 @@
         public DiscordServerConfig()
         {
             //Locale = "en";
-            Moderators = new List<ulong>();
+            ModeratorRoleIds = new List<ulong>();
             CityRoles = new List<string>();
             IconStyle = "Default";
             QuestChannelIds = new List<ulong>();
             ShinyStats = new ShinyStatsConfig();
+            Subscriptions = new SubscriptionsConfig();
             NestsMinimumPerHour = 1;
             DmAlertsFile = "default.json";
 

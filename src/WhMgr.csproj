@@ -13,6 +13,8 @@
     <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
     <Version Condition=" '$(VersionSuffix)' == '' ">4.2.1.0</Version>
     <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
+    <Version>4.4.4.604</Version>
+    <AssemblyVersion>4.4.4.610</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>Windows</DefineConstants>

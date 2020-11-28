@@ -79,7 +79,7 @@
                         await ctx.RespondEmbed($"{ctx.User.Username}", DiscordColor.Red);
                         return;
                     }
-                    _dep.WhConfig.Servers[guildId].EnableSubscriptions = enableSubscriptions;
+                    _dep.WhConfig.Servers[guildId].Subscriptions.Enabled = enableSubscriptions;
                     _dep.WhConfig.Save(_dep.WhConfig.FileName);
                     break;
                 case "cities_require_donor":
@@ -156,12 +156,12 @@
             // TODO: Localize
             eb.AddField($"Enable Cities", guildConfig.EnableCities ? "Yes" : "No", true);
             eb.AddField($"City Roles", string.Join("\r\n", guildConfig.CityRoles), true);
-            eb.AddField($"Enable Subscriptions", guildConfig.EnableSubscriptions ? "Yes" : "No", true);
+            eb.AddField($"Enable Subscriptions", guildConfig.Subscriptions.Enabled ? "Yes" : "No", true);
             eb.AddField($"Command Prefix", guildConfig.CommandPrefix ?? "@BotMentionHere", true);
             eb.AddField($"City Roles Require Donor Role", guildConfig.CitiesRequireSupporterRole ? "Yes" : "No", true);
             eb.AddField($"Donor Roles", string.Join("\r\n", guildConfig.DonorRoleIds.Select(x => $"{ctx.Guild.GetRole(x).Name}:{x}")), true);
             // TODO: Use await
-            eb.AddField($"Moderators", string.Join("\r\n", guildConfig.Moderators.Select(x => $"{ctx.Client.GetMemberById(guildId, x).GetAwaiter().GetResult().Username}:{x}")), true);
+            //eb.AddField($"Moderators", string.Join("\r\n", guildConfig.ModeratorRoleIds.Select(x => $"{ctx.Client.GetMemberById(guildId, x).GetAwaiter().GetResult().Username}:{x}")), true);
             eb.AddField($"Nest Channel", guildConfig.NestsChannelId == 0 ? "Not Set" : $"{ctx.Guild.GetChannel(guildConfig.NestsChannelId)?.Name}:{guildConfig.NestsChannelId}", true);
             eb.AddField($"Prune Quest Channels", guildConfig.PruneQuestChannels ? "Yes" : "No", true);
             eb.AddField($"Quest Channels", string.Join("\r\n", guildConfig.QuestChannelIds.Select(x => $"{ctx.Guild.GetChannel(x)?.Name}:{x}")), true);

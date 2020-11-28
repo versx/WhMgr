@@ -47,6 +47,7 @@
 	{
 		"enabled": true, //Filter is enabled
 		"lured": false, //Only send lured pokestops
+		"lure_types": ["Normal", "Glacial", "Mossy", "Magnetic"], //All lure types
 		"invasions": false //Only send Team Rocket invasion pokestops
 	},
 	"gyms":
