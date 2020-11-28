@@ -354,6 +354,12 @@
         ]
         public bool IsMissingStats => string.IsNullOrEmpty(Level);
 
+        [
+            JsonIgnore,
+            Ignore
+        ]
+        public uint Sent { get; set; }
+
         #endregion
 
         #region Constructor

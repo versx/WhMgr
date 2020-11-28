@@ -21,7 +21,7 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("HTTP", Program.LogLevel);
         private static readonly object _lock = new object();
-        private readonly Dictionary<ulong, PokemonData> _processedPokemon;
+        private readonly Dictionary<string, PokemonData> _processedPokemon;
         private readonly Dictionary<string, RaidData> _processedRaids;
         private readonly Dictionary<string, GymData> _processedGyms;
         private readonly Dictionary<string, PokestopData> _processedPokestops;
@@ -125,7 +125,7 @@
             // If no host is set use wildcard for all host interfaces
             Host = host ?? "*";
             Port = port;
-            _processedPokemon = new Dictionary<ulong, PokemonData>();
+            _processedPokemon = new Dictionary<string, PokemonData>();
             _processedRaids = new Dictionary<string, RaidData>();
             _processedGyms = new Dictionary<string, GymData>();
             _processedPokestops = new Dictionary<string, PokestopData>();
@@ -333,13 +333,15 @@
                 if (pokemon.SecondsLeft.TotalMinutes < _despawnTimerMinimumMinutes)
                     return;
 
-                /*
-                if (_processedPokemon.ContainsKey(pokemon.EncounterId))
+                if (!_processedPokemon.ContainsKey(pokemon.EncounterId))
                 {
-                    // Pokemon already sent (check if IV set)
-                    return;
+                    _processedPokemon.Add(pokemon.EncounterId, pokemon);
                 }
-                */
+                _processedPokemon[pokemon.EncounterId].Sent++;
+
+                // Only allow sending of 2 messages, one that is a non-IV and IV message
+                if (_processedPokemon[pokemon.EncounterId].Sent > 2)
+                    return;
 
                 OnPokemonReceived(pokemon);
             }
@@ -452,7 +454,7 @@
                     var processedInvasionAlready = _processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType && _processedPokestops[pokestop.PokestopId].IncidentExpire == pokestop.IncidentExpire;
                     if (processedLureAlready || processedInvasionAlready)
                     {
-                        _logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
+                        //_logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
                         // Processed pokestop lure or invasion already
                         return;
                     }
