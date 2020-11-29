@@ -46,7 +46,7 @@
 
             if (feature != null)
             {
-                var latlng = OsmManager.MultiPolygonToLatLng(feature.Geometry?.Coordinates);
+                var latlng = OsmManager.MultiPolygonToLatLng(feature.Geometry?.Coordinates, true);
                 var polygonKey = "&polygons=";
                 var polygonUrl = @"[{""fill_color"":""rgba(100.0%,0.0%,0.0%,0.5)"",""stroke_color"":""black"",""stroke_width"":1,""path"":" + latlng + "}]";
                 markerUrl += polygonKey + Uri.EscapeDataString(polygonUrl);
@@ -54,7 +54,7 @@
 
             if (multiPolygon != null)
             {
-                var latlng = OsmManager.MultiPolygonToLatLng(new List<MultiPolygon> { multiPolygon });
+                var latlng = OsmManager.MultiPolygonToLatLng(new List<MultiPolygon> { multiPolygon }, false);
                 var polygonKey = "&polygons=";
                 var polygonUrl = @"[{""fill_color"":""rgba(100.0%,0.0%,0.0%,0.5)"",""stroke_color"":""black"",""stroke_width"":1,""path"":" + latlng + "}]";
                 markerUrl += polygonKey + Uri.EscapeDataString(polygonUrl);
