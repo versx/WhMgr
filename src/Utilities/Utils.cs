@@ -9,7 +9,6 @@
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
-    using Org.BouncyCastle.Crypto.Tls;
     using Twilio;
     using Twilio.Rest.Api.V2010.Account;
 
@@ -42,13 +41,14 @@
             StaticMapConfig staticMap = JsonConvert.DeserializeObject<StaticMapConfig>(staticMapData);
 
             var url = string.Format(staticMapUrl, latitude, longitude, staticMapZoom);
-            var markerUrl = staticMap.Markers.Count > 0 ? url + "?markers=" + Uri.EscapeDataString(JsonConvert.SerializeObject(staticMap.Markers)) : string.Empty;
+            //var markerUrl = staticMap.Markers.Count > 0 ? url + "?markers=" + Uri.EscapeDataString(JsonConvert.SerializeObject(staticMap.Markers)) : string.Empty;
+            var markerUrl = staticMap.Markers.Count > 0 ? url + "?markers=" + JsonConvert.SerializeObject(staticMap.Markers) : string.Empty;
 
             if (feature != null)
             {
                 var latlng = OsmManager.MultiPolygonToLatLng(feature.Geometry?.Coordinates, true);
                 var polygonKey = "&polygons=";
-                var polygonUrl = @"[{""fill_color"":""rgba(100.0%,0.0%,0.0%,0.5)"",""stroke_color"":""black"",""stroke_width"":1,""path"":" + latlng + "}]";
+                var polygonUrl = @"[{""fill_color"":""rgba(100.0%,0.0%,0.0%,0.5)"",""stroke_color"":""black"",""stroke_width"":1,""path"":""" + latlng + @"""}]";
                 markerUrl += polygonKey + Uri.EscapeDataString(polygonUrl);
             }
 
@@ -56,8 +56,8 @@
             {
                 var latlng = OsmManager.MultiPolygonToLatLng(new List<MultiPolygon> { multiPolygon }, false);
                 var polygonKey = "&polygons=";
-                var polygonUrl = @"[{""fill_color"":""rgba(100.0%,0.0%,0.0%,0.5)"",""stroke_color"":""black"",""stroke_width"":1,""path"":" + latlng + "}]";
-                markerUrl += polygonKey + Uri.EscapeDataString(polygonUrl);
+                var polygonUrl = @"[{""fill_color"":""rgba(100.0%,0.0%,0.0%,0.5)"",""stroke_color"":""black"",""stroke_width"":1,""path"":""" + latlng + @"""}]";
+                markerUrl += polygonKey + polygonUrl;//Uri.EscapeDataString(polygonUrl);
             }
 
             return markerUrl;
