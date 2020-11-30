@@ -159,11 +159,11 @@
             var properties = GetProperties(client.Guilds[guildId], whConfig, city, raidImageUrl);
             var eb = new DiscordEmbedBuilder
             {
-                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
-                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
-                ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
-                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Title = Renderer.Parse(alert.Title, properties),
+                Url = Renderer.Parse(alert.Url, properties),
+                ImageUrl = Renderer.Parse(alert.ImageUrl, properties),
+                ThumbnailUrl = Renderer.Parse(alert.IconUrl, properties),
+                Description = Renderer.Parse(alert.Content, properties),
                 Color = (IsExEligible ? 0 /*ex*/ : int.Parse(Level)).BuildRaidColor(server),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
