@@ -87,11 +87,11 @@
             var properties = GetProperties(client.Guilds[guildId], whConfig, city, IconFetcher.Instance.GetQuestIcon(whConfig.Servers[guildId].IconStyle, this));
             var eb = new DiscordEmbedBuilder
             {
-                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
-                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
-                ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
-                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Title = Renderer.Parse(alert.Title, properties),
+                Url = Renderer.Parse(alert.Url, properties),
+                ImageUrl = Renderer.Parse(alert.ImageUrl, properties),
+                ThumbnailUrl = Renderer.Parse(alert.IconUrl, properties),
+                Description = Renderer.Parse(alert.Content, properties),
                 Color = new DiscordColor(server.DiscordEmbedColors.Pokestops.Quests),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
