@@ -9,7 +9,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     },
     "pokemonMissingStats": {
@@ -22,7 +22,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     },
     "gyms": {
@@ -35,7 +35,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     },
     "raids": {
@@ -48,7 +48,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     },
     "eggs": {
@@ -61,7 +61,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     },
     "pokestops": {
@@ -74,7 +74,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     },
     "quests": {
@@ -87,7 +87,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     },
     "lures": {
@@ -100,7 +100,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     },
     "invasions": {
@@ -113,7 +113,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     },
     "nests": {
@@ -126,7 +126,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     },
     "weather": {
@@ -139,7 +139,7 @@
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
-            "icon_url": "{{guild_img_url}}"
+            "iconUrl": "{{guild_img_url}}"
         }
     }
 }

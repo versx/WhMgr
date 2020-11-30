@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -375,10 +376,12 @@
         /// </summary>
         public void SetDespawnTime()
         {
-            DespawnTime = DisappearTime.FromUnix()
+            DespawnTime = DisappearTime
+                .FromUnix()
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
 
-            SecondsLeft = DespawnTime.Subtract(DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude));
+            SecondsLeft = DespawnTime
+                .Subtract(DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude));
 
             FirstSeenTime = FirstSeen
                 .FromUnix()
@@ -414,12 +417,14 @@
             });
             var eb = new DiscordEmbedBuilder
             {
-                Title = Renderer.Parse(alert.Title, properties),
-                Url = Renderer.Parse(alert.Url, properties),
-                ImageUrl = Renderer.Parse(alert.ImageUrl, properties),
-                ThumbnailUrl = Renderer.Parse(alert.IconUrl, properties),
-                Description = Renderer.Parse(alert.Content, properties),
-                Color = IV.BuildColor(),
+                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
+                ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Color = MatchesGreatLeague || MatchesUltraLeague
+                    ? GetPvPColor(GreatLeague, UltraLeague, server)
+                    : IV.BuildPokemonIVColor(server),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = Renderer.Parse(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
@@ -430,6 +435,24 @@
             var iconUrl = Renderer.Parse(alert.AvatarUrl, properties);
             var description = Renderer.Parse(alarm?.Description, properties);
             return await Task.FromResult(new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() }));
+        }
+
+        private DiscordColor GetPvPColor(List<PVPRank> greatLeague, List<PVPRank> ultraLeague, DiscordServerConfig server)
+        {
+            if (greatLeague != null)
+                greatLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
+
+            if (ultraLeague != null)
+                ultraLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
+
+            var greatRank = greatLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP);
+            var ultraRank = ultraLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP);
+            var color = server.DiscordEmbedColors.Pokemon.PvP.FirstOrDefault(x => ((greatRank?.Rank ?? 0) >= x.Minimum && (greatRank?.Rank ?? 0) <= x.Maximum) || ((ultraRank?.Rank ?? 0) >= x.Minimum && (ultraRank?.Rank ?? 0) <= x.Maximum));
+            if (color == null)
+            {
+                return DiscordColor.White;
+            }
+            return new DiscordColor(color.Color);
         }
 
         #endregion
@@ -479,11 +502,8 @@
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var pokestop = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
 
-            var isGreat = MatchesGreatLeague;
-            var isUltra = MatchesUltraLeague;
             var greatLeagueEmoji = PvPLeague.Great.GetLeagueEmojiIcon();
             var ultraLeagueEmoji = PvPLeague.Ultra.GetLeagueEmojiIcon();
-            var isPvP = isGreat || isUltra;
             var pvpStats = await GetPvP();
 
             const string defaultMissingValue = "?";
@@ -531,9 +551,9 @@
                 { "capture_3_emoji", CaptureRateType.UltraBall.GetCaptureRateEmojiIcon() },
 
                 // PvP stat properties
-                { "is_great", Convert.ToString(isGreat) },
-                { "is_ultra", Convert.ToString(isUltra) },
-                { "is_pvp", Convert.ToString(isPvP) },
+                { "is_great", Convert.ToString(MatchesGreatLeague) },
+                { "is_ultra", Convert.ToString(MatchesUltraLeague) },
+                { "is_pvp", Convert.ToString(MatchesGreatLeague || MatchesUltraLeague) },
                 //{ "great_league_stats", greatLeagueStats },
                 //{ "ultra_league_stats", ultraLeagueStats },
                 { "great_league_emoji", greatLeagueEmoji },

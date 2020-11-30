@@ -116,12 +116,12 @@
             var properties = GetProperties(client.Guilds[guildId], whConfig, city, weatherImageUrl);
             var eb = new DiscordEmbedBuilder
             {
-                Title = Renderer.Parse(alert.Title, properties),
-                Url = Renderer.Parse(alert.Url, properties),
-                ImageUrl = Renderer.Parse(alert.ImageUrl, properties),
-                ThumbnailUrl = Renderer.Parse(alert.IconUrl, properties),
-                Description = Renderer.Parse(alert.Content, properties),
-                Color = GameplayCondition.BuildWeatherColor(),
+                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
+                ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Color = GameplayCondition.BuildWeatherColor(server),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = Renderer.Parse(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
@@ -149,7 +149,7 @@
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
             var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.Weather.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, whConfig.StaticMaps.Weather.ZoomLevel, Latitude, Longitude, weatherImageUrl, null);
+            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, whConfig.StaticMaps.Weather.ZoomLevel, Latitude, Longitude, weatherImageUrl, null, null, Polygon);
             var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);

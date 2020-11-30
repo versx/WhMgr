@@ -136,6 +136,9 @@
         [JsonProperty("dmAlertsFile")]
         public string DmAlertsFile { get; set; }
 
+        [JsonProperty("embedColors")]
+        public DiscordEmbedColorConfig DiscordEmbedColors { get; set; }
+
         [JsonIgnore]
         public AlertMessage DmAlerts { get; set; }
 
@@ -153,6 +156,7 @@
             Subscriptions = new SubscriptionsConfig();
             NestsMinimumPerHour = 1;
             DmAlertsFile = "default.json";
+            DiscordEmbedColors = new DiscordEmbedColorConfig();
 
             LoadDmAlerts();
         }

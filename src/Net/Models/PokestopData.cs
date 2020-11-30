@@ -115,17 +115,16 @@
             var properties = GetProperties(client.Guilds[guildId], whConfig, city);
             var eb = new DiscordEmbedBuilder
             {
-                Title = Renderer.Parse(alert.Title, properties),
-                Url = Renderer.Parse(alert.Url, properties),
-                ImageUrl = Renderer.Parse(alert.ImageUrl, properties),
-                ThumbnailUrl = Renderer.Parse(alert.IconUrl, properties),
-                Description = Renderer.Parse(alert.Content, properties),
-                Color = HasInvasion ? DiscordColor.Red : HasLure ?
-                    (LureType == PokestopLureType.Normal ? DiscordColor.HotPink
-                    : LureType == PokestopLureType.Glacial ? DiscordColor.CornflowerBlue
-                    : LureType == PokestopLureType.Mossy ? DiscordColor.SapGreen
-                    : LureType == PokestopLureType.Magnetic ? DiscordColor.Gray
-                    : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue,
+                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
+                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
+                ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
+                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Color = HasInvasion
+                    ? new DiscordColor(server.DiscordEmbedColors.Pokestops.Invasions)
+                    : HasLure
+                        ? LureType.BuildLureColor(server)
+                        : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = Renderer.Parse(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
