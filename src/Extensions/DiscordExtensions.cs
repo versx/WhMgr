@@ -242,7 +242,7 @@
 
             var server = config.Servers[guildId];
 
-            var isAdmin = IsOwner(userId, server.OwnerId);
+            var isAdmin = IsAdmin(userId, server.OwnerId);
             if (isAdmin)
                 return true;
 
@@ -253,15 +253,7 @@
             return false;
         }
 
-        public static bool IsModerator(this ulong userId, ulong guildId, WhConfig config)
-        {
-            if (!config.Servers.ContainsKey(guildId))
-                return false;
-
-            return config.Servers[guildId].Moderators.Contains(userId);
-        }
-
-        public static bool IsOwner(this ulong userId, ulong ownerId)
+        public static bool IsAdmin(this ulong userId, ulong ownerId)
         {
             return userId == ownerId;
         }
