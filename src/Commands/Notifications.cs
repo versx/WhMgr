@@ -227,7 +227,7 @@
             [Description("Minimum IV to receive notifications for, use 0 to disregard IV. i.e. 100 or 0-15-15")] string iv = "0",
             [Description("Minimum level and maximum level to receive notifications for, use 0 to disregard level. Set a maximum value with 15-35.")] string lvl = "0",
             [Description("Specific gender the Pokemon must be, use * to disregard gender. (*, m, f)")] string gender = "*",
-            [Description("City")] string city = "all")
+            [Description("City or area to remove from the subscription, 'All' for all areas, or leave blank to use set distance.")] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -363,6 +363,11 @@
             }
 
             var areas = GetAreas(guildId, city);
+            if (areas.Count == 0 && subscription.DistanceM == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
+                return;
+            }
 
             // Loop through each valid pokemon entry provided
             var keys = validation.Valid.Keys.ToList();
@@ -489,7 +494,7 @@
         ]
         public async Task PokeMeNotAsync(CommandContext ctx,
             [Description("Pokemon name or id to unsubscribe from Pokemon spawn notifications.")] string poke,
-            [Description("City or area to remove from the subscription, or leave blank for all cities.")] string city = "all")
+            [Description("City or area to remove from the subscription, 'All' for all areas, or leave blank to remove the whole subscription.")] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -549,7 +554,9 @@
                 }
 
                 // Check if there are no more areas set for the Pokemon subscription
-                if (subPkmn.Areas.Count == 0)
+                //if (subPkmn.Areas.Count == 0)
+                // If no city specified then remove the whole subscription
+                if (string.IsNullOrEmpty(city))
                 {
                     // If no more areas set for the Pokemon subscription, delete it
                     var result = subPkmn.Id.Remove<PokemonSubscription>();
@@ -586,7 +593,7 @@
         ]
         public async Task RaidMeAsync(CommandContext ctx,
             [Description("Pokemon name or id to subscribe to raid notifications.")] string poke,
-            [Description("City to send the notification if the raid appears in otherwise if null all will be sent."), RemainingText] string city = "all")
+            [Description("City or area to add to the subscription, 'All' for all areas, or leave blank to use set distance."), RemainingText] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -613,6 +620,12 @@
             }
 
             var areas = GetAreas(guildId, city);
+            if (areas.Count == 0 && subscription.DistanceM == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
+                return;
+            }
+
             var keys = validation.Valid.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -665,7 +678,7 @@
         ]
         public async Task RaidMeNotAsync(CommandContext ctx,
             [Description("Pokemon name or id to unsubscribe from raid notifications.")] string poke,
-            [Description("City to remove the quest notifications from otherwise if null all will be sent."), RemainingText] string city = "all")
+            [Description("City or area to remove from the subscription, 'All' for all areas, or leave blank to remove the whole subscription."), RemainingText] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -724,7 +737,9 @@
                 }
 
                 // Check if there are no more areas set for the Pokemon subscription
-                if (subRaid.Areas.Count == 0)
+                //if (subRaid.Areas.Count == 0)
+                // If no city specified then remove the whole subscription
+                if (string.IsNullOrEmpty(city))
                 {
                     // If no more areas set for the Pokemon subscription, delete it
                     if (!subRaid.Id.Remove<RaidSubscription>())
@@ -760,7 +775,7 @@
         ]
         public async Task QuestMeAsync(CommandContext ctx,
             [Description("Reward keyword to use to find field research. Example: Spinda, 1200 stardust, candy")] string rewardKeyword,
-            [Description("City to send the notification if the quest appears in otherwise if null all will be sent.")] string city = "all")
+            [Description("City or area to add to the subscription, 'All' for all areas, or leave blank to use set distance.")] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -780,6 +795,12 @@
             }
 
             var areas = GetAreas(guildId, city);
+            if (areas.Count == 0 && subscription.DistanceM == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
+                return;
+            }
+
             var subQuest = subscription.Quests.FirstOrDefault(x => string.Compare(x.RewardKeyword, rewardKeyword, true) == 0);
             if (subQuest != null)
             {
@@ -824,7 +845,7 @@
         ]
         public async Task QuestMeNotAsync(CommandContext ctx,
             [Description("Reward keyword to remove from field research quest subscriptions. Example: Spinda, 1200 stardust, candy")] string rewardKeyword,
-            [Description("City to remove the quest notifications from otherwise if null all will be sent.")] string city = "all")
+            [Description("City or area to remove from the subscription, 'All' for all areas, or leave blank to remove the whole subscription.")] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -878,7 +899,9 @@
             }
 
             // Check if there are no more areas set for the Pokemon subscription
-            if (subQuest.Areas.Count == 0)
+            //if (subQuest.Areas.Count == 0)
+            // If no city specified then remove the whole subscription
+            if (string.IsNullOrEmpty(city))
             {
                 // If no more areas set for the Pokemon subscription, delete it
                 if (!subQuest.Id.Remove<QuestSubscription>())
@@ -993,7 +1016,7 @@
         ]
         public async Task InvMeAsync(CommandContext ctx,
             [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to rewards from Team Rocket Invasion notifications.")] string poke,
-            [Description("City to send the notification if the invasion appears in otherwise if null all will be sent.")] string city = "all")
+            [Description("City or area to add to the subscription, 'All' for all areas, or leave blank to use set distance.")] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -1020,6 +1043,12 @@
             }
 
             var areas = GetAreas(guildId, city);
+            if (areas.Count == 0 && subscription.DistanceM == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
+                return;
+            }
+
             var keys = validation.Valid.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -1072,7 +1101,7 @@
         ]
         public async Task InvMeNotAsync(CommandContext ctx,
             [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to unsubscribe from rewards for Team Rocket Invasion notifications.")] string poke,
-            [Description("City to send the notification if the raid appears in otherwise if null all will be sent.")] string city = "all")
+            [Description("City or area to remove from the subscription, 'All' for all areas, or leave blank to remove the whole subscription.")] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -1130,7 +1159,9 @@
                 }
 
                 // Check if there are no more areas set for the invasion subscription
-                if (subInvasion.Areas.Count == 0)
+                //if (subInvasion.Areas.Count == 0)
+                // If no city specified then remove the whole subscription
+                if (string.IsNullOrEmpty(city))
                 {
                     // If no more areas set for the invasion subscription, delete it
                     if (!subInvasion.Id.Remove<InvasionSubscription>())
@@ -1216,7 +1247,7 @@
             [Description("PvP league")] string league,
             [Description("Minimum PvP ranking.")] int minimumRank = 5,
             [Description("Minimum PvP rank percentage.")] double minimumPercent = 0.0,
-            [Description("")] string city = "all")
+            [Description("City or area to add to the subscription, 'All' for all areas, or leave blank to use set distance.")] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -1274,6 +1305,12 @@
             }
 
             var areas = GetAreas(guildId, city);
+            if (areas.Count == 0 && subscription.DistanceM == 0)
+            {
+                await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
+                return;
+            }
+
             var keys = validation.Valid.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -1371,7 +1408,7 @@
         public async Task PvpMeNotAsync(CommandContext ctx,
             [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs to subscribe to Pokemon spawn notifications.")] string poke,
             [Description("PvP league")] string league,
-            [Description("")] string city = "all")
+            [Description("City or area to remove from the subscription, 'All' for all areas, or leave blank to remove the whole subscription.")] string city = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -1446,7 +1483,9 @@
                 }
 
                 // Check if there are no more areas set for the PvP Pokemon subscription
-                if (subPvP.Areas.Count == 0)
+                //if (subPvP.Areas.Count == 0)
+                // If no city specified then remove the whole subscription
+                if (string.IsNullOrEmpty(city))
                 {
                     // If no more areas set for the PvP Pokemon subscription, delete it
                     var result = subPvP.Id.Remove<PvPSubscription>();
@@ -2131,8 +2170,11 @@
 
         private List<string> GetAreas(ulong guildId, string city)
         {
+            if (string.IsNullOrEmpty(city))
+                return new List<string>();
+
             var server = _dep.WhConfig.Servers[guildId];
-            var cities = string.IsNullOrEmpty(city) || string.Compare(city, Strings.All, true) == 0
+            var cities = /*string.IsNullOrEmpty(city) ||*/ string.Compare(city, Strings.All, true) == 0
                 ? server.CityRoles
                 : city.Replace(" ,", ",").Replace(", ", ",").Split(',').ToList();
             return GetValidatedAreas(cities, server.CityRoles);

@@ -93,7 +93,6 @@
             MaximumLevel = 35;
             Gender = "*";
             Form = null;
-            //City = null;
             Areas = new List<string>();
             IVList = new List<string>();
         }
