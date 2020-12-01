@@ -176,8 +176,8 @@
                 Color = DiscordColor.Green,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = DynamicReplacementEngine.ReplaceText(alertMessage.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
-                    IconUrl = DynamicReplacementEngine.ReplaceText(alertMessage.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties)
+                    Text = DynamicReplacementEngine.ReplaceText(alertMessage.Footer?.Text, properties),
+                    IconUrl = DynamicReplacementEngine.ReplaceText(alertMessage.Footer?.IconUrl, properties)
                 }
             };
             return eb.Build();
