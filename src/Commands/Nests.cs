@@ -176,8 +176,8 @@
                 Color = DiscordColor.Green,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = Renderer.Parse(alertMessage.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
-                    IconUrl = Renderer.Parse(alertMessage.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties)
+                    Text = Renderer.Parse(alertMessage.Footer?.Text, properties),
+                    IconUrl = Renderer.Parse(alertMessage.Footer?.IconUrl, properties)
                 }
             };
             return eb.Build();
