@@ -247,7 +247,7 @@
     "minIV": 100
   },
   "gmapsKey": "",
-  "nominatim": "https://nominatim.openstreetmap.org",
+  "nominatim": "",
   "despawnTimeMinimumMinutes": 5,
   "reloadSubscriptionChangesMinutes": 1,
   "debug": false,
