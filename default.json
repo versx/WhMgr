@@ -1,0 +1,255 @@
+{
+  "host": "10.0.0.10",
+  "port": 8008,
+  "locale": "en",
+  "shortUrlApiUrl": null,
+  "stripeApiKey": "",
+  "servers": {
+    "000000000000000001": {
+      "commandPrefix": ".",
+      "emojiGuildId": 000000000000000001,
+      "ownerId": 000000000000000000,
+      "donorRoleIds": [],
+      "moderatorRoleIds": [],
+      "token": "<DISCORD_BOT_TOKEN>",
+      "alarms": "alarms.json",
+      "subscriptions": {
+        "enabled": false,
+        "maxPokemonSubscriptions": 0,
+        "maxPvPSubscriptions": 0,
+        "maxRaidSubscriptions": 0,
+        "maxQuestSubscriptions": 0,
+        "maxInvasionSubscriptions": 0,
+        "maxGymSubscriptions": 0
+      },
+      "enableCities": false,
+      "cityRoles": [
+        "City1",
+        "City2"
+      ],
+      "citiesRequireSupporterRole": true,
+      "pruneQuestChannels": true,
+      "questChannelIds": [],
+      "nestsChannelId": 0,
+      "nestsMinimumPerHour": 2,
+      "shinyStats": {
+        "enabled": true,
+        "clearMessages": false,
+        "channelId": 0
+      },
+      "iconStyle": "Default",
+      "botChannelIds": [],
+      "status": null,
+      "dmAlertsFile": "default.json",
+      "embedColors": {
+        "pokemon": {
+          "iv": [
+            { "min": 0, "max": 0, "color": "#ffffff" },
+            { "min": 1, "max": 89, "color": "#ffff00" },
+            { "min": 90, "max": 99, "color": "#ffa500" },
+            { "min": 100, "max": 100, "color": "#00ff00" }
+          ],
+          "pvp": [
+            { "min": 1, "max": 1, "color": "#000080" },
+            { "min": 6, "max": 25, "color": "#800080" },
+            { "min": 25, "max": 100, "color": "#aa2299" }
+          ]
+        },
+        "raids": {
+          "1": "#ff69b4",
+          "2": "#ff69b4",
+          "3": "#ffff00",
+          "4": "#ffff00",
+          "5": "#800080",
+          "6": "#a52a2a",
+          "ex": "#2c2f33"
+        },
+        "pokestops": {
+          "quests": "#ffa500",
+          "lures": {
+            "normal": "#ff69b4",
+            "glacial": "#6495ed",
+            "mossy": "#507d2a",
+            "magnetic": "#808080"
+          },
+          "invasions": "#ff0000"
+        },
+        "weather": {
+          "clear": "#ffff00",
+          "cloudy": "#99aab5",
+          "fog": "#9a9a9a",
+          "partlyCloudy": "#808080",
+          "rain": "#0000ff",
+          "snow": "#ffffff",
+          "windy": "#800080"
+        }
+      }
+    },
+    "000000000000000002": {
+      "commandPrefix": ".",
+      "emojiGuildId": 000000000000000001,
+      "ownerId": 000000000000000000,
+      "donorRoleIds": [],
+      "moderatorRoleIds": [],
+      "token": "<DISCORD_BOT_TOKEN>",
+      "alarms": "alarms2.json",
+      "subscriptions": {
+        "enabled": false,
+        "maxPokemonSubscriptions": 0,
+        "maxPvPSubscriptions": 0,
+        "maxRaidSubscriptions": 0,
+        "maxQuestSubscriptions": 0,
+        "maxInvasionSubscriptions": 0,
+        "maxGymSubscriptions": 0
+      },
+      "enableCities": false,
+      "cityRoles": [
+        "City3",
+        "City4"
+      ],
+      "citiesRequireSupporterRole": true,
+      "pruneQuestChannels": true,
+      "questChannelIds": [],
+      "nestsChannelId": 0,
+      "nestsMinimumPerHour": 2,
+      "shinyStats": {
+        "enabled": true,
+        "clearMessages": false,
+        "channelId": 0
+      },
+      "iconStyle": "Default",
+      "botChannelIds": [],
+      "status": "Test #2",
+      "dmAlertsFile": "default.json",
+      "embedColors": {
+        "pokemon": {
+          "iv": [
+            { "min": 0, "max": 0, "color": "#ffffff" },
+            { "min": 1, "max": 89, "color": "#ffff00" },
+            { "min": 90, "max": 99, "color": "#ffa500" },
+            { "min": 100, "max": 100, "color": "#00ff00" }
+          ],
+          "pvp": [
+            { "min": 1, "max": 1, "color": "#000080" },
+            { "min": 6, "max": 25, "color": "#800080" },
+            { "min": 25, "max": 100, "color": "#aa2299" }
+          ]
+        },
+        "raids": {
+          "1": "#ff69b4",
+          "2": "#ff69b4",
+          "3": "#ffff00",
+          "4": "#ffff00",
+          "5": "#800080",
+          "6": "#a52a2a",
+          "ex": "#2c2f33"
+        },
+        "pokestops": {
+          "quests": "#ffa500",
+          "lures": {
+            "normal": "#ff69b4",
+            "glacial": "#6495ed",
+            "mossy": "#507d2a",
+            "magnetic": "#808080"
+          },
+          "invasions": "#ff0000"
+        },
+        "weather": {
+          "clear": "#ffff00",
+          "cloudy": "#99aab5",
+          "fog": "#9a9a9a",
+          "partlyCloudy": "#808080",
+          "rain": "#0000ff",
+          "snow": "#ffffff",
+          "windy": "#800080"
+        }
+      }
+    }
+  },
+  "database": {
+    "main": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "username": "root",
+      "password": "password",
+      "database": "brock3"
+    },
+    "scanner": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "username": "root",
+      "password": "password",
+      "database": "rdmdb"
+    },
+    "nests": {
+      "host": "127.0.0.1",
+      "port": 3306,
+      "username": "root",
+      "password": "password",
+      "database": "manualdb"
+    }
+  },
+  "eventPokemonIds": [
+    129,
+    456,
+    320
+  ],
+  "eventMinimumIV": "90",
+  "urls": {
+    "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/{2}/300/175/1/png",
+    "scannerMap": "http://map.example.com/@/{0}/{1}/15"
+  },
+  "iconStyles": {
+    "Default": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/",
+    "Shuffle": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
+  },
+  "staticMaps": {
+    "pokemon": {
+        "file": "pokemon.example.json",
+        "zoom": 15
+    },
+    "raids": {
+        "file": "raids.example.json",
+        "zoom": 15
+    },
+    "quests": {
+        "file": "quests.example.json",
+        "zoom": 15
+    },
+    "invasions": {
+        "file": "invasions.example.json",
+        "zoom": 15
+    },
+    "lures": {
+        "file": "lures.example.json",
+        "zoom":  15
+    },
+    "gyms": {
+        "file": "gyms.example.json",
+        "zoom": 11
+    },
+    "nests": {
+        "file": "nests.example.json",
+        "zoom": 15
+    },
+    "weather": {
+        "file": "weather.example.json",
+        "zoom": 11
+    }
+  },
+  "twilio": {
+    "enabled": false,
+    "accountSid": "",
+    "authToken": "",
+    "from": "",
+    "userIds": [],
+    "pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
+    "minIV": 100
+  },
+  "gmapsKey": "",
+  "nominatim": "https://nominatim.openstreetmap.org",
+  "despawnTimeMinimumMinutes": 5,
+  "reloadSubscriptionChangesMinutes": 1,
+  "debug": false,
+  "logLevel": "Trace"
+}
