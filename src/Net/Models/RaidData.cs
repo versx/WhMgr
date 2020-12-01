@@ -167,8 +167,8 @@
                 Color = (IsExEligible ? 0 /*ex*/ : int.Parse(Level)).BuildRaidColor(server),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text, properties),
-                    IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl, properties)
+                    Text = Renderer.Parse(alert.Footer?.Text, properties),
+                    IconUrl = Renderer.Parse(alert.Footer?.IconUrl, properties)
                 }
             };
             var username = Renderer.Parse(alert.Username, properties);
