@@ -95,8 +95,8 @@
                 Color = new DiscordColor(server.DiscordEmbedColors.Pokestops.Quests),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text, properties),
-                    IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl, properties)
+                    Text = Renderer.Parse(alert.Footer?.Text, properties),
+                    IconUrl = Renderer.Parse(alert.Footer?.IconUrl, properties)
                 }
             };
             var username = Renderer.Parse(alert.Username, properties);
