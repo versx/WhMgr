@@ -182,6 +182,7 @@
             var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
             var name = IsEgg ? "Egg" /*TODO: Localize*/ : Translator.Instance.GetPokemonName(PokemonId);
             var form = Translator.Instance.GetFormName(Form);
+            var costume = Translator.Instance.GetCostumeName(Costume);
             var evo = Translator.Instance.GetEvolutionName(Evolution);
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
@@ -235,6 +236,9 @@
                 { "form", form },
                 { "form_id", Form.ToString() },
                 { "form_id_3", Form.ToString("D3") },
+                { "costume", costume },
+                { "costume_id", Costume.ToString() },
+                { "costume_id_3", Costume.ToString("D3") },
                 { "is_egg", Convert.ToString(IsEgg) },
                 { "is_ex", Convert.ToString(IsExEligible) },
                 { "ex_emoji", exEmoji },
