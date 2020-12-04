@@ -774,8 +774,6 @@ __**Quests**__
 - Allow Pokemon id and name in Pokemon filter lists.  
 - Individual filters per Pokemon. (PA style, maybe)  
 - PvP ranks DTS
-- Separate subscriptions DTS
-- Wiki.  
 
 
 ## Previews  
@@ -818,7 +816,7 @@ Discord Weather Notifications:
 
 
 ## Current Issues  
-- Pokemon subscriptions are based on Discord city roles assigned currently, soon it will be based on specified cities.  
+
 
 ## Credits  
 [versx](https://github.com/versx) - Developer  
