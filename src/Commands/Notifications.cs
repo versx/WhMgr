@@ -1607,7 +1607,7 @@
                 return;
             }
 
-            if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id))
+            if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, user.Id))
             {
                 // TODO: Send response message
             }
