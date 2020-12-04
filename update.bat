@@ -21,4 +21,8 @@ dotnet build
 echo "Copying locale translation files..."
 xcopy /s /e %prjDir%\static\locale\* %binDir%\static\locale\
 
+echo "Copying latest master file..."
+xcopy /s /e %prjDir%\static\data\masterfile.json %binDir%\static\data\masterfile.json
+xcopy /s /e %prjDir%\static\data\cpMultipliers.json %binDir%\static\data\cpMultipliers.json
+
 echo "Update Complete"

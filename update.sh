@@ -16,4 +16,8 @@ echo "Building WhMgr..."
 echo "Copying locale translation files..."
 cp -R static/locale bin/debug/netcoreapp2.1/static/locale
 
+echo "Copying latest master file..."
+cp static/data/masterfile.json bin/debug/netcoreapp2.1/static/data/masterfile.json
+cp static/data/cpMultipliers.json static/data/cpMultipliers.json
+
 echo "Update Complete"
