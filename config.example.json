@@ -250,6 +250,7 @@
   "nominatim": "",
   "despawnTimeMinimumMinutes": 5,
   "reloadSubscriptionChangesMinutes": 1,
+  "maxNotificationsPerMinute": 10,
   "debug": false,
   "logLevel": "Trace"
 }
