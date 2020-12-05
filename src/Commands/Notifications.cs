@@ -1628,6 +1628,53 @@ and only from the following areas: {string.Join(", ", areasResult)}
                     #endregion
                     break;
                 case 3: // Raids
+                    #region Raids
+                    {
+                        // Check subscription limits
+                        if (server.Subscriptions.MaxRaidSubscriptions > 0 && subscription.Raids.Count >= server.Subscriptions.MaxRaidSubscriptions)
+                        {
+                            // Max limit for Raid subscriptions reached
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_RAID_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxRaidSubscriptions), DiscordColor.Red);
+                            return;
+                        }
+
+                        var raidInput = new RaidSubscriptionInput(ctx);
+                        var raidPokemon = await raidInput.GetPokemonResult();
+                        var raidAreas = await raidInput.GetAreasResult(server.CityRoles);
+
+                        var validPokemonNames = string.Join(", ", raidPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value)));
+                        await ctx.RespondEmbed($"Result:\nPokemon: {validPokemonNames}\nAreas: {string.Join(", ", raidAreas)}");
+                        var raidResult = AddRaidSubscription(ctx, subscription, raidPokemon, raidAreas);
+                        var subscribed = raidResult.Key;
+                        var alreadySubscribed = raidResult.Value;
+                        if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
+                        {
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(ctx.User.Username), DiscordColor.Red);
+                            return;
+                        }
+
+                        var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
+                        /*
+                        var isGen = false;
+                        for (var i = 1; i < 6; i++)
+                        {
+                            if (string.Compare("Gen" + i, validPokemonNames, true) == 0)
+                            {
+                                isGen = true;
+                                break;
+                            }
+                        }
+                        */
+                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
+                            ctx.User.Username,
+                            isAll ? Strings.All : validPokemonNames,
+                            raidAreas.Count == server.CityRoles.Count
+                                ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", raidAreas))
+                        ));
+                        _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                    }
+                    #endregion
                     break;
                 case 4: // Quests
                     #region Quests
@@ -1683,6 +1730,10 @@ and only from the following areas: {string.Join(", ", areasResult)}
                     #endregion
                     break;
                 case 5: // Invasions
+                    #region
+                    {
+                    }
+                    #endregion
                     break;
                 case 6: // Gyms
                     #region Gyms
@@ -1887,6 +1938,50 @@ and only from the following areas: {string.Join(", ", areasResult)}
                 alreadySubscribed.Add(name);
             }
 
+            var result = subscription.Save();
+            if (!result)
+            {
+            }
+            return new KeyValuePair<List<string>, List<string>>(subscribed, alreadySubscribed);
+        }
+
+        private KeyValuePair<List<string>, List<string>> AddRaidSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
+        {
+            var alreadySubscribed = new List<string>();
+            var subscribed = new List<string>();
+            var keys = validation.Valid.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var pokemonId = keys[i];
+                var form = validation.Valid[pokemonId];
+                var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
+                if (subRaid != null)
+                {
+                    // Existing raid subscription
+                    // Loop all areas, check if the area is already in subs, if not add it
+                    foreach (var area in areas)
+                    {
+                        if (!subRaid.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                        {
+                            subRaid.Areas.Add(area);
+                        }
+                    }
+                    // Save raid subscription and continue;
+                    // REVIEW: Might not be needed
+                    subRaid.Save();
+                    continue;
+                }
+
+                // New raid subscription
+                subscription.Raids.Add(new RaidSubscription
+                {
+                    GuildId = subscription.GuildId,
+                    UserId = ctx.User.Id,
+                    PokemonId = pokemonId,
+                    Form = form,
+                    Areas = areas
+                });
+            }
             var result = subscription.Save();
             if (!result)
             {
