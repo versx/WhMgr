@@ -1496,7 +1496,7 @@
 
         [
             Command("add"),
-            Description("")
+            Description("Easily add subscriptions via guided messages.")
         ]
         public async Task AddAsync(CommandContext ctx)
         {
@@ -1732,6 +1732,67 @@ and only from the following areas: {string.Join(", ", areasResult)}
                 case 5: // Invasions
                     #region
                     {
+                        // Check subscription limits
+                        if (server.Subscriptions.MaxInvasionSubscriptions > 0 && subscription.Invasions.Count >= server.Subscriptions.MaxInvasionSubscriptions)
+                        {
+                            // Max limit for Invasion subscriptions reached
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_INVASION_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxInvasionSubscriptions), DiscordColor.Red);
+                            return;
+                        }
+
+                        var invasionInput = new InvasionSubscriptionInput(ctx);
+                        var invasionPokemon = await invasionInput.GetPokemonResult();
+                        var invasionAreas = await invasionInput.GetAreasResult(server.CityRoles);
+
+                        var validPokemonNames = string.Join(", ", invasionPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name));
+                        var keys = invasionPokemon.Valid.Keys.ToList();
+                        for (var i = 0; i < keys.Count; i++)
+                        {
+                            var pokemonId = keys[i];
+                            //var form = validation.Valid[pokemonId];
+                            var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId);
+                            if (subInvasion != null)
+                            {
+                                // Existing invasion subscription
+                                // Loop all areas, check if the area is already in subs, if not add it
+                                foreach (var area in invasionAreas)
+                                {
+                                    if (!subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                                    {
+                                        subInvasion.Areas.Add(area);
+                                    }
+                                }
+                                // Save quest subscription and continue;
+                                // REVIEW: Might not be needed
+                                subInvasion.Save();
+                            }
+                            else
+                            {
+                                // New invasion subscription
+                                subscription.Invasions.Add(new InvasionSubscription
+                                {
+                                    GuildId = guildId,
+                                    UserId = ctx.User.Id,
+                                    RewardPokemonId = pokemonId,
+                                    Areas = invasionAreas
+                                });
+                            }
+                        }
+                        var result = subscription.Save();
+                        if (!result)
+                        {
+                        }
+
+                        var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
+                        var valid = invasionPokemon.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
+                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
+                            ctx.User.Username,
+                            isAll ? Strings.All : validPokemonNames,
+                            invasionAreas.Count == server.CityRoles.Count ?
+                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", invasionAreas))
+                        ));
+                        _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                     }
                     #endregion
                     break;
@@ -1793,7 +1854,6 @@ and only from the following areas: {string.Join(", ", areasResult)}
 
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
                     continue;
                 }
@@ -1888,7 +1948,6 @@ and only from the following areas: {string.Join(", ", areasResult)}
 
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
                     continue;
                 }
