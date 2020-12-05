@@ -11,10 +11,10 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-    using DSharpPlus.Interactivity;
 
     using Newtonsoft.Json;
 
+    using WhMgr.Commands.Input;
     using WhMgr.Data;
     using WhMgr.Data.Subscriptions;
     using WhMgr.Data.Subscriptions.Models;
@@ -372,14 +372,14 @@
             var subscribed = new List<string>();
             var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             // Validate the provided pokemon list
-            var validation = ValidatePokemonList(poke);
+            var validation = PokemonValidation.Validate(poke);
             if (validation == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
-            var areas = GetAreas(guildId, city);
+            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
 
             // Loop through each valid pokemon entry provided
             var keys = validation.Valid.Keys.ToList();
@@ -442,7 +442,7 @@
                     (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && hasStatsSet) ||
                     // TODO: Check against cities
                     //(string.Compare(subPkmn.City, cities, true) != 0 && !ContainsCity(subPkmn.City, cities)))
-                    !ContainsCity(subPkmn.Areas, areas))
+                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
                 {
                     subPkmn.Form = form;
                     subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : realIV;
@@ -536,14 +536,14 @@
                 return;
             }
 
-            var validation = ValidatePokemonList(poke);
+            var validation = PokemonValidation.Validate(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
-            var areas = GetAreas(guildId, city);
+            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             var error = false;
             var keys = validation.Valid.Keys.ToList();
@@ -622,14 +622,14 @@
                 return;
             }
 
-            var validation = ValidatePokemonList(poke);
+            var validation = PokemonValidation.Validate(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
-            var areas = GetAreas(guildId, city);
+            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
             var keys = validation.Valid.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -714,14 +714,14 @@
                 return;
             }
 
-            var validation = ValidatePokemonList(poke);
+            var validation = PokemonValidation.Validate(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
-            var areas = GetAreas(guildId, city);
+            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
             foreach (var item in validation.Valid)
             {
                 var pokemonId = item.Key;
@@ -796,7 +796,7 @@
                 return;
             }
 
-            var areas = GetAreas(guildId, city);
+            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
             var subQuest = subscription.Quests.FirstOrDefault(x => string.Compare(x.RewardKeyword, rewardKeyword, true) == 0);
             if (subQuest != null)
             {
@@ -879,7 +879,7 @@
                 return;
             }
 
-            var areas = GetAreas(guildId, city);
+            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
             var subQuest = subscription.Quests.FirstOrDefault(x => string.Compare(x.RewardKeyword, rewardKeyword, true) == 0);
             // Check if subscribed
             if (subQuest == null)
@@ -1029,14 +1029,14 @@
                 return;
             }
 
-            var validation = ValidatePokemonList(poke);
+            var validation = PokemonValidation.Validate(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
-            var areas = GetAreas(guildId, city);
+            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
             var keys = validation.Valid.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -1121,14 +1121,14 @@
                 return;
             }
 
-            var validation = ValidatePokemonList(poke);
+            var validation = PokemonValidation.Validate(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
-            var areas = GetAreas(guildId, city);
+            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
             foreach (var item in validation.Valid)
             {
                 var pokemonId = item.Key;
@@ -1283,14 +1283,14 @@
 
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
-            var validation = ValidatePokemonList(poke);
+            var validation = PokemonValidation.Validate(poke);
             if (validation == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
-            var areas = GetAreas(guildId, city);
+            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
             var keys = validation.Valid.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
             {
@@ -1330,7 +1330,7 @@
                 //Exists, check if anything changed.
                 if (minimumRank != subPkmn.MinimumRank ||
                     minimumPercent != subPkmn.MinimumPercent ||
-                    !ContainsCity(subPkmn.Areas, areas))
+                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
                 {
                     subPkmn.MinimumRank = minimumRank;
                     subPkmn.MinimumPercent = minimumPercent;
@@ -1434,7 +1434,7 @@
                 return;
             }
 
-            var validation = ValidatePokemonList(poke);
+            var validation = PokemonValidation.Validate(poke);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -1442,7 +1442,7 @@
             }
 
             var error = false;
-            var areas = GetAreas(guildId, city);
+            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             var keys = validation.Valid.Keys.ToList();
             for (var i = 0; i < keys.Count; i++)
@@ -1503,62 +1503,227 @@
             if (!await CanExecute(ctx))
                 return;
 
-            // TODO: Add what? Pokemon, raid, quest, invasion, gym
-
-            var typeMessage = await ctx.GetSubscriptionTypeSelection();
-            await ctx.RespondEmbed("Type response: " + typeMessage);
-
-            await ctx.Message.DeleteAsync();
-            var pokemonMessage = await ctx.RespondEmbed("Enter either the Pokemon name(s) or Pokedex ID(s) separated by a comma to subscribe to (i.e. larvitar,dratini):", DiscordColor.Blurple);
-            var interactivity = _dep.Interactivity;
-            var result = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && !string.IsNullOrEmpty(x.Content), TimeSpan.FromMinutes(3)); // TODO: Configurable subscription timeout
-            // TODO: Provide error response on null result
-            // TODO: If nothing provided for optional values use default value
-            if (result == null)
-            {
-                await ctx.RespondEmbed($"Invalid Pokemon", DiscordColor.Red);
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
                 return;
-            }
-            var resultPokemon = result.Message.Content;
-            // TODO: Validate result then delete message
-            await result.Message.DeleteAsync();
-            pokemonMessage.ForEach(async x => await x.DeleteAsync());
 
-            var ivMessage = await ctx.RespondEmbed("Enter the minimum IV value or specific individual values (i.e. 95 or 0-14-15):", DiscordColor.Blurple);
-            result = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && !string.IsNullOrEmpty(x.Content), TimeSpan.FromMinutes(3));
-            if (result == null)
+            var server = _dep.WhConfig.Servers[guildId];
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+
+            var subType = await ctx.GetSubscriptionTypeSelection();
+            switch (subType)
             {
-                await ctx.RespondEmbed($"Invalid IV value", DiscordColor.Red);
-                return;
+                case 1: // Pokemon
+                    #region Pokemon
+                    // Check subscription limits
+                    if (server.Subscriptions.MaxPokemonSubscriptions > 0 && subscription.Pokemon.Count >= server.Subscriptions.MaxPokemonSubscriptions)
+                    {
+                        // Max limit for Pokemon subscriptions reached
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxPokemonSubscriptions), DiscordColor.Red);
+                        return;
+                    }
+
+                    var pkmnInput = new PokemonSubscriptionInput(ctx);
+                    var pkmnResult = await pkmnInput.GetPokemonResult();
+                    var ivResult = await pkmnInput.GetIVResult();
+                    var lvlResult = await pkmnInput.GetLevelResult();
+                    var genderResult = await pkmnInput.GetGenderResult();
+                    var areasResult = await pkmnInput.GetAreasResult(_dep.WhConfig.Servers[guildId].CityRoles);
+
+                    var validPokemonNames = string.Join(", ", pkmnResult.Valid.Keys);
+                    await ctx.RespondEmbed($"Result:\nPokemon: {validPokemonNames}\nMin IV: {ivResult.IV}\nMin Level: {lvlResult.MinimumLevel}\nMax Level: {lvlResult.MaximumLevel}\nGender: {genderResult}");
+                    var result = await AddPokemonSubscription(ctx, subscription, pkmnResult, ivResult, lvlResult.MinimumLevel, lvlResult.MaximumLevel, genderResult, areasResult);
+
+                    var subscribed = result.Key;
+                    var alreadySubscribed = result.Value;
+                    if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
+                    {
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(ctx.User.Username), DiscordColor.Red);
+                        return;
+                    }
+
+                    var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
+                    var isGen = false;
+                    for (var i = 1; i < 6; i++)
+                    {
+                        if (string.Compare("Gen" + i, validPokemonNames, true) == 0)
+                        {
+                            isGen = true;
+                            break;
+                        }
+                    }
+
+                    var msg = $@"
+{(ivResult.Attack >= 0 || ivResult.Defense >= 0 || ivResult.Stamina >= 0 ? $"an IV value of {ivResult.Attack}/{ivResult.Defense}/{ivResult.Stamina}" : $" a minimum IV of {ivResult.IV}%")}
+{(lvlResult.MinimumLevel > 0 ? $"and between levels {lvlResult.MinimumLevel}-{lvlResult.MaximumLevel}" : null)}
+{(genderResult == "*" ? null : $" and only '{genderResult}' gender types")}
+and only from the following areas: {string.Join(", ", areasResult)}
+                    ";
+
+                    await ctx.RespondEmbed
+                    (
+                        (subscribed.Count > 0
+                            ? $"{ctx.User.Username} has subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", subscribed))}** notifications with {msg}."
+                            : string.Empty) +
+                        (alreadySubscribed.Count > 0
+                            ? $"\r\n{ctx.User.Username} is already subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with {msg}."
+                            : string.Empty)
+                    );
+                    _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                    return;
+                    #endregion
+                case 2: // PVP
+                    // Check subscription limits
+                    if (server.Subscriptions.MaxPvPSubscriptions > 0 && subscription.PvP.Count >= server.Subscriptions.MaxPvPSubscriptions)
+                    {
+                        // Max limit for PvP Pokemon subscriptions reached
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxPvPSubscriptions), DiscordColor.Red);
+                        return;
+                    }
+                    break;
+                case 3: // Raids
+                    break;
+                case 4: // Quests
+                    break;
+                case 5: // Invasions
+                    break;
+                case 6: // Gyms
+                    #region Gyms
+                    // Check subscription limits
+                    if (server.Subscriptions.MaxGymSubscriptions > 0 && subscription.Gyms.Count >= server.Subscriptions.MaxGymSubscriptions)
+                    {
+                        // Max limit for Gym subscriptions reached
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_GYM_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxGymSubscriptions), DiscordColor.Red);
+                        return;
+                    }
+
+                    var message = await ctx.RespondEmbed($"Enter a gym name (or partial name) to get raid subscriptions from:", DiscordColor.Blurple);
+                    var gymName = await ctx.WaitForUserChoice();
+                    if (string.IsNullOrEmpty(gymName))
+                    {
+                        await ctx.RespondEmbed($"{ctx.User.Username} Gym Name must not be empty", DiscordColor.Blurple);
+                        return;
+                    }
+
+                    var subGym = subscription.Gyms.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
+                    if (subGym != null)
+                    {
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_EXISTS").FormatText(ctx.User.Username, gymName), DiscordColor.Red);
+                        return;
+                    }
+
+                    subscription.Gyms.Add(new GymSubscription
+                    {
+                        GuildId = guildId,
+                        UserId = ctx.User.Id,
+                        Name = gymName
+                    });
+                    subscription.Save();
+
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_ADDED").FormatText(ctx.User.Username, gymName));
+                    _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                    break;
+                    #endregion
+                case 0:
+                    // Invalid entry
+                    await ctx.RespondEmbed($"Invalid entry specified, please try again...", DiscordColor.Red);
+                    break;
             }
+        }
 
-            var resultIV = result.Message.Content;
-            // TODO: Validate result then delete message
-            await result.Message.DeleteAsync();
-            ivMessage.ForEach(async x => await x.DeleteAsync());
-
-            var levelMessage = await ctx.RespondEmbed("Enter the minimum level or minimum and maximum level (i.e 25 or 25-35):", DiscordColor.Blurple);
-            result = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && !string.IsNullOrEmpty(x.Content), TimeSpan.FromMinutes(3));
-            var resultLevel = result.Message.Content;
-            if (result == null)
+        private async Task<KeyValuePair<List<string>, List<string>>> AddPokemonSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, IVResult ivResult, int minLevel, int maxLevel, string gender, List<string> areas)
+        {
+            var subscribed = new List<string>();
+            var alreadySubscribed = new List<string>();
+            var keys = validation.Valid.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
             {
-                resultLevel = "0";
-            }
-            // TODO: Validate result then delete message
-            levelMessage.ForEach(async x => await x.DeleteAsync());
-            await result.Message.DeleteAsync();
+                var pokemonId = keys[i];
+                var form = validation.Valid[pokemonId];
 
-            var genderMessage = await ctx.RespondEmbed("Enter the gender to receive notifications for (i.e `m`, `f`, or `*`):", DiscordColor.Blurple);
-            result = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && !string.IsNullOrEmpty(x.Content), TimeSpan.FromMinutes(3));
-            var resultGender = result.Message.Content;
-            if (result == null)
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
+                {
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
+                    continue;
+                }
+
+                var pokemon = MasterFile.Instance.Pokedex[pokemonId];
+                var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
+                var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, subscription.GuildId, _dep.WhConfig);
+
+                // Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
+                if (pokemonId.IsCommonPokemon() && ivResult.IV < Strings.CommonTypeMinimumIV && !isModOrHigher)
+                {
+                    await ctx.TriggerTypingAsync();
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_COMMON_TYPE_POKEMON").FormatText(ctx.User.Username, pokemon.Name, Strings.CommonTypeMinimumIV), DiscordColor.Red);
+                    continue;
+                }
+
+                var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
+                // Always ignore the user's input for Unown and set it to 0 by default.
+                var minIV = pokemonId.IsRarePokemon() ? 0 : ivResult.IV;
+                var minLvl = pokemonId.IsRarePokemon() ? 0 : minLevel;
+                var maxLvl = pokemonId.IsRarePokemon() ? 35 : maxLevel;
+                var hasStatsSet = ivResult.Attack >= 0 || ivResult.Defense >= 0 || ivResult.Stamina >= 0;
+
+                if (subPkmn == null)
+                {
+                    // Does not exist, create.
+                    subscription.Pokemon.Add(new PokemonSubscription
+                    {
+                        GuildId = subscription.GuildId,
+                        UserId = ctx.User.Id,
+                        PokemonId = pokemonId,
+                        Form = form,
+                        MinimumIV = minIV,
+                        MinimumLevel = minLvl,
+                        MaximumLevel = maxLvl,
+                        Gender = gender,
+                        IVList = hasStatsSet ? new List<string> { $"{ivResult.Attack}/{ivResult.Defense}/{ivResult.Stamina}" } : new List<string>(),
+                        Areas = areas
+                    });
+                    subscribed.Add(name);
+                    continue;
+                }
+
+                // Exists, check if anything changed.
+                if (ivResult.IV != subPkmn.MinimumIV ||
+                    string.Compare(form, subPkmn.Form, true) != 0 ||
+                    minLvl != subPkmn.MinimumLevel ||
+                    maxLvl != subPkmn.MaximumLevel ||
+                    gender != subPkmn.Gender ||
+                    (!subPkmn.IVList.Contains($"{ivResult.Attack}/{ivResult.Defense}/{ivResult.Stamina}") && hasStatsSet) ||
+                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
+                {
+                    subPkmn.Form = form;
+                    subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : ivResult.IV;
+                    subPkmn.MinimumLevel = minLvl;
+                    subPkmn.MaximumLevel = maxLvl;
+                    subPkmn.Gender = gender;
+                    if (hasStatsSet)
+                    {
+                        subPkmn.IVList.Add($"{ivResult.Attack}/{ivResult.Defense}/{ivResult.Stamina}");
+                    }
+                    foreach (var area in areas)
+                    {
+                        if (!subPkmn.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                        {
+                            subPkmn.Areas.Add(area);
+                        }
+                    }
+                    subscribed.Add(name);
+                    continue;
+                }
+
+                // Already subscribed to the same Pokemon and form
+                alreadySubscribed.Add(name);
+            }
+            var result = subscription.Save();
+            if (!result)
             {
-                resultGender = "*";
             }
-            genderMessage.ForEach(async x => await x.DeleteAsync());
-            await result.Message.DeleteAsync();
-
-            await ctx.RespondEmbed($"Result: {resultPokemon}, IV: {resultIV}, Level: {resultLevel}, Gender: {resultGender}", DiscordColor.Green);
+            return new KeyValuePair<List<string>, List<string>>(subscribed, alreadySubscribed);
         }
 
         #endregion
@@ -2108,16 +2273,6 @@
             return list;
         }
 
-        private List<string> GetListFromRange(int startRange, int endRange)
-        {
-            var list = new List<string>();
-            for (; startRange <= endRange; startRange++)
-            {
-                list.Add(startRange.ToString());
-            }
-            return list;
-        }
-
         private DiscordEmbedBuilder BuildExpirationMessage(ulong guildId, DiscordUser user)
         {
             var customerData = _dep.Stripe.GetCustomerData(guildId, user.Id);
@@ -2146,6 +2301,7 @@
             return ulong.TryParse(mention, out ulong result) ? result : 0;
         }
 
+        /*
         private PokemonValidation ValidatePokemonList(string pokemonList)
         {
             if (string.IsNullOrEmpty(pokemonList))
@@ -2188,6 +2344,7 @@
 
             return validation;
         }
+        */
 
         private async Task<bool> CanExecute(CommandContext ctx)
         {
@@ -2215,19 +2372,30 @@
         }
 
         #endregion
+    }
 
-        #region Area/City Validation
-
-        private List<string> GetAreas(ulong guildId, string city)
+    internal class SubscriptionAreas
+    {
+        public static List<string> GetAreas(string city, List<string> validAreas)
         {
-            var server = _dep.WhConfig.Servers[guildId];
             var cities = string.IsNullOrEmpty(city) || string.Compare(city, Strings.All, true) == 0
-                ? server.CityRoles
+                ? validAreas
                 : city.Replace(" ,", ",").Replace(", ", ",").Split(',').ToList();
-            return GetValidatedAreas(cities, server.CityRoles);
+            return GetValidatedAreas(cities, validAreas);
         }
 
-        private bool ContainsCity(List<string> oldCities, List<string> newCities)
+        public static List<string> GetValidatedAreas(List<string> areas, List<string> availableAreas)
+        {
+            var list = new List<string>();
+            var availableAreaNames = availableAreas.Select(x => x.ToLower());
+            areas
+                .Where(x => availableAreaNames.Contains(x.ToLower()))
+                .ToList()
+                .ForEach(x => list.Add(x.ToLower()));
+            return areas;
+        }
+
+        public static bool ContainsCity(List<string> oldCities, List<string> newCities)
         {
             var oldAreas = oldCities.Select(x => x.ToLower());
             var newAreas = newCities.Select(x => x.ToLower());
@@ -2239,61 +2407,6 @@
                 return false;
             }
             return true;
-        }
-
-        private List<string> GetValidatedAreas(List<string> areas, List<string> availableAreas)
-        {
-            var list = new List<string>();
-            var availableAreaNames = availableAreas.Select(x => x.ToLower());
-            areas
-                .Where(x => availableAreaNames.Contains(x.ToLower()))
-                .ToList()
-                .ForEach(x => list.Add(x.ToLower()));
-            return areas;
-        }
-
-        #endregion
-    }
-
-    static class DiscordInteractiveExtensions
-    {
-        public static async Task<string> GetSubscriptionTypeSelection(this CommandContext ctx)
-        {
-            var msg = $@"
-Select the type of subscription to create:
-:one: Pokemon Subscription
-:two: PvP Subscription
-:three: Raid Subscription
-:four: Quest Subscription
-:five: Invasion Subscription
-:six: Gym Subscription
-";
-            var message = ctx.RespondEmbed(msg, DiscordColor.Blurple).GetAwaiter().GetResult().FirstOrDefault();
-            await message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":one:"));
-            await message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":two:"));
-            await message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":three:"));
-            await message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":four:"));
-            await message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":five:"));
-            await message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":six:"));
-
-            var interactivity = ctx.Client.GetInteractivityModule();
-            // TODO: Configurable subscription timeout
-            var resultReact = await interactivity.WaitForMessageReactionAsync(x => !string.IsNullOrEmpty(x.Name), message, ctx.User, TimeSpan.FromMinutes(3));
-            if (resultReact == null)
-            {
-                await ctx.RespondEmbed($"Invalid result", DiscordColor.Red);
-                return null;
-            }
-            switch (resultReact.Emoji.Name.ToLower())
-            {
-                case "1⃣": return "1";
-                case "2⃣": return "2";
-                case "3⃣": return "3";
-                case "4⃣": return "4";
-                case "5⃣": return "5";
-                case "6⃣": return "6";
-                default: return "0";
-            }
         }
     }
 }
