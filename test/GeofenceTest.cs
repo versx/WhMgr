@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 using WhMgr.Geofence;
 
@@ -37,12 +38,13 @@ namespace WhMgr.Test
         {
             var effectiveFolder = Path.Combine(TestContext.CurrentContext.TestDirectory, JsonGeofencesFolder);
             var geofences = GeofenceService.LoadGeofences(effectiveFolder);
-            var insideOf = GeofenceService.GetGeofence(geofences, new Location(latitude, longitude));
+            var insideOf = GeofenceService.GetGeofences(geofences, new Location(latitude, longitude)).ToList();
 
             if (!string.IsNullOrEmpty(expectedGeofence))
             {
                 Assert.IsNotNull(insideOf);
-                Assert.AreEqual(expectedGeofence, insideOf.Name);
+                Assert.IsNotEmpty(insideOf);
+                Assert.IsTrue(insideOf.Any(g => g.Name == expectedGeofence));
             }
             else
             {
@@ -59,12 +61,13 @@ namespace WhMgr.Test
         {
             var effectiveFolder = Path.Combine(TestContext.CurrentContext.TestDirectory, IniGeofencesFolder);
             var geofences = GeofenceService.LoadGeofences(effectiveFolder);
-            var insideOf = GeofenceService.GetGeofence(geofences, new Location(latitude, longitude));
+            var insideOf = GeofenceService.GetGeofences(geofences, new Location(latitude, longitude)).ToList();
 
             if (!string.IsNullOrEmpty(expectedGeofence))
             {
                 Assert.IsNotNull(insideOf);
-                Assert.AreEqual(expectedGeofence, insideOf.Name);
+                Assert.IsNotEmpty(insideOf);
+                Assert.IsTrue(insideOf.Any(g => g.Name == expectedGeofence));
             }
             else
             {

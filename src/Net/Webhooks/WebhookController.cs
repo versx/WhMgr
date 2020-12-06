@@ -1016,9 +1016,9 @@ namespace WhMgr.Net.Webhooks
         /// <param name="latitude">Latitude geocoordinate</param>
         /// <param name="longitude">Longitude geocoordinate</param>
         /// <returns>Returns a <see cref="GeofenceItem"/> object the provided location falls within.</returns>
-        public GeofenceItem GetGeofence(double latitude, double longitude)
+        public IEnumerable<GeofenceItem> GetGeofences(double latitude, double longitude)
         {
-            return GeofenceService.GetGeofence(Geofences, new Location(latitude, longitude));
+            return GeofenceService.GetGeofences(Geofences, new Location(latitude, longitude));
         }
 
         #endregion
