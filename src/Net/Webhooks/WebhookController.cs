@@ -1,4 +1,7 @@
-﻿namespace WhMgr.Net.Webhooks
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace WhMgr.Net.Webhooks
 {
     using System;
     using System.Collections.Generic;
@@ -27,6 +30,7 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("WHM", Program.LogLevel);
 
+        private readonly object _geofencesLock = new object();
         private readonly HttpServer _http;
         private readonly Dictionary<ulong, AlarmList> _alarms;
         private readonly IReadOnlyDictionary<ulong, DiscordServerConfig> _servers;
@@ -41,7 +45,7 @@
         /// <summary>
         /// All loaded geofences
         /// </summary>
-        public List<GeofenceItem> Geofences { get; }
+        public List<GeofenceItem> Geofences { get; private set; }
 
         /// <summary>
         /// Gyms cache
@@ -192,7 +196,8 @@
             _servers = config.Servers;
             _alarms = new Dictionary<ulong, AlarmList>();
 
-            Geofences = GeofenceService.LoadGeofences(Strings.GeofenceFolder);
+            lock(_geofencesLock)
+                Geofences = GeofenceService.LoadGeofences(Strings.GeofenceFolder);
 
             foreach (var server in _servers)
             {
@@ -214,7 +219,10 @@
             _http.WeatherReceived += Http_WeatherReceived;
             _http.IsDebug = _config.Debug;
 
-            new System.Threading.Thread(LoadAlarmsOnChange).Start();
+            new Thread(() => {
+                LoadAlarmsOnChange();
+                LoadGeofencesOnChange();
+            }).Start();
         }
 
         #endregion
@@ -381,11 +389,47 @@
             {
                 var guildId = keys[i];
                 var alarmsFile = _servers[guildId].AlarmsFile;
-                var path = Path.Combine(Directory.GetCurrentDirectory(), alarmsFile);
+                var path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), alarmsFile));
                 var fileWatcher = new FileWatcher(path);
-                fileWatcher.FileChanged += (sender, e) => _alarms[guildId] = LoadAlarms(path);
+                
+                fileWatcher.Changed += (sender, e) => {
+                    try
+                    {
+                        _logger.Debug("Reloading Alarms");
+                        _alarms[guildId] = LoadAlarms(path);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error("Error while reloading alarms:");
+                        _logger.Error(ex);
+                    }
+                };
                 fileWatcher.Start();
             }
+        }
+
+        private void LoadGeofencesOnChange()
+        {
+            _logger.Trace($"WebhookManager::LoadGeofencesOnChange");
+
+            var geofencesFolder = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), Strings.GeofenceFolder));
+            var fileWatcher = new FileWatcher(geofencesFolder);
+            
+            fileWatcher.Changed += (sender, e) => {
+                try
+                {
+                    _logger.Debug("Reloading Geofences");
+                    
+                    lock (Geofences)
+                        Geofences = GeofenceService.LoadGeofences(Strings.GeofenceFolder);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Error while reloading geofences:");
+                    _logger.Error(ex);
+                }
+            };
+            fileWatcher.Start();
         }
 
         #endregion

@@ -1072,7 +1072,17 @@
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), Strings.ConfigFileName);
             var fileWatcher = new FileWatcher(path);
-            fileWatcher.FileChanged += (sender, e) => _whConfig = WhConfig.Load(e.FilePath);
+            fileWatcher.Changed += (sender, e) => {
+                try
+                {
+                    _whConfig = WhConfig.Load(e.FullPath);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Error while reloading config:");
+                    _logger.Error(ex);
+                }
+            };
             fileWatcher.Start();
         }
 
