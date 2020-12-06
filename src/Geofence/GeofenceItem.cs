@@ -1,4 +1,5 @@
 ﻿using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
 using WhMgr.Utilities;
@@ -30,9 +31,14 @@ namespace WhMgr.Geofence
         public string Filename { get; set; }
 
         /// <summary>
-        /// Gets or sets the FeatureCollection containing the geometry which represents this geofence
+        /// Gets the FeatureCollection containing the geometry which represents this geofence
         /// </summary>
-        public IFeature Feature { get; set; }
+        public IFeature Feature { get; }
+        
+        /// <summary>
+        /// Gets the geometry representing the smallest possible bounding box which contains all points of this geofence
+        /// </summary>
+        public Geometry BBox { get; }
 
         /// <summary>
         /// Gets or sets the priority of this geofence. Higher-priority geofences will take precedence
@@ -53,6 +59,7 @@ namespace WhMgr.Geofence
             Name = name ?? DefaultName;
             Priority = 0;
             Feature = new Feature();
+            BBox = Geometry.DefaultFactory.CreateEmpty(Dimension.False);
         }
 
         /// <summary>
@@ -61,8 +68,9 @@ namespace WhMgr.Geofence
         /// </summary>
         public GeofenceItem(IFeature feature)
         {
-            Feature = feature;
             Name = feature.Attributes["name"]?.ToString() ?? DefaultName;
+            Feature = feature;
+            BBox = feature.Geometry.Envelope;
 
             try
             {
@@ -82,6 +90,7 @@ namespace WhMgr.Geofence
         public GeofenceItem(string name, List<Location> coordinates) : this(name)
         {
             Feature = GeoUtils.LocationsToFeature(coordinates);
+            BBox = Feature.Geometry.Envelope;
         }
 
         #endregion
