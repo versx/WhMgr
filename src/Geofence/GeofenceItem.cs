@@ -23,6 +23,11 @@ namespace WhMgr.Geofence
         /// Gets or sets the name of the geofence
         /// </summary>
         public string Name { get; set; }
+        
+        /// <summary>
+        /// The filename from which this geofence originated
+        /// </summary>
+        public string Filename { get; set; }
 
         /// <summary>
         /// Gets or sets the FeatureCollection containing the geometry which represents this geofence
@@ -76,7 +81,7 @@ namespace WhMgr.Geofence
         /// <param name="coordinates">Location polygons of geofence</param>
         public GeofenceItem(string name, List<Location> coordinates) : this(name)
         {
-            Feature = GeoUtils.CoordinateListToFeature(coordinates);
+            Feature = GeoUtils.LocationsToFeature(coordinates);
         }
 
         #endregion
@@ -107,7 +112,9 @@ namespace WhMgr.Geofence
                 throw new JsonException($"Geofence file \"{filePath}\" contained invalid JSON or the JSON did not represent a FeatureCollection");
 
             // Turn each Feature in the FeatureCollection into a GeofenceItem
-            return featureCollection.Select(feature => new GeofenceItem(feature)).ToList();
+            return featureCollection.Select(feature => new GeofenceItem(feature) {
+                Filename = Path.GetFileName(filePath)
+            }).ToList();
         }
 
         /// <summary>
@@ -151,7 +158,9 @@ namespace WhMgr.Geofence
 
                 if (isEnd)
                 {
-                    var geofence = new GeofenceItem(name, locations);
+                    var geofence = new GeofenceItem(name, locations) {
+                        Filename = Path.GetFileName(filePath)
+                    };
 
                     list.Add(geofence);
                     name = "";
