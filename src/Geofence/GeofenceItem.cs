@@ -29,28 +29,25 @@ namespace WhMgr.Geofence
         /// </summary>
         public IFeature Feature { get; set; }
 
+        /// <summary>
+        /// Gets or sets the priority of this geofence. Higher-priority geofences will take precedence
+        /// when determining which geofence a particular location falls within if it falls within multiple.
+        /// </summary>
+        public int Priority { get; set; }
+
         #endregion
 
         #region Constructor(s)
 
         /// <summary>
-        /// Instantiates a new <see cref="GeofenceItem"/> class
-        /// </summary>
-        public GeofenceItem()
-        {
-            Name = DefaultName;
-            Feature = new Feature();
-        }
-
-        /// <summary>
         /// Instantiates a new <see cref="GeofenceItem"/> class by name
         /// </summary>
         /// <param name="name">Name of geofence</param>
-        public GeofenceItem(string name) : this()
+        public GeofenceItem(string name = default)
         {
-            Feature.Attributes = new AttributesTable {
-                { "name", name }
-            };
+            Name = name ?? DefaultName;
+            Priority = 0;
+            Feature = new Feature();
         }
 
         /// <summary>
@@ -61,6 +58,15 @@ namespace WhMgr.Geofence
         {
             Feature = feature;
             Name = feature.Attributes["name"]?.ToString() ?? DefaultName;
+
+            try
+            {
+                Priority = Convert.ToInt32(feature.Attributes["priority"]);
+            }
+            catch
+            {
+                Priority = 0;
+            }
         }
 
         /// <summary>
@@ -68,12 +74,9 @@ namespace WhMgr.Geofence
         /// </summary>
         /// <param name="name">Name of geofence</param>
         /// <param name="coordinates">Location polygons of geofence</param>
-        public GeofenceItem(string name, List<Location> coordinates) : this()
+        public GeofenceItem(string name, List<Location> coordinates) : this(name)
         {
-            Name = name ?? DefaultName;
-            Feature = GeoUtils.CoordinateListToFeature(coordinates, new AttributesTable {
-                { "name", name }
-            });
+            Feature = GeoUtils.CoordinateListToFeature(coordinates);
         }
 
         #endregion

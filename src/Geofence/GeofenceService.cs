@@ -1,31 +1,17 @@
 ﻿namespace WhMgr.Geofence
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
     public static class GeofenceService
     {
-        public static GeofenceItem GetGeofence(List<GeofenceItem> geofences, Location point)
+        public static GeofenceItem GetGeofence(IEnumerable<GeofenceItem> geofences, Location point)
         {
-            var containingGeofences = geofences.Where(geofence => geofence.Feature.Geometry.Contains(point)).ToList();
+            // Order descending by priority so that when we iterate forwards using FirstOrDefault, higher-priority
+            // geofences are discovered first
+            var orderedGeofences = geofences.OrderByDescending(g => g.Priority);
 
-            if (!containingGeofences.Any())
-                return null;
-
-            int GetPriority(GeofenceItem geofence)
-            {
-                try
-                {
-                    return Convert.ToInt32(geofence.Feature.Attributes["priority"]);
-                }
-                catch
-                {
-                    return 0;
-                }
-            }
-
-            return containingGeofences.OrderByDescending(GetPriority).FirstOrDefault();
+            return orderedGeofences.FirstOrDefault(g => g.Feature.Geometry.Contains(point));
         }
     }
 }
