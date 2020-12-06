@@ -99,7 +99,7 @@
         public ItemId QuestItemId { get; set; }
 
         [Alias("cell_id")]
-        public long CellId { get; set; }
+        public ulong CellId { get; set; }
 
         #endregion
 
