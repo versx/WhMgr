@@ -4,6 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using POGOProtos.Data;
+    using POGOProtos.Enums;
+    using POGOProtos.Inventory.Item;
+    using QuestConditionType = POGOProtos.Data.Quests.QuestCondition.Types.ConditionType;
+    using QuestRewardType = POGOProtos.Data.Quests.QuestReward.Types.Type;
+    using CharacterCategory = POGOProtos.Enums.EnumWrapper.Types.CharacterCategory;
+
     using WhMgr.Data.Models;
     using WhMgr.Localization;
     using WhMgr.Net.Models;
@@ -55,45 +62,45 @@
             var conditionKey = "quest_condition_" + Convert.ToInt32(condition.Type);
             switch (condition.Type)
             {
-                case QuestConditionType.PokemonCategory:
+                case QuestConditionType.WithPokemonCategory:
                     return string.Join(", ", condition.Info.PokemonIds?.Select(x => Translator.Instance.GetPokemonName(x)).ToList());
-                case QuestConditionType.PokemonType:
+                case QuestConditionType.WithPokemonType:
                     return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((PokemonType)x))) + "-type";
-                case QuestConditionType.QuestContext:
+                case QuestConditionType.WithQuestContext:
                     break;
-                case QuestConditionType.RaidLevel:
+                case QuestConditionType.WithRaidLevel:
                     return Translator.Instance.Translate(conditionKey, string.Join(", ", condition.Info.RaidLevels));
-                case QuestConditionType.SuperEffectiveCharge:
-                case QuestConditionType.ThrowType:
+                case QuestConditionType.WithSuperEffectiveCharge:
+                case QuestConditionType.WithThrowType:
                     return Translator.Instance.GetThrowName(condition.Info.ThrowTypeId);
-                case QuestConditionType.ThrowTypeInARow:
+                case QuestConditionType.WithThrowTypeInARow:
                     return Translator.Instance.Translate(conditionKey, Translator.Instance.GetThrowName(condition.Info.ThrowTypeId));
-                case QuestConditionType.BadgeType:
-                case QuestConditionType.CurveBall:
-                case QuestConditionType.DailyCaptureBonus:
-                case QuestConditionType.DailySpinBonus:
-                case QuestConditionType.DaysInARow:
-                case QuestConditionType.Item:
-                case QuestConditionType.NewFriend:
-                case QuestConditionType.PlayerLevel:
-                case QuestConditionType.UniquePokestop:
-                case QuestConditionType.WeatherBoost:
-                case QuestConditionType.WinBattleStatus:
-                case QuestConditionType.WinGymBattleStatus:
-                case QuestConditionType.WinRaidStatus:
-                case QuestConditionType.UniquePokemon:
-                case QuestConditionType.NpcCombat:
-                case QuestConditionType.PvpCombat:
-                case QuestConditionType.Location:
-                case QuestConditionType.Distance:
+                case QuestConditionType.WithBadgeType:
+                case QuestConditionType.WithCurveBall:
+                case QuestConditionType.WithDailyCaptureBonus:
+                case QuestConditionType.WithDailySpinBonus:
+                case QuestConditionType.WithDaysInARow:
+                case QuestConditionType.WithItem:
+                case QuestConditionType.WithNewFriend:
+                case QuestConditionType.WithPlayerLevel:
+                case QuestConditionType.WithUniquePokestop:
+                case QuestConditionType.WithWeatherBoost:
+                case QuestConditionType.WithWinBattleStatus:
+                case QuestConditionType.WithWinGymBattleStatus:
+                case QuestConditionType.WithWinRaidStatus:
+                case QuestConditionType.WithUniquePokemon:
+                case QuestConditionType.WithNpcCombat:
+                case QuestConditionType.WithPvpCombat:
+                case QuestConditionType.WithLocation:
+                case QuestConditionType.WithDistance:
                 case QuestConditionType.WithBuddy:
                     return Translator.Instance.Translate(conditionKey);
-                case QuestConditionType.PokemonAlignment:
-                    return string.Join(", ", condition.Info.AlignmentIds?.Select(x => Translator.Instance.GetAlignmentName((PokemonAlignment)x)));
-                case QuestConditionType.InvasionsCharacter:
+                case QuestConditionType.WithPokemonAlignment:
+                    return string.Join(", ", condition.Info.AlignmentIds?.Select(x => Translator.Instance.GetAlignmentName((PokemonDisplay.Types.Alignment)x)));
+                case QuestConditionType.WithInvasionCharacter:
                     return string.Join(", ", condition.Info.CharacterCategoryIds?.Select(x => Translator.Instance.GetCharacterCategoryName((CharacterCategory)x)));
-                case QuestConditionType.MegaEvolution:
-                    return string.Join(", ", condition.Info.RaidPokemonEvolutions?.Select(x => Translator.Instance.GetEvolutionName((MegaEvolution)x)));
+                case QuestConditionType.WithTempEvoPokemon: // Mega evo
+                    return string.Join(", ", condition.Info.RaidPokemonEvolutions?.Select(x => Translator.Instance.GetEvolutionName((TemporaryEvolutionId)x)));
             }
 
             return null;
@@ -133,6 +140,14 @@
                     return (isShiny ? $"**SHINY** " : "") + Translator.Instance.GetPokemonName(isDitto ? 132 : pokemonId);
                 case QuestRewardType.Stardust:
                     return Translator.Instance.Translate(rewardKey, amount);
+                case QuestRewardType.MegaResource:
+                    return string.Empty; // TODO: Mega quests
+                case QuestRewardType.XlCandy:
+                    return string.Empty; // TODO: XL Candy
+                case QuestRewardType.Sticker:
+                    return string.Empty; // TODO: Sticker
+                case QuestRewardType.Pokecoin:
+                    return string.Empty; // TODO: Pokecoin
             }
 
             return "Unknown";

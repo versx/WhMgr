@@ -4,8 +4,7 @@
     using System.Collections.Generic;
 
     using Newtonsoft.Json;
-
-    using WhMgr.Net.Models;
+    using POGOProtos.Enums;
 
     public class PokedexPokemon
     {

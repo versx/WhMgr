@@ -6,6 +6,7 @@
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
+    using POGOProtos.Enums;
 
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;

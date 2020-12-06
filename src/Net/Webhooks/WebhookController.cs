@@ -6,6 +6,7 @@
     using System.Linq;
 
     using Newtonsoft.Json;
+    using POGOProtos.Map.Weather;
 
     using WhMgr.Alarms;
     using WhMgr.Alarms.Filters;
@@ -31,7 +32,7 @@
         private readonly Dictionary<ulong, AlarmList> _alarms;
         private readonly IReadOnlyDictionary<ulong, DiscordServerConfig> _servers;
         private readonly WhConfig _config;
-        private readonly Dictionary<long, WeatherType> _weather;
+        private readonly Dictionary<long, GameplayWeather.Types.WeatherCondition> _weather;
         private Dictionary<string, GymDetailsData> _gyms;
 
         #endregion
@@ -61,7 +62,7 @@
         /// <summary>
         /// Weather cells cache
         /// </summary>
-        public IReadOnlyDictionary<long, WeatherType> Weather => _weather;
+        public IReadOnlyDictionary<long, GameplayWeather.Types.WeatherCondition> Weather => _weather;
 
         #endregion
 
@@ -190,7 +191,7 @@
             Geofences = new Dictionary<string, GeofenceItem>();
 
             _gyms = new Dictionary<string, GymDetailsData>();
-            _weather = new Dictionary<long, WeatherType>();
+            _weather = new Dictionary<long, GameplayWeather.Types.WeatherCondition>();
             _servers = config.Servers;
             _alarms = new Dictionary<ulong, AlarmList>();
 
@@ -953,7 +954,7 @@
             _gyms[id] = gymDetails;
         }
 
-        public void SetWeather(long id, WeatherType type)
+        public void SetWeather(long id, GameplayWeather.Types.WeatherCondition type)
         {
             _weather[id] = type;
         }

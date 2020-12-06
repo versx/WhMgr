@@ -12,8 +12,8 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
     using DSharpPlus.Interactivity;
-
     using Newtonsoft.Json;
+    using POGOProtos.Enums;
 
     using WhMgr.Data;
     using WhMgr.Data.Subscriptions;
@@ -21,7 +21,6 @@
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Localization;
-    using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
     public class Notifications

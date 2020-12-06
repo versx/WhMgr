@@ -7,6 +7,7 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
+    using POGOProtos.Enums;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;

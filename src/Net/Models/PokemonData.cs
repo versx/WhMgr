@@ -10,6 +10,8 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
+    using POGOProtos.Enums;
+    using POGOProtos.Map.Weather;
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
@@ -112,7 +114,7 @@
             JsonProperty("gender"),
             Alias("gender")
         ]
-        public PokemonGender Gender { get; set; }
+        public Gender Gender { get; set; }
 
         [
             JsonProperty("costume"),
@@ -208,7 +210,7 @@
             JsonProperty("weather"),
             Alias("weather")
         ]
-        public WeatherType? Weather { get; set; }
+        public GameplayWeather.Types.WeatherCondition? Weather { get; set; }
 
         [
             JsonProperty("form"),
@@ -468,12 +470,12 @@
             var level = Level;
             var size = Size?.ToString();
             var weather = Weather?.ToString();
-            var hasWeather = Weather.HasValue && Weather != WeatherType.None;
-            var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherType.None);
-            var weatherKey = $"weather_{Convert.ToInt32(Weather ?? WeatherType.None)}";
+            var hasWeather = Weather.HasValue && Weather != GameplayWeather.Types.WeatherCondition.None;
+            var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? GameplayWeather.Types.WeatherCondition.None);
+            var weatherKey = $"weather_{Convert.ToInt32(Weather ?? GameplayWeather.Types.WeatherCondition.None)}";
             var weatherEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[weatherKey])
-                ? MasterFile.Instance.CustomEmojis.ContainsKey(weatherKey) && Weather != WeatherType.None
-                    ? (Weather ?? WeatherType.None).GetWeatherEmojiIcon()
+                ? MasterFile.Instance.CustomEmojis.ContainsKey(weatherKey) && Weather != GameplayWeather.Types.WeatherCondition.None
+                    ? (Weather ?? GameplayWeather.Types.WeatherCondition.None).GetWeatherEmojiIcon()
                     : string.Empty
                 : MasterFile.Instance.CustomEmojis[weatherKey];
             var move1 = int.TryParse(FastMove, out var fastMoveId) ? Translator.Instance.GetMoveName(fastMoveId) : "Unknown";
