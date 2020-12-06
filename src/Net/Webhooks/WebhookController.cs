@@ -39,14 +39,9 @@
         #region Properties
 
         /// <summary>
-        /// Geofence file cache
-        /// </summary>
-        public Dictionary<string, List<GeofenceItem>> GeofenceFiles { get; private set; }
-
-        /// <summary>
         /// All loaded geofences
         /// </summary>
-        public List<GeofenceItem> Geofences { get; private set; }
+        public List<GeofenceItem> Geofences { get; }
 
         /// <summary>
         /// Gyms cache
@@ -197,7 +192,7 @@
             _servers = config.Servers;
             _alarms = new Dictionary<ulong, AlarmList>();
 
-            LoadGeofences();
+            Geofences = GeofenceService.LoadGeofences(Strings.GeofenceFolder);
 
             foreach (var server in _servers)
             {
@@ -322,34 +317,6 @@
 
         #endregion
 
-		#region Geofence Initialization
-
-        private void LoadGeofences()
-        {
-            GeofenceFiles = new Dictionary<string, List<GeofenceItem>>();
-            Geofences = new List<GeofenceItem>();
-
-            foreach (var file in Directory.EnumerateFiles(Strings.GeofenceFolder))
-            {
-                try
-                {
-                    var fileGeofences = GeofenceItem.FromFile(file);
-
-                    GeofenceFiles.Add(file, fileGeofences);
-
-                    foreach (var geofence in fileGeofences)
-                        Geofences.Add(geofence);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error($"Could not load Geofence file {file}:");
-                    _logger.Error(ex);
-                }
-            }
-        }
-
-		#endregion
-
         #region Alarms Initialization
 
         private AlarmList LoadAlarms(string alarmsFilePath)
@@ -384,13 +351,15 @@
                 {
                     foreach (var file in x.GeofenceFiles)
                     {
-                        if (GeofenceFiles.TryGetValue(file, out var geofences))
+                        var geofences = Geofences.Where(g => g.Filename.Equals(file, StringComparison.OrdinalIgnoreCase)).ToList();
+                        
+                        if (geofences.Any())
                         {
                             x.Geofences.AddRange(geofences);
                         }
                         else
                         {
-                            _logger.Warn($"Geofence file \"{file}\" not found for alarm \"{x.Name}\"");
+                            _logger.Warn($"Geofence file \"{file}\" empty or not found for alarm \"{x.Name}\"");
                         }
                     }
                 }
