@@ -21,12 +21,15 @@
 
         public async Task<string> GetRewardInput()
         {
-            return await _context.WaitForUserChoice();
+            var message = (await _context.RespondEmbed($"Enter a reward keyword (i.e `larvitar`, `razz`, `1000 stardust`):", DiscordColor.Blurple)).FirstOrDefault();
+            var reward = await _context.WaitForUserChoice();
+            await message.DeleteAsync();
+            return reward;
         }
 
         public async Task<List<string>> GetAreasResult(List<string> validAreas)
         {
-            var message = (await _context.RespondEmbed($"Enter the areas to get notifications from separated by a comma:", DiscordColor.Blurple)).FirstOrDefault();
+            var message = (await _context.RespondEmbed($"Enter the areas to get notifications from separated by a comma (i.e. `city1,city2`):", DiscordColor.Blurple)).FirstOrDefault();
             var cities = await _context.WaitForUserChoice();
 
             // Check if gender is a valid gender provided

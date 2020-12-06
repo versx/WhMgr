@@ -62,7 +62,7 @@
 
         public async Task<int> GetRankResult()
         {
-            var message = (await _context.RespondEmbed($"Enter the PvP league type to use (i.e `Great` or `Ultra`):", DiscordColor.Blurple)).FirstOrDefault();
+            var message = (await _context.RespondEmbed($"Enter the minimum PvP rank to receive (i.e `1`, `3`, `25`):", DiscordColor.Blurple)).FirstOrDefault();
             var minRank = await _context.WaitForUserChoice();
             await message.DeleteAsync();
 
@@ -70,7 +70,7 @@
                 return 3;
 
             //You may only subscribe to the top 100 or higher rank.
-            if (minimumRank < Strings.MinimumRank || minimumRank > Strings.MinimumRank)
+            if (minimumRank < Strings.MinimumRank || minimumRank > Strings.MaximumRank)
             {
                 await _context.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(_context.User.Username, minRank), DiscordColor.Red);
                 return 3;
@@ -80,7 +80,7 @@
 
         public async Task<double> GetPercentResult()
         {
-            var message = (await _context.RespondEmbed($"Enter the PvP league type to use (i.e `Great` or `Ultra`):", DiscordColor.Blurple)).FirstOrDefault();
+            var message = (await _context.RespondEmbed($"Enter the minimum PvP rank percent to receive (i.e `90`, `99`, '100'):", DiscordColor.Blurple)).FirstOrDefault();
             var minPercent = await _context.WaitForUserChoice();
             await message.DeleteAsync();
 
@@ -89,7 +89,7 @@
 
             if (minimumPercent < Strings.MinimumPercent || minimumPercent > Strings.MaximumPercent)
             {
-                await _context.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(_context.User.Username, minimumPercent), DiscordColor.Red);
+                await _context.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_PERCENT_RANGE").FormatText(_context.User.Username, minimumPercent), DiscordColor.Red);
                 return 98;
             }
             return minimumPercent;

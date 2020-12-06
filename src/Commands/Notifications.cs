@@ -1511,6 +1511,8 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
 
             var subType = await ctx.GetSubscriptionTypeSelection();
+            // TODO: List areas when asking for areas
+            // TODO: Maybe show current settings for selected info
             switch (subType)
             {
                 case 1: // Pokemon
@@ -1686,7 +1688,6 @@ and only from the following areas: {string.Join(", ", areasResult)}
                         return;
                     }
 
-                    var message = await ctx.RespondEmbed($"", DiscordColor.Blurple);
                     var questInput = new QuestSubscriptionInput(ctx);
                     var rewardKeyword = await questInput.GetRewardInput();
                     var areas = await questInput.GetAreasResult(server.CityRoles);
