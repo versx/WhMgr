@@ -478,8 +478,8 @@
             _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
 
             var pokemon = e.Data;
-            var geofences = GeofenceService.GetGeofences(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude)).ToList();
-            if (!geofences.Any())
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(pokemon.Latitude, pokemon.Longitude));
+            if (loc == null)
             {
                 //_logger.Warn($"[POKEMON] Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
                 return;
@@ -495,7 +495,7 @@
             {
                 var server = _whConfig.Servers[e.GuildId];
                 var client = _servers[e.GuildId];
-                var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, geofences.First().Name);
+                var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username,
@@ -525,8 +525,8 @@
             _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Data.PokemonId}, Level: {e.Data.Level}, StartTime: {e.Data.StartTime}]");
 
             var raid = e.Data;
-            var geofences = GeofenceService.GetGeofences(e.Alarm.Geofences, new Location(raid.Latitude, raid.Longitude)).ToList();
-            if (!geofences.Any())
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(raid.Latitude, raid.Longitude));
+            if (loc == null)
             {
                 //_logger.Warn($"[RAID] Failed to lookup city from coordinates {raid.Latitude},{raid.Longitude} {pkmn.Name} {raid.Level}, skipping...");
                 return;
@@ -542,7 +542,7 @@
             {
                 var server = _whConfig.Servers[e.GuildId];
                 var client = _servers[e.GuildId];
-                var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, geofences.First().Name);
+                var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username,
@@ -570,8 +570,8 @@
             _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, Type={e.Data.Type}]");
 
             var quest = e.Data;
-            var geofences = GeofenceService.GetGeofences(e.Alarm.Geofences, new Location(quest.Latitude, quest.Longitude)).ToList();
-            if (!geofences.Any())
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(quest.Latitude, quest.Longitude));
+            if (loc == null)
             {
                 //_logger.Warn($"[QUEST] Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
                 return;
@@ -586,7 +586,7 @@
             try
             {
                 var client = _servers[e.GuildId];
-                var eb = quest.GenerateQuestMessage(e.GuildId, client, _whConfig, e.Alarm, geofences.First().Name ?? e.Alarm.Name);
+                var eb = quest.GenerateQuestMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username,
@@ -611,8 +611,8 @@
             _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, LureExpire={e.Data.LureExpire}, InvasionExpire={e.Data.IncidentExpire}]");
 
             var pokestop = e.Data;
-            var geofences = GeofenceService.GetGeofences(e.Alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude)).ToList();
-            if (!geofences.Any())
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(pokestop.Latitude, pokestop.Longitude));
+            if (loc == null)
             {
                 //_logger.Warn($"[POKESTOP] Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
                 return;
@@ -627,7 +627,7 @@
             try
             {
                 var client = _servers[e.GuildId];
-                var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig, e.Alarm, geofences.First().Name ?? e.Alarm.Name);
+                var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username ?? Translator.Instance.Translate("UNKNOWN_POKESTOP"),
@@ -665,8 +665,8 @@
             _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");
 
             var gymDetails = e.Data;
-            var geofences = GeofenceService.GetGeofences(e.Alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude)).ToList();
-            if (!geofences.Any())
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(gymDetails.Latitude, gymDetails.Longitude));
+            if (loc == null)
             {
                 //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
                 return;
@@ -686,7 +686,7 @@
                     return;
 
                 var client = _servers[e.GuildId];
-                var eb = gymDetails.GenerateGymMessage(e.GuildId, client, _whConfig, e.Alarm, _whm.Gyms[gymDetails.GymId], geofences.First().Name ?? e.Alarm.Name);
+                var eb = gymDetails.GenerateGymMessage(e.GuildId, client, _whConfig, e.Alarm, _whm.Gyms[gymDetails.GymId], loc?.Name ?? e.Alarm.Name);
                 var name = gymDetails.GymName;
                 var jsonEmbed = new DiscordWebhookMessage
                 {
@@ -717,8 +717,8 @@
             _logger.Info($"Weather Found [Alarm: {e.Alarm.Name}, S2CellId: {e.Data.Id}, Condition={e.Data.GameplayCondition}, Severity={e.Data.Severity}]");
 
             var weather = e.Data;
-            var geofences = GeofenceService.GetGeofences(e.Alarm.Geofences, new Location(weather.Latitude, weather.Longitude)).ToList();
-            if (!geofences.Any())
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(weather.Latitude, weather.Longitude));
+            if (loc == null)
             {
                 //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
                 return;
@@ -733,7 +733,7 @@
             try
             {
                 var client = _servers[e.GuildId];
-                var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig, e.Alarm, geofences.First().Name ?? e.Alarm.Name);
+                var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username,

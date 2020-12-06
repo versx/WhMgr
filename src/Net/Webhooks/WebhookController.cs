@@ -355,19 +355,20 @@ namespace WhMgr.Net.Webhooks
 
             alarms.Alarms.ForEach(x =>
             {
-                if (x.GeofenceFiles != null)
+                if (x.Geofences != null)
                 {
-                    foreach (var file in x.GeofenceFiles)
+                    foreach (var geofenceName in x.Geofences)
                     {
-                        var geofences = Geofences.Where(g => g.Filename.Equals(file, StringComparison.OrdinalIgnoreCase)).ToList();
+                        var geofences = Geofences.Where(g => g.Name.Equals(geofenceName, StringComparison.OrdinalIgnoreCase) ||
+                                                             g.Filename.Equals(geofenceName, StringComparison.OrdinalIgnoreCase)).ToList();
                         
                         if (geofences.Any())
                         {
-                            x.Geofences.AddRange(geofences);
+                            x.GeofenceItems.AddRange(geofences);
                         }
                         else
                         {
-                            _logger.Warn($"Geofence file \"{file}\" empty or not found for alarm \"{x.Name}\"");
+                            _logger.Warn($"Geofence file \"{geofenceName}\" empty or not found for alarm \"{x.Name}\"");
                         }
                     }
                 }
@@ -475,7 +476,7 @@ namespace WhMgr.Net.Webhooks
                         continue;
                     }
 
-                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(pkmn.Latitude, pkmn.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Location(pkmn.Latitude, pkmn.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping pokemon {pkmn.Id}: not in geofence.");
@@ -582,7 +583,7 @@ namespace WhMgr.Net.Webhooks
                 for (var j = 0; j < raidAlarms.Count; j++)
                 {
                     var alarm = raidAlarms[j];
-                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Location(raid.Latitude, raid.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level}: not in geofence.");
@@ -718,7 +719,7 @@ namespace WhMgr.Net.Webhooks
                         continue;
                     }
 
-                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Location(quest.Latitude, quest.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: not in geofence.");
@@ -808,7 +809,7 @@ namespace WhMgr.Net.Webhooks
                         continue;
                     }
 
-                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Location(pokestop.Latitude, pokestop.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
@@ -852,7 +853,7 @@ namespace WhMgr.Net.Webhooks
                         continue;
                     }
 
-                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(gym.Latitude, gym.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Location(gym.Latitude, gym.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName} because not in geofence.");
@@ -896,7 +897,7 @@ namespace WhMgr.Net.Webhooks
                         continue;
                     }
 
-                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Location(gymDetails.Latitude, gymDetails.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName}: not in geofence.");
@@ -966,7 +967,7 @@ namespace WhMgr.Net.Webhooks
                         continue;
                     }
 
-                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Location(weather.Latitude, weather.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName}: not in geofence.");
@@ -1016,9 +1017,9 @@ namespace WhMgr.Net.Webhooks
         /// <param name="latitude">Latitude geocoordinate</param>
         /// <param name="longitude">Longitude geocoordinate</param>
         /// <returns>Returns a <see cref="GeofenceItem"/> object the provided location falls within.</returns>
-        public IEnumerable<GeofenceItem> GetGeofences(double latitude, double longitude)
+        public GeofenceItem GetGeofence(double latitude, double longitude)
         {
-            return GeofenceService.GetGeofences(Geofences, new Location(latitude, longitude));
+            return GeofenceService.GetGeofence(Geofences, new Location(latitude, longitude));
         }
 
         #endregion

@@ -19,7 +19,7 @@
         /// Area geofences
         /// </summary>
         [JsonIgnore]
-        public List<GeofenceItem> Geofences { get; private set; }
+        public List<GeofenceItem> GeofenceItems { get; private set; }
 
         /// <summary>
         /// Discord alert messages
@@ -61,7 +61,7 @@
         /// Gets or sets the geofences file to load
         /// </summary>
         [JsonProperty("geofences")]
-        public List<string> GeofenceFiles { get; set; }
+        public List<string> Geofences { get; set; }
 
         /// <summary>
         /// Gets or sets the Discord channel webhook url address
@@ -74,7 +74,7 @@
         /// </summary>
         public AlarmObject()
         {
-            Geofences = new List<GeofenceItem>();
+            GeofenceItems = new List<GeofenceItem>();
             LoadAlerts();
             LoadFilters();
         }

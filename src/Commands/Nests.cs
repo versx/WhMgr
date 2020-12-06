@@ -134,14 +134,14 @@
                     try
                     {
                         var eb = GenerateNestMessage(guildId, ctx.Client, nest);
-                        var geofences = GeofenceService.GetGeofences(_dep.Whm.Geofences, new Location(nest.Latitude, nest.Longitude)).ToList();
-                        if (!geofences.Any())
+                        var geofence = GeofenceService.GetGeofence(_dep.Whm.Geofences, new Location(nest.Latitude, nest.Longitude));
+                        if (geofence == null)
                         {
                             //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
                             continue;
                         }
 
-                        if (!cities.Intersect(geofences.Select(g => g.Name)).Any())
+                        if (!cities.Contains(geofence.Name.ToLower()))
                             continue;
 
                         if (nest.Average < server.NestsMinimumPerHour)
@@ -198,8 +198,8 @@
             var scannerMapsLink = string.Format(_dep.WhConfig.Urls.ScannerMap, nest.Latitude, nest.Longitude);
             var templatePath = Path.Combine(_dep.WhConfig.StaticMaps.TemplatesFolder, _dep.WhConfig.StaticMaps.Nests.TemplateFile);
             var staticMapLink = Utils.GetStaticMapsUrl(templatePath, _dep.WhConfig.Urls.StaticMap, _dep.WhConfig.StaticMaps.Nests.ZoomLevel, nest.Latitude, nest.Longitude, pkmnImage, null, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
-            var geofences = GeofenceService.GetGeofences(_dep.Whm.Geofences, new Location(nest.Latitude, nest.Longitude)).ToList();
-            var city = geofences.FirstOrDefault()?.Name ?? "Unknown";
+            var geofence = GeofenceService.GetGeofence(_dep.Whm.Geofences, new Location(nest.Latitude, nest.Longitude));
+            var city = geofence?.Name ?? "Unknown";
             Location address = null;
             if (!string.IsNullOrEmpty(_dep.WhConfig.GoogleMapsKey))
             {
@@ -259,30 +259,27 @@
             var dict = new Dictionary<string, List<Nest>>();
             foreach (var nest in nests)
             {
-                var geofences = GeofenceService.GetGeofences(_dep.Whm.Geofences, new Location(nest.Latitude, nest.Longitude)).ToList();
-                if (!geofences.Any())
+                var geofence = GeofenceService.GetGeofence(_dep.Whm.Geofences, new Location(nest.Latitude, nest.Longitude));
+                if (geofence == null)
                 {
                     _logger.Warn($"Failed to find geofence for nest {nest.Name}.");
                     continue;
                 }
+                var geofenceName = geofence.Name;
                 var server = _dep.WhConfig.Servers[guildId];
                 var cities = server.CityRoles.Select(x => x.ToLower());
-                
-                foreach (var geofenceName in geofences.Select(g => g.Name))
-                {
-                    if (!cities.Contains(geofenceName.ToLower()))
-                        continue;
+                if (!cities.Contains(geofenceName.ToLower()))
+                    continue;
 
-                    if (dict.ContainsKey(geofenceName))
-                    {
-                        dict[geofenceName].Add(nest);
-                    }
-                    else
-                    {
-                        dict.Add(geofenceName, new List<Nest> { nest });
-                    }
-                    dict[geofenceName].Sort((x, y) => x.Name.CompareTo(y.Name));
+                if (dict.ContainsKey(geofenceName))
+                {
+                    dict[geofenceName].Add(nest);
                 }
+                else
+                {
+                    dict.Add(geofenceName, new List<Nest> { nest });
+                }
+                dict[geofenceName].Sort((x, y) => x.Name.CompareTo(y.Name));
             }
             return dict;
         }
