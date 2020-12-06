@@ -36,7 +36,7 @@ namespace WhMgr.Utilities
             {
                 Path = Directory.Exists(FilePath) ? FilePath : Path.GetDirectoryName(FilePath),
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
-                Filter = File.Exists(FilePath) ? Path.GetFileName(FilePath) : FilePath
+                Filter = File.Exists(FilePath) ? Path.GetFileName(FilePath) : null
             };
             _fsw.Changed += OnFileSystemChanged;
         }
