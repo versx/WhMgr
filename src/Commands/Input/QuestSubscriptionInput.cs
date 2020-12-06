@@ -1,7 +1,6 @@
 ﻿namespace WhMgr.Commands.Input
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -10,11 +9,11 @@
 
     using WhMgr.Extensions;
 
-    internal class QuestSubscriptionInput
+    internal class QuestSubscriptionInput : SubscriptionInput
     {
         private readonly CommandContext _context;
 
-        public QuestSubscriptionInput(CommandContext ctx)
+        public QuestSubscriptionInput(CommandContext ctx) : base(ctx)
         {
             _context = ctx;
         }
@@ -25,24 +24,6 @@
             var reward = await _context.WaitForUserChoice();
             await message.DeleteAsync();
             return reward;
-        }
-
-        public async Task<List<string>> GetAreasResult(List<string> validAreas)
-        {
-            var message = (await _context.RespondEmbed($"Enter the areas to get notifications from separated by a comma (i.e. `city1,city2`):", DiscordColor.Blurple)).FirstOrDefault();
-            var cities = await _context.WaitForUserChoice();
-
-            // Check if gender is a valid gender provided
-            var areas = SubscriptionAreas.GetAreas(cities, validAreas);
-            if (areas.Count == 0)
-            {
-                // No valid areas provided
-                await _context.RespondEmbed($"Invalid areas provided.");
-                return new List<string>();
-            }
-            await message.DeleteAsync();
-
-            return areas;
         }
     }
 }
