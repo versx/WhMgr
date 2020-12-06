@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net;
     using System.Text;
     using System.Threading;
@@ -10,6 +11,7 @@
     using Newtonsoft.Json;
 
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
     using WhMgr.Net.Models;
 
     /// <summary>
@@ -21,13 +23,14 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("HTTP", Program.LogLevel);
         private static readonly object _lock = new object();
-        private readonly Dictionary<ulong, PokemonData> _processedPokemon;
+        private readonly Dictionary<string, ScannedPokemon> _processedPokemon;
         private readonly Dictionary<string, RaidData> _processedRaids;
         private readonly Dictionary<string, GymData> _processedGyms;
         private readonly Dictionary<string, PokestopData> _processedPokestops;
         private readonly Dictionary<string, QuestData> _processedQuests;
         private readonly Dictionary<string, TeamRocketInvasion> _processedInvasions;
         private readonly Dictionary<long, WeatherData> _processedWeather;
+        private readonly System.Timers.Timer _clearCacheTimer;
         private HttpListener _server;
         private bool _initialized = false;
         private readonly int _despawnTimerMinimumMinutes = 5;
@@ -125,7 +128,7 @@
             // If no host is set use wildcard for all host interfaces
             Host = host ?? "*";
             Port = port;
-            _processedPokemon = new Dictionary<ulong, PokemonData>();
+            _processedPokemon = new Dictionary<string, ScannedPokemon>();
             _processedRaids = new Dictionary<string, RaidData>();
             _processedGyms = new Dictionary<string, GymData>();
             _processedPokestops = new Dictionary<string, PokestopData>();
@@ -133,7 +136,9 @@
             _processedInvasions = new Dictionary<string, TeamRocketInvasion>();
             _processedWeather = new Dictionary<long, WeatherData>();
             _despawnTimerMinimumMinutes = despawnTimerMinimum;
-
+            _clearCacheTimer = new System.Timers.Timer { Interval = 60000 * 15 };
+            _clearCacheTimer.Elapsed += (sender, e) => OnClearCache();
+            
             Initialize();
         }
 
@@ -186,6 +191,9 @@
             _logger.Info($"Starting HttpServer request handler...");
             var requestThread = new Thread(RequestHandler) { IsBackground = true };
             requestThread.Start();
+
+            // Start the cache cleaner
+            _clearCacheTimer.Start();
         }
 
         /// <summary>
@@ -203,6 +211,9 @@
 
             _logger.Info($"Stopping...");
             _server.Stop();
+
+            // Stop the cache cleaner
+            _clearCacheTimer.Stop();
         }
 
         #endregion
@@ -333,13 +344,14 @@
                 if (pokemon.SecondsLeft.TotalMinutes < _despawnTimerMinimumMinutes)
                     return;
 
-                /*
-                if (_processedPokemon.ContainsKey(pokemon.EncounterId))
-                {
-                    // Pokemon already sent (check if IV set)
+                if (_processedPokemon.ContainsKey(pokemon.EncounterId) && (pokemon.IsMissingStats || !pokemon.IsMissingStats && !_processedPokemon[pokemon.EncounterId].IsMissingStats))
                     return;
+                if (!_processedPokemon.ContainsKey(pokemon.EncounterId))
+                    _processedPokemon.Add(pokemon.EncounterId, new ScannedPokemon(pokemon));
+                if (!pokemon.IsMissingStats && _processedPokemon[pokemon.EncounterId].IsMissingStats)
+                {
+                    _processedPokemon[pokemon.EncounterId] = new ScannedPokemon(pokemon);
                 }
-                */
 
                 OnPokemonReceived(pokemon);
             }
@@ -452,7 +464,7 @@
                     var processedInvasionAlready = _processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType && _processedPokestops[pokestop.PokestopId].IncidentExpire == pokestop.IncidentExpire;
                     if (processedLureAlready || processedInvasionAlready)
                     {
-                        _logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
+                        //_logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
                         // Processed pokestop lure or invasion already
                         return;
                     }
@@ -609,6 +621,23 @@
             _logger.Debug("Disconnect handled.");
         }
 
+        private void OnClearCache()
+        {
+            var keys = _processedPokemon.Keys.ToList();
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var encounterId = keys[i];
+                var scannedPokemon = _processedPokemon[encounterId];
+
+                if (scannedPokemon.IsExpired)
+                {
+                    // Spawn expired, remove from cache
+                    _logger.Debug($"Pokemon spawn {encounterId} expired, removing from cache...");
+                    _processedPokemon.Remove(encounterId);
+                }
+            }
+        }
+
         #endregion
 
         private class WebhookMessage
@@ -618,6 +647,34 @@
 
             [JsonProperty("message")]
             public dynamic Message { get; set; }
+        }
+
+        private struct ScannedPokemon
+        {
+            public double Latitude { get; set; }
+
+            public double Longitude { get; set; }
+
+            public bool IsMissingStats { get; set; }
+
+            public DateTime DespawnTime { get; set; }
+
+            public bool IsExpired
+            {
+                get
+                {
+                    var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+                    return now > DespawnTime;
+                }
+            }
+
+            public ScannedPokemon(PokemonData pokemon)
+            {
+                Latitude = pokemon.Latitude;
+                Longitude = pokemon.Longitude;
+                IsMissingStats = pokemon.IsMissingStats;
+                DespawnTime = pokemon.DespawnTime;
+            }
         }
     }
 }
