@@ -48,7 +48,7 @@ namespace WhMgr.Test
             }
             else
             {
-                Assert.IsNull(insideOf);
+                Assert.IsEmpty(insideOf);
             }
         }
 
@@ -71,7 +71,7 @@ namespace WhMgr.Test
             }
             else
             {
-                Assert.IsNull(insideOf);
+                Assert.IsEmpty(insideOf);
             }
         }
     }
