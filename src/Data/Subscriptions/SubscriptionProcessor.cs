@@ -151,7 +151,7 @@
                     // Not subscribed to Pokemon
                     if (subscribedPokemon == null)
                     {
-                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
+                        //_logger.Debug($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
@@ -277,7 +277,7 @@
                     // Not subscribed to Pokemon
                     if (subscribedPokemon == null)
                     {
-                        //_logger.Info($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
+                        //_logger.Debug($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
