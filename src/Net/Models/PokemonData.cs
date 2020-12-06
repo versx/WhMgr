@@ -354,12 +354,6 @@
         ]
         public bool IsMissingStats => string.IsNullOrEmpty(Level);
 
-        [
-            JsonIgnore,
-            Ignore
-        ]
-        public uint Sent { get; set; }
-
         #endregion
 
         #region Constructor
@@ -394,6 +388,10 @@
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
 
             LastModifiedTime = LastModified
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
+
+            UpdatedTime = Updated
                 .FromUnix()
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
         }

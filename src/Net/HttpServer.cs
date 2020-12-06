@@ -11,6 +11,7 @@
     using Newtonsoft.Json;
 
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
     using WhMgr.Net.Models;
 
     /// <summary>
@@ -346,10 +347,10 @@
                 if (_processedPokemon.ContainsKey(pokemon.EncounterId) && (pokemon.IsMissingStats || !pokemon.IsMissingStats && !_processedPokemon[pokemon.EncounterId].IsMissingStats))
                     return;
                 if (!_processedPokemon.ContainsKey(pokemon.EncounterId))
-                    _processedPokemon.Add(pokemon.EncounterId, new ScannedPokemon(pokemon.IsMissingStats, pokemon.SecondsLeft));
+                    _processedPokemon.Add(pokemon.EncounterId, new ScannedPokemon(pokemon));
                 if (!pokemon.IsMissingStats && _processedPokemon[pokemon.EncounterId].IsMissingStats)
                 {
-                    _processedPokemon[pokemon.EncounterId] = new ScannedPokemon(pokemon.IsMissingStats, pokemon.SecondsLeft);
+                    _processedPokemon[pokemon.EncounterId] = new ScannedPokemon(pokemon);
                 }
 
                 OnPokemonReceived(pokemon);
@@ -627,7 +628,8 @@
             {
                 var encounterId = keys[i];
                 var scannedPokemon = _processedPokemon[encounterId];
-                if (scannedPokemon.SecondsLeft.TotalSeconds <= 0)
+
+                if (scannedPokemon.IsExpired)
                 {
                     // Spawn expired, remove from cache
                     _logger.Debug($"Pokemon spawn {encounterId} expired, removing from cache...");
@@ -649,14 +651,29 @@
 
         private struct ScannedPokemon
         {
+            public double Latitude { get; set; }
+
+            public double Longitude { get; set; }
+
             public bool IsMissingStats { get; set; }
 
-            public TimeSpan SecondsLeft { get; set; }
+            public DateTime DespawnTime { get; set; }
 
-            public ScannedPokemon(bool isMissingStats, TimeSpan secondsLeft)
+            public bool IsExpired
             {
-                IsMissingStats = isMissingStats;
-                SecondsLeft = secondsLeft;
+                get
+                {
+                    var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+                    return now > DespawnTime;
+                }
+            }
+
+            public ScannedPokemon(PokemonData pokemon)
+            {
+                Latitude = pokemon.Latitude;
+                Longitude = pokemon.Longitude;
+                IsMissingStats = pokemon.IsMissingStats;
+                DespawnTime = pokemon.DespawnTime;
             }
         }
     }
