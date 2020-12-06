@@ -1,9 +1,7 @@
 ﻿namespace WhMgr.Alarms.Models
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
 
     using Newtonsoft.Json;
 
@@ -76,35 +74,9 @@
         /// </summary>
         public AlarmObject()
         {
-            GeofenceFiles = new List<string>();
-            LoadGeofence();
+            Geofences = new List<GeofenceItem>();
             LoadAlerts();
             LoadFilters();
-        }
-
-        /// <summary>
-        /// Load geofences from the `/Geofences` folder
-        /// </summary>
-        /// <returns>Returns parsed geofence list</returns>
-        public List<GeofenceItem> LoadGeofence()
-        {
-            var geofences = new List<GeofenceItem>();
-            if (GeofenceFiles.Count == 0)
-                return geofences;
-
-            foreach (var geofenceFile in GeofenceFiles)
-            {
-                var path = Path.Combine(Strings.GeofenceFolder, geofenceFile);
-                if (!File.Exists(path))
-                {
-                    throw new FileNotFoundException($"Geofence file {path} not found.", path);
-                }
-
-                // Only return the first geofence
-                var geofence = GeofenceItem.FromFile(path).FirstOrDefault();
-                geofences.Add(geofence);
-            }
-            return Geofences = geofences;
         }
 
         /// <summary>

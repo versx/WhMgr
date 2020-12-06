@@ -1,4 +1,9 @@
-﻿namespace WhMgr.Geofence
+﻿using NetTopologySuite.Features;
+using NetTopologySuite.IO;
+using Newtonsoft.Json;
+using WhMgr.Utilities;
+
+namespace WhMgr.Geofence
 {
     using System;
     using System.Collections.Generic;
@@ -20,9 +25,9 @@
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the location polygons of the geofence
+        /// Gets or sets the FeatureCollection containing the geometry which represents this geofence
         /// </summary>
-        public List<Location> Polygons { get; }
+        public IFeature Feature { get; set; }
 
         #endregion
 
@@ -34,43 +39,86 @@
         public GeofenceItem()
         {
             Name = DefaultName;
-            Polygons = new List<Location>();
+            Feature = new Feature();
         }
 
         /// <summary>
         /// Instantiates a new <see cref="GeofenceItem"/> class by name
         /// </summary>
         /// <param name="name">Name of geofence</param>
-        public GeofenceItem(string name) : this(name ?? DefaultName, new List<Location>())
+        public GeofenceItem(string name) : this()
         {
+            Feature.Attributes = new AttributesTable {
+                { "name", name }
+            };
+        }
+
+        /// <summary>
+        /// Instantiates a new <see cref="GeofenceItem"/> class from a GeoJSON feature.
+        /// If the feature has a "name" attribute, this geofence's name will be set from that.
+        /// </summary>
+        public GeofenceItem(IFeature feature)
+        {
+            Feature = feature;
+            Name = feature.Attributes["name"]?.ToString() ?? DefaultName;
         }
 
         /// <summary>
         /// Instantiates a new <see cref="GeofenceItem"/> class with name and polygons
         /// </summary>
         /// <param name="name">Name of geofence</param>
-        /// <param name="polygons">Location polygons of geofence</param>
-        public GeofenceItem(string name, List<Location> polygons) : this()
+        /// <param name="coordinates">Location polygons of geofence</param>
+        public GeofenceItem(string name, List<Location> coordinates) : this()
         {
             Name = name ?? DefaultName;
-            Polygons = polygons;
+            Feature = GeoUtils.CoordinateListToFeature(coordinates, new AttributesTable {
+                { "name", name }
+            });
         }
 
         #endregion
 
         #region Static Methods
 
+        public static List<GeofenceItem> FromFile(string filePath)
+        {
+            if (Path.GetExtension(filePath).Equals(".json", StringComparison.OrdinalIgnoreCase))
+                return FromJsonFile(filePath);
+            else
+                return FromIniFile(filePath);
+        }
+
+        private static List<GeofenceItem> FromJsonFile(string filePath)
+        {
+            FeatureCollection featureCollection;
+
+            // Read the JSON from the file and deserialize it into a GeoJSON FeatureCollection
+            var jsonText = File.ReadAllText(filePath);
+            var serializer = GeoJsonSerializer.Create();
+            
+            using (var stringReader = new StringReader(jsonText))
+            using (var jsonReader = new JsonTextReader(stringReader))
+                featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
+
+            if (featureCollection == null)
+                throw new JsonException($"Geofence file \"{filePath}\" contained invalid JSON or the JSON did not represent a FeatureCollection");
+
+            // Turn each Feature in the FeatureCollection into a GeofenceItem
+            return featureCollection.Select(feature => new GeofenceItem(feature)).ToList();
+        }
+
         /// <summary>
-        /// Load a geofence from the provided file path
+        /// Load a geofence from the provided INI file path
         /// </summary>
         /// <param name="filePath">File path of geofence to load</param>
         /// <returns>Returns a geofence object of the file path</returns>
-        public static List<GeofenceItem> FromFile(string filePath)
+        private static List<GeofenceItem> FromIniFile(string filePath)
         {
             var list = new List<GeofenceItem>();
             // Read all lines of the file and remove all null, empty, or whitespace lines
             var lines = File.ReadAllLines(filePath).Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
-            var geofence = new GeofenceItem();
+            var locations = new List<Location>();
+            string name = "";
 
             // Loop through each new line of the file
             for (var i = 0; i < lines.Length; i++)
@@ -80,7 +128,7 @@
                 // If the line starts with '[' then parse the Geofence name
                 if (line.StartsWith("[", StringComparison.Ordinal))
                 {
-                    geofence = new GeofenceItem(line.TrimStart('[').TrimEnd(']'));
+                    name = line.TrimStart('[').TrimEnd(']');
                     continue;
                 }
 
@@ -92,14 +140,19 @@
                 if (!double.TryParse(coordinates[1], out var lng))
                     continue;
 
-                geofence.Polygons.Add(new Location(lat, lng));
+                locations.Add(new Location(lat, lng));
 
                 // If we have reached the end of the file or the start of another
                 // geofence, add the current to the list of geofences
                 var isEnd = i == lines.Length - 1 || lines[i + 1].StartsWith("[", StringComparison.Ordinal);
+
                 if (isEnd)
                 {
+                    var geofence = new GeofenceItem(name, locations);
+
                     list.Add(geofence);
+                    name = "";
+                    locations = new List<Location>();
                 }
             }
 

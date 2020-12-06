@@ -39,9 +39,14 @@
         #region Properties
 
         /// <summary>
-        /// Geofences cache
+        /// Geofence file cache
         /// </summary>
-        public Dictionary<string, GeofenceItem> Geofences { get; private set; }
+        public Dictionary<string, List<GeofenceItem>> GeofenceFiles { get; private set; }
+
+        /// <summary>
+        /// All loaded geofences
+        /// </summary>
+        public List<GeofenceItem> Geofences { get; private set; }
 
         /// <summary>
         /// Gyms cache
@@ -187,12 +192,12 @@
         {
             _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, Servers={config.Servers.Count:N0}]");
 
-            Geofences = new Dictionary<string, GeofenceItem>();
-
             _gyms = new Dictionary<string, GymDetailsData>();
             _weather = new Dictionary<long, WeatherType>();
             _servers = config.Servers;
             _alarms = new Dictionary<ulong, AlarmList>();
+
+            LoadGeofences();
 
             foreach (var server in _servers)
             {
@@ -317,6 +322,34 @@
 
         #endregion
 
+		#region Geofence Initialization
+
+        private void LoadGeofences()
+        {
+            GeofenceFiles = new Dictionary<string, List<GeofenceItem>>();
+            Geofences = new List<GeofenceItem>();
+
+            foreach (var file in Directory.EnumerateFiles(Strings.GeofenceFolder))
+            {
+                try
+                {
+                    var fileGeofences = GeofenceItem.FromFile(file);
+
+                    GeofenceFiles.Add(file, fileGeofences);
+
+                    foreach (var geofence in fileGeofences)
+                        Geofences.Add(geofence);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Could not load Geofence file {file}:");
+                    _logger.Error(ex);
+                }
+            }
+        }
+
+		#endregion
+
         #region Alarms Initialization
 
         private AlarmList LoadAlarms(string alarmsFilePath)
@@ -347,14 +380,18 @@
 
             alarms.Alarms.ForEach(x =>
             {
-                var geofences = x.LoadGeofence();
-                for (var i = 0; i < geofences.Count; i++)
+                if (x.GeofenceFiles != null)
                 {
-                    var geofence = geofences[i];
-                    if (!Geofences.ContainsKey(geofence.Name))
+                    foreach (var file in x.GeofenceFiles)
                     {
-                        Geofences.Add(geofence.Name, geofence);
-                        _logger.Debug($"Geofence file loaded for {x.Name}...");
+                        if (GeofenceFiles.TryGetValue(file, out var geofences))
+                        {
+                            x.Geofences.AddRange(geofences);
+                        }
+                        else
+                        {
+                            _logger.Warn($"Geofence file \"{file}\" not found for alarm \"{x.Name}\"");
+                        }
                     }
                 }
 
@@ -425,7 +462,7 @@
                         continue;
                     }
 
-                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(pkmn.Latitude, pkmn.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(pkmn.Latitude, pkmn.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping pokemon {pkmn.Id}: not in geofence.");
@@ -532,7 +569,7 @@
                 for (var j = 0; j < raidAlarms.Count; j++)
                 {
                     var alarm = raidAlarms[j];
-                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level}: not in geofence.");
@@ -668,7 +705,7 @@
                         continue;
                     }
 
-                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: not in geofence.");
@@ -758,7 +795,7 @@
                         continue;
                     }
 
-                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
@@ -802,7 +839,7 @@
                         continue;
                     }
 
-                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(gym.Latitude, gym.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(gym.Latitude, gym.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping gym GymId={gym.GymId}, GymName={gym.GymName} because not in geofence.");
@@ -846,7 +883,7 @@
                         continue;
                     }
 
-                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName}: not in geofence.");
@@ -916,7 +953,7 @@
                         continue;
                     }
 
-                    var geofence = GeofenceService.InGeofence(alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
+                    var geofence = GeofenceService.GetGeofence(alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
                     if (geofence == null)
                     {
                         //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName}: not in geofence.");
@@ -968,11 +1005,7 @@
         /// <returns>Returns a <see cref="GeofenceItem"/> object the provided location falls within.</returns>
         public GeofenceItem GetGeofence(double latitude, double longitude)
         {
-            return GeofenceService.GetGeofence(Geofences
-                .Select(x => x.Value)
-                .ToList(),
-                new Location(latitude, longitude)
-            );
+            return GeofenceService.GetGeofence(Geofences, new Location(latitude, longitude));
         }
 
         #endregion
