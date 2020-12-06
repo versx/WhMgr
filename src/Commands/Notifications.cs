@@ -1511,7 +1511,6 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
 
             var subType = await ctx.GetSubscriptionTypeSelection();
-            // TODO: List areas when asking for areas
             // TODO: Maybe show current settings for selected info
             switch (subType)
             {
@@ -1573,9 +1572,9 @@ and only from the following areas: {string.Join(", ", areasResult)}
                                 : string.Empty)
                         );
                         _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
-                        return;
                     }
                     #endregion
+                    break;
                 case 2: // PVP
                     #region PvP
                     {
@@ -1836,8 +1835,7 @@ and only from the following areas: {string.Join(", ", areasResult)}
                     _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                     break;
                     #endregion
-                case 0:
-                    // Invalid entry
+                case 0: // Invalid entry
                     await ctx.RespondEmbed($"Invalid entry specified, please try again...", DiscordColor.Red);
                     break;
             }
@@ -2047,6 +2045,71 @@ and only from the following areas: {string.Join(", ", areasResult)}
             {
             }
             return new KeyValuePair<List<string>, List<string>>(subscribed, alreadySubscribed);
+        }
+
+        [
+            Command("remove"),
+            Aliases("rem", "rm", "r"),
+            Description("Easily remove subscriptions via guided messages.")
+        ]
+        public async Task RemoveAsync(CommandContext ctx)
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return;
+
+            var server = _dep.WhConfig.Servers[guildId];
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+
+            var subType = await ctx.GetSubscriptionTypeSelection();
+            // TODO: Maybe show current settings for selected info
+            switch (subType)
+            {
+                case 1: // Pokemon
+                    #region Pokemon
+                    {
+                        _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                        return;
+                    }
+                #endregion
+                case 2: // PVP
+                    #region PvP
+                    {
+                        _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                    }
+                    #endregion
+                    break;
+                case 3: // Raids
+                    #region Raids
+                    {
+                        _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                    }
+                    #endregion
+                    break;
+                case 4: // Quests
+                    #region Quests
+                    _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                    #endregion
+                    break;
+                case 5: // Invasions
+                    #region
+                    {
+                        _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                    }
+                    #endregion
+                    break;
+                case 6: // Gyms
+                    #region Gyms
+                    _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                    break;
+                #endregion
+                case 0: // Invalid entry
+                    await ctx.RespondEmbed($"Invalid entry specified, please try again...", DiscordColor.Red);
+                    break;
+            }
         }
 
         #endregion
