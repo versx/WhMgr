@@ -6,7 +6,7 @@
     public class Location
     {
         /// <summary>
-        /// Gets the address for the location
+        /// Gets or sets the address for the location
         /// </summary>
         public string Address { get; set; }
 
