@@ -397,9 +397,18 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 11.) Optional reverse location lookup with OpenStreetMaps Nominatim instead of Google Maps, install instructions [here](https://nominatim.org/release-docs/develop/admin/Installation/)  
 
 ## Updating  
-1. Pull latest changes in root folder  
-1. Build project `dotnet build`  
-1. Run `dotnet bin/debug/netcoreapp2.1/WhMgr.dll`  
+The update scripts will pull latest repository changes, build latest WhMgr.dll, and copy latest locale translation and master files.
+If you'd like to copy any of the latest example files (alerts, filters, templates, geofences) you can provide a parameter when running the script to include them.  
+```
+update.sh examples
+Will copy examples to build folder
+
+update.sh geofences
+Will copy geofences to build folder
+
+update.sh all
+Will copy examples and geofences to build folder
+```  
 
 **Important Notes:**  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created in the specified `EmojiGuildId` upon connecting to Discord.  
@@ -774,8 +783,6 @@ __**Quests**__
 - Allow Pokemon id and name in Pokemon filter lists.  
 - Individual filters per Pokemon. (PA style, maybe)  
 - PvP ranks DTS
-- Separate subscriptions DTS
-- Wiki.  
 
 
 ## Previews  
@@ -818,7 +825,7 @@ Discord Weather Notifications:
 
 
 ## Current Issues  
-- Pokemon subscriptions are based on Discord city roles assigned currently, soon it will be based on specified cities.  
+
 
 ## Credits  
 [versx](https://github.com/versx) - Developer  

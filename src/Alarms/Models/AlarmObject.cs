@@ -1,9 +1,7 @@
 ﻿namespace WhMgr.Alarms.Models
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
 
     using Newtonsoft.Json;
 
@@ -21,7 +19,7 @@
         /// Area geofences
         /// </summary>
         [JsonIgnore]
-        public List<GeofenceItem> Geofences { get; private set; }
+        public List<GeofenceItem> GeofenceItems { get; private set; }
 
         /// <summary>
         /// Discord alert messages
@@ -63,7 +61,7 @@
         /// Gets or sets the geofences file to load
         /// </summary>
         [JsonProperty("geofences")]
-        public List<string> GeofenceFiles { get; set; }
+        public List<string> Geofences { get; set; }
 
         /// <summary>
         /// Gets or sets the Discord channel webhook url address
@@ -76,35 +74,9 @@
         /// </summary>
         public AlarmObject()
         {
-            GeofenceFiles = new List<string>();
-            LoadGeofence();
+            GeofenceItems = new List<GeofenceItem>();
             LoadAlerts();
             LoadFilters();
-        }
-
-        /// <summary>
-        /// Load geofences from the `/Geofences` folder
-        /// </summary>
-        /// <returns>Returns parsed geofence list</returns>
-        public List<GeofenceItem> LoadGeofence()
-        {
-            var geofences = new List<GeofenceItem>();
-            if (GeofenceFiles.Count == 0)
-                return geofences;
-
-            foreach (var geofenceFile in GeofenceFiles)
-            {
-                var path = Path.Combine(Strings.GeofenceFolder, geofenceFile);
-                if (!File.Exists(path))
-                {
-                    throw new FileNotFoundException($"Geofence file {path} not found.", path);
-                }
-
-                // Only return the first geofence
-                var geofence = GeofenceItem.FromFile(path).FirstOrDefault();
-                geofences.Add(geofence);
-            }
-            return Geofences = geofences;
         }
 
         /// <summary>

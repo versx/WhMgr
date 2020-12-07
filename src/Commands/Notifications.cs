@@ -16,6 +16,7 @@
     using Newtonsoft.Json;
 
     using WhMgr.Data;
+    using WhMgr.Data.Subscriptions;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
@@ -84,27 +85,43 @@
             Aliases("disable"),
             Description("Enables or disables all of your Pokemon and Raid notification subscriptions at once.")
         ]
-        public async Task EnableDisableAsync(CommandContext ctx)
+        public async Task EnableDisableAsync(CommandContext ctx,
+            [Description("Discord user mention string.")] string mention = "")
         {
             if (!await CanExecute(ctx))
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
-            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
-            if (subscription == null)
+            if (string.IsNullOrEmpty(mention))
             {
-                await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                await EnableDisableUserSubscriptions(ctx, ctx.User, guildId);
                 return;
             }
 
-            var cmd = ctx.Message.Content.TrimStart('.', ' ');
-            subscription.Enabled = cmd.ToLower().Contains("enable");
-            subscription.Save();
+            var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            if (!isModOrHigher)
+            {
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(ctx.User.Mention), DiscordColor.Red);
+                return;
+            }
 
-            await ctx.TriggerTypingAsync();
-            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ENABLE_DISABLE").FormatText(ctx.User.Username, cmd));
+            var userId = ConvertMentionToUserId(mention);
+            if (userId <= 0)
+            {
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_INVALID_USER_MENTION").FormatText(ctx.User.Mention, mention), DiscordColor.Red);
+                return;
+            }
+
+            var user = await ctx.Client.GetUserAsync(userId);
+            if (user == null)
+            {
+                _logger.Warn($"Failed to get Discord user with id {userId}.");
+                return;
+            }
+
+            await EnableDisableUserSubscriptions(ctx, user, guildId);
+
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -1546,6 +1563,60 @@
 
         #endregion
 
+        #region Reset / Clear / Wipe
+
+        [
+            Command("reset"),
+            Aliases("clear", "wipe")
+        ]
+        public async Task ResetAsync(CommandContext ctx,
+            [Description("Discord user mention string.")] string mention = "")
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+
+            if (string.IsNullOrEmpty(mention))
+            {
+                if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id))
+                {
+                    // TODO: Send response message
+                }
+                return;
+            }
+
+            var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            if (!isModOrHigher)
+            {
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(ctx.User.Mention), DiscordColor.Red);
+                return;
+            }
+
+            var userId = ConvertMentionToUserId(mention);
+            if (userId <= 0)
+            {
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_INVALID_USER_MENTION").FormatText(ctx.User.Mention, mention), DiscordColor.Red);
+                return;
+            }
+
+            var user = await ctx.Client.GetUserAsync(userId);
+            if (user == null)
+            {
+                _logger.Warn($"Failed to get Discord user with id {userId}.");
+                return;
+            }
+
+            if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, user.Id))
+            {
+                // TODO: Send response message
+            }
+
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        #endregion
+
         #region Import / Export
 
         [
@@ -1754,6 +1825,24 @@
         }
 
         #region Private Methods
+
+        private async Task EnableDisableUserSubscriptions(CommandContext ctx, DiscordUser user, ulong guildId)
+        {
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, user.Id);
+            if (subscription == null)
+            {
+                await ctx.TriggerTypingAsync();
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(user.Username), DiscordColor.Red);
+                return;
+            }
+
+            var cmd = ctx.Message.Content.TrimStart('.', ' ');
+            subscription.Enabled = cmd.ToLower().Contains("enable");
+            subscription.Save();
+
+            await ctx.TriggerTypingAsync();
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ENABLE_DISABLE").FormatText(user.Username, cmd));
+        }
 
         private async Task SendUserSubscriptionSettings(DiscordClient client, DiscordUser receiver, DiscordUser user, ulong guildId)
         {
@@ -2132,10 +2221,15 @@
         private List<string> GetAreas(ulong guildId, string city)
         {
             var server = _dep.WhConfig.Servers[guildId];
+            // Parse user defined cities
             var cities = string.IsNullOrEmpty(city) || string.Compare(city, Strings.All, true) == 0
                 ? server.CityRoles
                 : city.Replace(" ,", ",").Replace(", ", ",").Split(',').ToList();
-            return GetValidatedAreas(cities, server.CityRoles);
+            var validAreas = server.CityRoles.Select(x => x.ToLower());
+            // Validate areas
+            return cities
+                .Where(x => validAreas.Contains(x.ToLower()))
+                .ToList();
         }
 
         private bool ContainsCity(List<string> oldCities, List<string> newCities)
@@ -2150,17 +2244,6 @@
                 return false;
             }
             return true;
-        }
-
-        private List<string> GetValidatedAreas(List<string> areas, List<string> availableAreas)
-        {
-            var list = new List<string>();
-            var availableAreaNames = availableAreas.Select(x => x.ToLower());
-            areas
-                .Where(x => availableAreaNames.Contains(x.ToLower()))
-                .ToList()
-                .ForEach(x => list.Add(x.ToLower()));
-            return areas;
         }
 
         #endregion

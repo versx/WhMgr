@@ -138,8 +138,8 @@
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pokemon.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
-                        user.Enabled = false;
-                        user.Save(false);
+                        //user.Enabled = false;
+                        //user.Save(false);
                         continue;
                     }
 
@@ -151,7 +151,7 @@
                     // Not subscribed to Pokemon
                     if (subscribedPokemon == null)
                     {
-                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
+                        //_logger.Debug($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
@@ -264,8 +264,8 @@
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pvp pokemon {pokemon.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
-                        user.Enabled = false;
-                        user.Save(false);
+                        //user.Enabled = false;
+                        //user.Save(false);
                         continue;
                     }
 
@@ -277,7 +277,7 @@
                     // Not subscribed to Pokemon
                     if (subscribedPokemon == null)
                     {
-                        //_logger.Info($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
+                        //_logger.Debug($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
@@ -380,8 +380,8 @@
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
-                        user.Enabled = false;
-                        user.Save(false);
+                        //user.Enabled = false;
+                        //user.Save(false);
                         continue;
                     }
 
@@ -496,8 +496,8 @@
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping quest {questName}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
-                        user.Enabled = false;
-                        user.Save(false);
+                        //user.Enabled = false;
+                        //user.Save(false);
                         continue;
                     }
 
@@ -600,8 +600,8 @@
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
-                        user.Enabled = false;
-                        user.Save(false);
+                        //user.Enabled = false;
+                        //user.Save(false);
                         continue;
                     }
 
@@ -671,16 +671,22 @@
                         continue;
 
                     // Check if user is receiving messages too fast.
-                    if (item.Subscription.Limiter.IsLimited())
+                    var maxNotificationsPerMinute = _whConfig.MaxNotificationsPerMinute;
+                    if (item.Subscription.Limiter.IsLimited(maxNotificationsPerMinute))
                     {
                         _logger.Warn($"{item.Member.Username} notifications rate limited, waiting {(60 - item.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", item.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
                         // Send ratelimited notification to user if not already sent to adjust subscription settings to more reasonable settings.
                         if (!item.Subscription.RateLimitNotificationSent)
                         {
-                            var guildName = _servers.ContainsKey(item.Subscription.GuildId) ? _servers[item.Subscription.GuildId].Guilds[item.Subscription.GuildId]?.Name : Strings.Creator;
+                            if (!_servers.ContainsKey(item.Subscription.GuildId))
+                                continue;
+
+                            var server = _servers[item.Subscription.GuildId].Guilds[item.Subscription.GuildId];
+                            var emoji = DiscordEmoji.FromName(_servers.FirstOrDefault().Value, ":no_entry:");
                             var guildIconUrl = _servers.ContainsKey(item.Subscription.GuildId) ? _servers[item.Subscription.GuildId].Guilds[item.Subscription.GuildId]?.IconUrl : string.Empty;
-                            var rateLimitMessage = $"Your notification subscriptions have exceeded the {NotificationLimiter.MaxNotificationsPerMinute:N0}) per minute and you are now being rate limited." +
-                                                   $"Please adjust your subscriptions to receive a maximum of {NotificationLimiter.MaxNotificationsPerMinute:N0} notifications within a 60 second time span.";
+                            // TODO: Localize
+                            var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0}) per minute and are now being rate limited." +
+                                                   $"Please adjust your subscriptions to receive a maximum of {maxNotificationsPerMinute:N0} notifications within a {NotificationLimiter.ThresholdTimeout} second time span.";
                             var eb = new DiscordEmbedBuilder
                             {
                                 Title = "Rate Limited",
@@ -688,12 +694,10 @@
                                 Color = DiscordColor.Red,
                                 Footer = new DiscordEmbedBuilder.EmbedFooter
                                 {
-                                    Text = $"{guildName} | {DateTime.Now}",
-                                    IconUrl = guildIconUrl
+                                    Text = $"{server?.Name} | {DateTime.Now}",
+                                    IconUrl = server?.IconUrl
                                 }
                             };
-                            if (!_servers.ContainsKey(item.Subscription.GuildId))
-                                continue;
 
                             await _servers[item.Subscription.GuildId].SendDirectMessage(item.Member, string.Empty, eb.Build());
                             item.Subscription.RateLimitNotificationSent = true;
