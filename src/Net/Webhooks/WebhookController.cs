@@ -233,6 +233,12 @@
             _http?.Stop();
         }
 
+        public List<GeofenceItem> GetServerGeofences(ulong guildId)
+        {
+            lock (_geofencesLock)
+                return _geofences[guildId];
+        }
+
         #endregion
 
         #region HttpServer Events
