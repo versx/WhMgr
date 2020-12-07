@@ -2158,7 +2158,7 @@ and only from the following areas: {string.Join(", ", areasResult)}
                 return;
             }
 
-            if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id))
+            if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, user.Id))
             {
                 // TODO: Send response message
             }
@@ -2764,24 +2764,38 @@ and only from the following areas: {string.Join(", ", areasResult)}
     {
         public static List<string> GetAreas(string city, List<string> validAreas)
         {
+            var server = _dep.WhConfig.Servers[guildId];
+            // Parse user defined cities
             var cities = string.IsNullOrEmpty(city) || string.Compare(city, Strings.All, true) == 0
                 ? validAreas
                 : city.Replace(" ,", ",").Replace(", ", ",").Split(',').ToList();
-            return GetValidatedAreas(cities, validAreas);
+            var validAreas = server.CityRoles.Select(x => x.ToLower());
+            // Validate areas
+            return cities
+                .Where(x => validAreas.Contains(x.ToLower()))
+                .ToList();
         }
 
-        public static List<string> GetValidatedAreas(List<string> areas, List<string> availableAreas)
+        private bool ContainsCity(List<string> oldCities, List<string> newCities)
         {
-            var list = new List<string>();
-            var availableAreaNames = availableAreas.Select(x => x.ToLower());
-            areas
-                .Where(x => availableAreaNames.Contains(x.ToLower()))
-                .ToList()
-                .ForEach(x => list.Add(x.ToLower()));
-            return areas;
+            var oldAreas = oldCities.Select(x => x.ToLower());
+            var newAreas = newCities.Select(x => x.ToLower());
+            foreach (var newArea in newAreas)
+            {
+                if (oldAreas.Contains(newArea))
+                    continue;
+
+                return false;
+            }
+            return true;
         }
 
-        public static bool ContainsCity(List<string> oldCities, List<string> newCities)
+        #endregion
+    }
+
+    static class DiscordInteractiveExtensions
+    {
+        public static async Task<string> GetSubscriptionTypeSelection(this CommandContext ctx)
         {
             var oldAreas = oldCities.Select(x => x.ToLower());
             var newAreas = newCities.Select(x => x.ToLower());

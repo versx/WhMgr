@@ -103,8 +103,42 @@
 
         #endregion
 
+        private static readonly Dictionary<(ulong, ulong), Task<DiscordMember>> MemberTasks = new Dictionary<(ulong, ulong), Task<DiscordMember>>();
+
         public static async Task<DiscordMember> GetMemberById(this DiscordClient client, ulong guildId, ulong id)
         {
+            Task<DiscordMember> taskToAwait;
+            var added = false;
+
+            lock (MemberTasks)
+            {
+                if (MemberTasks.TryGetValue((guildId, id), out var existingTask))
+                {
+                    taskToAwait = existingTask;
+                }
+                else
+                {
+                    taskToAwait = DoGetMemberById(client, guildId, id);
+                    MemberTasks.Add((guildId, id), taskToAwait);
+                    added = true;
+                }
+            }
+
+            var result = await taskToAwait;
+
+            if (added)
+            {
+                lock (MemberTasks)
+                {
+                    MemberTasks.Remove((guildId, id));
+                }
+            }
+
+            return result;
+        }
+
+        private static async Task<DiscordMember> DoGetMemberById(DiscordClient client, ulong guildId, ulong id)
+		{
             if (!client.Guilds.ContainsKey(guildId))
                 return null;
 
