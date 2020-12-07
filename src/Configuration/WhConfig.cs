@@ -118,6 +118,12 @@
         public ushort ReloadSubscriptionChangesMinutes { get; set; }
 
         /// <summary>
+        /// Gets or sets the maximum amount of notifications a user can receive per minute per server before being rate limited
+        /// </summary>
+        [JsonProperty("maxNotificationsPerMinute")]
+        public ushort MaxNotificationsPerMinute { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to log incoming webhook data to a file
         /// </summary>
         [JsonProperty("debug")]
@@ -154,6 +160,7 @@
             Twilio = new TwilioConfig();
             DespawnTimeMinimumMinutes = 5;
             ReloadSubscriptionChangesMinutes = 1;
+            MaxNotificationsPerMinute = 10;
         }
 
         /// <summary>
