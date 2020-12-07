@@ -2221,10 +2221,15 @@
         private List<string> GetAreas(ulong guildId, string city)
         {
             var server = _dep.WhConfig.Servers[guildId];
+            // Parse user defined cities
             var cities = string.IsNullOrEmpty(city) || string.Compare(city, Strings.All, true) == 0
                 ? server.CityRoles
                 : city.Replace(" ,", ",").Replace(", ", ",").Split(',').ToList();
-            return GetValidatedAreas(cities, server.CityRoles);
+            var validAreas = server.CityRoles.Select(x => x.ToLower());
+            // Validate areas
+            return cities
+                .Where(x => validAreas.Contains(x.ToLower()))
+                .ToList();
         }
 
         private bool ContainsCity(List<string> oldCities, List<string> newCities)
@@ -2239,17 +2244,6 @@
                 return false;
             }
             return true;
-        }
-
-        private List<string> GetValidatedAreas(List<string> areas, List<string> availableAreas)
-        {
-            var list = new List<string>();
-            var availableAreaNames = availableAreas.Select(x => x.ToLower());
-            areas
-                .Where(x => availableAreaNames.Contains(x.ToLower()))
-                .ToList()
-                .ForEach(x => list.Add(x.ToLower()));
-            return areas;
         }
 
         #endregion
