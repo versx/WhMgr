@@ -2153,6 +2153,27 @@ and only from the following areas: {string.Join(", ", areasResult)}
                 case 6: // Gyms
                     #region Gyms
                     {
+                        var gymInput = (await ctx.RespondEmbed($"Enter a gym name to remove from receiving raid notifcations:", DiscordColor.Blurple)).FirstOrDefault();
+                        var gymName = await ctx.WaitForUserChoice();
+                        await gymInput.DeleteAsync();
+
+                        if (string.Compare(Strings.All, gymName, true) == 0)
+                        {
+                            var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Gyms.Count.ToString("N0")));
+                            if (!result)
+                                return;
+
+                            subscription.Gyms.ForEach(x => x.Id.Remove<GymSubscription>());
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(ctx.User.Username));
+                            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                            return;
+                        }
+
+                        subscription.Gyms
+                            .Where(x => string.Compare(x.Name, gymName, true) == 0)?
+                            .ToList()?
+                            .ForEach(x => x.Id.Remove<GymSubscription>());
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_REMOVED").FormatText(ctx.User.Username, gymName));
                     }
                     break;
                     #endregion
