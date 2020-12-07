@@ -2762,40 +2762,20 @@ and only from the following areas: {string.Join(", ", areasResult)}
 
     internal class SubscriptionAreas
     {
-        public static List<string> GetAreas(string city, List<string> validAreas)
+        public static List<string> GetAreas(string city, List<string> validCities)
         {
-            var server = _dep.WhConfig.Servers[guildId];
             // Parse user defined cities
             var cities = string.IsNullOrEmpty(city) || string.Compare(city, Strings.All, true) == 0
-                ? validAreas
+                ? validCities
                 : city.Replace(" ,", ",").Replace(", ", ",").Split(',').ToList();
-            var validAreas = server.CityRoles.Select(x => x.ToLower());
+            var validAreas = validCities.Select(x => x.ToLower());
             // Validate areas
             return cities
                 .Where(x => validAreas.Contains(x.ToLower()))
                 .ToList();
         }
 
-        private bool ContainsCity(List<string> oldCities, List<string> newCities)
-        {
-            var oldAreas = oldCities.Select(x => x.ToLower());
-            var newAreas = newCities.Select(x => x.ToLower());
-            foreach (var newArea in newAreas)
-            {
-                if (oldAreas.Contains(newArea))
-                    continue;
-
-                return false;
-            }
-            return true;
-        }
-
-        #endregion
-    }
-
-    static class DiscordInteractiveExtensions
-    {
-        public static async Task<string> GetSubscriptionTypeSelection(this CommandContext ctx)
+        public static bool ContainsCity(List<string> oldCities, List<string> newCities)
         {
             var oldAreas = oldCities.Select(x => x.ToLower());
             var newAreas = newCities.Select(x => x.ToLower());
