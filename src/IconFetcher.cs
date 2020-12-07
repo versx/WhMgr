@@ -6,6 +6,7 @@
     using System.Text;
 
     using Newtonsoft.Json;
+    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
     using QuestRewardType = POGOProtos.Data.Quests.QuestReward.Types.Type;
     using POGOProtos.Enums;
     using POGOProtos.Map.Weather;
@@ -133,7 +134,7 @@
             return _iconStyles[style] + "reward/2-i" + (int)lureType + "-a1.png";
         }
 
-        public string GetInvasionIcon(string style, InvasionGruntType gruntType)
+        public string GetInvasionIcon(string style, InvasionCharacter gruntType)
         {
             return _iconStyles[style] + "invasion/" + (int)gruntType + ".png";
         }

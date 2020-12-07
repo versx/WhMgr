@@ -264,6 +264,19 @@
         [JsonProperty("raid_levels")]
         public List<int> RaidLevels { get; set; }
 
+        [JsonProperty("mega_resource")]
+        public QuestMegaResource MegaResource { get; set; }
+
+        [JsonProperty("sticker_id")]
+        public string StickerId { get; set; }
+
         // TODO: Pokemon alignment
+    }
+
+    public sealed class QuestMegaResource
+    {
+        public ushort PokemonId { get; set; }
+
+        public int Amount { get; set; }
     }
 }

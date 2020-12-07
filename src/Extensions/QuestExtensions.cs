@@ -6,7 +6,6 @@
 
     using POGOProtos.Data;
     using POGOProtos.Enums;
-    using POGOProtos.Inventory.Item;
     using QuestConditionType = POGOProtos.Data.Quests.QuestCondition.Types.ConditionType;
     using QuestRewardType = POGOProtos.Data.Quests.QuestReward.Types.Type;
     using CharacterCategory = POGOProtos.Enums.EnumWrapper.Types.CharacterCategory;
@@ -94,6 +93,7 @@
                 case QuestConditionType.WithLocation:
                 case QuestConditionType.WithDistance:
                 case QuestConditionType.WithBuddy:
+                default:
                     return Translator.Instance.Translate(conditionKey);
                 case QuestConditionType.WithPokemonAlignment:
                     return string.Join(", ", condition.Info.AlignmentIds?.Select(x => Translator.Instance.GetAlignmentName((PokemonDisplay.Types.Alignment)x)));
@@ -113,7 +113,7 @@
 
         public static string GetReward(this QuestRewardMessage reward)
         {
-            return GetReward(reward.Type, reward.Info.PokemonId, reward.Info.Amount, reward.Info.Item, reward.Info.Ditto, reward.Info.Shiny);
+            return GetReward(reward.Type, reward.Info);
         }
 
         public static string GetReward(this Pokestop pokestop)
@@ -121,7 +121,7 @@
             return pokestop.QuestRewards?.FirstOrDefault()?.GetReward();
         }
 
-        public static string GetReward(this QuestRewardType type, int pokemonId, int amount, ItemId item, bool isDitto = false, bool isShiny = false)
+        public static string GetReward(this QuestRewardType type, QuestReward info)
         {
             var rewardKey = "quest_reward_" + Convert.ToInt32(type);
             switch (type)
@@ -130,24 +130,26 @@
                 case QuestRewardType.Quest:
                     return Translator.Instance.Translate(rewardKey);
                 case QuestRewardType.Candy:
-                    return Translator.Instance.Translate(rewardKey, amount);
+                    return Translator.Instance.Translate(rewardKey, info.Amount);
                 case QuestRewardType.Experience:
-                    return Translator.Instance.Translate(rewardKey, amount);
+                    return Translator.Instance.Translate(rewardKey, info.Amount);
                 case QuestRewardType.Item:
-                    var itemName = Translator.Instance.GetItem(item);
-                    return Translator.Instance.Translate(rewardKey, amount, itemName);
+                    var itemName = Translator.Instance.GetItem(info.Item);
+                    return Translator.Instance.Translate(rewardKey, info.Amount, itemName);
                 case QuestRewardType.PokemonEncounter:
-                    return (isShiny ? $"**SHINY** " : "") + Translator.Instance.GetPokemonName(isDitto ? 132 : pokemonId);
+                    return (info.Shiny ? $"**SHINY** " : "") + Translator.Instance.GetPokemonName(info.Ditto ? 132 : info.PokemonId);
                 case QuestRewardType.Stardust:
-                    return Translator.Instance.Translate(rewardKey, amount);
+                    return Translator.Instance.Translate(rewardKey, info.Amount);
                 case QuestRewardType.MegaResource:
-                    return string.Empty; // TODO: Mega quests
-                case QuestRewardType.XlCandy:
-                    return string.Empty; // TODO: XL Candy
+                    return Translator.Instance.Translate(rewardKey, info.PokemonId, info.Amount);
+                case QuestRewardType.XlCandy: // TODO: By PokemonId?
+                    return Translator.Instance.Translate(rewardKey, info.Amount);
                 case QuestRewardType.Sticker:
-                    return string.Empty; // TODO: Sticker
+                    return Translator.Instance.Translate(rewardKey, info.StickerId, info.Amount);
                 case QuestRewardType.Pokecoin:
-                    return string.Empty; // TODO: Pokecoin
+                    return Translator.Instance.Translate(rewardKey, info.Amount);
+                case QuestRewardType.LevelCap:
+                    return type.ToString();
             }
 
             return "Unknown";
