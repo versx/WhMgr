@@ -2060,6 +2060,17 @@ and only from the following areas: {string.Join(", ", areasResult)}
                 case 3: // Raids
                     #region Raids
                     {
+                        if (subscription == null || subscription?.Raids.Count == 0)
+                        {
+                            await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username, DiscordColor.Red));
+                            return;
+                        }
+
+                        var raidInput = new RaidSubscriptionInput(ctx);
+                        var raidPokemonResult = await raidInput.GetPokemonResult();
+                        var raidAreasResult = await raidInput.GetAreasResult(server.CityRoles);
+
+                        await RemoveRaidSubscription(ctx, subscription, null, raidAreasResult);
                     }
                     #endregion
                     break;
@@ -2188,6 +2199,50 @@ and only from the following areas: {string.Join(", ", areasResult)}
 
         private async Task RemoveRaidSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
         {
+            var server = _dep.WhConfig.Servers[subscription.GuildId];
+            foreach (var item in validation.Valid)
+            {
+                var pokemonId = item.Key;
+                var form = item.Value;
+                var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
+                // Check if subscribed
+                if (subRaid == null)
+                    continue;
+
+                foreach (var area in areas)
+                {
+                    if (subRaid.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                    {
+                        var index = subRaid.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                        subRaid.Areas.RemoveAt(index);
+                    }
+                }
+
+                // Check if there are no more areas set for the Pokemon subscription
+                if (subRaid.Areas.Count == 0)
+                {
+                    // If no more areas set for the Pokemon subscription, delete it
+                    if (!subRaid.Id.Remove<RaidSubscription>())
+                    {
+                        _logger.Error($"Unable to remove raid subscription for user id {subRaid.UserId} from guild id {subRaid.GuildId}");
+                    }
+                }
+                else
+                {
+                    // Save/update raid subscription if cities still assigned
+                    subRaid.Save();
+                }
+            }
+
+            var validPokemonNames = string.Join("**, **", validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value)));;
+            var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
+                ctx.User.Username,
+                isAll ? Strings.All : validPokemonNames,
+                areas.Count == server.CityRoles.Count ?
+                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areas)))
+            );
         }
 
         private async Task RemoveQuestSubscription(CommandContext ctx, string rewardKeyword, List<string> areas)
