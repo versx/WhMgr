@@ -2077,6 +2077,70 @@ and only from the following areas: {string.Join(", ", areasResult)}
                 case 4: // Quests
                     #region Quests
                     {
+                        if (subscription == null || subscription?.Quests.Count == 0)
+                        {
+                            await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_QUEST_SUBSCRIPTIONS").FormatText(ctx.User.Username, DiscordColor.Red));
+                            return;
+                        }
+
+                        var questInput = new QuestSubscriptionInput(ctx);
+                        var rewardResult = await questInput.GetRewardInput();
+                        var areasResult = await questInput.GetAreasResult(server.CityRoles);
+
+                        var notSubscribed = new List<string>();
+                        var unsubscribed = new List<string>();
+                        await ctx.TriggerTypingAsync();
+
+                        if (string.Compare(rewardResult, Strings.All, true) == 0)
+                        {
+                            var removeAllResult = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_QUEST_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Quests.Count.ToString("N0")));
+                            if (!removeAllResult)
+                                return;
+
+                            subscription.Quests.ForEach(x => x.Id.Remove<QuestSubscription>());
+                            await ctx.TriggerTypingAsync();
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_CONFIRM_SUCCESS_ALL_QUEST_SUBSCRIPTIONS").FormatText(ctx.User.Username));
+                            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                            return;
+                        }
+
+                        var subQuest = subscription.Quests.FirstOrDefault(x => string.Compare(x.RewardKeyword, rewardResult, true) == 0);
+                        // Check if subscribed
+                        if (subQuest == null)
+                            return;
+
+                        foreach (var area in areasResult)
+                        {
+                            if (subQuest.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                            {
+                                var index = subQuest.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                                subQuest.Areas.RemoveAt(index);
+                            }
+                        }
+
+                        // Check if there are no more areas set for the Pokemon subscription
+                        if (subQuest.Areas.Count == 0)
+                        {
+                            // If no more areas set for the Pokemon subscription, delete it
+                            if (!subQuest.Id.Remove<QuestSubscription>())
+                            {
+                                _logger.Error($"Unable to remove quest subscription for user id {subQuest.UserId} from guild id {subQuest.GuildId}");
+                            }
+                        }
+                        else
+                        {
+                            // Save/update quest subscription if cities still assigned
+                            subQuest.Save();
+                        }
+                        subscription.Save();
+
+                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
+                            ctx.User.Username,
+                            rewardResult,
+                            areasResult.Count == server.CityRoles.Count ?
+                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areasResult)))
+                        );
                     }
                     #endregion
                     break;
