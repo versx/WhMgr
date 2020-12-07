@@ -38,7 +38,7 @@
         public async Task<List<string>> GetAreasResult(List<string> validAreas)
         {
             var message = (await _context.RespondEmbed($"Enter the areas to get notifications from separated by a comma (i.e. `city1,city2`):\n**Available Areas:**\n{string.Join("\n- ", validAreas)}\n- All", DiscordColor.Blurple)).FirstOrDefault();
-            var cities = await _context.WaitForUserChoice();
+            var cities = await _context.WaitForUserChoice(true);
 
             // Check if gender is a valid gender provided
             var areas = SubscriptionAreas.GetAreas(cities, validAreas);
