@@ -392,6 +392,10 @@
             LastModifiedTime = LastModified
                 .FromUnix()
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
+
+            UpdatedTime = Updated
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
         /// <summary>
