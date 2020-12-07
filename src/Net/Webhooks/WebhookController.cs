@@ -45,7 +45,7 @@ namespace WhMgr.Net.Webhooks
         /// <summary>
         /// All loaded geofences
         /// </summary>
-        public List<GeofenceItem> Geofences { get; private set; }
+        private List<GeofenceItem> Geofences { get; set; }
 
         /// <summary>
         /// Gyms cache
@@ -1019,7 +1019,8 @@ namespace WhMgr.Net.Webhooks
         /// <returns>Returns a <see cref="GeofenceItem"/> object the provided location falls within.</returns>
         public GeofenceItem GetGeofence(double latitude, double longitude)
         {
-            return GeofenceService.GetGeofence(Geofences, new Location(latitude, longitude));
+            lock (_geofencesLock)
+                return GeofenceService.GetGeofence(Geofences, new Location(latitude, longitude));
         }
 
         #endregion
