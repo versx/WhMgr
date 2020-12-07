@@ -133,7 +133,7 @@
                     try
                     {
                         var eb = GenerateNestMessage(guildId, ctx.Client, nest);
-                        var geofence = _dep.Whm.GetGeofence(nest.Latitude, nest.Longitude);
+                        var geofence = _dep.Whm.GetGeofence(guildId, nest.Latitude, nest.Longitude);
                         if (geofence == null)
                         {
                             //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
@@ -197,7 +197,7 @@
             var scannerMapsLink = string.Format(_dep.WhConfig.Urls.ScannerMap, nest.Latitude, nest.Longitude);
             var templatePath = Path.Combine(_dep.WhConfig.StaticMaps.TemplatesFolder, _dep.WhConfig.StaticMaps.Nests.TemplateFile);
             var staticMapLink = Utils.GetStaticMapsUrl(templatePath, _dep.WhConfig.Urls.StaticMap, _dep.WhConfig.StaticMaps.Nests.ZoomLevel, nest.Latitude, nest.Longitude, pkmnImage, null, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
-            var geofence = _dep.Whm.GetGeofence(nest.Latitude, nest.Longitude);
+            var geofence = _dep.Whm.GetGeofence(guild.Id, nest.Latitude, nest.Longitude);
             var city = geofence?.Name ?? "Unknown";
             Location address = null;
             if (!string.IsNullOrEmpty(_dep.WhConfig.GoogleMapsKey))
@@ -258,7 +258,7 @@
             var dict = new Dictionary<string, List<Nest>>();
             foreach (var nest in nests)
             {
-                var geofence = _dep.Whm.GetGeofence(nest.Latitude, nest.Longitude);
+                var geofence = _dep.Whm.GetGeofence(guildId, nest.Latitude, nest.Longitude);
                 if (geofence == null)
                 {
                     _logger.Warn($"Failed to find geofence for nest {nest.Name}.");

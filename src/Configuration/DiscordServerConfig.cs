@@ -58,6 +58,12 @@
         /// </summary>
         [JsonProperty("alarms")]
         public string AlarmsFile { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the list of Geofence files to use for the Discord server (in addition to the common ones)
+        /// </summary>
+        [JsonProperty("geofences")]
+        public string[] GeofenceFiles { get; set; }
 
         /// <summary>
         /// Gets or sets whether to enable custom direct message subscriptions

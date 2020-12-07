@@ -13,6 +13,10 @@
       "moderatorRoleIds": [],
       "token": "<DISCORD_BOT_TOKEN>",
       "alarms": "alarms.json",
+      "geofences": [
+        "City1.txt",
+        "City2.txt"
+      ],
       "subscriptions": {
         "enabled": false,
         "maxPokemonSubscriptions": 0,
@@ -94,6 +98,10 @@
       "moderatorRoleIds": [],
       "token": "<DISCORD_BOT_TOKEN>",
       "alarms": "alarms2.json",
+      "geofences": [
+        "City3.txt",
+        "City4.txt"
+      ],
       "subscriptions": {
         "enabled": false,
         "maxPokemonSubscriptions": 0,

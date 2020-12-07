@@ -36,15 +36,11 @@
         private readonly WhConfig _config;
         private readonly Dictionary<long, GameplayWeather.Types.WeatherCondition> _weather;
         private Dictionary<string, GymDetailsData> _gyms;
+        private Dictionary<ulong, List<GeofenceItem>> _geofences;
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// All loaded geofences
-        /// </summary>
-        private List<GeofenceItem> Geofences { get; set; }
 
         /// <summary>
         /// Gyms cache
@@ -194,18 +190,11 @@
             _weather = new Dictionary<long, GameplayWeather.Types.WeatherCondition>();
             _servers = config.Servers;
             _alarms = new Dictionary<ulong, AlarmList>();
+            _geofences = new Dictionary<ulong, List<GeofenceItem>>();
 
-            lock(_geofencesLock)
-                Geofences = GeofenceService.LoadGeofences(Strings.GeofenceFolder);
-
-            foreach (var server in _servers)
-            {
-                if (_alarms.ContainsKey(server.Key))
-                    continue;
-
-                var alarms = LoadAlarms(server.Value.AlarmsFile);
-                _alarms.Add(server.Key, alarms);
-            }
+            LoadGeofences();
+            LoadAlarms();
+            
             _config = config;
 
             _http = new HttpServer(_config.ListeningHost, _config.WebhookPort, _config.DespawnTimeMinimumMinutes);
@@ -324,9 +313,60 @@
 
         #endregion
 
+        #region Geofence Initialization
+
+        private void LoadGeofences()
+        {
+            _geofences.Clear();
+
+            foreach (var (serverId, serverConfig) in _servers)
+            {
+                var geofenceFiles = serverConfig.GeofenceFiles;
+                var geofences = new List<GeofenceItem>();
+
+                if (geofenceFiles != null && geofenceFiles.Any())
+                {
+                    foreach (var file in geofenceFiles)
+                    {
+                        var filePath = Path.Combine(Strings.GeofenceFolder, file);
+                        
+                        try
+                        {
+                            var fileGeofences = GeofenceItem.FromFile(filePath);
+                            
+                            geofences.AddRange(fileGeofences);
+                            
+                            _logger.Info($"Successfully loaded {fileGeofences.Count} geofences from {file}");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error($"Could not load Geofence file {file} (for server {serverId}):");
+                            _logger.Error(ex);
+                        }
+                    }
+                }
+                
+                _geofences.Add(serverId, geofences);
+            }
+        }
+        
+        #endregion
+        
         #region Alarms Initialization
 
-        private AlarmList LoadAlarms(string alarmsFilePath)
+        private void LoadAlarms()
+        {
+            _alarms.Clear();
+            
+            foreach (var (serverId, serverConfig) in _servers)
+            {
+                var alarms = LoadAlarms(serverId, serverConfig.AlarmsFile);
+                
+                _alarms.Add(serverId, alarms);
+            }
+        }
+
+        private AlarmList LoadAlarms(ulong forGuildId, string alarmsFilePath)
         {
             _logger.Trace($"WebhookManager::LoadAlarms [AlarmsFilePath={alarmsFilePath}]");
 
@@ -352,30 +392,29 @@
 
             _logger.Info($"Alarms file {alarmsFilePath} was loaded successfully.");
 
-            alarms.Alarms.ForEach(x =>
+            foreach (var alarm in alarms.Alarms)
             {
-                if (x.Geofences != null)
+                if (alarm.Geofences != null)
                 {
-                    foreach (var geofenceName in x.Geofences)
+                    foreach (var geofenceName in alarm.Geofences)
                     {
-                        var geofences = Geofences.Where(g => g.Name.Equals(geofenceName, StringComparison.OrdinalIgnoreCase) ||
-                                                             g.Filename.Equals(geofenceName, StringComparison.OrdinalIgnoreCase)).ToList();
+                        var geofences = _geofences[forGuildId].Where(g => g.Name.Equals(geofenceName, StringComparison.OrdinalIgnoreCase) ||
+                                                                          g.Filename.Equals(geofenceName, StringComparison.OrdinalIgnoreCase)).ToList();
                         
                         if (geofences.Any())
                         {
-                            x.GeofenceItems.AddRange(geofences);
+                            alarm.GeofenceItems.AddRange(geofences);
                         }
                         else
                         {
-                            _logger.Warn($"No geofences were found matching the name or filename \"{geofenceName}\" (for alarm \"{x.Name}\")");
+                            _logger.Warn($"No geofences were found matching the name or filename \"{geofenceName}\" (for alarm \"{alarm.Name}\")");
                         }
                     }
                 }
 
-                x.LoadAlerts();
-
-                x.LoadFilters();
-            });
+                alarm.LoadAlerts();
+                alarm.LoadFilters();
+            }
 
             return alarms;
         }
@@ -384,11 +423,9 @@
         {
             _logger.Trace($"WebhookManager::LoadAlarmsOnChange");
 
-            var keys = _servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, guildConfig) in _servers)
             {
-                var guildId = keys[i];
-                var alarmsFile = _servers[guildId].AlarmsFile;
+                var alarmsFile = guildConfig.AlarmsFile;
                 var path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), alarmsFile));
                 var fileWatcher = new FileWatcher(path);
                 
@@ -396,7 +433,7 @@
                     try
                     {
                         _logger.Debug("Reloading Alarms");
-                        _alarms[guildId] = LoadAlarms(path);
+                        _alarms[guildId] = LoadAlarms(guildId, path);
                     }
                     catch (Exception ex)
                     {
@@ -420,8 +457,8 @@
                 {
                     _logger.Debug("Reloading Geofences");
                     
-                    lock (_geofencesLock)
-                        Geofences = GeofenceService.LoadGeofences(Strings.GeofenceFolder);
+                    LoadGeofences();
+                    LoadAlarms(); // Reload alarms after geofences too
                 }
                 catch (Exception ex)
                 {
@@ -1013,13 +1050,14 @@
         /// <summary>
         /// Get the geofence the provided location falls within.
         /// </summary>
+        /// <param name="guildId">The guild ID in which to look for Geofences</param>
         /// <param name="latitude">Latitude geocoordinate</param>
         /// <param name="longitude">Longitude geocoordinate</param>
         /// <returns>Returns a <see cref="GeofenceItem"/> object the provided location falls within.</returns>
-        public GeofenceItem GetGeofence(double latitude, double longitude)
+        public GeofenceItem GetGeofence(ulong guildId, double latitude, double longitude)
         {
             lock (_geofencesLock)
-                return GeofenceService.GetGeofence(Geofences, new Location(latitude, longitude));
+                return GeofenceService.GetGeofence(_geofences[guildId], new Location(latitude, longitude));
         }
 
         #endregion

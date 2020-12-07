@@ -1,4 +1,6 @@
-﻿namespace WhMgr.Data.Subscriptions
+﻿using WhMgr.Geofence;
+
+namespace WhMgr.Data.Subscriptions
 {
     using System;
     using System.Collections.Generic;
@@ -76,11 +78,18 @@
             if (!MasterFile.Instance.Pokedex.ContainsKey(pkmn.Id))
                 return;
 
-            var loc = _whm.GetGeofence(pkmn.Latitude, pkmn.Longitude);
-            if (loc == null)
+            // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
+            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+
+            GeofenceItem GetGeofence(ulong guildId)
             {
-                //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                return;
+                if (!locationCache.TryGetValue(guildId, out var geofence))
+                {
+                    geofence = _whm.GetGeofence(guildId, pkmn.Latitude, pkmn.Longitude);
+                    locationCache.Add(guildId, geofence);
+                }
+
+                return geofence;
             }
 
             var subscriptions = Manager.GetUserSubscriptionsByPokemonId(pkmn.Id);
@@ -131,7 +140,7 @@
                         continue;
                     }
 
-                    if (member?.Roles == null || loc == null)
+                    if (member?.Roles == null)
                         continue;
 
                     if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
@@ -167,17 +176,24 @@
                         ))
                         continue;
 
+                    var geofence = GetGeofence(user.GuildId);
+                    if (geofence == null)
+                    {
+                        //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                        return;
+                    }
+
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                    var geofenceMatches = subscribedPokemon.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
+                    var geofenceMatches = subscribedPokemon.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, geofence.Name);
                     foreach (var emb in embed.Embeds)
                     {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name, pkmn));
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, geofence.Name, pkmn));
                     }
 
                     Statistics.Instance.SubscriptionPokemonSent++;
@@ -193,7 +209,6 @@
             subscriptions = null;
             member = null;
             user = null;
-            loc = null;
             pokemon = null;
 
             await Task.CompletedTask;
@@ -204,11 +219,18 @@
             if (!MasterFile.Instance.Pokedex.ContainsKey(pkmn.Id))
                 return;
 
-            var loc = _whm.GetGeofence(pkmn.Latitude, pkmn.Longitude);
-            if (loc == null)
+            // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
+            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+
+            GeofenceItem GetGeofence(ulong guildId)
             {
-                //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                return;
+                if (!locationCache.TryGetValue(guildId, out var geofence))
+                {
+                    geofence = _whm.GetGeofence(guildId, pkmn.Latitude, pkmn.Longitude);
+                    locationCache.Add(guildId, geofence);
+                }
+
+                return geofence;
             }
 
             var subscriptions = Manager.GetUserSubscriptionsByPvPPokemonId(pkmn.Id);
@@ -257,7 +279,7 @@
                         continue;
                     }
 
-                    if (member?.Roles == null || loc == null)
+                    if (member?.Roles == null)
                         continue;
 
                     if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
@@ -294,17 +316,24 @@
                     if (!matchesGreat && !matchesUltra)
                         continue;
 
+                    var geofence = GetGeofence(user.GuildId);
+                    if (geofence == null)
+                    {
+                        //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                        return;
+                    }
+
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                    var geofenceMatches = subscribedPokemon.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
+                    var geofenceMatches = subscribedPokemon.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, geofence.Name);
                     foreach (var emb in embed.Embeds)
                     {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name));
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, geofence.Name));
                     }
 
                     Statistics.Instance.SubscriptionPokemonSent++;
@@ -320,7 +349,6 @@
             subscriptions = null;
             member = null;
             user = null;
-            loc = null;
             pokemon = null;
 
             await Task.CompletedTask;
@@ -331,11 +359,18 @@
             if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
                 return;
 
-            var loc = _whm.GetGeofence(raid.Latitude, raid.Longitude);
-            if (loc == null)
+            // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
+            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+
+            GeofenceItem GetGeofence(ulong guildId)
             {
-                //_logger.Warn($"Failed to lookup city for coordinates {raid.Latitude},{raid.Longitude}, skipping...");
-                return;
+                if (!locationCache.TryGetValue(guildId, out var geofence))
+                {
+                    geofence = _whm.GetGeofence(guildId, raid.Latitude, raid.Longitude);
+                    locationCache.Add(guildId, geofence);
+                }
+
+                return geofence;
             }
 
             var subscriptions = Manager.GetUserSubscriptionsByRaidBossId(raid.PokemonId);
@@ -410,17 +445,24 @@
                         continue;
                     }
 
+                    var geofence = GetGeofence(user.GuildId);
+                    if (geofence == null)
+                    {
+                        //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                        return;
+                    }
+
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
-                    var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
+                    var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, geofence.Name);
                     foreach (var emb in embed.Embeds)
                     {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name));
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, geofence.Name));
                     }
 
                     Statistics.Instance.SubscriptionRaidsSent++;
@@ -435,7 +477,6 @@
             subscriptions.Clear();
             subscriptions = null;
             user = null;
-            loc = null;
 
             await Task.CompletedTask;
         }
@@ -446,11 +487,18 @@
             var rewardKeyword = quest.GetReward();
             var questName = quest.GetQuestMessage();
 
-            var loc = _whm.GetGeofence(quest.Latitude, quest.Longitude);
-            if (loc == null)
+            // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
+            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+
+            GeofenceItem GetGeofence(ulong guildId)
             {
-                //_logger.Warn($"Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
-                return;
+                if (!locationCache.TryGetValue(guildId, out var geofence))
+                {
+                    geofence = _whm.GetGeofence(guildId, quest.Latitude, quest.Longitude);
+                    locationCache.Add(guildId, geofence);
+                }
+
+                return geofence;
             }
 
             var subscriptions = Manager.GetUserSubscriptions();
@@ -509,17 +557,24 @@
                         continue;
                     }
 
+                    var geofence = GetGeofence(user.GuildId);
+                    if (geofence == null)
+                    {
+                        //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                        return;
+                    }
+
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
-                    var geofenceMatches = subQuest.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
+                    var geofenceMatches = subQuest.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, geofence.Name);
                     foreach (var emb in embed.Embeds)
                     {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, questName, loc.Name));
+                        _queue.Enqueue(new NotificationItem(user, member, emb, questName, geofence.Name));
                     }
 
                     Statistics.Instance.SubscriptionQuestsSent++;
@@ -534,18 +589,24 @@
             subscriptions.Clear();
             subscriptions = null;
             user = null;
-            loc = null;
 
             await Task.CompletedTask;
         }
 
         public async Task ProcessInvasionSubscription(PokestopData pokestop)
         {
-            var loc = _whm.GetGeofence(pokestop.Latitude, pokestop.Longitude);
-            if (loc == null)
+            // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
+            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+
+            GeofenceItem GetGeofence(ulong guildId)
             {
-                //_logger.Warn($"Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
-                return;
+                if (!locationCache.TryGetValue(guildId, out var geofence))
+                {
+                    geofence = _whm.GetGeofence(guildId, pokestop.Latitude, pokestop.Longitude);
+                    locationCache.Add(guildId, geofence);
+                }
+
+                return geofence;
             }
 
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType) ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
@@ -613,17 +674,24 @@
                         continue;
                     }
 
+                    var geofence = GetGeofence(user.GuildId);
+                    if (geofence == null)
+                    {
+                        //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                        return;
+                    }
+
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
-                    var geofenceMatches = subInvasion.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
+                    var geofenceMatches = subInvasion.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
+                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, geofence?.Name);
                     foreach (var emb in embed.Embeds)
                     {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, loc.Name));
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, geofence.Name));
                     }
 
                     Statistics.Instance.SubscriptionInvasionsSent++;
@@ -638,7 +706,6 @@
             subscriptions.Clear();
             subscriptions = null;
             user = null;
-            loc = null;
 
             await Task.CompletedTask;
         }
