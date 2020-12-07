@@ -2147,6 +2147,59 @@ and only from the following areas: {string.Join(", ", areasResult)}
                 case 5: // Invasions
                     #region
                     {
+                        if (subscription == null || subscription?.Invasions.Count == 0)
+                        {
+                            await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
+                            return;
+                        }
+
+                        var invasionInput = new InvasionSubscriptionInput(ctx);
+                        var invasionPokemonResult = await invasionInput.GetPokemonResult();
+                        var invasionAreasResult = await invasionInput.GetAreasResult(server.CityRoles);
+
+                        foreach (var item in invasionPokemonResult.Valid)
+                        {
+                            var pokemonId = item.Key;
+                            var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId);
+                            // Check if subscribed
+                            if (subInvasion == null)
+                                return;
+
+                            foreach (var area in invasionAreasResult)
+                            {
+                                if (subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                                {
+                                    var index = subInvasion.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                                    subInvasion.Areas.RemoveAt(index);
+                                }
+                            }
+
+                            // Check if there are no more areas set for the invasion subscription
+                            if (subInvasion.Areas.Count == 0)
+                            {
+                                // If no more areas set for the invasion subscription, delete it
+                                if (!subInvasion.Id.Remove<InvasionSubscription>())
+                                {
+                                    _logger.Error($"Unable to remove invasion subscription for user id {subInvasion.UserId} from guild id {subInvasion.GuildId}");
+                                }
+                            }
+                            else
+                            {
+                                // Save/update invasion subscription if cities still assigned
+                                subInvasion.Save();
+                            }
+                        }
+                        subscription.Save();
+
+                        var validPokemonNames = string.Join("**, **", invasionPokemonResult.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name));
+                        var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
+                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
+                            ctx.User.Username,
+                            isAll ? Strings.All : validPokemonNames,
+                            invasionAreasResult.Count == server.CityRoles.Count ?
+                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
+                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(validPokemonNames)
+                        ));
                     }
                     #endregion
                     break;
@@ -2228,7 +2281,7 @@ and only from the following areas: {string.Join(", ", areasResult)}
             if (error)
             {
                 var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
-                await ctx.RespondEmbed(Translator.Instance.Translate("FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join(", ", pokemonNames)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, pokemonNames), DiscordColor.Red);
                 return;
             }
         }
@@ -2326,16 +2379,8 @@ and only from the following areas: {string.Join(", ", areasResult)}
                 isAll ? Strings.All : validPokemonNames,
                 areas.Count == server.CityRoles.Count ?
                     Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areas)))
+                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(validPokemonNames))
             );
-        }
-
-        private async Task RemoveQuestSubscription(CommandContext ctx, string rewardKeyword, List<string> areas)
-        {
-        }
-
-        private async Task RemoveInvasionSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
-        {
         }
 
         #endregion
