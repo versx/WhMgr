@@ -323,7 +323,8 @@
 
         private void LoadGeofences()
         {
-            _geofences.Clear();
+            lock (_geofencesLock)
+                _geofences.Clear();
 
             foreach (var (serverId, serverConfig) in _servers)
             {
@@ -352,7 +353,8 @@
                     }
                 }
                 
-                _geofences.Add(serverId, geofences);
+                lock (_geofencesLock)
+                    _geofences.Add(serverId, geofences);
             }
         }
         
@@ -404,16 +406,19 @@
                 {
                     foreach (var geofenceName in alarm.Geofences)
                     {
-                        var geofences = _geofences[forGuildId].Where(g => g.Name.Equals(geofenceName, StringComparison.OrdinalIgnoreCase) ||
-                                                                          g.Filename.Equals(geofenceName, StringComparison.OrdinalIgnoreCase)).ToList();
-                        
-                        if (geofences.Any())
+                        lock (_geofencesLock)
                         {
-                            alarm.GeofenceItems.AddRange(geofences);
-                        }
-                        else
-                        {
-                            _logger.Warn($"No geofences were found matching the name or filename \"{geofenceName}\" (for alarm \"{alarm.Name}\")");
+                            var geofences = _geofences[forGuildId].Where(g => g.Name.Equals(geofenceName, StringComparison.OrdinalIgnoreCase) ||
+                                                                              g.Filename.Equals(geofenceName, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                            if (geofences.Any())
+                            {
+                                alarm.GeofenceItems.AddRange(geofences);
+                            }
+                            else
+                            {
+                                _logger.Warn($"No geofences were found matching the name or filename \"{geofenceName}\" (for alarm \"{alarm.Name}\")");
+                            }
                         }
                     }
                 }
