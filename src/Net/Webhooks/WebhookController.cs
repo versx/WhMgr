@@ -368,7 +368,7 @@ namespace WhMgr.Net.Webhooks
                         }
                         else
                         {
-                            _logger.Warn($"Geofence file \"{geofenceName}\" empty or not found for alarm \"{x.Name}\"");
+                            _logger.Warn($"No geofences were found matching the name or filename \"{geofenceName}\" (for alarm \"{x.Name}\")");
                         }
                     }
                 }
