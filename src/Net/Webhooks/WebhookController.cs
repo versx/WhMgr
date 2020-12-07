@@ -421,7 +421,7 @@ namespace WhMgr.Net.Webhooks
                 {
                     _logger.Debug("Reloading Geofences");
                     
-                    lock (Geofences)
+                    lock (_geofencesLock)
                         Geofences = GeofenceService.LoadGeofences(Strings.GeofenceFolder);
                 }
                 catch (Exception ex)
