@@ -637,13 +637,16 @@
             for (var i = 0; i < keys.Count; i++)
             {
                 var encounterId = keys[i];
-                var scannedPokemon = _processedPokemon[encounterId];
-
-                if (scannedPokemon.IsExpired)
+                if (encounterId != null)
                 {
-                    // Spawn expired, remove from cache
-                    _logger.Debug($"Pokemon spawn {encounterId} expired, removing from cache...");
-                    _processedPokemon.Remove(encounterId);
+                    var scannedPokemon = _processedPokemon[encounterId];
+
+                    if (scannedPokemon.IsExpired)
+                    {
+                        // Spawn expired, remove from cache
+                        _logger.Debug($"Pokemon spawn {encounterId} expired, removing from cache...");
+                        _processedPokemon.Remove(encounterId);
+                    }
                 }
             }
         }
