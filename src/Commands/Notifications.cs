@@ -667,9 +667,9 @@
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
                 string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join("**, **", pokemonNames),
-                string.IsNullOrEmpty(city) ?
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+                string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
             );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -690,9 +690,10 @@
             if (subscription == null || subscription?.Raids.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city) ?
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username,
+                    string.IsNullOrEmpty(city)
+                        ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                        : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
                     DiscordColor.Red
                 );
                 return;
@@ -758,9 +759,9 @@
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
                 string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join("**, **", pokemonNames),
-                string.IsNullOrEmpty(city) ?
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areas)))
+                string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areas)))
             );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -826,9 +827,9 @@
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
                 rewardKeyword,
-                string.IsNullOrEmpty(city) ?
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+                string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
             );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -852,9 +853,9 @@
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_QUEST_SUBSCRIPTIONS").FormatText(
                     ctx.User.Username,
                     rewardKeyword,
-                    string.IsNullOrEmpty(city) ?
-                        Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                        Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
+                    string.IsNullOrEmpty(city)
+                        ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                        : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
                     DiscordColor.Red
                 );
                 return;
@@ -911,9 +912,9 @@
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
                 rewardKeyword,
-                string.IsNullOrEmpty(city) ?
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+                string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
             );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -1074,9 +1075,9 @@
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
                 string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", valid),
-                string.IsNullOrEmpty(city) ?
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+                string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
             );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -1097,9 +1098,9 @@
             if (subscription == null || subscription?.Invasions.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city) ?
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
                     DiscordColor.Red
                 );
                 return;
@@ -1165,9 +1166,9 @@
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
                 string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", valid),
-                string.IsNullOrEmpty(city) ?
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+                string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
             );
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -1674,9 +1675,9 @@ and only from the following areas: {string.Join(", ", areasResult)}
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                             ctx.User.Username,
                             rewardKeyword,
-                            areas.Count == server.CityRoles.Count ?
-                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areas))
+                            areas.Count == server.CityRoles.Count
+                                ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areas))
                         ));
                     }
                     #endregion
@@ -1740,9 +1741,9 @@ and only from the following areas: {string.Join(", ", areasResult)}
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                             ctx.User.Username,
                             isAll ? Strings.All : validPokemonNames,
-                            invasionAreas.Count == server.CityRoles.Count ?
-                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", invasionAreas))
+                            invasionAreas.Count == server.CityRoles.Count
+                                ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", invasionAreas))
                         ));
                     }
                     #endregion
@@ -2137,9 +2138,9 @@ and only from the following areas: {string.Join(", ", areasResult)}
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                             ctx.User.Username,
                             rewardResult,
-                            areasResult.Count == server.CityRoles.Count ?
-                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areasResult)))
+                            areasResult.Count == server.CityRoles.Count
+                                ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areasResult)))
                         );
                     }
                     #endregion
@@ -2196,9 +2197,9 @@ and only from the following areas: {string.Join(", ", areasResult)}
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                             ctx.User.Username,
                             isAll ? Strings.All : validPokemonNames,
-                            invasionAreasResult.Count == server.CityRoles.Count ?
-                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                                Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(validPokemonNames)
+                            invasionAreasResult.Count == server.CityRoles.Count
+                                ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(validPokemonNames)
                         ));
                     }
                     #endregion
@@ -2377,9 +2378,9 @@ and only from the following areas: {string.Join(", ", areasResult)}
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
                 isAll ? Strings.All : validPokemonNames,
-                areas.Count == server.CityRoles.Count ?
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES") :
-                    Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(validPokemonNames))
+                areas.Count == server.CityRoles.Count
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(validPokemonNames))
             );
         }
 
