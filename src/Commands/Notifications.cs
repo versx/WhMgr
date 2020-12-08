@@ -506,7 +506,7 @@
         ]
         public async Task PokeMeNotAsync(CommandContext ctx,
             [Description("Pokemon name or id to unsubscribe from Pokemon spawn notifications.")] string poke,
-            [Description("City or area to remove from the subscription, or leave blank for all cities.")] string city = "all")
+            [Description("City or area to remove from the subscription, or leave blank for all cities."), RemainingText] string city = "all")
         {
             if (!await CanExecute(ctx))
                 return;
