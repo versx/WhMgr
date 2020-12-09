@@ -62,6 +62,13 @@
         public List<InvasionSubscription> Invasions { get; set; }
 
         [
+            JsonProperty("lures"),
+            Alias("lures"),
+            Reference
+        ]
+        public List<LureSubscription> Lures { get; set; }
+
+        [
             JsonProperty("distance"),
             Alias("distance"),
             Default(0)

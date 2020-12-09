@@ -20,6 +20,7 @@
         "maxRaidSubscriptions": 0,
         "maxQuestSubscriptions": 0,
         "maxInvasionSubscriptions": 0,
+        "maxLureSubscriptions": 0,
         "maxGymSubscriptions": 0
       },
       "enableCities": false,
@@ -100,6 +101,7 @@
         "maxRaidSubscriptions": 0,
         "maxQuestSubscriptions": 0,
         "maxInvasionSubscriptions": 0,
+        "maxLureSubscriptions": 0,
         "maxGymSubscriptions": 0
       },
       "enableCities": false,

@@ -643,6 +643,99 @@
             await Task.CompletedTask;
         }
 
+        public async Task ProcessLureSubscription(PokestopData pokestop)
+        {
+            var loc = _whm.GetGeofence(pokestop.Latitude, pokestop.Longitude);
+            if (loc == null)
+            {
+                //_logger.Warn($"Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
+                return;
+            }
+
+            var subscriptions = Manager.GetUserSubscriptionsByLureType(pokestop.LureType);
+            if (subscriptions == null)
+            {
+                _logger.Warn($"Failed to get subscriptions from database table.");
+                return;
+            }
+
+            SubscriptionObject user;
+            for (int i = 0; i < subscriptions.Count; i++)
+            {
+                try
+                {
+                    user = subscriptions[i];
+                    if (user == null)
+                        continue;
+
+                    if (!user.Enabled)
+                        continue;
+
+                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
+                    var member = await client.GetMemberById(user.GuildId, user.UserId);
+                    if (member == null)
+                    {
+                        _logger.Warn($"Failed to find member with id {user.UserId}.");
+                        continue;
+                    }
+
+                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
+                    {
+                        _logger.Info($"User {user.UserId} is not a supporter, skipping Pokestop lure {pokestop.Name}...");
+                        // Automatically disable users subscriptions if not supporter to prevent issues
+                        //user.Enabled = false;
+                        //user.Save(false);
+                        continue;
+                    }
+
+                    var subLure = user.Lures.FirstOrDefault(x => x.LureType == pokestop.LureType);
+                    // Not subscribed to lure
+                    if (subLure == null)
+                    {
+                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokestop lure {pokemon.Name}, lure is in city '{loc.Name}'.");
+                        continue;
+                    }
+
+                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
+                    var geofenceMatches = subLure.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
+
+                    // If set distance does not match and no geofences match, then skip lure...
+                    if (!distanceMatches && !geofenceMatches)
+                        continue;
+
+                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
+                    foreach (var emb in embed.Embeds)
+                    {
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, loc.Name));
+                    }
+
+                    Statistics.Instance.SubscriptionInvasionsSent++;
+                    Thread.Sleep(5);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                }
+            }
+
+            subscriptions.Clear();
+            subscriptions = null;
+            user = null;
+            loc = null;
+
+            await Task.CompletedTask;
+        }
+
         #endregion
 
         #region Private Methods

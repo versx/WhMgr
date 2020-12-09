@@ -10,6 +10,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
+    using WhMgr.Net.Models;
 
     public class SubscriptionManager
     {
@@ -19,10 +20,7 @@
 
         private readonly WhConfig _whConfig;
         private List<SubscriptionObject> _subscriptions;
-
         private readonly OrmLiteConnectionFactory _connFactory;
-        //private readonly OrmLiteConnectionFactory _scanConnFactory;
-
         private readonly Timer _reloadTimer;
 
         #endregion
@@ -56,12 +54,6 @@
             }
 
             _connFactory = new OrmLiteConnectionFactory(_whConfig.Database.Main.ToString(), MySqlDialect.Provider);
-            //_scanConnFactory = new OrmLiteConnectionFactory(_whConfig.Database.Scanner.ToString(), MySqlDialect.Provider);
-
-            if (!CreateDefaultTables())
-            {
-                _logger.Error("FAiled to create default tables");
-            }
 
             // Reload subscriptions every 60 seconds to account for UI changes
             _reloadTimer = new Timer(_whConfig.ReloadSubscriptionChangesMinutes * 60 * 1000);
@@ -145,6 +137,14 @@
             )?.ToList();
         }
 
+        public List<SubscriptionObject> GetUserSubscriptionsByLureType(PokestopLureType lureType)
+        {
+            return _subscriptions?.Where(x =>
+                x.Enabled && x.Lures != null &&
+                x.Lures.Exists(y => lureType == y.LureType)
+            )?.ToList();
+        }
+
         public List<SubscriptionObject> GetUserSubscriptions()
         {
             try
@@ -204,6 +204,7 @@
                     conn.Delete<QuestSubscription>(x => x.GuildId == guildId && x.UserId == userId);
                     conn.Delete<GymSubscription>(x => x.GuildId == guildId && x.UserId == userId);
                     conn.Delete<InvasionSubscription>(x => x.GuildId == guildId && x.UserId == userId);
+                    conn.Delete<LureSubscription>(x => x.GuildId == guildId && x.UserId == userId);
                     conn.Delete<SubscriptionObject>(x => x.GuildId == guildId && x.UserId == userId);
                 }
 
@@ -220,93 +221,6 @@
         #endregion
 
         #region Private Methods
-
-        private bool CreateDefaultTables()
-        {
-            _logger.Trace($"SubscriptionManager::CreateDefaultTables");
-
-            if (!IsDbConnectionOpen())
-            {
-                throw new Exception("Not connected to database.");
-            }
-
-            try
-            {
-                /*
-                var conn = GetConnection();
-                if (!conn.CreateTableIfNotExists<Metadata>())
-                {
-                    _logger.Debug($"Table Metadata already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<SubscriptionObject>())
-                {
-                    _logger.Debug($"Table SubscriptionObject already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<PokemonSubscription>())
-                {
-                    _logger.Debug($"Table PokemonSubscription already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<PvPSubscription>())
-                {
-                    _logger.Debug($"Table PvPSubscription already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<RaidSubscription>())
-                {
-                    _logger.Debug($"Table RaidSubscription already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<GymSubscription>())
-                {
-                    _logger.Debug($"Table GymSubscription already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<QuestSubscription>())
-                {
-                    _logger.Debug($"Table QuestSubscription already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<InvasionSubscription>())
-                {
-                    _logger.Debug($"Table InvasionSubscription already exists.");
-                }
-                */
-
-                _logger.Info($"Database tables created.");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-            return false;
-        }
-
-        /*
-        private bool DropDefaultTables()
-        {
-            _logger.Trace($"SubscriptionManager::CreateDefaultTables");
-
-            if (!IsDbConnectionOpen())
-            {
-                throw new Exception("Not connected to database.");
-            }
-
-            try
-            {
-                var conn = GetConnection();
-                conn.DropTable<InvasionSubscription>();
-                conn.DropTable<QuestSubscription>();
-                conn.DropTable<GymSubscription>();
-                conn.DropTable<RaidSubscription>();
-                conn.DropTable<PvPSubscription>();
-                conn.DropTable<PokemonSubscription>();
-                conn.DropTable<SubscriptionObject>();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-            return false;
-        }
-        */
 
         private System.Data.IDbConnection GetConnection()
         {
