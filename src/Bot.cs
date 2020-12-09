@@ -470,7 +470,7 @@
 
         #region WebhookManager Events
 
-        private async void OnPokemonAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokemonData> e)
+        private void OnPokemonAlarmTriggered(object sender, AlarmEventTriggeredEventArgs<PokemonData> e)
         {
             if (string.IsNullOrEmpty(e.Alarm.Webhook))
                 return;
@@ -478,7 +478,7 @@
             _logger.Info($"Pokemon Found [Alarm: {e.Alarm.Name}, Pokemon: {e.Data.Id}, Despawn: {e.Data.DespawnTime}]");
 
             var pokemon = e.Data;
-            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokemon.Latitude, pokemon.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(pokemon.Latitude, pokemon.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[POKEMON] Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
@@ -495,7 +495,7 @@
             {
                 var server = _whConfig.Servers[e.GuildId];
                 var client = _servers[e.GuildId];
-                var eb = await pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name);
+                var eb = pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username,
@@ -525,7 +525,7 @@
             _logger.Info($"Raid Found [Alarm: {e.Alarm.Name}, Raid: {e.Data.PokemonId}, Level: {e.Data.Level}, StartTime: {e.Data.StartTime}]");
 
             var raid = e.Data;
-            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(raid.Latitude, raid.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(raid.Latitude, raid.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[RAID] Failed to lookup city from coordinates {raid.Latitude},{raid.Longitude} {pkmn.Name} {raid.Level}, skipping...");
@@ -570,7 +570,7 @@
             _logger.Info($"Quest Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, Type={e.Data.Type}]");
 
             var quest = e.Data;
-            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(quest.Latitude, quest.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(quest.Latitude, quest.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[QUEST] Failed to lookup city for coordinates {quest.Latitude},{quest.Longitude}, skipping...");
@@ -611,7 +611,7 @@
             _logger.Info($"Pokestop Found [Alarm: {e.Alarm.Name}, PokestopId: {e.Data.PokestopId}, LureExpire={e.Data.LureExpire}, InvasionExpire={e.Data.IncidentExpire}]");
 
             var pokestop = e.Data;
-            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(pokestop.Latitude, pokestop.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(pokestop.Latitude, pokestop.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"[POKESTOP] Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
@@ -665,7 +665,7 @@
             _logger.Info($"Gym Details Found [Alarm: {e.Alarm.Name}, GymId: {e.Data.GymId}, InBattle={e.Data.InBattle}, Team={e.Data.Team}]");
 
             var gymDetails = e.Data;
-            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(gymDetails.Latitude, gymDetails.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(gymDetails.Latitude, gymDetails.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
@@ -717,7 +717,7 @@
             _logger.Info($"Weather Found [Alarm: {e.Alarm.Name}, S2CellId: {e.Data.Id}, Condition={e.Data.GameplayCondition}, Severity={e.Data.Severity}]");
 
             var weather = e.Data;
-            var loc = GeofenceService.GetGeofence(e.Alarm.Geofences, new Location(weather.Latitude, weather.Longitude));
+            var loc = GeofenceService.GetGeofence(e.Alarm.GeofenceItems, new Location(weather.Latitude, weather.Longitude));
             if (loc == null)
             {
                 //_logger.Warn($"Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
@@ -952,64 +952,56 @@
             if (statsChannel == null)
             {
                 _logger.Warn($"Unable to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
+                return;
             }
-            else
+
+            if (server.ShinyStats.ClearMessages)
             {
-                if (server.ShinyStats.ClearMessages)
-                {
-                    _logger.Debug($"Deleting previous shiny stats messages in channel {server.ShinyStats.ChannelId}");
-                    await client.DeleteMessages(server.ShinyStats.ChannelId);
-                }
-
-                //var guildId = server.GuildId;
-                _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
-                // Subtract an hour to make sure it shows yesterday's date.
-                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
-                Thread.Sleep(500);
-                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
-                var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
-                if (stats == null)
-                {
-                    _logger.Error($"Failed to get list of shiny stats for guild {guildId}, skipping...");
-                    return;
-                }
-
-                var sorted = stats.Keys.ToList();
-                sorted.Sort();
-
-                foreach (var pokemon in sorted)
-                {
-                    if (pokemon == 0)
-                        continue;
-
-                    if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
-                        continue;
-
-                    var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
-                    var pkmnStats = stats[pokemon];
-                    var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
-                    if (chance == 0)
-                    {
-                        await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
-                    }
-                    else
-                    {
-                        await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
-                    }
-                    Thread.Sleep(500);
-                }
-
-                var total = stats[0];
-                var totalRatio = total.Shiny == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Shiny);
-                if (totalRatio == 0)
-                {
-                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0")));
-                }
-                else
-                {
-                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
-                }
+                _logger.Debug($"Deleting previous shiny stats messages in channel {server.ShinyStats.ChannelId}");
+                await client.DeleteMessages(server.ShinyStats.ChannelId);
             }
+
+            //var guildId = server.GuildId;
+            _logger.Debug($"Posting shiny stats for guild {client.Guilds[guildId].Name} ({guildId}) in channel {server.ShinyStats.ChannelId}");
+            // Subtract an hour to make sure it shows yesterday's date.
+            await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
+            Thread.Sleep(500);
+            await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
+            var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
+            if (stats == null)
+            {
+                _logger.Error($"Failed to get list of shiny stats for guild {guildId}, skipping...");
+                return;
+            }
+
+            var sorted = stats.Keys.ToList();
+            sorted.Sort();
+
+            foreach (var pokemon in sorted)
+            {
+                if (pokemon == 0)
+                    continue;
+
+                if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
+                    continue;
+
+                var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
+                var pkmnStats = stats[pokemon];
+                var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
+                if (chance == 0)
+                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
+                else
+                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
+
+                Thread.Sleep(500);
+            }
+
+            var total = stats[0];
+            var totalRatio = total.Shiny == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Shiny);
+            if (totalRatio == 0)
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0")));
+            else
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
 
             Thread.Sleep(10 * 1000);
         }
@@ -1072,7 +1064,17 @@
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), Strings.ConfigFileName);
             var fileWatcher = new FileWatcher(path);
-            fileWatcher.FileChanged += (sender, e) => _whConfig = WhConfig.Load(e.FilePath);
+            fileWatcher.Changed += (sender, e) => {
+                try
+                {
+                    _whConfig = WhConfig.Load(e.FullPath);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Error while reloading config:");
+                    _logger.Error(ex);
+                }
+            };
             fileWatcher.Start();
         }
 

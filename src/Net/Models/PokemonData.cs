@@ -5,7 +5,6 @@
     using System.IO;
     using System.Linq;
     using System.Text;
-    using System.Threading.Tasks;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
@@ -392,6 +391,10 @@
             LastModifiedTime = LastModified
                 .FromUnix()
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
+
+            UpdatedTime = Updated
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
         /// <summary>
@@ -403,14 +406,14 @@
         /// <param name="alarm">Webhook alarm</param>
         /// <param name="city">City the Pokemon was found in</param>
         /// <returns>DiscordEmbedNotification object to send</returns>
-        public async Task<DiscordEmbedNotification> GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbedNotification GeneratePokemonMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             // If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
             var server = whConfig.Servers[guildId];
             var alertType = IsMissingStats ? AlertMessageType.PokemonMissingStats : AlertMessageType.Pokemon;
             var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
             var pokemonImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
-            var properties = await GetProperties(new MessageProperties
+            var properties = GetProperties(new MessageProperties
             {
                 Guild = client.Guilds[guildId],
                 Config = whConfig,
@@ -436,30 +439,26 @@
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
             var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
             var description = DynamicReplacementEngine.ReplaceText(alarm?.Description, properties);
-            return await Task.FromResult(new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() }));
+            return new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() });
         }
 
-        private DiscordColor GetPvPColor(List<PVPRank> greatLeague, List<PVPRank> ultraLeague, DiscordServerConfig server)
+        public static double GetIV(string attack, string defense, string stamina)
         {
-            if (greatLeague != null)
-                greatLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
-
-            if (ultraLeague != null)
-                ultraLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
-
-            var greatRank = greatLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP);
-            var ultraRank = ultraLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP);
-            var color = server.DiscordEmbedColors.Pokemon.PvP.FirstOrDefault(x => ((greatRank?.Rank ?? 0) >= x.Minimum && (greatRank?.Rank ?? 0) <= x.Maximum) || ((ultraRank?.Rank ?? 0) >= x.Minimum && (ultraRank?.Rank ?? 0) <= x.Maximum));
-            if (color == null)
+            if (!int.TryParse(attack, out int atk) ||
+                !int.TryParse(defense, out int def) ||
+                !int.TryParse(stamina, out int sta))
             {
-                return DiscordColor.White;
+                return -1;
             }
-            return new DiscordColor(color.Color);
+
+            return Math.Round((double)(sta + atk + def) * 100 / 45);
         }
 
         #endregion
 
-        private async Task<IReadOnlyDictionary<string, string>> GetProperties(MessageProperties properties)// DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
+        #region Private Methods
+
+        private IReadOnlyDictionary<string, string> GetProperties(MessageProperties properties)// DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
             var pkmnName = Translator.Instance.GetPokemonName(Id);
@@ -506,7 +505,7 @@
 
             var greatLeagueEmoji = PvPLeague.Great.GetLeagueEmojiIcon();
             var ultraLeagueEmoji = PvPLeague.Ultra.GetLeagueEmojiIcon();
-            var pvpStats = await GetPvP();
+            var pvpStats = GetPvP();
 
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
@@ -618,36 +617,44 @@
                 // Misc properties
                 { "br", "\r\n" }
             };
-            return await Task.FromResult(dict);
+            return dict;
         }
 
-        public static double GetIV(string attack, string defense, string stamina)
+        private DiscordColor GetPvPColor(List<PVPRank> greatLeague, List<PVPRank> ultraLeague, DiscordServerConfig server)
         {
-            if (!int.TryParse(attack, out int atk) ||
-                !int.TryParse(defense, out int def) ||
-                !int.TryParse(stamina, out int sta))
-            {
-                return -1;
-            }
+            if (greatLeague != null)
+                greatLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
 
-            return Math.Round((double)(sta + atk + def) * 100 / 45);
+            if (ultraLeague != null)
+                ultraLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
+
+            var greatRank = greatLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP);
+            var ultraRank = ultraLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP);
+            var color = server.DiscordEmbedColors.Pokemon.PvP.FirstOrDefault(x => ((greatRank?.Rank ?? 0) >= x.Minimum && (greatRank?.Rank ?? 0) <= x.Maximum) || ((ultraRank?.Rank ?? 0) >= x.Minimum && (ultraRank?.Rank ?? 0) <= x.Maximum));
+            if (color == null)
+            {
+                return DiscordColor.White;
+            }
+            return new DiscordColor(color.Color);
         }
+
+        #endregion
 
         #region PvP
 
-        private async Task<string> GetPvP()
+        private string GetPvP()
         {
-            var great = await GetGreatLeague();
-            var ultra = await GetUltraLeague();
+            var great = GetGreatLeague();
+            var ultra = GetUltraLeague();
             if (!string.IsNullOrEmpty(great) || !string.IsNullOrEmpty(ultra))
             {
                 var header = "__**PvP Rank Statistics**__\r\n";
-                return await Task.FromResult(header + great + ultra);
+                return header + great + ultra;
             }
             return null;
         }
 
-        private async Task<string> GetGreatLeague()
+        private string GetGreatLeague()
         {
             var sb = new StringBuilder();
             if (GreatLeague != null)
@@ -683,10 +690,10 @@
                 var greatLeagueEmoji = PvPLeague.Great.GetLeagueEmojiIcon();
                 result = greatLeagueEmoji + $" **{greatLeagueText}:**\r\n" + result;
             }
-            return await Task.FromResult(result);
+            return result;
         }
 
-        private async Task<string> GetUltraLeague()
+        private string GetUltraLeague()
         {
             var sb = new StringBuilder();
             if (UltraLeague != null)
@@ -722,7 +729,7 @@
                 var ultraLeagueEmoji = PvPLeague.Ultra.GetLeagueEmojiIcon();
                 result = ultraLeagueEmoji + $" **{ultraLeagueText}:**\r\n" + result;
             }
-            return await Task.FromResult(result);
+            return result;
         }
 
         #endregion

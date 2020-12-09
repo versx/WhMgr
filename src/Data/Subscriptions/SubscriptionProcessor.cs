@@ -151,7 +151,7 @@
                     // Not subscribed to Pokemon
                     if (subscribedPokemon == null)
                     {
-                        _logger.Info($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
+                        //_logger.Debug($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
@@ -174,7 +174,7 @@
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
                     {
                         _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name, pkmn));
@@ -277,7 +277,7 @@
                     // Not subscribed to Pokemon
                     if (subscribedPokemon == null)
                     {
-                        //_logger.Info($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
+                        //_logger.Debug($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
                         continue;
                     }
 
@@ -301,7 +301,7 @@
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = await pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
+                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, loc.Name);
                     foreach (var emb in embed.Embeds)
                     {
                         _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, loc.Name));

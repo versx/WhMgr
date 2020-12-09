@@ -1,4 +1,6 @@
-﻿namespace WhMgr.Geofence
+﻿using NetTopologySuite.Geometries;
+
+namespace WhMgr.Geofence
 {
     /// <summary>
     /// Geocoordinate location
@@ -59,5 +61,9 @@
         {
             return $"{Latitude}, {Longitude}";
         }
+
+        public static implicit operator Coordinate(Location location) => new Coordinate(location.Longitude, location.Latitude);
+
+        public static implicit operator Point(Location location) => new Point(location.Longitude, location.Latitude);
     }
 }
