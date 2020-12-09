@@ -11,7 +11,6 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-    using DSharpPlus.Interactivity;
     using Newtonsoft.Json;
     using POGOProtos.Enums;
 

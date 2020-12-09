@@ -177,7 +177,7 @@
             // Gender emojis
             "gender_male",
             "gender_female",
-            "gender_genderless"
+            "gender_less"
         };
 
         public static IReadOnlyDictionary<GameplayWeather.Types.WeatherCondition, List<PokemonType>> WeatherBoosts => new Dictionary<GameplayWeather.Types.WeatherCondition, List<PokemonType>>
