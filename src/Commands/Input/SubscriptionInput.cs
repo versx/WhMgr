@@ -39,17 +39,15 @@
         {
             var message = (await _context.RespondEmbed($"Enter the areas to get notifications from separated by a comma (i.e. `city1,city2`):\n**Available Areas:**\n{string.Join("\n- ", validAreas)}\n- All", DiscordColor.Blurple)).FirstOrDefault();
             var cities = await _context.WaitForUserChoice(true);
+            await message.DeleteAsync();
 
-            // Check if gender is a valid gender provided
+            // Check if provided areas are valid and only return valid areas
             var areas = SubscriptionAreas.GetAreas(cities, validAreas);
             if (areas.Count == 0)
             {
                 // No valid areas provided
-                await _context.RespondEmbed($"Invalid areas provided.");
                 return new List<string>();
             }
-            await message.DeleteAsync();
-
             return areas;
         }
     }

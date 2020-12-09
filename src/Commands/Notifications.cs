@@ -2299,7 +2299,7 @@ and only from the following areas: {string.Join(", ", areasResult)}
                 }
 
                 // Check if there are no more areas set for the Pokemon subscription
-                if (subPkmn.Areas.Count == 0)
+                if (areas.Count == 0)
                 {
                     // If no more areas set for the Pokemon subscription, delete it
                     var result = subPkmn.Id.Remove<PokemonSubscription>();
@@ -2346,10 +2346,8 @@ and only from the following areas: {string.Join(", ", areasResult)}
                     }
                 }
 
-                // Check if there are no more areas set for the PvP Pokemon subscription
-                //if (subPvP.Areas.Count == 0)
                 // If no city specified then remove the whole subscription
-                if (string.IsNullOrEmpty(city))
+                if (areas.Count == 0)
                 {
                     // If no more areas set for the PvP Pokemon subscription, delete it
                     var result = subPvP.Id.Remove<PvPSubscription>();
@@ -2397,7 +2395,7 @@ and only from the following areas: {string.Join(", ", areasResult)}
                 }
 
                 // Check if there are no more areas set for the Pokemon subscription
-                if (subRaid.Areas.Count == 0)
+                if (areas.Count == 0)
                 {
                     // If no more areas set for the Pokemon subscription, delete it
                     if (!subRaid.Id.Remove<RaidSubscription>())
