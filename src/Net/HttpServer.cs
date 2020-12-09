@@ -344,13 +344,14 @@
                 if (pokemon.SecondsLeft.TotalMinutes < _despawnTimerMinimumMinutes)
                     return;
 
-                if (_processedPokemon.ContainsKey(pokemon.EncounterId) && (pokemon.IsMissingStats || !pokemon.IsMissingStats && !_processedPokemon[pokemon.EncounterId].IsMissingStats))
-                    return;
-                if (!_processedPokemon.ContainsKey(pokemon.EncounterId))
-                    _processedPokemon.Add(pokemon.EncounterId, new ScannedPokemon(pokemon));
-                if (!pokemon.IsMissingStats && _processedPokemon[pokemon.EncounterId].IsMissingStats)
+                lock(_processedPokemon)
                 {
-                    _processedPokemon[pokemon.EncounterId] = new ScannedPokemon(pokemon);
+                    if (_processedPokemon.ContainsKey(pokemon.EncounterId) && (pokemon.IsMissingStats || !pokemon.IsMissingStats && !_processedPokemon[pokemon.EncounterId].IsMissingStats))
+                        return;
+                    if (!_processedPokemon.ContainsKey(pokemon.EncounterId))
+                        _processedPokemon.Add(pokemon.EncounterId, new ScannedPokemon(pokemon));
+                    if (!pokemon.IsMissingStats && _processedPokemon[pokemon.EncounterId].IsMissingStats)
+                        _processedPokemon[pokemon.EncounterId] = new ScannedPokemon(pokemon);
                 }
 
                 OnPokemonReceived(pokemon);
@@ -381,24 +382,27 @@
 
                 raid.SetTimes();
 
-                if (_processedRaids.ContainsKey(raid.GymId))
+                lock (_processedRaids)
                 {
-                    /*
-                    if ((_processedRaids[raid.GymId].PokemonId == 0 || _processedRaids[raid.GymId].PokemonId == raid.PokemonId) &&
-                        _processedRaids[raid.GymId].Form == raid.Form &&
-                        _processedRaids[raid.GymId].Level == raid.Level &&
-                        _processedRaids[raid.GymId].Start == raid.Start &&
-                        _processedRaids[raid.GymId].End == raid.End)
+                    if (_processedRaids.ContainsKey(raid.GymId))
                     {
-                        _logger.Debug($"PROCESSED RAID ALREADY: Id: {raid.GymId} Name: {raid.GymName} Pokemon: {raid.PokemonId} Form: {raid.Form} Start: {raid.StartTime} End: {raid.EndTime}");
-                        // Processed raid already
-                        return;
+                        /*
+                        if ((_processedRaids[raid.GymId].PokemonId == 0 || _processedRaids[raid.GymId].PokemonId == raid.PokemonId) &&
+                            _processedRaids[raid.GymId].Form == raid.Form &&
+                            _processedRaids[raid.GymId].Level == raid.Level &&
+                            _processedRaids[raid.GymId].Start == raid.Start &&
+                            _processedRaids[raid.GymId].End == raid.End)
+                        {
+                            _logger.Debug($"PROCESSED RAID ALREADY: Id: {raid.GymId} Name: {raid.GymName} Pokemon: {raid.PokemonId} Form: {raid.Form} Start: {raid.StartTime} End: {raid.EndTime}");
+                            // Processed raid already
+                            return;
+                        }
+                        */
                     }
-                    */
-                }
-                else
-                {
-                    _processedRaids.Add(raid.GymId, raid);
+                    else
+                    {
+                        _processedRaids.Add(raid.GymId, raid);
+                    }
                 }
 
                 OnRaidReceived(raid);
@@ -421,19 +425,22 @@
                     return;
                 }
 
-                if (_processedQuests.ContainsKey(quest.PokestopId))
+                lock (_processedQuests)
                 {
-                    if (_processedQuests[quest.PokestopId].Type == quest.Type &&
-                        _processedQuests[quest.PokestopId].Rewards == quest.Rewards &&
-                        _processedQuests[quest.PokestopId].Conditions == quest.Conditions)
+                    if (_processedQuests.ContainsKey(quest.PokestopId))
                     {
-                        // Processed quest already
-                        return;
+                        if (_processedQuests[quest.PokestopId].Type == quest.Type &&
+                            _processedQuests[quest.PokestopId].Rewards == quest.Rewards &&
+                            _processedQuests[quest.PokestopId].Conditions == quest.Conditions)
+                        {
+                            // Processed quest already
+                            return;
+                        }
                     }
-                }
-                else
-                {
-                    _processedQuests.Add(quest.PokestopId, quest);
+                    else
+                    {
+                        _processedQuests.Add(quest.PokestopId, quest);
+                    }
                 }
 
                 OnQuestReceived(quest);
@@ -534,28 +541,31 @@
                     return;
                 }
 
-                if (_processedWeather.ContainsKey(weather.Id))
+                lock (_processedWeather)
                 {
-                    if (_processedWeather[weather.Id].GameplayCondition == weather.GameplayCondition &&
-                        _processedWeather[weather.Id].CloudLevel == weather.CloudLevel &&
-                        _processedWeather[weather.Id].FogLevel == weather.FogLevel &&
-                        _processedWeather[weather.Id].RainLevel == weather.RainLevel &&
-                        _processedWeather[weather.Id].Severity == weather.Severity &&
-                        _processedWeather[weather.Id].SnowLevel == weather.SnowLevel &&
-                        _processedWeather[weather.Id].WindLevel == weather.WindLevel &&
-                        _processedWeather[weather.Id].SpecialEffectLevel == weather.SpecialEffectLevel &&
-                        _processedWeather[weather.Id].WarnWeather == weather.WarnWeather &&
-                        _processedWeather[weather.Id].WindDirection == weather.WindDirection)
+                    if (_processedWeather.ContainsKey(weather.Id))
                     {
-                        // Processed weather already
-                        return;
-                    }
+                        if (_processedWeather[weather.Id].GameplayCondition == weather.GameplayCondition &&
+                            _processedWeather[weather.Id].CloudLevel == weather.CloudLevel &&
+                            _processedWeather[weather.Id].FogLevel == weather.FogLevel &&
+                            _processedWeather[weather.Id].RainLevel == weather.RainLevel &&
+                            _processedWeather[weather.Id].Severity == weather.Severity &&
+                            _processedWeather[weather.Id].SnowLevel == weather.SnowLevel &&
+                            _processedWeather[weather.Id].WindLevel == weather.WindLevel &&
+                            _processedWeather[weather.Id].SpecialEffectLevel == weather.SpecialEffectLevel &&
+                            _processedWeather[weather.Id].WarnWeather == weather.WarnWeather &&
+                            _processedWeather[weather.Id].WindDirection == weather.WindDirection)
+                        {
+                            // Processed weather already
+                            return;
+                        }
 
-                    _processedWeather[weather.Id] = weather;
-                }
-                else
-                {
-                    _processedWeather.Add(weather.Id, weather);
+                        _processedWeather[weather.Id] = weather;
+                    }
+                    else
+                    {
+                        _processedWeather.Add(weather.Id, weather);
+                    }
                 }
 
                 OnWeatherReceived(weather);
@@ -627,13 +637,16 @@
             for (var i = 0; i < keys.Count; i++)
             {
                 var encounterId = keys[i];
-                var scannedPokemon = _processedPokemon[encounterId];
-
-                if (scannedPokemon.IsExpired)
+                if (encounterId != null)
                 {
-                    // Spawn expired, remove from cache
-                    _logger.Debug($"Pokemon spawn {encounterId} expired, removing from cache...");
-                    _processedPokemon.Remove(encounterId);
+                    var scannedPokemon = _processedPokemon[encounterId];
+
+                    if (scannedPokemon.IsExpired)
+                    {
+                        // Spawn expired, remove from cache
+                        _logger.Debug($"Pokemon spawn {encounterId} expired, removing from cache...");
+                        _processedPokemon.Remove(encounterId);
+                    }
                 }
             }
         }
