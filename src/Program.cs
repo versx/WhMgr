@@ -69,6 +69,8 @@
             }
             whConfig.FileName = configFilePath;
 
+            LogLevel = whConfig.LogLevel;
+
             // Start bot
             var bot = new Bot(whConfig);
             await bot.Start();
