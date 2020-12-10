@@ -1488,7 +1488,6 @@
                         var areasResult = await pkmnInput.GetAreasResult(_dep.WhConfig.Servers[guildId].CityRoles);
 
                         var validPokemonNames = string.Join(", ", pkmnResult.Valid.Keys);
-                        await ctx.RespondEmbed($"Result:\nPokemon: {validPokemonNames}\nMin IV: {ivResult.IV}\nMin Level: {lvlResult.MinimumLevel}\nMax Level: {lvlResult.MaximumLevel}\nGender: {genderResult}");
                         var result = await AddPokemonSubscription(ctx, subscription, pkmnResult, ivResult, lvlResult.MinimumLevel, lvlResult.MaximumLevel, genderResult, areasResult);
 
                         var subscribed = result.Key;
@@ -1548,7 +1547,6 @@ and only from the following areas: {string.Join(", ", areasResult)}
                         var pvpAreas = await pvpInput.GetAreasResult(server.CityRoles);
 
                         var validPokemonNames = string.Join(", ", pvpPokemon.Valid.Keys);
-                        await ctx.RespondEmbed($"Result:\nPokemon: {validPokemonNames}\nLeague: {pvpLeague}\nMin Rank: {pvpRank}\nMin Percent: {pvpPercent}");
                         var pvpResult = await AddPvPSubscription(ctx, subscription, pvpPokemon, pvpLeague, pvpRank, pvpPercent, pvpAreas);
                         var subscribed = pvpResult.Key;
                         var alreadySubscribed = pvpResult.Value;
@@ -1597,7 +1595,6 @@ and only from the following areas: {string.Join(", ", areasResult)}
                         var raidAreas = await raidInput.GetAreasResult(server.CityRoles);
 
                         var validPokemonNames = string.Join(", ", raidPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value)));
-                        await ctx.RespondEmbed($"Result:\nPokemon: {validPokemonNames}\nAreas: {string.Join(", ", raidAreas)}");
                         var raidResult = AddRaidSubscription(ctx, subscription, raidPokemon, raidAreas);
                         var subscribed = raidResult.Key;
                         var alreadySubscribed = raidResult.Value;
