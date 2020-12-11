@@ -1,5 +1,4 @@
-{
-  "host": "10.0.0.10",
+  "host": "*",
   "port": 8008,
   "locale": "en",
   "shortUrlApiUrl": null,
@@ -172,7 +171,7 @@
       "port": 3306,
       "username": "root",
       "password": "password",
-      "database": "brock3"
+      "database": "brockdb"
     },
     "scanner": {
       "host": "127.0.0.1",
@@ -247,9 +246,9 @@
     "minIV": 100
   },
   "gmapsKey": "",
-  "nominatim": "https://nominatim.openstreetmap.org",
+  "nominatim": "",
   "despawnTimeMinimumMinutes": 5,
   "reloadSubscriptionChangesMinutes": 1,
+  "maxNotificationsPerMinute": 10,
   "debug": false,
   "logLevel": "Trace"
-}
