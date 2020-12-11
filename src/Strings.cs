@@ -55,6 +55,7 @@
 
         public const string AlarmsFileName = "alarms.json";
         public const string ConfigFileName = "config.json";
+        public const string DefaultConfigFileName = "default.json";
         public const string OsmNestFileName = "nest.json";
         public const string DebugLogFileName = "debug.log";
         public const string ErrorLogFileName = "error.log";

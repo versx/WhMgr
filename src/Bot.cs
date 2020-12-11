@@ -29,7 +29,6 @@
     // TODO: Subscriptions, Pokemon, Raid, Quest, Invasion, Gym, Weather alarm statistics by day. date/pokemonId/count
     // TODO: List all subscriptions with info command
     // TODO: Multiple discord bot tokens per server
-    // TODO: Check nests again
     // TODO: IV wildcards
     // TODO: Egg subscriptions (maybe)
 
