@@ -74,6 +74,7 @@
     "NOTIFY_SETTINGS_EMBED_DISTANCE_KM": "{0} meters (Location: {1})",
     "NOTIFY_SETTINGS_EMBED_PHONE_NUMBER": "Phone Number: **{0}**",
     "NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED": "Default: {0}% ({1} unlisted)",
+    "NOTIFY_SETTINGS_EMBED_PVP_DEFAULT_UNLISTED": "Default: Rank {0} ({1} unlisted)",
     "NOTIFY_SETTINGS_EMBED_POKEMON": "Pokemon Subscriptions: ({0}/{1} used)",
     "NOTIFY_SETTINGS_EMBED_PVP": "PvP Subscriptions: ({0}/{1} used)",
     "NOTIFY_SETTINGS_EMBED_RAIDS": "Raid Subscriptions: ({0}/{1} used)",
