@@ -11,7 +11,9 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Entities;
     using DSharpPlus.Interactivity;
+    using POGOProtos.Map.Weather;
     using ServiceStack;
+
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
     using WhMgr.Localization;
@@ -474,7 +476,7 @@
             {
                 return DiscordColor.White;
             }
-            var color = string.Empty;
+            string color;
             switch (level)
             {
                 case 1:
@@ -525,30 +527,30 @@
             return new DiscordColor(color);
         }
 
-        public static DiscordColor BuildWeatherColor(this WeatherType weather, DiscordServerConfig server)
+        public static DiscordColor BuildWeatherColor(this GameplayWeather.Types.WeatherCondition weather, DiscordServerConfig server)
         {
             var color = "#808080";
             switch (weather)
             {
-                case WeatherType.Clear:
+                case GameplayWeather.Types.WeatherCondition.Clear:
                     color = server.DiscordEmbedColors.Weather.Clear;
                     break;
-                case WeatherType.Cloudy:
+                case GameplayWeather.Types.WeatherCondition.Overcast:
                     color = server.DiscordEmbedColors.Weather.Cloudy;
                     break;
-                case WeatherType.Fog:
+                case GameplayWeather.Types.WeatherCondition.Fog:
                     color = server.DiscordEmbedColors.Weather.Fog;
                     break;
-                case WeatherType.PartlyCloudy:
+                case GameplayWeather.Types.WeatherCondition.PartlyCloudy:
                     color = server.DiscordEmbedColors.Weather.PartlyCloudy;
                     break;
-                case WeatherType.Rain:
+                case GameplayWeather.Types.WeatherCondition.Rainy:
                     color = server.DiscordEmbedColors.Weather.Rain;
                     break;
-                case WeatherType.Snow:
+                case GameplayWeather.Types.WeatherCondition.Snow:
                     color = server.DiscordEmbedColors.Weather.Snow;
                     break;
-                case WeatherType.Windy:
+                case GameplayWeather.Types.WeatherCondition.Windy:
                     color = server.DiscordEmbedColors.Weather.Windy;
                     break;
             }

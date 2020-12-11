@@ -6,6 +6,8 @@
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
+    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
+    using POGOProtos.Enums;
 
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
@@ -44,7 +46,7 @@
         public IReadOnlyDictionary<int, ItemModel> Items { get; set; }
 
         [JsonProperty("grunt_types")]
-        public IReadOnlyDictionary<InvasionGruntType, TeamRocketInvasion> GruntTypes { get; set; }
+        public IReadOnlyDictionary<InvasionCharacter, TeamRocketInvasion> GruntTypes { get; set; }
 
         [JsonProperty("pokemon_types")]
         public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }

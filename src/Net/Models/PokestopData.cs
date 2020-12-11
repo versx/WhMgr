@@ -7,6 +7,8 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
+    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
+    using POGOProtos.Enums;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
@@ -59,11 +61,8 @@
         [JsonIgnore]
         public DateTime InvasionExpireTime { get; set; }
 
-        [JsonProperty("pokestop_display")]
-        public PokestopDisplay PokestopDisplay { get; set; }
-
         [JsonProperty("grunt_type")]
-        public InvasionGruntType GruntType { get; set; }
+        public InvasionCharacter GruntType { get; set; }
 
         [JsonProperty("last_modified")]
         public ulong LastModified { get; set; }
@@ -255,84 +254,5 @@
         /// Magnetic Pokestop lure deployed
         /// </summary>
         Magnetic = 504
-    }
-
-    /// <summary>
-    /// Pokestop display type
-    /// </summary>
-    public enum PokestopDisplay
-    {
-        /// <summary>
-        /// Normal Pokestop
-        /// </summary>
-        Normal = 0,
-
-        /// <summary>
-        /// Team Rocket Invasion Pokestop
-        /// </summary>
-        RocketInvasion,
-
-        /// <summary>
-        /// Team Rocket victory Pokestop
-        /// </summary>
-        RocketVictory
-    }
-
-    /// <summary>
-    /// Team Rocket Invasion grunt type
-    /// </summary>
-    public enum InvasionGruntType
-    {
-        Unset = 0,
-        Blanche,
-        Candela,
-        Spark,
-        MaleGrunt,
-        FemaleGrunt,
-        BugFemaleGrunt,
-        BugMaleGrunt,
-        DarknessFemaleGrunt,
-        DarknessMaleGrunt,
-        DarkFemaleGrunt,
-        DarkMaleGrunt,
-        DragonFemaleGrunt,
-        DragonMaleGrunt,
-        FairyFemaleGrunt,
-        FairyMaleGrunt,
-        FightingFemaleGrunt,
-        FightingMaleGrunt,
-        FireFemaleGrunt,
-        FireMaleGrunt,
-        FlyingFemaleGrunt,
-        FlyingMaleGrunt,
-        GrassFemaleGrunt,
-        GrassMaleGrunt,
-        GroundFemaleGrunt,
-        GroundMaleGrunt,
-        IceFemaleGrunt,
-        IceMaleGrunt,
-        MetalFemaleGrunt,
-        MetalMaleGrunt,
-        NormalFemaleGrunt,
-        NormalMaleGrunt,
-        PoisonFemaleGrunt,
-        PoisonMaleGrunt,
-        PsychicFemaleGrunt,
-        PsychicMaleGrunt,
-        RockFemaleGrunt,
-        RockMaleGrunt,
-        WaterFemaleGrunt,
-        WaterMaleGrunt,
-        PlayerTeamLeader,
-        ExecutiveCliff,
-        ExecutiveArlo,
-        ExecutiveSierra,
-        Giovanni,
-        DecoyMale,
-        DecoyFemale,
-        GhostFemaleGrunt,
-        GhostMaleGrunt,
-        ElectricFemaleGrunt,
-        ElectricMaleGrunt
     }
 }

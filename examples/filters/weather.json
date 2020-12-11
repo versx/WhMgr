@@ -2,6 +2,6 @@
 	"weather":
 	{
 		"enabled": true,
-		"types": ["Clear", "Rain", "PartlyCloudy", "Cloudy", "Windy", "Snow", "Fog"]
+		"types": ["Clear", "Rainy", "PartlyCloudy", "Overcast", "Windy", "Snow", "Fog"]
 	}
 }

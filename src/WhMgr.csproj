@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -31,19 +31,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotLiquid" Version="2.0.361" />
+    <PackageReference Include="DotLiquid" Version="2.0.366" />
     <PackageReference Include="DSharpPlus" Version="3.2.3" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="3.2.3" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="3.2.3" />
-    <PackageReference Include="GeoTimeZone" Version="4.0.0" />
-    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="4.7.0" />
+    <PackageReference Include="GeoTimeZone" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="5.0.0" />
     <PackageReference Include="NetTopologySuite" Version="2.1.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="POGOProtos.Core" Version="2.53.1" />
     <PackageReference Include="ServiceStack.OrmLite.MySql" Version="5.8.0" />
-    <PackageReference Include="Stripe.net" Version="37.31.0" />
-    <PackageReference Include="TimeZoneConverter" Version="3.2.0" />
-    <PackageReference Include="Twilio" Version="5.45.2" />
+    <PackageReference Include="Stripe.net" Version="39.29.0" />
+    <PackageReference Include="TimeZoneConverter" Version="3.3.0" />
+    <PackageReference Include="Twilio" Version="5.51.0" />
   </ItemGroup>
 
 </Project>
