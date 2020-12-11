@@ -1350,7 +1350,6 @@
 
             var result = subscription.Save();
 
-            await ctx.TriggerTypingAsync();
             if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(ctx.User.Username), DiscordColor.Red);
@@ -2776,60 +2775,64 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                 messages.Add(sb.ToString());
             }
 
-            var sb2 = new StringBuilder();
             if (hasPvP)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP").FormatText(subscription.PvP.Count.ToString("N0"), server.Subscriptions.MaxPvPSubscriptions == 0 ? "∞" : server.Subscriptions.MaxPvPSubscriptions.ToString("N0")));
-                sb2.Append("```");
-                sb2.Append(string.Join(Environment.NewLine, GetPvPSubscriptionNames(guildId, user.Id)));
-                sb2.Append("```");
-                sb2.AppendLine();
-                sb2.AppendLine();
+                var pvpBuilder = new StringBuilder();
+                pvpBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP").FormatText(subscription.PvP.Count.ToString("N0"), server.Subscriptions.MaxPvPSubscriptions == 0 ? "∞" : server.Subscriptions.MaxPvPSubscriptions.ToString("N0")));
+                pvpBuilder.Append("```");
+                pvpBuilder.Append(string.Join(Environment.NewLine, GetPvPSubscriptionNames(guildId, user.Id)));
+                pvpBuilder.Append("```");
+                pvpBuilder.AppendLine();
+                pvpBuilder.AppendLine();
+                messages.Add(pvpBuilder.ToString());
             }
 
             if (hasRaids)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_RAIDS").FormatText(subscription.Raids.Count.ToString("N0"), server.Subscriptions.MaxRaidSubscriptions == 0 ? "∞" : server.Subscriptions.MaxRaidSubscriptions.ToString("N0")));
-                sb2.Append("```");
-                sb2.Append(string.Join(Environment.NewLine, GetRaidSubscriptionNames(guildId, user.Id)));
-                sb2.Append("```");
-                sb2.AppendLine();
-                sb2.AppendLine();
+                var raidsBuilder = new StringBuilder();
+                raidsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_RAIDS").FormatText(subscription.Raids.Count.ToString("N0"), server.Subscriptions.MaxRaidSubscriptions == 0 ? "∞" : server.Subscriptions.MaxRaidSubscriptions.ToString("N0")));
+                raidsBuilder.Append("```");
+                raidsBuilder.Append(string.Join(Environment.NewLine, GetRaidSubscriptionNames(guildId, user.Id)));
+                raidsBuilder.Append("```");
+                raidsBuilder.AppendLine();
+                raidsBuilder.AppendLine();
+                messages.Add(raidsBuilder.ToString());
             }
 
             if (hasGyms)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_GYMS").FormatText(subscription.Gyms.Count.ToString("N0"), server.Subscriptions.MaxGymSubscriptions == 0 ? "" : server.Subscriptions.MaxGymSubscriptions.ToString("N0")));
-                sb2.Append("```");
-                sb2.Append(string.Join(Environment.NewLine, GetGymSubscriptionNames(guildId, user.Id)));
-                sb2.Append("```");
-                sb2.AppendLine();
-                sb2.AppendLine();
+                var gymsBuilder = new StringBuilder();
+                gymsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_GYMS").FormatText(subscription.Gyms.Count.ToString("N0"), server.Subscriptions.MaxGymSubscriptions == 0 ? "" : server.Subscriptions.MaxGymSubscriptions.ToString("N0")));
+                gymsBuilder.Append("```");
+                gymsBuilder.Append(string.Join(Environment.NewLine, GetGymSubscriptionNames(guildId, user.Id)));
+                gymsBuilder.Append("```");
+                gymsBuilder.AppendLine();
+                gymsBuilder.AppendLine();
+                messages.Add(gymsBuilder.ToString());
             }
 
             if (hasQuests)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_QUESTS").FormatText(subscription.Quests.Count.ToString("N0"), server.Subscriptions.MaxQuestSubscriptions == 0 ? "∞" : server.Subscriptions.MaxQuestSubscriptions.ToString("N0")));
-                sb2.Append("```");
-                sb2.Append(string.Join(Environment.NewLine, GetQuestSubscriptionNames(guildId, user.Id)));
-                sb2.Append("```");
-                sb2.AppendLine();
-                sb2.AppendLine();
+                var questsBuilder = new StringBuilder();
+                questsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_QUESTS").FormatText(subscription.Quests.Count.ToString("N0"), server.Subscriptions.MaxQuestSubscriptions == 0 ? "∞" : server.Subscriptions.MaxQuestSubscriptions.ToString("N0")));
+                questsBuilder.Append("```");
+                questsBuilder.Append(string.Join(Environment.NewLine, GetQuestSubscriptionNames(guildId, user.Id)));
+                questsBuilder.Append("```");
+                questsBuilder.AppendLine();
+                questsBuilder.AppendLine();
+                messages.Add(questsBuilder.ToString());
             }
 
             if (hasInvasions)
             {
-                sb2.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_INVASIONS").FormatText(subscription.Invasions.Count.ToString("N0"), server.Subscriptions.MaxInvasionSubscriptions == 0 ? "∞" : server.Subscriptions.MaxInvasionSubscriptions.ToString("N0")));
-                sb2.Append("```");
-                sb2.Append(string.Join(Environment.NewLine, GetInvasionSubscriptionNames(guildId, user.Id)));
-                sb2.Append("```");
-                sb2.AppendLine();
-                sb2.AppendLine();
-            }
-
-            if (sb2.Length > 0)
-            {
-                messages.Add(sb2.ToString());
+                var invasionsBuilder = new StringBuilder();
+                invasionsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_INVASIONS").FormatText(subscription.Invasions.Count.ToString("N0"), server.Subscriptions.MaxInvasionSubscriptions == 0 ? "∞" : server.Subscriptions.MaxInvasionSubscriptions.ToString("N0")));
+                invasionsBuilder.Append("```");
+                invasionsBuilder.Append(string.Join(Environment.NewLine, GetInvasionSubscriptionNames(guildId, user.Id)));
+                invasionsBuilder.Append("```");
+                invasionsBuilder.AppendLine();
+                invasionsBuilder.AppendLine();
+                messages.Add(invasionsBuilder.ToString());
             }
 
             return messages;
@@ -2841,8 +2844,31 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedPvP = subscription.PvP;
             subscribedPvP.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
-            foreach (var pvp in subscribedPvP)
+
+            var defaultRank = 0;
+            var defaultCount = 0;
+            var results = subscribedPvP.GroupBy(p => p.MinimumRank, (key, g) => new { Rank = key, Pokes = g.ToList() });
+            foreach (var result in results)
             {
+                if (result.Pokes.Count > defaultRank)
+                {
+                    defaultRank = result.Rank;
+                    defaultCount = result.Pokes.Count;
+                }
+            }
+
+            var exceedsLimits = subscribedPvP.Count > Strings.MaxPokemonDisplayed;
+            if (exceedsLimits)
+            {
+                list.Add(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP_DEFAULT_UNLISTED").FormatText(defaultRank, defaultCount.ToString("N0")));
+            }
+
+            //var cityRoles = server.CityRoles;
+            foreach (var pvp in subscription.PvP)
+            {
+                if (pvp.MinimumRank == defaultRank && exceedsLimits)
+                    continue;
+
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
                     continue;
 
@@ -2850,7 +2876,9 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                 if (pokemon == null)
                     continue;
 
-                list.Add($"{pvp.PokemonId}: {pokemon.Name} {(string.IsNullOrEmpty(pvp.Form) ? string.Empty : $"Form: {pvp.Form} ")}({pvp.League} League Rank: 1-{pvp.MinimumRank} Percent: {pvp.MinimumPercent}%+)");
+                list.Add($"{pvp.PokemonId}: {pokemon.Name} {(string.IsNullOrEmpty(pvp.Form) ? string.Empty : $" {pvp.Form} ")}({pvp.League} Rank: 1-{pvp.MinimumRank} Percent: {pvp.MinimumPercent}%+)");
+                //var isAllCities = cityRoles.ScrambledEquals(poke.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
+                //sb.AppendLine(Translator.Instance.Translate("NOTIFY_FROM").FormatText(msg, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", poke.Areas)));
             }
 
             return list;

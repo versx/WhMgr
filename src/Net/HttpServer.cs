@@ -10,6 +10,7 @@
 
     using Newtonsoft.Json;
 
+    using WhMgr.Comparers;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Net.Models;
@@ -430,8 +431,8 @@
                     if (_processedQuests.ContainsKey(quest.PokestopId))
                     {
                         if (_processedQuests[quest.PokestopId].Type == quest.Type &&
-                            _processedQuests[quest.PokestopId].Rewards == quest.Rewards &&
-                            _processedQuests[quest.PokestopId].Conditions == quest.Conditions)
+                            _processedQuests[quest.PokestopId].Rewards.ScrambledEquals(quest.Rewards, new QuestRewardEqualityComparer()) &&
+                            _processedQuests[quest.PokestopId].Conditions.ScrambledEquals(quest.Conditions, new QuestConditionEqualityComparer()))
                         {
                             // Processed quest already
                             return;
