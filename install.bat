@@ -38,7 +38,6 @@ xcopy /s /e %prjDir%\examples\templates\* %binDir%\templates\
 xcopy /s /e %prjDir%\static\* %binDir%\static\
 xcopy %prjDir%\alarms.example.json %binDir%\alarms.json*
 xcopy %prjDir%\config.example.json %binDir%\config.json*
-xcopy %prjDir%\default.json %binDir%\default.json*
 
 echo "Changing directory to build folder..."
 cd %binDir%

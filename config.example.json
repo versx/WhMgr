@@ -1,5 +1,5 @@
 {
-  "host": "*",
+  "host": "10.0.0.10",
   "port": 8008,
   "locale": "en",
   "shortUrlApiUrl": null,
@@ -172,7 +172,7 @@
       "port": 3306,
       "username": "root",
       "password": "password",
-      "database": "brockdb"
+      "database": "brock3"
     },
     "scanner": {
       "host": "127.0.0.1",
