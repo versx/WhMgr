@@ -105,20 +105,5 @@
             }
             return cnt.Values.All(c => c == 0);
         }
-
-        public static T MergeValues<T>(this T target, T source)
-        {
-            var type = typeof(T);
-            var properties = type.GetProperties().Where(x => x.CanRead && x.CanWrite);
-            foreach (var prop in properties)
-            {
-                var value = prop.GetValue(source, null);
-                if (value != null)
-                {
-                    prop.SetValue(target, value, null);
-                }
-            }
-            return target;
-        }
     }
 }
