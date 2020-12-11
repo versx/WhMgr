@@ -55,11 +55,11 @@ Select the type of subscription to create:
         {
             var interactivity = ctx.Client.GetInteractivityModule();
             // TODO: Configurable subscription timeout
-            var result = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && allowNull && string.IsNullOrEmpty(x.Content) || !allowNull && !string.IsNullOrEmpty(x.Content), TimeSpan.FromMinutes(3));
+            var result = await interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && (allowNull && string.IsNullOrEmpty(x.Content)) || (!allowNull && !string.IsNullOrEmpty(x.Content)), TimeSpan.FromMinutes(3));
             var content = result?.Message.Content;
             try
             {
-                // Bot can't delete user messages
+                // Bot can't delete user messages in DMs
                 await result.Message?.DeleteAsync();
             }
             catch { }

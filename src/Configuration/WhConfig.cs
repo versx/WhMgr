@@ -8,6 +8,7 @@
 
     using WhMgr.Data;
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
 
     /// <summary>
     /// Configuration file class
@@ -142,11 +143,21 @@
         public string FileName { get; set; }
 
         /// <summary>
+        /// Gets the full path to the default config file
+        /// </summary>
+        [JsonIgnore]
+        public static string DefaultConfigFilePath => Path.Combine
+        (
+            Directory.GetCurrentDirectory(),
+            Strings.DefaultConfigFileName
+        );
+
+        /// <summary>
         /// Instantiate a new <see cref="WhConfig"/> class
         /// </summary>
         public WhConfig()
         {
-            ListeningHost = "127.0.0.1";
+            ListeningHost = "*";
             WebhookPort = 8008;
             Locale = "en";
             LogLevel = LogLevel.Trace;
@@ -182,12 +193,18 @@
         {
             if (!File.Exists(filePath))
             {
-                throw new FileNotFoundException("Config not loaded because file not found.", filePath);
+                throw new FileNotFoundException("Config file does not exist.", filePath);
             }
 
+            if (!File.Exists(DefaultConfigFilePath))
+            {
+                throw new FileNotFoundException("Default config file does not exist.", DefaultConfigFilePath);
+            }
+
+            var defaultConfig = MasterFile.LoadInit<WhConfig>(DefaultConfigFilePath);
             var config = MasterFile.LoadInit<WhConfig>(filePath);
             config.StaticMaps.LoadConfigs();
-            return config;
+            return defaultConfig.MergeValues(config);
         }
     }
 }

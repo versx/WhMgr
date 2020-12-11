@@ -10,6 +10,7 @@
 
     using Newtonsoft.Json;
 
+    using WhMgr.Comparers;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Net.Models;
@@ -430,8 +431,8 @@
                     if (_processedQuests.ContainsKey(quest.PokestopId))
                     {
                         if (_processedQuests[quest.PokestopId].Type == quest.Type &&
-                            _processedQuests[quest.PokestopId].Rewards == quest.Rewards &&
-                            _processedQuests[quest.PokestopId].Conditions == quest.Conditions)
+                            _processedQuests[quest.PokestopId].Rewards.ScrambledEquals(quest.Rewards, new QuestRewardEqualityComparer()) &&
+                            _processedQuests[quest.PokestopId].Conditions.ScrambledEquals(quest.Conditions, new QuestConditionEqualityComparer()))
                         {
                             // Processed quest already
                             return;
@@ -633,22 +634,23 @@
 
         private void OnClearCache()
         {
-            var keys = _processedPokemon.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            List<string> expiredEncounters;
+            
+            lock (_processedPokemon)
             {
-                var encounterId = keys[i];
-                if (encounterId != null)
-                {
-                    var scannedPokemon = _processedPokemon[encounterId];
+                expiredEncounters = _processedPokemon.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
 
-                    if (scannedPokemon.IsExpired)
-                    {
-                        // Spawn expired, remove from cache
-                        _logger.Debug($"Pokemon spawn {encounterId} expired, removing from cache...");
-                        _processedPokemon.Remove(encounterId);
-                    }
+                foreach (var encounterId in expiredEncounters)
+                {
+                    // Spawn expired, remove from cache
+                    _processedPokemon.Remove(encounterId);
                 }
             }
+            
+            // Log expired ones outside lock so that we don't hog too much time on _processedPokemon
+            
+            foreach (var encounterId in expiredEncounters)
+                _logger.Debug($"Removed expired Pokemon spawn {encounterId} from cache");
         }
 
         #endregion

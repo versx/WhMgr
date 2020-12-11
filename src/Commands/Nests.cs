@@ -12,7 +12,7 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-
+    using POGOProtos.Enums;
     using ServiceStack;
     using ServiceStack.OrmLite;
 
@@ -23,7 +23,6 @@
     using WhMgr.Extensions;
     using WhMgr.Localization;
     using WhMgr.Geofence;
-    using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
     public class Nests

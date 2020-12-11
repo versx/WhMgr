@@ -6,8 +6,8 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
+    using POGOProtos.Enums;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
@@ -81,7 +81,7 @@
         public int Evolution { get; set; }
 
         [JsonProperty("gender")]
-        public PokemonGender Gender { get; set; }
+        public Gender Gender { get; set; }
 
         [JsonIgnore]
         public DateTime StartTime { get; private set; }
