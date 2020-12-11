@@ -34,7 +34,7 @@
             {
                 return base.Translate(value);
             }
-            catch (KeyNotFoundException ex)
+            catch (Exception ex)
             {
                 _logger.Error($"Failed to find locale translation for key '{value}'");
                 _logger.Error(ex);
@@ -46,11 +46,11 @@
         {
             try
             {
-                return args.Length > 0
+                return args?.Length > 0
                     ? string.Format(base.Translate(value), args)
                     : base.Translate(value);
             }
-            catch (KeyNotFoundException ex)
+            catch (Exception ex)
             {
                 _logger.Error($"Failed to find locale translation for key '{value}' and arguments: '{string.Join(",", args)}'");
                 _logger.Error(ex);

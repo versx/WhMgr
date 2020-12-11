@@ -62,11 +62,11 @@
                 AlertMessageType.Raids, new AlertMessageSettings
                 {
                     AvatarUrl = "<pkmn_img_url>",
-                    Content = "<evolution> <pkmn_name> Raid Ends: <end_time> (<end_time_left> left)<br>**Perfect CP:** <perfect_cp> / :white_sun_rain_cloud: <perfect_cp_boosted><br>**Worst CP:** <worst_cp> / :white_sun_rain_cloud: <worst_cp_boosted><br>**Types:** <types_emoji> | **Level:** <lvl> | **Team:** <team_emoji><br>**Moveset:** <moveset><br>**Weaknesses:** <weaknesses_emoji><br><#is_ex><ex_emoji> Gym!<br></is_ex>**[[Google](<gmaps_url>)] [[Apple](<applemaps_url>)] [[Waze](<wazemaps_url>)] [[Scanner](<scanmaps_url>)]**",
+                    Content = "<evolution> <form> <pkmn_name><gender> <costume> Raid Ends: <end_time> (<end_time_left> left)<br>**Perfect CP:** <perfect_cp> / :white_sun_rain_cloud: <perfect_cp_boosted><br>**Worst CP:** <worst_cp> / :white_sun_rain_cloud: <worst_cp_boosted><br>**Types:** <types_emoji> | **Level:** <lvl> | **Team:** <team_emoji><br>**Moveset:** <moveset><br>**Weaknesses:** <weaknesses_emoji><br><#is_ex><ex_emoji> Gym!<br></is_ex>**[[Google](<gmaps_url>)] [[Apple](<applemaps_url>)] [[Waze](<wazemaps_url>)] [[Scanner](<scanmaps_url>)]**",
                     IconUrl = "<pkmn_img_url>",
                     Title = "<geofence>: <gym_name>",
                     Url = "<gmaps_url>",
-                    Username = "<form> <pkmn_name> Raid",
+                    Username = "<form> <pkmn_name><gender> <costume> Raid",
                     ImageUrl = "<tilemaps_url>",
                     Footer = new AlertMessageFooter
                     {

@@ -90,6 +90,7 @@
                     sb.Append((int)questRewardType);
                     sb.Append("-i");
                     sb.Append((int)quest.Rewards[0].Info.Item);
+                    sb.Append("-a");
                     sb.Append(quest.Rewards?[0]?.Info?.Amount ?? 1);
                     sb.Append(".png");
                     break;

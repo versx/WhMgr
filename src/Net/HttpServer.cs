@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Net;
     using System.Text;
     using System.Threading;
@@ -10,6 +11,7 @@
     using Newtonsoft.Json;
 
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
     using WhMgr.Net.Models;
 
     /// <summary>
@@ -21,13 +23,14 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("HTTP", Program.LogLevel);
         private static readonly object _lock = new object();
-        private readonly Dictionary<ulong, PokemonData> _processedPokemon;
+        private readonly Dictionary<string, ScannedPokemon> _processedPokemon;
         private readonly Dictionary<string, RaidData> _processedRaids;
         private readonly Dictionary<string, GymData> _processedGyms;
         private readonly Dictionary<string, PokestopData> _processedPokestops;
         private readonly Dictionary<string, QuestData> _processedQuests;
         private readonly Dictionary<string, TeamRocketInvasion> _processedInvasions;
         private readonly Dictionary<long, WeatherData> _processedWeather;
+        private readonly System.Timers.Timer _clearCacheTimer;
         private HttpListener _server;
         private bool _initialized = false;
         private readonly int _despawnTimerMinimumMinutes = 5;
@@ -125,7 +128,7 @@
             // If no host is set use wildcard for all host interfaces
             Host = host ?? "*";
             Port = port;
-            _processedPokemon = new Dictionary<ulong, PokemonData>();
+            _processedPokemon = new Dictionary<string, ScannedPokemon>();
             _processedRaids = new Dictionary<string, RaidData>();
             _processedGyms = new Dictionary<string, GymData>();
             _processedPokestops = new Dictionary<string, PokestopData>();
@@ -133,7 +136,9 @@
             _processedInvasions = new Dictionary<string, TeamRocketInvasion>();
             _processedWeather = new Dictionary<long, WeatherData>();
             _despawnTimerMinimumMinutes = despawnTimerMinimum;
-
+            _clearCacheTimer = new System.Timers.Timer { Interval = 60000 * 15 };
+            _clearCacheTimer.Elapsed += (sender, e) => OnClearCache();
+            
             Initialize();
         }
 
@@ -186,6 +191,9 @@
             _logger.Info($"Starting HttpServer request handler...");
             var requestThread = new Thread(RequestHandler) { IsBackground = true };
             requestThread.Start();
+
+            // Start the cache cleaner
+            _clearCacheTimer.Start();
         }
 
         /// <summary>
@@ -203,6 +211,9 @@
 
             _logger.Info($"Stopping...");
             _server.Stop();
+
+            // Stop the cache cleaner
+            _clearCacheTimer.Stop();
         }
 
         #endregion
@@ -333,13 +344,15 @@
                 if (pokemon.SecondsLeft.TotalMinutes < _despawnTimerMinimumMinutes)
                     return;
 
-                /*
-                if (_processedPokemon.ContainsKey(pokemon.EncounterId))
+                lock(_processedPokemon)
                 {
-                    // Pokemon already sent (check if IV set)
-                    return;
+                    if (_processedPokemon.ContainsKey(pokemon.EncounterId) && (pokemon.IsMissingStats || !pokemon.IsMissingStats && !_processedPokemon[pokemon.EncounterId].IsMissingStats))
+                        return;
+                    if (!_processedPokemon.ContainsKey(pokemon.EncounterId))
+                        _processedPokemon.Add(pokemon.EncounterId, new ScannedPokemon(pokemon));
+                    if (!pokemon.IsMissingStats && _processedPokemon[pokemon.EncounterId].IsMissingStats)
+                        _processedPokemon[pokemon.EncounterId] = new ScannedPokemon(pokemon);
                 }
-                */
 
                 OnPokemonReceived(pokemon);
             }
@@ -369,24 +382,27 @@
 
                 raid.SetTimes();
 
-                if (_processedRaids.ContainsKey(raid.GymId))
+                lock (_processedRaids)
                 {
-                    /*
-                    if ((_processedRaids[raid.GymId].PokemonId == 0 || _processedRaids[raid.GymId].PokemonId == raid.PokemonId) &&
-                        _processedRaids[raid.GymId].Form == raid.Form &&
-                        _processedRaids[raid.GymId].Level == raid.Level &&
-                        _processedRaids[raid.GymId].Start == raid.Start &&
-                        _processedRaids[raid.GymId].End == raid.End)
+                    if (_processedRaids.ContainsKey(raid.GymId))
                     {
-                        _logger.Debug($"PROCESSED RAID ALREADY: Id: {raid.GymId} Name: {raid.GymName} Pokemon: {raid.PokemonId} Form: {raid.Form} Start: {raid.StartTime} End: {raid.EndTime}");
-                        // Processed raid already
-                        return;
+                        /*
+                        if ((_processedRaids[raid.GymId].PokemonId == 0 || _processedRaids[raid.GymId].PokemonId == raid.PokemonId) &&
+                            _processedRaids[raid.GymId].Form == raid.Form &&
+                            _processedRaids[raid.GymId].Level == raid.Level &&
+                            _processedRaids[raid.GymId].Start == raid.Start &&
+                            _processedRaids[raid.GymId].End == raid.End)
+                        {
+                            _logger.Debug($"PROCESSED RAID ALREADY: Id: {raid.GymId} Name: {raid.GymName} Pokemon: {raid.PokemonId} Form: {raid.Form} Start: {raid.StartTime} End: {raid.EndTime}");
+                            // Processed raid already
+                            return;
+                        }
+                        */
                     }
-                    */
-                }
-                else
-                {
-                    _processedRaids.Add(raid.GymId, raid);
+                    else
+                    {
+                        _processedRaids.Add(raid.GymId, raid);
+                    }
                 }
 
                 OnRaidReceived(raid);
@@ -409,19 +425,22 @@
                     return;
                 }
 
-                if (_processedQuests.ContainsKey(quest.PokestopId))
+                lock (_processedQuests)
                 {
-                    if (_processedQuests[quest.PokestopId].Type == quest.Type &&
-                        _processedQuests[quest.PokestopId].Rewards == quest.Rewards &&
-                        _processedQuests[quest.PokestopId].Conditions == quest.Conditions)
+                    if (_processedQuests.ContainsKey(quest.PokestopId))
                     {
-                        // Processed quest already
-                        return;
+                        if (_processedQuests[quest.PokestopId].Type == quest.Type &&
+                            _processedQuests[quest.PokestopId].Rewards == quest.Rewards &&
+                            _processedQuests[quest.PokestopId].Conditions == quest.Conditions)
+                        {
+                            // Processed quest already
+                            return;
+                        }
                     }
-                }
-                else
-                {
-                    _processedQuests.Add(quest.PokestopId, quest);
+                    else
+                    {
+                        _processedQuests.Add(quest.PokestopId, quest);
+                    }
                 }
 
                 OnQuestReceived(quest);
@@ -452,7 +471,7 @@
                     var processedInvasionAlready = _processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType && _processedPokestops[pokestop.PokestopId].IncidentExpire == pokestop.IncidentExpire;
                     if (processedLureAlready || processedInvasionAlready)
                     {
-                        _logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
+                        //_logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
                         // Processed pokestop lure or invasion already
                         return;
                     }
@@ -522,28 +541,31 @@
                     return;
                 }
 
-                if (_processedWeather.ContainsKey(weather.Id))
+                lock (_processedWeather)
                 {
-                    if (_processedWeather[weather.Id].GameplayCondition == weather.GameplayCondition &&
-                        _processedWeather[weather.Id].CloudLevel == weather.CloudLevel &&
-                        _processedWeather[weather.Id].FogLevel == weather.FogLevel &&
-                        _processedWeather[weather.Id].RainLevel == weather.RainLevel &&
-                        _processedWeather[weather.Id].Severity == weather.Severity &&
-                        _processedWeather[weather.Id].SnowLevel == weather.SnowLevel &&
-                        _processedWeather[weather.Id].WindLevel == weather.WindLevel &&
-                        _processedWeather[weather.Id].SpecialEffectLevel == weather.SpecialEffectLevel &&
-                        _processedWeather[weather.Id].WarnWeather == weather.WarnWeather &&
-                        _processedWeather[weather.Id].WindDirection == weather.WindDirection)
+                    if (_processedWeather.ContainsKey(weather.Id))
                     {
-                        // Processed weather already
-                        return;
-                    }
+                        if (_processedWeather[weather.Id].GameplayCondition == weather.GameplayCondition &&
+                            _processedWeather[weather.Id].CloudLevel == weather.CloudLevel &&
+                            _processedWeather[weather.Id].FogLevel == weather.FogLevel &&
+                            _processedWeather[weather.Id].RainLevel == weather.RainLevel &&
+                            _processedWeather[weather.Id].Severity == weather.Severity &&
+                            _processedWeather[weather.Id].SnowLevel == weather.SnowLevel &&
+                            _processedWeather[weather.Id].WindLevel == weather.WindLevel &&
+                            _processedWeather[weather.Id].SpecialEffectLevel == weather.SpecialEffectLevel &&
+                            _processedWeather[weather.Id].WarnWeather == weather.WarnWeather &&
+                            _processedWeather[weather.Id].WindDirection == weather.WindDirection)
+                        {
+                            // Processed weather already
+                            return;
+                        }
 
-                    _processedWeather[weather.Id] = weather;
-                }
-                else
-                {
-                    _processedWeather.Add(weather.Id, weather);
+                        _processedWeather[weather.Id] = weather;
+                    }
+                    else
+                    {
+                        _processedWeather.Add(weather.Id, weather);
+                    }
                 }
 
                 OnWeatherReceived(weather);
@@ -609,6 +631,27 @@
             _logger.Debug("Disconnect handled.");
         }
 
+        private void OnClearCache()
+        {
+            List<string> expiredEncounters;
+            
+            lock (_processedPokemon)
+            {
+                expiredEncounters = _processedPokemon.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+
+                foreach (var encounterId in expiredEncounters)
+                {
+                    // Spawn expired, remove from cache
+                    _processedPokemon.Remove(encounterId);
+                }
+            }
+            
+            // Log expired ones outside lock so that we don't hog too much time on _processedPokemon
+            
+            foreach (var encounterId in expiredEncounters)
+                _logger.Debug($"Removed expired Pokemon spawn {encounterId} from cache");
+        }
+
         #endregion
 
         private class WebhookMessage
@@ -618,6 +661,34 @@
 
             [JsonProperty("message")]
             public dynamic Message { get; set; }
+        }
+
+        private struct ScannedPokemon
+        {
+            public double Latitude { get; set; }
+
+            public double Longitude { get; set; }
+
+            public bool IsMissingStats { get; set; }
+
+            public DateTime DespawnTime { get; set; }
+
+            public bool IsExpired
+            {
+                get
+                {
+                    var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+                    return now > DespawnTime;
+                }
+            }
+
+            public ScannedPokemon(PokemonData pokemon)
+            {
+                Latitude = pokemon.Latitude;
+                Longitude = pokemon.Longitude;
+                IsMissingStats = pokemon.IsMissingStats;
+                DespawnTime = pokemon.DespawnTime;
+            }
         }
     }
 }

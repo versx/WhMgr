@@ -7,10 +7,6 @@
     /// </summary>
     public class NotificationLimiter
     {
-        /// <summary>
-        /// Maximum amount of notifications per user per minute
-        /// </summary>
-        public const int MaxNotificationsPerMinute = 15;
         public const int ThresholdTimeout = 60;
 
         //private readonly DateTime _start;
@@ -39,10 +35,11 @@
         }
 
         /// <summary>
-        /// Checks if the current notification with rate limit the Discord user
+        /// Checks if the current notification will rate limit the Discord user
         /// </summary>
+        /// <param name="maxNotificationsPerMinute">Maximum amount of notifications a user can receive per minute</param>
         /// <returns></returns>
-        public virtual bool IsLimited()
+        public virtual bool IsLimited(int maxNotificationsPerMinute = 15)
         {
             TimeLeft = DateTime.Now.Subtract(_last);
 
@@ -54,7 +51,7 @@
                 _last = DateTime.Now;
             }
 
-            if (Count >= MaxNotificationsPerMinute)
+            if (Count >= maxNotificationsPerMinute)
             {
                 //Limited
                 return true;
