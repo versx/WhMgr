@@ -128,6 +128,7 @@
 
                 client.Ready += Client_Ready;
                 client.GuildAvailable += Client_GuildAvailable;
+                client.GuildMemberUpdated += Client_GuildMemberUpdated;
                 //_client.MessageCreated += Client_MessageCreated;
                 client.ClientErrored += Client_ClientErrored;
                 client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
@@ -334,6 +335,40 @@
                     var status = _whConfig.Servers[e.Guild.Id].Status;
                     await client.UpdateStatusAsync(new DiscordGame(status ?? $"v{Strings.Version}"), UserStatus.Online);
                 }
+            }
+        }
+
+        private async Task Client_GuildMemberUpdated(GuildMemberUpdateEventArgs e)
+        {
+            if (!_whConfig.Servers.ContainsKey(e.Guild.Id))
+                return;
+
+            var server = _whConfig.Servers[e.Guild.Id];
+            if (!server.EnableCities)
+                return;
+
+            if (!server.AutoRemoveCityRoles)
+                return;
+
+            var hasBefore = e.RolesBefore.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
+            var hasAfter = e.RolesAfter.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
+
+            // Check if donor role was removed
+            if (hasBefore && !hasAfter)
+            {
+                _logger.Info($"Member {e.Member.Username} ({e.Member.Id}) donor role removed, removing any city roles...");
+                // If so, remove all city/geofence/area roles
+                foreach (var roleName in server.CityRoles)
+                {
+                    var role = e.Guild.GetRoleFromName(roleName);
+                    if (role == null)
+                    {
+                        _logger.Debug($"Failed to get role by name {roleName}");
+                        continue;
+                    }
+                    await e.Member.RevokeRoleAsync(role, "No longer a supporter/donor");
+                }
+                _logger.Info($"All city roles removed from member {e.Member.Username} ({e.Member.Id})");
             }
         }
 

@@ -353,24 +353,17 @@
             }
         }
 
-        public static bool HasRole(this DiscordClient client, DiscordMember member, string roleName)
+        public static bool HasRole(this DiscordGuild guild, DiscordMember member, string roleName)
         {
-            var role = client.GetRoleFromName(roleName);
+            var role = guild.GetRoleFromName(roleName);
             if (role == null) return false;
 
             return HasRole(member, role.Id);
         }
 
-        public static DiscordRole GetRoleFromName(this DiscordClient client, string roleName)
+        public static DiscordRole GetRoleFromName(this DiscordGuild guild, string roleName)
         {
-            foreach (var guild in client.Guilds)
-            {
-                var role = guild.Value.Roles.FirstOrDefault(x => string.Compare(x.Name, roleName, true) == 0);
-                if (role != null)
-                    return role;
-            }
-
-            return null;
+            return guild?.Roles.FirstOrDefault(x => string.Compare(x.Name, roleName, true) == 0);
         }
 
         #endregion

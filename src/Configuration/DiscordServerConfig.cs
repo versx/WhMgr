@@ -62,8 +62,6 @@
         /// <summary>
         /// Gets or sets whether to enable custom direct message subscriptions
         /// </summary>
-        //[JsonProperty("enableSubscriptions")]
-        //public bool EnableSubscriptions { get; set; }
         [JsonProperty("subscriptions")]
         public SubscriptionsConfig Subscriptions { get; set; }
 
@@ -78,6 +76,12 @@
         /// </summary>
         [JsonProperty("cityRoles")]
         public List<string> CityRoles { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value determining whether city roles should be removed when a donor role is removed from a Discord member
+        /// </summary>
+        [JsonProperty("autoRemoveCityRoles")]
+        public bool AutoRemoveCityRoles { get; set; }
 
         /// <summary>
         /// Gets or sets whether city roles require a Donor role
