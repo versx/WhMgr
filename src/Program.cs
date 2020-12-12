@@ -1,4 +1,6 @@
-﻿namespace WhMgr
+﻿using WhMgr.Configuration;
+
+namespace WhMgr
 {
     using System;
     using System.Diagnostics;
@@ -72,7 +74,7 @@
             LogLevel = whConfig.LogLevel;
 
             // Start bot
-            var bot = new Bot(whConfig);
+            var bot = new Bot(new WhConfigHolder(whConfig));
             await bot.Start();
 
             // Keep the process alive

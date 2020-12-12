@@ -33,7 +33,7 @@
         private readonly HttpServer _http;
         private readonly Dictionary<ulong, AlarmList> _alarms;
         private readonly IReadOnlyDictionary<ulong, DiscordServerConfig> _servers;
-        private readonly WhConfig _config;
+        private readonly WhConfigHolder _config;
         private readonly Dictionary<long, GameplayWeather.Types.WeatherCondition> _weather;
         private Dictionary<string, GymDetailsData> _gyms;
         private Dictionary<ulong, List<GeofenceItem>> _geofences;
@@ -182,13 +182,13 @@
         /// Instantiate a new <see cref="WebhookController"/> class.
         /// </summary>
         /// <param name="config"><see cref="WhConfig"/> configuration class.</param>
-        public WebhookController(WhConfig config)
+        public WebhookController(WhConfigHolder config)
         {
-            _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, Servers={config.Servers.Count:N0}]");
+            _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.Instance.WebhookPort}, Servers={config.Instance.Servers.Count:N0}]");
 
             _gyms = new Dictionary<string, GymDetailsData>();
             _weather = new Dictionary<long, GameplayWeather.Types.WeatherCondition>();
-            _servers = config.Servers;
+            _servers = config.Instance.Servers;
             _alarms = new Dictionary<ulong, AlarmList>();
             _geofences = new Dictionary<ulong, List<GeofenceItem>>();
 
@@ -197,7 +197,7 @@
             
             _config = config;
 
-            _http = new HttpServer(_config.ListeningHost, _config.WebhookPort, _config.DespawnTimeMinimumMinutes);
+            _http = new HttpServer(_config.Instance.ListeningHost, _config.Instance.WebhookPort, _config.Instance.DespawnTimeMinimumMinutes);
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
             _http.QuestReceived += Http_QuestReceived;
@@ -205,7 +205,7 @@
             _http.GymReceived += Http_GymReceived;
             _http.GymDetailsReceived += Http_GymDetailsReceived;
             _http.WeatherReceived += Http_WeatherReceived;
-            _http.IsDebug = _config.Debug;
+            _http.IsDebug = _config.Instance.Debug;
 
             new Thread(() => {
                 LoadAlarmsOnChange();
@@ -253,7 +253,7 @@
             }
 
             // Check if Pokemon is in event Pokemon list
-            if (_config.EventPokemonIds.Contains(pkmn.Id) && _config.EventPokemonIds.Count > 0)
+            if (_config.Instance.EventPokemonIds.Contains(pkmn.Id) && _config.Instance.EventPokemonIds.Count > 0)
             {
                 // Skip Pokemon if no IV stats.
                 if (pkmn.IsMissingStats)
@@ -261,7 +261,7 @@
 
                 var iv = PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina);
                 // Skip Pokemon if IV is greater than 0%, less than 90%, and does not match any PvP league stats.
-                if (iv > 0 && iv < _config.EventMinimumIV && !pkmn.MatchesGreatLeague && !pkmn.MatchesUltraLeague)
+                if (iv > 0 && iv < _config.Instance.EventMinimumIV && !pkmn.MatchesGreatLeague && !pkmn.MatchesUltraLeague)
                     return;
             }
 

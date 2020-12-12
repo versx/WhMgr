@@ -32,7 +32,7 @@ namespace WhMgr.Data.Subscriptions
         private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION", Program.LogLevel);
 
         private readonly Dictionary<ulong, DiscordClient> _servers;
-        private readonly WhConfig _whConfig;
+        private readonly WhConfigHolder _whConfig;
         private readonly WebhookController _whm;
         private readonly NotificationQueue _queue;
 
@@ -55,7 +55,7 @@ namespace WhMgr.Data.Subscriptions
         /// <param name="servers">Discord servers dictionary</param>
         /// <param name="config">Configuration file</param>
         /// <param name="whm">Webhook controller class</param>
-        public SubscriptionProcessor(Dictionary<ulong, DiscordClient> servers, WhConfig config, WebhookController whm)
+        public SubscriptionProcessor(Dictionary<ulong, DiscordClient> servers, WhConfigHolder config, WebhookController whm)
         {
             _logger.Trace($"SubscriptionProcessor::SubscriptionProcessor");
 
@@ -118,10 +118,10 @@ namespace WhMgr.Data.Subscriptions
                     if (!user.Enabled)
                         continue;
 
-                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                    if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
+                    if (!_whConfig.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))
@@ -143,7 +143,7 @@ namespace WhMgr.Data.Subscriptions
                     if (member?.Roles == null)
                         continue;
 
-                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Instance.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pokemon.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -190,7 +190,7 @@ namespace WhMgr.Data.Subscriptions
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, geofence.Name);
+                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
                     foreach (var emb in embed.Embeds)
                     {
                         _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, geofence.Name, pkmn));
@@ -257,10 +257,10 @@ namespace WhMgr.Data.Subscriptions
                     if (!user.Enabled)
                         continue;
 
-                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                    if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
+                    if (!_whConfig.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))
@@ -282,7 +282,7 @@ namespace WhMgr.Data.Subscriptions
                     if (member?.Roles == null)
                         continue;
 
-                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Instance.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pvp pokemon {pokemon.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -330,7 +330,7 @@ namespace WhMgr.Data.Subscriptions
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig, null, geofence.Name);
+                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
                     foreach (var emb in embed.Embeds)
                     {
                         _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, geofence.Name));
@@ -393,10 +393,10 @@ namespace WhMgr.Data.Subscriptions
                     if (!user.Enabled)
                         continue;
 
-                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                    if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
+                    if (!_whConfig.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))
@@ -411,7 +411,7 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Instance.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -459,7 +459,7 @@ namespace WhMgr.Data.Subscriptions
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig, null, geofence.Name);
+                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
                     foreach (var emb in embed.Embeds)
                     {
                         _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, geofence.Name));
@@ -521,10 +521,10 @@ namespace WhMgr.Data.Subscriptions
                     if (!user.Enabled)
                         continue;
 
-                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                    if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
+                    if (!_whConfig.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))
@@ -539,7 +539,7 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    isSupporter = member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds);
+                    isSupporter = member.HasSupporterRole(_whConfig.Instance.Servers[user.GuildId].DonorRoleIds);
                     if (!isSupporter)
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping quest {questName}...");
@@ -571,7 +571,7 @@ namespace WhMgr.Data.Subscriptions
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig, null, geofence.Name);
+                    var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
                     foreach (var emb in embed.Embeds)
                     {
                         _queue.Enqueue(new NotificationItem(user, member, emb, questName, geofence.Name));
@@ -639,10 +639,10 @@ namespace WhMgr.Data.Subscriptions
                     if (!user.Enabled)
                         continue;
 
-                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                    if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
+                    if (!_whConfig.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))
@@ -657,7 +657,7 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Instance.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -688,7 +688,7 @@ namespace WhMgr.Data.Subscriptions
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, geofence?.Name);
+                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig.Instance, null, geofence?.Name);
                     foreach (var emb in embed.Embeds)
                     {
                         _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, geofence.Name));
@@ -738,7 +738,7 @@ namespace WhMgr.Data.Subscriptions
                         continue;
 
                     // Check if user is receiving messages too fast.
-                    var maxNotificationsPerMinute = _whConfig.MaxNotificationsPerMinute;
+                    var maxNotificationsPerMinute = _whConfig.Instance.MaxNotificationsPerMinute;
                     if (item.Subscription.Limiter.IsLimited(maxNotificationsPerMinute))
                     {
                         _logger.Warn($"{item.Member.Username} notifications rate limited, waiting {(60 - item.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", item.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
@@ -790,13 +790,13 @@ namespace WhMgr.Data.Subscriptions
                     if (!string.IsNullOrEmpty(item.Subscription.PhoneNumber))
                     {
                         // Check if user is in the allowed text message list or server owner
-                        if (_whConfig.Twilio.UserIds.Contains(item.Member.Id) ||
-                            _whConfig.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
+                        if (_whConfig.Instance.Twilio.UserIds.Contains(item.Member.Id) ||
+                            _whConfig.Instance.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
                         {
                             // Send text message (max 160 characters)
-                            if (item.Pokemon != null && IsUltraRare(_whConfig.Twilio, item.Pokemon))
+                            if (item.Pokemon != null && IsUltraRare(_whConfig.Instance.Twilio, item.Pokemon))
                             {
-                                var result = Utils.SendSmsMessage(StripEmbed(item), _whConfig.Twilio, item.Subscription.PhoneNumber);
+                                var result = Utils.SendSmsMessage(StripEmbed(item), _whConfig.Instance.Twilio, item.Subscription.PhoneNumber);
                                 if (!result)
                                 {
                                     _logger.Error($"Failed to send text message to phone number '{item.Subscription.PhoneNumber}' for user {item.Subscription.UserId}");
