@@ -408,6 +408,7 @@
                     {
                         lock (_geofencesLock)
                         {
+                            // First try and find loaded geofences for this server by name or filename (so we don't have to parse already loaded files again)
                             var geofences = _geofences[forGuildId].Where(g => g.Name.Equals(geofenceName, StringComparison.OrdinalIgnoreCase) ||
                                                                               g.Filename.Equals(geofenceName, StringComparison.OrdinalIgnoreCase)).ToList();
 
@@ -417,7 +418,19 @@
                             }
                             else
                             {
-                                _logger.Warn($"No geofences were found matching the name or filename \"{geofenceName}\" (for alarm \"{alarm.Name}\")");
+                                // Try and load from a file instead
+                                var filePath = Path.Combine(Strings.GeofenceFolder, geofenceName);
+
+                                if (!File.Exists(filePath))
+                                {
+                                    _logger.Warn($"Could not find Geofence file \"{geofenceName}\" for alarm \"{alarm.Name}\"");
+                                    continue;
+                                }
+
+                                var fileGeofences = GeofenceItem.FromFile(filePath);
+                                
+                                alarm.GeofenceItems.AddRange(fileGeofences);
+                                _logger.Info($"Successfully loaded {fileGeofences.Count} geofences from {geofenceName}");
                             }
                         }
                     }
