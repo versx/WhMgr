@@ -15,7 +15,7 @@
       "alarms": "alarms.json",
       "geofences": [
         "City1.txt",
-        "City2.txt"
+        "City2.json"
       ],
       "subscriptions": {
         "enabled": false,
@@ -100,7 +100,7 @@
       "alarms": "alarms2.json",
       "geofences": [
         "City3.txt",
-        "City4.txt"
+        "City4.json"
       ],
       "subscriptions": {
         "enabled": false,
