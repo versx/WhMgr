@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace WhMgr.Configuration
 {
@@ -17,6 +18,11 @@ namespace WhMgr.Configuration
             _instanceMutex = new Mutex();
             _instance = instance;
         }
+
+        /// <summary>
+        /// Fired after the config instance was swapped for a new one
+        /// </summary>
+        public event Action Reloaded;
 
         /// <summary>
         /// Provides thread-safe access to the internal WhConfig instance
@@ -38,6 +44,8 @@ namespace WhMgr.Configuration
                 _instanceMutex.WaitOne();
                 _instance = value;
                 _instanceMutex.ReleaseMutex();
+
+                Reloaded?.Invoke();
             }
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace WhMgr.Configuration
+﻿using WhMgr.Geofence;
+
+namespace WhMgr.Configuration
 {
     using System;
     using System.Collections.Generic;
@@ -64,6 +66,9 @@
         /// </summary>
         [JsonProperty("geofences")]
         public string[] GeofenceFiles { get; set; }
+
+        [JsonIgnore]
+        public List<GeofenceItem> Geofences { get; } = new List<GeofenceItem>();
 
         /// <summary>
         /// Gets or sets whether to enable custom direct message subscriptions
