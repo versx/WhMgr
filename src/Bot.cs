@@ -177,7 +177,7 @@
                 commands.CommandErrored += Commands_CommandErrored;
                 // Register Discord command handler classes
                 commands.RegisterCommands<Owner>();
-                commands.RegisterCommands<CommunityDay>();
+                commands.RegisterCommands<Event>();
                 commands.RegisterCommands<Nests>();
                 commands.RegisterCommands<ShinyStats>();
                 commands.RegisterCommands<Gyms>();

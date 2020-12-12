@@ -82,7 +82,6 @@
 
         public const string All = "All";
 
-        // TODO: Make configurable.
         public const int MaxPokemonDisplayed = 70;
         public const int MaxPokemonSubscriptions = 25;
         public const int MaxPvPSubscriptions = 15;
