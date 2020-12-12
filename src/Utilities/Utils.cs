@@ -19,11 +19,37 @@
     using WhMgr.Osm;
     using WhMgr.Osm.Models;
 
+    public static class StaticMap
+    {
+        private static readonly IEventLogger _logger = EventLogger.GetLogger("STATICMAP", Program.LogLevel);
+
+        public static string GetUrl(string staticMapUrl, double latitude, double longitude, string imageUrl, PokemonTeam team = PokemonTeam.All, OsmFeature feature = null, MultiPolygon multiPolygon = null)
+        {
+            var baseUrl = $"{staticMapUrl}?lat={latitude}&lon={longitude}&url2={imageUrl}";
+            if (team != PokemonTeam.All)
+            {
+                baseUrl += $"&team_id={team}";
+            }
+            if (feature != null)
+            {
+                var latlng = OsmManager.MultiPolygonToLatLng(feature.Geometry?.Coordinates, true);
+                baseUrl += $"&path={latlng}";
+            }
+            if (multiPolygon != null)
+            {
+                var latlng = OsmManager.MultiPolygonToLatLng(new List<MultiPolygon> { multiPolygon }, false);
+                baseUrl += $"&path={latlng}";
+            }
+            return baseUrl;
+        }
+    }
+
     public static class Utils
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("UTILS", Program.LogLevel);
 
         // TODO: Provide better way for replacement values
+        /*
         public static string GetStaticMapsUrl(string templateFileName, string staticMapUrl, int staticMapZoom, double latitude, double longitude, string markerImageUrl, PokemonTeam? team, OsmFeature feature = null, MultiPolygon multiPolygon = null)
         {
             var staticMapData = Renderer.Parse(templateFileName, new
@@ -62,6 +88,7 @@
 
             return markerUrl;
         }
+        */
 
         public static bool SendSmsMessage(string body, TwilioConfig config, string toPhoneNumber)
         {
