@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 
 namespace WhMgr.Configuration
 {
@@ -9,13 +8,12 @@ namespace WhMgr.Configuration
     /// </summary>
     public class WhConfigHolder
     {
-        private readonly Mutex _instanceMutex;
+        private readonly object _instanceMutex = new object();
 
         private WhConfig _instance;
 
         public WhConfigHolder(WhConfig instance)
         {
-            _instanceMutex = new Mutex();
             _instance = instance;
         }
 
@@ -33,17 +31,15 @@ namespace WhMgr.Configuration
             {
                 WhConfig value;
 
-                _instanceMutex.WaitOne();
-                value = _instance;
-                _instanceMutex.ReleaseMutex();
+                lock (_instanceMutex)
+                    value = _instance;
 
                 return value;
             }
             set
             {
-                _instanceMutex.WaitOne();
-                _instance = value;
-                _instanceMutex.ReleaseMutex();
+                lock (_instanceMutex)
+                    _instance = value;
 
                 Reloaded?.Invoke();
             }
