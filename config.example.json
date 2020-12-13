@@ -201,6 +201,16 @@
     "Default": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/",
     "Shuffle": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
   },
+  "staticMaps": {
+    "pokemon": "pokemon.example.json",
+    "raids": "raids.example.json",
+    "gyms": "gyms.example.json",
+    "quests": "quests.example.json",
+    "invasions": "invasions.example.json",
+    "lures": "lures.example.json",
+    "weather": "weather.example.json",
+    "nests": "nests.example.json"
+  },
   "twilio": {
     "enabled": false,
     "accountSid": "",

@@ -493,7 +493,7 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Urls.ScannerMap, Latitude, Longitude);
-            var staticMapLink = StaticMap.GetUrl(properties.Config.Urls.StaticMap, Latitude, Longitude, properties.ImageUrl);
+            var staticMapLink = StaticMap.GetUrl(properties.Config.Urls.StaticMap, properties.Config.StaticMaps["pokemon"], Latitude, Longitude, properties.ImageUrl);
             var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, wazeMapsLink);

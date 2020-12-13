@@ -82,6 +82,12 @@
         public Dictionary<string, string> IconStyles { get; set; }
 
         /// <summary>
+        /// Gets or sets the static map template files to use per type
+        /// </summary>
+        [JsonProperty("staticMaps")]
+        public Dictionary<string, string> StaticMaps { get; set; }
+
+        /// <summary>
         /// Gets or sets the Twilio config for sending text message notifications
         /// </summary>
         [JsonProperty("twilio")]
@@ -150,6 +156,7 @@
             EventPokemonIds = new List<int>();
             EventMinimumIV = 90;
             IconStyles = new Dictionary<string, string>();
+            StaticMaps = new Dictionary<string, string>();
             Twilio = new TwilioConfig();
             DespawnTimeMinimumMinutes = 5;
             ReloadSubscriptionChangesMinutes = 1;

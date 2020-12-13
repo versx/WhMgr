@@ -149,7 +149,7 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
-            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, Latitude, Longitude, imageUrl);
+            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, HasInvasion ? whConfig.StaticMaps["invasions"] : HasLure ? whConfig.StaticMaps["lures"] : /* TODO: */"", Latitude, Longitude, imageUrl);
             var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
