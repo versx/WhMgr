@@ -340,10 +340,10 @@
 
         private async Task Client_GuildMemberUpdated(GuildMemberUpdateEventArgs e)
         {
-            if (!_whConfig.Servers.ContainsKey(e.Guild.Id))
+            if (!_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
                 return;
 
-            var server = _whConfig.Servers[e.Guild.Id];
+            var server = _whConfig.Instance.Servers[e.Guild.Id];
             if (!server.EnableCities)
                 return;
 
