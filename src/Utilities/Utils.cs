@@ -48,48 +48,6 @@
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("UTILS", Program.LogLevel);
 
-        // TODO: Provide better way for replacement values
-        /*
-        public static string GetStaticMapsUrl(string templateFileName, string staticMapUrl, int staticMapZoom, double latitude, double longitude, string markerImageUrl, PokemonTeam? team, OsmFeature feature = null, MultiPolygon multiPolygon = null)
-        {
-            var staticMapData = Renderer.Parse(templateFileName, new
-            {
-                lat = latitude,
-                lon = longitude,
-                team = team?.ToString(),
-                team_id = Convert.ToInt32(team ?? 0),
-                marker = markerImageUrl,
-                pkmn_img_url = markerImageUrl,
-                quest_reward_img_url = markerImageUrl,
-                weather_img_url = markerImageUrl,
-                tilemaps_url = staticMapUrl
-            });
-            StaticMapConfig staticMap = JsonConvert.DeserializeObject<StaticMapConfig>(staticMapData);
-
-            var url = string.Format(staticMapUrl, latitude, longitude, staticMapZoom);
-            //var markerUrl = staticMap.Markers.Count > 0 ? url + "?markers=" + Uri.EscapeDataString(JsonConvert.SerializeObject(staticMap.Markers)) : string.Empty;
-            var markerUrl = staticMap.Markers.Count > 0 ? url + "?markers=" + JsonConvert.SerializeObject(staticMap.Markers) : string.Empty;
-
-            if (feature != null)
-            {
-                var latlng = OsmManager.MultiPolygonToLatLng(feature.Geometry?.Coordinates, true);
-                var polygonKey = "&polygons=";
-                var polygonUrl = @"[{""fill_color"":""rgba(100.0%,0.0%,0.0%,0.5)"",""stroke_color"":""black"",""stroke_width"":1,""path"":""" + latlng + @"""}]";
-                markerUrl += polygonKey + Uri.EscapeDataString(polygonUrl);
-            }
-
-            if (multiPolygon != null)
-            {
-                var latlng = OsmManager.MultiPolygonToLatLng(new List<MultiPolygon> { multiPolygon }, false);
-                var polygonKey = "&polygons=";
-                var polygonUrl = @"[{""fill_color"":""rgba(100.0%,0.0%,0.0%,0.5)"",""stroke_color"":""black"",""stroke_width"":1,""path"":""" + latlng + @"""}]";
-                markerUrl += polygonKey + polygonUrl;//Uri.EscapeDataString(polygonUrl);
-            }
-
-            return markerUrl;
-        }
-        */
-
         public static bool SendSmsMessage(string body, TwilioConfig config, string toPhoneNumber)
         {
             if (!config.Enabled)
