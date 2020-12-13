@@ -21,6 +21,7 @@
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Utilities;
 
@@ -498,7 +499,7 @@
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, scannerMapsLink);
-            var address = Utils.GetAddress(properties.City, Latitude, Longitude, properties.Config);
+            var address = new Location(null, properties.City, Latitude, Longitude).GetAddress(properties.Config);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var pokestop = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
 

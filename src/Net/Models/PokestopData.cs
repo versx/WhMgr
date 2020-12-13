@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
@@ -15,6 +14,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Utilities;
 
@@ -154,7 +154,7 @@
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            var address = Utils.GetAddress(city, Latitude, Longitude, whConfig);
+            var address = new Location(null, city, Latitude, Longitude).GetAddress(whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));

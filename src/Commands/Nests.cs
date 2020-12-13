@@ -197,15 +197,7 @@
             var staticMapLink = StaticMap.GetUrl(_dep.WhConfig.Urls.StaticMap, _dep.WhConfig.StaticMaps["nests"], nest.Latitude, nest.Longitude, pkmnImage, Net.Models.PokemonTeam.All, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
             var geofence = _dep.Whm.GetGeofence(nest.Latitude, nest.Longitude);
             var city = geofence?.Name ?? "Unknown";
-            Location address = null;
-            if (!string.IsNullOrEmpty(_dep.WhConfig.GoogleMapsKey))
-            {
-                address = Utils.GetGoogleAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.GoogleMapsKey);
-            }
-            else if (!string.IsNullOrEmpty(_dep.WhConfig.NominatimEndpoint))
-            {
-                address = Utils.GetNominatimAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.NominatimEndpoint);
-            }
+            var address = new Location(null, city, nest.Latitude, nest.Longitude).GetAddress(_dep.WhConfig);
 
             var dict = new Dictionary<string, string>
             {
