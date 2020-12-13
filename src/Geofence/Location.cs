@@ -23,7 +23,7 @@
         /// <summary>
         /// Gets or sets the address for the location
         /// </summary>
-        public string Address { get; set; }
+        public string Address { get; private set; }
 
         /// <summary>
         /// Gets the city of the address
