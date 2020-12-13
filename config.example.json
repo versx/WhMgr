@@ -202,14 +202,14 @@
     "Shuffle": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
   },
   "staticMaps": {
-    "pokemon": "pokemon.example.json",
-    "raids": "raids.example.json",
-    "gyms": "gyms.example.json",
-    "quests": "quests.example.json",
-    "invasions": "invasions.example.json",
-    "lures": "lures.example.json",
-    "weather": "weather.example.json",
-    "nests": "nests.example.json"
+    "pokemon": "pokemon.example",
+    "raids": "raids.example",
+    "gyms": "gyms.example",
+    "quests": "quests.example",
+    "invasions": "invasions.example",
+    "lures": "lures.example",
+    "weather": "weather.example",
+    "nests": "nests.example"
   },
   "twilio": {
     "enabled": false,
