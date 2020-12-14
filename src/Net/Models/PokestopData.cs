@@ -227,7 +227,7 @@
     /// <summary>
     /// Pokestop lure type
     /// </summary>
-    public enum PokestopLureType
+    public enum PokestopLureType : ushort
     {
         /// <summary>
         /// No Pokestop lure deployed
