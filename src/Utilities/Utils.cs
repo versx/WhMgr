@@ -2,6 +2,7 @@
 {
     using Twilio;
     using Twilio.Rest.Api.V2010.Account;
+    using Twilio.Types;
 
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
@@ -21,10 +22,10 @@
             TwilioClient.Init(config.AccountSid, config.AuthToken);
             var message = MessageResource.Create(
                 body: body,
-                from: new Twilio.Types.PhoneNumber($"+1{config.FromNumber}"),
-                to: new Twilio.Types.PhoneNumber($"+1{toPhoneNumber}")
+                from: new PhoneNumber($"+1{config.FromNumber}"),
+                to: new PhoneNumber($"+1{toPhoneNumber}")
             );
-            //Console.WriteLine($"Response: {message}");
+            //_logger.Debug($"Response: {message}");
             return message.ErrorCode == null;
         }
     }

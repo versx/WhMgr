@@ -11,6 +11,9 @@
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
 
+    /// <summary>
+    /// User subscription manager class
+    /// </summary>
     public class SubscriptionManager
     {
         #region Variables
@@ -29,6 +32,9 @@
 
         #region Properties
 
+        /// <summary>
+        /// Gets all current user subscriptions
+        /// </summary>
         public IReadOnlyList<SubscriptionObject> Subscriptions => _subscriptions;
 
         #endregion
@@ -56,24 +62,19 @@
             }
 
             _connFactory = new OrmLiteConnectionFactory(_whConfig.Instance.Database.Main.ToString(), MySqlDialect.Provider);
-            //_scanConnFactory = new OrmLiteConnectionFactory(_whConfig.Database.Scanner.ToString(), MySqlDialect.Provider);
 
-            if (!CreateDefaultTables())
+            if (_whConfig?.Database?.Nests == null)
             {
-                _logger.Error("FAiled to create default tables");
+                _logger.Warn("Nest database is not configured in config.json file, nest alarms and commands will not work.");
             }
+
+            _connFactory = new OrmLiteConnectionFactory(_whConfig.Instance.Database.Main.ToString(), MySqlDialect.Provider);
 
             // Reload subscriptions every 60 seconds to account for UI changes
             _reloadTimer = new Timer(_whConfig.Instance.ReloadSubscriptionChangesMinutes * 60 * 1000);
-            _reloadTimer.Elapsed += OnReloadTimerElapsed;
+            _reloadTimer.Elapsed += (sender, e) => ReloadSubscriptions();
             _reloadTimer.Start();
 
-            ReloadSubscriptions();
-        }
-
-        private void OnReloadTimerElapsed(object sender, ElapsedEventArgs e)
-        {
-            // TODO: Only reload based on last_changed timestamp in metadata table
             ReloadSubscriptions();
         }
 
@@ -81,6 +82,12 @@
 
         #region User
 
+        /// <summary>
+        /// Get user subscription from guild id and user id
+        /// </summary>
+        /// <param name="guildId">Discord guild id to lookup</param>
+        /// <param name="userId">Discord user id to lookup</param>
+        /// <returns>Returns user subscription object</returns>
         public SubscriptionObject GetUserSubscriptions(ulong guildId, ulong userId)
         {
             if (!IsDbConnectionOpen())
@@ -105,46 +112,85 @@
             }
         }
 
+        /// <summary>
+        /// Get user subscriptions from subscribed Pokemon id
+        /// </summary>
+        /// <param name="pokeId">Pokemon ID to lookup</param>
+        /// <returns>Returns list of user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(int pokeId)
         {
-            return _subscriptions?.Where(x =>
-                x.Enabled && x.Pokemon != null &&
-                x.Pokemon.Exists(y => y.PokemonId == pokeId)
-            )?.ToList();
+            return _subscriptions?
+                .Where(x => x.Enabled &&
+                            x.Pokemon != null &&
+                            x.Pokemon.Exists(y => y.PokemonId == pokeId)
+                      )
+                .ToList();
         }
 
+        /// <summary>
+        /// Get user subscriptions from subscribed PvP Pokemon id
+        /// </summary>
+        /// <param name="pokeId">Pokemon ID to lookup</param>
+        /// <returns>Returns list of user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptionsByPvPPokemonId(int pokeId)
         {
-            return _subscriptions?.Where(x =>
-                x.Enabled && x.PvP != null &&
-                x.PvP.Exists(y => y.PokemonId == pokeId)
-            )?.ToList();
+            return _subscriptions?
+                .Where(x => x.Enabled &&
+                            x.PvP != null &&
+                            x.PvP.Exists(y => y.PokemonId == pokeId)
+                      )
+                .ToList();
         }
 
+        /// <summary>
+        /// Get user subscriptions from subscribed Raid Pokemon id
+        /// </summary>
+        /// <param name="pokeId">Pokemon ID to lookup</param>
+        /// <returns>Returns list of user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
-            return _subscriptions?.Where(x =>
-                x.Enabled && x.Raids != null &&
-                x.Raids.Exists(y => y.PokemonId == pokeId)
-            )?.ToList();
+            return _subscriptions?
+                .Where(x => x.Enabled &&
+                            x.Raids != null &&
+                            x.Raids.Exists(y => y.PokemonId == pokeId)
+                      )
+                .ToList();
         }
 
+        /// <summary>
+        /// Get user subscriptions from subscribed Quest reward keyword
+        /// </summary>
+        /// <param name="reward">Ques reward keyword</param>
+        /// <returns>Returns list of user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptionsByQuestReward(string reward)
         {
-            return _subscriptions?.Where(x =>
-                x.Enabled && x.Quests != null &&
-                x.Quests.Exists(y => reward.Contains(y.RewardKeyword))
-            )?.ToList();
+            return _subscriptions?
+                .Where(x => x.Enabled &&
+                            x.Quests != null &&
+                            x.Quests.Exists(y => reward.Contains(y.RewardKeyword))
+                      )
+                .ToList();
         }
 
+        /// <summary>
+        /// Gets user subscriptions from subscribed Invasion encounter rewards
+        /// </summary>
+        /// <param name="encounterRewards">Invasion encounter rewards</param>
+        /// <returns>Returns list of user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
         {
-            return _subscriptions?.Where(x =>
-                x.Enabled && x.Invasions != null &&
-                x.Invasions.Exists(y => encounterRewards.Contains(y.RewardPokemonId))
-            )?.ToList();
+            return _subscriptions?
+                .Where(x => x.Enabled &&
+                            x.Invasions != null &&
+                            x.Invasions.Exists(y => encounterRewards.Contains(y.RewardPokemonId))
+                      )
+                .ToList();
         }
 
+        /// <summary>
+        /// Get all enabled user subscriptions
+        /// </summary>
+        /// <returns>Returns all enabled user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptions()
         {
             try
@@ -177,8 +223,13 @@
             return null;
         }
 
+        /// <summary>
+        /// Reload all user subscriptions
+        /// </summary>
         public void ReloadSubscriptions()
         {
+            // TODO: Only reload based on last_changed timestamp in metadata table
+
             var subs = GetUserSubscriptions();
             if (subs == null)
                 return;
@@ -190,6 +241,12 @@
 
         #region Remove
 
+        /// <summary>
+        /// Remove all user subscriptions based on guild id and user id
+        /// </summary>
+        /// <param name="guildId">Discord guild id to lookup</param>
+        /// <param name="userId">Discord user id to lookup</param>
+        /// <returns>Returns <c>true</c> if all subscriptions were removed, otherwise <c>false</c>.</returns>
         public static bool RemoveAllUserSubscriptions(ulong guildId, ulong userId)
         {
             _logger.Trace($"SubscriptionManager::RemoveAllUserSubscription [GuildId={guildId}, UserId={userId}]");
@@ -220,93 +277,6 @@
         #endregion
 
         #region Private Methods
-
-        private bool CreateDefaultTables()
-        {
-            _logger.Trace($"SubscriptionManager::CreateDefaultTables");
-
-            if (!IsDbConnectionOpen())
-            {
-                throw new Exception("Not connected to database.");
-            }
-
-            try
-            {
-                /*
-                var conn = GetConnection();
-                if (!conn.CreateTableIfNotExists<Metadata>())
-                {
-                    _logger.Debug($"Table Metadata already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<SubscriptionObject>())
-                {
-                    _logger.Debug($"Table SubscriptionObject already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<PokemonSubscription>())
-                {
-                    _logger.Debug($"Table PokemonSubscription already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<PvPSubscription>())
-                {
-                    _logger.Debug($"Table PvPSubscription already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<RaidSubscription>())
-                {
-                    _logger.Debug($"Table RaidSubscription already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<GymSubscription>())
-                {
-                    _logger.Debug($"Table GymSubscription already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<QuestSubscription>())
-                {
-                    _logger.Debug($"Table QuestSubscription already exists.");
-                }
-                if (!conn.CreateTableIfNotExists<InvasionSubscription>())
-                {
-                    _logger.Debug($"Table InvasionSubscription already exists.");
-                }
-                */
-
-                _logger.Info($"Database tables created.");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-            return false;
-        }
-
-        /*
-        private bool DropDefaultTables()
-        {
-            _logger.Trace($"SubscriptionManager::CreateDefaultTables");
-
-            if (!IsDbConnectionOpen())
-            {
-                throw new Exception("Not connected to database.");
-            }
-
-            try
-            {
-                var conn = GetConnection();
-                conn.DropTable<InvasionSubscription>();
-                conn.DropTable<QuestSubscription>();
-                conn.DropTable<GymSubscription>();
-                conn.DropTable<RaidSubscription>();
-                conn.DropTable<PvPSubscription>();
-                conn.DropTable<PokemonSubscription>();
-                conn.DropTable<SubscriptionObject>();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-            return false;
-        }
-        */
 
         private System.Data.IDbConnection GetConnection()
         {

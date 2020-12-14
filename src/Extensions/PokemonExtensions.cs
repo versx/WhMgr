@@ -52,33 +52,6 @@
             return MasterFile.Instance.PokemonRarity[PokemonRarity.Rare].Contains(pokeId);
         }
 
-        /*
-        public static int GetLevel(this int id, int cp, int atk, int def, int sta)
-        {
-            if (!MasterFile.Instance.Pokedex.ContainsKey(id))
-                return 0;
-
-            var pkmn = MasterFile.Instance.Pokedex[id];
-            for (var i = 0; i < MasterFile.Instance.CpMultipliers.Count; i++)
-            {
-                var spawnCP = GetCP(pkmn.Attack ?? 0 + atk, pkmn.Defense ?? 0 + def, pkmn.Stamina ?? 0 + sta, MasterFile.Instance.CpMultipliers[i + 1]);
-                if (cp == spawnCP)
-                {
-                    var level = i + 1;
-                    return level;
-                }
-            }
-
-            return 0;
-        }
-
-        public static int GetCP(int attack, int defense, int stamina, double cpm)
-        {
-            var cp = Math.Floor(attack * Math.Pow(defense, 0.5) * Math.Pow(stamina, 0.5) * Math.Pow(cpm, 2) / 10);
-            return Convert.ToInt32(cp < 10 ? 10 : cp);
-        }
-        */
-
         public static PokemonSize GetSize(this int id, float height, float weight)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id))
