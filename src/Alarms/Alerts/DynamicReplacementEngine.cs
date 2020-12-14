@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Text.RegularExpressions;
 
     public static class DynamicReplacementEngine
@@ -19,23 +18,16 @@
                 return string.Empty;
 
             var placeHolder = alarmText;
-            var keys = pkmnInfo.Keys.ToList();
 
-            //Loop through all available keys, replace any place holders with values.
-            for (var i = 0; i < keys.Count; i++)
+            // Loop through all available keys, replace any place holders with values.
+            foreach (var (key, value) in pkmnInfo)
             {
-                var key = keys[i];
-                var value = pkmnInfo[key];
-
                 placeHolder = placeHolder.Replace($"<{key}>", value);
             }
 
-            //Replace IF statement blocks i.e. <#is_ditto>**Catch Pokemon:** <original_pkmn_name></is_ditto>. If value is true return value inside IF block, otherwise return an empty string.
-            for (var i = 0; i < keys.Count; i++)
+            // Replace IF statement blocks i.e. <#is_ditto>**Catch Pokemon:** <original_pkmn_name></is_ditto>. If value is true return value inside IF block, otherwise return an empty string.
+            foreach (var (key, value) in pkmnInfo)
             {
-                var key = keys[i];
-                var value = pkmnInfo[key];
-
                 if (bool.TryParse(value, out var result))
                 {
                     placeHolder = ReplaceBlock(placeHolder, key, result);
