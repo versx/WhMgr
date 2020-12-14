@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
-    using System.IO;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -195,19 +194,10 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
             var scannerMapsLink = string.Format(_dep.WhConfig.Urls.ScannerMap, nest.Latitude, nest.Longitude);
-            var templatePath = Path.Combine(_dep.WhConfig.StaticMaps.TemplatesFolder, _dep.WhConfig.StaticMaps.Nests.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, _dep.WhConfig.Urls.StaticMap, _dep.WhConfig.StaticMaps.Nests.ZoomLevel, nest.Latitude, nest.Longitude, pkmnImage, null, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
+            var staticMapLink = StaticMap.GetUrl(_dep.WhConfig.Urls.StaticMap, _dep.WhConfig.StaticMaps["nests"], nest.Latitude, nest.Longitude, pkmnImage, Net.Models.PokemonTeam.All, _dep.OsmManager.GetNest(nest.Name)?.FirstOrDefault());
             var geofence = _dep.Whm.GetGeofence(nest.Latitude, nest.Longitude);
             var city = geofence?.Name ?? "Unknown";
-            Location address = null;
-            if (!string.IsNullOrEmpty(_dep.WhConfig.GoogleMapsKey))
-            {
-                address = Utils.GetGoogleAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.GoogleMapsKey);
-            }
-            else if (!string.IsNullOrEmpty(_dep.WhConfig.NominatimEndpoint))
-            {
-                address = Utils.GetNominatimAddress(city, nest.Latitude, nest.Longitude, _dep.WhConfig.NominatimEndpoint);
-            }
+            var address = new Location(null, city, nest.Latitude, nest.Longitude).GetAddress(_dep.WhConfig);
 
             var dict = new Dictionary<string, string>
             {
