@@ -66,6 +66,11 @@
             Longitude = lng;
         }
 
+        /// <summary>
+        /// Gets the geolocation lookup of the current <seealso cref="Location"/> object.
+        /// </summary>
+        /// <param name="config">Config that includes the Google Maps key and OSM Nominatim endpoint</param>
+        /// <returns>Returns a <seealso cref="Location"/> object containing the address</returns>
         public Location GetAddress(WhConfig config)
         {
             if (!string.IsNullOrEmpty(config.GoogleMapsKey))
@@ -90,6 +95,14 @@
 
         public static implicit operator Point(Location location) => new Point(location.Longitude, location.Latitude);
 
+        /// <summary>
+        /// Queries Google Maps geolocation lookup endpoint
+        /// </summary>
+        /// <param name="city">Geofence specific city to associate with the returned address</param>
+        /// <param name="lat">Latitude to lookup</param>
+        /// <param name="lng">Longitude to lookup</param>
+        /// <param name="gmapsKey">Google Maps key</param>
+        /// <returns></returns>
         private Location GetGoogleAddress(string city, double lat, double lng, string gmapsKey)
         {
             var apiKey = string.IsNullOrEmpty(gmapsKey) ? string.Empty : $"&key={gmapsKey}";
@@ -121,6 +134,14 @@
             return null;
         }
 
+        /// <summary>
+        /// Queries OpenStreetMaps Nominatim geolocation lookup endpoint
+        /// </summary>
+        /// <param name="city">Geofence specific city to associate with the returned address</param>
+        /// <param name="lat">Latitude to lookup</param>
+        /// <param name="lng">Longitude to lookup</param>
+        /// <param name="endpoint">Nominatim endpoint</param>
+        /// <returns></returns>
         private Location GetNominatimAddress(string city, double lat, double lng, string endpoint)
         {
             var unknown = "Unknown";

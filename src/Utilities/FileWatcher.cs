@@ -1,10 +1,9 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-
-namespace WhMgr.Utilities
+﻿namespace WhMgr.Utilities
 {
     using System;
     using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// File system watcher wrapper class
