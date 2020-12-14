@@ -1458,7 +1458,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
+            var areas = SubscriptionAreas.GetAreas(server, city);
             var lures = GetLures(lureTypes);
             foreach (var lureType in lures)
             {
@@ -1538,7 +1538,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
+            var areas = SubscriptionAreas.GetAreas(_dep.WhConfig.Servers[guildId], city);
             var lures = GetLures(lureTypes);
             foreach (var lureType in lures)
             {

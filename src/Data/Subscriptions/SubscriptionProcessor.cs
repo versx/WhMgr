@@ -712,11 +712,18 @@ namespace WhMgr.Data.Subscriptions
 
         public async Task ProcessLureSubscription(PokestopData pokestop)
         {
-            var loc = _whm.GetGeofence(pokestop.Latitude, pokestop.Longitude);
-            if (loc == null)
+            // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
+            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+
+            GeofenceItem GetGeofence(ulong guildId)
             {
-                //_logger.Warn($"Failed to lookup city for coordinates {pokestop.Latitude},{pokestop.Longitude}, skipping...");
-                return;
+                if (!locationCache.TryGetValue(guildId, out var geofence))
+                {
+                    geofence = _whm.GetGeofence(guildId, pokestop.Latitude, pokestop.Longitude);
+                    locationCache.Add(guildId, geofence);
+                }
+
+                return geofence;
             }
 
             var subscriptions = Manager.GetUserSubscriptionsByLureType(pokestop.LureType);
@@ -738,10 +745,10 @@ namespace WhMgr.Data.Subscriptions
                     if (!user.Enabled)
                         continue;
 
-                    if (!_whConfig.Servers.ContainsKey(user.GuildId))
+                    if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
 
-                    if (!_whConfig.Servers[user.GuildId].Subscriptions.Enabled)
+                    if (!_whConfig.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
                     if (!_servers.ContainsKey(user.GuildId))
@@ -756,7 +763,7 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_whConfig.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_whConfig.Instance.Servers[user.GuildId].DonorRoleIds))
                     {
                         _logger.Info($"User {user.UserId} is not a supporter, skipping Pokestop lure {pokestop.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -773,17 +780,23 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
+                    var geofence = GetGeofence(user.GuildId);
+                    if (geofence == null)
+                    {
+                        //_logger.Warn($"Failed to lookup city from coordinates {pokestop.Latitude},{pokestop.Longitude} {pokestop.PokestopId} {pokestop.Name}, skipping...");
+                    }
+
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
-                    var geofenceMatches = subLure.Areas.Select(x => x.ToLower()).Contains(loc.Name.ToLower());
+                    var geofenceMatches = subLure.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip lure...
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig, null, loc?.Name);
+                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
                     foreach (var emb in embed.Embeds)
                     {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, loc.Name));
+                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, geofence.Name));
                     }
 
                     Statistics.Instance.SubscriptionInvasionsSent++;
@@ -798,7 +811,6 @@ namespace WhMgr.Data.Subscriptions
             subscriptions.Clear();
             subscriptions = null;
             user = null;
-            loc = null;
 
             await Task.CompletedTask;
         }
