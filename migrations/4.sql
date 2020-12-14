@@ -3,7 +3,7 @@ CREATE TABLE `lures` (
   `subscription_id` int(11) NOT NULL DEFAULT 0,
   `guild_id` bigint(20) DEFAULT NULL,
   `user_id` bigint(20) DEFAULT NULL,
-  `lure_type` smallint(5) unsigned NOT NULL,
+  `lure_type` varchar(20) NOT NULL,
   `city` text DEFAULT '[]',
   PRIMARY KEY (`id`),
   KEY `FK_lure_subscriptions_subscription_id` (`subscription_id`),
