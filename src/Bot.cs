@@ -92,18 +92,15 @@
             }
 
             // Create a DiscordClient object per Discord server in config
-            var keys = _whConfig.Instance.Servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, serverConfig) in _whConfig.Instance.Servers)
             {
-                var guildId = keys[i];
-                var server = _whConfig.Instance.Servers[guildId];
-                server.LoadDmAlerts();
+                serverConfig.LoadDmAlerts();
                 var client = new DiscordClient(new DiscordConfiguration
                 {
                     AutomaticGuildSync = true,
                     AutoReconnect = true,
                     EnableCompression = true,
-                    Token = server.Token,
+                    Token = serverConfig.Token,
                     TokenType = TokenType.Bot,
                     UseInternalLogHandler = true
                 });
@@ -162,10 +159,10 @@
                 (
                     new CommandsNextConfiguration
                     {
-                        StringPrefix = server.CommandPrefix?.ToString(),
+                        StringPrefix = serverConfig.CommandPrefix?.ToString(),
                         EnableDms = true,
                         // If command prefix is null, allow for mention prefix
-                        EnableMentionPrefix = string.IsNullOrEmpty(server.CommandPrefix),
+                        EnableMentionPrefix = string.IsNullOrEmpty(serverConfig.CommandPrefix),
                         // Use DSharpPlus's built-in help formatter
                         EnableDefaultHelp = true,
                         CaseSensitive = false,
@@ -183,11 +180,11 @@
                 commands.RegisterCommands<Gyms>();
                 commands.RegisterCommands<Quests>();
                 commands.RegisterCommands<Settings>();
-                if (server.Subscriptions.Enabled)
+                if (serverConfig.Subscriptions.Enabled)
                 {
                     commands.RegisterCommands<Notifications>();
                 }
-                if (server.EnableCities)
+                if (serverConfig.EnableCities)
                 {
                     commands.RegisterCommands<Feeds>();
                 }
@@ -219,12 +216,8 @@
             _logger.Info("Connecting to Discord...");
 
             // Loop through each Discord server and attempt initial connection
-            var keys = _servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, client) in _servers)
             {
-                var guildId = keys[i];
-                var client = _servers[guildId];
-
                 _logger.Info($"Attempting connection to Discord server {guildId}");
                 await client.ConnectAsync();
                 await Task.Delay(1000);
@@ -262,13 +255,9 @@
             _logger.Info("Disconnecting from Discord...");
 
             // Loop through each Discord server and terminate the connection
-            var keys = _servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, client) in _servers)
             {
-                var guildId = keys[i];
-                var client = _servers[guildId];
-
-                _logger.Info($"Attempting connection to Discord server {guildId}");
+                _logger.Info($"Attempting disconnection from Discord server {guildId}");
                 await client.DisconnectAsync();
                 await Task.Delay(1000);
             }
@@ -907,11 +896,9 @@
         {
             _logger.Trace($"LoadEmojis");
 
-            var keys = _whConfig.Instance.Servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, serverConfig) in _whConfig.Instance.Servers)
             {
-                var guildId = keys[i];
-                var emojiGuildId = _whConfig.Instance.Servers[guildId].EmojiGuildId;
+                var emojiGuildId = serverConfig.EmojiGuildId;
                 if (!_servers.ContainsKey(guildId))
                     continue;
 
@@ -921,9 +908,8 @@
 
                 var emojiGuild = configGuild.Guilds[emojiGuildId];
                 var emojis = await emojiGuild.GetEmojisAsync();
-                for (var j = 0; j < Strings.EmojiList.Length; j++)
+                foreach (var name in Strings.EmojiList)
                 {
-                    var name = Strings.EmojiList[j];
                     var emoji = emojis.FirstOrDefault(x => string.Compare(x.Name, name, true) == 0);
                     if (emoji == null)
                         continue;
@@ -944,32 +930,28 @@
             Statistics.WriteOut();
             Statistics.Instance.Reset();
 
-            var keys = _whConfig.Instance.Servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, serverConfig) in _whConfig.Instance.Servers)
             {
-                var guildId = keys[i];
-                var server = _whConfig.Instance.Servers[guildId];
-
                 if (!_servers.ContainsKey(guildId))
                 {
                     _logger.Warn($"{guildId} guild does not exist it Discord servers.");
                     continue;
                 }
                 var client = _servers[guildId];
-                if (server.ShinyStats.Enabled)
+                if (serverConfig.ShinyStats.Enabled)
                 {
                     _logger.Debug($"Starting Shiny Stat posting...");
-                    await PostShinyStats(client, guildId, server);
+                    await PostShinyStats(client, guildId, serverConfig);
                 }
                 else
                 {
                     _logger.Debug($"Shiny Stat posting not enabled...skipping");
                 }
 
-                if (server.PruneQuestChannels && server.QuestChannelIds.Count > 0)
+                if (serverConfig.PruneQuestChannels && serverConfig.QuestChannelIds.Count > 0)
                 {
                     _logger.Debug($"Starting automatic quest messages cleanup...");
-                    await PruneQuestChannels(client, server);
+                    await PruneQuestChannels(client, serverConfig);
                 }
                 else
                 {
@@ -1066,11 +1048,8 @@
         {
             _logger.Trace("CleanupDepartedMembers");
 
-            var keys = _servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, client) in _servers)
             {
-                var guildId = keys[i];
-                var client = _servers[guildId];
                 var server = _whConfig.Instance.Servers[guildId];
                 if (!server.Subscriptions.Enabled)
                     return;
@@ -1121,17 +1100,8 @@
 
             if (e.IsTerminating)
             {
-                var keys = _whConfig.Instance.Servers.Keys.ToList();
-                for (var i = 0; i < keys.Count; i++)
+                foreach (var (guildId, serverConfig) in _whConfig.Instance.Servers)
                 {
-                    var guildId = keys[i];
-                    if (!_whConfig.Instance.Servers.ContainsKey(guildId))
-                    {
-                        _logger.Error($"Unable to find guild id {guildId} in server config list.");
-                        continue;
-                    }
-                    var server = _whConfig.Instance.Servers[guildId];
-
                     if (!_servers.ContainsKey(guildId))
                     {
                         _logger.Error($"Unable to find guild id {guildId} in Discord server client list.");
@@ -1140,10 +1110,10 @@
                     var client = _servers[guildId];
                     if (client != null)
                     {
-                        var owner = await client.GetUserAsync(server.OwnerId);
+                        var owner = await client.GetUserAsync(serverConfig.OwnerId);
                         if (owner == null)
                         {
-                            _logger.Warn($"Unable to get owner from id {server.OwnerId}.");
+                            _logger.Warn($"Unable to get owner from id {serverConfig.OwnerId}.");
                             return;
                         }
 
