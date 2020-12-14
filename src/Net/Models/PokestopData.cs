@@ -2,17 +2,19 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
+    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
+    using POGOProtos.Enums;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Utilities;
 
@@ -59,11 +61,8 @@
         [JsonIgnore]
         public DateTime InvasionExpireTime { get; set; }
 
-        [JsonProperty("pokestop_display")]
-        public PokestopDisplay PokestopDisplay { get; set; }
-
         [JsonProperty("grunt_type")]
-        public InvasionGruntType GruntType { get; set; }
+        public InvasionCharacter GruntType { get; set; }
 
         [JsonProperty("last_modified")]
         public ulong LastModified { get; set; }
@@ -150,13 +149,12 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
-            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, HasInvasion ? whConfig.StaticMaps.Invasions.TemplateFile : HasLure ? whConfig.StaticMaps.Lures.TemplateFile : whConfig.StaticMaps.Lures.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, HasInvasion ? whConfig.StaticMaps.Invasions.ZoomLevel : HasLure ? whConfig.StaticMaps.Lures.ZoomLevel : whConfig.StaticMaps.Lures.ZoomLevel, Latitude, Longitude, imageUrl, null);
+            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, HasInvasion ? whConfig.StaticMaps["invasions"] : HasLure ? whConfig.StaticMaps["lures"] : /* TODO: */"", Latitude, Longitude, imageUrl);
             var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            var address = Utils.GetAddress(city, Latitude, Longitude, whConfig);
+            var address = new Location(null, city, Latitude, Longitude).GetAddress(whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));
@@ -255,84 +253,5 @@
         /// Magnetic Pokestop lure deployed
         /// </summary>
         Magnetic = 504
-    }
-
-    /// <summary>
-    /// Pokestop display type
-    /// </summary>
-    public enum PokestopDisplay
-    {
-        /// <summary>
-        /// Normal Pokestop
-        /// </summary>
-        Normal = 0,
-
-        /// <summary>
-        /// Team Rocket Invasion Pokestop
-        /// </summary>
-        RocketInvasion,
-
-        /// <summary>
-        /// Team Rocket victory Pokestop
-        /// </summary>
-        RocketVictory
-    }
-
-    /// <summary>
-    /// Team Rocket Invasion grunt type
-    /// </summary>
-    public enum InvasionGruntType
-    {
-        Unset = 0,
-        Blanche,
-        Candela,
-        Spark,
-        MaleGrunt,
-        FemaleGrunt,
-        BugFemaleGrunt,
-        BugMaleGrunt,
-        DarknessFemaleGrunt,
-        DarknessMaleGrunt,
-        DarkFemaleGrunt,
-        DarkMaleGrunt,
-        DragonFemaleGrunt,
-        DragonMaleGrunt,
-        FairyFemaleGrunt,
-        FairyMaleGrunt,
-        FightingFemaleGrunt,
-        FightingMaleGrunt,
-        FireFemaleGrunt,
-        FireMaleGrunt,
-        FlyingFemaleGrunt,
-        FlyingMaleGrunt,
-        GrassFemaleGrunt,
-        GrassMaleGrunt,
-        GroundFemaleGrunt,
-        GroundMaleGrunt,
-        IceFemaleGrunt,
-        IceMaleGrunt,
-        MetalFemaleGrunt,
-        MetalMaleGrunt,
-        NormalFemaleGrunt,
-        NormalMaleGrunt,
-        PoisonFemaleGrunt,
-        PoisonMaleGrunt,
-        PsychicFemaleGrunt,
-        PsychicMaleGrunt,
-        RockFemaleGrunt,
-        RockMaleGrunt,
-        WaterFemaleGrunt,
-        WaterMaleGrunt,
-        PlayerTeamLeader,
-        ExecutiveCliff,
-        ExecutiveArlo,
-        ExecutiveSierra,
-        Giovanni,
-        DecoyMale,
-        DecoyFemale,
-        GhostFemaleGrunt,
-        GhostMaleGrunt,
-        ElectricFemaleGrunt,
-        ElectricMaleGrunt
     }
 }

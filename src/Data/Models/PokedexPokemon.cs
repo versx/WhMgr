@@ -4,8 +4,7 @@
     using System.Collections.Generic;
 
     using Newtonsoft.Json;
-
-    using WhMgr.Net.Models;
+    using POGOProtos.Enums;
 
     public class PokedexPokemon
     {
@@ -25,7 +24,7 @@
         public string DefaultForm { get; set; }
 
         [JsonProperty("evolutions")]
-        public Dictionary<int, PokedexPokemon> Evolutions { get; set; }
+        public List<PokedexPokemon> Evolutions { get; set; }
 
         [JsonProperty("form")]
         public string Form { get; set; }
@@ -84,7 +83,7 @@
         public PokedexPokemon()
         {
             Forms = new Dictionary<int, PokedexPokemon>();
-            Evolutions = new Dictionary<int, PokedexPokemon>();
+            Evolutions = new List<PokedexPokemon>();
             QuickMoves = new List<string>();
             ChargedMoves = new List<string>();
             Types = new List<PokemonType>();

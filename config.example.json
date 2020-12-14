@@ -1,5 +1,5 @@
 {
-  "host": "10.0.0.10",
+  "host": "*",
   "port": 8008,
   "locale": "en",
   "shortUrlApiUrl": null,
@@ -27,6 +27,7 @@
         "City1",
         "City2"
       ],
+      "autoRemoveCityRoles": false,
       "citiesRequireSupporterRole": true,
       "pruneQuestChannels": true,
       "questChannelIds": [],
@@ -107,6 +108,7 @@
         "City3",
         "City4"
       ],
+      "autoRemoveCityRoles": false,
       "citiesRequireSupporterRole": true,
       "pruneQuestChannels": true,
       "questChannelIds": [],
@@ -172,7 +174,7 @@
       "port": 3306,
       "username": "root",
       "password": "password",
-      "database": "brock3"
+      "database": "brockdb"
     },
     "scanner": {
       "host": "127.0.0.1",
@@ -189,14 +191,10 @@
       "database": "manualdb"
     }
   },
-  "eventPokemonIds": [
-    129,
-    456,
-    320
-  ],
+  "eventPokemonIds": [],
   "eventMinimumIV": "90",
   "urls": {
-    "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/{2}/300/175/1/png",
+    "staticMap": "http://tiles.example.com:8080",
     "scannerMap": "http://map.example.com/@/{0}/{1}/15"
   },
   "iconStyles": {
@@ -204,38 +202,14 @@
     "Shuffle": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
   },
   "staticMaps": {
-    "pokemon": {
-        "file": "pokemon.example.json",
-        "zoom": 15
-    },
-    "raids": {
-        "file": "raids.example.json",
-        "zoom": 15
-    },
-    "quests": {
-        "file": "quests.example.json",
-        "zoom": 15
-    },
-    "invasions": {
-        "file": "invasions.example.json",
-        "zoom": 15
-    },
-    "lures": {
-        "file": "lures.example.json",
-        "zoom":  15
-    },
-    "gyms": {
-        "file": "gyms.example.json",
-        "zoom": 11
-    },
-    "nests": {
-        "file": "nests.example.json",
-        "zoom": 15
-    },
-    "weather": {
-        "file": "weather.example.json",
-        "zoom": 11
-    }
+    "pokemon": "pokemon.example",
+    "raids": "raids.example",
+    "gyms": "gyms.example",
+    "quests": "quests.example",
+    "invasions": "invasions.example",
+    "lures": "lures.example",
+    "weather": "weather.example",
+    "nests": "nests.example"
   },
   "twilio": {
     "enabled": false,

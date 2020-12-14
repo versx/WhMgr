@@ -11,7 +11,9 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Entities;
     using DSharpPlus.Interactivity;
+    using POGOProtos.Map.Weather;
     using ServiceStack;
+
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
     using WhMgr.Localization;
@@ -201,14 +203,9 @@
 
         public static ulong ContextToGuild(this CommandContext ctx, Dictionary<ulong, DiscordClient> servers)
         {
-            var keys = servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, client) in servers)
             {
-                var guildId = keys[i];
-                if (!servers.ContainsKey(guildId))
-                    continue;
-
-                if (ctx.Client.CurrentUser.Id != servers[guildId].CurrentUser.Id)
+                if (ctx.Client.CurrentUser.Id != client.CurrentUser.Id)
                     continue;
 
                 return guildId;
@@ -351,24 +348,17 @@
             }
         }
 
-        public static bool HasRole(this DiscordClient client, DiscordMember member, string roleName)
+        public static bool HasRole(this DiscordGuild guild, DiscordMember member, string roleName)
         {
-            var role = client.GetRoleFromName(roleName);
+            var role = guild.GetRoleFromName(roleName);
             if (role == null) return false;
 
             return HasRole(member, role.Id);
         }
 
-        public static DiscordRole GetRoleFromName(this DiscordClient client, string roleName)
+        public static DiscordRole GetRoleFromName(this DiscordGuild guild, string roleName)
         {
-            foreach (var guild in client.Guilds)
-            {
-                var role = guild.Value.Roles.FirstOrDefault(x => string.Compare(x.Name, roleName, true) == 0);
-                if (role != null)
-                    return role;
-            }
-
-            return null;
+            return guild?.Roles.FirstOrDefault(x => string.Compare(x.Name, roleName, true) == 0);
         }
 
         #endregion
@@ -474,7 +464,7 @@
             {
                 return DiscordColor.White;
             }
-            var color = string.Empty;
+            string color;
             switch (level)
             {
                 case 1:
@@ -525,30 +515,30 @@
             return new DiscordColor(color);
         }
 
-        public static DiscordColor BuildWeatherColor(this WeatherType weather, DiscordServerConfig server)
+        public static DiscordColor BuildWeatherColor(this GameplayWeather.Types.WeatherCondition weather, DiscordServerConfig server)
         {
             var color = "#808080";
             switch (weather)
             {
-                case WeatherType.Clear:
+                case GameplayWeather.Types.WeatherCondition.Clear:
                     color = server.DiscordEmbedColors.Weather.Clear;
                     break;
-                case WeatherType.Cloudy:
+                case GameplayWeather.Types.WeatherCondition.Overcast:
                     color = server.DiscordEmbedColors.Weather.Cloudy;
                     break;
-                case WeatherType.Fog:
+                case GameplayWeather.Types.WeatherCondition.Fog:
                     color = server.DiscordEmbedColors.Weather.Fog;
                     break;
-                case WeatherType.PartlyCloudy:
+                case GameplayWeather.Types.WeatherCondition.PartlyCloudy:
                     color = server.DiscordEmbedColors.Weather.PartlyCloudy;
                     break;
-                case WeatherType.Rain:
+                case GameplayWeather.Types.WeatherCondition.Rainy:
                     color = server.DiscordEmbedColors.Weather.Rain;
                     break;
-                case WeatherType.Snow:
+                case GameplayWeather.Types.WeatherCondition.Snow:
                     color = server.DiscordEmbedColors.Weather.Snow;
                     break;
-                case WeatherType.Windy:
+                case GameplayWeather.Types.WeatherCondition.Windy:
                     color = server.DiscordEmbedColors.Weather.Windy;
                     break;
             }

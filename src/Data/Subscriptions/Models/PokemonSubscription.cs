@@ -1,10 +1,10 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
     using System.Collections.Generic;
-
-    using ServiceStack.DataAnnotations;
+    using System.Linq;
 
     using Newtonsoft.Json;
+    using ServiceStack.DataAnnotations;
 
     [
         JsonObject("pokemon"),
@@ -79,7 +79,7 @@
             JsonIgnore,
             Ignore
         ]
-        public bool HasStats => (IVList?.Count ?? 0) > 0;
+        public bool HasStats => IVList?.Any() ?? false;
 
         #endregion
 

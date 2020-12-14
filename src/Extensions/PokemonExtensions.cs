@@ -4,6 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
 
+    using POGOProtos.Enums;
+    using POGOProtos.Map.Weather;
+
     using WhMgr.Data;
     using WhMgr.Data.Models;
     using WhMgr.Data.Subscriptions.Models;
@@ -49,33 +52,6 @@
             return MasterFile.Instance.PokemonRarity[PokemonRarity.Rare].Contains(pokeId);
         }
 
-        /*
-        public static int GetLevel(this int id, int cp, int atk, int def, int sta)
-        {
-            if (!MasterFile.Instance.Pokedex.ContainsKey(id))
-                return 0;
-
-            var pkmn = MasterFile.Instance.Pokedex[id];
-            for (var i = 0; i < MasterFile.Instance.CpMultipliers.Count; i++)
-            {
-                var spawnCP = GetCP(pkmn.Attack ?? 0 + atk, pkmn.Defense ?? 0 + def, pkmn.Stamina ?? 0 + sta, MasterFile.Instance.CpMultipliers[i + 1]);
-                if (cp == spawnCP)
-                {
-                    var level = i + 1;
-                    return level;
-                }
-            }
-
-            return 0;
-        }
-
-        public static int GetCP(int attack, int defense, int stamina, double cpm)
-        {
-            var cp = Math.Floor(attack * Math.Pow(defense, 0.5) * Math.Pow(stamina, 0.5) * Math.Pow(cpm, 2) / 10);
-            return Convert.ToInt32(cp < 10 ? 10 : cp);
-        }
-        */
-
         public static PokemonSize GetSize(this int id, float height, float weight)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id))
@@ -93,13 +69,13 @@
             return PokemonSize.Big;
         }
 
-        public static string GetPokemonGenderIcon(this PokemonGender gender)
+        public static string GetPokemonGenderIcon(this Gender gender)
         {
             switch (gender)
             {
-                case PokemonGender.Male:
+                case Gender.Male:
                     return "♂"; //♂ \u2642
-                case PokemonGender.Female:
+                case Gender.Female:
                     return "♀"; //♀ \u2640
                 default:
                     return "⚲"; //⚲
@@ -153,7 +129,7 @@
             return string.Join(" ", list);
         }
 
-        public static string GetWeatherEmojiIcon(this WeatherType weather)
+        public static string GetWeatherEmojiIcon(this GameplayWeather.Types.WeatherCondition weather)
         {
             var key = $"weather_{Convert.ToInt32(weather)}";
             var emojiId = MasterFile.Instance.Emojis[key];
@@ -185,7 +161,7 @@
             return emojiName;
         }
 
-        public static string GetGenderEmojiIcon(this PokemonGender gender)
+        public static string GetGenderEmojiIcon(this Gender gender)
         {
             var key = $"gender_{gender.ToString().ToLower()}";
             var emojiId = MasterFile.Instance.Emojis[key];
@@ -294,7 +270,7 @@
             return new PokemonValidation { Valid = valid, Invalid = invalid };
         }
 
-        public static bool IsWeatherBoosted(this PokedexPokemon pkmn, WeatherType weather)
+        public static bool IsWeatherBoosted(this PokedexPokemon pkmn, GameplayWeather.Types.WeatherCondition weather)
         {
             var types = pkmn?.Types;
             var isBoosted = types?.Exists(x => Strings.WeatherBoosts[weather].Contains(x)) ?? false;

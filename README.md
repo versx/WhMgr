@@ -315,68 +315,69 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 4.) Fill out the alarms file.  
 ```js
 {
-    //Global switch for Pokemon notifications.
+    // Global switch for Pokemon notifications.
     "enablePokemon": false,
   
-    //Global switch for Raid/Egg notifications.
+    // Global switch for Raid/Egg notifications.
     "enableRaids": false,
   
-    //Global switch for Quest notifications.
+    // Global switch for Quest notifications.
     "enableQuests": false,
   
-    //Global switch for Pokestop notifications.
+    // Global switch for Pokestop notifications.
     "enablePokestops": false,
   
-    //Global switch for Gym notifications.
+    // Global switch for Gym notifications.
     "enableGyms": false,
     
-    //Global switch for Weather notifications.
+    // Global switch for Weather notifications.
     "enableWeather": false,
   
-    //List of alarms
+    // List of alarms
     "alarms": [{
-        //Alarm name.
-        "name":"Alarm1",
+        // Alarm name.
+        "name": "Alarm1",
         
-        //DTS compatible mention description.      
-        "description":"<!@324234324> <iv> L<lvl> <geofence>",
+        // DTS compatible mention description.      
+        "description": "<!@324234324> <iv> L<lvl> <geofence>",
       
-        //Alerts file.
-        "alerts":"default.json",
+        // Alerts file.
+        "alerts": "default.json",
       
-        //Alarm filters.
-        "filters":"default.json",
+        // Alarm filters.
+        "filters": "default.json",
       
-        //Path to geofence file.
-        "geofence":"geofence1.txt",
+        // Either the geofence file path (`geojson` or `ini` format) or the geofence name
+        "geofences": ["geofence1.txt", "city1"],
     
-        //Discord webhook url address.
-        "webhook":"<DISCORD_WEBHOOK_URL>"
+        // Discord webhook url address.
+        "webhook": "<DISCORD_WEBHOOK_URL>"
     },{
-        //Alarm name.
-        "name":"Alarm2",
+        // Alarm name.
+        "name": "Alarm2",
         
-        //DTS compatible mention description.      
-        "description":"",
+        // DTS compatible mention description.      
+        "description": "",
       
-        //Alerts file.
-        "alerts":"default.json",
+        // Alerts file.
+        "alerts": "default.json",
       
-        //Alarm filters.
-        "filters":"100iv.json",
+        // Alarm filters.
+        "filters": "100iv.json",
       
-        //Path to geofence file.
-        "geofence":"geofence1.txt",
+        // Either the geofence file path (`geojson` or `ini` format) or the geofence name
+        "geofences": ["geojson1.json", "geofence2.txt", "cityName1"],
       
-        //Discord webhook url address.
-        "webhook":"<DISCORD_WEBHOOK_URL>"
+        // Discord webhook url address.
+        "webhook": "<DISCORD_WEBHOOK_URL>"
     }]
 }
 ```
 5.) Create directory `geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
 6.) Create/copy geofence files to `geofences` folder.  
 
-*Note:* Geofence file format is the following:  
+*Note:* Supports INI geofence file format as well as GeoJSON geofence file format:  
+__INI Format__
 ```ini
 [City1]
 34.00,-117.00
@@ -388,6 +389,70 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 33.01,-118.01
 33.02,-118.02
 33.03,-118.03
+```
+__GeoJSON Format__
+```geojson
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "id": 12143584,
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -117.185508,
+                            34.05361
+                        ],
+                        [
+                            -117.185397,
+                            34.05366
+                        ],
+                        [
+                            -117.185326,
+                            34.053564
+                        ],
+                        [
+                            -117.184819,
+                            34.053828
+                        ],
+                        [
+                            -117.184457,
+                            34.054009
+                        ],
+                        [
+                            -117.18409,
+                            34.05353
+                        ],
+                        [
+                            -117.184027,
+                            34.053448
+                        ],
+                        [
+                            -117.184991,
+                            34.052942
+                        ],
+                        [
+                            -117.185508,
+                            34.05361
+                        ]
+                    ]
+                ]
+            },
+            "properties": {
+                "name": "Unknown Areaname",
+                "stroke": "#352BFF",
+                "stroke-width": 2.0,
+                "stroke-opacity": 1.0,
+                "fill": "#0651FF",
+                "fill-opacity": 0.5,
+		"priority": 2,
+            }
+        }
+    ]
+}
 ```
 **GeoJSON to individual INI format geofence files converter:** https://gist.github.com/versx/a0915c6bd95a080b6ff60cd539d4feb6  
 7.) Add dotnet to your environment path if it isn't already (optional): `export PATH=~/.dotnet/dotnet:$PATH`  

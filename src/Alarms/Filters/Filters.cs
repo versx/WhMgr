@@ -2,6 +2,8 @@
 {
     using System;
 
+    using POGOProtos.Enums;
+
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
@@ -128,24 +130,24 @@
             return matchesCP;
         }
 
-        public static bool MatchesGender(PokemonGender gender, PokemonGender desiredGender)
+        public static bool MatchesGender(Gender gender, Gender desiredGender)
         {
             return gender == desiredGender ||
-                   gender == PokemonGender.Unset ||
-                   gender == PokemonGender.Genderless;
+                   gender == Gender.Unset ||
+                   gender == Gender.Less;
         }
 
-        public static bool MatchesGender(PokemonGender gender, string desiredGender)
+        public static bool MatchesGender(Gender gender, string desiredGender)
         {
             desiredGender = desiredGender.ToLower();
 
-            if (desiredGender == "*" || gender == PokemonGender.Genderless || gender == PokemonGender.Unset)
+            if (desiredGender == "*" || gender == Gender.Less || gender == Gender.Unset)
                 return true;
 
-            if (desiredGender == "m" && gender == PokemonGender.Male)
+            if (desiredGender == "m" && gender == Gender.Male)
                 return true;
 
-            if (desiredGender == "f" && gender == PokemonGender.Female)
+            if (desiredGender == "f" && gender == Gender.Female)
                 return true;
 
             return false;

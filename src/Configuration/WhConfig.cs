@@ -82,10 +82,10 @@
         public Dictionary<string, string> IconStyles { get; set; }
 
         /// <summary>
-        /// Gets or sets the static maps config
+        /// Gets or sets the static map template files to use per type
         /// </summary>
         [JsonProperty("staticMaps")]
-        public StaticMaps StaticMaps { get; set; }
+        public Dictionary<string, string> StaticMaps { get; set; }
 
         /// <summary>
         /// Gets or sets the Twilio config for sending text message notifications
@@ -156,7 +156,7 @@
             EventPokemonIds = new List<int>();
             EventMinimumIV = 90;
             IconStyles = new Dictionary<string, string>();
-            StaticMaps = new StaticMaps();
+            StaticMaps = new Dictionary<string, string>();
             Twilio = new TwilioConfig();
             DespawnTimeMinimumMinutes = 5;
             ReloadSubscriptionChangesMinutes = 1;
@@ -184,10 +184,7 @@
             {
                 throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
-
-            var config = MasterFile.LoadInit<WhConfig>(filePath);
-            config.StaticMaps.LoadConfigs();
-            return config;
+            return MasterFile.LoadInit<WhConfig>(filePath);
         }
     }
 }

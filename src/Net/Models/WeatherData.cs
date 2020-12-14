@@ -6,8 +6,8 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
+    using POGOProtos.Map.Weather;
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
@@ -15,6 +15,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Osm.Models;
     using WhMgr.Utilities;
@@ -49,7 +50,7 @@
         public MultiPolygon Polygon { get; set; }
 
         [JsonProperty("gameplay_condition")]
-        public WeatherType GameplayCondition { get; set; }
+        public GameplayWeather.Types.WeatherCondition GameplayCondition { get; set; }
 
         [JsonProperty("wind_direction")]
         public int WindDirection { get; set; }
@@ -142,19 +143,18 @@
         {
             var weather = Translator.Instance.GetWeather(GameplayCondition);
             var weatherKey = $"weather_{Convert.ToInt32(GameplayCondition)}";
-            var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && GameplayCondition != WeatherType.None ? GameplayCondition.GetWeatherEmojiIcon() : string.Empty;
-            var hasWeather = GameplayCondition != WeatherType.None;
+            var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && GameplayCondition != GameplayWeather.Types.WeatherCondition.None ? GameplayCondition.GetWeatherEmojiIcon() : string.Empty;
+            var hasWeather = GameplayCondition != GameplayWeather.Types.WeatherCondition.None;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
-            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.Weather.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, whConfig.StaticMaps.Weather.ZoomLevel, Latitude, Longitude, weatherImageUrl, null, null, Polygon);
+            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, whConfig.StaticMaps["weather"], Latitude, Longitude, weatherImageUrl, PokemonTeam.All, null, Polygon);
             var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            var address = Utils.GetAddress(city, Latitude, Longitude, whConfig);
+            var address = new Location(null, city, Latitude, Longitude).GetAddress(whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
             const string defaultMissingValue = "?";

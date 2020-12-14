@@ -7,6 +7,7 @@
     using System.Threading;
 
     using Newtonsoft.Json;
+    using POGOProtos.Map.Weather;
 
     using WhMgr.Alarms;
     using WhMgr.Alarms.Filters;
@@ -33,7 +34,7 @@
         private readonly Dictionary<ulong, AlarmList> _alarms;
         private readonly IReadOnlyDictionary<ulong, DiscordServerConfig> _servers;
         private readonly WhConfig _config;
-        private readonly Dictionary<long, WeatherType> _weather;
+        private readonly Dictionary<long, GameplayWeather.Types.WeatherCondition> _weather;
         private Dictionary<string, GymDetailsData> _gyms;
 
         #endregion
@@ -63,7 +64,7 @@
         /// <summary>
         /// Weather cells cache
         /// </summary>
-        public IReadOnlyDictionary<long, WeatherType> Weather => _weather;
+        public IReadOnlyDictionary<long, GameplayWeather.Types.WeatherCondition> Weather => _weather;
 
         #endregion
 
@@ -190,7 +191,7 @@
             _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, Servers={config.Servers.Count:N0}]");
 
             _gyms = new Dictionary<string, GymDetailsData>();
-            _weather = new Dictionary<long, WeatherType>();
+            _weather = new Dictionary<long, GameplayWeather.Types.WeatherCondition>();
             _servers = config.Servers;
             _alarms = new Dictionary<ulong, AlarmList>();
 
@@ -383,11 +384,9 @@
         {
             _logger.Trace($"WebhookManager::LoadAlarmsOnChange");
 
-            var keys = _servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, serverConfig) in _servers)
             {
-                var guildId = keys[i];
-                var alarmsFile = _servers[guildId].AlarmsFile;
+                var alarmsFile = serverConfig.AlarmsFile;
                 var path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), alarmsFile));
                 var fileWatcher = new FileWatcher(path);
                 
@@ -446,12 +445,8 @@
             else
                 Statistics.Instance.TotalReceivedPokemonWithStats++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
-
                 if (!alarms.EnablePokemon)
                     continue;
 
@@ -565,12 +560,8 @@
             else
                 Statistics.Instance.TotalReceivedRaids++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
-
                 if (!alarms.EnableRaids)
                     continue;
 
@@ -691,12 +682,8 @@
 
             Statistics.Instance.TotalReceivedQuests++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
-
                 if (!alarms.EnableQuests)
                     continue;
 
@@ -762,12 +749,8 @@
 
             Statistics.Instance.TotalReceivedPokestops++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
-
                 //Skip if EnablePokestops is disabled in the config.
                 if (!alarms.EnablePokestops)
                     continue;
@@ -826,12 +809,8 @@
 
             Statistics.Instance.TotalReceivedGyms++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
-
                 if (!alarms.EnableGyms)
                     continue;
 
@@ -870,12 +849,8 @@
 
             Statistics.Instance.TotalReceivedGyms++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
-
                 if (!alarms.EnableGyms) //GymDetails
                     continue;
 
@@ -940,12 +915,8 @@
 
             Statistics.Instance.TotalReceivedWeathers++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
-
                 if (!alarms.EnableWeather)
                     continue;
 
@@ -1002,7 +973,7 @@
             _gyms[id] = gymDetails;
         }
 
-        public void SetWeather(long id, WeatherType type)
+        public void SetWeather(long id, GameplayWeather.Types.WeatherCondition type)
         {
             _weather[id] = type;
         }
