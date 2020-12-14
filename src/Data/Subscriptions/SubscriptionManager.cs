@@ -20,7 +20,7 @@
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MANAGER", Program.LogLevel);
 
-        private readonly WhConfig _whConfig;
+        private readonly WhConfigHolder _whConfig;
         private List<SubscriptionObject> _subscriptions;
 
         private readonly OrmLiteConnectionFactory _connFactory;
@@ -41,35 +41,37 @@
 
         #region Constructor
 
-        public SubscriptionManager(WhConfig whConfig)
+        public SubscriptionManager(WhConfigHolder whConfig)
         {
             _logger.Trace($"SubscriptionManager::SubscriptionManager");
 
             _whConfig = whConfig;
 
-            if (_whConfig?.Database?.Main == null)
+            if (_whConfig.Instance?.Database?.Main == null)
             {
                 var err = "Main database is not configured in config.json file.";
                 _logger.Error(err);
                 throw new NullReferenceException(err);
             }
 
-            if (_whConfig?.Database?.Scanner == null)
+            if (_whConfig.Instance?.Database?.Scanner == null)
             {
                 var err = "Scanner database is not configured in config.json file.";
                 _logger.Error(err);
                 throw new NullReferenceException(err);
             }
 
-            if (_whConfig?.Database?.Nests == null)
+            _connFactory = new OrmLiteConnectionFactory(_whConfig.Instance.Database.Main.ToString(), MySqlDialect.Provider);
+
+            if (_whConfig.Instance.Database?.Nests == null)
             {
                 _logger.Warn("Nest database is not configured in config.json file, nest alarms and commands will not work.");
             }
 
-            _connFactory = new OrmLiteConnectionFactory(_whConfig.Database.Main.ToString(), MySqlDialect.Provider);
+            _connFactory = new OrmLiteConnectionFactory(_whConfig.Instance.Database.Main.ToString(), MySqlDialect.Provider);
 
             // Reload subscriptions every 60 seconds to account for UI changes
-            _reloadTimer = new Timer(_whConfig.ReloadSubscriptionChangesMinutes * 60 * 1000);
+            _reloadTimer = new Timer(_whConfig.Instance.ReloadSubscriptionChangesMinutes * 60 * 1000);
             _reloadTimer.Elapsed += (sender, e) => ReloadSubscriptions();
             _reloadTimer.Start();
 
