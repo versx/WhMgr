@@ -3,16 +3,22 @@
     using System;
     using System.Collections.Generic;
 
+    using Newtonsoft.Json;
     using ServiceStack.DataAnnotations;
 
-    using Newtonsoft.Json;
-
+    /// <summary>
+    /// User subscription class
+    /// </summary>
     [
         JsonObject("subscriptions"),
         Alias("subscriptions")
     ]
     public class SubscriptionObject : SubscriptionItem
     {
+        /// <summary>
+        /// Gets or sets a value determining whether the associated users
+        /// subscriptions are enabled or not
+        /// </summary>
         [
             JsonProperty("enabled"),
             Alias("enabled"), 
@@ -20,6 +26,9 @@
         ]
         public bool Enabled { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Pokemon subscriptions
+        /// </summary>
         [
             JsonProperty("pokemon"),
             Alias("pokemon"), 
@@ -27,6 +36,9 @@
         ]
         public List<PokemonSubscription> Pokemon { get; set; }
 
+        /// <summary>
+        /// Gets or sets the PvP Pokemon subscriptions
+        /// </summary>
         [
             JsonProperty("pvp"),
             Alias("pvp"),
@@ -34,12 +46,18 @@
         ]
         public List<PvPSubscription> PvP { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Raid subscriptions
+        /// </summary>
         [
             JsonProperty("raids"),
             Alias("raids"), 
             Reference]
         public List<RaidSubscription> Raids { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Gym subscriptions to use with Raid subscriptions
+        /// </summary>
         [
             JsonProperty("gyms"),
             Alias("gyms"),
@@ -47,6 +65,9 @@
         ]
         public List<GymSubscription> Gyms { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Quest subscriptions
+        /// </summary>
         [
             JsonProperty("quests"),
             Alias("quests"),
@@ -54,6 +75,9 @@
         ]
         public List<QuestSubscription> Quests { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Team Rocket Invasion subscriptions
+        /// </summary>
         [
             JsonProperty("invasions"),
             Alias("invasions"),
@@ -61,6 +85,10 @@
         ]
         public List<InvasionSubscription> Invasions { get; set; }
 
+        /// <summary>
+        /// Gets or sets the distance in meters a subscription should be within
+        /// to trigger
+        /// </summary>
         [
             JsonProperty("lures"),
             Alias("lures"),
@@ -75,6 +103,9 @@
         ]
         public int DistanceM { get; set; }
 
+        /// <summary>
+        /// Gets or sets the latitude to use with distance checks
+        /// </summary>
         [
             JsonProperty("latitude"),
             Alias("latitude"),
@@ -82,6 +113,9 @@
         ]
         public double Latitude { get; set; }
 
+        /// <summary>
+        /// Gets or sets the longitude to use with distance checks
+        /// </summary>
         [
             JsonProperty("longitude"),
             Alias("longitude"), 
@@ -89,6 +123,9 @@
         ]
         public double Longitude { get; set; }
 
+        /// <summary>
+        /// Gets or sets the icon style to use for the subscription notification
+        /// </summary>
         [
             JsonProperty("icon_style"),
             Alias("icon_style"),
@@ -96,24 +133,37 @@
         ]
         public string IconStyle { get; set; }
 
+        /// <summary>
+        /// Gets or sets the phone number to send ultra rare Pokemon notifications to
+        /// </summary>
         [
             JsonProperty("phone_number"),
             Alias("phone_number")
         ]
         public string PhoneNumber { get; set; }
 
+        /// <summary>
+        /// Gets the <seealso cref="NotificationLimiter"/> class associated with the subscription
+        /// </summary>
         [
             JsonIgnore,
             Ignore
         ]
-        public NotificationLimiter Limiter { get; set; }
+        public NotificationLimiter Limiter { get; }
 
+        /// <summary>
+        /// Gets or sets a value determining whether the rate limit notification
+        /// has been sent to the user already
+        /// </summary>
         [
             JsonIgnore,
             Ignore
         ]
         public bool RateLimitNotificationSent { get; set; }
 
+        /// <summary>
+        /// Instantiates a new subscription object
+        /// </summary>
         public SubscriptionObject()
         {
             Enabled = true;

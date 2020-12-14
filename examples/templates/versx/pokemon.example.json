@@ -1,0 +1,26 @@
+{
+    "style": "klokantech-basic",
+    "latitude": <%= lat %>,
+    "longitude": <%= lon %>,
+    "zoom": 15,
+    "width": 300,
+    "height": 175,
+    "scale": 1,
+    "markers": [{
+        "url": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/misc/grass.png",
+        "latitude": <%= lat %>,
+        "longitude": <%= lon %>,
+        "x_offset": 0,
+        "y_offset": 0,
+        "width": 48,
+        "height": 48
+    },{
+        "url": "<%= url2 %>",
+        "latitude": <%= lat %>,
+        "longitude": <%= lon %>,
+        "x_offset": 0,
+        "y_offset": 0,
+        "width": 32,
+        "height": 32
+    }]
+}

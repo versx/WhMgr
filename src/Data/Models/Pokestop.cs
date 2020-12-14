@@ -6,8 +6,10 @@
 
     using ServiceStack.DataAnnotations;
     using ServiceStack.OrmLite;
-
     using Newtonsoft.Json;
+    using POGOProtos.Enums;
+    using POGOProtos.Inventory.Item;
+    using QuestRewardType = POGOProtos.Data.Quests.QuestReward.Types.Type;
 
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;

@@ -6,13 +6,17 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
+    using POGOProtos.Enums;
+    using POGOProtos.Inventory.Item;
+    using QuestConditionType = POGOProtos.Data.Quests.QuestCondition.Types.ConditionType;
+    using QuestRewardType = POGOProtos.Data.Quests.QuestReward.Types.Type;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
     using WhMgr.Extensions;
+    using WhMgr.Geofence;
     using WhMgr.Utilities;
 
     /// <summary>
@@ -114,13 +118,12 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
-            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.Quests.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, whConfig.StaticMaps.Quests.ZoomLevel, Latitude, Longitude, questRewardImageUrl, null);
+            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, whConfig.StaticMaps["quests"], Latitude, Longitude, questRewardImageUrl);
             var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            var address = Utils.GetAddress(city, Latitude, Longitude, whConfig);
+            var address = new Location(null, city, Latitude, Longitude).GetAddress(whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
             const string defaultMissingValue = "?";
@@ -214,7 +217,7 @@
 
         public QuestCondition()
         {
-            ThrowTypeId = ActivityType.Unknown;
+            ThrowTypeId = ActivityType.ActivityUnknown;
         }
     }
 
@@ -261,241 +264,19 @@
         [JsonProperty("raid_levels")]
         public List<int> RaidLevels { get; set; }
 
+        [JsonProperty("mega_resource")]
+        public QuestMegaResource MegaResource { get; set; }
+
+        [JsonProperty("sticker_id")]
+        public string StickerId { get; set; }
+
         // TODO: Pokemon alignment
     }
 
-    public enum QuestType
+    public sealed class QuestMegaResource
     {
-        Unknown = 0,
-        FirstCatchOfTheDay,
-        FirstPokestopOfTheDay,
-        MultiPart,
-        CatchPokemon,
-        SpinPokestop,
-        HatchEgg,
-        CompleteGymBattle,
-        CompleteRaidBattle,
-        CompleteQuest,
-        TransferPokemon,
-        FavoritePokemon,
-        AutoComplete,
-        UseBerryInEncounter,
-        UpgradePokemon,
-        EvolvePokemon,
-        LandThrow,
-        GetBuddyCandy,
-        BadgeRank,
-        PlayerLevel,
-        JoinRaid,
-        CompleteBattle,
-        AddFriend,
-        TradePokemon,
-        SendGift,
-        EvolveIntoPokemon,
-        Quest26NotKnown,
-        CompleteCombat,
-        TakeSnapshot,
-        BattleTeamRocket,
-        PurifyPokemon,
-        FindTeamRocket,
-        UseIncense = 39,
-        MegaEvolve = 43
-    }
+        public ushort PokemonId { get; set; }
 
-    public enum QuestRewardType
-    {
-        Unset = 0,
-        Experience,
-        Item,
-        Stardust,
-        Candy,
-        AvatarClothing,
-        Quest,
-        PokemonEncounter,
-        Pokecoin,
-        Sticker = 11,
-        MegaEnergy
-    }
-
-    public enum QuestConditionType
-    {
-        Unset = 0,
-        PokemonType,
-        PokemonCategory,
-        WeatherBoost,
-        DailyCaptureBonus,
-        DailySpinBonus,
-        WinRaidStatus,
-        RaidLevel,
-        ThrowType,
-        WinGymBattleStatus,
-        SuperEffectiveCharge,
-        Item,
-        UniquePokestop,
-        QuestContext,
-        ThrowTypeInARow,
-        CurveBall,
-        BadgeType,
-        PlayerLevel,
-        WinBattleStatus,
-        NewFriend,
-        DaysInARow,
-        UniquePokemon,
-        NpcCombat,
-        PvpCombat,
-        Location,
-        Distance,
-        PokemonAlignment,
-        InvasionsCharacter,
-        WithBuddy,
-        InterestingPOI,
-        DailyBuddyAffection,
-        MegaEvolution = 37
-    }
-
-    public enum PokemonType
-    {
-        None = 0,
-        Normal,
-        Fighting,
-        Flying,
-        Poison,
-        Ground,
-        Rock,
-        Bug,
-        Ghost,
-        Steel,
-        Fire,
-        Water,
-        Grass,
-        Electric,
-        Psychic,
-        Ice,
-        Dragon,
-        Dark,
-        Fairy
-    }
-
-    public enum ItemId
-    {
-        Unknown = 0,
-        Poke_Ball = 1,
-        Great_Ball = 2,
-        Ultra_Ball = 3,
-        Master_Ball = 4,
-        Premier_Ball = 5,
-        Potion = 101,
-        Super_Potion = 102,
-        Hyper_Potion = 103,
-        Max_Potion = 104,
-        Revive = 201,
-        Max_Revive = 202,
-        Lucky_Egg = 301,
-        Incense_Ordinary = 401,
-        Incense_Spicy = 402,
-        Incense_Cool = 403,
-        Incense_Floral = 404,
-        Troy_Disk = 501,
-        X_Attack = 602,
-        X_Defense = 603,
-        X_Miracle = 604,
-        Razz_Berry = 701,
-        Bluk_Berry = 702,
-        Nanab_Berry = 703,
-        Wepar_Berry = 704,
-        Pinap_Berry = 705,
-        Golden_Razz_Berry = 706,
-        Silver_Nanab_Berry = 707,
-        Silver_Pinap_Berry = 708,
-        Special_Camera = 801,
-        Incubator_Basic_Unlimited = 901,
-        Incubator_Basic = 902,
-        Incubator_Super = 903,
-        Pokemon_Storage_Upgrade = 1001,
-        Item_Storage_Upgrade = 1002,
-        Sun_Stone = 1101,
-        Kings_Rock = 1102,
-        Metal_Coat = 1103,
-        Dragon_Scale = 1104,
-        Upgrade = 1105,
-        Sinnoh_Stone = 1106,
-        Unova_Stone = 1107,
-        Move_Reroll_Fast_Attack = 1201,
-        Move_Reroll_Special_Attack = 1202,
-        Rare_Candy = 1301,
-        Free_Raid_Ticket = 1401,
-        Paid_Raid_Ticket = 1402,
-        Legendary_Raid_Ticket = 1403,
-        Star_Piece = 1404,
-        Friend_Gift_Box = 1405
-    }
-
-    public enum ActivityType
-    {
-        Unknown = 0,
-        CatchPokemon,
-        CatchLegendyPokemon,
-        FleePokemon,
-        DefeatFort,
-        EvolvePokemon,
-        HatchEgg,
-        WalkKm,
-        PokedexEntryNew,
-        CatchFirstThrow,
-        CatchNiceThrow,
-        CatchGreatThrow,
-        CatchExcellentThrow,
-        CatchCurveThrow,
-        CatchFirstCatchOfDay,
-        CatchMilestone,
-        TrainPokemon,
-        SearchFort,
-        ReleasePokemon,
-        HatchEggSmallBonus,
-        HatchEggMediumBonus,
-        HatchEggLargeBonus,
-        DEFEAT_GYM_DEFENDER,
-        DEFEAT_GYM_LEADER,
-        CatchFirstCatchStreakBonus,
-        SearchFortFirstOfTheDay,
-        SearchFortStreakBonus,
-        DefeatRaidPokemon,
-        FeedBerry,
-        SearchGym,
-        NewPokestop,
-        GymBattleLoss,
-        CatchARPlusBonus,
-        CatchQuestPokemonEncounter,
-        FriendshipLevelUp0,
-        FriendshipLevelUp1,
-        FriendshipLevelUp2,
-        FriendshipLevelUp3,
-        FriendshipLevelUp4,
-        SendGift,
-        ShareExRaidPass,
-        RraidLevel1AdditionalXP,
-        RraidLevel2AdditionalXP,
-        RraidLevel3AdditionalXP,
-        RraidLevel4AdditionalXP,
-        RraidLevel5AdditionalXP
-    }
-
-    public enum PokemonAlignment
-    {
-        Shadow = 1,
-        Purified
-    }
-
-    public enum CharacterCategory
-    {
-        TeamLeader = 1,
-        Grunt
-    }
-
-    public enum MegaEvolution
-    {
-        Mega = 1,
-        MegaX,
-        MegaY
+        public int Amount { get; set; }
     }
 }

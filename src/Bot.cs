@@ -128,6 +128,7 @@
 
                 client.Ready += Client_Ready;
                 client.GuildAvailable += Client_GuildAvailable;
+                client.GuildMemberUpdated += Client_GuildMemberUpdated;
                 //_client.MessageCreated += Client_MessageCreated;
                 client.ClientErrored += Client_ClientErrored;
                 client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
@@ -176,7 +177,7 @@
                 commands.CommandErrored += Commands_CommandErrored;
                 // Register Discord command handler classes
                 commands.RegisterCommands<Owner>();
-                commands.RegisterCommands<CommunityDay>();
+                commands.RegisterCommands<Event>();
                 commands.RegisterCommands<Nests>();
                 commands.RegisterCommands<ShinyStats>();
                 commands.RegisterCommands<Gyms>();
@@ -337,6 +338,40 @@
             }
         }
 
+        private async Task Client_GuildMemberUpdated(GuildMemberUpdateEventArgs e)
+        {
+            if (!_whConfig.Servers.ContainsKey(e.Guild.Id))
+                return;
+
+            var server = _whConfig.Servers[e.Guild.Id];
+            if (!server.EnableCities)
+                return;
+
+            if (!server.AutoRemoveCityRoles)
+                return;
+
+            var hasBefore = e.RolesBefore.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
+            var hasAfter = e.RolesAfter.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
+
+            // Check if donor role was removed
+            if (hasBefore && !hasAfter)
+            {
+                _logger.Info($"Member {e.Member.Username} ({e.Member.Id}) donor role removed, removing any city roles...");
+                // If so, remove all city/geofence/area roles
+                foreach (var roleName in server.CityRoles)
+                {
+                    var role = e.Guild.GetRoleFromName(roleName);
+                    if (role == null)
+                    {
+                        _logger.Debug($"Failed to get role by name {roleName}");
+                        continue;
+                    }
+                    await e.Member.RevokeRoleAsync(role, "No longer a supporter/donor");
+                }
+                _logger.Info($"All city roles removed from member {e.Member.Username} ({e.Member.Id})");
+            }
+        }
+
         //private async Task Client_MessageCreated(MessageCreateEventArgs e)
         //{
         //    if (e.Author.Id == e.Client.CurrentUser.Id)
@@ -390,14 +425,15 @@
                 // The user lacks required permissions, 
                 var emoji = DiscordEmoji.FromName(e.Context.Client, ":x:");
 
-                var prefix = _whConfig.Servers.ContainsKey(e.Context.Guild.Id) ? _whConfig.Servers[e.Context.Guild.Id].CommandPrefix : "!";
+                var guildId = e.Context.Guild?.Id ?? e.Context.Client.Guilds.FirstOrDefault(x => _whConfig.Servers.ContainsKey(x.Key)).Key;
+                var prefix = _whConfig.Servers.ContainsKey(guildId) ? _whConfig.Servers[guildId].CommandPrefix : "!";
                 var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", e.Command.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
 
                 // let's wrap the response into an embed
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = $"{emoji} Invalid Argument(s)",
-                    Description = $"{string.Join(Environment.NewLine, e.Command.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type}.**"))}.\r\n\r\n{example}",
+                    Description = $"{string.Join(Environment.NewLine, e.Command.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type.ToHumanReadableString()}.**"))}.\r\n\r\n{example}",
                     Color = new DiscordColor(0xFF0000) // red
                 };
                 await e.Context.RespondAsync(embed: embed);

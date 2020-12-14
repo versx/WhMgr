@@ -105,5 +105,19 @@
             }
             return cnt.Values.All(c => c == 0);
         }
+
+        public static string ToHumanReadableString(this Type type)
+        {
+            if (type == typeof(string))
+                return "Text";
+            else if (type == typeof(int))
+                return "Number";
+            else if (type == typeof(double) ||
+                     type == typeof(float))
+                return "Decimal";
+            else if (type == typeof(bool))
+                return "Boolean";
+            return type.Name.ToString();
+        }
     }
 }

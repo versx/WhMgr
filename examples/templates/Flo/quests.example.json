@@ -1,0 +1,26 @@
+{
+    "style": "klokantech-basic",
+    "latitude": #(lat),
+    "longitude": #(lon),
+    "zoom": 15,
+    "width": 300,
+    "height": 175,
+    "scale": 1,
+    "markers": [{
+        "url": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/misc/pokestop.png",
+        "latitude": #(lat),
+        "longitude": #(lon),
+        "height": "32",
+        "width": "32",
+        "x_offset": 0,
+        "y_offset": 0
+    },{
+        "url": "#(url2)",
+        "latitude": #(lat),
+        "longitude": #(lon),
+        "height": "32",
+        "width": "32",
+        "x_offset": 0,
+        "y_offset": -25
+    }]
+}

@@ -162,7 +162,7 @@
                     matchesIVList = subscribedPokemon.IVList?.Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}") ?? false;
 
                     if (!(
-                        (/*!subscribedPokemon.HasStats && */matchesIV && matchesLvl && matchesGender) ||
+                        (!subscribedPokemon.HasStats && matchesIV && matchesLvl && matchesGender) ||
                         (subscribedPokemon.HasStats && matchesIVList)
                         ))
                         continue;
