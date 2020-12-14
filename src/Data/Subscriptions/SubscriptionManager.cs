@@ -11,6 +11,9 @@
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
 
+    /// <summary>
+    /// User subscription manager class
+    /// </summary>
     public class SubscriptionManager
     {
         #region Variables
@@ -29,6 +32,9 @@
 
         #region Properties
 
+        /// <summary>
+        /// Gets all current user subscriptions
+        /// </summary>
         public IReadOnlyList<SubscriptionObject> Subscriptions => _subscriptions;
 
         #endregion
@@ -64,15 +70,9 @@
 
             // Reload subscriptions every 60 seconds to account for UI changes
             _reloadTimer = new Timer(_whConfig.ReloadSubscriptionChangesMinutes * 60 * 1000);
-            _reloadTimer.Elapsed += OnReloadTimerElapsed;
+            _reloadTimer.Elapsed += (sender, e) => ReloadSubscriptions();
             _reloadTimer.Start();
 
-            ReloadSubscriptions();
-        }
-
-        private void OnReloadTimerElapsed(object sender, ElapsedEventArgs e)
-        {
-            // TODO: Only reload based on last_changed timestamp in metadata table
             ReloadSubscriptions();
         }
 
@@ -80,6 +80,12 @@
 
         #region User
 
+        /// <summary>
+        /// Get user subscription from guild id and user id
+        /// </summary>
+        /// <param name="guildId">Discord guild id to lookup</param>
+        /// <param name="userId">Discord user id to lookup</param>
+        /// <returns>Returns user subscription object</returns>
         public SubscriptionObject GetUserSubscriptions(ulong guildId, ulong userId)
         {
             if (!IsDbConnectionOpen())
@@ -104,6 +110,11 @@
             }
         }
 
+        /// <summary>
+        /// Get user subscriptions from subscribed Pokemon id
+        /// </summary>
+        /// <param name="pokeId">Pokemon ID to lookup</param>
+        /// <returns>Returns list of user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(int pokeId)
         {
             return _subscriptions?
@@ -114,6 +125,11 @@
                 .ToList();
         }
 
+        /// <summary>
+        /// Get user subscriptions from subscribed PvP Pokemon id
+        /// </summary>
+        /// <param name="pokeId">Pokemon ID to lookup</param>
+        /// <returns>Returns list of user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptionsByPvPPokemonId(int pokeId)
         {
             return _subscriptions?
@@ -124,6 +140,11 @@
                 .ToList();
         }
 
+        /// <summary>
+        /// Get user subscriptions from subscribed Raid Pokemon id
+        /// </summary>
+        /// <param name="pokeId">Pokemon ID to lookup</param>
+        /// <returns>Returns list of user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
             return _subscriptions?
@@ -134,6 +155,11 @@
                 .ToList();
         }
 
+        /// <summary>
+        /// Get user subscriptions from subscribed Quest reward keyword
+        /// </summary>
+        /// <param name="reward">Ques reward keyword</param>
+        /// <returns>Returns list of user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptionsByQuestReward(string reward)
         {
             return _subscriptions?
@@ -144,6 +170,11 @@
                 .ToList();
         }
 
+        /// <summary>
+        /// Gets user subscriptions from subscribed Invasion encounter rewards
+        /// </summary>
+        /// <param name="encounterRewards">Invasion encounter rewards</param>
+        /// <returns>Returns list of user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
         {
             return _subscriptions?
@@ -154,6 +185,10 @@
                 .ToList();
         }
 
+        /// <summary>
+        /// Get all enabled user subscriptions
+        /// </summary>
+        /// <returns>Returns all enabled user subscription objects</returns>
         public List<SubscriptionObject> GetUserSubscriptions()
         {
             try
@@ -186,8 +221,13 @@
             return null;
         }
 
+        /// <summary>
+        /// Reload all user subscriptions
+        /// </summary>
         public void ReloadSubscriptions()
         {
+            // TODO: Only reload based on last_changed timestamp in metadata table
+
             var subs = GetUserSubscriptions();
             if (subs == null)
                 return;
@@ -199,6 +239,12 @@
 
         #region Remove
 
+        /// <summary>
+        /// Remove all user subscriptions based on guild id and user id
+        /// </summary>
+        /// <param name="guildId">Discord guild id to lookup</param>
+        /// <param name="userId">Discord user id to lookup</param>
+        /// <returns>Returns <c>true</c> if all subscriptions were removed, otherwise <c>false</c>.</returns>
         public static bool RemoveAllUserSubscriptions(ulong guildId, ulong userId)
         {
             _logger.Trace($"SubscriptionManager::RemoveAllUserSubscription [GuildId={guildId}, UserId={userId}]");
