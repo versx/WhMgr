@@ -180,7 +180,7 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        return;
+                        continue;
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
@@ -320,7 +320,7 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        return;
+                        continue;
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
@@ -449,7 +449,7 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        return;
+                        continue;
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
@@ -483,7 +483,7 @@ namespace WhMgr.Data.Subscriptions
 
         public async Task ProcessQuestSubscription(QuestData quest)
         {
-            var reward = quest.Rewards[0].Info;
+            var reward = quest.Rewards.FirstOrDefault().Info;
             var rewardKeyword = quest.GetReward();
             var questName = quest.GetQuestMessage();
 
@@ -561,7 +561,7 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        return;
+                        continue;
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
@@ -678,7 +678,7 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        return;
+                        continue;
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
@@ -784,9 +784,10 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pokestop.Latitude},{pokestop.Longitude} {pokestop.PokestopId} {pokestop.Name}, skipping...");
+                        continue;
                     }
 
-                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
+                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude)) || user.DistanceM == 0;
                     var geofenceMatches = subLure.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip lure...
@@ -799,7 +800,7 @@ namespace WhMgr.Data.Subscriptions
                         _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, geofence.Name));
                     }
 
-                    Statistics.Instance.SubscriptionInvasionsSent++;
+                    Statistics.Instance.SubscriptionLuresSent++;
                     Thread.Sleep(5);
                 }
                 catch (Exception ex)
