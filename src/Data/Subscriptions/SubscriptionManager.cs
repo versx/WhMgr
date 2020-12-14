@@ -63,7 +63,7 @@
 
             _connFactory = new OrmLiteConnectionFactory(_whConfig.Instance.Database.Main.ToString(), MySqlDialect.Provider);
 
-            if (_whConfig?.Database?.Nests == null)
+            if (_whConfig.Instance.Database?.Nests == null)
             {
                 _logger.Warn("Nest database is not configured in config.json file, nest alarms and commands will not work.");
             }
