@@ -1,0 +1,24 @@
+{
+    "style": "klokantech-basic",
+    "latitude": #(lat),
+    "longitude": #(lon),
+    "zoom": 15,
+    "width": 300,
+    "height": 175,
+    "scale": 1,
+    "markers": [{
+        "url": "#(url2)",
+        "latitude": #(lat),
+        "longitude": #(lon),
+        "x_offset": 0,
+        "y_offset": 0,
+        "width": 48,
+        "height": 48
+    }],
+    "polygons": [{
+        "fill_color": "rgba(100.0%,0.0%,0.0%,0.5)",
+        "stroke_color": "black",
+        "stroke_width": 1,
+        "path": "#(path)"
+    }]
+}
