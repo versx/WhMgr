@@ -203,14 +203,9 @@
 
         public static ulong ContextToGuild(this CommandContext ctx, Dictionary<ulong, DiscordClient> servers)
         {
-            var keys = servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, client) in servers)
             {
-                var guildId = keys[i];
-                if (!servers.ContainsKey(guildId))
-                    continue;
-
-                if (ctx.Client.CurrentUser.Id != servers[guildId].CurrentUser.Id)
+                if (ctx.Client.CurrentUser.Id != client.CurrentUser.Id)
                     continue;
 
                 return guildId;

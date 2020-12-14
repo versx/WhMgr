@@ -381,12 +381,8 @@
             var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
 
             // Loop through each valid pokemon entry provided
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
                     await ctx.TriggerTypingAsync();
@@ -543,11 +539,8 @@
             var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             var error = false;
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
                 var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
                 if (subPkmn == null)
                     continue;
@@ -627,11 +620,8 @@
             }
 
             var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
                 var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
                 if (subRaid != null)
                 {
@@ -1035,11 +1025,8 @@
             }
 
             var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                //var form = validation.Valid[pokemonId];
                 var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId);
                 if (subInvasion != null)
                 {
@@ -1289,12 +1276,8 @@
             }
 
             var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
                     await ctx.TriggerTypingAsync();
@@ -1693,11 +1676,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         var invasionAreas = await invasionInput.GetAreasResult(server.CityRoles);
 
                         var validPokemonNames = string.Join(", ", invasionPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name));
-                        var keys = invasionPokemon.Valid.Keys.ToList();
-                        for (var i = 0; i < keys.Count; i++)
+                        foreach (var (pokemonId, form) in invasionPokemon.Valid)
                         {
-                            var pokemonId = keys[i];
-                            //var form = validation.Valid[pokemonId];
                             var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId);
                             if (subInvasion != null)
                             {
@@ -1795,12 +1775,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
         {
             var subscribed = new List<string>();
             var alreadySubscribed = new List<string>();
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
@@ -1889,12 +1865,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
         {
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
@@ -1957,11 +1929,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
         {
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
                 var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
                 if (subRaid != null)
                 {
@@ -2237,11 +2206,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
         private async Task RemovePokemonSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
         {
             var error = false;
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
                 var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
                 if (subPkmn == null)
                     continue;
@@ -2286,11 +2252,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
         {
             var error = false;
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
                 var subPvP = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) && x.League == league);
                 if (subPvP == null)
                     continue;
@@ -2982,51 +2945,6 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
             return ulong.TryParse(mention, out ulong result) ? result : 0;
         }
-
-        /*
-        private PokemonValidation ValidatePokemonList(string pokemonList)
-        {
-            if (string.IsNullOrEmpty(pokemonList))
-                return null;
-
-            pokemonList = pokemonList.Replace(" ", "");
-
-            PokemonValidation validation;
-            if (pokemonList.Contains("-") && int.TryParse(pokemonList.Split('-')[0], out var startRange) && int.TryParse(pokemonList.Split('-')[1], out var endRange))
-            {
-                //If `poke` param is a range
-                var range = GetListFromRange(startRange, endRange);
-                validation = range.ValidatePokemon();
-            }
-            else if (Strings.PokemonGenerationRanges.Select(x => "gen" + x.Key).ToList().Contains(pokemonList))
-            {
-                //If `poke` is pokemon generation
-                if (!int.TryParse(pokemonList.Replace("gen", ""), out var gen) || !Strings.PokemonGenerationRanges.ContainsKey(gen))
-                {
-                    var keys = Strings.PokemonGenerationRanges.Keys.ToList();
-                    var minValue = keys[0];
-                    var maxValue = keys[keys.Count - 1];
-                    return null;
-                }
-
-                var genRange = Strings.PokemonGenerationRanges[gen];
-                var range = GetListFromRange(genRange.Start, genRange.End);
-                validation = range.ValidatePokemon();
-            }
-            else if (string.Compare(pokemonList, Strings.All, true) == 0)
-            {
-                var list = GetListFromRange(1, Strings.MaxPokemonIds);
-                validation = list.ValidatePokemon();
-            }
-            else
-            {
-                //If `poke` param is a list
-                validation = pokemonList.Replace(" ", "").Split(',').ValidatePokemon();
-            }
-
-            return validation;
-        }
-        */
 
         private async Task<bool> CanExecute(CommandContext ctx)
         {
