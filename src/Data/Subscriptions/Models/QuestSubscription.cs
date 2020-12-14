@@ -31,5 +31,10 @@
             Required
         ]
         public List<string> Areas { get; set; }
+
+        public QuestSubscription()
+        {
+            Areas = new List<string>();
+        }
     }
 }
