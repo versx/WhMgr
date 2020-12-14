@@ -21,6 +21,7 @@
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Localization;
+    using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
     public class Notifications
