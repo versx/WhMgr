@@ -17,7 +17,7 @@
             var baseUrl = $"{staticMapUrl}/staticmap/{templateName}?lat={latitude}&lon={longitude}&url2={imageUrl}";
             if (team != PokemonTeam.All)
             {
-                baseUrl += $"&team_id={team}";
+                baseUrl += $"&team_id={Convert.ToInt32(team)}";
             }
             if (feature != null)
             {
