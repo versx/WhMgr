@@ -10,7 +10,7 @@ __**Main Properties**__
 | host | `10.0.0.2` | Listening interface to receive webhook data. |  
 | port | `8008` | Listening port used to receive incoming json webhooks. |  
 | locale | `en` | Two letter country code used to translate bot messages. |  
-| shortUrlApiUrl | `` | |  
+| shortUrlApiUrl | `https://site.com/yourls-api.php?signature=e8973da1` | |  
 | stripeApiKey | `rk_32uo3j2lkjlkj3l2kjdlk2j3ldj2` | Stripe API key used with `expire` command to let users check their subscription expiration date. |  
 | eventPokemonIds | `[123,43,483]` | List of Pokemon ID(s) to treat as event Pokemon. Event Pokemon are not reported to any channels or DM unless 90% or higher IV. |  
 | iconStyles | `{ "default": "icon_path", ... }` | List key value pairs demonstrating a list of icon styles to choose from. |  
@@ -18,10 +18,10 @@ __**Main Properties**__
 | database.scanner | `{}` | RDM scanner database used to retrieve pokestops table. |  
 | database.nests | `{}` | PMSF nests database used for reporting nests. |  
 | gmapsKey | `testkeyljdsflkjsdflkj=` | Needed if you want to use the address lookup DTS. |  
-| despawnTimeMinimumMinutes | 5 | Minimum despawn time in minutes a Pokemon must have in order to send the alarm (default: 5) |  
-| reloadSubscriptionChangesMinutes | 1 | Reload subscriptions every minute to sync with WhMgr-UI changes (default: 1) |  
-| maxNotificationsPerMinute | 10 | Maximum amount of notifications a user can receive per minute before being rate limited |  
-| debug | false | Log webhook payloads to a file for debugging (do not enable unless you're having issues receiving data |  
+| despawnTimeMinimumMinutes | `5` | Minimum despawn time in minutes a Pokemon must have in order to send the alarm (default: 5) |  
+| reloadSubscriptionChangesMinutes | `1` | Reload subscriptions every minute to sync with WhMgr-UI changes (default: 1) |  
+| maxNotificationsPerMinute | `10` | Maximum amount of notifications a user can receive per minute before being rate limited |  
+| debug | `false` | Log webhook payloads to a file for debugging (do not enable unless you're having issues receiving data |  
 | logLevel | `Info` | Only show logs with higher or equal priority levels (Trace, Debug, Info, Warning, Error, Fatal, None) |  
 __**Database**__  `database`  
 | host | `127.0.0.1` | Hostname or IP address of database server. |  
@@ -44,13 +44,13 @@ __**Discord Server Specific**__ `servers`
 | cityRoles | `["City1","City2"]` | List of city role names users will be able to subscribe to. |  
 | citiesRequireSupporterRole | `true` | If `true`, any city role assignment command will require the user have a donor/supporter role. |  
 | pruneQuestChannels | `true` | If `true`, prune designated quest channels every day at midnight. |  
-| questChannelIds | `[098309389,987398790,391878179]` | |  
+| questChannelIds | `[098309389,987398790,...]` | |  
 | nestsChannelId | `1347092710` | |  
 | shinyStats.enabled | `true` | If `true`, enable shiny stats posting. |  
 | shinyStats.clearMessages | `false` | Clear previous shiny stat messages. |  
 | shinyStats.channelId | `1347092710` | Channel ID to post shiny stats. |  
 | iconStyle | `Default` | Icon style to use for Pokemon, Raid, Quest, and Invasion images. |  
-| botChannelIds | `[098309389,987398790,391878179]` | Prevents the bot from executing commands outside of listed channels. |  
+| botChannelIds | `[098309389,987398790,...]` | Prevents the bot from executing commands outside of listed channels. |  
 | status | `Finding Pokemon...` | Custom bot Discord status, leave blank for bot version string |  
 __**Urls**__ `urls`  
 | staticMap | `https://tiles.com:8080` | Static map tile server endpoint. |  
@@ -65,13 +65,13 @@ __**StaticMaps**__ `staticMaps`
 | weather | `weather.example` | Name of staticmap template used for weather messages on tileserver. |  
 | nests | `nests.example` | Name of staticmap template used for nest messages on tileserver. |  
 __**Twilio**__ `twilio`  
-| enabled | false | Determines if text message alerts are enabled |  
-| accountSid | ACb9ef2a14fa64df16ce0209111db3d622 | Twilio account SID (Get via Twilio dashboard) |  
-| authToken | 19c2f1c032962f0fffdedfd591197d31 | Twilio account auth token (Get via Twilio dashboard) |  
-| from | 8181234567 | Twilio phone number that will be sending the text message alert |  
+| enabled | `false` | Determines if text message alerts are enabled |  
+| accountSid | `ACb9ef2a14fa64...` | Twilio account SID (Get via Twilio dashboard) |  
+| authToken | `19c2f1c032962f...` | Twilio account auth token (Get via Twilio dashboard) |  
+| from | `8181234567` | Twilio phone number that will be sending the text message alert |  
 | userIds | [092830498234,80928340822] | List of Discord user ids that can receive text message alerts |  
 | pokemonIds | `[201,480,481,482,443,633,610]` | List of acceptable Pokemon to receive text message alerts for |  
-| minIV | 100 | Minimum acceptable IV value for Pokemon if not ultra rare (Unown, Lake Trio) |  
+| minIV | `100` | Minimum acceptable IV value for Pokemon if not ultra rare (Unown, Lake Trio) |  
 
 ## Example
 ```js

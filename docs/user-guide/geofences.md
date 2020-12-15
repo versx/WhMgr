@@ -86,4 +86,4 @@ Geofences define area borders and perimeters for a city or multiple cities. Each
 ```
 
 
-Optional: **GeoJSON to individual INI format geofence files converter:** https://gist.github.com/versx/a0915c6bd95a080b6ff60cd539d4feb6  
+Optional: [**GeoJSON to individual INI format geofence files converter**](https://gist.github.com/versx/a0915c6bd95a080b6ff60cd539d4feb6)  
