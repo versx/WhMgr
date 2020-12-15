@@ -1,13 +1,14 @@
 # Welcome to Webhook Manager
 
-Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
-Works with [Chuck](https://github.com/WatWowMap/Chuck)  
+Works with the following backends:
+- [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
+- [Chuck](https://github.com/WatWowMap/Chuck)  
 
 
 Made in C#, runs on .NET Core CLR. Cross platform compatibility, can run on Windows, macOS, and Linux operating systems.  
 Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, Team Rocket invasion, and Pokestop lure notifications via direct messages.
 
-## Features:  
+## Features  
 - Supports multiple Discord servers.  
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
 - Per user custom Discord notifications for Pokemon, raids, quests, invasions, and lures.  
@@ -32,23 +33,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - [I.C.O.N.S.](https://github.com/Mygod/pokemon-icon-postprocessor) standard image support.
 - Lots more...  
 
-## Terminology:  
-- **Alerts:** Discord message structures for channel messages or direct message subscriptions
-- **Subscriptions:** Custom user defined Pokemon, Raid, Quest, Invasion, or Gym direct messages subscriptions
-- **Geofences:** Area restrictions per Alarm
-- **Alarms:** Discord channel messages
-
-## Discord Permissions
-- Read Messages  
-- Send Messages  
-- Manage Messages (Prune quest channels)  
-- Manage Roles (If cities are enabled)  
-- Manage Emojis  
-- Embed Links  
-- Attach Files (`export` command)  
-- Use External Emojis  
-
-**Direct Message Notification Filters**  
+### Direct Message Notification Filters  
 - Pokemon ID  
 - Pokemon Form  
 - Pokemon IV  
@@ -60,10 +45,10 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Gym Name  
 - Quest Reward  
 - Invasion Grunt Type  
-- Pokestop Lure Type
-- Distance (meters) 
+- Pokestop Lure Type  
+- Distance (meters)  
 
-**Frameworks and Libraries**
+### Frameworks and Libraries
 - .NET Core v2.1.803  
 - DSharpPlus v3.2.3  
 - DSharpPlus.CommandsNext v3.2.3  

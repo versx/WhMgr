@@ -35,6 +35,17 @@ dotnet WhMgr.dll
 11.) Optional reverse location lookup with OpenStreetMaps Nominatim instead of Google Maps, install instructions [here](https://nominatim.org/release-docs/develop/admin/Installation/)  
 
 
+## Discord Permissions
+- Read Messages  
+- Send Messages  
+- Manage Messages (Prune quest channels)  
+- Manage Roles (If cities are enabled)  
+- Manage Emojis  
+- Embed Links  
+- Attach Files (`export` command)  
+- Use External Emojis  
+
+
 ## Notes:
 - If `dotnet` is not in your path, you'll need to use `~/.dotnet/dotnet` instead of just `dotnet` for commands.  
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created in the specified `EmojiGuildId` upon connecting to Discord.  

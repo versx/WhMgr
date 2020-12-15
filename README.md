@@ -6,8 +6,9 @@
 # Webhook Manager v4  
 
 ### PokeAlarm, PoracleJS, WDR, Novabot, etc alternative.  
-Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
-Works with [Chuck](https://github.com/WatWowMap/Chuck)  
+Works with the following backends:
+- [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
+- [Chuck](https://github.com/WatWowMap/Chuck)  
 
 
 ## Description:  
@@ -39,40 +40,12 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - [I.C.O.N.S.](https://github.com/Mygod/pokemon-icon-postprocessor) standard image support.
 - Lots more...  
 
-## Documentation:  
-[ReadTheDocs](https://whmgr.rtfd.io/)  
 
+## [Documentation](https://whmgr.rtfd.io/)  
 
-## Getting Started:  
+### [Getting Started Guide](https://whmgr.readthedocs.io/en/latest/user-guide/getting-started)  
+<hr>  
 
-1.) Run the following to install .NET Core runtime, clone respository, and copy example Alerts, Filters, Geofences, config and alarm files.  
-**Linux/macOS:**  
-```
-wget https://raw.githubusercontent.com/versx/WhMgr/master/install.sh && chmod +x install.sh && ./install.sh && rm install.sh  
-```
-**Windows:**  
-```
-bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/master/install.bat install.bat | start install.bat  
-```
-2.) Edit `config.json` either open in Notepad/++ or `vi config.json`.  
-  - [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
-  - Input your bot token and config options.  
-
-
-
-## Updating  
-The update scripts will pull latest repository changes, build latest WhMgr.dll, and copy latest locale translation and master files.
-If you'd like to copy any of the latest example files (alerts, filters, templates, geofences) you can provide a parameter when running the script to include them.  
-```
-update.sh examples
-Will copy examples to build folder
-
-update.sh geofences
-Will copy geofences to build folder
-
-update.sh all
-Will copy examples and geofences to build folder
-```  
 
 ## TODO  
 - Allow Pokemon id and name in Pokemon filter lists.  
