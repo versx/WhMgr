@@ -1,14 +1,16 @@
 # Welcome to Webhook Manager
 
 Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
+Works with [Chuck](https://github.com/WatWowMap/Chuck)  
+
 
 Made in C#, runs on .NET Core CLR. Cross platform compatibility, can run on Windows, macOS, and Linux operating systems.  
-Parses and sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, gym team control changes, and weather changes. Also supports Discord user's subscribing to Pokemon, raid, quest, or Team Rocket invasion notifications via direct messages.
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, Team Rocket invasion, and Pokestop lure notifications via direct messages.
 
 ## Features:  
 - Supports multiple Discord servers.  
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
-- Per user custom Discord notifications for Pokemon, raids, quests, and invasions.  
+- Per user custom Discord notifications for Pokemon, raids, quests, invasions, and lures.  
 - User interface to configure Discord notifications with ease (as well as Discord commands). (https://github.com/versx/WhMgr-UI)  
 - Subscription notifications based on pre-defined distance.  
 - Customizable alert messages with dynamic text replacement.  
@@ -30,8 +32,38 @@ Parses and sends Discord notifications based on pre-defined filters for Pokemon,
 - [I.C.O.N.S.](https://github.com/Mygod/pokemon-icon-postprocessor) standard image support.
 - Lots more...  
 
+## Terminology:  
+- **Alerts:** Discord message structures for channel messages or direct message subscriptions
+- **Subscriptions:** Custom user defined Pokemon, Raid, Quest, Invasion, or Gym direct messages subscriptions
+- **Geofences:** Area restrictions per Alarm
+- **Alarms:** Discord channel messages
 
-### Frameworks and Libraries
+## Discord Permissions
+- Read Messages  
+- Send Messages  
+- Manage Messages (Prune quest channels)  
+- Manage Roles (If cities are enabled)  
+- Manage Emojis  
+- Embed Links  
+- Attach Files (`export` command)  
+- Use External Emojis  
+
+**Direct Message Notification Filters**  
+- Pokemon ID  
+- Pokemon Form  
+- Pokemon IV  
+- Pokemon Level  
+- List of Pokemon Attack/Defense/Stamina values  
+- Pokemon Gender  
+- Raid Boss  
+- City  
+- Gym Name  
+- Quest Reward  
+- Invasion Grunt Type  
+- Pokestop Lure Type
+- Distance (meters) 
+
+**Frameworks and Libraries**
 - .NET Core v2.1.803  
 - DSharpPlus v3.2.3  
 - DSharpPlus.CommandsNext v3.2.3  
@@ -42,7 +74,5 @@ Parses and sends Discord notifications based on pre-defined filters for Pokemon,
 - Stripe.net v37.14.0  
 - Twilio v5.44.0  
 
-[Click here](user-guide/config) to get started!  
 
-### About  
-About the developer
+**[Click here](user-guide/config) to get started!**  

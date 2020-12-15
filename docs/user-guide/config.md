@@ -144,51 +144,60 @@ __**Image Urls**__ `urls`
             ],
             // Custom Discord status per server, leave blank or null to use current version.  
             "status": "",
+            // Alerts file that will be used for direct message subscription notifications.
             "dmAlertsFile": "default.json",
+            // Discord embed colors
             "embedColors": {
-              "pokemon": {
-                "iv": [
-                  { "min": 0, "max": 0, "color": "#ffffff" },
-                  { "min": 1, "max": 89, "color": "#ffff00" },
-                  { "min": 90, "max": 99, "color": "#ffa500" },
-                  { "min": 100, "max": 100, "color": "#00ff00" }
-                ],
-                "pvp": [
-                  { "min": 1, "max": 1, "color": "#000080" },
-                  { "min": 6, "max": 25, "color": "#800080" },
-                  { "min": 25, "max": 100, "color": "#aa2299" }
-                ]
-              },
-              "raids": {
-                "1": "#ff69b4",
-                "2": "#ff69b4",
-                "3": "#ffff00",
-                "4": "#ffff00",
-                "5": "#800080",
-                "6": "#a52a2a",
-                "ex": "#2c2f33"
-              },
-              "pokestops": {
-                "quests": "#ffa500",
-                "lures": {
-                  "normal": "#ff69b4",
-                  "glacial": "#6495ed",
-                  "mossy": "#507d2a",
-                  "magnetic": "#808080"
+                // Embed colors for Pokemon embeds
+                "pokemon": {
+                    // Embed colors for Pokemon with IV embeds
+                    "iv": [
+                        { "min": 0, "max": 0, "color": "#ffffff" },
+                        { "min": 1, "max": 89, "color": "#ffff00" },
+                        { "min": 90, "max": 99, "color": "#ffa500" },
+                        { "min": 100, "max": 100, "color": "#00ff00" }
+                    ],
+                    // Embed colors for Pokemon with PvP stats embeds
+                    "pvp": [
+                        { "min": 1, "max": 1, "color": "#000080" },
+                        { "min": 6, "max": 25, "color": "#800080" },
+                        { "min": 25, "max": 100, "color": "#aa2299" }
+                    ]
                 },
-                "invasions": "#ff0000"
-              },
-              "weather": {
-                "clear": "#ffff00",
-                "cloudy": "#99aab5",
-                "fog": "#9a9a9a",
-                "partlyCloudy": "#808080",
-                "rain": "#0000ff",
-                "snow": "#ffffff",
-                "windy": "#800080"
-              }
+                // Embed colors for Raid embeds
+                "raids": {
+                    "1": "#ff69b4",
+                    "2": "#ff69b4",
+                    "3": "#ffff00",
+                    "4": "#ffff00",
+                    "5": "#800080",
+                    "6": "#a52a2a",
+                    "ex": "#2c2f33"
+                },
+                // Embed colors for different types of Pokestops
+                "pokestops": {
+                    "quests": "#ffa500",
+                    "lures": {
+                        "normal": "#ff69b4",
+                        "glacial": "#6495ed",
+                        "mossy": "#507d2a",
+                        "magnetic": "#808080"
+                    },
+                    "invasions": "#ff0000"
+                },
+                // Embed colors for Weather embeds
+                "weather": {
+                    "clear": "#ffff00",
+                    "cloudy": "#99aab5",
+                    "fog": "#9a9a9a",
+                    "partlyCloudy": "#808080",
+                    "rain": "#0000ff",
+                    "snow": "#ffffff",
+                    "windy": "#800080"
+                }
             }
         },
+        // 2nd Discord server section (if applicable)
         "000000000000000002": {
 		    // etc ...
 		}
@@ -252,9 +261,8 @@ __**Image Urls**__ `urls`
     },
     // Available icon styles
     "iconStyles": {
-        "Default": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/original/",
-        "Shuffle": "https://raw.githubusercontent.com/versx/WhMgr-Assets/master/shuffle/",
-        "Home": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/pmsf_OS_128/"
+        "Default": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/",
+        "Shuffle": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
     },
     // Custom static map template files for each alarm type
     "staticMaps": {
@@ -304,67 +312,5 @@ __**Image Urls**__ `urls`
     "debug": false,
     // Only show logs with higher or equal priority levels (Trace, Debug, Info, Warning, Error, Fatal, None)
     "logLevel": "Trace"
-}
-```
-3.) Edit `alarms.json` either open in Notepad/++ or `vi alarms.json`.  
-4.) Fill out the alarms file.  
-```js
-{
-    //Global switch for Pokemon notifications.
-    "enablePokemon": false,
-  
-    //Global switch for Raid/Egg notifications.
-    "enableRaids": false,
-  
-    //Global switch for Quest notifications.
-    "enableQuests": false,
-  
-    //Global switch for Pokestop notifications.
-    "enablePokestops": false,
-  
-    //Global switch for Gym notifications.
-    "enableGyms": false,
-    
-    //Global switch for Weather notifications.
-    "enableWeather": false,
-  
-    //List of alarms
-    "alarms": [{
-        //Alarm name.
-        "name":"Alarm1",
-        
-        //DTS compatible mention description.      
-        "description":"<!@324234324> <iv> L<lvl> <geofence>",
-      
-        //Alerts file.
-        "alerts":"default.json",
-      
-        //Alarm filters.
-        "filters":"default.json",
-      
-        //Path to geofence file(s) or geofence name(s) to use.
-        "geofences": ["geofence1.txt", "geofence2.json", "city1"],
-    
-        //Discord webhook url address.
-        "webhook":"<DISCORD_WEBHOOK_URL>"
-    },{
-        //Alarm name.
-        "name":"Alarm2",
-        
-        //DTS compatible mention description.      
-        "description":"",
-      
-        //Alerts file.
-        "alerts":"default.json",
-      
-        //Alarm filters.
-        "filters":"100iv.json",
-      
-        //Path to geofence file(s) or geofence name(s) to use.
-        "geofences": ["geofence3.txt", "geofence4.json", "city2"],
-      
-        //Discord webhook url address.
-        "webhook":"<DISCORD_WEBHOOK_URL>"
-    }]
 }
 ```

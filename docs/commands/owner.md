@@ -1,7 +1,7 @@
 # Owner Commands
 
 **gyms convert** - Check for any pokestops that have converted to gyms and delete them from the database.  
-**nests** - Post nests in nest channels.  
+**nests** / **nests list** - Post nests in nest channels.  
 **isbanned** - Check if IP banned from PTC or NIA.  
 **clean-departed** - Clean departed Discord member subscriptions.  
 **reset-quests** - Reset and delete quest channels.  

@@ -7,7 +7,7 @@ Parameters in `[]` are optional parameters and default values will be used if no
 
 **enable** - Enable direct message subscription notifications.  
 **disable** - Disable direct message subscription notifications.  
-**info** - List all Pokemon, Raid, Quest, Invasion, and Gym subscriptions and settings.  
+**info** - List all Pokemon, Raid, Quest, Invasion, Lure, and Gym subscriptions and settings.  
 **expire** / **expires** - Check stripe API when Donor/Supporter subscription expires.  
 **set-number** - Set a phone number to receive text message alerts for ultra rare Pokemon.  
 

@@ -1,5 +1,5 @@
 # Filters
-Filters allow you to narrow down what is reported. All filters are options and can be omitted. Plenty of examples in the repository under the [`examples/Filters`](https://github.com/versx/Brock-WhMgr/tree/v3/examples/Filters) directory for all different needs.  
+Filters allow you to narrow down what is reported. All filters are optional and can be omitted. Plenty of examples in the repository under the [`examples/Filters`](https://github.com/versx/WhMgr/tree/master/examples/filters) directory for all different needs.  
 
 ### Available Filter Options
 ```js

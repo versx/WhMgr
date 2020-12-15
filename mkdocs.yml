@@ -14,6 +14,9 @@ hljs_style: docco
 
 nav:
     - Home: index.md
+    - General:
+        - Updating: user-guide/updating.md
+        - Screenshots: user-guide/screenshots.md
     - User Guide:
         - Getting Started: user-guide/getting-started.md
         - Config: user-guide/config.md
