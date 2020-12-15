@@ -42,7 +42,7 @@ ALTER TABLE quests ADD KEY ix_reward (reward);
 ALTER TABLE quests ADD KEY ix_city (city);
 
 ALTER TABLE invasions MODIFY COLUMN city text DEFAULT NULL;
-ALTER TABLE invasions MODIFY COLUMN reward_pokemon_id smallint(5) unsigned NOT NULL,
+ALTER TABLE invasions MODIFY COLUMN reward_pokemon_id smallint(5) unsigned NOT NULL;
 ALTER TABLE invasions ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE invasions ADD KEY ix_reward_pokemon_id (reward_pokemon_id);
 ALTER TABLE invasions ADD KEY ix_city (city);
