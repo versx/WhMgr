@@ -170,6 +170,12 @@
             InvasionSubscriptionTriggered?.Invoke(this, pokestop);
         }
 
+        public event EventHandler<PokestopData> LureSubscriptionTriggered;
+        private void OnLureSubscriptionTriggered(PokestopData pokestop)
+        {
+            LureSubscriptionTriggered?.Invoke(this, pokestop);
+        }
+
         #endregion
 
         #endregion
@@ -294,6 +300,7 @@
             {
                 ProcessPokestop(pokestop);
                 OnInvasionSubscriptionTriggered(pokestop);
+                OnLureSubscriptionTriggered(pokestop);
             }
         }
 
@@ -514,6 +521,9 @@
 
             foreach (var (guildId, alarms) in _alarms)
             {
+                if (alarms == null)
+                    continue;
+
                 if (!alarms.EnablePokemon)
                     continue;
 
@@ -629,6 +639,9 @@
 
             foreach (var (guildId, alarms) in _alarms)
             {
+                if (alarms == null)
+                    continue;
+
                 if (!alarms.EnableRaids)
                     continue;
 
@@ -751,6 +764,9 @@
 
             foreach (var (guildId, alarms) in _alarms)
             {
+                if (alarms == null)
+                    continue;
+
                 if (!alarms.EnableQuests)
                     continue;
 
@@ -818,6 +834,9 @@
 
             foreach (var (guildId, alarms) in _alarms)
             {
+                if (alarms == null)
+                    continue;
+
                 //Skip if EnablePokestops is disabled in the config.
                 if (!alarms.EnablePokestops)
                     continue;
@@ -878,6 +897,9 @@
 
             foreach (var (guildId, alarms) in _alarms)
             {
+                if (alarms == null)
+                    continue;
+
                 if (!alarms.EnableGyms)
                     continue;
 
@@ -918,6 +940,9 @@
 
             foreach (var (guildId, alarms) in _alarms)
             {
+                if (alarms == null)
+                    continue;
+
                 if (!alarms.EnableGyms) //GymDetails
                     continue;
 
@@ -984,6 +1009,9 @@
 
             foreach (var (guildId, alarms) in _alarms)
             {
+                if (alarms == null)
+                    continue;
+
                 if (!alarms.EnableWeather)
                     continue;
 

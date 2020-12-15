@@ -10,6 +10,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
+    using WhMgr.Net.Models;
 
     /// <summary>
     /// User subscription manager class
@@ -22,10 +23,7 @@
 
         private readonly WhConfigHolder _whConfig;
         private List<SubscriptionObject> _subscriptions;
-
         private readonly OrmLiteConnectionFactory _connFactory;
-        //private readonly OrmLiteConnectionFactory _scanConnFactory;
-
         private readonly Timer _reloadTimer;
 
         #endregion
@@ -61,13 +59,11 @@
                 throw new NullReferenceException(err);
             }
 
-            _connFactory = new OrmLiteConnectionFactory(_whConfig.Instance.Database.Main.ToString(), MySqlDialect.Provider);
-
-            if (_whConfig.Instance.Database?.Nests == null)
+            if (_whConfig.Instance?.Database?.Nests == null)
             {
                 _logger.Warn("Nest database is not configured in config.json file, nest alarms and commands will not work.");
             }
-
+          
             _connFactory = new OrmLiteConnectionFactory(_whConfig.Instance.Database.Main.ToString(), MySqlDialect.Provider);
 
             // Reload subscriptions every 60 seconds to account for UI changes
@@ -188,6 +184,20 @@
         }
 
         /// <summary>
+        /// Gets user subscriptions from subscribed Pokestop lures
+        /// </summary>
+        /// <param name="lureType">Pokestop lure type</param>
+        /// <returns>Returns list of user subscription objects</returns>
+        public List<SubscriptionObject> GetUserSubscriptionsByLureType(PokestopLureType lureType)
+        {
+            return _subscriptions?
+                .Where(x => x.Enabled &&
+                            x.Lures != null &&
+                            x.Lures.Exists(y => lureType == y.LureType))
+                .ToList();
+        }
+
+        /// <summary>
         /// Get all enabled user subscriptions
         /// </summary>
         /// <returns>Returns all enabled user subscription objects</returns>
@@ -261,6 +271,7 @@
                     conn.Delete<QuestSubscription>(x => x.GuildId == guildId && x.UserId == userId);
                     conn.Delete<GymSubscription>(x => x.GuildId == guildId && x.UserId == userId);
                     conn.Delete<InvasionSubscription>(x => x.GuildId == guildId && x.UserId == userId);
+                    conn.Delete<LureSubscription>(x => x.GuildId == guildId && x.UserId == userId);
                     conn.Delete<SubscriptionObject>(x => x.GuildId == guildId && x.UserId == userId);
                 }
 

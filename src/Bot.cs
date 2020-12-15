@@ -232,13 +232,14 @@
             _whm.GymDetailsAlarmTriggered += OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered += OnWeatherAlarmTriggered;
             // At least one server wants subscriptions
-            if (_whConfig.Instance.Servers.FirstOrDefault(x => x.Value.Subscriptions.Enabled).Value != null)
+            if (_whConfig.Instance.Servers.Any(x => x.Value.Subscriptions.Enabled))
             {
                 // Register subscription event handlers
                 _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
                 _whm.InvasionSubscriptionTriggered += OnInvasionSubscriptionTriggered;
+                _whm.LureSubscriptionTriggered += OnLureSubscriptionTriggered;
             }
             _whm.Start();
 
@@ -270,13 +271,14 @@
             _whm.GymAlarmTriggered -= OnGymAlarmTriggered;
             _whm.GymDetailsAlarmTriggered -= OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered -= OnWeatherAlarmTriggered;
-            if (_whConfig.Instance.Servers.FirstOrDefault(x => x.Value.Subscriptions.Enabled).Value != null)
+            if (_whConfig.Instance.Servers.Any(x => x.Value.Subscriptions.Enabled))
             {
                 //At least one server wanted subscriptions, unregister the subscription event handlers
                 _whm.PokemonSubscriptionTriggered -= OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered -= OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered -= OnQuestSubscriptionTriggered;
                 _whm.InvasionSubscriptionTriggered -= OnInvasionSubscriptionTriggered;
+                _whm.LureSubscriptionTriggered -= OnLureSubscriptionTriggered;
             }
             _whm.Stop();
 
@@ -533,7 +535,7 @@
 
                 if (pokemon.IV == "100%")
                 {
-                    Statistics.Instance.Add100Percent(pokemon);
+                    Statistics.Instance.AddHundredIV(pokemon);
                 }
             }
             catch (Exception ex)
@@ -652,7 +654,7 @@
             try
             {
                 var client = _servers[e.GuildId];
-                var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig.Instance, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig.Instance, e.Alarm, loc?.Name ?? e.Alarm.Name, pokestop.HasLure, pokestop.HasInvasion);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username ?? Translator.Instance.Translate("UNKNOWN_POKESTOP"),
@@ -833,6 +835,18 @@
             {
                 // Failed to queue thread
                 _logger.Error($"Failed to queue thread to process invasion subscription");
+            }
+        }
+
+        private void OnLureSubscriptionTriggered(object sender, PokestopData e)
+        {
+            if (_subProcessor == null)
+                return;
+
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessLureSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process lure subscription");
             }
         }
 

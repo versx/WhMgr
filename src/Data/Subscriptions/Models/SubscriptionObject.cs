@@ -90,6 +90,13 @@
         /// to trigger
         /// </summary>
         [
+            JsonProperty("lures"),
+            Alias("lures"),
+            Reference
+        ]
+        public List<LureSubscription> Lures { get; set; }
+
+        [
             JsonProperty("distance"),
             Alias("distance"),
             Default(0)
@@ -166,6 +173,7 @@
             Gyms = new List<GymSubscription>();
             Quests = new List<QuestSubscription>();
             Invasions = new List<InvasionSubscription>();
+            Lures = new List<LureSubscription>();
             Limiter = new NotificationLimiter();
             DistanceM = 0;
             Latitude = 0;

@@ -23,6 +23,7 @@ namespace WhMgr.Commands
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Localization;
+    using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
     public class Notifications
@@ -1430,6 +1431,161 @@ namespace WhMgr.Commands
 
         #endregion
 
+        #region Lureme / Luremenot
+
+        [
+             Command("lureme"),
+             Description("Subscribe to Pokestop lure notifications based on the lure type.")
+         ]
+        public async Task LureMeAsync(CommandContext ctx,
+             [Description("Comma delimited list of Pokestop lures to subscribe to notifications.")] string lureTypes = "all",
+             [Description("City to send the notification if the lure appears in otherwise if null all will be sent."), RemainingText] string city = "all")
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return;
+
+            var server = _dep.WhConfig.Servers[guildId];
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            // Check subscription limits
+            if (server.Subscriptions.MaxLureSubscriptions > 0 && subscription.Lures.Count >= server.Subscriptions.MaxLureSubscriptions)
+            {
+                // Max limit for Lure subscriptions reached
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_LURE_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxLureSubscriptions), DiscordColor.Red);
+                return;
+            }
+
+            var areas = SubscriptionAreas.GetAreas(server, city);
+            var lures = GetLures(lureTypes);
+            foreach (var lureType in lures)
+            {
+                var subLure = subscription.Lures.FirstOrDefault(x => x.LureType == lureType);
+                if (subLure != null)
+                {
+                    // Existing lure subscription
+                    // Loop all areas, check if the area is already in subs, if not add it
+                    foreach (var area in areas)
+                    {
+                        if (!subLure.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                        {
+                            subLure.Areas.Add(area);
+                        }
+                    }
+                    // Save quest subscription and continue;
+                    // REVIEW: Might not be needed
+                    subLure.Save();
+                }
+                else
+                {
+                    // New lure subscription
+                    subscription.Lures.Add(new LureSubscription
+                    {
+                        GuildId = guildId,
+                        UserId = ctx.User.Id,
+                        LureType = lureType,
+                        Areas = areas
+                    });
+                }
+            }
+            subscription.Save();
+
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_LURE_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
+                ctx.User.Username,
+                string.Compare(lureTypes, Strings.All, true) == 0 ? Strings.All : string.Join(", ", lures),
+                string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+            );
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        [
+            Command("luremenot"),
+            Description("Unsubscribe from one or all subscribed Pokestop lure notifications by lure type.")
+        ]
+        public async Task LureMeNotAsync(CommandContext ctx,
+            [Description("Comma delimited list of Pokestop lures to unsubscribe from notifications.")] string lureTypes = "all",
+            [Description("City to send the notification if the raid appears in otherwise if null all will be sent."), RemainingText] string city = "all")
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            if (subscription == null || subscription?.Lures.Count == 0)
+            {
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_LURE_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
+                    DiscordColor.Red
+                );
+                return;
+            }
+
+            if (string.Compare(lureTypes, Strings.All, true) == 0)
+            {
+                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_LURE_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Lures.Count.ToString("N0")));
+                if (!result)
+                    return;
+
+                subscription.Lures.ForEach(x => x.Id.Remove<LureSubscription>());
+
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_LURE_SUBSCRIPTIONS").FormatText(ctx.User.Username));
+                _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                return;
+            }
+
+            var areas = SubscriptionAreas.GetAreas(_dep.WhConfig.Servers[guildId], city);
+            var lures = GetLures(lureTypes);
+            foreach (var lureType in lures)
+            {
+                var subLure = subscription.Lures.FirstOrDefault(x => x.LureType == lureType);
+                // Check if subscribed
+                if (subLure == null)
+                    return;
+
+                foreach (var area in areas)
+                {
+                    if (subLure.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                    {
+                        var index = subLure.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                        subLure.Areas.RemoveAt(index);
+                    }
+                }
+
+                // Check if there are no more areas set for the lure subscription
+                if (subLure.Areas.Count == 0)
+                {
+                    // If no more areas set for the lure subscription, delete it
+                    if (!subLure.Id.Remove<LureSubscription>())
+                    {
+                        _logger.Error($"Unable to remove lure subscription for user id {subLure.UserId} from guild id {subLure.GuildId}");
+                    }
+                }
+                else
+                {
+                    // Save/update lure subscription if cities still assigned
+                    subLure.Save();
+                }
+            }
+            subscription.Save();
+
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_LURE_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
+                ctx.User.Username,
+                string.Compare(lureTypes, Strings.All, true) == 0 ? Strings.All : string.Join(", ", lures),
+                string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+            );
+
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        #endregion
+
         #region Add / Remove
 
         [
@@ -2663,13 +2819,14 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
             var server = _dep.WhConfig.Servers[guildId];
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, user.Id);
-            var isSubbed = subscription?.Pokemon.Count > 0 || subscription?.PvP.Count > 0 || subscription?.Raids.Count > 0 || subscription?.Quests.Count > 0 || subscription?.Invasions.Count > 0 || subscription?.Gyms.Count > 0;
-            var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
-            var hasPvP = isSubbed && subscription?.PvP.Count > 0;
-            var hasRaids = isSubbed && subscription?.Raids.Count > 0;
-            var hasGyms = isSubbed && subscription?.Gyms.Count > 0;
-            var hasQuests = isSubbed && subscription?.Quests.Count > 0;
-            var hasInvasions = isSubbed && subscription?.Invasions.Count > 0;
+            var isSubbed = subscription?.Pokemon.Count > 0 || subscription?.PvP.Count > 0 || subscription?.Raids.Count > 0 || subscription?.Quests.Count > 0 || subscription?.Invasions.Count > 0 || subscription?.Gyms.Count > 0 || subscription?.Lures.Count > 0;
+            var hasPokemon = isSubbed && subscription?.Pokemon?.Count > 0;
+            var hasPvP = isSubbed && subscription?.PvP?.Count > 0;
+            var hasRaids = isSubbed && subscription?.Raids?.Count > 0;
+            var hasGyms = isSubbed && subscription?.Gyms?.Count > 0;
+            var hasQuests = isSubbed && subscription?.Quests?.Count > 0;
+            var hasInvasions = isSubbed && subscription?.Invasions?.Count > 0;
+            var hasLures = isSubbed && subscription?.Lures?.Count > 0;
             var messages = new List<string>();
             var isSupporter = await client.IsSupporterOrHigher(user.Id, guildId, _dep.WhConfig);
 
@@ -2798,6 +2955,18 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                 invasionsBuilder.AppendLine();
                 messages.Add(invasionsBuilder.ToString());
             }
+          
+            if (hasLures)
+            {
+                var luresBuilder = new StringBuilder();
+                luresBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_LURES").FormatText(subscription.Lures.Count.ToString("N0"), server.Subscriptions.MaxLureSubscriptions == 0 ? "∞" : server.Subscriptions.MaxLureSubscriptions.ToString("N0")));
+                luresBuilder.Append("```");
+                luresBuilder.Append(string.Join(Environment.NewLine, GetLureSubscriptionNames(guildId, user.Id)));
+                luresBuilder.Append("```");
+                luresBuilder.AppendLine();
+                luresBuilder.AppendLine();
+                messages.Add(luresBuilder.ToString());
+            }
 
             return messages;
         }
@@ -2920,6 +3089,23 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             return list;
         }
 
+        private List<string> GetLureSubscriptionNames(ulong guildId, ulong userId)
+        {
+            var list = new List<string>();
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
+            var subscribedLures = subscription.Lures;
+            subscribedLures.Sort((x, y) => x.LureType.CompareTo(y.LureType));
+            var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
+
+            foreach (var lure in subscribedLures)
+            {
+                var isAllCities = cityRoles.ScrambledEquals(lure.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(lure.LureType, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", lure.Areas)));
+            }
+
+            return list;
+        }
+
         private DiscordEmbedBuilder BuildExpirationMessage(ulong guildId, DiscordUser user)
         {
             var customerData = _dep.Stripe.GetCustomerData(guildId, user.Id);
@@ -2971,6 +3157,28 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             }
 
             return true;
+        }
+
+        private static PokestopLureType GetLureFromName(string lureName)
+        {
+            lureName = lureName.ToLower();
+            if (lureName.Contains("501") || lureName.Contains("norm"))
+                return PokestopLureType.Normal;
+            else if (lureName.Contains("502") || lureName.Contains("glac"))
+                return PokestopLureType.Glacial;
+            else if (lureName.Contains("503") || lureName.Contains("mos"))
+                return PokestopLureType.Mossy;
+            else if (lureName.Contains("504") || lureName.Contains("mag"))
+                return PokestopLureType.Magnetic;
+            return PokestopLureType.None;
+        }
+
+        private static List<PokestopLureType> GetLures(string lureTypes)
+        {
+            var lureNames = lureTypes.Replace(", ", ",").Replace(" ,", ",").Split(',').ToList();
+            var list = new List<PokestopLureType>();
+            lureNames.ForEach(x => list.Add(GetLureFromName(x)));
+            return list;
         }
 
         #endregion

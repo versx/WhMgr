@@ -54,6 +54,8 @@
 
         public long SubscriptionInvasionsSent { get; set; }
 
+        public long SubscriptionLuresSent { get; set; }
+
         public Dictionary<DateTime, PokemonData> Hundos { get; }
 
         public long TotalReceivedPokemon { get; set; }
@@ -91,7 +93,7 @@
 
         #region Public Methods
 
-        public void Add100Percent(PokemonData pokemon)
+        public void AddHundredIV(PokemonData pokemon)
         {
             Hundos.Add(DateTime.Now, pokemon);
         }
@@ -103,48 +105,46 @@
                 Directory.CreateDirectory(Strings.StatsFolder);
             }
 
-            var stats = Statistics.Instance;
             var sb = new System.Text.StringBuilder();
-            var header = "Pokemon Alarms,Raid Alarms,Quest Alarms,Pokemon Subscriptions,Raid Subscriptions,Quest Subscriptions,Top 25 Pokemon,Top 25 Raids";
-            sb.AppendLine(header);
             sb.AppendLine(DateTime.Now.ToString());
             sb.AppendLine($"__**Pokemon**__");
-            sb.AppendLine($"Alarms Sent: {stats.PokemonAlarmsSent:N0}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedPokemon:N0}");
-            sb.AppendLine($"With IV Stats: {stats.TotalReceivedPokemonWithStats:N0}");
-            sb.AppendLine($"Missing IV Stats: {stats.TotalReceivedPokemonMissingStats:N0}");
-            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionPokemonSent:N0}");
+            sb.AppendLine($"Alarms Sent: {Instance.PokemonAlarmsSent:N0}");
+            sb.AppendLine($"Total Received: {Instance.TotalReceivedPokemon:N0}");
+            sb.AppendLine($"With IV Stats: {Instance.TotalReceivedPokemonWithStats:N0}");
+            sb.AppendLine($"Missing IV Stats: {Instance.TotalReceivedPokemonMissingStats:N0}");
+            sb.AppendLine($"Subscriptions Sent: {Instance.SubscriptionPokemonSent:N0}");
             sb.AppendLine();
             sb.AppendLine("__**Raids**__");
-            sb.AppendLine($"Egg Alarms Sent: {stats.EggAlarmsSent:N0}");
-            sb.AppendLine($"Raids Alarms Sent: {stats.RaidAlarmsSent:N0}");
-            sb.AppendLine($"Total Eggs Received: {stats.TotalReceivedRaids:N0}");
-            sb.AppendLine($"Total Raids Received: {stats.TotalReceivedRaids:N0}");
-            sb.AppendLine($"Raid Subscriptions Sent: {stats.SubscriptionRaidsSent:N0}");
+            sb.AppendLine($"Egg Alarms Sent: {Instance.EggAlarmsSent:N0}");
+            sb.AppendLine($"Raids Alarms Sent: {Instance.RaidAlarmsSent:N0}");
+            sb.AppendLine($"Total Eggs Received: {Instance.TotalReceivedRaids:N0}");
+            sb.AppendLine($"Total Raids Received: {Instance.TotalReceivedRaids:N0}");
+            sb.AppendLine($"Raid Subscriptions Sent: {Instance.SubscriptionRaidsSent:N0}");
             sb.AppendLine();
             sb.AppendLine($"__**Quests**__");
-            sb.AppendLine($"Alarms Sent: {stats.QuestAlarmsSent:N0}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedQuests:N0}");
-            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionQuestsSent:N0}");
+            sb.AppendLine($"Alarms Sent: {Instance.QuestAlarmsSent:N0}");
+            sb.AppendLine($"Total Received: {Instance.TotalReceivedQuests:N0}");
+            sb.AppendLine($"Subscriptions Sent: {Instance.SubscriptionQuestsSent:N0}");
             sb.AppendLine();
             sb.AppendLine($"__**Invasions**__");
-            sb.AppendLine($"Alarms Sent: {stats.InvasionAlarmsSent:N0}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedInvasions:N0}");
-            sb.AppendLine($"Subscriptions Sent: {stats.SubscriptionInvasionsSent:N0}");
+            sb.AppendLine($"Alarms Sent: {Instance.InvasionAlarmsSent:N0}");
+            sb.AppendLine($"Total Received: {Instance.TotalReceivedInvasions:N0}");
+            sb.AppendLine($"Subscriptions Sent: {Instance.SubscriptionInvasionsSent:N0}");
             sb.AppendLine();
             sb.AppendLine($"__**Lures**__");
-            sb.AppendLine($"Alarms Sent: {stats.LureAlarmsSent:N0}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedLures:N0}");
+            sb.AppendLine($"Alarms Sent: {Instance.LureAlarmsSent:N0}");
+            sb.AppendLine($"Total Received: {Instance.TotalReceivedLures:N0}");
+            sb.AppendLine($"Subscriptions Sent: {Instance.SubscriptionLuresSent:N0}");
             sb.AppendLine();
             sb.AppendLine($"__**Gyms**__");
-            sb.AppendLine($"Alarms Sent: {stats.GymAlarmsSent:N0}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedGyms:N0}");
+            sb.AppendLine($"Alarms Sent: {Instance.GymAlarmsSent:N0}");
+            sb.AppendLine($"Total Received: {Instance.TotalReceivedGyms:N0}");
             sb.AppendLine();
             sb.AppendLine($"__**Weather**__");
-            sb.AppendLine($"Alarms Sent: {stats.WeatherAlarmsSent:N0}");
-            sb.AppendLine($"Total Received: {stats.TotalReceivedWeathers:N0}");
+            sb.AppendLine($"Alarms Sent: {Instance.WeatherAlarmsSent:N0}");
+            sb.AppendLine($"Total Received: {Instance.TotalReceivedWeathers:N0}");
             sb.AppendLine();
-            var hundos = string.Join(Environment.NewLine, stats.Hundos.Select(x => $"{x.Key}: {MasterFile.Instance.Pokedex[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
+            var hundos = string.Join(Environment.NewLine, Instance.Hundos.Select(x => $"{x.Key}: {MasterFile.Instance.Pokedex[x.Value.Id].Name} {x.Value.IV} IV {x.Value.CP} CP"));
             sb.AppendLine($"**Recent 100% Spawns**");
             sb.AppendLine(string.IsNullOrEmpty(hundos) ? "None" : hundos);
 

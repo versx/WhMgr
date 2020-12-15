@@ -22,6 +22,9 @@
         [JsonProperty("maxInvasionSubscriptions")]
         public int MaxInvasionSubscriptions { get; set; }
 
+        [JsonProperty("maxLureSubscriptions")]
+        public int MaxLureSubscriptions { get; set; }
+
         [JsonProperty("maxGymSubscriptions")]
         public int MaxGymSubscriptions { get; set; }
 
@@ -36,6 +39,7 @@
             MaxRaidSubscriptions = 0;
             MaxQuestSubscriptions = 0;
             MaxInvasionSubscriptions = 0;
+            MaxLureSubscriptions = 0;
             MaxGymSubscriptions = 0;
             MaxNotificationsPerMinute = 15;
         }
