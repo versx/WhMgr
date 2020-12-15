@@ -14,7 +14,7 @@ CREATE TABLE `lures` (
 ALTER TABLE subscriptions ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE subscriptions ADD KEY ix_enabled (enabled);
 
-ALTER TABLE pokemon MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL,
+ALTER TABLE pokemon MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL;
 ALTER TABLE pokemon MODIFY COLUMN iv_list text DEFAULT NULL;
 ALTER TABLE pokemon MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE pokemon ADD KEY ix_server (guild_id, user_id);
@@ -22,14 +22,14 @@ ALTER TABLE pokemon ADD KEY ix_pokemon_id (pokemon_id);
 ALTER TABLE pokemon ADD KEY ix_form (form);
 ALTER TABLE pokemon ADD KEY ix_city (city);
 
-ALTER TABLE pvp MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL,
+ALTER TABLE pvp MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL;
 ALTER TABLE pvp MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE pvp ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE pvp ADD KEY ix_pokemon_id (pokemon_id);
 ALTER TABLE pvp ADD KEY ix_form (form);
 ALTER TABLE pvp ADD KEY ix_city (city);
 
-ALTER TABLE raids MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL,
+ALTER TABLE raids MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL;
 ALTER TABLE raids MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE raids ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE raids ADD KEY ix_pokemon_id (pokemon_id);
