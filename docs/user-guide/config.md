@@ -84,11 +84,33 @@ __**Image Urls**__ `urls`
             "token": "<DISCORD_BOT_TOKEN>",
             // Alarms file path.
             "alarms": "alarms.json",
-            // Enable custom direct message notification subscriptions.
-            "enableSubscriptions": false,
+            // Geofences related to the Discord guild. **NOT** used for subscriptions.  
+            "geofences": [
+                "City1.txt",
+                "City2.json"
+            ],
+            // Custom user subscriptions
+            "subscriptions": {
+                // Enable or disable custom direct message notification subscriptions per user.
+                "enabled": false,
+                // Maximum amount of Pokemon subscriptions a user can set, set as 0 for no limit.
+                "maxPokemonSubscriptions": 0,
+                // Maximum amount of PvP subscriptions a user can set, set as 0 for no limit.
+                "maxPvPSubscriptions": 0,
+                // Maximum amount of Raid subscriptions a user can set, set as 0 for no limit.
+                "maxRaidSubscriptions": 0,
+                // Maximum amount of Quest subscriptions a user can set, set as 0 for no limit.
+                "maxQuestSubscriptions": 0,
+                // Maximum amount of Invasion subscriptions a user can set, set as 0 for no limit.
+                "maxInvasionSubscriptions": 0,
+                // Maximum amount of Gym subscriptions a user can set, set as 0 for no limit.
+                "maxGymSubscriptions": 0,
+                // Maximum amount of Lure subscriptions a user can set, set as 0 for no limit.
+                "maxLureSubscriptions": 0
+            },
             // Enable city role assignments.
             "enableCities": false,
-            // City/geofence role(s)
+            // Cities used to assign roles (if enabled), **NOT** used or related to geofences or subscriptions.  
             "cityRoles": [
                 "City1",
                 "City2"
@@ -121,44 +143,55 @@ __**Image Urls**__ `urls`
                 000000000000000000
             ],
             // Custom Discord status per server, leave blank or null to use current version.  
-            "status": ""
+            "status": "",
+            "dmAlertsFile": "default.json",
+            "embedColors": {
+              "pokemon": {
+                "iv": [
+                  { "min": 0, "max": 0, "color": "#ffffff" },
+                  { "min": 1, "max": 89, "color": "#ffff00" },
+                  { "min": 90, "max": 99, "color": "#ffa500" },
+                  { "min": 100, "max": 100, "color": "#00ff00" }
+                ],
+                "pvp": [
+                  { "min": 1, "max": 1, "color": "#000080" },
+                  { "min": 6, "max": 25, "color": "#800080" },
+                  { "min": 25, "max": 100, "color": "#aa2299" }
+                ]
+              },
+              "raids": {
+                "1": "#ff69b4",
+                "2": "#ff69b4",
+                "3": "#ffff00",
+                "4": "#ffff00",
+                "5": "#800080",
+                "6": "#a52a2a",
+                "ex": "#2c2f33"
+              },
+              "pokestops": {
+                "quests": "#ffa500",
+                "lures": {
+                  "normal": "#ff69b4",
+                  "glacial": "#6495ed",
+                  "mossy": "#507d2a",
+                  "magnetic": "#808080"
+                },
+                "invasions": "#ff0000"
+              },
+              "weather": {
+                "clear": "#ffff00",
+                "cloudy": "#99aab5",
+                "fog": "#9a9a9a",
+                "partlyCloudy": "#808080",
+                "rain": "#0000ff",
+                "snow": "#ffffff",
+                "windy": "#800080"
+              }
+            }
         },
         "000000000000000002": {
-            "commandPrefix": ".",
-            "emojiGuildId": 000000000000000001,
-            "ownerId": 000000000000000000,
-            "donorRoleIds": [
-                000000000000000000
-            ],
-            "moderatorIds": [
-                000000000000000000
-            ],
-            "token": "<DISCORD_BOT_TOKEN>",
-            "alarms": "alarms2.json",
-            "enableSubscriptions": false,
-            "enableCities": false,
-            "cityRoles": [
-                "City3",
-                "City4"
-            ],
-            "citiesRequireSupporterRole": true,
-            "pruneQuestChannels": true,
-            "questChannelIds": [
-                000000000000000000
-            ],
-            "nestsChannelId": 000000000000000000,
-            "nestsMinimumPerHour": 2,
-            "shinyStats": {
-                "enabled": true,
-                "clearMessages": false,
-                "channelId": 000000000000000000
-            },
-            "iconStyle": "Default",
-            "botChannelIds": [
-                000000000000000000
-            ],
-            "status": null
-        }
+		    // etc ...
+		}
     },
     // Database configuration
     "database": {
@@ -208,12 +241,12 @@ __**Image Urls**__ `urls`
         456,
         320
     ],
-	// Minimum IV value for an event Pokemon to have to meet in order to post via Discord channel alarm or direct message subscription.
+    // Minimum IV value for an event Pokemon to have to meet in order to post via Discord channel alarm or direct message subscription.
     "eventMinimumIV": "90",
     // Image URL config
     "urls": {
-        // Static tile map images template.
-        "staticMap": "http://tiles.example.com:8080/static/klokantech-basic/{0}/{1}/15/300/175/1/png",
+        // Static map tileserver endpoint.  
+        "staticMap": "http://tiles.example.com:8080",
         // Scanner map DTS option for embeds as `scanmaps_url`  
         "scannerMap": "http://map.example.com/@/{0}/{1}/15"
     },
@@ -226,21 +259,21 @@ __**Image Urls**__ `urls`
     // Custom static map template files for each alarm type
     "staticMaps": {
         // Static map template for Pokemon
-        "pokemon": "pokemon.example.json",
+        "pokemon": "pokemon.example",
         // Static map template for Raids and Eggs
-        "raids": "raids.example.json",
+        "raids": "raids.example",
         // Static map template for field research quests
-        "quests": "quests.example.json",
+        "quests": "quests.example",
         // Static map template for Team Rocket invasions
-        "invasions": "invasions.example.json",
+        "invasions": "invasions.example",
         // Static map template for Pokestop lures
-        "lures": "lures.example.json",
+        "lures": "lures.example",
         // Static map template for Gym team control changes
-        "gyms": "gyms.example.json",
+        "gyms": "gyms.example",
         // Static map template for nest postings
-        "nests": "nests.example.json",
+        "nests": "nests.example",
         // Static map template for weather changes
-        "weather": "weather.example.json"
+        "weather": "weather.example"
     },
     // Get text message alerts with Twilio.com
     "twilio": {
@@ -263,7 +296,11 @@ __**Image Urls**__ `urls`
     "gmapsKey": "",
     // Minimum despawn time in minutes a Pokemon must have in order to send the alarm (default: 5 minutes)
     "despawnTimeMinimumMinutes": 5,
-    // Log webhook payloads to a file for debugging
+    // Reload subscriptions every minute to sync with WhMgr-UI changes  
+    "reloadSubscriptionChangesMinutes": 1,
+    // Maximum amount of notifications a user can receive per minute before being rate limited  
+    "maxNotificationsPerMinute": 10,
+    // Log webhook payloads to a file for debugging (do not enable unless you're having issues receiving data
     "debug": false,
     // Only show logs with higher or equal priority levels (Trace, Debug, Info, Warning, Error, Fatal, None)
     "logLevel": "Trace"
@@ -305,8 +342,8 @@ __**Image Urls**__ `urls`
         //Alarm filters.
         "filters":"default.json",
       
-        //Path to geofence file.
-        "geofence":"geofence1.txt",
+        //Path to geofence file(s) or geofence name(s) to use.
+        "geofences": ["geofence1.txt", "geofence2.json", "city1"],
     
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
@@ -323,8 +360,8 @@ __**Image Urls**__ `urls`
         //Alarm filters.
         "filters":"100iv.json",
       
-        //Path to geofence file.
-        "geofence":"geofence1.txt",
+        //Path to geofence file(s) or geofence name(s) to use.
+        "geofences": ["geofence3.txt", "geofence4.json", "city2"],
       
         //Discord webhook url address.
         "webhook":"<DISCORD_WEBHOOK_URL>"
