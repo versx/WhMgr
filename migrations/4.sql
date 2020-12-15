@@ -19,33 +19,24 @@ ALTER TABLE pokemon MODIFY COLUMN iv_list text DEFAULT NULL;
 ALTER TABLE pokemon MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE pokemon ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE pokemon ADD KEY ix_pokemon_id (pokemon_id);
-ALTER TABLE pokemon ADD KEY ix_form (form);
-ALTER TABLE pokemon ADD KEY ix_city (city);
 
 ALTER TABLE pvp MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL;
 ALTER TABLE pvp MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE pvp ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE pvp ADD KEY ix_pokemon_id (pokemon_id);
-ALTER TABLE pvp ADD KEY ix_form (form);
-ALTER TABLE pvp ADD KEY ix_city (city);
 
 ALTER TABLE raids MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL;
 ALTER TABLE raids MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE raids ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE raids ADD KEY ix_pokemon_id (pokemon_id);
-ALTER TABLE raids ADD KEY ix_form (form);
-ALTER TABLE raids ADD KEY ix_city (city);
 
 ALTER TABLE quests MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE quests ADD KEY ix_server (guild_id, user_id);
-ALTER TABLE quests ADD KEY ix_reward (reward);
-ALTER TABLE quests ADD KEY ix_city (city);
 
 ALTER TABLE invasions MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE invasions MODIFY COLUMN reward_pokemon_id smallint(5) unsigned NOT NULL;
 ALTER TABLE invasions ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE invasions ADD KEY ix_reward_pokemon_id (reward_pokemon_id);
-ALTER TABLE invasions ADD KEY ix_city (city);
 
 ALTER TABLE gyms ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE gyms ADD KEY ix_name (name);
