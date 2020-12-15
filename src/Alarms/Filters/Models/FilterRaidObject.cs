@@ -38,10 +38,16 @@
         public List<int> Pokemon { get; set; }
 
         /// <summary>
-        /// Gets or sets the list of pokemon Form strings to filter against
+        /// Gets or sets the list of Raid Boss Pokemon Form strings to filter against
         /// </summary>
         [JsonProperty("forms")]
         public List<string> Forms { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of Raid Boss Pokemon costume strings to filter against
+        /// </summary>
+        [JsonProperty("costumes")]
+        public List<string> Costumes { get; set; }
 
         /// <summary>
         /// Gets or sets the Raid boss filter type
@@ -74,6 +80,7 @@
         {
             Pokemon = new List<int>();
             Forms = new List<string>();
+            Costumes = new List<string>();
             MinimumLevel = 1;
             MaximumLevel = 5;
             Team = PokemonTeam.All;
