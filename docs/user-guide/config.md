@@ -10,7 +10,7 @@ __**Main Properties**__
 | host | `10.0.0.2` | Listening interface to receive webhook data. |  
 | port | `8008` | Listening port used to receive incoming json webhooks. |  
 | locale | `en` | Two letter country code used to translate bot messages. |  
-| shortUrlApiUrl | `https://site.com/yourls-api.php?signature=e8973da1` | |  
+| shortUrlApiUrl | `http://site.com/api.php?signature=` | Yourls.org URL shortener endpoint |  
 | stripeApiKey | `rk_32uo3j2lkjlkj3l2kjdlk2j3ldj2` | Stripe API key used with `expire` command to let users check their subscription expiration date. |  
 | eventPokemonIds | `[123,43,483]` | List of Pokemon ID(s) to treat as event Pokemon. Event Pokemon are not reported to any channels or DM unless 90% or higher IV. |  
 | iconStyles | `{ "default": "icon_path", ... }` | List key value pairs demonstrating a list of icon styles to choose from. |  
@@ -23,12 +23,14 @@ __**Main Properties**__
 | maxNotificationsPerMinute | `10` | Maximum amount of notifications a user can receive per minute before being rate limited |  
 | debug | `false` | Log webhook payloads to a file for debugging (do not enable unless you're having issues receiving data |  
 | logLevel | `Info` | Only show logs with higher or equal priority levels (Trace, Debug, Info, Warning, Error, Fatal, None) |  
+
 __**Database**__  `database`  
 | host | `127.0.0.1` | Hostname or IP address of database server. |  
 | port | `3306` | Listening port for database server. |  
 | username | `root` | Database username to use when authenticating. |  
 | password | `password` | Database password to use when authenticating. |  
 | database | `rdmdb` | Database name |  
+
 __**Discord Server Specific**__ `servers`  
 | commandPrefix | `!` | Prefix for all commands, leave blank to use bot mention string. |  
 | guildId | `4032948092834` | Discord guild ID the bot will be connecting to. |  
@@ -52,9 +54,11 @@ __**Discord Server Specific**__ `servers`
 | iconStyle | `Default` | Icon style to use for Pokemon, Raid, Quest, and Invasion images. |  
 | botChannelIds | `[098309389,987398790,...]` | Prevents the bot from executing commands outside of listed channels. |  
 | status | `Finding Pokemon...` | Custom bot Discord status, leave blank for bot version string |  
+
 __**Urls**__ `urls`  
 | staticMap | `https://tiles.com:8080` | Static map tile server endpoint. |  
 | scannerMap | `https://map.com/@/{0}/{1}/15` | Scanner map url for embed DTS `scanmaps_url`. |  
+
 __**StaticMaps**__ `staticMaps`  
 | pokemon | `pokemon.example` | Name of staticmap template used for pokemon messages on tileserver. |  
 | raids | `raids.example` | Name of staticmap template used for raids messages on tileserver. |  
@@ -64,12 +68,13 @@ __**StaticMaps**__ `staticMaps`
 | lures | `lures.example` | Name of staticmap template used for lure messages on tileserver. |  
 | weather | `weather.example` | Name of staticmap template used for weather messages on tileserver. |  
 | nests | `nests.example` | Name of staticmap template used for nest messages on tileserver. |  
+
 __**Twilio**__ `twilio`  
 | enabled | `false` | Determines if text message alerts are enabled |  
 | accountSid | `ACb9ef2a14fa64...` | Twilio account SID (Get via Twilio dashboard) |  
 | authToken | `19c2f1c032962f...` | Twilio account auth token (Get via Twilio dashboard) |  
 | from | `8181234567` | Twilio phone number that will be sending the text message alert |  
-| userIds | [092830498234,80928340822] | List of Discord user ids that can receive text message alerts |  
+| userIds | `[092830498234,80928340822]` | List of Discord user ids that can receive text message alerts |  
 | pokemonIds | `[201,480,481,482,443,633,610]` | List of acceptable Pokemon to receive text message alerts for |  
 | minIV | `100` | Minimum acceptable IV value for Pokemon if not ultra rare (Unown, Lake Trio) |  
 
@@ -83,7 +88,7 @@ __**Twilio**__ `twilio`
     // Locale language translation
     "locale": "en",
     // ShortURL API (yourls.org API, i.e. `https://domain.com/yourls-api.php?signature=XXXXXX`)
-    "shortUrlApiUrl": null,
+    "shortUrlApiUrl": "",
     // Stripe API key (Stripe production API key, i.e. rk_3824802934
     "stripeApiKey": ""
     // List of Discord servers to connect and post webhook messages to.
