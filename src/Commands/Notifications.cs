@@ -2518,10 +2518,18 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
             if (string.IsNullOrEmpty(mention))
             {
+                var userResult = await ctx.Confirm("Are you sure you want to delete all of your subscriptions? This action is irreversible and cannot be undone.");
+                if (!userResult) return;
+
                 if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id))
                 {
-                    // TODO: Send response message
+                    // TODO: Localize
+                    await ctx.RespondEmbed($"{ctx.User.Username} failed to cleared all of your subscriptions", DiscordColor.Red);
+                    return;
                 }
+
+                // TODO: Localize
+                await ctx.RespondEmbed($"{ctx.User.Username} has cleared all subscriptions", DiscordColor.Green);
                 return;
             }
 
@@ -2546,11 +2554,18 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                 return;
             }
 
+            var modResult = await ctx.Confirm($"{ctx.User.Username} is about to delete all of {user.Username}'s subscriptions. This action is irreversible and cannot be undone, are you sure you want to do this?");
+            if (!modResult) return;
+
             if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, user.Id))
             {
-                // TODO: Send response message
+                // TODO: Localize
+                await ctx.RespondEmbed($"{ctx.User.Username} failed to cleared all of {user.Username}'s subscriptions", DiscordColor.Red);
+                return;
             }
 
+            // TODO: Localize
+            await ctx.RespondEmbed($"{ctx.User.Username} has cleared all of {user.Username}'s subscriptions", DiscordColor.Green);
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
