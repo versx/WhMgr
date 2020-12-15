@@ -31,6 +31,7 @@
 	{
 		"enabled": true, //Filter is enabled
 		"pokemon": [], //Raid bosses to include or none for all.
+		"forms": ["Alola","Galarian"], //List of forms for the filter or empty for all
 		"min_lvl": 1, //Minimum raid level to send
 		"max_lvl": 5, //Maximum raid level to send
 		"type": "Include", //Include or Exclude the `pokemon` list

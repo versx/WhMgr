@@ -13,50 +13,56 @@
     public class FilterRaidObject
     {
         /// <summary>
-        /// Enable raid boss filter
+        /// Gets or sets a value determining whether to enable the raid boss filter
         /// </summary>
         [JsonProperty("enabled")]
         public bool Enabled { get; set; }
 
         /// <summary>
-        /// Minimum raid level
+        /// Gets or sets the minimum raid level
         /// </summary>
         [JsonProperty("min_lvl")]
         public uint MinimumLevel { get; set; }
 
         /// <summary>
-        /// Maximum raid level
+        /// Gets or sets the maximum raid level
         /// </summary>
         [JsonProperty("max_lvl")]
         public uint MaximumLevel { get; set; }
 
         /// <summary>
-        /// Raid boss pokedex ID list to filter against
+        /// Gets or sets the Raid boss pokedex ID list to filter against
         /// </summary>
         //TODO: Allow pokemon names and ids for raid filter.
         [JsonProperty("pokemon")]
         public List<int> Pokemon { get; set; }
 
         /// <summary>
-        /// Raid boss filter type
+        /// Gets or sets the list of pokemon Form strings to filter against
+        /// </summary>
+        [JsonProperty("forms")]
+        public List<string> Forms { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Raid boss filter type
         /// </summary>
         [JsonProperty("type")]
         public FilterType FilterType { get; set; }
 
         /// <summary>
-        /// Only report ex-eligible raids
+        /// Gets or sets a value determining whether to only report ex-eligible raids
         /// </summary>
         [JsonProperty("onlyEx")]
         public bool OnlyEx { get; set; }
 
         /// <summary>
-        /// Gym team control filter
+        /// Gets or sets the Gym team control filter
         /// </summary>
         [JsonProperty("team")]
         public PokemonTeam Team { get; set; }
 
         /// <summary>
-        /// Ignore raids missing stats
+        /// Gets or sets a value determining whether to ignore raids missing stats
         /// </summary>
         [JsonProperty("ignoreMissing")]
         public bool IgnoreMissing { get; set; }
@@ -66,6 +72,8 @@
         /// </summary>
         public FilterRaidObject()
         {
+            Pokemon = new List<int>();
+            Forms = new List<string>();
             MinimumLevel = 1;
             MaximumLevel = 5;
             Team = PokemonTeam.All;
