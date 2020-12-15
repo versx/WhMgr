@@ -109,6 +109,7 @@ namespace WhMgr.Data.Subscriptions
             var matchesIVList = false;
             for (var i = 0; i < subscriptions.Count; i++)
             {
+                var start = DateTime.Now;
                 try
                 {
                     user = subscriptions[i];
@@ -191,10 +192,9 @@ namespace WhMgr.Data.Subscriptions
                         continue;
 
                     var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
-                    foreach (var emb in embed.Embeds)
-                    {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, geofence.Name, pkmn));
-                    }
+                    var end = DateTime.Now.Subtract(start);
+                    _logger.Debug($"Took {end} to process Pokemon subscription for user {user.UserId}");
+                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem(user, member, x, pokemon.Name, geofence.Name, pkmn)));
 
                     Statistics.Instance.SubscriptionPokemonSent++;
                     Thread.Sleep(5);
@@ -248,6 +248,7 @@ namespace WhMgr.Data.Subscriptions
             var matchesUltra = false;
             for (var i = 0; i < subscriptions.Count; i++)
             {
+                var start = DateTime.Now;
                 try
                 {
                     user = subscriptions[i];
@@ -331,10 +332,9 @@ namespace WhMgr.Data.Subscriptions
                         continue;
 
                     var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
-                    foreach (var emb in embed.Embeds)
-                    {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, geofence.Name));
-                    }
+                    var end = DateTime.Now.Subtract(start);
+                    _logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
+                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem(user, member, x, pokemon.Name, geofence.Name)));
 
                     Statistics.Instance.SubscriptionPokemonSent++;
                     Thread.Sleep(5);
@@ -384,6 +384,7 @@ namespace WhMgr.Data.Subscriptions
             var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
             for (int i = 0; i < subscriptions.Count; i++)
             {
+                var start = DateTime.Now;
                 try
                 {
                     user = subscriptions[i];
@@ -460,10 +461,9 @@ namespace WhMgr.Data.Subscriptions
                         continue;
 
                     var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
-                    foreach (var emb in embed.Embeds)
-                    {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokemon.Name, geofence.Name));
-                    }
+                    var end = DateTime.Now;
+                    _logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
+                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem(user, member, x, pokemon.Name, geofence.Name)));
 
                     Statistics.Instance.SubscriptionRaidsSent++;
                     Thread.Sleep(5);
@@ -512,6 +512,7 @@ namespace WhMgr.Data.Subscriptions
             SubscriptionObject user;
             for (int i = 0; i < subscriptions.Count; i++)
             {
+                var start = DateTime.Now;
                 try
                 {
                     user = subscriptions[i];
@@ -572,10 +573,9 @@ namespace WhMgr.Data.Subscriptions
                         continue;
 
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
-                    foreach (var emb in embed.Embeds)
-                    {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, questName, geofence.Name));
-                    }
+                    var end = DateTime.Now.Subtract(start);
+                    _logger.Debug($"Took {end} to process quest subscription for user {user.UserId}");
+                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem(user, member, x, questName, geofence.Name)));
 
                     Statistics.Instance.SubscriptionQuestsSent++;
                     Thread.Sleep(5);
@@ -630,6 +630,7 @@ namespace WhMgr.Data.Subscriptions
             SubscriptionObject user;
             for (int i = 0; i < subscriptions.Count; i++)
             {
+                var start = DateTime.Now;
                 try
                 {
                     user = subscriptions[i];
@@ -688,11 +689,10 @@ namespace WhMgr.Data.Subscriptions
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig.Instance, null, geofence?.Name);
-                    foreach (var emb in embed.Embeds)
-                    {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, geofence.Name));
-                    }
+                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig.Instance, null, geofence?.Name, false, true);
+                    var end = DateTime.Now.Subtract(start);
+                    _logger.Debug($"Took {end} to process invasion subscription for user {user.UserId}");
+                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem(user, member, x, pokestop.Name, geofence.Name)));
 
                     Statistics.Instance.SubscriptionInvasionsSent++;
                     Thread.Sleep(5);
@@ -736,6 +736,7 @@ namespace WhMgr.Data.Subscriptions
             SubscriptionObject user;
             for (int i = 0; i < subscriptions.Count; i++)
             {
+                var start = DateTime.Now;
                 try
                 {
                     user = subscriptions[i];
@@ -787,18 +788,17 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude)) || user.DistanceM == 0;
+                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
                     var geofenceMatches = subLure.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip lure...
                     if (!distanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
-                    foreach (var emb in embed.Embeds)
-                    {
-                        _queue.Enqueue(new NotificationItem(user, member, emb, pokestop.Name, geofence.Name));
-                    }
+                    var end = DateTime.Now.Subtract(start);
+                    var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name, true, false);
+                    _logger.Debug($"Took {end} to process lure subscription for user {user.UserId}");
+                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem(user, member, x, pokestop.Name, geofence.Name)));
 
                     Statistics.Instance.SubscriptionLuresSent++;
                     Thread.Sleep(5);

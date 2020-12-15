@@ -654,7 +654,7 @@
             try
             {
                 var client = _servers[e.GuildId];
-                var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig.Instance, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig.Instance, e.Alarm, loc?.Name ?? e.Alarm.Name, pokestop.HasLure, pokestop.HasInvasion);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username ?? Translator.Instance.Translate("UNKNOWN_POKESTOP"),

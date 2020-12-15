@@ -106,12 +106,12 @@
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
-        public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, bool useLure, bool useInvasion)
         {
             var server = whConfig.Servers[guildId];
-            var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
+            var alertType = useInvasion ? AlertMessageType.Invasions : useLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
             var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(client.Guilds[guildId], whConfig, city);
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, useLure, useInvasion);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -119,9 +119,9 @@
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
-                Color = HasInvasion
+                Color = useInvasion
                     ? new DiscordColor(server.DiscordEmbedColors.Pokestops.Invasions)
-                    : HasLure
+                    : useLure
                         ? LureType.BuildLureColor(server)
                         : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -140,16 +140,16 @@
 
         #region Private Methods
 
-        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, bool useLure, bool useInvasion)
         {
             var lureImageUrl = IconFetcher.Instance.GetLureIcon(whConfig.Servers[guild.Id].IconStyle, LureType);
             var invasionImageUrl = IconFetcher.Instance.GetInvasionIcon(whConfig.Servers[guild.Id].IconStyle, GruntType);
-            var imageUrl = HasInvasion ? invasionImageUrl : HasLure ? lureImageUrl : Url;
+            var imageUrl = useInvasion ? invasionImageUrl : useLure ? lureImageUrl : Url;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
-            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, HasInvasion ? whConfig.StaticMaps["invasions"] : HasLure ? whConfig.StaticMaps["lures"] : /* TODO: */"", Latitude, Longitude, imageUrl);
+            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, useInvasion ? whConfig.StaticMaps["invasions"] : useLure ? whConfig.StaticMaps["lures"] : /* TODO: */"", Latitude, Longitude, imageUrl);
             var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
