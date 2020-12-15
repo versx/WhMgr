@@ -64,13 +64,13 @@ __**StaticMaps**__ `staticMaps`
 | lures | `lures.example` | Name of staticmap template used for lure messages on tileserver. |  
 | weather | `weather.example` | Name of staticmap template used for weather messages on tileserver. |  
 | nests | `nests.example` | Name of staticmap template used for nest messages on tileserver. |  
-__**Twilio**__  
+__**Twilio**__ `twilio`  
 | enabled | false | Determines if text message alerts are enabled |  
 | accountSid | ACb9ef2a14fa64df16ce0209111db3d622 | Twilio account SID (Get via Twilio dashboard) |  
 | authToken | 19c2f1c032962f0fffdedfd591197d31 | Twilio account auth token (Get via Twilio dashboard) |  
 | from | 8181234567 | Twilio phone number that will be sending the text message alert |  
 | userIds | [092830498234,80928340822] | List of Discord user ids that can receive text message alerts |  
-| pokemonIds | `[201,480,481,482,443,444,445,633,634,635,610,611,612]` | List of acceptable Pokemon to receive text message alerts for |  
+| pokemonIds | `[201,480,481,482,443,633,610]` | List of acceptable Pokemon to receive text message alerts for |  
 | minIV | 100 | Minimum acceptable IV value for Pokemon if not ultra rare (Unown, Lake Trio) |  
 
 ## Example
