@@ -6,20 +6,20 @@
 # Webhook Manager v4  
 
 ### PokeAlarm, PoracleJS, WDR, Novabot, etc alternative.  
-Works with the following backends:
+Works with the following backends:  
 - [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
 - [Chuck](https://github.com/WatWowMap/Chuck)  
 
 
-## Description:  
+## Description  
 Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, Team Rocket invasion, and Pokestop lure notifications via direct messages.
 
 
-## Features:  
+## Features  
 - Supports multiple Discord servers.  
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
 - Per user custom Discord notifications for Pokemon, raids, quests, invasions, and lures.  
-- User interface to configure Discord notifications with ease (as well as Discord commands). (https://github.com/versx/WhMgr-UI)  
+- User interface to configure Discord notifications with ease (as well as Discord commands). [WhMgr-UI](https://github.com/versx/WhMgr-UI)  
 - Subscription notifications based on pre-defined distance.  
 - Customizable alert messages with dynamic text replacement.  
 - Support for multiple cities/areas using geofences per server.  
@@ -45,13 +45,6 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 
 ### [Getting Started Guide](https://whmgr.readthedocs.io/en/latest/user-guide/getting-started)  
 <hr>  
-
-
-## TODO  
-- Allow Pokemon id and name in Pokemon filter lists.  
-- Individual filters per Pokemon. (PA style, maybe)  
-- PvP ranks DTS
-
 
 ## Previews  
 *All examples are completely customizable using Dynamic Text Replacement/Substitution*  

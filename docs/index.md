@@ -1,6 +1,6 @@
 # Welcome to Webhook Manager
 
-Works with the following backends:
+Works with the following backends:  
 - [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
 - [Chuck](https://github.com/WatWowMap/Chuck)  
 
@@ -12,7 +12,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Supports multiple Discord servers.  
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
 - Per user custom Discord notifications for Pokemon, raids, quests, invasions, and lures.  
-- User interface to configure Discord notifications with ease (as well as Discord commands). (https://github.com/versx/WhMgr-UI)  
+- User interface to configure Discord notifications with ease (as well as Discord commands). [WhMgr-UI](https://github.com/versx/WhMgr-UI)  
 - Subscription notifications based on pre-defined distance.  
 - Customizable alert messages with dynamic text replacement.  
 - Support for multiple cities/areas using geofences per server.  
