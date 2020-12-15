@@ -17,6 +17,7 @@ nav:
     - General:
         - Updating: updating.md
         - Screenshots: screenshots.md
+        - Terminology: terminology.md
     - User Guide:
         - Getting Started: user-guide/getting-started.md
         - Config: user-guide/config.md
