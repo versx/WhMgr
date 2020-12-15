@@ -9,15 +9,15 @@ wget https://raw.githubusercontent.com/versx/WhMgr/master/install.sh && chmod +x
 ```
 bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/master/install.bat install.bat | start install.bat  
 ```
-2.) Edit `config.json` either open in Notepad/++ or `vi config.json`. [Config](./config.md)  
+2.) Edit `config.json` either open in Notepad/++ or `vi config.json`. [Config Instructions](./config.md)  
   - [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
   - Input your bot token and config options.  
   - Fill out the rest of the config options.
 
 3.) Edit `alarms.json` either open in Notepad/++ or `vi alarms.json`.  
-4.) Fill out the alarms file. [Alarms](./alarms.md)  
+4.) Fill out the alarms file. [Alarm Instructions](./alarms.md)  
 5.) Create directory `geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
-6.) Create/copy geofence files to `geofences` folder. [Geofences](./geofences.md)  
+6.) Create/copy geofence files to `geofences` folder. [Geofence Instructions](./geofences.md)  
 7.) Add `dotnet` to your environment path if it isn't already (optional):  
 ```sh
 export PATH=~/.dotnet/dotnet:$PATH

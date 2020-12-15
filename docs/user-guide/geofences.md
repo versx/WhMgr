@@ -21,7 +21,7 @@ __INI Format__
 33.03,-118.03
 ```
 __GeoJSON Format__
-```geojson
+```json
 {
     "type": "FeatureCollection",
     "features": [
