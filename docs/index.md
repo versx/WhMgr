@@ -33,7 +33,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - [I.C.O.N.S.](https://github.com/Mygod/pokemon-icon-postprocessor) standard image support.
 - Lots more...  
 
-### Direct Message Notification Filters  
+## Direct Message Notification Filters  
 - Pokemon ID  
 - Pokemon Form  
 - Pokemon IV  
@@ -48,7 +48,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Pokestop Lure Type  
 - Distance (meters)  
 
-### Frameworks and Libraries
+## Frameworks and Libraries
 - .NET Core v2.1.803  
 - DSharpPlus v3.2.3  
 - DSharpPlus.CommandsNext v3.2.3  

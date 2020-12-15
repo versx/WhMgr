@@ -20,7 +20,7 @@ Enable the ability to only show something if the conditional value evaluates to 
 For a list of available dynamic text substitution/replacement options check out the [DTS](user-guide/dts/) pages.  
 
 
-### Alert Message Structures
+## Alert Message Structures
 ```js
 {
     "pokemon": {

@@ -5,9 +5,9 @@ Geofences define area borders and perimeters for a city or multiple cities. Each
 **Geofences must be placed in the root directory of the executable (`bin/debug/netcoreapp2.1`) in the `geofences` folder.**  
 *Note:* Supports INI geofence file format as well as GeoJSON geofence file format:  
 
-## Example
+## Examples
 
-__INI Format__
+## __INI Format__
 ```ini
 [City1]
 34.00,-117.00
@@ -20,7 +20,7 @@ __INI Format__
 33.02,-118.02
 33.03,-118.03
 ```
-__GeoJSON Format__
+## __GeoJSON Format__
 ```json
 {
     "type": "FeatureCollection",
