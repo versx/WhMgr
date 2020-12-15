@@ -4,7 +4,7 @@ CREATE TABLE `lures` (
   `guild_id` bigint(20) DEFAULT NULL,
   `user_id` bigint(20) DEFAULT NULL,
   `lure_type` varchar(20) NOT NULL,
-  `city` text DEFAULT '[]',
+  `city` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_lure_subscriptions_subscription_id` (`subscription_id`),
   CONSTRAINT `FK_lure_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
@@ -15,33 +15,33 @@ ALTER TABLE subscriptions ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE subscriptions ADD KEY ix_enabled (enabled);
 
 ALTER TABLE pokemon MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL,
-ALTER TABLE pokemon MODIFY COLUMN iv_list text DEFAULT '[]';
-ALTER TABLE pokemon MODIFY COLUMN city text DEFAULT '[]';
+ALTER TABLE pokemon MODIFY COLUMN iv_list text DEFAULT NULL;
+ALTER TABLE pokemon MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE pokemon ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE pokemon ADD KEY ix_pokemon_id (pokemon_id);
 ALTER TABLE pokemon ADD KEY ix_form (form);
 ALTER TABLE pokemon ADD KEY ix_city (city);
 
 ALTER TABLE pvp MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL,
-ALTER TABLE pvp MODIFY COLUMN city text DEFAULT '[]';
+ALTER TABLE pvp MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE pvp ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE pvp ADD KEY ix_pokemon_id (pokemon_id);
 ALTER TABLE pvp ADD KEY ix_form (form);
 ALTER TABLE pvp ADD KEY ix_city (city);
 
 ALTER TABLE raids MODIFY COLUMN pokemon_id smallint(5) unsigned NOT NULL,
-ALTER TABLE raids MODIFY COLUMN city text DEFAULT '[]';
+ALTER TABLE raids MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE raids ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE raids ADD KEY ix_pokemon_id (pokemon_id);
 ALTER TABLE raids ADD KEY ix_form (form);
 ALTER TABLE raids ADD KEY ix_city (city);
 
-ALTER TABLE quests MODIFY COLUMN city text DEFAULT '[]';
+ALTER TABLE quests MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE quests ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE quests ADD KEY ix_reward (reward);
 ALTER TABLE quests ADD KEY ix_city (city);
 
-ALTER TABLE invasions MODIFY COLUMN city text DEFAULT '[]';
+ALTER TABLE invasions MODIFY COLUMN city text DEFAULT NULL;
 ALTER TABLE invasions MODIFY COLUMN reward_pokemon_id smallint(5) unsigned NOT NULL,
 ALTER TABLE invasions ADD KEY ix_server (guild_id, user_id);
 ALTER TABLE invasions ADD KEY ix_reward_pokemon_id (reward_pokemon_id);
