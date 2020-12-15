@@ -180,7 +180,7 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        return;
+                        continue;
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
@@ -320,7 +320,7 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        return;
+                        continue;
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
@@ -449,7 +449,7 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        return;
+                        continue;
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
@@ -561,7 +561,7 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        return;
+                        continue;
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
@@ -678,7 +678,7 @@ namespace WhMgr.Data.Subscriptions
                     if (geofence == null)
                     {
                         //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        return;
+                        continue;
                     }
 
                     var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
