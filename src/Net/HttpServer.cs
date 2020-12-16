@@ -16,6 +16,7 @@
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Net.Models;
+    using WhMgr.Net.Configuration;
 
     /// <summary>
     /// HTTP listener class
@@ -34,6 +35,7 @@
         private readonly Dictionary<long, WeatherData> _processedWeather;
         private readonly System.Timers.Timer _clearCacheTimer;
         private HttpListener _server;
+        private readonly HttpServerConfig _serverConfig;
         private bool _initialized = false;
         private readonly int _despawnTimerMinimumMinutes = 5;
         private static string _endpoint;
@@ -123,25 +125,22 @@
         /// <summary>
         /// Instantiates a new <see cref="HttpServer"/> class.
         /// </summary>
-        /// <param name="host">Listing host interface</param>
-        /// <param name="port">Listening port</param>
-        /// <param name="despawnTimerMinimum">Minimum despawn timer amount in minutes to process Pokemon</param>
-        /// <param name="checkForDuplicates">Check for duplicate webhook messages</param>
-        public HttpServer(string host, ushort port, int despawnTimerMinimum, bool checkForDuplicates)
+        /// <param name="serverConfig">Http server config</param>
+        public HttpServer(HttpServerConfig serverConfig)
         {
             // If no host is set use wildcard for all host interfaces
-            Host = host ?? "*";
-            Port = port;
+            Host = serverConfig.Host ?? "*";
+            Port = serverConfig.Port;
             _processedPokemon = new Dictionary<string, ScannedPokemon>();
             _processedRaids = new Dictionary<string, ScannedRaid>();
             _processedGyms = new Dictionary<string, ScannedGym>();
             _processedPokestops = new Dictionary<string, ScannedPokestop>();
             _processedQuests = new Dictionary<string, ScannedQuest>();
             _processedWeather = new Dictionary<long, WeatherData>();
-            _despawnTimerMinimumMinutes = despawnTimerMinimum;
+            _despawnTimerMinimumMinutes = serverConfig.DespawnTimerMinimum;
             _clearCacheTimer = new System.Timers.Timer { Interval = 60000 * 15 };
             _clearCacheTimer.Elapsed += (sender, e) => OnClearCache();
-            _checkForDuplicates = checkForDuplicates;
+            _checkForDuplicates = serverConfig.CheckForDuplicates;
             
             Initialize();
         }
@@ -726,7 +725,6 @@
             }
 
             // Log expired ones outside lock so that we don't hog too much time on _processedPokemon, _processedRaids, _processedQuests, and _processedPokestops
-
             foreach (var encounterId in expiredEncounters)
                 _logger.Debug($"Removed expired Pokemon spawn {encounterId} from cache");
 

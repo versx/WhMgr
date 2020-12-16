@@ -17,6 +17,7 @@
     using WhMgr.Extensions;
     using WhMgr.Geofence;
     using WhMgr.Net;
+    using WhMgr.Net.Configuration;
     using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
@@ -200,14 +201,20 @@
             LoadGeofences();
             LoadAlarms();
 
-            _http = new HttpServer(_config.Instance.ListeningHost, _config.Instance.WebhookPort, _config.Instance.DespawnTimeMinimumMinutes, _config.Instance.CheckForDuplicates);
-            _http.PokemonReceived += Http_PokemonReceived;
-            _http.RaidReceived += Http_RaidReceived;
-            _http.QuestReceived += Http_QuestReceived;
-            _http.PokestopReceived += Http_PokestopReceived;
-            _http.GymReceived += Http_GymReceived;
-            _http.GymDetailsReceived += Http_GymDetailsReceived;
-            _http.WeatherReceived += Http_WeatherReceived;
+            _http = new HttpServer(new HttpServerConfig
+            {
+                Host = _config.Instance.ListeningHost,
+                Port = _config.Instance.WebhookPort,
+                DespawnTimerMinimum = _config.Instance.DespawnTimeMinimumMinutes,
+                CheckForDuplicates = _config.Instance.CheckForDuplicates,
+            });
+            _http.PokemonReceived += OnPokemonReceived;
+            _http.RaidReceived += OnRaidReceived;
+            _http.QuestReceived += OnQuestReceived;
+            _http.PokestopReceived += OnPokestopReceived;
+            _http.GymReceived += OnGymReceived;
+            _http.GymDetailsReceived += OnGymDetailsReceived;
+            _http.WeatherReceived += OnWeatherReceived;
             _http.IsDebug = _config.Instance.Debug;
 
             new Thread(() => {
@@ -247,7 +254,7 @@
 
         #region HttpServer Events
 
-        private void Http_PokemonReceived(object sender, DataReceivedEventArgs<PokemonData> e)
+        private void OnPokemonReceived(object sender, DataReceivedEventArgs<PokemonData> e)
         {
             var pkmn = e.Data;
             if (DateTime.UtcNow.ConvertTimeFromCoordinates(pkmn.Latitude, pkmn.Longitude) > pkmn.DespawnTime)
@@ -273,7 +280,7 @@
             OnPokemonSubscriptionTriggered(pkmn);
         }
 
-        private void Http_RaidReceived(object sender, DataReceivedEventArgs<RaidData> e)
+        private void OnRaidReceived(object sender, DataReceivedEventArgs<RaidData> e)
         {
             var raid = e.Data;
             if (DateTime.UtcNow.ConvertTimeFromCoordinates(raid.Latitude, raid.Longitude) > raid.EndTime)
@@ -286,14 +293,14 @@
             OnRaidSubscriptionTriggered(raid);
         }
 
-        private void Http_QuestReceived(object sender, DataReceivedEventArgs<QuestData> e)
+        private void OnQuestReceived(object sender, DataReceivedEventArgs<QuestData> e)
         {
             var quest = e.Data;
             ProcessQuest(quest);
             OnQuestSubscriptionTriggered(quest);
         }
 
-        private void Http_PokestopReceived(object sender, DataReceivedEventArgs<PokestopData> e)
+        private void OnPokestopReceived(object sender, DataReceivedEventArgs<PokestopData> e)
         {
             var pokestop = e.Data;
             if (pokestop.HasLure || pokestop.HasInvasion)
@@ -304,19 +311,19 @@
             }
         }
 
-        private void Http_GymReceived(object sender, DataReceivedEventArgs<GymData> e)
+        private void OnGymReceived(object sender, DataReceivedEventArgs<GymData> e)
         {
             var gym = e.Data;
             ProcessGym(gym);
         }
 
-        private void Http_GymDetailsReceived(object sender, DataReceivedEventArgs<GymDetailsData> e)
+        private void OnGymDetailsReceived(object sender, DataReceivedEventArgs<GymDetailsData> e)
         {
             var gymDetails = e.Data;
             ProcessGymDetails(gymDetails);
         }
 
-        private void Http_WeatherReceived(object sender, DataReceivedEventArgs<WeatherData> e)
+        private void OnWeatherReceived(object sender, DataReceivedEventArgs<WeatherData> e)
         {
             var weather = e.Data;
             ProcessWeather(weather);
