@@ -63,4 +63,5 @@ The bot needs the following Discord permissions:
 
 ## Notes
 - If `dotnet` is not in your path, you'll need to use `~/.dotnet/dotnet` instead of just `dotnet` for commands.  
+- If you ran the original install command as `root`, `dotnet` will be located at `/root/.dotnet/dotnet` and you'll need to either use that for build commands or replace the `~/.dotnet/dotnet` path with it when adding to your path.
 - Upon starting, database tables will be automatically created if `enableSubscriptions` is set to `true`. Emoji icons are also created in the specified `EmojiGuildId` upon connecting to Discord.  
