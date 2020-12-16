@@ -68,7 +68,7 @@ namespace WhMgr.Commands
                     title = string.Format("Page {0}", (object)num);
                     var eb = new DiscordEmbedBuilder
                     {
-                        Color = DiscordColor.Red,
+                        Color = DiscordColor.Blue,
                         Title = title,
                         Description = psb.ToString(),
                     };
