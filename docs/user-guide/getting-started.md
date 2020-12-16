@@ -15,6 +15,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 
 ## Configuration  
 1.) Edit `config.json` either open in Notepad/++ or `vi config.json`. [Config Instructions](./config.md)  
+
   - [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
   - Input your bot token and config options.  
   - Fill out the rest of the config options.
@@ -49,6 +50,7 @@ dotnet WhMgr.dll
 Discord recently enabled a new feature that requires you to enable the Global Intents options in the Discord developer portal https://discord.com/developers to access Discord member lists.  
 
 The bot needs the following Discord permissions:  
+
 - Read Messages  
 - Send Messages  
 - Manage Messages (Prune quest channels)  
