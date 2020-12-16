@@ -37,6 +37,7 @@
         private bool _initialized = false;
         private readonly int _despawnTimerMinimumMinutes = 5;
         private static string _endpoint;
+        private readonly bool _checkForDuplicates;
 
         #endregion
 
@@ -125,7 +126,8 @@
         /// <param name="host">Listing host interface</param>
         /// <param name="port">Listening port</param>
         /// <param name="despawnTimerMinimum">Minimum despawn timer amount in minutes to process Pokemon</param>
-        public HttpServer(string host, ushort port, int despawnTimerMinimum)
+        /// <param name="checkForDuplicates">Check for duplicate webhook messages</param>
+        public HttpServer(string host, ushort port, int despawnTimerMinimum, bool checkForDuplicates)
         {
             // If no host is set use wildcard for all host interfaces
             Host = host ?? "*";
@@ -139,6 +141,7 @@
             _despawnTimerMinimumMinutes = despawnTimerMinimum;
             _clearCacheTimer = new System.Timers.Timer { Interval = 60000 * 15 };
             _clearCacheTimer.Elapsed += (sender, e) => OnClearCache();
+            _checkForDuplicates = checkForDuplicates;
             
             Initialize();
         }
@@ -345,14 +348,17 @@
                 if (pokemon.SecondsLeft.TotalMinutes < _despawnTimerMinimumMinutes)
                     return;
 
-                lock(_processedPokemon)
+                if (_checkForDuplicates)
                 {
-                    if (_processedPokemon.ContainsKey(pokemon.EncounterId) && (pokemon.IsMissingStats || !pokemon.IsMissingStats && !_processedPokemon[pokemon.EncounterId].IsMissingStats))
-                        return;
-                    if (!_processedPokemon.ContainsKey(pokemon.EncounterId))
-                        _processedPokemon.Add(pokemon.EncounterId, new ScannedPokemon(pokemon));
-                    if (!pokemon.IsMissingStats && _processedPokemon[pokemon.EncounterId].IsMissingStats)
-                        _processedPokemon[pokemon.EncounterId] = new ScannedPokemon(pokemon);
+                    lock (_processedPokemon)
+                    {
+                        if (_processedPokemon.ContainsKey(pokemon.EncounterId) && (pokemon.IsMissingStats || !pokemon.IsMissingStats && !_processedPokemon[pokemon.EncounterId].IsMissingStats))
+                            return;
+                        if (!_processedPokemon.ContainsKey(pokemon.EncounterId))
+                            _processedPokemon.Add(pokemon.EncounterId, new ScannedPokemon(pokemon));
+                        if (!pokemon.IsMissingStats && _processedPokemon[pokemon.EncounterId].IsMissingStats)
+                            _processedPokemon[pokemon.EncounterId] = new ScannedPokemon(pokemon);
+                    }
                 }
 
                 OnPokemonReceived(pokemon);
@@ -383,25 +389,28 @@
 
                 raid.SetTimes();
 
-                lock (_processedRaids)
+                if (_checkForDuplicates)
                 {
-                    if (_processedRaids.ContainsKey(raid.GymId))
+                    lock (_processedRaids)
                     {
-                        if (_processedRaids[raid.GymId].PokemonId == raid.PokemonId && 
-                            _processedRaids[raid.GymId].FormId == raid.Form &&
-                            _processedRaids[raid.GymId].CostumeId == raid.Costume &&
-                            _processedRaids[raid.GymId].Level == raid.Level &&
-                            !_processedRaids[raid.GymId].IsExpired)
+                        if (_processedRaids.ContainsKey(raid.GymId))
                         {
-                            // Processed raid already
-                            return;
-                        }
+                            if (_processedRaids[raid.GymId].PokemonId == raid.PokemonId &&
+                                _processedRaids[raid.GymId].FormId == raid.Form &&
+                                _processedRaids[raid.GymId].CostumeId == raid.Costume &&
+                                _processedRaids[raid.GymId].Level == raid.Level &&
+                                !_processedRaids[raid.GymId].IsExpired)
+                            {
+                                // Processed raid already
+                                return;
+                            }
 
-                        _processedRaids[raid.GymId] = new ScannedRaid(raid);
-                    }
-                    else
-                    {
-                        _processedRaids.Add(raid.GymId, new ScannedRaid(raid));
+                            _processedRaids[raid.GymId] = new ScannedRaid(raid);
+                        }
+                        else
+                        {
+                            _processedRaids.Add(raid.GymId, new ScannedRaid(raid));
+                        }
                     }
                 }
 
@@ -425,23 +434,26 @@
                     return;
                 }
 
-                lock (_processedQuests)
+                if (_checkForDuplicates)
                 {
-                    if (_processedQuests.ContainsKey(quest.PokestopId))
+                    lock (_processedQuests)
                     {
-                        if (_processedQuests[quest.PokestopId].Type == quest.Type &&
-                            _processedQuests[quest.PokestopId].Rewards.ScrambledEquals(quest.Rewards, new QuestRewardEqualityComparer()) &&
-                            _processedQuests[quest.PokestopId].Conditions.ScrambledEquals(quest.Conditions, new QuestConditionEqualityComparer()))
+                        if (_processedQuests.ContainsKey(quest.PokestopId))
                         {
-                            // Processed quest already
-                            return;
-                        }
+                            if (_processedQuests[quest.PokestopId].Type == quest.Type &&
+                                _processedQuests[quest.PokestopId].Rewards.ScrambledEquals(quest.Rewards, new QuestRewardEqualityComparer()) &&
+                                _processedQuests[quest.PokestopId].Conditions.ScrambledEquals(quest.Conditions, new QuestConditionEqualityComparer()))
+                            {
+                                // Processed quest already
+                                return;
+                            }
 
-                        _processedQuests[quest.PokestopId] = new ScannedQuest(quest);
-                    }
-                    else
-                    {
-                        _processedQuests.Add(quest.PokestopId, new ScannedQuest(quest));
+                            _processedQuests[quest.PokestopId] = new ScannedQuest(quest);
+                        }
+                        else
+                        {
+                            _processedQuests.Add(quest.PokestopId, new ScannedQuest(quest));
+                        }
                     }
                 }
 
@@ -467,24 +479,27 @@
 
                 pokestop.SetTimes();
 
-                lock (_processedPokestops)
+                if (_checkForDuplicates)
                 {
-                    if (_processedPokestops.ContainsKey(pokestop.PokestopId))
+                    lock (_processedPokestops)
                     {
-                        var processedLureAlready = _processedPokestops[pokestop.PokestopId].LureType == pokestop.LureType && _processedPokestops[pokestop.PokestopId].LureExpireTime == pokestop.LureExpireTime;
-                        var processedInvasionAlready = _processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType && _processedPokestops[pokestop.PokestopId].InvasionExpireTime == pokestop.InvasionExpireTime;
-                        if (processedLureAlready || processedInvasionAlready)
+                        if (_processedPokestops.ContainsKey(pokestop.PokestopId))
                         {
-                            //_logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
-                            // Processed pokestop lure or invasion already
-                            return;
-                        }
+                            var processedLureAlready = _processedPokestops[pokestop.PokestopId].LureType == pokestop.LureType && _processedPokestops[pokestop.PokestopId].LureExpireTime == pokestop.LureExpireTime;
+                            var processedInvasionAlready = _processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType && _processedPokestops[pokestop.PokestopId].InvasionExpireTime == pokestop.InvasionExpireTime;
+                            if (processedLureAlready || processedInvasionAlready)
+                            {
+                                //_logger.Debug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
+                                // Processed pokestop lure or invasion already
+                                return;
+                            }
 
-                        _processedPokestops[pokestop.PokestopId] = new ScannedPokestop(pokestop);
-                    }
-                    else
-                    {
-                        _processedPokestops.Add(pokestop.PokestopId, new ScannedPokestop(pokestop));
+                            _processedPokestops[pokestop.PokestopId] = new ScannedPokestop(pokestop);
+                        }
+                        else
+                        {
+                            _processedPokestops.Add(pokestop.PokestopId, new ScannedPokestop(pokestop));
+                        }
                     }
                 }
 
@@ -528,23 +543,26 @@
                     return;
                 }
 
-                lock (_processedGyms)
+                if (_checkForDuplicates)
                 {
-                    if (_processedGyms.ContainsKey(gymDetails.GymId))
+                    lock (_processedGyms)
                     {
-                        if (gymDetails.Team == gymDetails.Team &&
-                            gymDetails.SlotsAvailable == gymDetails.SlotsAvailable &&
-                            gymDetails.InBattle == gymDetails.InBattle)
+                        if (_processedGyms.ContainsKey(gymDetails.GymId))
                         {
-                            // Gym already processed
-                            return;
-                        }
+                            if (gymDetails.Team == gymDetails.Team &&
+                                gymDetails.SlotsAvailable == gymDetails.SlotsAvailable &&
+                                gymDetails.InBattle == gymDetails.InBattle)
+                            {
+                                // Gym already processed
+                                return;
+                            }
 
-                        _processedGyms[gymDetails.GymId] = new ScannedGym(gymDetails);
-                    }
-                    else
-                    {
-                        _processedGyms.Add(gymDetails.GymId, new ScannedGym(gymDetails));
+                            _processedGyms[gymDetails.GymId] = new ScannedGym(gymDetails);
+                        }
+                        else
+                        {
+                            _processedGyms.Add(gymDetails.GymId, new ScannedGym(gymDetails));
+                        }
                     }
                 }
 
@@ -568,30 +586,33 @@
                     return;
                 }
 
-                lock (_processedWeather)
+                if (_checkForDuplicates)
                 {
-                    if (_processedWeather.ContainsKey(weather.Id))
+                    lock (_processedWeather)
                     {
-                        if (_processedWeather[weather.Id].GameplayCondition == weather.GameplayCondition &&
-                            _processedWeather[weather.Id].CloudLevel == weather.CloudLevel &&
-                            _processedWeather[weather.Id].FogLevel == weather.FogLevel &&
-                            _processedWeather[weather.Id].RainLevel == weather.RainLevel &&
-                            _processedWeather[weather.Id].Severity == weather.Severity &&
-                            _processedWeather[weather.Id].SnowLevel == weather.SnowLevel &&
-                            _processedWeather[weather.Id].WindLevel == weather.WindLevel &&
-                            _processedWeather[weather.Id].SpecialEffectLevel == weather.SpecialEffectLevel &&
-                            _processedWeather[weather.Id].WarnWeather == weather.WarnWeather &&
-                            _processedWeather[weather.Id].WindDirection == weather.WindDirection)
+                        if (_processedWeather.ContainsKey(weather.Id))
                         {
-                            // Processed weather already
-                            return;
-                        }
+                            if (_processedWeather[weather.Id].GameplayCondition == weather.GameplayCondition &&
+                                _processedWeather[weather.Id].CloudLevel == weather.CloudLevel &&
+                                _processedWeather[weather.Id].FogLevel == weather.FogLevel &&
+                                _processedWeather[weather.Id].RainLevel == weather.RainLevel &&
+                                _processedWeather[weather.Id].Severity == weather.Severity &&
+                                _processedWeather[weather.Id].SnowLevel == weather.SnowLevel &&
+                                _processedWeather[weather.Id].WindLevel == weather.WindLevel &&
+                                _processedWeather[weather.Id].SpecialEffectLevel == weather.SpecialEffectLevel &&
+                                _processedWeather[weather.Id].WarnWeather == weather.WarnWeather &&
+                                _processedWeather[weather.Id].WindDirection == weather.WindDirection)
+                            {
+                                // Processed weather already
+                                return;
+                            }
 
-                        _processedWeather[weather.Id] = weather;
-                    }
-                    else
-                    {
-                        _processedWeather.Add(weather.Id, weather);
+                            _processedWeather[weather.Id] = weather;
+                        }
+                        else
+                        {
+                            _processedWeather.Add(weather.Id, weather);
+                        }
                     }
                 }
 
