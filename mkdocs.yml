@@ -36,9 +36,9 @@ nav:
     - Commands:
         - Subscriptions: commands/subscriptions.md
         - Owner: commands/owner.md
-    - About:
-        - Release Notes: about/release-notes.md
-        - Contributing: about/contributing.md
+#    - About:
+#        - Release Notes: about/release-notes.md
+#        - Contributing: about/contributing.md
 
 markdown_extensions:
     - toc:
