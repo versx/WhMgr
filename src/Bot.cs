@@ -188,6 +188,10 @@
                 {
                     commands.RegisterCommands<Feeds>();
                 }
+                if (serverConfig.EnableGeojsonAreas)
+                {
+                    commands.RegisterCommands<Areas>();
+                }
 
                 _logger.Info($"Configured Discord server {guildId}");
                 if (!_servers.ContainsKey(guildId))

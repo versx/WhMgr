@@ -83,6 +83,12 @@ namespace WhMgr.Configuration
         public bool EnableCities { get; set; }
 
         /// <summary>
+        /// Gets or sets whether to enable Discord Areas
+        /// </summary>
+        [JsonProperty("enableGeojsonAreas")]
+        public bool EnableGeojsonAreas { get; set; }
+
+        /// <summary>
         /// Gets or sets a list of named Discord roles associated with Geofence files
         /// </summary>
         [JsonProperty("cityRoles")]
