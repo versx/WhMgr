@@ -47,7 +47,7 @@ dotnet WhMgr.dll
 
 
 ## Discord Permissions  
-Discord recently enabled a new feature that requires you to enable the Global Intents options in the Discord developer portal https://discord.com/developers to access Discord member lists.  
+Discord recently enabled a new feature that requires you to enable the Global Intents options in the [Discord Developers Portal](https://discord.com/developers) to access Discord member lists.  
 
 The bot needs the following Discord permissions:  
 
