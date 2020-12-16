@@ -188,7 +188,7 @@
                 {
                     commands.RegisterCommands<Feeds>();
                 }
-                if (serverConfig.EnableGeojsonAreas)
+                else
                 {
                     commands.RegisterCommands<Areas>();
                 }
