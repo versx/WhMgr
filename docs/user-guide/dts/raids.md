@@ -13,6 +13,9 @@ Use any of the following in your alerts file to structure how notifications will
 | form | Pokemon form name | Alolan
 | form_id | Form ID | 65
 | form_id_3 | Form ID (always 3 digits) | 065
+| costume | Pokemon costume name | Holiday
+| costume_id | Costume ID | 10
+| costume_id_3 | Costume ID (always 3 digits) | 010
 | is_egg | Returns if raid is egg and not hatched | false
 | is_ex | Returns if raid is ex pass eligible | true
 | ex_emoji | Ex emoji icon | Ex
@@ -37,11 +40,14 @@ Use any of the following in your alerts file to structure how notifications will
 | worst_cp | Worst IV CP | 1530 
 | worst_cp_boosted | Worst IV CP if Weather boosted | 1339
 | start_time | Raid start time | 08:32:00 AM
+| start_time_24h | Raid start time (24-hour format) | 08:32:00
 | start_time_left | Time left until raid starts | 43m, 33s
 | end_time | Raid end time | 09:15:10 AM
+| end_time_24h | Raid end time (24-hour format) | 09:15:10
 | end_time_left | Time left until raid ends | 45, 11s
 | time_left | Minutes and seconds of time left until despawn | 29m, 30s
 | geofence | Geofence name raid boss is in | City1
+| address | Google Maps or OSM Nominatim address from geocoordinates | 123 Fake St
 | lat | Latitude coordinate of Pokemon location | 5.980921321
 | lng | Longitude coordinate of Pokemon location | 3.109283009
 | lat_5 | Latitude coordinate shortend to 5th precision | 5.98092
@@ -55,5 +61,5 @@ Use any of the following in your alerts file to structure how notifications will
 | gym_url | Image url of Gym | https://google.com/imgs/gym.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`

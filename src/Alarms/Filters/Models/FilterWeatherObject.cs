@@ -4,8 +4,7 @@
     using System.Collections.Generic;
 
     using Newtonsoft.Json;
-
-    using WhMgr.Net.Models;
+    using POGOProtos.Map.Weather;
 
     /// <summary>
     /// Weather filters
@@ -22,6 +21,6 @@
         /// Filter by in-game weather type
         /// </summary>
         [JsonProperty("types")]
-        public List<WeatherType> WeatherTypes { get; set; }
+        public List<GameplayWeather.Types.WeatherCondition> WeatherTypes { get; set; }
     }
 }

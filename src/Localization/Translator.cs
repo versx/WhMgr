@@ -3,6 +3,12 @@
     using System;
     using System.Collections.Generic;
 
+    using CharacterCategory = POGOProtos.Enums.EnumWrapper.Types.CharacterCategory;
+    using POGOProtos.Data;
+    using POGOProtos.Enums;
+    using POGOProtos.Inventory.Item;
+    using POGOProtos.Map.Weather;
+
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
 
@@ -30,14 +36,23 @@
 
         public override string Translate(string value)
         {
-            return base.Translate(value);
+            try
+            {
+                return base.Translate(value);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to find locale translation for key '{value}'");
+                _logger.Error(ex);
+            }
+            return value;
         }
 
         public string Translate(string value, params object[] args)
         {
             try
             {
-                return args.Length > 0
+                return args?.Length > 0
                     ? string.Format(base.Translate(value), args)
                     : base.Translate(value);
             }
@@ -102,12 +117,12 @@
             return Translate($"item_{(int)item}");
         }
 
-        public string GetWeather(WeatherType weather)
+        public string GetWeather(GameplayWeather.Types.WeatherCondition weather)
         {
             return Translate($"weather_{(int)weather}");
         }
 
-        public string GetAlignmentName(PokemonAlignment alignment)
+        public string GetAlignmentName(PokemonDisplay.Types.Alignment alignment)
         {
             return Translate($"alignment_{(int)alignment}");
         }
@@ -117,7 +132,7 @@
             return Translate($"character_category_{(int)category}");
         }
 
-        public string GetEvolutionName(MegaEvolution evolution)
+        public string GetEvolutionName(TemporaryEvolutionId evolution)
         {
             return Translate($"evo_{(int)evolution}");
         }

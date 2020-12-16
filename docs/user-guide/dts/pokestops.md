@@ -9,15 +9,18 @@ Use any of the following in your alerts file to structure how notifications will
 | has_lure | Returns if Pokestop has active lure module deployed | true
 | lure_type | Pokestop lure module type | Glacial
 | lure_expire_time | Time lure module will expire | 07:33:19 PM
+| lure_expire_time_24h | Time lure module will expire (24-hour format) | 19:33:19
 | lure_expire_time_left | Time left until lure module expires | 13m, 2s
 | has_invasion | Returns if Pokestop has active Team Rocket invasion | false
 | grunt_type | Grunt type | Water
 | grunt_type_emoji | Emoji icon of grunt type | <:938294:types_water>
 | grunt_gender | Grunt gender | Male
 | invasion_expire_time | Time the invasion expires | 02:17:11 PM
+| invasion_expire_time_24h | Time the invasion expires (24-hour format) | 14:17:11
 | invasion_expire_time_left | Time left until invasion expires | 12m, 56s
 | invasion_encounters | Possible invasions reward encounters | 80% Bulbasaur
 | geofence | Geofence name raid boss is in | City1
+| address | Google Maps or OSM Nominatim address from geocoordinates | 123 Fake St
 | lat | Latitude coordinate of Pokemon location | 5.980921321
 | lng | Longitude coordinate of Pokemon location | 3.109283009
 | lat_5 | Latitude coordinate shortend to 5th precision | 5.98092
@@ -33,5 +36,5 @@ Use any of the following in your alerts file to structure how notifications will
 | invasion_img_url | Image url of grunt type icon | https://google.com/imgs/grunt_50.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`

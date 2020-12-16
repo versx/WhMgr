@@ -6,8 +6,8 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-
     using Newtonsoft.Json;
+    using POGOProtos.Map.Weather;
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
@@ -15,6 +15,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Osm.Models;
     using WhMgr.Utilities;
@@ -49,7 +50,7 @@
         public MultiPolygon Polygon { get; set; }
 
         [JsonProperty("gameplay_condition")]
-        public WeatherType GameplayCondition { get; set; }
+        public GameplayWeather.Types.WeatherCondition GameplayCondition { get; set; }
 
         [JsonProperty("wind_direction")]
         public int WindDirection { get; set; }
@@ -109,9 +110,9 @@
 
         public DiscordEmbedNotification GenerateWeatherMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
-            var alertType = AlertMessageType.Weather;
-            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
             var server = whConfig.Servers[guildId];
+            var alertType = AlertMessageType.Weather;
+            var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
             var weatherImageUrl = IconFetcher.Instance.GetWeatherIcon(server.IconStyle, GameplayCondition);
             var properties = GetProperties(client.Guilds[guildId], whConfig, city, weatherImageUrl);
             var eb = new DiscordEmbedBuilder
@@ -121,11 +122,11 @@
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
-                Color = GameplayCondition.BuildWeatherColor(),
+                Color = GameplayCondition.BuildWeatherColor(server),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
-                    IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties)
+                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text, properties),
+                    IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl, properties)
                 }
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
@@ -142,27 +143,18 @@
         {
             var weather = Translator.Instance.GetWeather(GameplayCondition);
             var weatherKey = $"weather_{Convert.ToInt32(GameplayCondition)}";
-            var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && GameplayCondition != WeatherType.None ? GameplayCondition.GetWeatherEmojiIcon() : string.Empty;
-            var hasWeather = GameplayCondition != WeatherType.None;
+            var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && GameplayCondition != GameplayWeather.Types.WeatherCondition.None ? GameplayCondition.GetWeatherEmojiIcon() : string.Empty;
+            var hasWeather = GameplayCondition != GameplayWeather.Types.WeatherCondition.None;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
-            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.Weather.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, whConfig.StaticMaps.Weather.ZoomLevel, Latitude, Longitude, weatherImageUrl, null);
-            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? scannerMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            Geofence.Location address = null;
-            if (!string.IsNullOrEmpty(whConfig.GoogleMapsKey))
-            {
-                address = Utils.GetGoogleAddress(city, Latitude, Longitude, whConfig.GoogleMapsKey);
-            }
-            else if (!string.IsNullOrEmpty(whConfig.NominatimEndpoint))
-            {
-                address = Utils.GetNominatimAddress(city, Latitude, Longitude, whConfig.NominatimEndpoint);
-            }
+            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, whConfig.StaticMaps["weather"], Latitude, Longitude, weatherImageUrl, PokemonTeam.All, null, Polygon);
+            var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
+            var address = new Location(null, city, Latitude, Longitude).GetAddress(whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
             const string defaultMissingValue = "?";
@@ -190,8 +182,8 @@
                 { "geofence", city ?? defaultMissingValue },
                 { "lat", Latitude.ToString() },
                 { "lng", Longitude.ToString() },
-                { "lat_5", Math.Round(Latitude, 5).ToString() },
-                { "lng_5", Math.Round(Longitude, 5).ToString() },
+                { "lat_5", Latitude.ToString("0.00000") },
+                { "lng_5", Longitude.ToString("0.00000") },
 
                 //Location links
                 { "tilemaps_url", staticMapLink },

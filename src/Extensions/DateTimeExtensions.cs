@@ -7,38 +7,10 @@
 
     public static class DateTimeExtensions
     {
-        public static TimeSpan GetTimeRemaining(this DateTime endTime)
-        {
-            return GetTimeRemaining(DateTime.Now, endTime);
-        }
-
         public static TimeSpan GetTimeRemaining(this DateTime startTime, DateTime endTime)
         {
             var remaining = TimeSpan.FromTicks(endTime.Ticks - startTime.Ticks);
             return remaining;
-        }
-
-        public static DateTime ConvertTime(this DateTime timeUtc, string timeZoneId = "Pacific Standard Time")
-        {
-            try
-            {
-                TimeZoneInfo cstZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-                DateTime cstTime = TimeZoneInfo.ConvertTimeFromUtc(timeUtc, cstZone);
-                Console.WriteLine("The date and time are {0} {1}.",
-                                  cstTime,
-                                  cstZone.IsDaylightSavingTime(cstTime) ?
-                                          cstZone.DaylightName : cstZone.StandardName);
-                return cstTime;
-            }
-            catch (TimeZoneNotFoundException)
-            {
-                Console.WriteLine("The registry does not define the Central Standard Time zone.");
-            }
-            catch (InvalidTimeZoneException)
-            {
-                Console.WriteLine("Registry data on the Central Standard Time zone has been corrupted.");
-            }
-            return timeUtc;
         }
 
         public static DateTime ConvertTimeFromCoordinates(this DateTime date, double lat, double lon)
@@ -52,6 +24,16 @@
             var dt = DateTime.SpecifyKind(date, DateTimeKind.Utc);
             var convertedTime = TimeZoneInfo.ConvertTimeFromUtc(dt, tzInfo);
             return convertedTime;
+        }
+
+        /// <summary>
+        /// Get Unix timestamp from current date time
+        /// </summary>
+        /// <param name="now">Date and time to get unix variation from</param>
+        /// <returns>Returns Unix timestamp</returns>
+        public static double GetUnixTimestamp(this DateTime now)
+        {
+            return now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
         }
     }
 }

@@ -11,7 +11,9 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Entities;
     using DSharpPlus.Interactivity;
+    using POGOProtos.Map.Weather;
     using ServiceStack;
+
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
     using WhMgr.Localization;
@@ -103,8 +105,42 @@
 
         #endregion
 
+        private static readonly Dictionary<(ulong, ulong), Task<DiscordMember>> MemberTasks = new Dictionary<(ulong, ulong), Task<DiscordMember>>();
+
         public static async Task<DiscordMember> GetMemberById(this DiscordClient client, ulong guildId, ulong id)
         {
+            Task<DiscordMember> taskToAwait;
+            var added = false;
+
+            lock (MemberTasks)
+            {
+                if (MemberTasks.TryGetValue((guildId, id), out var existingTask))
+                {
+                    taskToAwait = existingTask;
+                }
+                else
+                {
+                    taskToAwait = DoGetMemberById(client, guildId, id);
+                    MemberTasks.Add((guildId, id), taskToAwait);
+                    added = true;
+                }
+            }
+
+            var result = await taskToAwait;
+
+            if (added)
+            {
+                lock (MemberTasks)
+                {
+                    MemberTasks.Remove((guildId, id));
+                }
+            }
+
+            return result;
+        }
+
+        private static async Task<DiscordMember> DoGetMemberById(DiscordClient client, ulong guildId, ulong id)
+		{
             if (!client.Guilds.ContainsKey(guildId))
                 return null;
 
@@ -152,7 +188,6 @@
             return eb.FirstOrDefault();
         }
 
-        //internal static async Task<bool> IsDirectMessageSupported(this DiscordMessage message, DiscordServerConfig servers)
         internal static async Task<bool> IsDirectMessageSupported(this CommandContext ctx, WhConfig config)
         {
             var exists = ctx.Client.Guilds.Keys.FirstOrDefault(x => config.Servers.ContainsKey(x)) > 0;
@@ -168,14 +203,9 @@
 
         public static ulong ContextToGuild(this CommandContext ctx, Dictionary<ulong, DiscordClient> servers)
         {
-            var keys = servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, client) in servers)
             {
-                var guildId = keys[i];
-                if (!servers.ContainsKey(guildId))
-                    continue;
-
-                if (ctx.Client.CurrentUser.Id != servers[guildId].CurrentUser.Id)
+                if (ctx.Client.CurrentUser.Id != client.CurrentUser.Id)
                     continue;
 
                 return guildId;
@@ -185,7 +215,7 @@
 
         #region Roles
 
-        public static bool IsSupporterOrHigher(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)
+        public static async Task<bool> IsSupporterOrHigher(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)
         {
             try
             {
@@ -198,7 +228,7 @@
                 if (isAdmin)
                     return true;
 
-                var isModerator = server.Moderators.Contains(userId);
+                var isModerator = await IsModerator(client, userId, guildId, config);
                 if (isModerator)
                     return true;
 
@@ -214,7 +244,29 @@
             return false;
         }
 
-        public static bool IsModeratorOrHigher(this ulong userId, ulong guildId, WhConfig config)
+        public static async Task<bool> IsModerator(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)
+        {
+            if (!config.Servers.ContainsKey(guildId))
+                return false;
+
+            var server = config.Servers[guildId];
+            var moderatorRoleIds = server.ModeratorRoleIds;
+            var member = await client.GetMemberById(guildId, userId);
+            if (member == null)
+                return false;
+
+            var roleIds = member.Roles.Select(x => x.Id);
+            foreach (var modRoleId in moderatorRoleIds)
+            {
+                if (roleIds.Contains(modRoleId))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static async Task<bool> IsModeratorOrHigher(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)
         {
             if (!config.Servers.ContainsKey(guildId))
                 return false;
@@ -225,19 +277,11 @@
             if (isAdmin)
                 return true;
 
-            var isModerator = server.Moderators.Contains(userId);
+            var isModerator = await IsModerator(client, userId, guildId, config);
             if (isModerator)
                 return true;
 
             return false;
-        }
-
-        public static bool IsModerator(this ulong userId, ulong guildId, WhConfig config)
-        {
-            if (!config.Servers.ContainsKey(guildId))
-                return false;
-
-            return config.Servers[guildId].Moderators.Contains(userId);
         }
 
         public static bool IsAdmin(this ulong userId, ulong ownerId)
@@ -304,24 +348,17 @@
             }
         }
 
-        public static bool HasRole(this DiscordClient client, DiscordMember member, string roleName)
+        public static bool HasRole(this DiscordGuild guild, DiscordMember member, string roleName)
         {
-            var role = client.GetRoleFromName(roleName);
+            var role = guild.GetRoleFromName(roleName);
             if (role == null) return false;
 
             return HasRole(member, role.Id);
         }
 
-        public static DiscordRole GetRoleFromName(this DiscordClient client, string roleName)
+        public static DiscordRole GetRoleFromName(this DiscordGuild guild, string roleName)
         {
-            foreach (var guild in client.Guilds)
-            {
-                var role = guild.Value.Roles.FirstOrDefault(x => string.Compare(x.Name, roleName, true) == 0);
-                if (role != null)
-                    return role;
-            }
-
-            return null;
+            return guild?.Roles.FirstOrDefault(x => string.Compare(x.Name, roleName, true) == 0);
         }
 
         #endregion
@@ -401,68 +438,111 @@
 
         #region Colors
 
-        public static DiscordColor BuildColor(this string iv)
+        public static DiscordColor BuildPokemonIVColor(this string iv, DiscordServerConfig server)
         {
-            if (double.TryParse(iv.Substring(0, iv.Length - 1), out var result))
+            if (!double.TryParse(iv.Substring(0, iv.Length - 1), out var result))
             {
-                if (Math.Abs(result - 100) < double.Epsilon)
-                    return DiscordColor.Green;
-                else if (result >= 90 && result < 100)
-                    return DiscordColor.Orange;
-                else if (result < 90)
-                    return DiscordColor.Yellow;
+                return DiscordColor.White;
             }
-
-            return DiscordColor.White;
+            var color = server.DiscordEmbedColors.Pokemon.IV.FirstOrDefault(x => result >= x.Minimum && result <= x.Maximum);
+            return new DiscordColor(color.Color);
         }
 
-        public static DiscordColor BuildRaidColor(this string level)
+        public static DiscordColor BuildPokemonPvPColor(this int rank, DiscordServerConfig server)
         {
-            if (!int.TryParse(level, out var lvl))
-                return DiscordColor.Black;
-
-            return BuildRaidColor(lvl);
+            if (rank <= 0)
+            {
+                return DiscordColor.White;
+            }
+            var color = server.DiscordEmbedColors.Pokemon.PvP.FirstOrDefault(x => rank >= x.Minimum && rank <= x.Maximum);
+            return new DiscordColor(color.Color);
         }
 
-        public static DiscordColor BuildRaidColor(this int level)
+        public static DiscordColor BuildRaidColor(this int level, DiscordServerConfig server)
         {
+            if (level == 0)
+            {
+                return DiscordColor.White;
+            }
+            string color;
             switch (level)
             {
                 case 1:
+                    color = server.DiscordEmbedColors.Raids.Level1;
+                    break;
                 case 2:
-                    return DiscordColor.HotPink;
+                    color = server.DiscordEmbedColors.Raids.Level2;
+                    break;
                 case 3:
+                    color = server.DiscordEmbedColors.Raids.Level3;
+                    break;
                 case 4:
-                    return DiscordColor.Yellow;
+                    color = server.DiscordEmbedColors.Raids.Level4;
+                    break;
                 case 5:
-                    return DiscordColor.Purple;
+                    color = server.DiscordEmbedColors.Raids.Level5;
+                    break;
+                case 6:
+                    color = server.DiscordEmbedColors.Raids.Level6;
+                    break;
+                default:
+                    color = server.DiscordEmbedColors.Raids.Ex;
+                    break;
             }
-
-            return DiscordColor.White;
+            return new DiscordColor(color);
         }
 
-        public static DiscordColor BuildWeatherColor(this WeatherType weather)
+        public static DiscordColor BuildLureColor(this PokestopLureType lureType, DiscordServerConfig server)
         {
+            string color;
+            switch (lureType)
+            {
+                case PokestopLureType.Normal:
+                    color = server.DiscordEmbedColors.Pokestops.Lures.Normal;
+                    break;
+                case PokestopLureType.Glacial:
+                    color = server.DiscordEmbedColors.Pokestops.Lures.Glacial;
+                    break;
+                case PokestopLureType.Mossy:
+                    color = server.DiscordEmbedColors.Pokestops.Lures.Mossy;
+                    break;
+                case PokestopLureType.Magnetic:
+                    color = server.DiscordEmbedColors.Pokestops.Lures.Magnetic;
+                    break;
+                default:
+                    return DiscordColor.White;
+            }
+            return new DiscordColor(color);
+        }
+
+        public static DiscordColor BuildWeatherColor(this GameplayWeather.Types.WeatherCondition weather, DiscordServerConfig server)
+        {
+            var color = "#808080";
             switch (weather)
             {
-                case WeatherType.Clear:
-                    return DiscordColor.Yellow;
-                case WeatherType.Cloudy:
-                    return DiscordColor.Grayple;
-                case WeatherType.Fog:
-                    return DiscordColor.DarkGray;
-                case WeatherType.PartlyCloudy:
-                    return DiscordColor.LightGray;
-                case WeatherType.Rain:
-                    return DiscordColor.Blue;
-                case WeatherType.Snow:
-                    return DiscordColor.White;
-                case WeatherType.Windy:
-                    return DiscordColor.Purple;
-                case WeatherType.None:
-                default:
-                    return DiscordColor.Gray;
+                case GameplayWeather.Types.WeatherCondition.Clear:
+                    color = server.DiscordEmbedColors.Weather.Clear;
+                    break;
+                case GameplayWeather.Types.WeatherCondition.Overcast:
+                    color = server.DiscordEmbedColors.Weather.Cloudy;
+                    break;
+                case GameplayWeather.Types.WeatherCondition.Fog:
+                    color = server.DiscordEmbedColors.Weather.Fog;
+                    break;
+                case GameplayWeather.Types.WeatherCondition.PartlyCloudy:
+                    color = server.DiscordEmbedColors.Weather.PartlyCloudy;
+                    break;
+                case GameplayWeather.Types.WeatherCondition.Rainy:
+                    color = server.DiscordEmbedColors.Weather.Rain;
+                    break;
+                case GameplayWeather.Types.WeatherCondition.Snow:
+                    color = server.DiscordEmbedColors.Weather.Snow;
+                    break;
+                case GameplayWeather.Types.WeatherCondition.Windy:
+                    color = server.DiscordEmbedColors.Weather.Windy;
+                    break;
             }
+            return new DiscordColor(color);
         }
 
         #endregion

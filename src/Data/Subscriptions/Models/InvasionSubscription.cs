@@ -1,8 +1,10 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
-    using ServiceStack.DataAnnotations;
+    using System;
+    using System.Collections.Generic;
 
     using Newtonsoft.Json;
+    using ServiceStack.DataAnnotations;
 
     [
         JsonObject("invasions"),
@@ -28,6 +30,11 @@
             Alias("city"), 
             Required
         ]
-        public string City { get; set; }
+        public List<string> Areas { get; set; }
+
+        public InvasionSubscription()
+        {
+            Areas = new List<string>();
+        }
     }
 }

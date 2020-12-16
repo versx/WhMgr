@@ -69,16 +69,23 @@
         public List<int> EventPokemonIds { get; set; }
 
         /// <summary>
+        /// Gets or sets the minimum IV value for an event Pokemon to be to process
+        /// for channel alarms or direct message subscriptions
+        /// </summary>
+        [JsonProperty("eventMinimumIV")]
+        public int EventMinimumIV { get; set; }
+
+        /// <summary>
         /// Gets or sets the icon styles
         /// </summary>
         [JsonProperty("iconStyles")]
         public Dictionary<string, string> IconStyles { get; set; }
 
         /// <summary>
-        /// Gets or sets the static maps config
+        /// Gets or sets the static map template files to use per type
         /// </summary>
         [JsonProperty("staticMaps")]
-        public StaticMaps StaticMaps { get; set; }
+        public Dictionary<string, string> StaticMaps { get; set; }
 
         /// <summary>
         /// Gets or sets the Twilio config for sending text message notifications
@@ -111,6 +118,12 @@
         public ushort ReloadSubscriptionChangesMinutes { get; set; }
 
         /// <summary>
+        /// Gets or sets the maximum amount of notifications a user can receive per minute per server before being rate limited
+        /// </summary>
+        [JsonProperty("maxNotificationsPerMinute")]
+        public ushort MaxNotificationsPerMinute { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to log incoming webhook data to a file
         /// </summary>
         [JsonProperty("debug")]
@@ -141,11 +154,13 @@
             Database = new ConnectionStringsConfig();
             Urls = new UrlConfig();
             EventPokemonIds = new List<int>();
+            EventMinimumIV = 90;
             IconStyles = new Dictionary<string, string>();
-            StaticMaps = new StaticMaps();
+            StaticMaps = new Dictionary<string, string>();
             Twilio = new TwilioConfig();
             DespawnTimeMinimumMinutes = 5;
             ReloadSubscriptionChangesMinutes = 1;
+            MaxNotificationsPerMinute = 10;
         }
 
         /// <summary>
@@ -169,10 +184,7 @@
             {
                 throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
-
-            var config = MasterFile.LoadInit<WhConfig>(filePath);
-            config.StaticMaps.LoadConfigs();
-            return config;
+            return MasterFile.LoadInit<WhConfig>(filePath);
         }
     }
 }

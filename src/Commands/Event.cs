@@ -23,13 +23,13 @@
         Hidden,
         RequirePermissions(Permissions.KickMembers)
     ]
-    public class CommunityDay
+    public class Event
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("COMMUNITYDAY", Program.LogLevel);
 
         private readonly Dependencies _dep;
 
-        public CommunityDay(Dependencies dep)
+        public Event(Dependencies dep)
         {
             _dep = dep;
         }

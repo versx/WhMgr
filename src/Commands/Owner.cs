@@ -8,7 +8,6 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
-    using WhMgr.Data;
     using WhMgr.Data.Subscriptions;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
@@ -47,7 +46,7 @@
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     IconUrl = ctx.Guild?.IconUrl,
-                    Text = $"versx | {DateTime.Now}"
+                    Text = $"{ctx.Guild?.Name} | {DateTime.Now}"
                 }
             };
             eb.AddField("Pokemon.com", isPtcBanned ? "Banned" : "Good", true);
@@ -57,7 +56,7 @@
 
         [
             Command("clean-departed"),
-            Description(""),
+            Description("Remove user subscriptions that are no longer donors from the database."),
             Hidden
         ]
         public async Task CleanDepartedAsync(CommandContext ctx)
@@ -104,24 +103,6 @@
             // get the command service, we need this for sudo purposes
             var cmds = ctx.CommandsNext;
             await cmds.SudoAsync(member, ctx.Channel, command);
-        }
-
-        [
-            Command("test-emoji"),
-            Description("")
-        ]
-        public async Task TestAsync(CommandContext ctx,
-            [Description("")] string emojiName)
-        {
-            var title = "Emoji Test";
-            var emojiId = MasterFile.Instance.Emojis[emojiName];
-            var emoji = string.Format(Strings.EmojiSchema, emojiName, emojiId);
-            var eb = new DiscordEmbedBuilder
-            {
-                Title = title,
-                Description = $"{emoji}"
-            };
-            await ctx.RespondAsync(emoji, false, embed: eb);
         }
     }
 }

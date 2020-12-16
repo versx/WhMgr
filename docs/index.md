@@ -1,24 +1,28 @@
 # Welcome to Webhook Manager
 
-Works with [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
+Works with the following backends:  
+- [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
+- [Chuck](https://github.com/WatWowMap/Chuck)  
+
 
 Made in C#, runs on .NET Core CLR. Cross platform compatibility, can run on Windows, macOS, and Linux operating systems.  
-Parses and sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, gym team control changes, and weather changes. Also supports Discord user's subscribing to Pokemon, raid, quest, or Team Rocket invasion notifications via direct messages.
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, Team Rocket invasion, and Pokestop lure notifications via direct messages.
 
-## Features:  
+## Features  
 - Supports multiple Discord servers.  
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
-- Per user custom Discord notifications for Pokemon, raids, quests, and invasions.  
-- User interface to configure Discord notifications with ease (as well as Discord commands). (https://github.com/versx/WhMgr-UI)  
-- Notifications based on pre-defined distance.  
+- Per user custom Discord notifications for Pokemon, raids, quests, invasions, and lures.  
+- User interface to configure Discord notifications with ease (as well as Discord commands). [WhMgr-UI](https://github.com/versx/WhMgr-UI)  
+- Subscription notifications based on pre-defined distance.  
 - Customizable alert messages with dynamic text replacement.  
-- Support for multiple cities/areas using roles and geofences per server.  
+- Support for multiple cities/areas using geofences per server.  
 - Daily shiny stats reporting.  
 - Automatic quest message purge at midnight.  
 - Support for Donors/Supporters only notifications.  
 - Direct messages of Pokemon notifications based on city roles assigned.  
+- Pokemon and Raid subscription notifications based on specific forms.  
 - Custom prefix support as well as mentionable user support for commands.  
-- Subscriptions based on distance from a set location or specific gym names.  
+- Raid subscription notifications for specific gyms.  
 - Twilio text message alerts for ultra rare Pokemon.  
 - Custom image support for Discord alarm reports.  
 - Custom icon style selection for Discord user notifications.  
@@ -26,9 +30,25 @@ Parses and sends Discord notifications based on pre-defined filters for Pokemon,
 - Custom static map format support.  
 - Support for language translation.  
 - Multi threaded, low processing consumption.  
-- Lots more...
+- [I.C.O.N.S.](https://github.com/Mygod/pokemon-icon-postprocessor) standard image support.
+- Lots more...  
 
-### Frameworks and Libraries
+## Direct Message Notification Filters  
+- Pokemon ID  
+- Pokemon Form  
+- Pokemon IV  
+- Pokemon Level  
+- List of Pokemon Attack/Defense/Stamina values  
+- Pokemon Gender  
+- Raid Boss  
+- City  
+- Gym Name  
+- Quest Reward  
+- Invasion Grunt Type  
+- Pokestop Lure Type  
+- Distance (meters)  
+
+## Frameworks and Libraries
 - .NET Core v2.1.803  
 - DSharpPlus v3.2.3  
 - DSharpPlus.CommandsNext v3.2.3  
@@ -39,7 +59,5 @@ Parses and sends Discord notifications based on pre-defined filters for Pokemon,
 - Stripe.net v37.14.0  
 - Twilio v5.44.0  
 
-[Click here](user-guide/config) to get started!  
 
-### About  
-About the developer
+**[Click here](user-guide/config) to get started!**  

@@ -1,6 +1,5 @@
 ﻿namespace WhMgr.Alarms.Models
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
 
@@ -20,7 +19,7 @@
         /// Area geofences
         /// </summary>
         [JsonIgnore]
-        public List<GeofenceItem> Geofences { get; private set; }
+        public List<GeofenceItem> GeofenceItems { get; private set; }
 
         /// <summary>
         /// Discord alert messages
@@ -61,8 +60,8 @@
         /// <summary>
         /// Gets or sets the geofences file to load
         /// </summary>
-        [JsonProperty("geofence")]
-        public string GeofenceFile { get; set; }
+        [JsonProperty("geofences")]
+        public List<string> Geofences { get; set; }
 
         /// <summary>
         /// Gets or sets the Discord channel webhook url address
@@ -75,25 +74,9 @@
         /// </summary>
         public AlarmObject()
         {
-            LoadGeofence();
+            GeofenceItems = new List<GeofenceItem>();
             LoadAlerts();
             LoadFilters();
-        }
-
-        /// <summary>
-        /// Load geofences from the `/Geofences` folder
-        /// </summary>
-        /// <returns>Returns parsed geofence list</returns>
-        public List<GeofenceItem> LoadGeofence()
-        {
-            if (string.IsNullOrEmpty(GeofenceFile))
-                return null;
-
-            var path = Path.Combine(Strings.GeofenceFolder, GeofenceFile);
-            if (!File.Exists(path))
-                throw new FileNotFoundException($"Geofence file {path} not found.", path);
-
-            return Geofences = GeofenceItem.FromFile(path);
         }
 
         /// <summary>

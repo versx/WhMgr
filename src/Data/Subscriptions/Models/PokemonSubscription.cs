@@ -1,10 +1,10 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
     using System.Collections.Generic;
-
-    using ServiceStack.DataAnnotations;
+    using System.Linq;
 
     using Newtonsoft.Json;
+    using ServiceStack.DataAnnotations;
 
     [
         JsonObject("pokemon"),
@@ -73,13 +73,13 @@
             JsonProperty("city"),
             Alias("city")
         ]
-        public string City { get; set; }
+        public List<string> Areas { get; set; }
 
         [
             JsonIgnore,
             Ignore
         ]
-        public bool HasStats => (IVList?.Count ?? 0) > 0;
+        public bool HasStats => IVList?.Any() ?? false;
 
         #endregion
 
@@ -93,7 +93,8 @@
             MaximumLevel = 35;
             Gender = "*";
             Form = null;
-            City = null;
+            //City = null;
+            Areas = new List<string>();
             IVList = new List<string>();
         }
 

@@ -5,7 +5,8 @@
     using System.IO;
     using System.Reflection;
 
-    using WhMgr.Net.Models;
+    using POGOProtos.Enums;
+    using POGOProtos.Map.Weather;
 
     /// <summary>
     /// Static strings class
@@ -15,6 +16,21 @@
         public const string BotName = "Brock";
         public const string Creator = "versx";
         public static readonly string Version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+        public const string BannerAsciiText = @"
+ __      __      ___.   .__                   __     
+/  \    /  \ ____\_ |__ |  |__   ____   ____ |  | __ 
+\   \/\/   // __ \| __ \|  |  \ /  _ \ /  _ \|  |/ / 
+ \        /\  ___/| \_\ \   Y  (  <_> |  <_> )    <  
+  \__/\  /  \___  >___  /___|  /\____/ \____/|__|_ \ 
+       \/       \/    \/     \/                   \/ 
+   _____                                             
+  /     \ _____    ____ _____     ____   ___________ 
+ /  \ /  \\__  \  /    \\__  \   / ___\_/ __ \_  __ \
+/    Y    \/ __ \|   |  \/ __ \_/ /_/  >  ___/|  | \/
+\____|__  (____  /___|  (____  /\___  / \___  >__|   
+        \/     \/     \/     \//_____/      \/       
+        ";
 
         public const string GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
@@ -66,7 +82,6 @@
 
         public const string All = "All";
 
-        // TODO: Make configurable.
         public const int MaxPokemonDisplayed = 70;
         public const int MaxPokemonSubscriptions = 25;
         public const int MaxPvPSubscriptions = 15;
@@ -161,19 +176,19 @@
             // Gender emojis
             "gender_male",
             "gender_female",
-            "gender_genderless"
+            "gender_less"
         };
 
-        public static IReadOnlyDictionary<WeatherType, List<PokemonType>> WeatherBoosts => new Dictionary<WeatherType, List<PokemonType>>
+        public static IReadOnlyDictionary<GameplayWeather.Types.WeatherCondition, List<PokemonType>> WeatherBoosts => new Dictionary<GameplayWeather.Types.WeatherCondition, List<PokemonType>>
         {
-            { WeatherType.None,         new List<PokemonType> { } },
-            { WeatherType.Clear,        new List<PokemonType> { PokemonType.Fire,   PokemonType.Grass,    PokemonType.Ground } },
-            { WeatherType.Rain,         new List<PokemonType> { PokemonType.Water,  PokemonType.Electric, PokemonType.Bug } },
-            { WeatherType.PartlyCloudy, new List<PokemonType> { PokemonType.Normal, PokemonType.Rock } },
-            { WeatherType.Cloudy,       new List<PokemonType> { PokemonType.Fairy,  PokemonType.Fighting, PokemonType.Poison } },
-            { WeatherType.Windy,        new List<PokemonType> { PokemonType.Dragon, PokemonType.Flying,   PokemonType.Psychic } },
-            { WeatherType.Snow,         new List<PokemonType> { PokemonType.Ice,    PokemonType.Steel } },
-            { WeatherType.Fog,          new List<PokemonType> { PokemonType.Dark,   PokemonType.Ghost } }
+            { GameplayWeather.Types.WeatherCondition.None,         new List<PokemonType> { } },
+            { GameplayWeather.Types.WeatherCondition.Clear,        new List<PokemonType> { PokemonType.Fire,   PokemonType.Grass,    PokemonType.Ground } },
+            { GameplayWeather.Types.WeatherCondition.Rainy,        new List<PokemonType> { PokemonType.Water,  PokemonType.Electric, PokemonType.Bug } },
+            { GameplayWeather.Types.WeatherCondition.PartlyCloudy, new List<PokemonType> { PokemonType.Normal, PokemonType.Rock } },
+            { GameplayWeather.Types.WeatherCondition.Overcast,     new List<PokemonType> { PokemonType.Fairy,  PokemonType.Fighting, PokemonType.Poison } },
+            { GameplayWeather.Types.WeatherCondition.Windy,        new List<PokemonType> { PokemonType.Dragon, PokemonType.Flying,   PokemonType.Psychic } },
+            { GameplayWeather.Types.WeatherCondition.Snow,         new List<PokemonType> { PokemonType.Ice,    PokemonType.Steel } },
+            { GameplayWeather.Types.WeatherCondition.Fog,          new List<PokemonType> { PokemonType.Dark,   PokemonType.Ghost } }
         };
     }
 

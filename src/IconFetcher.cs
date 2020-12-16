@@ -4,9 +4,14 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+
     using Newtonsoft.Json;
+    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
+    using QuestRewardType = POGOProtos.Data.Quests.QuestReward.Types.Type;
+    using POGOProtos.Enums;
+    using POGOProtos.Map.Weather;
     using ServiceStack;
-    using Stripe;
+
     using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
@@ -33,7 +38,7 @@
 
         #endregion
 
-        public string GetPokemonIcon(string style, int pokemonId, int form = 0, int evolution = 0, PokemonGender gender = PokemonGender.Unset, int costume = 0, bool shiny = false)
+        public string GetPokemonIcon(string style, int pokemonId, int form = 0, int evolution = 0, Gender gender = Gender.Unset, int costume = 0, bool shiny = false)
         {
             if (!_availablePokemonForms.ContainsKey(style))
             {
@@ -90,6 +95,7 @@
                     sb.Append((int)questRewardType);
                     sb.Append("-i");
                     sb.Append((int)quest.Rewards[0].Info.Item);
+                    sb.Append("-a");
                     sb.Append(quest.Rewards?[0]?.Info?.Amount ?? 1);
                     sb.Append(".png");
                     break;
@@ -100,7 +106,7 @@
                         quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId,
                         quest.Rewards?[0].Info.FormId ?? 0,
                         0, //quest.Rewards?[0].Info.EvolutionId ?? 0,
-                        PokemonGender.Unset,
+                        Gender.Unset,
                         quest.Rewards?[0].Info.CostumeId ?? 0,
                         quest.Rewards?[0].Info.Shiny ?? false
                     );
@@ -128,12 +134,12 @@
             return _iconStyles[style] + "reward/2-i" + (int)lureType + "-a1.png";
         }
 
-        public string GetInvasionIcon(string style, InvasionGruntType gruntType)
+        public string GetInvasionIcon(string style, InvasionCharacter gruntType)
         {
             return _iconStyles[style] + "invasion/" + (int)gruntType + ".png";
         }
 
-        public string GetWeatherIcon(string style, WeatherType weatherType)
+        public string GetWeatherIcon(string style, GameplayWeather.Types.WeatherCondition weatherType)
         {
             return _iconStyles[style] + "weather/" + (int)weatherType + ".png";
         }

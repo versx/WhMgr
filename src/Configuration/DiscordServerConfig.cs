@@ -1,7 +1,15 @@
-﻿namespace WhMgr.Configuration
+﻿using WhMgr.Geofence;
+
+namespace WhMgr.Configuration
 {
+    using System;
     using System.Collections.Generic;
+    using System.IO;
+
     using Newtonsoft.Json;
+
+    using WhMgr.Alarms.Alerts;
+    using WhMgr.Data;
 
     /// <summary>
     /// Discord server configuration class
@@ -38,8 +46,8 @@
         /// <summary>
         /// Gets or sets the moderators of the Discord server
         /// </summary>
-        [JsonProperty("moderatorIds")]
-        public List<ulong> Moderators { get; set; }
+        [JsonProperty("moderatorRoleIds")]
+        public List<ulong> ModeratorRoleIds { get; set; }
 
         /// <summary>
         /// Gets or sets the Discord bot token
@@ -52,12 +60,21 @@
         /// </summary>
         [JsonProperty("alarms")]
         public string AlarmsFile { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the list of Geofence files to use for the Discord server (in addition to the common ones)
+        /// </summary>
+        [JsonProperty("geofences")]
+        public string[] GeofenceFiles { get; set; }
+
+        [JsonIgnore]
+        public List<GeofenceItem> Geofences { get; } = new List<GeofenceItem>();
 
         /// <summary>
         /// Gets or sets whether to enable custom direct message subscriptions
         /// </summary>
-        [JsonProperty("enableSubscriptions")]
-        public bool EnableSubscriptions { get; set; }
+        [JsonProperty("subscriptions")]
+        public SubscriptionsConfig Subscriptions { get; set; }
 
         /// <summary>
         /// Gets or sets whether to enable Discord city roles
@@ -70,6 +87,12 @@
         /// </summary>
         [JsonProperty("cityRoles")]
         public List<string> CityRoles { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value determining whether city roles should be removed when a donor role is removed from a Discord member
+        /// </summary>
+        [JsonProperty("autoRemoveCityRoles")]
+        public bool AutoRemoveCityRoles { get; set; }
 
         /// <summary>
         /// Gets or sets whether city roles require a Donor role
@@ -125,18 +148,38 @@
         [JsonProperty("status")]
         public string Status { get; set; }
 
+        [JsonProperty("dmAlertsFile")]
+        public string DmAlertsFile { get; set; }
+
+        [JsonProperty("embedColors")]
+        public DiscordEmbedColorConfig DiscordEmbedColors { get; set; }
+
+        [JsonIgnore]
+        public AlertMessage DmAlerts { get; set; }
+
         /// <summary>
         /// Instantiate a new <see cref="DiscordServerConfig"/> class
         /// </summary>
         public DiscordServerConfig()
         {
             //Locale = "en";
-            Moderators = new List<ulong>();
+            ModeratorRoleIds = new List<ulong>();
             CityRoles = new List<string>();
             IconStyle = "Default";
             QuestChannelIds = new List<ulong>();
             ShinyStats = new ShinyStatsConfig();
+            Subscriptions = new SubscriptionsConfig();
             NestsMinimumPerHour = 1;
+            DmAlertsFile = "default.json";
+            DiscordEmbedColors = new DiscordEmbedColorConfig();
+
+            LoadDmAlerts();
+        }
+
+        public void LoadDmAlerts()
+        {
+            var path = Path.Combine(Strings.AlertsFolder, DmAlertsFile);
+            DmAlerts = MasterFile.LoadInit<AlertMessage>(path);
         }
     }
 }

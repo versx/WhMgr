@@ -78,7 +78,7 @@
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             if (!_dep.WhConfig.Servers.ContainsKey(guildId))
                 return;
 
@@ -101,7 +101,7 @@
 
             try
             {
-                var cityNames = cityName.Replace(", ", "").Replace(" ,", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                var cityNames = cityName.Replace(", ", ",").Replace(" ,", ",").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
                 var cityRoles = server.CityRoles.Select(x => x.ToLower());
                 foreach (var city in cityNames)
                 {
@@ -111,7 +111,7 @@
                         continue;
                     }
 
-                    var cityRole = ctx.Client.GetRoleFromName(city);
+                    var cityRole = ctx.Guild.GetRoleFromName(city);
                     if (cityRole == null)
                     {
                         await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME").FormatText(ctx.User.Username, city), DiscordColor.Red);
@@ -128,7 +128,7 @@
                         alreadyAssigned.Add(cityRole.Name);
                     }
 
-                    var cityRaidRole = ctx.Client.GetRoleFromName($"{city}Raids");
+                    var cityRaidRole = ctx.Guild.GetRoleFromName($"{city}Raids");
                     if (cityRaidRole != null)
                     {
                         result = await AddFeedRole(ctx.Member, cityRaidRole);
@@ -179,7 +179,7 @@
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
-            var isSupporter = ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             if (_dep.WhConfig.Servers[guildId].CitiesRequireSupporterRole && !isSupporter)
             {
                 await ctx.DonateUnlockFeaturesMessage();
@@ -199,7 +199,7 @@
 
             try
             {
-                var cityNames = cityName.Replace(", ", "").Replace(" ,", "").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+                var cityNames = cityName.Replace(", ", ",").Replace(" ,", ",").Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
                 var cityRoles = server.CityRoles;
                 foreach (var city in cityNames)
                 {
@@ -209,7 +209,7 @@
                         continue;
                     }
 
-                    var cityRole = ctx.Client.GetRoleFromName(city);
+                    var cityRole = ctx.Guild.GetRoleFromName(city);
                     if (cityRole == null)
                     {
                         await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME").FormatText(ctx.User.Username, city), DiscordColor.Red);
@@ -225,7 +225,7 @@
                         alreadyUnassigned.Add(cityRole.Name);
                     }
 
-                    var cityRaidRole = ctx.Client.GetRoleFromName($"{city}Raids");
+                    var cityRaidRole = ctx.Guild.GetRoleFromName($"{city}Raids");
                     if (cityRaidRole == null)
                         continue;
 
@@ -273,7 +273,7 @@
                 for (var i = 0; i < server.CityRoles.Count; i++)
                 {
                     var city = server.CityRoles[i];
-                    var cityRole = ctx.Client.GetRoleFromName(city);
+                    var cityRole = ctx.Guild.GetRoleFromName(city);
                     if (cityRole == null)
                     {
                         _logger.Error($"Failed to get city raid role from city {city}.");
@@ -315,7 +315,7 @@
                 for (var i = 0; i < server.CityRoles.Count; i++)
                 {
                     var city = server.CityRoles[i];
-                    var cityRole = ctx.Client.GetRoleFromName(city);
+                    var cityRole = ctx.Guild.GetRoleFromName(city);
                     if (cityRole == null)
                     {
                         _logger.Error($"Failed to get city role from city {city}.");

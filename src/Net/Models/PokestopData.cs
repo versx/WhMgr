@@ -2,16 +2,19 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
+
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
+    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
+    using POGOProtos.Enums;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Utilities;
 
@@ -58,11 +61,8 @@
         [JsonIgnore]
         public DateTime InvasionExpireTime { get; set; }
 
-        [JsonProperty("pokestop_display")]
-        public PokestopDisplay PokestopDisplay { get; set; }
-
         [JsonProperty("grunt_type")]
-        public InvasionGruntType GruntType { get; set; }
+        public InvasionCharacter GruntType { get; set; }
 
         [JsonProperty("last_modified")]
         public ulong LastModified { get; set; }
@@ -106,11 +106,12 @@
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
-        public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, bool useLure, bool useInvasion)
         {
-            var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
-            var alert = alarm?.Alerts[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(client.Guilds[guildId], whConfig, city);
+            var server = whConfig.Servers[guildId];
+            var alertType = useInvasion ? AlertMessageType.Invasions : useLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
+            var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, useLure, useInvasion);
             var eb = new DiscordEmbedBuilder
             {
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
@@ -118,16 +119,15 @@
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
-                Color = HasInvasion ? DiscordColor.Red : HasLure ?
-                    (LureType == PokestopLureType.Normal ? DiscordColor.HotPink
-                    : LureType == PokestopLureType.Glacial ? DiscordColor.CornflowerBlue
-                    : LureType == PokestopLureType.Mossy ? DiscordColor.SapGreen
-                    : LureType == PokestopLureType.Magnetic ? DiscordColor.Gray
-                    : DiscordColor.CornflowerBlue) : DiscordColor.CornflowerBlue,
+                Color = useInvasion
+                    ? new DiscordColor(server.DiscordEmbedColors.Pokestops.Invasions)
+                    : useLure
+                        ? LureType.BuildLureColor(server)
+                        : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text ?? client.Guilds[guildId]?.Name ?? DateTime.Now.ToString(), properties),
-                    IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl ?? client.Guilds[guildId]?.IconUrl ?? string.Empty, properties)
+                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text, properties),
+                    IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl, properties)
                 }
             };
             var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
@@ -140,30 +140,21 @@
 
         #region Private Methods
 
-        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, bool useLure, bool useInvasion)
         {
             var lureImageUrl = IconFetcher.Instance.GetLureIcon(whConfig.Servers[guild.Id].IconStyle, LureType);
             var invasionImageUrl = IconFetcher.Instance.GetInvasionIcon(whConfig.Servers[guild.Id].IconStyle, GruntType);
-            var imageUrl = HasInvasion ? invasionImageUrl : HasLure ? lureImageUrl : Url;
+            var imageUrl = useInvasion ? invasionImageUrl : useLure ? lureImageUrl : Url;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
-            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, HasInvasion ? whConfig.StaticMaps.Invasions.TemplateFile : HasLure ? whConfig.StaticMaps.Lures.TemplateFile : whConfig.StaticMaps.Lures.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, HasInvasion ? whConfig.StaticMaps.Invasions.ZoomLevel : HasLure ? whConfig.StaticMaps.Lures.ZoomLevel : whConfig.StaticMaps.Lures.ZoomLevel, Latitude, Longitude, imageUrl, null);
-            var gmapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? gmapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? appleMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? wazeMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? scannerMapsLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            Geofence.Location address = null;
-            if (!string.IsNullOrEmpty(whConfig.GoogleMapsKey))
-            {
-                address = Utils.GetGoogleAddress(city, Latitude, Longitude, whConfig.GoogleMapsKey);
-            }
-            else if (!string.IsNullOrEmpty(whConfig.NominatimEndpoint))
-            {
-                address = Utils.GetNominatimAddress(city, Latitude, Longitude, whConfig.NominatimEndpoint);
-            }
+            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, useInvasion ? whConfig.StaticMaps["invasions"] : useLure ? whConfig.StaticMaps["lures"] : /* TODO: */"", Latitude, Longitude, imageUrl);
+            var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
+            var address = new Location(null, city, Latitude, Longitude).GetAddress(whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));
@@ -173,6 +164,10 @@
                 : pokemonType.GetTypeEmojiIcons();
             var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : string.Empty;
 
+            var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+            var lureExpireTimeLeft = now.GetTimeRemaining(LureExpireTime).ToReadableStringNoSeconds();
+            var invasionExpireTimeLeft = now.GetTimeRemaining(InvasionExpireTime).ToReadableStringNoSeconds();
+
             const string defaultMissingValue = "?";
             var dict = new Dictionary<string, string>
             {
@@ -181,22 +176,22 @@
                 { "lure_type", LureType.ToString() },
                 { "lure_expire_time", LureExpireTime.ToLongTimeString() },
                 { "lure_expire_time_24h", LureExpireTime.ToString("HH:mm:ss") },
-                { "lure_expire_time_left", LureExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+                { "lure_expire_time_left", lureExpireTimeLeft },
                 { "has_invasion", Convert.ToString(HasInvasion) },
                 { "grunt_type", invasion?.Type },
                 { "grunt_type_emoji", invasionTypeEmoji },
                 { "grunt_gender", invasion?.Grunt },
                 { "invasion_expire_time", InvasionExpireTime.ToLongTimeString() },
                 { "invasion_expire_time_24h", InvasionExpireTime.ToString("HH:mm:ss") },
-                { "invasion_expire_time_left", InvasionExpireTime.GetTimeRemaining().ToReadableStringNoSeconds() },
+                { "invasion_expire_time_left", invasionExpireTimeLeft },
                 { "invasion_encounters", $"**Encounter Reward Chance:**\r\n" + invasionEncounters },
 
                 //Location properties
                 { "geofence", city ?? defaultMissingValue },
                 { "lat", Latitude.ToString() },
                 { "lng", Longitude.ToString() },
-                { "lat_5", Math.Round(Latitude, 5).ToString() },
-                { "lng_5", Math.Round(Longitude, 5).ToString() },
+                { "lat_5", Latitude.ToString("0.00000") },
+                { "lng_5", Longitude.ToString("0.00000") },
 
                 //Location links
                 { "tilemaps_url", staticMapLink },
@@ -232,7 +227,7 @@
     /// <summary>
     /// Pokestop lure type
     /// </summary>
-    public enum PokestopLureType
+    public enum PokestopLureType : ushort
     {
         /// <summary>
         /// No Pokestop lure deployed
@@ -258,84 +253,5 @@
         /// Magnetic Pokestop lure deployed
         /// </summary>
         Magnetic = 504
-    }
-
-    /// <summary>
-    /// Pokestop display type
-    /// </summary>
-    public enum PokestopDisplay
-    {
-        /// <summary>
-        /// Normal Pokestop
-        /// </summary>
-        Normal = 0,
-
-        /// <summary>
-        /// Team Rocket Invasion Pokestop
-        /// </summary>
-        RocketInvasion,
-
-        /// <summary>
-        /// Team Rocket victory Pokestop
-        /// </summary>
-        RocketVictory
-    }
-
-    /// <summary>
-    /// Team Rocket Invasion grunt type
-    /// </summary>
-    public enum InvasionGruntType
-    {
-        Unset = 0,
-        Blanche,
-        Candela,
-        Spark,
-        MaleGrunt,
-        FemaleGrunt,
-        BugFemaleGrunt,
-        BugMaleGrunt,
-        DarknessFemaleGrunt,
-        DarknessMaleGrunt,
-        DarkFemaleGrunt,
-        DarkMaleGrunt,
-        DragonFemaleGrunt,
-        DragonMaleGrunt,
-        FairyFemaleGrunt,
-        FairyMaleGrunt,
-        FightingFemaleGrunt,
-        FightingMaleGrunt,
-        FireFemaleGrunt,
-        FireMaleGrunt,
-        FlyingFemaleGrunt,
-        FlyingMaleGrunt,
-        GrassFemaleGrunt,
-        GrassMaleGrunt,
-        GroundFemaleGrunt,
-        GroundMaleGrunt,
-        IceFemaleGrunt,
-        IceMaleGrunt,
-        MetalFemaleGrunt,
-        MetalMaleGrunt,
-        NormalFemaleGrunt,
-        NormalMaleGrunt,
-        PoisonFemaleGrunt,
-        PoisonMaleGrunt,
-        PsychicFemaleGrunt,
-        PsychicMaleGrunt,
-        RockFemaleGrunt,
-        RockMaleGrunt,
-        WaterFemaleGrunt,
-        WaterMaleGrunt,
-        PlayerTeamLeader,
-        ExecutiveCliff,
-        ExecutiveArlo,
-        ExecutiveSierra,
-        Giovanni,
-        DecoyMale,
-        DecoyFemale,
-        GhostFemaleGrunt,
-        GhostMaleGrunt,
-        ElectricFemaleGrunt,
-        ElectricMaleGrunt
     }
 }

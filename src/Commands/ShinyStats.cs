@@ -111,7 +111,7 @@
             {
                 using (var db = DataAccessLayer.CreateFactory(scannerConnectionString).Open())
                 {
-                    db.SetCommandTimeout(10 * 1000); // 10 seconds timeout
+                    db.SetCommandTimeout(30 * 1000); // 30 seconds timeout
                     var yesterday = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToString("yyyy/MM/dd");
                     var pokemonShiny = db.Select<PokemonStatsShiny>().Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0).ToList();
                     var pokemonIV = db.Select<PokemonStatsIV>().Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0)?.ToDictionary(x => x.PokemonId);

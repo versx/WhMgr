@@ -78,21 +78,6 @@
             }
         }
 
-        public static string CreateShortUrl(string baseApiUrl, string url)
-        {
-            try
-            {
-                var apiUrl = baseApiUrl + "&action=shorturl&url=" + HttpUtility.UrlEncode(url) + "&format=json";
-                var json = Get(apiUrl);
-                var obj = JsonConvert.DeserializeObject<UrlShortener>(json);
-                return obj.ShortUrl;
-            }
-            catch (Exception)
-            {
-                return url;
-            }
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -109,7 +94,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to download data: {ex}");
+                    Console.WriteLine($"Failed to download data from {url}: {ex}");
                 }
             }
 
