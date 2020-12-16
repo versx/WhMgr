@@ -6,8 +6,8 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
     using POGOProtos.Enums;
+    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;

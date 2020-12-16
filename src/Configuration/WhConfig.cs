@@ -124,6 +124,12 @@
         public ushort MaxNotificationsPerMinute { get; set; }
 
         /// <summary>
+        /// Gets or sets a value determining whether to check for duplicate webhook messages or not
+        /// </summary>
+        [JsonProperty("checkForDuplicates")]
+        public bool CheckForDuplicates { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to log incoming webhook data to a file
         /// </summary>
         [JsonProperty("debug")]
@@ -161,6 +167,7 @@
             DespawnTimeMinimumMinutes = 5;
             ReloadSubscriptionChangesMinutes = 1;
             MaxNotificationsPerMinute = 10;
+            CheckForDuplicates = true;
         }
 
         /// <summary>

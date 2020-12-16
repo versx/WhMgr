@@ -17,6 +17,7 @@
     using WhMgr.Extensions;
     using WhMgr.Geofence;
     using WhMgr.Net;
+    using WhMgr.Net.Configuration;
     using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
@@ -200,14 +201,20 @@
             LoadGeofences();
             LoadAlarms();
 
-            _http = new HttpServer(_config.Instance.ListeningHost, _config.Instance.WebhookPort, _config.Instance.DespawnTimeMinimumMinutes);
-            _http.PokemonReceived += Http_PokemonReceived;
-            _http.RaidReceived += Http_RaidReceived;
-            _http.QuestReceived += Http_QuestReceived;
-            _http.PokestopReceived += Http_PokestopReceived;
-            _http.GymReceived += Http_GymReceived;
-            _http.GymDetailsReceived += Http_GymDetailsReceived;
-            _http.WeatherReceived += Http_WeatherReceived;
+            _http = new HttpServer(new HttpServerConfig
+            {
+                Host = _config.Instance.ListeningHost,
+                Port = _config.Instance.WebhookPort,
+                DespawnTimerMinimum = _config.Instance.DespawnTimeMinimumMinutes,
+                CheckForDuplicates = _config.Instance.CheckForDuplicates,
+            });
+            _http.PokemonReceived += OnPokemonReceived;
+            _http.RaidReceived += OnRaidReceived;
+            _http.QuestReceived += OnQuestReceived;
+            _http.PokestopReceived += OnPokestopReceived;
+            _http.GymReceived += OnGymReceived;
+            _http.GymDetailsReceived += OnGymDetailsReceived;
+            _http.WeatherReceived += OnWeatherReceived;
             _http.IsDebug = _config.Instance.Debug;
 
             new Thread(() => {
@@ -247,7 +254,7 @@
 
         #region HttpServer Events
 
-        private void Http_PokemonReceived(object sender, DataReceivedEventArgs<PokemonData> e)
+        private void OnPokemonReceived(object sender, DataReceivedEventArgs<PokemonData> e)
         {
             var pkmn = e.Data;
             if (DateTime.UtcNow.ConvertTimeFromCoordinates(pkmn.Latitude, pkmn.Longitude) > pkmn.DespawnTime)
@@ -273,7 +280,7 @@
             OnPokemonSubscriptionTriggered(pkmn);
         }
 
-        private void Http_RaidReceived(object sender, DataReceivedEventArgs<RaidData> e)
+        private void OnRaidReceived(object sender, DataReceivedEventArgs<RaidData> e)
         {
             var raid = e.Data;
             if (DateTime.UtcNow.ConvertTimeFromCoordinates(raid.Latitude, raid.Longitude) > raid.EndTime)
@@ -286,14 +293,14 @@
             OnRaidSubscriptionTriggered(raid);
         }
 
-        private void Http_QuestReceived(object sender, DataReceivedEventArgs<QuestData> e)
+        private void OnQuestReceived(object sender, DataReceivedEventArgs<QuestData> e)
         {
             var quest = e.Data;
             ProcessQuest(quest);
             OnQuestSubscriptionTriggered(quest);
         }
 
-        private void Http_PokestopReceived(object sender, DataReceivedEventArgs<PokestopData> e)
+        private void OnPokestopReceived(object sender, DataReceivedEventArgs<PokestopData> e)
         {
             var pokestop = e.Data;
             if (pokestop.HasLure || pokestop.HasInvasion)
@@ -304,19 +311,19 @@
             }
         }
 
-        private void Http_GymReceived(object sender, DataReceivedEventArgs<GymData> e)
+        private void OnGymReceived(object sender, DataReceivedEventArgs<GymData> e)
         {
             var gym = e.Data;
             ProcessGym(gym);
         }
 
-        private void Http_GymDetailsReceived(object sender, DataReceivedEventArgs<GymDetailsData> e)
+        private void OnGymDetailsReceived(object sender, DataReceivedEventArgs<GymDetailsData> e)
         {
             var gymDetails = e.Data;
             ProcessGymDetails(gymDetails);
         }
 
-        private void Http_WeatherReceived(object sender, DataReceivedEventArgs<WeatherData> e)
+        private void OnWeatherReceived(object sender, DataReceivedEventArgs<WeatherData> e)
         {
             var weather = e.Data;
             ProcessWeather(weather);
@@ -530,13 +537,13 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var pokemonAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Pokemon?.Pokemon != null);
+                var pokemonAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Pokemon?.Pokemon != null && x.Filters.Pokemon.Enabled);
                 if (pokemonAlarms == null)
                     continue;
 
-                for (var j = 0; j < pokemonAlarms.Count; j++)
+                for (var i = 0; i < pokemonAlarms.Count; i++)
                 {
-                    var alarm = pokemonAlarms[j];
+                    var alarm = pokemonAlarms[i];
                     if (alarm.Filters.Pokemon == null)
                         continue;
 
@@ -648,10 +655,10 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null);
-                for (var j = 0; j < raidAlarms.Count; j++)
+                var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null && x.Filters.Raids.Enabled);
+                for (var i = 0; i < raidAlarms.Count; i++)
                 {
-                    var alarm = raidAlarms[j];
+                    var alarm = raidAlarms[i];
                     var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Location(raid.Latitude, raid.Longitude));
                     if (geofence == null)
                     {
@@ -774,10 +781,10 @@
                     continue;
 
                 var rewardKeyword = quest.GetReward();
-                var questAlarms = alarms.Alarms.FindAll(x => x.Filters?.Quests?.RewardKeywords != null);
-                for (var j = 0; j < questAlarms.Count; j++)
+                var questAlarms = alarms.Alarms.FindAll(x => x.Filters?.Quests?.RewardKeywords != null && x.Filters.Quests.Enabled);
+                for (var i = 0; i < questAlarms.Count; i++)
                 {
-                    var alarm = questAlarms[j];
+                    var alarm = questAlarms[i];
                     if (alarm.Filters.Quests == null)
                         continue;
 
@@ -845,10 +852,10 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var pokestopAlarms = alarms.Alarms.FindAll(x => x.Filters?.Pokestops != null);
-                for (var j = 0; j < pokestopAlarms.Count; j++)
+                var pokestopAlarms = alarms.Alarms.FindAll(x => x.Filters?.Pokestops != null && x.Filters.Pokestops.Enabled);
+                for (var i = 0; i < pokestopAlarms.Count; i++)
                 {
-                    var alarm = pokestopAlarms[j];
+                    var alarm = pokestopAlarms[i];
                     if (alarm.Filters.Pokestops == null)
                         continue;
 
@@ -906,10 +913,10 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var gymAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null);
-                for (var j = 0; j < gymAlarms.Count; j++)
+                var gymAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null && x.Filters.Gyms.Enabled);
+                for (var i = 0; i < gymAlarms.Count; i++)
                 {
-                    var alarm = gymAlarms[j];
+                    var alarm = gymAlarms[i];
                     if (alarm.Filters.Gyms == null)
                         continue;
 
@@ -949,10 +956,10 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var gymDetailsAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null);
-                for (var j = 0; j < gymDetailsAlarms.Count; j++)
+                var gymDetailsAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null && x.Filters.Gyms.Enabled);
+                for (var i = 0; i < gymDetailsAlarms.Count; i++)
                 {
-                    var alarm = gymDetailsAlarms[j];
+                    var alarm = gymDetailsAlarms[i];
                     if (alarm.Filters.Gyms == null)
                         continue;
 
@@ -1018,10 +1025,10 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var weatherAlarms = alarms.Alarms.FindAll(x => x.Filters?.Weather != null);
-                for (var j = 0; j < weatherAlarms.Count; j++)
+                var weatherAlarms = alarms.Alarms.FindAll(x => x.Filters?.Weather != null && x.Filters.Weather.Enabled);
+                for (var i = 0; i < weatherAlarms.Count; i++)
                 {
-                    var alarm = weatherAlarms[j];
+                    var alarm = weatherAlarms[i];
                     if (alarm.Filters.Weather == null)
                         continue;
 

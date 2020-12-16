@@ -235,6 +235,7 @@
   "despawnTimeMinimumMinutes": 5,
   "reloadSubscriptionChangesMinutes": 1,
   "maxNotificationsPerMinute": 10,
+  "checkForDuplicates": true,
   "debug": false,
   "logLevel": "Trace"
 }
