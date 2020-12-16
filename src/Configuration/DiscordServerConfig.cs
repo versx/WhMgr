@@ -148,12 +148,21 @@ namespace WhMgr.Configuration
         [JsonProperty("status")]
         public string Status { get; set; }
 
+        /// <summary>
+        /// Gets or sets the alerts file to use with direct message subscriptions
+        /// </summary>
         [JsonProperty("dmAlertsFile")]
         public string DmAlertsFile { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Discord embed colors to use for each message type
+        /// </summary>
         [JsonProperty("embedColors")]
         public DiscordEmbedColorConfig DiscordEmbedColors { get; set; }
 
+        /// <summary>
+        /// Gets or sets the direct message alerts class to use for subscriptions
+        /// </summary>
         [JsonIgnore]
         public AlertMessage DmAlerts { get; set; }
 

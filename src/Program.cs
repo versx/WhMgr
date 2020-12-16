@@ -5,7 +5,6 @@ namespace WhMgr
     using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using WhMgr.Diagnostics;
@@ -61,7 +60,7 @@ namespace WhMgr
             logger.Info(Strings.BannerAsciiText);
             logger.Info($"Version: {Strings.Version}");
             logger.Info($".NET Runtime Version: {System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion}\n");
-            var whConfig = Configuration.WhConfig.Load(configFilePath);
+            var whConfig = WhConfig.Load(configFilePath);
             if (whConfig == null)
             {
                 logger.Error($"Failed to load config {configFilePath}.");

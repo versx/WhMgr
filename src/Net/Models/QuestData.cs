@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
@@ -64,9 +63,6 @@
         public List<QuestConditionMessage> Conditions { get; set; }
 
         [JsonIgnore]
-        public TimeSpan TimeLeft => DateTime.Today.AddDays(1) - DateTime.Now;
-
-        [JsonIgnore]
         public bool IsDitto => Rewards?[0]?.Info?.Ditto ?? false;
 
         [JsonIgnore]
@@ -83,6 +79,15 @@
             Conditions = new List<QuestConditionMessage>();
         }
 
+        /// <summary>
+        /// Generates a Discord embed message for a Pokestop Quest
+        /// </summary>
+        /// <param name="guildId">Discord Guild ID related to the data</param>
+        /// <param name="client">Discord client to use</param>
+        /// <param name="whConfig">Config to use</param>
+        /// <param name="alarm">Alarm to use</param>
+        /// <param name="city">City to specify</param>
+        /// <returns></returns>
         public DiscordEmbedNotification GenerateQuestMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var server = whConfig.Servers[guildId];

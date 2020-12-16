@@ -31,9 +31,13 @@ namespace WhMgr.Data.Subscriptions
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("SUBSCRIPTION", Program.LogLevel);
 
+        // Contains all Discord clients by Guild ID
         private readonly Dictionary<ulong, DiscordClient> _servers;
+        // Holds the WhConfg instance
         private readonly WhConfigHolder _whConfig;
+        // WebhookController class
         private readonly WebhookController _whm;
+        // Subscription notification processing queue
         private readonly NotificationQueue _queue;
 
         #endregion

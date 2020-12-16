@@ -47,9 +47,9 @@
         /// <summary>
         /// Creates a short url from the url provided
         /// </summary>
-        /// <param name="baseApiUrl"></param>
-        /// <param name="url"></param>
-        /// <returns></returns>
+        /// <param name="baseApiUrl">Yourls.org endpoint base url with signature parameter</param>
+        /// <param name="url">URL address to shorten</param>
+        /// <returns>Returns the shortened URL address</returns>
         public static string CreateShortUrl(string baseApiUrl, string url)
         {
             // If base `yourls` url not set, return original url

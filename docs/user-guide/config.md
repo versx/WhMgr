@@ -55,7 +55,7 @@ At a minimum you'll want to make sure your have your webhook listening port set 
 | shinyStats.channelId | `1347092710` | Channel ID to post shiny stats. |  
 | iconStyle | `Default` | Icon style to use for Pokemon, Raid, Quest, and Invasion images. |  
 | botChannelIds | `[098309389,987398790,...]` | Prevents the bot from executing commands outside of listed channels. |  
-| status | `Finding Pokemon...` | Custom bot Discord status, leave blank for bot version string |  
+| status | `Finding Pokemon...` | Custom Discord bot status, leave blank for bot version string |  
 
 ## Urls `urls`  
 | Key | Example | Description |  

@@ -123,6 +123,11 @@
 
         #region Private Methods
 
+        /// <summary>
+        /// Gets the expiration date for the Stripe customer
+        /// </summary>
+        /// <param name="customer">Stripe customer</param>
+        /// <returns>Returns subscription expiration date</returns>
         private DateTime? GetExpireDate(Customer customer)
         {
             if (customer?.Subscriptions?.Data?.Count > 0)
@@ -133,6 +138,12 @@
             return null;
         }
 
+        /// <summary>
+        /// Get expiration date from customer from metdata key
+        /// </summary>
+        /// <param name="customer">Customer class to get expiration date from</param>
+        /// <param name="metadataKey">Expiration metadata key</param>
+        /// <returns>Returns expiration date as string</returns>
         private string GetSubscriptionData(Customer customer, string metadataKey)
         {
             if (customer == null)
