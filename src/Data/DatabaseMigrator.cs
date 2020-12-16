@@ -28,7 +28,7 @@
         /// </summary>
         public string MigrationsFolder => Path.Combine
         (
-            Path.Combine(Directory.GetCurrentDirectory(), "../../.."),
+            Path.Combine(Directory.GetCurrentDirectory(), "../"),
             Strings.MigrationsFolder
         );
 
