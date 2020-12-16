@@ -19,10 +19,6 @@ if [ "$1" == "geofences" ] || [ "$1" == "geofence" ] || [ "$1" == "all" ]; then
     cp -R "geofences" "bin/debug/netcoreapp2.1/"
 fi
 
-# Copy default config file
-echo "Copying default config file..."
-cp "default.json" "bin/debug/netcoreapp2.1/default.json"
-
 # Copy locale translation files
 echo "Copying locale translation files... "
 mkdir -p "bin/debug/netcoreapp2.1/static"
