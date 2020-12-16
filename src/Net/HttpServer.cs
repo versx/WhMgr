@@ -35,7 +35,6 @@
         private readonly Dictionary<long, WeatherData> _processedWeather;
         private readonly System.Timers.Timer _clearCacheTimer;
         private HttpListener _server;
-        private readonly HttpServerConfig _serverConfig;
         private bool _initialized = false;
         private readonly int _despawnTimerMinimumMinutes = 5;
         private static string _endpoint;
@@ -125,22 +124,22 @@
         /// <summary>
         /// Instantiates a new <see cref="HttpServer"/> class.
         /// </summary>
-        /// <param name="serverConfig">Http server config</param>
-        public HttpServer(HttpServerConfig serverConfig)
+        /// <param name="httpConfig">Http server config</param>
+        public HttpServer(HttpServerConfig httpConfig)
         {
             // If no host is set use wildcard for all host interfaces
-            Host = serverConfig.Host ?? "*";
-            Port = serverConfig.Port;
+            Host = httpConfig.Host ?? "*";
+            Port = httpConfig.Port;
             _processedPokemon = new Dictionary<string, ScannedPokemon>();
             _processedRaids = new Dictionary<string, ScannedRaid>();
             _processedGyms = new Dictionary<string, ScannedGym>();
             _processedPokestops = new Dictionary<string, ScannedPokestop>();
             _processedQuests = new Dictionary<string, ScannedQuest>();
             _processedWeather = new Dictionary<long, WeatherData>();
-            _despawnTimerMinimumMinutes = serverConfig.DespawnTimerMinimum;
+            _despawnTimerMinimumMinutes = httpConfig.DespawnTimerMinimum;
             _clearCacheTimer = new System.Timers.Timer { Interval = 60000 * 15 };
             _clearCacheTimer.Elapsed += (sender, e) => OnClearCache();
-            _checkForDuplicates = serverConfig.CheckForDuplicates;
+            _checkForDuplicates = httpConfig.CheckForDuplicates;
             
             Initialize();
         }
