@@ -200,7 +200,7 @@
             LoadGeofences();
             LoadAlarms();
 
-            _http = new HttpServer(_config.Instance.ListeningHost, _config.Instance.WebhookPort, _config.Instance.DespawnTimeMinimumMinutes);
+            _http = new HttpServer(_config.Instance.ListeningHost, _config.Instance.WebhookPort, _config.Instance.DespawnTimeMinimumMinutes, _config.Instance.CheckForDuplicates);
             _http.PokemonReceived += Http_PokemonReceived;
             _http.RaidReceived += Http_RaidReceived;
             _http.QuestReceived += Http_QuestReceived;
