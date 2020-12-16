@@ -14,39 +14,41 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 ```
 
 ## Configuration  
-1. Edit `config.json` either open in Notepad/++ or `vi config.json`. [Config Instructions](./config.md)  
+1.) Edit `config.json` either open in Notepad/++ or `vi config.json`. [Config Instructions](./config.md)  
   - [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
   - Input your bot token and config options.  
   - Fill out the rest of the config options.
 
-2. Edit `alarms.json` either open in Notepad/++ or `vi alarms.json`.  
+2.) Edit `alarms.json` either open in Notepad/++ or `vi alarms.json`.  
 
-3. Fill out the alarms file. [Alarm Instructions](./alarms.md)  
+3.) Fill out the alarms file. [Alarm Instructions](./alarms.md)  
 
-4. Create directory `geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
+4.) Create directory `geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
 
-5. Create/copy geofence files to `geofences` folder. [Geofence Instructions](./geofences.md)  
+5.) Create/copy geofence files to `geofences` folder. [Geofence Instructions](./geofences.md)  
 
-6. Add `dotnet` to your environment path if it isn't already (optional):  
+6.) Add `dotnet` to your environment path if it isn't already (optional):  
 ```sh
 export PATH=~/.dotnet/dotnet:$PATH
 ```  
 
 ## Running  
-1. Build executable:
+1.) Build executable:
 ```
 dotnet build ../../..
 ```
-2. Start WhMgr:
+2.) Start WhMgr:
 ```
 dotnet WhMgr.dll
 ```
+3.) Optional User Interface for members to create subscriptions from a website instead of using Discord commands. [WhMgr UI](https://github.com/versx/WhMgr-UI)  
+4.) Optional reverse location lookup with OpenStreetMaps Nominatim instead of Google Maps, install instructions [here](https://nominatim.org/release-docs/develop/admin/Installation/)  
 
-3. Optional User Interface for members to create subscriptions from a website instead of using Discord commands. [WhMgr UI](https://github.com/versx/WhMgr-UI)  
-4. Optional reverse location lookup with OpenStreetMaps Nominatim instead of Google Maps, install instructions [here](https://nominatim.org/release-docs/develop/admin/Installation/)  
 
+## Discord Permissions  
+Discord recently enabled a new feature that requires you to enable the Global Intents options in the Discord developer portal https://discord.com/developers to access Discord member lists.  
 
-## Discord Permissions
+The bot needs the following Discord permissions:  
 - Read Messages  
 - Send Messages  
 - Manage Messages (Prune quest channels)  
