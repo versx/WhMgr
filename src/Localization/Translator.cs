@@ -38,7 +38,7 @@
         {
             try
             {
-                return base.Translate(value);
+                return base.Translate(value) ?? value;
             }
             catch (Exception ex)
             {
@@ -52,9 +52,10 @@
         {
             try
             {
-                return args?.Length > 0
+                var text = args?.Length > 0
                     ? string.Format(base.Translate(value), args)
                     : base.Translate(value);
+                return text ?? value;
             }
             catch (Exception ex)
             {
