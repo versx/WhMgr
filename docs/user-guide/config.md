@@ -2,11 +2,9 @@
 
 At a minimum you'll want to make sure your have your webhook listening port set as well as one Discord server added to the `servers` property.
 
-### Properties
-
+## Main Properties  
 | Key | Example | Description |  
 |---|---|---|  
-## Main Properties  
 | host | `10.0.0.2` | Listening interface to receive webhook data. |  
 | port | `8008` | Listening port used to receive incoming json webhooks. |  
 | locale | `en` | Two letter country code used to translate bot messages. |  
@@ -24,18 +22,18 @@ At a minimum you'll want to make sure your have your webhook listening port set 
 | debug | `false` | Log webhook payloads to a file for debugging (do not enable unless you're having issues receiving data |  
 | logLevel | `Info` | Only show logs with higher or equal priority levels (Trace, Debug, Info, Warning, Error, Fatal, None) |  
 
+## Database `database`  
 | Key | Example | Description |  
 |---|---|---|  
-## Database `database`  
 | host | `127.0.0.1` | Hostname or IP address of database server. |  
 | port | `3306` | Listening port for database server. |  
 | username | `root` | Database username to use when authenticating. |  
 | password | `password` | Database password to use when authenticating. |  
 | database | `rdmdb` | Database name |  
 
+## Discord Server Specific `servers`  
 | Key | Example | Description |  
 |---|---|---|  
-## Discord Server Specific `servers`  
 | commandPrefix | `!` | Prefix for all commands, leave blank to use bot mention string. |  
 | guildId | `4032948092834` | Discord guild ID the bot will be connecting to. |  
 | emojiGuildId | `3984729874298` | Discord guild ID to use emojis from. (Can be same as `guildId`) |  
@@ -59,15 +57,15 @@ At a minimum you'll want to make sure your have your webhook listening port set 
 | botChannelIds | `[098309389,987398790,...]` | Prevents the bot from executing commands outside of listed channels. |  
 | status | `Finding Pokemon...` | Custom bot Discord status, leave blank for bot version string |  
 
+## Urls `urls`  
 | Key | Example | Description |  
 |---|---|---|  
-## Urls `urls`  
 | staticMap | `https://tiles.com:8080` | Static map tile server endpoint. |  
 | scannerMap | `https://map.com/@/{0}/{1}/15` | Scanner map url for embed DTS `scanmaps_url`. |  
 
+## StaticMaps `staticMaps`  
 | Key | Example | Description |  
 |---|---|---|  
-## StaticMaps `staticMaps`  
 | pokemon | `pokemon.example` | Name of staticmap template used for pokemon messages on tileserver. |  
 | raids | `raids.example` | Name of staticmap template used for raids messages on tileserver. |  
 | gyms | `gyms.example` | Name of staticmap template used for gym messages on tileserver. |  
@@ -77,9 +75,9 @@ At a minimum you'll want to make sure your have your webhook listening port set 
 | weather | `weather.example` | Name of staticmap template used for weather messages on tileserver. |  
 | nests | `nests.example` | Name of staticmap template used for nest messages on tileserver. |  
 
+## Twilio `twilio`  
 | Key | Example | Description |  
 |---|---|---|  
-## Twilio `twilio`  
 | enabled | `false` | Determines if text message alerts are enabled |  
 | accountSid | `ACb9ef2a14fa64...` | Twilio account SID (Get via Twilio dashboard) |  
 | authToken | `19c2f1c032962f...` | Twilio account auth token (Get via Twilio dashboard) |  
