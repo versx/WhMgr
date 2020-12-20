@@ -5,8 +5,8 @@
     using System.IO;
     using System.Reflection;
 
-    using POGOProtos.Enums;
-    using POGOProtos.Map.Weather;
+    using POGOProtos.Rpc;
+    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     /// <summary>
     /// Static strings class
@@ -179,16 +179,16 @@
             "gender_less"
         };
 
-        public static IReadOnlyDictionary<GameplayWeather.Types.WeatherCondition, List<PokemonType>> WeatherBoosts => new Dictionary<GameplayWeather.Types.WeatherCondition, List<PokemonType>>
+        public static IReadOnlyDictionary<WeatherCondition, List<HoloPokemonType>> WeatherBoosts => new Dictionary<WeatherCondition, List<HoloPokemonType>>
         {
-            { GameplayWeather.Types.WeatherCondition.None,         new List<PokemonType> { } },
-            { GameplayWeather.Types.WeatherCondition.Clear,        new List<PokemonType> { PokemonType.Fire,   PokemonType.Grass,    PokemonType.Ground } },
-            { GameplayWeather.Types.WeatherCondition.Rainy,        new List<PokemonType> { PokemonType.Water,  PokemonType.Electric, PokemonType.Bug } },
-            { GameplayWeather.Types.WeatherCondition.PartlyCloudy, new List<PokemonType> { PokemonType.Normal, PokemonType.Rock } },
-            { GameplayWeather.Types.WeatherCondition.Overcast,     new List<PokemonType> { PokemonType.Fairy,  PokemonType.Fighting, PokemonType.Poison } },
-            { GameplayWeather.Types.WeatherCondition.Windy,        new List<PokemonType> { PokemonType.Dragon, PokemonType.Flying,   PokemonType.Psychic } },
-            { GameplayWeather.Types.WeatherCondition.Snow,         new List<PokemonType> { PokemonType.Ice,    PokemonType.Steel } },
-            { GameplayWeather.Types.WeatherCondition.Fog,          new List<PokemonType> { PokemonType.Dark,   PokemonType.Ghost } }
+            { WeatherCondition.None,         new List<HoloPokemonType> { } },
+            { WeatherCondition.Clear,        new List<HoloPokemonType> { HoloPokemonType.PokemonTypeFire,   HoloPokemonType.PokemonTypeGrass,    HoloPokemonType.PokemonTypeGround } },
+            { WeatherCondition.Rainy,        new List<HoloPokemonType> { HoloPokemonType.PokemonTypeWater,  HoloPokemonType.PokemonTypeElectric, HoloPokemonType.PokemonTypeBug } },
+            { WeatherCondition.PartlyCloudy, new List<HoloPokemonType> { HoloPokemonType.PokemonTypeNormal, HoloPokemonType.PokemonTypeRock } },
+            { WeatherCondition.Overcast,     new List<HoloPokemonType> { HoloPokemonType.PokemonTypeFairy,  HoloPokemonType.PokemonTypeFighting, HoloPokemonType.PokemonTypePoison } },
+            { WeatherCondition.Windy,        new List<HoloPokemonType> { HoloPokemonType.PokemonTypeDragon, HoloPokemonType.PokemonTypeFlying,   HoloPokemonType.PokemonTypePsychic } },
+            { WeatherCondition.Snow,         new List<HoloPokemonType> { HoloPokemonType.PokemonTypeIce,    HoloPokemonType.PokemonTypeSteel } },
+            { WeatherCondition.Fog,          new List<HoloPokemonType> { HoloPokemonType.PokemonTypeDark,   HoloPokemonType.PokemonTypeGhost } }
         };
     }
 
