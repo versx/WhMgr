@@ -353,7 +353,6 @@ namespace WhMgr.Commands
                 // If so, make sure they specified at least 90% or higher
                 if (realIV < 90)
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_IV").FormatText(ctx.User.Username), DiscordColor.Red);
                     return;
                 }
@@ -388,7 +387,6 @@ namespace WhMgr.Commands
             {
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
                     continue;
                 }
@@ -399,7 +397,6 @@ namespace WhMgr.Commands
                 // Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
                 if (pokemonId.IsCommonPokemon() && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_COMMON_TYPE_POKEMON").FormatText(ctx.User.Username, pokemon.Name, Strings.CommonTypeMinimumIV), DiscordColor.Red);
                     continue;
                 }
@@ -1248,14 +1245,12 @@ namespace WhMgr.Commands
             //You may only subscribe to the top 100 or higher rank.
             if (minimumRank < Strings.MinimumRank || minimumRank > Strings.MaximumRank)
             {
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumRank), DiscordColor.Red);
                 return;
             }
 
             if (minimumPercent < Strings.MinimumPercent || minimumPercent > Strings.MaximumPercent)
             {
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumPercent), DiscordColor.Red);
                 return;
             }
@@ -1283,7 +1278,6 @@ namespace WhMgr.Commands
             {
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
                     continue;
                 }
@@ -1381,7 +1375,6 @@ namespace WhMgr.Commands
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (subscription == null || subscription?.PvP?.Count == 0)
             {
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
@@ -1411,7 +1404,6 @@ namespace WhMgr.Commands
                     .ToList()?
                     .ForEach(x => x.Id.Remove<PvPSubscription>());
 
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, pvpLeague));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
@@ -2603,7 +2595,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             var oldSubscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (oldSubscription != null)
             {
-                var result = Data.Subscriptions.SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id);
+                var result = SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id);
                 if (!result)
                 {
                     _logger.Error($"Failed to clear old user subscriptions for {ctx.User.Username} ({ctx.User.Id}) in guild {ctx.Guild?.Name} ({ctx.Guild?.Id}) before importing.");
