@@ -679,10 +679,10 @@
 
         private void OnClearCache()
         {
-            List<string> expiredEncounters;
+            //List<string> expiredEncounters;
             lock (_processedPokemon)
             {
-                expiredEncounters = _processedPokemon.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                var expiredEncounters = _processedPokemon.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
                 foreach (var encounterId in expiredEncounters)
                 {
                     // Spawn expired, remove from cache
@@ -690,10 +690,10 @@
                 }
             }
 
-            List<string> expiredRaids;
+            //List<string> expiredRaids;
             lock (_processedRaids)
             {
-                expiredRaids = _processedRaids.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                var expiredRaids = _processedRaids.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
                 foreach (var gymId in expiredRaids)
                 {
                     // Gym expired, remove from cache
@@ -701,10 +701,10 @@
                 }
             }
 
-            List<string> expiredQuests;
+            //List<string> expiredQuests;
             lock (_processedQuests)
             {
-                expiredQuests = _processedQuests.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                var expiredQuests = _processedQuests.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
                 foreach (var pokestopId in expiredQuests)
                 {
                     // Quest expired, remove from cache
@@ -712,10 +712,10 @@
                 }
             }
 
-            List<string> expiredPokestops;
+            //List<string> expiredPokestops;
             lock (_processedPokestops)
             {
-                expiredPokestops = _processedPokestops.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                var expiredPokestops = _processedPokestops.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
                 foreach (var pokestopId in expiredPokestops)
                 {
                     // Pokestop lure or invasion expired, remove from cache
@@ -724,6 +724,7 @@
             }
 
             // Log expired ones outside lock so that we don't hog too much time on _processedPokemon, _processedRaids, _processedQuests, and _processedPokestops
+            /*
             foreach (var encounterId in expiredEncounters)
                 _logger.Debug($"Removed expired Pokemon spawn {encounterId} from cache");
 
@@ -735,6 +736,7 @@
 
             foreach (var pokestopId in expiredPokestops)
                 _logger.Debug($"Removed expired Pokestop lure or invasion {pokestopId} from cache");
+            */
         }
 
         #endregion
