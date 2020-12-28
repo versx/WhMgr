@@ -14,10 +14,10 @@ namespace WhMgr.Commands
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Enums;
 
     using WhMgr.Commands.Input;
     using WhMgr.Data;
+    using WhMgr.Data.Models;
     using WhMgr.Data.Subscriptions;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;

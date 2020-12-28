@@ -6,8 +6,8 @@
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
-    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
-    using POGOProtos.Enums;
+    using POGOProtos.Rpc;
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;

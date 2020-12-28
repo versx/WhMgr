@@ -4,8 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using POGOProtos.Enums;
-    using POGOProtos.Map.Weather;
+    using POGOProtos.Rpc;
+    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
+    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Data;
     using WhMgr.Data.Models;
@@ -129,7 +130,7 @@
             return string.Join(" ", list);
         }
 
-        public static string GetWeatherEmojiIcon(this GameplayWeather.Types.WeatherCondition weather)
+        public static string GetWeatherEmojiIcon(this WeatherCondition weather)
         {
             var key = $"weather_{Convert.ToInt32(weather)}";
             var emojiId = MasterFile.Instance.Emojis[key];
@@ -270,7 +271,7 @@
             return new PokemonValidation { Valid = valid, Invalid = invalid };
         }
 
-        public static bool IsWeatherBoosted(this PokedexPokemon pkmn, GameplayWeather.Types.WeatherCondition weather)
+        public static bool IsWeatherBoosted(this PokedexPokemon pkmn, WeatherCondition weather)
         {
             var types = pkmn?.Types;
             var isBoosted = types?.Exists(x => Strings.WeatherBoosts[weather].Contains(x)) ?? false;

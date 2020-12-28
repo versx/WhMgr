@@ -11,7 +11,6 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-    using POGOProtos.Enums;
     using ServiceStack;
     using ServiceStack.OrmLite;
 

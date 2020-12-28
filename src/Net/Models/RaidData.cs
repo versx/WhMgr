@@ -2,12 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Enums;
+    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
@@ -17,6 +16,7 @@
     using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Utilities;
+    using WhMgr.Data.Models;
 
     /// <summary>
     /// RealDeviceMap Raid/Egg webhook model class.

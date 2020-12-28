@@ -9,8 +9,8 @@
     using System.Threading;
 
     using Newtonsoft.Json;
-    using POGOProtos.Enums;
-    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
+    using POGOProtos.Rpc;
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Comparers;
     using WhMgr.Diagnostics;
