@@ -44,7 +44,7 @@
     <PackageReference Include="NetTopologySuite" Version="2.1.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="POGOProtos.Core" Version="2.53.1" />
+    <PackageReference Include="POGOProtos.Core" Version="2.53.3" />
     <PackageReference Include="ServiceStack.OrmLite.MySql" Version="5.8.0" />
     <PackageReference Include="Stripe.net" Version="39.29.0" />
     <PackageReference Include="TimeZoneConverter" Version="3.3.0" />

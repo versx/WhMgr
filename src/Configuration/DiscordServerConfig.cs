@@ -43,6 +43,9 @@ namespace WhMgr.Configuration
         [JsonProperty("donorRoleIds")]
         public List<ulong> DonorRoleIds { get; set; }
 
+        [JsonProperty("freeRoleName")]
+        public string FreeRoleName { get; set; }
+
         /// <summary>
         /// Gets or sets the moderators of the Discord server
         /// </summary>

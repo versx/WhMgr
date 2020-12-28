@@ -14,7 +14,7 @@ namespace WhMgr.Commands
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Enums;
+    using POGOProtos.Rpc;
 
     using WhMgr.Commands.Input;
     using WhMgr.Data;
@@ -353,7 +353,6 @@ namespace WhMgr.Commands
                 // If so, make sure they specified at least 90% or higher
                 if (realIV < 90)
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_IV").FormatText(ctx.User.Username), DiscordColor.Red);
                     return;
                 }
@@ -388,7 +387,6 @@ namespace WhMgr.Commands
             {
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
                     continue;
                 }
@@ -399,7 +397,6 @@ namespace WhMgr.Commands
                 // Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
                 if (pokemonId.IsCommonPokemon() && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_COMMON_TYPE_POKEMON").FormatText(ctx.User.Username, pokemon.Name, Strings.CommonTypeMinimumIV), DiscordColor.Red);
                     continue;
                 }
@@ -1163,49 +1160,49 @@ namespace WhMgr.Commands
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
-        public static PokemonType GetPokemonTypeFromString(string pokemonType)
+        public static HoloPokemonType GetPokemonTypeFromString(string pokemonType)
         {
             var type = pokemonType.ToLower();
             if (type.Contains("bug"))
-                return PokemonType.Bug;
+                return HoloPokemonType.PokemonTypeBug;
             else if (type.Contains("dark"))
-                return PokemonType.Dark;
+                return HoloPokemonType.PokemonTypeDark;
             else if (type.Contains("dragon"))
-                return PokemonType.Dragon;
+                return HoloPokemonType.PokemonTypeDragon;
             else if (type.Contains("electric"))
-                return PokemonType.Electric;
+                return HoloPokemonType.PokemonTypeElectric;
             else if (type.Contains("fairy"))
-                return PokemonType.Fairy;
+                return HoloPokemonType.PokemonTypeFairy;
             else if (type.Contains("fighting") || type.Contains("fight"))
-                return PokemonType.Fighting;
+                return HoloPokemonType.PokemonTypeFighting;
             else if (type.Contains("fire"))
-                return PokemonType.Fire;
+                return HoloPokemonType.PokemonTypeFire;
             else if (type.Contains("flying") || type.Contains("fly"))
-                return PokemonType.Flying;
+                return HoloPokemonType.PokemonTypeFlying;
             else if (type.Contains("ghost"))
-                return PokemonType.Ghost;
+                return HoloPokemonType.PokemonTypeGhost;
             else if (type.Contains("grass"))
-                return PokemonType.Grass;
+                return HoloPokemonType.PokemonTypeGrass;
             else if (type.Contains("ground"))
-                return PokemonType.Ground;
+                return HoloPokemonType.PokemonTypeGround;
             else if (type.Contains("ice"))
-                return PokemonType.Ice;
+                return HoloPokemonType.PokemonTypeIce;
             //else if (type.Contains("tierii") || type.Contains("none") || type.Contains("tier2") || type.Contains("t2"))
             //    return PokemonType.None;
             else if (type.Contains("normal"))
-                return PokemonType.Normal;
+                return HoloPokemonType.PokemonTypeNormal;
             else if (type.Contains("poison"))
-                return PokemonType.Poison;
+                return HoloPokemonType.PokemonTypePoison;
             else if (type.Contains("psychic"))
-                return PokemonType.Psychic;
+                return HoloPokemonType.PokemonTypePsychic;
             else if (type.Contains("rock"))
-                return PokemonType.Rock;
+                return HoloPokemonType.PokemonTypeRock;
             else if (type.Contains("steel"))
-                return PokemonType.Steel;
+                return HoloPokemonType.PokemonTypeSteel;
             else if (type.Contains("water"))
-                return PokemonType.Water;
+                return HoloPokemonType.PokemonTypeWater;
             else
-                return PokemonType.None;
+                return HoloPokemonType.PokemonTypeNone;
         }
 
         #endregion
@@ -1248,14 +1245,12 @@ namespace WhMgr.Commands
             //You may only subscribe to the top 100 or higher rank.
             if (minimumRank < Strings.MinimumRank || minimumRank > Strings.MaximumRank)
             {
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumRank), DiscordColor.Red);
                 return;
             }
 
             if (minimumPercent < Strings.MinimumPercent || minimumPercent > Strings.MaximumPercent)
             {
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumPercent), DiscordColor.Red);
                 return;
             }
@@ -1283,7 +1278,6 @@ namespace WhMgr.Commands
             {
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
                     continue;
                 }
@@ -1381,7 +1375,6 @@ namespace WhMgr.Commands
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (subscription == null || subscription?.PvP?.Count == 0)
             {
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
@@ -1411,7 +1404,6 @@ namespace WhMgr.Commands
                     .ToList()?
                     .ForEach(x => x.Id.Remove<PvPSubscription>());
 
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, pvpLeague));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
@@ -2603,7 +2595,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             var oldSubscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (oldSubscription != null)
             {
-                var result = Data.Subscriptions.SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id);
+                var result = SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id);
                 if (!result)
                 {
                     _logger.Error($"Failed to clear old user subscriptions for {ctx.User.Username} ({ctx.User.Id}) in guild {ctx.Guild?.Name} ({ctx.Guild?.Id}) before importing.");
