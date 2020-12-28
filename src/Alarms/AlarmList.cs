@@ -12,49 +12,49 @@
     public class AlarmList
     {
         /// <summary>
-        /// Global toggle for Pokemon alarms
+        /// Gets or sets the global toggle for Pokemon alarms
         /// </summary>
         [JsonProperty("enablePokemon")]
         public bool EnablePokemon { get; set; }
 
         /// <summary>
-        /// Global toggle for Raid alarms
+        /// Gets or sets the global toggle for Raid alarms
         /// </summary>
         [JsonProperty("enableRaids")]
         public bool EnableRaids { get; set; }
 
         /// <summary>
-        /// Global toggle for Quest alarms
+        /// Gets or sets the global toggle for Quest alarms
         /// </summary>
         [JsonProperty("enableQuests")]
         public bool EnableQuests { get; set; }
 
         /// <summary>
-        /// Global toggle for Pokestops
+        /// Gets or sets the global toggle for Pokestops
         /// </summary>
         [JsonProperty("enablePokestops")]
         public bool EnablePokestops { get; set; }
 
         /// <summary>
-        /// Global toggle for Gyms
+        /// Gets or sets the global toggle for Gyms
         /// </summary>
         [JsonProperty("enableGyms")]
         public bool EnableGyms { get; set; }
 
         /// <summary>
-        /// Global toggle for weather
+        /// Gets or sets the global toggle for weather
         /// </summary>
         [JsonProperty("enableWeather")]
         public bool EnableWeather { get; set; }
 
         /// <summary>
-        /// Alarms list
+        /// Gets or sets the Alarms list
         /// </summary>
         [JsonProperty("alarms")]
         public List<AlarmObject> Alarms { get; set; }
 
         /// <summary>
-        /// Instantiate a new <see cref="AlarmList"/> class
+        /// Instantiates a new <see cref="AlarmList"/> class
         /// </summary>
         public AlarmList()
         {

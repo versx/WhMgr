@@ -19,7 +19,7 @@ Filters allow you to narrow down what is reported. All filters are optional and 
 		"min_rank": 1, // Minimum rank of #1 PVP stats
 		"max_rank": 5, // Maximum rank of #5 PVP stats
 		"type": "Include", // Include or Exclude the `pokemon` list
-        "is_event": false, // Only send Pokemon checked with event accounts (GoFest, etc)
+		"is_event": false, // Only send Pokemon checked with event accounts (GoFest, etc)
 		"ignoreMissing": true // Ignore Pokemon missing stats
 	},
 	"eggs":
@@ -64,7 +64,7 @@ Filters allow you to narrow down what is reported. All filters are optional and 
 	"weather":
 	{
 		"enabled": true, // Filter is enabled
-		"types": ["Clear", "Rain", "PartlyCloudy", "Cloudy", "Windy", "Snow", "Fog"] // Only send weather types that are in the list
+		"types": ["Clear", "Rainy", "PartlyCloudy", "Overcast", "Windy", "Snow", "Fog"] // Only send weather types that are in the list
 	}
 }
 ```

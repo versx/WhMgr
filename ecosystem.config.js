@@ -3,7 +3,7 @@ module.exports = {
     name: "WhMgr",
     script: "WhMgr.dll",
     watch: true,
-    cwd: "/home/user/WhMgr/bin/debug/netcoreapp2.1/",
+    cwd: "/home/user/WhMgr/bin",
     interpreter: "dotnet",
     instances: 1,
     exec_mode: "fork"

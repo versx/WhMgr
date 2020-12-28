@@ -3190,7 +3190,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
         private static List<PokestopLureType> GetLures(string lureTypes)
         {
-            var lureNames = lureTypes.Replace(", ", ",").Replace(" ,", ",").Split(',').ToList();
+            var lureNames = lureTypes.RemoveSpaces();
             var list = new List<PokestopLureType>();
             lureNames.ForEach(x => list.Add(GetLureFromName(x)));
             return list;
@@ -3207,7 +3207,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             var validCities = server.EnableCities ? server.CityRoles : server.Geofences.Select(g => g.Name).ToList();
             var cities = string.IsNullOrEmpty(city) || string.Compare(city, Strings.All, true) == 0
                 ? validCities
-                : city.Replace(" ,", ",").Replace(", ", ",").Split(',').ToList();
+                : city.RemoveSpaces();
             var validAreas = validCities.Select(x => x.ToLower());
             // Validate areas
             return cities

@@ -24,7 +24,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
 
 3.) Fill out the alarms file. [Alarm Instructions](./alarms.md)  
 
-4.) Create directory `geofences` in `bin/debug/netcoreapp2.1` directory if it doesn't already exist.  
+4.) Create directory `bin/geofences` if it doesn't already exist.  
 
 5.) Create/copy geofence files to `geofences` folder. [Geofence Instructions](./geofences.md)  
 

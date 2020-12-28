@@ -2,7 +2,7 @@
 
 Geofences define area borders and perimeters for a city or multiple cities. Each alarm can take multiple geofence files or names, as well as a combination of both.  
 
-**Geofences must be placed in the root directory of the executable (`bin/debug/netcoreapp2.1`) in the `geofences` folder.**  
+**Geofences must be placed in the `bin/geofences` folder.**  
 *Note:* Supports INI geofence file format as well as GeoJSON geofence file format:  
 
 ## Examples

@@ -187,6 +187,10 @@
                 {
                     commands.RegisterCommands<Feeds>();
                 }
+                else
+                {
+                    commands.RegisterCommands<Areas>();
+                }
 
                 _logger.Info($"Configured Discord server {guildId}");
                 if (!_servers.ContainsKey(guildId))

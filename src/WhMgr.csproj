@@ -26,8 +26,13 @@
     <DefineConstants>Linux</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>../bin/debug</OutputPath>
+    <OutputPath>../bin</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

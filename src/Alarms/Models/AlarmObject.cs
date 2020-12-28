@@ -16,19 +16,19 @@
     public class AlarmObject
     {
         /// <summary>
-        /// Area geofences
+        /// Gets the Area geofences for the alarm
         /// </summary>
         [JsonIgnore]
         public List<GeofenceItem> GeofenceItems { get; private set; }
 
         /// <summary>
-        /// Discord alert messages
+        /// Gets the Discord alert messages for the alarm
         /// </summary>
         [JsonIgnore]
         public AlertMessage Alerts { get; private set; }
 
         /// <summary>
-        /// Alarm filters
+        /// Gets the Alarm filters for the alarm
         /// </summary>
         [JsonIgnore]
         public FilterObject Filters { get; private set; }

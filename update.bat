@@ -15,11 +15,6 @@ dotnet build
 ::echo "Copying example files..."
 ::xcopy /s /e %prjDir%\examples\alerts\* %binDir%\alerts\
 ::xcopy /s /e %prjDir%\examples\filters\* %binDir%\filters\
-::xcopy /s /e %prjDir%\examples\templates\* %binDir%\templates\
-
-:: Copy default config file
-echo "Copying default config file..."
-xcopy /s /e %prjDir%\default.json %binDir%\default.json
 
 :: Copy locale translation files
 echo "Copying locale translation files..."

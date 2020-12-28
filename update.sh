@@ -11,26 +11,22 @@ echo "Building WhMgr..."
 # Copy example configs
 if [ "$1" == "examples" ] || [ "$1" == "example" ] || [ "$1" == "all" ]; then
     echo "Copying examples"
-    cp -R "examples/alerts" "bin/debug/netcoreapp2.1/"
-    cp -R "examples/filters" "bin/debug/netcoreapp2.1/"
+    cp -R "examples/alerts" "bin/"
+    cp -R "examples/filters" "bin/"
 fi
 if [ "$1" == "geofences" ] || [ "$1" == "geofence" ] || [ "$1" == "all" ]; then
     echo "Copying geofences..."
-    cp -R "geofences" "bin/debug/netcoreapp2.1/"
+    cp -R "geofences" "bin/"
 fi
-
-# Copy default config file
-echo "Copying default config file..."
-cp "default.json" "bin/debug/netcoreapp2.1/default.json"
 
 # Copy locale translation files
 echo "Copying locale translation files... "
-mkdir -p "bin/debug/netcoreapp2.1/static"
-cp -R "static/locale" "bin/debug/netcoreapp2.1/static/"
+mkdir -p "bin/static"
+cp -R "static/locale" "bin/static/"
 
 echo "Copying latest master file..."
-mkdir -p "bin/debug/netcoreapp2.1/static/data"
-cp "static/data/masterfile.json" "bin/debug/netcoreapp2.1/static/data/masterfile.json"
-cp "static/data/cpMultipliers.json" "bin/debug/netcoreapp2.1/static/data/cpMultipliers.json"
+mkdir -p "bin/static/data"
+cp "static/data/masterfile.json" "bin/static/data/masterfile.json"
+cp "static/data/cpMultipliers.json" "bin/static/data/cpMultipliers.json"
 
 echo "Update Complete"

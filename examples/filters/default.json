@@ -1,5 +1,5 @@
 {
-	"pokemon":
+  "pokemon":
 	{
 		"enabled": true, // Filter is enabled
 		"pokemon": [280,337,374], // List of Pokemon for the filter or empty for all
@@ -63,6 +63,6 @@
 	"weather":
 	{
 		"enabled": true, // Filter is enabled
-		"types": ["Clear", "Rain", "PartlyCloudy", "Cloudy", "Windy", "Snow", "Fog"] // Only send weather types that are in the list
+		"types": ["Clear", "Rainy", "PartlyCloudy", "Overcast", "Windy", "Snow", "Fog"] // Only send weather types that are in the list
 	}
 }
