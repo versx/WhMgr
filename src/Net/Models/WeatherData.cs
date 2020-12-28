@@ -7,7 +7,7 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
+    using POGOProtos.Map.Weather;
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
@@ -50,7 +50,7 @@
         public MultiPolygon Polygon { get; set; }
 
         [JsonProperty("gameplay_condition")]
-        public WeatherCondition GameplayCondition { get; set; }
+        public GameplayWeather.Types.WeatherCondition GameplayCondition { get; set; }
 
         [JsonProperty("wind_direction")]
         public int WindDirection { get; set; }
@@ -143,8 +143,8 @@
         {
             var weather = Translator.Instance.GetWeather(GameplayCondition);
             var weatherKey = $"weather_{Convert.ToInt32(GameplayCondition)}";
-            var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && GameplayCondition != WeatherCondition.None ? GameplayCondition.GetWeatherEmojiIcon() : string.Empty;
-            var hasWeather = GameplayCondition != WeatherCondition.None;
+            var weatherEmoji = MasterFile.Instance.Emojis.ContainsKey(weatherKey) && GameplayCondition != GameplayWeather.Types.WeatherCondition.None ? GameplayCondition.GetWeatherEmojiIcon() : string.Empty;
+            var hasWeather = GameplayCondition != GameplayWeather.Types.WeatherCondition.None;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);

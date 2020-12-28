@@ -3,14 +3,14 @@
     using System;
     using System.Collections.Generic;
 
-    using ActivityType = POGOProtos.Rpc.HoloActivityType;
-    using AlignmentType = POGOProtos.Rpc.PokemonDisplayProto.Types.Alignment;
-    using CharacterCategory = POGOProtos.Rpc.EnumWrapper.Types.CharacterCategory;
-    using ItemId = POGOProtos.Rpc.Item;
-    using TemporaryEvolutionId = POGOProtos.Rpc.HoloTemporaryEvolutionId;
-    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
+    using CharacterCategory = POGOProtos.Enums.EnumWrapper.Types.CharacterCategory;
+    using POGOProtos.Data;
+    using POGOProtos.Enums;
+    using POGOProtos.Inventory.Item;
+    using POGOProtos.Map.Weather;
 
     using WhMgr.Diagnostics;
+    using WhMgr.Net.Models;
 
     public class Translator : Language<string, string, Dictionary<string, string>>
     {
@@ -118,12 +118,12 @@
             return Translate($"item_{(int)item}");
         }
 
-        public string GetWeather(WeatherCondition weather)
+        public string GetWeather(GameplayWeather.Types.WeatherCondition weather)
         {
             return Translate($"weather_{(int)weather}");
         }
 
-        public string GetAlignmentName(AlignmentType alignment)
+        public string GetAlignmentName(PokemonDisplay.Types.Alignment alignment)
         {
             return Translate($"alignment_{(int)alignment}");
         }

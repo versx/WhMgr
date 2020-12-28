@@ -6,11 +6,10 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Rpc;
-    using ItemId = POGOProtos.Rpc.Item;
-    using ActivityType = POGOProtos.Rpc.HoloActivityType;
-    using QuestConditionType = POGOProtos.Rpc.QuestConditionProto.Types.ConditionType;
-    using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
+    using POGOProtos.Enums;
+    using POGOProtos.Inventory.Item;
+    using QuestConditionType = POGOProtos.Data.Quests.QuestCondition.Types.ConditionType;
+    using QuestRewardType = POGOProtos.Data.Quests.QuestReward.Types.Type;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;

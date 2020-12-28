@@ -7,7 +7,7 @@
     using System.Threading;
 
     using Newtonsoft.Json;
-    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
+    using POGOProtos.Map.Weather;
 
     using WhMgr.Alarms;
     using WhMgr.Alarms.Filters;
@@ -34,7 +34,7 @@
         private readonly HttpServer _http;
         private readonly Dictionary<ulong, AlarmList> _alarms;
         private readonly WhConfigHolder _config;
-        private readonly Dictionary<long, WeatherCondition> _weather;
+        private readonly Dictionary<long, GameplayWeather.Types.WeatherCondition> _weather;
         private Dictionary<string, GymDetailsData> _gyms;
 
         #endregion
@@ -59,7 +59,7 @@
         /// <summary>
         /// Weather cells cache
         /// </summary>
-        public IReadOnlyDictionary<long, WeatherCondition> Weather => _weather;
+        public IReadOnlyDictionary<long, GameplayWeather.Types.WeatherCondition> Weather => _weather;
 
         #endregion
 
@@ -192,7 +192,7 @@
             _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.Instance.WebhookPort}, Servers={config.Instance.Servers.Count:N0}]");
 
             _gyms = new Dictionary<string, GymDetailsData>();
-            _weather = new Dictionary<long, WeatherCondition>();
+            _weather = new Dictionary<long, GameplayWeather.Types.WeatherCondition>();
             _alarms = new Dictionary<ulong, AlarmList>();
 
             _config = config;
@@ -1075,7 +1075,7 @@
             _gyms[id] = gymDetails;
         }
 
-        public void SetWeather(long id, WeatherCondition type)
+        public void SetWeather(long id, GameplayWeather.Types.WeatherCondition type)
         {
             _weather[id] = type;
         }

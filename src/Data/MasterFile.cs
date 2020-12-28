@@ -6,8 +6,8 @@
 
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
-    using POGOProtos.Rpc;
-    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
+    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
+    using POGOProtos.Enums;
 
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
@@ -49,7 +49,7 @@
         public IReadOnlyDictionary<InvasionCharacter, TeamRocketInvasion> GruntTypes { get; set; }
 
         [JsonProperty("pokemon_types")]
-        public IReadOnlyDictionary<HoloPokemonType, PokemonTypes> PokemonTypes { get; set; }
+        public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }
 
         [JsonIgnore]
         public IReadOnlyDictionary<double, double> CpMultipliers { get; }
@@ -124,23 +124,23 @@
     public class PokemonTypes
     {
         [JsonProperty("immunes")]
-        public List<HoloPokemonType> Immune { get; set; }
+        public List<PokemonType> Immune { get; set; }
 
         [JsonProperty("weaknesses")]
-        public List<HoloPokemonType> Weaknesses { get; set; }
+        public List<PokemonType> Weaknesses { get; set; }
 
         [JsonProperty("resistances")]
-        public List<HoloPokemonType> Resistances { get; set; }
+        public List<PokemonType> Resistances { get; set; }
 
         [JsonProperty("strengths")]
-        public List<HoloPokemonType> Strengths { get; set; }
+        public List<PokemonType> Strengths { get; set; }
 
         public PokemonTypes()
         {
-            Immune = new List<HoloPokemonType>();
-            Weaknesses = new List<HoloPokemonType>();
-            Resistances = new List<HoloPokemonType>();
-            Strengths = new List<HoloPokemonType>();
+            Immune = new List<PokemonType>();
+            Weaknesses = new List<PokemonType>();
+            Resistances = new List<PokemonType>();
+            Strengths = new List<PokemonType>();
         }
     }
 

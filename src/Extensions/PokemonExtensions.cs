@@ -4,9 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using POGOProtos.Rpc;
-    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
-    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
+    using POGOProtos.Enums;
+    using POGOProtos.Map.Weather;
 
     using WhMgr.Data;
     using WhMgr.Data.Models;
@@ -83,30 +82,30 @@
             }
         }
 
-        public static List<HoloPokemonType> GetStrengths(this HoloPokemonType type)
+        public static List<PokemonType> GetStrengths(this PokemonType type)
         {
             if (MasterFile.Instance.PokemonTypes.ContainsKey(type))
             {
                 return MasterFile.Instance.PokemonTypes[type].Strengths;
             }
-            return new List<HoloPokemonType>();
+            return new List<PokemonType>();
         }
 
-        public static List<HoloPokemonType> GetWeaknesses(this HoloPokemonType type)
+        public static List<PokemonType> GetWeaknesses(this PokemonType type)
         {
             if (MasterFile.Instance.PokemonTypes.ContainsKey(type))
             {
                 return MasterFile.Instance.PokemonTypes[type].Weaknesses;
             }
-            return new List<HoloPokemonType>();
+            return new List<PokemonType>();
          }
 
-        public static string GetTypeEmojiIcons(this HoloPokemonType pokemonType)
+        public static string GetTypeEmojiIcons(this PokemonType pokemonType)
         {
-            return GetTypeEmojiIcons(new List<HoloPokemonType> { pokemonType });
+            return GetTypeEmojiIcons(new List<PokemonType> { pokemonType });
         }
 
-        public static string GetTypeEmojiIcons(this List<HoloPokemonType> pokemonTypes)
+        public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes)
         {
             var list = new List<string>();
             foreach (var type in pokemonTypes)
@@ -130,7 +129,7 @@
             return string.Join(" ", list);
         }
 
-        public static string GetWeatherEmojiIcon(this WeatherCondition weather)
+        public static string GetWeatherEmojiIcon(this GameplayWeather.Types.WeatherCondition weather)
         {
             var key = $"weather_{Convert.ToInt32(weather)}";
             var emojiId = MasterFile.Instance.Emojis[key];
@@ -174,7 +173,7 @@
             return emojiName;
         }
 
-        public static string GetWeaknessEmojiIcons(this List<HoloPokemonType> pokemonTypes)
+        public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes)
         {
             if (pokemonTypes == null || pokemonTypes?.Count == 0)
                 return string.Empty;
@@ -182,7 +181,7 @@
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
-                var weaknesses = type.ToString().StringToObject<HoloPokemonType>().GetWeaknesses().Distinct();
+                var weaknesses = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
                 foreach (var weakness in weaknesses)
                 {
                     var typeKey = $"types_{weakness.ToString().ToLower()}";
@@ -271,7 +270,7 @@
             return new PokemonValidation { Valid = valid, Invalid = invalid };
         }
 
-        public static bool IsWeatherBoosted(this PokedexPokemon pkmn, WeatherCondition weather)
+        public static bool IsWeatherBoosted(this PokedexPokemon pkmn, GameplayWeather.Types.WeatherCondition weather)
         {
             var types = pkmn?.Types;
             var isBoosted = types?.Exists(x => Strings.WeatherBoosts[weather].Contains(x)) ?? false;

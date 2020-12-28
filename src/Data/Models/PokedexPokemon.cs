@@ -4,7 +4,7 @@
     using System.Collections.Generic;
 
     using Newtonsoft.Json;
-    using POGOProtos.Rpc;
+    using POGOProtos.Enums;
 
     public class PokedexPokemon
     {
@@ -30,7 +30,7 @@
         public string Form { get; set; }
 
         [JsonProperty("types")]
-        public List<HoloPokemonType> Types { get; set; }
+        public List<PokemonType> Types { get; set; }
 
         [JsonProperty("attack")]
         public int? Attack { get; set; }
@@ -86,7 +86,7 @@
             Evolutions = new List<PokedexPokemon>();
             QuickMoves = new List<string>();
             ChargedMoves = new List<string>();
-            Types = new List<HoloPokemonType>();
+            Types = new List<PokemonType>();
         }
     }
 }
