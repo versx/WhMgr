@@ -14,10 +14,10 @@ namespace WhMgr.Commands
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Rpc;
 
     using WhMgr.Commands.Input;
     using WhMgr.Data;
+    using WhMgr.Data.Models;
     using WhMgr.Data.Subscriptions;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
@@ -1163,49 +1163,49 @@ namespace WhMgr.Commands
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
-        public static HoloPokemonType GetPokemonTypeFromString(string pokemonType)
+        public static PokemonType GetPokemonTypeFromString(string pokemonType)
         {
             var type = pokemonType.ToLower();
             if (type.Contains("bug"))
-                return HoloPokemonType.PokemonTypeBug;
+                return PokemonType.Bug;
             else if (type.Contains("dark"))
-                return HoloPokemonType.PokemonTypeDark;
+                return PokemonType.Dark;
             else if (type.Contains("dragon"))
-                return HoloPokemonType.PokemonTypeDragon;
+                return PokemonType.Dragon;
             else if (type.Contains("electric"))
-                return HoloPokemonType.PokemonTypeElectric;
+                return PokemonType.Electric;
             else if (type.Contains("fairy"))
-                return HoloPokemonType.PokemonTypeFairy;
+                return PokemonType.Fairy;
             else if (type.Contains("fighting") || type.Contains("fight"))
-                return HoloPokemonType.PokemonTypeFighting;
+                return PokemonType.Fighting;
             else if (type.Contains("fire"))
-                return HoloPokemonType.PokemonTypeFire;
+                return PokemonType.Fire;
             else if (type.Contains("flying") || type.Contains("fly"))
-                return HoloPokemonType.PokemonTypeFlying;
+                return PokemonType.Flying;
             else if (type.Contains("ghost"))
-                return HoloPokemonType.PokemonTypeGhost;
+                return PokemonType.Ghost;
             else if (type.Contains("grass"))
-                return HoloPokemonType.PokemonTypeGrass;
+                return PokemonType.Grass;
             else if (type.Contains("ground"))
-                return HoloPokemonType.PokemonTypeGround;
+                return PokemonType.Ground;
             else if (type.Contains("ice"))
-                return HoloPokemonType.PokemonTypeIce;
+                return PokemonType.Ice;
             //else if (type.Contains("tierii") || type.Contains("none") || type.Contains("tier2") || type.Contains("t2"))
             //    return PokemonType.None;
             else if (type.Contains("normal"))
-                return HoloPokemonType.PokemonTypeNormal;
+                return PokemonType.Normal;
             else if (type.Contains("poison"))
-                return HoloPokemonType.PokemonTypePoison;
+                return PokemonType.Poison;
             else if (type.Contains("psychic"))
-                return HoloPokemonType.PokemonTypePsychic;
+                return PokemonType.Psychic;
             else if (type.Contains("rock"))
-                return HoloPokemonType.PokemonTypeRock;
+                return PokemonType.Rock;
             else if (type.Contains("steel"))
-                return HoloPokemonType.PokemonTypeSteel;
+                return PokemonType.Steel;
             else if (type.Contains("water"))
-                return HoloPokemonType.PokemonTypeWater;
+                return PokemonType.Water;
             else
-                return HoloPokemonType.PokemonTypeNone;
+                return PokemonType.None;
         }
 
         #endregion

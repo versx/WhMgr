@@ -6,7 +6,6 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Rpc;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Alarms.Alerts;
@@ -18,6 +17,7 @@
     using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Utilities;
+    using WhMgr.Data.Models;
 
     /// <summary>
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
@@ -159,8 +159,8 @@
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));
-            var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? Notifications.GetPokemonTypeFromString(invasion?.Type) : HoloPokemonType.PokemonTypeNone;
-            var invasionTypeEmoji = pokemonType == HoloPokemonType.PokemonTypeNone
+            var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? Notifications.GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
+            var invasionTypeEmoji = pokemonType == PokemonType.None
                 ? leaderString
                 : pokemonType.GetTypeEmojiIcons();
             var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : string.Empty;

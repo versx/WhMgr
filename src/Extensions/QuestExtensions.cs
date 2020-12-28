@@ -65,7 +65,7 @@
                 case QuestConditionType.WithPokemonCategory:
                     return string.Join(", ", condition.Info.PokemonIds?.Select(x => Translator.Instance.GetPokemonName(x)).ToList());
                 case QuestConditionType.WithPokemonType:
-                    return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((HoloPokemonType)x))) + "-type";
+                    return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((PokemonType)x))) + "-type";
                 case QuestConditionType.WithQuestContext:
                     break;
                 case QuestConditionType.WithRaidLevel:

@@ -83,30 +83,30 @@
             }
         }
 
-        public static List<HoloPokemonType> GetStrengths(this HoloPokemonType type)
+        public static List<PokemonType> GetStrengths(this PokemonType type)
         {
             if (MasterFile.Instance.PokemonTypes.ContainsKey(type))
             {
                 return MasterFile.Instance.PokemonTypes[type].Strengths;
             }
-            return new List<HoloPokemonType>();
+            return new List<PokemonType>();
         }
 
-        public static List<HoloPokemonType> GetWeaknesses(this HoloPokemonType type)
+        public static List<PokemonType> GetWeaknesses(this PokemonType type)
         {
             if (MasterFile.Instance.PokemonTypes.ContainsKey(type))
             {
                 return MasterFile.Instance.PokemonTypes[type].Weaknesses;
             }
-            return new List<HoloPokemonType>();
+            return new List<PokemonType>();
          }
 
-        public static string GetTypeEmojiIcons(this HoloPokemonType pokemonType)
+        public static string GetTypeEmojiIcons(this PokemonType pokemonType)
         {
-            return GetTypeEmojiIcons(new List<HoloPokemonType> { pokemonType });
+            return GetTypeEmojiIcons(new List<PokemonType> { pokemonType });
         }
 
-        public static string GetTypeEmojiIcons(this List<HoloPokemonType> pokemonTypes)
+        public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes)
         {
             var list = new List<string>();
             foreach (var type in pokemonTypes)
@@ -174,7 +174,7 @@
             return emojiName;
         }
 
-        public static string GetWeaknessEmojiIcons(this List<HoloPokemonType> pokemonTypes)
+        public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes)
         {
             if (pokemonTypes == null || pokemonTypes?.Count == 0)
                 return string.Empty;
@@ -182,7 +182,7 @@
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
-                var weaknesses = type.ToString().StringToObject<HoloPokemonType>().GetWeaknesses().Distinct();
+                var weaknesses = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
                 foreach (var weakness in weaknesses)
                 {
                     var typeKey = $"types_{weakness.ToString().ToLower()}";

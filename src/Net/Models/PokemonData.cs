@@ -481,7 +481,7 @@
             var move1 = int.TryParse(FastMove, out var fastMoveId) ? Translator.Instance.GetMoveName(fastMoveId) : "Unknown";
             var move2 = int.TryParse(ChargeMove, out var chargeMoveId) ? Translator.Instance.GetMoveName(chargeMoveId) : "Unknown";
             var type1 = pkmnInfo?.Types?[0];
-            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : HoloPokemonType.PokemonTypeNone;
+            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
             var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
             var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
