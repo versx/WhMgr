@@ -12,6 +12,7 @@
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("STATICMAP", Program.LogLevel);
 
+        // TODO: Add support for multistaticmap templates
         public static string GetUrl(string staticMapUrl, string templateName, double latitude, double longitude, string imageUrl, PokemonTeam team = PokemonTeam.All, OsmFeature feature = null, MultiPolygon multiPolygon = null)
         {
             var baseUrl = $"{staticMapUrl}/staticmap/{templateName}?lat={latitude}&lon={longitude}&url2={imageUrl}";

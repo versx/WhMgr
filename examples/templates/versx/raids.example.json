@@ -7,7 +7,7 @@
     "height": 175,
     "scale": 1,
     "markers": [{
-        "url": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{{team_id}}.png",
+        "url": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/<%= team_id %>.png",
         "latitude": <%= lat %>,
         "longitude": <%= lon %>,
         "x_offset": 0,
