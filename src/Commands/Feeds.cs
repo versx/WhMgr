@@ -77,13 +77,13 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-
-            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             if (!_dep.WhConfig.Servers.ContainsKey(guildId))
                 return;
 
             var server = _dep.WhConfig.Servers[guildId];
-            if (server.CitiesRequireSupporterRole && !isSupporter)
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            var isFreeRole = string.IsNullOrEmpty(server.FreeRoleName) ? false : string.Compare(cityName, server.FreeRoleName, true) == 0;
+            if (server.CitiesRequireSupporterRole && !isSupporter && !isFreeRole)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
@@ -105,7 +105,7 @@
                 var cityRoles = server.CityRoles.Select(x => x.ToLower());
                 foreach (var city in cityNames)
                 {
-                    if (!cityRoles.Contains(city.ToLower()))
+                    if (!isFreeRole && !cityRoles.Contains(city.ToLower()))
                     {
                         await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(ctx.User.Username, city, server.CommandPrefix), DiscordColor.Red);
                         continue;
@@ -126,20 +126,6 @@
                     else
                     {
                         alreadyAssigned.Add(cityRole.Name);
-                    }
-
-                    var cityRaidRole = ctx.Guild.GetRoleFromName($"{city}Raids");
-                    if (cityRaidRole != null)
-                    {
-                        result = await AddFeedRole(ctx.Member, cityRaidRole);
-                        if (result)
-                        {
-                            assigned.Add(cityRaidRole.Name);
-                        }
-                        else
-                        {
-                            alreadyAssigned.Add(cityRaidRole.Name);
-                        }
                     }
 
                     Thread.Sleep(200);
@@ -178,9 +164,13 @@
                 return;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return;
 
+            var server = _dep.WhConfig.Servers[guildId];
             var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
-            if (_dep.WhConfig.Servers[guildId].CitiesRequireSupporterRole && !isSupporter)
+            var isFreeRole = string.IsNullOrEmpty(server.FreeRoleName) ? false : string.Compare(cityName, server.FreeRoleName, true) == 0;
+            if (server.CitiesRequireSupporterRole && !isSupporter && !isFreeRole)
             {
                 await ctx.DonateUnlockFeaturesMessage();
                 return;
@@ -193,17 +183,15 @@
                 return;
             }
 
-            var server = _dep.WhConfig.Servers[guildId];
             var unassigned = new List<string>();
             var alreadyUnassigned = new List<string>();
 
             try
             {
                 var cityNames = cityName.RemoveSpaces();
-                var cityRoles = server.CityRoles;
                 foreach (var city in cityNames)
                 {
-                    if (!cityRoles.Exists(x => string.Compare(city, x, true) == 0))
+                    if (!isFreeRole && !server.CityRoles.Exists(x => string.Compare(city, x, true) == 0))
                     {
                         await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(ctx.User.Username, city, server.CommandPrefix), DiscordColor.Red);
                         continue;
@@ -223,19 +211,6 @@
                     else
                     {
                         alreadyUnassigned.Add(cityRole.Name);
-                    }
-
-                    var cityRaidRole = ctx.Guild.GetRoleFromName($"{city}Raids");
-                    if (cityRaidRole == null)
-                        continue;
-
-                    if (await RemoveFeedRole(ctx.Member, cityRaidRole))
-                    {
-                        unassigned.Add(cityRaidRole.Name);
-                    }
-                    else
-                    {
-                        alreadyUnassigned.Add(cityRaidRole.Name);
                     }
 
                     Thread.Sleep(200);
