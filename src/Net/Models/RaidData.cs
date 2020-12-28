@@ -2,12 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Enums;
+    using POGOProtos.Rpc;
+    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
@@ -94,13 +94,13 @@
         public bool IsEgg => PokemonId == 0;
 
         [JsonIgnore]
-        public List<PokemonType> Weaknesses
+        public List<HoloPokemonType> Weaknesses
         {
             get
             {
                 if (MasterFile.Instance.Pokedex.ContainsKey(PokemonId) && !IsEgg)
                 {
-                    var list = new List<PokemonType>();
+                    var list = new List<HoloPokemonType>();
                     var types = MasterFile.GetPokemon(PokemonId, Form)?.Types;
                     if (types != null)
                     {
@@ -191,7 +191,7 @@
             var move2 = Translator.Instance.GetMoveName(ChargeMove);
             var types = pkmnInfo?.Types;
             var type1 = types?[0];
-            var type2 = types?.Count > 1 ? types?[1] : PokemonType.None;
+            var type2 = types?.Count > 1 ? types?[1] : HoloPokemonType.PokemonTypeNone;
             var type1Emoji = types?[0].GetTypeEmojiIcons();
             var type2Emoji = pkmnInfo?.Types?.Count > 1 ? types?[1].GetTypeEmojiIcons() : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";

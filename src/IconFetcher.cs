@@ -6,10 +6,10 @@
     using System.Text;
 
     using Newtonsoft.Json;
-    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
-    using QuestRewardType = POGOProtos.Data.Quests.QuestReward.Types.Type;
-    using POGOProtos.Enums;
-    using POGOProtos.Map.Weather;
+    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
+    using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
+    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
     using ServiceStack;
 
     using WhMgr.Net.Models;
@@ -139,7 +139,7 @@
             return _iconStyles[style] + "invasion/" + (int)gruntType + ".png";
         }
 
-        public string GetWeatherIcon(string style, GameplayWeather.Types.WeatherCondition weatherType)
+        public string GetWeatherIcon(string style, WeatherCondition weatherType)
         {
             return _iconStyles[style] + "weather/" + (int)weatherType + ".png";
         }
