@@ -8,9 +8,8 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Rpc;
-    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
-    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
+    using POGOProtos.Enums;
+    using POGOProtos.Map.Weather;
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
@@ -210,7 +209,7 @@
             JsonProperty("weather"),
             Alias("weather")
         ]
-        public WeatherCondition? Weather { get; set; }
+        public GameplayWeather.Types.WeatherCondition? Weather { get; set; }
 
         [
             JsonProperty("form"),
@@ -470,18 +469,18 @@
             var level = Level;
             var size = Size?.ToString();
             var weather = Weather?.ToString();
-            var hasWeather = Weather.HasValue && Weather != WeatherCondition.None;
-            var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherCondition.None);
-            var weatherKey = $"weather_{Convert.ToInt32(Weather ?? WeatherCondition.None)}";
+            var hasWeather = Weather.HasValue && Weather != GameplayWeather.Types.WeatherCondition.None;
+            var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? GameplayWeather.Types.WeatherCondition.None);
+            var weatherKey = $"weather_{Convert.ToInt32(Weather ?? GameplayWeather.Types.WeatherCondition.None)}";
             var weatherEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[weatherKey])
-                ? MasterFile.Instance.CustomEmojis.ContainsKey(weatherKey) && Weather != WeatherCondition.None
-                    ? (Weather ?? WeatherCondition.None).GetWeatherEmojiIcon()
+                ? MasterFile.Instance.CustomEmojis.ContainsKey(weatherKey) && Weather != GameplayWeather.Types.WeatherCondition.None
+                    ? (Weather ?? GameplayWeather.Types.WeatherCondition.None).GetWeatherEmojiIcon()
                     : string.Empty
                 : MasterFile.Instance.CustomEmojis[weatherKey];
             var move1 = int.TryParse(FastMove, out var fastMoveId) ? Translator.Instance.GetMoveName(fastMoveId) : "Unknown";
             var move2 = int.TryParse(ChargeMove, out var chargeMoveId) ? Translator.Instance.GetMoveName(chargeMoveId) : "Unknown";
             var type1 = pkmnInfo?.Types?[0];
-            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : HoloPokemonType.PokemonTypeNone;
+            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
             var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
             var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";

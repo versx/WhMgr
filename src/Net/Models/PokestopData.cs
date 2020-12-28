@@ -6,12 +6,11 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Rpc;
-    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
+    using POGOProtos.Enums;
+    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
-    using WhMgr.Commands;
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
@@ -159,8 +158,8 @@
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));
-            var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? Notifications.GetPokemonTypeFromString(invasion?.Type) : HoloPokemonType.PokemonTypeNone;
-            var invasionTypeEmoji = pokemonType == HoloPokemonType.PokemonTypeNone
+            var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? Commands.Notifications.GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
+            var invasionTypeEmoji = pokemonType == PokemonType.None
                 ? leaderString
                 : pokemonType.GetTypeEmojiIcons();
             var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : string.Empty;

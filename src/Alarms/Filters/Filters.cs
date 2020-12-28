@@ -2,7 +2,7 @@
 {
     using System;
 
-    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
+    using POGOProtos.Enums;
 
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;

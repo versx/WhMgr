@@ -4,12 +4,11 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using POGOProtos.Rpc;
-    using AlignmentId = POGOProtos.Rpc.PokemonDisplayProto.Types.Alignment;
-    using CharacterCategory = POGOProtos.Rpc.EnumWrapper.Types.CharacterCategory;
-    using TemporaryEvolutionId = POGOProtos.Rpc.HoloTemporaryEvolutionId;
-    using QuestConditionType = POGOProtos.Rpc.QuestConditionProto.Types.ConditionType;
-    using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
+    using POGOProtos.Data;
+    using POGOProtos.Enums;
+    using QuestConditionType = POGOProtos.Data.Quests.QuestCondition.Types.ConditionType;
+    using QuestRewardType = POGOProtos.Data.Quests.QuestReward.Types.Type;
+    using CharacterCategory = POGOProtos.Enums.EnumWrapper.Types.CharacterCategory;
 
     using WhMgr.Data.Models;
     using WhMgr.Localization;
@@ -65,7 +64,7 @@
                 case QuestConditionType.WithPokemonCategory:
                     return string.Join(", ", condition.Info.PokemonIds?.Select(x => Translator.Instance.GetPokemonName(x)).ToList());
                 case QuestConditionType.WithPokemonType:
-                    return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((HoloPokemonType)x))) + "-type";
+                    return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((PokemonType)x))) + "-type";
                 case QuestConditionType.WithQuestContext:
                     break;
                 case QuestConditionType.WithRaidLevel:
@@ -97,7 +96,7 @@
                 default:
                     return Translator.Instance.Translate(conditionKey);
                 case QuestConditionType.WithPokemonAlignment:
-                    return string.Join(", ", condition.Info.AlignmentIds?.Select(x => Translator.Instance.GetAlignmentName((AlignmentId)x)));
+                    return string.Join(", ", condition.Info.AlignmentIds?.Select(x => Translator.Instance.GetAlignmentName((PokemonDisplay.Types.Alignment)x)));
                 case QuestConditionType.WithInvasionCharacter:
                     return string.Join(", ", condition.Info.CharacterCategoryIds?.Select(x => Translator.Instance.GetCharacterCategoryName((CharacterCategory)x)));
                 case QuestConditionType.WithTempEvoPokemon: // Mega evo
