@@ -897,7 +897,7 @@ namespace WhMgr.Data.Subscriptions
                     }
 
                     // Send text message notification to user if a phone number is set
-                    if (!string.IsNullOrEmpty(item.Subscription.PhoneNumber))
+                    if (_whConfig.Instance.Twilio.Enabled && !string.IsNullOrEmpty(item.Subscription.PhoneNumber))
                     {
                         // Check if user is in the allowed text message list or server owner
                         if (_whConfig.Instance.Twilio.UserIds.Contains(item.Member.Id) ||
