@@ -41,6 +41,13 @@
         /// </summary>
         public DatabaseMigrator()
         {
+            // Create directory if not exists
+            var dir = Path.GetDirectoryName(CurrentDatabaseVersionPath);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
             // Get current version from metadata table
             var currentVersion = GetCurrentVersion();
             if (currentVersion == 0)
@@ -186,6 +193,11 @@
         /// <returns>Returns the current saved database version</returns>
         private static int GetCurrentVersion()
         {
+            if (!File.Exists(CurrentDatabaseVersionPath))
+            {
+                // Last version that was in database
+                SetCurrentVersion(4);
+            }
             using (var sr = new StreamReader(CurrentDatabaseVersionPath))
             {
                 var data = sr.ReadToEnd();
