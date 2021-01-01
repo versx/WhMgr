@@ -8,7 +8,6 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Rpc;
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
     using ServiceStack.DataAnnotations;
