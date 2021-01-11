@@ -44,6 +44,7 @@
         public const string StaticFolder = "static";
         public const string TemplatesFolder = "templates";
         public const string MigrationsFolder = "migrations";
+        public static readonly string AppFolder = StaticFolder + Path.DirectorySeparatorChar + "app";
         public static readonly string DataFolder = StaticFolder + Path.DirectorySeparatorChar + "data";
         public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locale";
         public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
@@ -101,16 +102,6 @@
         public const string SQL_UPDATE_CONVERTED_POKESTOPS = "UPDATE gym INNER JOIN pokestop ON pokestop.id = gym.id SET gym.name = pokestop.name, gym.url = pokestop.url;";
         public const string SQL_DELETE_CONVERTED_POKESTOPS = "DELETE FROM pokestop WHERE id IN (SELECT id FROM gym)";
         public const string SQL_DELETE_STALE_POKESTOPS = "DELETE FROM pokestop WHERE updated < UNIX_TIMESTAMP() - 90000;";
-        public const string SQL_CREATE_TABLE_METADATA = @"
-        CREATE TABLE IF NOT EXISTS metadata (
-            `key` VARCHAR(50) PRIMARY KEY NOT NULL,
-            `value` VARCHAR(50) DEFAULT NULL
-        );";
-        public const string SQL_INSERT_METADATA_FORMAT = @"
-        INSERT INTO metadata (`key`, `value`)
-        VALUES ('DB_VERSION', {0})
-        ON DUPLICATE KEY UPDATE `value` = {0};
-        ";
 
         public static readonly Dictionary<int, PokemonGenerationRange> PokemonGenerationRanges = new Dictionary<int, PokemonGenerationRange>
         {
