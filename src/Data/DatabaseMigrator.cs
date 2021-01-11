@@ -16,11 +16,7 @@
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MIGRATOR", Program.LogLevel);
 
-        private static readonly string CurrentDatabaseVersionPath = Path.Combine
-        (
-            Directory.GetCurrentDirectory(),
-            "static/app/db_version.txt"
-        );
+        private static readonly string CurrentDatabaseVersionPath = Path.Combine(Strings.AppFolder, "db_version.txt");
 
         /// <summary>
         /// Gets a value determining whether the migration has finished or not

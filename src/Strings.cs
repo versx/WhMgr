@@ -44,6 +44,7 @@
         public const string StaticFolder = "static";
         public const string TemplatesFolder = "templates";
         public const string MigrationsFolder = "migrations";
+        public static readonly string AppFolder = StaticFolder + Path.DirectorySeparatorChar + "app";
         public static readonly string DataFolder = StaticFolder + Path.DirectorySeparatorChar + "data";
         public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locale";
         public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
