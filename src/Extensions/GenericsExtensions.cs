@@ -106,19 +106,18 @@
             return cnt.Values.All(c => c == 0);
         }
 
-        public static T MergeValues<T>(this T target, T source)
+        public static string ToHumanReadableString(this Type type)
         {
-            var type = typeof(T);
-            var properties = type.GetProperties().Where(x => x.CanRead && x.CanWrite);
-            foreach (var prop in properties)
-            {
-                var value = prop.GetValue(source, null);
-                if (value != null)
-                {
-                    prop.SetValue(target, value, null);
-                }
-            }
-            return target;
+            if (type == typeof(string))
+                return "Text";
+            else if (type == typeof(int))
+                return "Number";
+            else if (type == typeof(double) ||
+                     type == typeof(float))
+                return "Decimal";
+            else if (type == typeof(bool))
+                return "Boolean";
+            return type.Name.ToString();
         }
     }
 }

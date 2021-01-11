@@ -1,8 +1,7 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
-    using ServiceStack.DataAnnotations;
-
     using Newtonsoft.Json;
+    using ServiceStack.DataAnnotations;
 
     [
         JsonObject("gyms"),

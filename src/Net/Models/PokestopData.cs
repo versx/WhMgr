@@ -2,21 +2,22 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using InvasionCharacter = POGOProtos.Enums.EnumWrapper.Types.InvasionCharacter;
-    using POGOProtos.Enums;
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
+    using WhMgr.Commands;
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Utilities;
+    using WhMgr.Data.Models;
 
     /// <summary>
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
@@ -106,12 +107,12 @@
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
-        public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
+        public DiscordEmbedNotification GeneratePokestopMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city, bool useLure, bool useInvasion)
         {
             var server = whConfig.Servers[guildId];
-            var alertType = HasInvasion ? AlertMessageType.Invasions : HasLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
+            var alertType = useInvasion ? AlertMessageType.Invasions : useLure ? AlertMessageType.Lures : AlertMessageType.Pokestops;
             var alert = alarm?.Alerts[alertType] ?? server.DmAlerts?[alertType] ?? AlertMessage.Defaults[alertType];
-            var properties = GetProperties(client.Guilds[guildId], whConfig, city);
+            var properties = GetProperties(client.Guilds[guildId], whConfig, city, useLure, useInvasion);
             var eb = new DiscordEmbedBuilder
             {
                 Title = Renderer.Parse(alert.Title, properties),
@@ -119,9 +120,9 @@
                 ImageUrl = Renderer.Parse(alert.ImageUrl, properties),
                 ThumbnailUrl = Renderer.Parse(alert.IconUrl, properties),
                 Description = Renderer.Parse(alert.Content, properties),
-                Color = HasInvasion
+                Color = useInvasion
                     ? new DiscordColor(server.DiscordEmbedColors.Pokestops.Invasions)
-                    : HasLure
+                    : useLure
                         ? LureType.BuildLureColor(server)
                         : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -140,26 +141,25 @@
 
         #region Private Methods
 
-        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city)
+        private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, bool useLure, bool useInvasion)
         {
             var lureImageUrl = IconFetcher.Instance.GetLureIcon(whConfig.Servers[guild.Id].IconStyle, LureType);
             var invasionImageUrl = IconFetcher.Instance.GetInvasionIcon(whConfig.Servers[guild.Id].IconStyle, GruntType);
-            var imageUrl = HasInvasion ? invasionImageUrl : HasLure ? lureImageUrl : Url;
+            var imageUrl = useInvasion ? invasionImageUrl : useLure ? lureImageUrl : Url;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
-            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, HasInvasion ? whConfig.StaticMaps.Invasions.TemplateFile : HasLure ? whConfig.StaticMaps.Lures.TemplateFile : whConfig.StaticMaps.Lures.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, HasInvasion ? whConfig.StaticMaps.Invasions.ZoomLevel : HasLure ? whConfig.StaticMaps.Lures.ZoomLevel : whConfig.StaticMaps.Lures.ZoomLevel, Latitude, Longitude, imageUrl, null);
+            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, useInvasion ? whConfig.StaticMaps["invasions"] : useLure ? whConfig.StaticMaps["lures"] : /* TODO: */"", Latitude, Longitude, imageUrl);
             var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            var address = Utils.GetAddress(city, Latitude, Longitude, whConfig);
+            var address = new Location(null, city, Latitude, Longitude).GetAddress(whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));
-            var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? Commands.Notifications.GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
+            var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? Notifications.GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
             var invasionTypeEmoji = pokemonType == PokemonType.None
                 ? leaderString
                 : pokemonType.GetTypeEmojiIcons();
@@ -223,36 +223,5 @@
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// Pokestop lure type
-    /// </summary>
-    public enum PokestopLureType
-    {
-        /// <summary>
-        /// No Pokestop lure deployed
-        /// </summary>
-        None = 0,
-
-        /// <summary>
-        /// Normal Pokestop lure deployed
-        /// </summary>
-        Normal = 501,
-
-        /// <summary>
-        /// Glacial Pokestop lure deployed
-        /// </summary>
-        Glacial = 502,
-
-        /// <summary>
-        /// Mossy Pokestop lure deployed
-        /// </summary>
-        Mossy = 503,
-
-        /// <summary>
-        /// Magnetic Pokestop lure deployed
-        /// </summary>
-        Magnetic = 504
     }
 }

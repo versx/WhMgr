@@ -7,7 +7,7 @@
     using System.Threading;
 
     using Newtonsoft.Json;
-    using POGOProtos.Map.Weather;
+    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Alarms;
     using WhMgr.Alarms.Filters;
@@ -16,7 +16,9 @@
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
+    using WhMgr.Localization;
     using WhMgr.Net;
+    using WhMgr.Net.Configuration;
     using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
@@ -32,19 +34,13 @@
         private readonly object _geofencesLock = new object();
         private readonly HttpServer _http;
         private readonly Dictionary<ulong, AlarmList> _alarms;
-        private readonly IReadOnlyDictionary<ulong, DiscordServerConfig> _servers;
-        private readonly WhConfig _config;
-        private readonly Dictionary<long, GameplayWeather.Types.WeatherCondition> _weather;
+        private readonly WhConfigHolder _config;
+        private readonly Dictionary<long, WeatherCondition> _weather;
         private Dictionary<string, GymDetailsData> _gyms;
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// All loaded geofences
-        /// </summary>
-        private List<GeofenceItem> Geofences { get; set; }
 
         /// <summary>
         /// Gyms cache
@@ -64,7 +60,7 @@
         /// <summary>
         /// Weather cells cache
         /// </summary>
-        public IReadOnlyDictionary<long, GameplayWeather.Types.WeatherCondition> Weather => _weather;
+        public IReadOnlyDictionary<long, WeatherCondition> Weather => _weather;
 
         #endregion
 
@@ -176,6 +172,12 @@
             InvasionSubscriptionTriggered?.Invoke(this, pokestop);
         }
 
+        public event EventHandler<PokestopData> LureSubscriptionTriggered;
+        private void OnLureSubscriptionTriggered(PokestopData pokestop)
+        {
+            LureSubscriptionTriggered?.Invoke(this, pokestop);
+        }
+
         #endregion
 
         #endregion
@@ -186,37 +188,35 @@
         /// Instantiate a new <see cref="WebhookController"/> class.
         /// </summary>
         /// <param name="config"><see cref="WhConfig"/> configuration class.</param>
-        public WebhookController(WhConfig config)
+        public WebhookController(WhConfigHolder config)
         {
-            _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.WebhookPort}, Servers={config.Servers.Count:N0}]");
+            _logger.Trace($"WebhookManager::WebhookManager [Config={config}, Port={config.Instance.WebhookPort}, Servers={config.Instance.Servers.Count:N0}]");
 
             _gyms = new Dictionary<string, GymDetailsData>();
-            _weather = new Dictionary<long, GameplayWeather.Types.WeatherCondition>();
-            _servers = config.Servers;
+            _weather = new Dictionary<long, WeatherCondition>();
             _alarms = new Dictionary<ulong, AlarmList>();
 
-            lock(_geofencesLock)
-                Geofences = GeofenceService.LoadGeofences(Strings.GeofenceFolder);
-
-            foreach (var server in _servers)
-            {
-                if (_alarms.ContainsKey(server.Key))
-                    continue;
-
-                var alarms = LoadAlarms(server.Value.AlarmsFile);
-                _alarms.Add(server.Key, alarms);
-            }
             _config = config;
+            _config.Reloaded += OnConfigReloaded;
+            
+            LoadGeofences();
+            LoadAlarms();
 
-            _http = new HttpServer(_config.ListeningHost, _config.WebhookPort, _config.DespawnTimeMinimumMinutes);
-            _http.PokemonReceived += Http_PokemonReceived;
-            _http.RaidReceived += Http_RaidReceived;
-            _http.QuestReceived += Http_QuestReceived;
-            _http.PokestopReceived += Http_PokestopReceived;
-            _http.GymReceived += Http_GymReceived;
-            _http.GymDetailsReceived += Http_GymDetailsReceived;
-            _http.WeatherReceived += Http_WeatherReceived;
-            _http.IsDebug = _config.Debug;
+            _http = new HttpServer(new HttpServerConfig
+            {
+                Host = _config.Instance.ListeningHost,
+                Port = _config.Instance.WebhookPort,
+                DespawnTimerMinimum = _config.Instance.DespawnTimeMinimumMinutes,
+                CheckForDuplicates = _config.Instance.CheckForDuplicates,
+            });
+            _http.PokemonReceived += OnPokemonReceived;
+            _http.RaidReceived += OnRaidReceived;
+            _http.QuestReceived += OnQuestReceived;
+            _http.PokestopReceived += OnPokestopReceived;
+            _http.GymReceived += OnGymReceived;
+            _http.GymDetailsReceived += OnGymDetailsReceived;
+            _http.WeatherReceived += OnWeatherReceived;
+            _http.IsDebug = _config.Instance.Debug;
 
             new Thread(() => {
                 LoadAlarmsOnChange();
@@ -244,11 +244,18 @@
             _http?.Stop();
         }
 
+        public List<GeofenceItem> GetServerGeofences(ulong guildId)
+        {
+            var server = _config.Instance.Servers[guildId];
+
+            return server.Geofences;
+        }
+
         #endregion
 
         #region HttpServer Events
 
-        private void Http_PokemonReceived(object sender, DataReceivedEventArgs<PokemonData> e)
+        private void OnPokemonReceived(object sender, DataReceivedEventArgs<PokemonData> e)
         {
             var pkmn = e.Data;
             if (DateTime.UtcNow.ConvertTimeFromCoordinates(pkmn.Latitude, pkmn.Longitude) > pkmn.DespawnTime)
@@ -258,7 +265,7 @@
             }
 
             // Check if Pokemon is in event Pokemon list
-            if (_config.EventPokemonIds.Contains(pkmn.Id) && _config.EventPokemonIds.Count > 0)
+            if (_config.Instance.EventPokemonIds.Contains(pkmn.Id) && _config.Instance.EventPokemonIds.Count > 0)
             {
                 // Skip Pokemon if no IV stats.
                 if (pkmn.IsMissingStats)
@@ -266,7 +273,7 @@
 
                 var iv = PokemonData.GetIV(pkmn.Attack, pkmn.Defense, pkmn.Stamina);
                 // Skip Pokemon if IV is greater than 0%, less than 90%, and does not match any PvP league stats.
-                if (iv > 0 && iv < _config.EventMinimumIV && !pkmn.MatchesGreatLeague && !pkmn.MatchesUltraLeague)
+                if (iv > 0 && iv < _config.Instance.EventMinimumIV && !pkmn.MatchesGreatLeague && !pkmn.MatchesUltraLeague)
                     return;
             }
 
@@ -274,7 +281,7 @@
             OnPokemonSubscriptionTriggered(pkmn);
         }
 
-        private void Http_RaidReceived(object sender, DataReceivedEventArgs<RaidData> e)
+        private void OnRaidReceived(object sender, DataReceivedEventArgs<RaidData> e)
         {
             var raid = e.Data;
             if (DateTime.UtcNow.ConvertTimeFromCoordinates(raid.Latitude, raid.Longitude) > raid.EndTime)
@@ -287,46 +294,105 @@
             OnRaidSubscriptionTriggered(raid);
         }
 
-        private void Http_QuestReceived(object sender, DataReceivedEventArgs<QuestData> e)
+        private void OnQuestReceived(object sender, DataReceivedEventArgs<QuestData> e)
         {
             var quest = e.Data;
             ProcessQuest(quest);
             OnQuestSubscriptionTriggered(quest);
         }
 
-        private void Http_PokestopReceived(object sender, DataReceivedEventArgs<PokestopData> e)
+        private void OnPokestopReceived(object sender, DataReceivedEventArgs<PokestopData> e)
         {
             var pokestop = e.Data;
             if (pokestop.HasLure || pokestop.HasInvasion)
             {
                 ProcessPokestop(pokestop);
                 OnInvasionSubscriptionTriggered(pokestop);
+                OnLureSubscriptionTriggered(pokestop);
             }
         }
 
-        private void Http_GymReceived(object sender, DataReceivedEventArgs<GymData> e)
+        private void OnGymReceived(object sender, DataReceivedEventArgs<GymData> e)
         {
             var gym = e.Data;
             ProcessGym(gym);
         }
 
-        private void Http_GymDetailsReceived(object sender, DataReceivedEventArgs<GymDetailsData> e)
+        private void OnGymDetailsReceived(object sender, DataReceivedEventArgs<GymDetailsData> e)
         {
             var gymDetails = e.Data;
             ProcessGymDetails(gymDetails);
         }
 
-        private void Http_WeatherReceived(object sender, DataReceivedEventArgs<WeatherData> e)
+        private void OnWeatherReceived(object sender, DataReceivedEventArgs<WeatherData> e)
         {
             var weather = e.Data;
             ProcessWeather(weather);
         }
 
         #endregion
+        
+        private void OnConfigReloaded()
+        {
+            // Reload stuff after config changes
+            LoadGeofences();
+            LoadAlarms();
+        }
 
+        #region Geofence Initialization
+
+        private void LoadGeofences()
+        {
+            foreach (var (serverId, serverConfig) in _config.Instance.Servers)
+            {
+                serverConfig.Geofences.Clear();
+                
+                var geofenceFiles = serverConfig.GeofenceFiles;
+                var geofences = new List<GeofenceItem>();
+
+                if (geofenceFiles != null && geofenceFiles.Any())
+                {
+                    foreach (var file in geofenceFiles)
+                    {
+                        var filePath = Path.Combine(Strings.GeofenceFolder, file);
+                        
+                        try
+                        {
+                            var fileGeofences = GeofenceItem.FromFile(filePath);
+                            
+                            geofences.AddRange(fileGeofences);
+                            
+                            _logger.Info($"Successfully loaded {fileGeofences.Count} geofences from {file}");
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.Error($"Could not load Geofence file {file} (for server {serverId}):");
+                            _logger.Error(ex);
+                        }
+                    }
+                }
+                
+                serverConfig.Geofences.AddRange(geofences);
+            }
+        }
+        
+        #endregion
+        
         #region Alarms Initialization
 
-        private AlarmList LoadAlarms(string alarmsFilePath)
+        private void LoadAlarms()
+        {
+            _alarms.Clear();
+            
+            foreach (var (serverId, serverConfig) in _config.Instance.Servers)
+            {
+                var alarms = LoadAlarms(serverId, serverConfig.AlarmsFile);
+                
+                _alarms.Add(serverId, alarms);
+            }
+        }
+
+        private AlarmList LoadAlarms(ulong forGuildId, string alarmsFilePath)
         {
             _logger.Trace($"WebhookManager::LoadAlarms [AlarmsFilePath={alarmsFilePath}]");
 
@@ -352,30 +418,46 @@
 
             _logger.Info($"Alarms file {alarmsFilePath} was loaded successfully.");
 
-            alarms.Alarms.ForEach(x =>
+            foreach (var alarm in alarms.Alarms)
             {
-                if (x.Geofences != null)
+                if (alarm.Geofences != null)
                 {
-                    foreach (var geofenceName in x.Geofences)
+                    foreach (var geofenceName in alarm.Geofences)
                     {
-                        var geofences = Geofences.Where(g => g.Name.Equals(geofenceName, StringComparison.OrdinalIgnoreCase) ||
-                                                             g.Filename.Equals(geofenceName, StringComparison.OrdinalIgnoreCase)).ToList();
-                        
-                        if (geofences.Any())
+                        lock (_geofencesLock)
                         {
-                            x.GeofenceItems.AddRange(geofences);
-                        }
-                        else
-                        {
-                            _logger.Warn($"No geofences were found matching the name or filename \"{geofenceName}\" (for alarm \"{x.Name}\")");
+                            // First try and find loaded geofences for this server by name or filename (so we don't have to parse already loaded files again)
+                            var server = _config.Instance.Servers[forGuildId];
+                            var geofences = server.Geofences.Where(g => g.Name.Equals(geofenceName, StringComparison.OrdinalIgnoreCase) ||
+                                                                        g.Filename.Equals(geofenceName, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                            if (geofences.Any())
+                            {
+                                alarm.GeofenceItems.AddRange(geofences);
+                            }
+                            else
+                            {
+                                // Try and load from a file instead
+                                var filePath = Path.Combine(Strings.GeofenceFolder, geofenceName);
+
+                                if (!File.Exists(filePath))
+                                {
+                                    _logger.Warn($"Could not find Geofence file \"{geofenceName}\" for alarm \"{alarm.Name}\"");
+                                    continue;
+                                }
+
+                                var fileGeofences = GeofenceItem.FromFile(filePath);
+                                
+                                alarm.GeofenceItems.AddRange(fileGeofences);
+                                _logger.Info($"Successfully loaded {fileGeofences.Count} geofences from {geofenceName}");
+                            }
                         }
                     }
                 }
 
-                x.LoadAlerts();
-
-                x.LoadFilters();
-            });
+                alarm.LoadAlerts();
+                alarm.LoadFilters();
+            }
 
             return alarms;
         }
@@ -384,11 +466,9 @@
         {
             _logger.Trace($"WebhookManager::LoadAlarmsOnChange");
 
-            var keys = _servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
-                var guildId = keys[i];
-                var alarmsFile = _servers[guildId].AlarmsFile;
+                var alarmsFile = guildConfig.AlarmsFile;
                 var path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), alarmsFile));
                 var fileWatcher = new FileWatcher(path);
                 
@@ -396,7 +476,7 @@
                     try
                     {
                         _logger.Debug("Reloading Alarms");
-                        _alarms[guildId] = LoadAlarms(path);
+                        _alarms[guildId] = LoadAlarms(guildId, path);
                     }
                     catch (Exception ex)
                     {
@@ -420,8 +500,8 @@
                 {
                     _logger.Debug("Reloading Geofences");
                     
-                    lock (_geofencesLock)
-                        Geofences = GeofenceService.LoadGeofences(Strings.GeofenceFolder);
+                    LoadGeofences();
+                    LoadAlarms(); // Reload alarms after geofences too
                 }
                 catch (Exception ex)
                 {
@@ -447,11 +527,10 @@
             else
                 Statistics.Instance.TotalReceivedPokemonWithStats++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnablePokemon)
                     continue;
@@ -459,13 +538,13 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var pokemonAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Pokemon?.Pokemon != null);
+                var pokemonAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Pokemon?.Pokemon != null && x.Filters.Pokemon.Enabled);
                 if (pokemonAlarms == null)
                     continue;
 
-                for (var j = 0; j < pokemonAlarms.Count; j++)
+                for (var i = 0; i < pokemonAlarms.Count; i++)
                 {
-                    var alarm = pokemonAlarms[j];
+                    var alarm = pokemonAlarms[i];
                     if (alarm.Filters.Pokemon == null)
                         continue;
 
@@ -499,6 +578,32 @@
                     if (alarm.Filters.Pokemon.FilterType == FilterType.Include && alarm.Filters.Pokemon.Pokemon?.Count > 0 && !alarm.Filters.Pokemon.Pokemon.Contains(pkmn.Id))
                     {
                         //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: filter {alarm.Filters.Pokemon.FilterType}.");
+                        continue;
+                    }
+
+                    var formName = Translator.Instance.GetFormName(pkmn.FormId)?.ToLower();
+                    if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Forms.Select(x => x.ToLower()).Contains(formName))
+                    {
+                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id} with form {pkmn.FormId} ({formName}): filter {alarm.Filters.Pokemon.FilterType}.");
+                        continue;
+                    }
+
+                    if (alarm.Filters.Pokemon.FilterType == FilterType.Include && alarm.Filters.Pokemon.Forms?.Count > 0 && !alarm.Filters.Pokemon.Forms.Select(x => x.ToLower()).Contains(formName))
+                    {
+                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id} with form {pkmn.FormId} ({formName}): filter {alarm.Filters.Pokemon.FilterType}.");
+                        continue;
+                    }
+
+                    var costumeName = Translator.Instance.GetCostumeName(pkmn.Costume)?.ToLower();
+                    if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Costumes.Select(x => x.ToLower()).Contains(costumeName))
+                    {
+                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id} with costume {pkmn.Costume} ({costumeName}): filter {alarm.Filters.Pokemon.FilterType}.");
+                        continue;
+                    }
+
+                    if (alarm.Filters.Pokemon.FilterType == FilterType.Include && alarm.Filters.Pokemon.Costumes?.Count > 0 && !alarm.Filters.Pokemon.Costumes.Select(x => x.ToLower()).Contains(costumeName))
+                    {
+                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id} with costume {pkmn.Costume} ({costumeName}): filter {alarm.Filters.Pokemon.FilterType}.");
                         continue;
                     }
 
@@ -566,11 +671,10 @@
             else
                 Statistics.Instance.TotalReceivedRaids++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnableRaids)
                     continue;
@@ -578,10 +682,10 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null);
-                for (var j = 0; j < raidAlarms.Count; j++)
+                var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null && x.Filters.Raids.Enabled);
+                for (var i = 0; i < raidAlarms.Count; i++)
                 {
-                    var alarm = raidAlarms[j];
+                    var alarm = raidAlarms[i];
                     var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Location(raid.Latitude, raid.Longitude));
                     if (geofence == null)
                     {
@@ -661,6 +765,32 @@
                             continue;
                         }
 
+                        var formName = Translator.Instance.GetFormName(raid.Form).ToLower();
+                        if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Forms.Select(x => x.ToLower()).Contains(formName))
+                        {
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.Id} with form {raid.Form} ({formName}): filter {alarm.Filters.Raids.FilterType}.");
+                            continue;
+                        }
+
+                        if (alarm.Filters.Raids.FilterType == FilterType.Include && alarm.Filters.Raids.Forms?.Count > 0 && !alarm.Filters.Raids.Forms.Select(x => x.ToLower()).Contains(formName))
+                        {
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.Id} with form {raid.Form} ({formName}): filter {alarm.Filters.Raids.FilterType}.");
+                            continue;
+                        }
+
+                        var costumeName = Translator.Instance.GetCostumeName(raid.Costume).ToLower();
+                        if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Costumes.Select(x => x.ToLower()).Contains(costumeName))
+                        {
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.Id} with costume {raid.Costume} ({costumeName}): filter {alarm.Filters.Raids.FilterType}.");
+                            continue;
+                        }
+
+                        if (alarm.Filters.Raids.FilterType == FilterType.Include && alarm.Filters.Raids.Costumes?.Count > 0 && !alarm.Filters.Raids.Costumes.Select(x => x.ToLower()).Contains(costumeName))
+                        {
+                            //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.Id} with costume {raid.Costume} ({costumeName}): filter {alarm.Filters.Raids.FilterType}.");
+                            continue;
+                        }
+
                         if (alarm.Filters.Raids.OnlyEx && !raid.IsExEligible)
                         {
                             //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: only ex {alarm.Filters.Raids.OnlyEx}.");
@@ -692,11 +822,10 @@
 
             Statistics.Instance.TotalReceivedQuests++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnableQuests)
                     continue;
@@ -705,10 +834,10 @@
                     continue;
 
                 var rewardKeyword = quest.GetReward();
-                var questAlarms = alarms.Alarms.FindAll(x => x.Filters?.Quests?.RewardKeywords != null);
-                for (var j = 0; j < questAlarms.Count; j++)
+                var questAlarms = alarms.Alarms.FindAll(x => x.Filters?.Quests?.RewardKeywords != null && x.Filters.Quests.Enabled);
+                for (var i = 0; i < questAlarms.Count; i++)
                 {
-                    var alarm = questAlarms[j];
+                    var alarm = questAlarms[i];
                     if (alarm.Filters.Quests == null)
                         continue;
 
@@ -763,11 +892,10 @@
 
             Statistics.Instance.TotalReceivedPokestops++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 //Skip if EnablePokestops is disabled in the config.
                 if (!alarms.EnablePokestops)
@@ -777,10 +905,10 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var pokestopAlarms = alarms.Alarms.FindAll(x => x.Filters?.Pokestops != null);
-                for (var j = 0; j < pokestopAlarms.Count; j++)
+                var pokestopAlarms = alarms.Alarms.FindAll(x => x.Filters?.Pokestops != null && x.Filters.Pokestops.Enabled);
+                for (var i = 0; i < pokestopAlarms.Count; i++)
                 {
-                    var alarm = pokestopAlarms[j];
+                    var alarm = pokestopAlarms[i];
                     if (alarm.Filters.Pokestops == null)
                         continue;
 
@@ -827,11 +955,10 @@
 
             Statistics.Instance.TotalReceivedGyms++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnableGyms)
                     continue;
@@ -839,10 +966,10 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var gymAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null);
-                for (var j = 0; j < gymAlarms.Count; j++)
+                var gymAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null && x.Filters.Gyms.Enabled);
+                for (var i = 0; i < gymAlarms.Count; i++)
                 {
-                    var alarm = gymAlarms[j];
+                    var alarm = gymAlarms[i];
                     if (alarm.Filters.Gyms == null)
                         continue;
 
@@ -871,11 +998,10 @@
 
             Statistics.Instance.TotalReceivedGyms++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnableGyms) //GymDetails
                     continue;
@@ -883,10 +1009,10 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var gymDetailsAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null);
-                for (var j = 0; j < gymDetailsAlarms.Count; j++)
+                var gymDetailsAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null && x.Filters.Gyms.Enabled);
+                for (var i = 0; i < gymDetailsAlarms.Count; i++)
                 {
-                    var alarm = gymDetailsAlarms[j];
+                    var alarm = gymDetailsAlarms[i];
                     if (alarm.Filters.Gyms == null)
                         continue;
 
@@ -941,11 +1067,10 @@
 
             Statistics.Instance.TotalReceivedWeathers++;
 
-            var keys = _alarms.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, alarms) in _alarms)
             {
-                var guildId = keys[i];
-                var alarms = _alarms[guildId];
+                if (alarms == null)
+                    continue;
 
                 if (!alarms.EnableWeather)
                     continue;
@@ -953,10 +1078,10 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var weatherAlarms = alarms.Alarms.FindAll(x => x.Filters?.Weather != null);
-                for (var j = 0; j < weatherAlarms.Count; j++)
+                var weatherAlarms = alarms.Alarms.FindAll(x => x.Filters?.Weather != null && x.Filters.Weather.Enabled);
+                for (var i = 0; i < weatherAlarms.Count; i++)
                 {
-                    var alarm = weatherAlarms[j];
+                    var alarm = weatherAlarms[i];
                     if (alarm.Filters.Weather == null)
                         continue;
 
@@ -1003,7 +1128,7 @@
             _gyms[id] = gymDetails;
         }
 
-        public void SetWeather(long id, GameplayWeather.Types.WeatherCondition type)
+        public void SetWeather(long id, WeatherCondition type)
         {
             _weather[id] = type;
         }
@@ -1013,13 +1138,15 @@
         /// <summary>
         /// Get the geofence the provided location falls within.
         /// </summary>
+        /// <param name="guildId">The guild ID in which to look for Geofences</param>
         /// <param name="latitude">Latitude geocoordinate</param>
         /// <param name="longitude">Longitude geocoordinate</param>
         /// <returns>Returns a <see cref="GeofenceItem"/> object the provided location falls within.</returns>
-        public GeofenceItem GetGeofence(double latitude, double longitude)
+        public GeofenceItem GetGeofence(ulong guildId, double latitude, double longitude)
         {
-            lock (_geofencesLock)
-                return GeofenceService.GetGeofence(Geofences, new Location(latitude, longitude));
+            var server = _config.Instance.Servers[guildId];
+            
+            return GeofenceService.GetGeofence(server.Geofences, new Location(latitude, longitude));
         }
 
         #endregion

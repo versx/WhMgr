@@ -1,30 +1,89 @@
 # Geofences
 
-Geofences define area borders and permitters for a city or multiple cities. Geofence files are expected to be saved in the `ini` format with the `.txt` extension using a city name in brackets `[ExampleCity]` followed by latitude and longitude coordinate pairs on each line.  
+Geofences define area borders and perimeters for a city or multiple cities. Each alarm can take multiple geofence files or names, as well as a combination of both.  
 
-**Geofences must be placed in the root directory of the executable in the `Geofences` folder.**  
-Each alarm can only take in one geofence file, but one geofence file can contain multiple sets of geofences.  
+**Geofences must be placed in the `bin/geofences` folder.**  
+*Note:* Supports INI geofence file format as well as GeoJSON geofence file format:  
 
-### Example
-Single geofence:  
+## Examples
+
+## __INI Format__
 ```ini
-[Innsbruck]
-47.288805, 11.421852
-47.263120, 11.449569
-47.243159, 11.357291
-47.267019, 11.328221
-```
-
-Multiple geofences in one file:  
-```ini
-[Paris]
+[City1]
 34.00,-117.00
 34.01,-117.01
 34.02,-117.02
 34.03,-117.03
-[London]
+[City2]
 33.00,-118.00
 33.01,-118.01
 33.02,-118.02
 33.03,-118.03
 ```
+## __GeoJSON Format__
+```json
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "id": 12143584,
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            -117.185508,
+                            34.05361
+                        ],
+                        [
+                            -117.185397,
+                            34.05366
+                        ],
+                        [
+                            -117.185326,
+                            34.053564
+                        ],
+                        [
+                            -117.184819,
+                            34.053828
+                        ],
+                        [
+                            -117.184457,
+                            34.054009
+                        ],
+                        [
+                            -117.18409,
+                            34.05353
+                        ],
+                        [
+                            -117.184027,
+                            34.053448
+                        ],
+                        [
+                            -117.184991,
+                            34.052942
+                        ],
+                        [
+                            -117.185508,
+                            34.05361
+                        ]
+                    ]
+                ]
+            },
+            "properties": {
+                "name": "Unknown Areaname",
+                "stroke": "#352BFF",
+                "stroke-width": 2.0,
+                "stroke-opacity": 1.0,
+                "fill": "#0651FF",
+                "fill-opacity": 0.5,
+                "priority": 2,
+            }
+        }
+    ]
+}
+```
+
+
+Optional: [**GeoJSON to individual INI format geofence files converter**](https://gist.github.com/versx/a0915c6bd95a080b6ff60cd539d4feb6)  

@@ -3,14 +3,14 @@
     using System;
     using System.Collections.Generic;
 
-    using CharacterCategory = POGOProtos.Enums.EnumWrapper.Types.CharacterCategory;
-    using POGOProtos.Data;
-    using POGOProtos.Enums;
-    using POGOProtos.Inventory.Item;
-    using POGOProtos.Map.Weather;
+    using ActivityType = POGOProtos.Rpc.HoloActivityType;
+    using AlignmentType = POGOProtos.Rpc.PokemonDisplayProto.Types.Alignment;
+    using CharacterCategory = POGOProtos.Rpc.EnumWrapper.Types.CharacterCategory;
+    using ItemId = POGOProtos.Rpc.Item;
+    using TemporaryEvolutionId = POGOProtos.Rpc.HoloTemporaryEvolutionId;
+    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Diagnostics;
-    using WhMgr.Net.Models;
 
     public class Translator : Language<string, string, Dictionary<string, string>>
     {
@@ -38,7 +38,7 @@
         {
             try
             {
-                return base.Translate(value);
+                return base.Translate(value) ?? value;
             }
             catch (Exception ex)
             {
@@ -52,9 +52,10 @@
         {
             try
             {
-                return args?.Length > 0
+                var text = args?.Length > 0
                     ? string.Format(base.Translate(value), args)
                     : base.Translate(value);
+                return text ?? value;
             }
             catch (Exception ex)
             {
@@ -69,14 +70,14 @@
             return Translate($"poke_{pokeId}");
         }
 
-        public string GetFormName(int formId)
+        public string GetFormName(int formId, bool includeNormal = false)
         {
             if (formId == 0)
                 return null;
 
             var form = Translate("form_" + formId);
             // TODO: Localize
-            if (string.Compare(form, "Normal", true) == 0)
+            if (!includeNormal && string.Compare(form, "Normal", true) == 0)
                 return string.Empty;
             return form;
         }
@@ -117,12 +118,12 @@
             return Translate($"item_{(int)item}");
         }
 
-        public string GetWeather(GameplayWeather.Types.WeatherCondition weather)
+        public string GetWeather(WeatherCondition weather)
         {
             return Translate($"weather_{(int)weather}");
         }
 
-        public string GetAlignmentName(PokemonDisplay.Types.Alignment alignment)
+        public string GetAlignmentName(AlignmentType alignment)
         {
             return Translate($"alignment_{(int)alignment}");
         }

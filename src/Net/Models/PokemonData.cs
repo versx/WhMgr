@@ -2,15 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Text;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Enums;
-    using POGOProtos.Map.Weather;
+    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
+    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Alarms.Alerts;
@@ -21,6 +20,7 @@
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
+    using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Utilities;
 
@@ -209,7 +209,7 @@
             JsonProperty("weather"),
             Alias("weather")
         ]
-        public GameplayWeather.Types.WeatherCondition? Weather { get; set; }
+        public WeatherCondition? Weather { get; set; }
 
         [
             JsonProperty("form"),
@@ -440,7 +440,6 @@
             var iconUrl = Renderer.Parse(alert.AvatarUrl, properties);
             var description = Renderer.Parse(alarm?.Description, properties);
             return new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() });
-            return new DiscordEmbedNotification(username, iconUrl, description, new List<DiscordEmbed> { eb.Build() });
         }
 
         public static double GetIV(string attack, string defense, string stamina)
@@ -470,12 +469,12 @@
             var level = Level;
             var size = Size?.ToString();
             var weather = Weather?.ToString();
-            var hasWeather = Weather.HasValue && Weather != GameplayWeather.Types.WeatherCondition.None;
-            var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? GameplayWeather.Types.WeatherCondition.None);
-            var weatherKey = $"weather_{Convert.ToInt32(Weather ?? GameplayWeather.Types.WeatherCondition.None)}";
+            var hasWeather = Weather.HasValue && Weather != WeatherCondition.None;
+            var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherCondition.None);
+            var weatherKey = $"weather_{Convert.ToInt32(Weather ?? WeatherCondition.None)}";
             var weatherEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[weatherKey])
-                ? MasterFile.Instance.CustomEmojis.ContainsKey(weatherKey) && Weather != GameplayWeather.Types.WeatherCondition.None
-                    ? (Weather ?? GameplayWeather.Types.WeatherCondition.None).GetWeatherEmojiIcon()
+                ? MasterFile.Instance.CustomEmojis.ContainsKey(weatherKey) && Weather != WeatherCondition.None
+                    ? (Weather ?? WeatherCondition.None).GetWeatherEmojiIcon()
                     : string.Empty
                 : MasterFile.Instance.CustomEmojis[weatherKey];
             var move1 = int.TryParse(FastMove, out var fastMoveId) ? Translator.Instance.GetMoveName(fastMoveId) : "Unknown";
@@ -494,13 +493,12 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Urls.ScannerMap, Latitude, Longitude);
-            var templatePath = Path.Combine(properties.Config.StaticMaps.TemplatesFolder, properties.Config.StaticMaps.Pokemon.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, properties.Config.Urls.StaticMap, properties.Config.StaticMaps.Pokemon.ZoomLevel, Latitude, Longitude, properties.ImageUrl, null);
+            var staticMapLink = StaticMap.GetUrl(properties.Config.Urls.StaticMap, properties.Config.StaticMaps["pokemon"], Latitude, Longitude, properties.ImageUrl);
             var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.ShortUrlApiUrl, scannerMapsLink);
-            var address = Utils.GetAddress(properties.City, Latitude, Longitude, properties.Config);
+            var address = new Location(null, properties.City, Latitude, Longitude).GetAddress(properties.Config);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var pokestop = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
 

@@ -26,9 +26,9 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
 
-    // TODO: Subscriptions, Pokemon, Raid, Quest, Invasion, Gym, Weather alarm statistics by day. date/pokemonId/count
     // TODO: List all subscriptions with info command
     // TODO: Multiple discord bot tokens per server
+    // TODO: Check nests again
     // TODO: IV wildcards
     // TODO: Egg subscriptions (maybe)
 
@@ -38,7 +38,7 @@
 
         private readonly Dictionary<ulong, DiscordClient> _servers;
         private readonly WebhookController _whm;
-        private WhConfig _whConfig;
+        private readonly WhConfigHolder _whConfig;
         private readonly SubscriptionProcessor _subProcessor;
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("BOT");
@@ -51,22 +51,22 @@
         /// Discord bot class
         /// </summary>
         /// <param name="whConfig">Configuration settings</param>
-        public Bot(WhConfig whConfig)
+        public Bot(WhConfigHolder whConfig)
         {
-            _logger.Trace($"WhConfig [Servers={whConfig.Servers.Count}, Port={whConfig.WebhookPort}]");
+            _logger.Trace($"WhConfig [Servers={whConfig.Instance.Servers.Count}, Port={whConfig.Instance.WebhookPort}]");
             _servers = new Dictionary<ulong, DiscordClient>();
             _whConfig = whConfig;
             _whm = new WebhookController(_whConfig);
 
             // Build form lists for icons
-            IconFetcher.Instance.SetIconStyles(_whConfig.IconStyles);
+            IconFetcher.Instance.SetIconStyles(_whConfig.Instance.IconStyles);
 
             // Set translation language
-            Translator.Instance.SetLocale(_whConfig.Locale);
+            Translator.Instance.SetLocale(_whConfig.Instance.Locale);
 
             // Set database connection strings to static properties so we can access within our extension classes
-            DataAccessLayer.ConnectionString = _whConfig.Database.Main.ToString();
-            DataAccessLayer.ScannerConnectionString = _whConfig.Database.Scanner.ToString();
+            DataAccessLayer.ConnectionString = _whConfig.Instance.Database.Main.ToString();
+            DataAccessLayer.ScannerConnectionString = _whConfig.Instance.Database.Scanner.ToString();
 
             // Set unhandled exception event handler
             AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
@@ -78,7 +78,7 @@
 
             // Initialize the subscription processor if at least one Discord server wants custom notifications
             // and start database migrator
-            if (_whConfig.Servers.Values.ToList().Exists(x => x.Subscriptions.Enabled))
+            if (_whConfig.Instance.Servers.Values.ToList().Exists(x => x.Subscriptions.Enabled))
             {
                 // Start database migrator
                 var migrator = new DatabaseMigrator();
@@ -91,18 +91,15 @@
             }
 
             // Create a DiscordClient object per Discord server in config
-            var keys = _whConfig.Servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, serverConfig) in _whConfig.Instance.Servers)
             {
-                var guildId = keys[i];
-                var server = _whConfig.Servers[guildId];
-                server.LoadDmAlerts();
+                serverConfig.LoadDmAlerts();
                 var client = new DiscordClient(new DiscordConfiguration
                 {
                     AutomaticGuildSync = true,
                     AutoReconnect = true,
                     EnableCompression = true,
-                    Token = server.Token,
+                    Token = serverConfig.Token,
                     TokenType = TokenType.Bot,
                     UseInternalLogHandler = true
                 });
@@ -127,6 +124,7 @@
 
                 client.Ready += Client_Ready;
                 client.GuildAvailable += Client_GuildAvailable;
+                client.GuildMemberUpdated += Client_GuildMemberUpdated;
                 //_client.MessageCreated += Client_MessageCreated;
                 client.ClientErrored += Client_ClientErrored;
                 client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
@@ -151,7 +149,7 @@
                 DependencyCollection dep;
                 using (var d = new DependencyCollectionBuilder())
                 {
-                    d.AddInstance(new Dependencies(interactivity, _whm, _subProcessor, _whConfig, new StripeService(_whConfig.StripeApiKey)));
+                    d.AddInstance(new Dependencies(interactivity, _whm, _subProcessor, _whConfig, new StripeService(_whConfig.Instance.StripeApiKey)));
                     dep = d.Build();
                 }
 
@@ -160,10 +158,10 @@
                 (
                     new CommandsNextConfiguration
                     {
-                        StringPrefix = server.CommandPrefix?.ToString(),
+                        StringPrefix = serverConfig.CommandPrefix?.ToString(),
                         EnableDms = true,
                         // If command prefix is null, allow for mention prefix
-                        EnableMentionPrefix = string.IsNullOrEmpty(server.CommandPrefix),
+                        EnableMentionPrefix = string.IsNullOrEmpty(serverConfig.CommandPrefix),
                         // Use DSharpPlus's built-in help formatter
                         EnableDefaultHelp = true,
                         CaseSensitive = false,
@@ -175,19 +173,23 @@
                 commands.CommandErrored += Commands_CommandErrored;
                 // Register Discord command handler classes
                 commands.RegisterCommands<Owner>();
-                commands.RegisterCommands<CommunityDay>();
+                commands.RegisterCommands<Event>();
                 commands.RegisterCommands<Nests>();
                 commands.RegisterCommands<ShinyStats>();
                 commands.RegisterCommands<Gyms>();
                 commands.RegisterCommands<Quests>();
                 commands.RegisterCommands<Settings>();
-                if (server.Subscriptions.Enabled)
+                if (serverConfig.Subscriptions.Enabled)
                 {
                     commands.RegisterCommands<Notifications>();
                 }
-                if (server.EnableCities)
+                if (serverConfig.EnableCities)
                 {
                     commands.RegisterCommands<Feeds>();
+                }
+                else
+                {
+                    commands.RegisterCommands<Areas>();
                 }
 
                 _logger.Info($"Configured Discord server {guildId}");
@@ -217,12 +219,8 @@
             _logger.Info("Connecting to Discord...");
 
             // Loop through each Discord server and attempt initial connection
-            var keys = _servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, client) in _servers)
             {
-                var guildId = keys[i];
-                var client = _servers[guildId];
-
                 _logger.Info($"Attempting connection to Discord server {guildId}");
                 await client.ConnectAsync();
                 await Task.Delay(1000);
@@ -237,13 +235,14 @@
             _whm.GymDetailsAlarmTriggered += OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered += OnWeatherAlarmTriggered;
             // At least one server wants subscriptions
-            if (_whConfig.Servers.FirstOrDefault(x => x.Value.Subscriptions.Enabled).Value != null)
+            if (_whConfig.Instance.Servers.Any(x => x.Value.Subscriptions.Enabled))
             {
                 // Register subscription event handlers
                 _whm.PokemonSubscriptionTriggered += OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered += OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered += OnQuestSubscriptionTriggered;
                 _whm.InvasionSubscriptionTriggered += OnInvasionSubscriptionTriggered;
+                _whm.LureSubscriptionTriggered += OnLureSubscriptionTriggered;
             }
             _whm.Start();
 
@@ -260,13 +259,9 @@
             _logger.Info("Disconnecting from Discord...");
 
             // Loop through each Discord server and terminate the connection
-            var keys = _servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, client) in _servers)
             {
-                var guildId = keys[i];
-                var client = _servers[guildId];
-
-                _logger.Info($"Attempting connection to Discord server {guildId}");
+                _logger.Info($"Attempting disconnection from Discord server {guildId}");
                 await client.DisconnectAsync();
                 await Task.Delay(1000);
             }
@@ -279,13 +274,14 @@
             _whm.GymAlarmTriggered -= OnGymAlarmTriggered;
             _whm.GymDetailsAlarmTriggered -= OnGymDetailsAlarmTriggered;
             _whm.WeatherAlarmTriggered -= OnWeatherAlarmTriggered;
-            if (_whConfig.Servers.FirstOrDefault(x => x.Value.Subscriptions.Enabled).Value != null)
+            if (_whConfig.Instance.Servers.Any(x => x.Value.Subscriptions.Enabled))
             {
                 //At least one server wanted subscriptions, unregister the subscription event handlers
                 _whm.PokemonSubscriptionTriggered -= OnPokemonSubscriptionTriggered;
                 _whm.RaidSubscriptionTriggered -= OnRaidSubscriptionTriggered;
                 _whm.QuestSubscriptionTriggered -= OnQuestSubscriptionTriggered;
                 _whm.InvasionSubscriptionTriggered -= OnInvasionSubscriptionTriggered;
+                _whm.LureSubscriptionTriggered -= OnLureSubscriptionTriggered;
             }
             _whm.Stop();
 
@@ -316,7 +312,7 @@
         private async Task Client_GuildAvailable(GuildCreateEventArgs e)
         {
             // If guild is in configured servers list then attempt to create emojis needed
-            if (_whConfig.Servers.ContainsKey(e.Guild.Id))
+            if (_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
             {
                 // Create default emojis
                 await CreateEmojis(e.Guild.Id);
@@ -328,11 +324,45 @@
                 }
 
                 // Set custom bot status if guild is in config server list
-                if (_whConfig.Servers.ContainsKey(e.Guild.Id))
+                if (_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
                 {
-                    var status = _whConfig.Servers[e.Guild.Id].Status;
+                    var status = _whConfig.Instance.Servers[e.Guild.Id].Status;
                     await client.UpdateStatusAsync(new DiscordGame(status ?? $"v{Strings.Version}"), UserStatus.Online);
                 }
+            }
+        }
+
+        private async Task Client_GuildMemberUpdated(GuildMemberUpdateEventArgs e)
+        {
+            if (!_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
+                return;
+
+            var server = _whConfig.Instance.Servers[e.Guild.Id];
+            if (!server.EnableCities)
+                return;
+
+            if (!server.AutoRemoveCityRoles)
+                return;
+
+            var hasBefore = e.RolesBefore.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
+            var hasAfter = e.RolesAfter.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
+
+            // Check if donor role was removed
+            if (hasBefore && !hasAfter)
+            {
+                _logger.Info($"Member {e.Member.Username} ({e.Member.Id}) donor role removed, removing any city roles...");
+                // If so, remove all city/geofence/area roles
+                foreach (var roleName in server.CityRoles)
+                {
+                    var role = e.Guild.GetRoleFromName(roleName);
+                    if (role == null)
+                    {
+                        _logger.Debug($"Failed to get role by name {roleName}");
+                        continue;
+                    }
+                    await e.Member.RevokeRoleAsync(role, "No longer a supporter/donor");
+                }
+                _logger.Info($"All city roles removed from member {e.Member.Username} ({e.Member.Id})");
             }
         }
 
@@ -341,7 +371,7 @@
         //    if (e.Author.Id == e.Client.CurrentUser.Id)
         //        return;
 
-        //    if (_whConfig.BotChannelIds.Count > 0 && !_whConfig.BotChannelIds.Contains(e.Channel.Id))
+        //    if (_whConfig.Instance.BotChannelIds.Count > 0 && !_whConfig.Instance.BotChannelIds.Contains(e.Channel.Id))
         //        return;
 
         //    await _commands.HandleCommandsAsync(e);
@@ -389,14 +419,15 @@
                 // The user lacks required permissions, 
                 var emoji = DiscordEmoji.FromName(e.Context.Client, ":x:");
 
-                var prefix = _whConfig.Servers.ContainsKey(e.Context.Guild.Id) ? _whConfig.Servers[e.Context.Guild.Id].CommandPrefix : "!";
+                var guildId = e.Context.Guild?.Id ?? e.Context.Client.Guilds.FirstOrDefault(x => _whConfig.Instance.Servers.ContainsKey(x.Key)).Key;
+                var prefix = _whConfig.Instance.Servers.ContainsKey(guildId) ? _whConfig.Instance.Servers[guildId].CommandPrefix : "!";
                 var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", e.Command.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
 
                 // let's wrap the response into an embed
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = $"{emoji} Invalid Argument(s)",
-                    Description = $"{string.Join(Environment.NewLine, e.Command.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type}.**"))}.\r\n\r\n{example}",
+                    Description = $"{string.Join(Environment.NewLine, e.Command.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type.ToHumanReadableString()}.**"))}.\r\n\r\n{example}",
                     Color = new DiscordColor(0xFF0000) // red
                 };
                 await e.Context.RespondAsync(embed: embed);
@@ -487,14 +518,14 @@
             if (!_servers.ContainsKey(e.GuildId))
                 return;
 
-            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+            if (!_whConfig.Instance.Servers.ContainsKey(e.GuildId))
                 return;
 
             try
             {
-                var server = _whConfig.Servers[e.GuildId];
+                var server = _whConfig.Instance.Servers[e.GuildId];
                 var client = _servers[e.GuildId];
-                var eb = pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name);
+                var eb = pokemon.GeneratePokemonMessage(e.GuildId, client, _whConfig.Instance, e.Alarm, loc.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username,
@@ -507,7 +538,7 @@
 
                 if (pokemon.IV == "100%")
                 {
-                    Statistics.Instance.Add100Percent(pokemon);
+                    Statistics.Instance.AddHundredIV(pokemon);
                 }
             }
             catch (Exception ex)
@@ -534,14 +565,14 @@
             if (!_servers.ContainsKey(e.GuildId))
                 return;
 
-            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+            if (!_whConfig.Instance.Servers.ContainsKey(e.GuildId))
                 return;
 
             try
             {
-                var server = _whConfig.Servers[e.GuildId];
+                var server = _whConfig.Instance.Servers[e.GuildId];
                 var client = _servers[e.GuildId];
-                var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig, e.Alarm, loc.Name);
+                var eb = raid.GenerateRaidMessage(e.GuildId, client, _whConfig.Instance, e.Alarm, loc.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username,
@@ -579,13 +610,13 @@
             if (!_servers.ContainsKey(e.GuildId))
                 return;
 
-            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+            if (!_whConfig.Instance.Servers.ContainsKey(e.GuildId))
                 return;
 
             try
             {
                 var client = _servers[e.GuildId];
-                var eb = quest.GenerateQuestMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var eb = quest.GenerateQuestMessage(e.GuildId, client, _whConfig.Instance, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username,
@@ -620,13 +651,13 @@
             if (!_servers.ContainsKey(e.GuildId))
                 return;
 
-            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+            if (!_whConfig.Instance.Servers.ContainsKey(e.GuildId))
                 return;
 
             try
             {
                 var client = _servers[e.GuildId];
-                var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var eb = pokestop.GeneratePokestopMessage(e.GuildId, client, _whConfig.Instance, e.Alarm, loc?.Name ?? e.Alarm.Name, pokestop.HasLure, pokestop.HasInvasion);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username ?? Translator.Instance.Translate("UNKNOWN_POKESTOP"),
@@ -674,7 +705,7 @@
             if (!_servers.ContainsKey(e.GuildId))
                 return;
 
-            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+            if (!_whConfig.Instance.Servers.ContainsKey(e.GuildId))
                 return;
 
             try
@@ -685,7 +716,7 @@
                     return;
 
                 var client = _servers[e.GuildId];
-                var eb = gymDetails.GenerateGymMessage(e.GuildId, client, _whConfig, e.Alarm, _whm.Gyms[gymDetails.GymId], loc?.Name ?? e.Alarm.Name);
+                var eb = gymDetails.GenerateGymMessage(e.GuildId, client, _whConfig.Instance, e.Alarm, _whm.Gyms[gymDetails.GymId], loc?.Name ?? e.Alarm.Name);
                 var name = gymDetails.GymName;
                 var jsonEmbed = new DiscordWebhookMessage
                 {
@@ -726,13 +757,13 @@
             if (!_servers.ContainsKey(e.GuildId))
                 return;
 
-            if (!_whConfig.Servers.ContainsKey(e.GuildId))
+            if (!_whConfig.Instance.Servers.ContainsKey(e.GuildId))
                 return;
 
             try
             {
                 var client = _servers[e.GuildId];
-                var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig, e.Alarm, loc?.Name ?? e.Alarm.Name);
+                var eb = weather.GenerateWeatherMessage(e.GuildId, client, _whConfig.Instance, e.Alarm, loc?.Name ?? e.Alarm.Name);
                 var jsonEmbed = new DiscordWebhookMessage
                 {
                     Username = eb.Username,
@@ -810,6 +841,18 @@
             }
         }
 
+        private void OnLureSubscriptionTriggered(object sender, PokestopData e)
+        {
+            if (_subProcessor == null)
+                return;
+
+            if (!ThreadPool.QueueUserWorkItem(async x => await _subProcessor.ProcessLureSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process lure subscription");
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -824,7 +867,7 @@
                 return;
             }
 
-            var server = _whConfig.Servers[guildId];
+            var server = _whConfig.Instance.Servers[guildId];
             var client = _servers[guildId];
             if (!(client.Guilds?.ContainsKey(server.EmojiGuildId) ?? false))
             {
@@ -870,11 +913,9 @@
         {
             _logger.Trace($"LoadEmojis");
 
-            var keys = _whConfig.Servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, serverConfig) in _whConfig.Instance.Servers)
             {
-                var guildId = keys[i];
-                var emojiGuildId = _whConfig.Servers[guildId].EmojiGuildId;
+                var emojiGuildId = serverConfig.EmojiGuildId;
                 if (!_servers.ContainsKey(guildId))
                     continue;
 
@@ -884,9 +925,8 @@
 
                 var emojiGuild = configGuild.Guilds[emojiGuildId];
                 var emojis = await emojiGuild.GetEmojisAsync();
-                for (var j = 0; j < Strings.EmojiList.Length; j++)
+                foreach (var name in Strings.EmojiList)
                 {
-                    var name = Strings.EmojiList[j];
                     var emoji = emojis.FirstOrDefault(x => string.Compare(x.Name, name, true) == 0);
                     if (emoji == null)
                         continue;
@@ -907,32 +947,28 @@
             Statistics.WriteOut();
             Statistics.Instance.Reset();
 
-            var keys = _whConfig.Servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, serverConfig) in _whConfig.Instance.Servers)
             {
-                var guildId = keys[i];
-                var server = _whConfig.Servers[guildId];
-
                 if (!_servers.ContainsKey(guildId))
                 {
                     _logger.Warn($"{guildId} guild does not exist it Discord servers.");
                     continue;
                 }
                 var client = _servers[guildId];
-                if (server.ShinyStats.Enabled)
+                if (serverConfig.ShinyStats.Enabled)
                 {
                     _logger.Debug($"Starting Shiny Stat posting...");
-                    await PostShinyStats(client, guildId, server);
+                    await PostShinyStats(client, guildId, serverConfig);
                 }
                 else
                 {
                     _logger.Debug($"Shiny Stat posting not enabled...skipping");
                 }
 
-                if (server.PruneQuestChannels && server.QuestChannelIds.Count > 0)
+                if (serverConfig.PruneQuestChannels && serverConfig.QuestChannelIds.Count > 0)
                 {
                     _logger.Debug($"Starting automatic quest messages cleanup...");
-                    await PruneQuestChannels(client, server);
+                    await PruneQuestChannels(client, serverConfig);
                 }
                 else
                 {
@@ -966,7 +1002,7 @@
             await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(1)).ToLongDateString()));
             Thread.Sleep(500);
             await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
-            var stats = await ShinyStats.GetShinyStats(_whConfig.Database.Scanner.ToString());
+            var stats = await ShinyStats.GetShinyStats(_whConfig.Instance.Database.Scanner.ToString());
             if (stats == null)
             {
                 _logger.Error($"Failed to get list of shiny stats for guild {guildId}, skipping...");
@@ -1029,12 +1065,9 @@
         {
             _logger.Trace("CleanupDepartedMembers");
 
-            var keys = _servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, client) in _servers)
             {
-                var guildId = keys[i];
-                var client = _servers[guildId];
-                var server = _whConfig.Servers[guildId];
+                var server = _whConfig.Instance.Servers[guildId];
                 if (!server.Subscriptions.Enabled)
                     return;
 
@@ -1066,7 +1099,7 @@
             fileWatcher.Changed += (sender, e) => {
                 try
                 {
-                    _whConfig = WhConfig.Load(e.FullPath);
+                    _whConfig.Instance = WhConfig.Load(e.FullPath);
                 }
                 catch (Exception ex)
                 {
@@ -1084,17 +1117,8 @@
 
             if (e.IsTerminating)
             {
-                var keys = _whConfig.Servers.Keys.ToList();
-                for (var i = 0; i < keys.Count; i++)
+                foreach (var (guildId, serverConfig) in _whConfig.Instance.Servers)
                 {
-                    var guildId = keys[i];
-                    if (!_whConfig.Servers.ContainsKey(guildId))
-                    {
-                        _logger.Error($"Unable to find guild id {guildId} in server config list.");
-                        continue;
-                    }
-                    var server = _whConfig.Servers[guildId];
-
                     if (!_servers.ContainsKey(guildId))
                     {
                         _logger.Error($"Unable to find guild id {guildId} in Discord server client list.");
@@ -1103,10 +1127,10 @@
                     var client = _servers[guildId];
                     if (client != null)
                     {
-                        var owner = await client.GetUserAsync(server.OwnerId);
+                        var owner = await client.GetUserAsync(serverConfig.OwnerId);
                         if (owner == null)
                         {
-                            _logger.Warn($"Unable to get owner from id {server.OwnerId}.");
+                            _logger.Warn($"Unable to get owner from id {serverConfig.OwnerId}.");
                             return;
                         }
 

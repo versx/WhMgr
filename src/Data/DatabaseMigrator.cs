@@ -2,14 +2,12 @@
 {
     using System;
     using System.IO;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
     using ServiceStack.OrmLite;
 
     using WhMgr.Diagnostics;
-    using WhMgr.Data.Models;
 
     /// <summary>
     /// Database migration class
@@ -17,6 +15,8 @@
     public class DatabaseMigrator
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MIGRATOR", Program.LogLevel);
+
+        private static readonly string CurrentDatabaseVersionPath = Path.Combine(Strings.AppFolder, "db_version.txt");
 
         /// <summary>
         /// Gets a value determining whether the migration has finished or not
@@ -28,7 +28,7 @@
         /// </summary>
         public string MigrationsFolder => Path.Combine
         (
-            Path.Combine(Directory.GetCurrentDirectory(), "../../.."),
+            Path.Combine(Directory.GetCurrentDirectory(), "../"),
             Strings.MigrationsFolder
         );
 
@@ -37,11 +37,23 @@
         /// </summary>
         public DatabaseMigrator()
         {
-            // Create the metadata table
-            Execute(Strings.SQL_CREATE_TABLE_METADATA).GetAwaiter().GetResult();
+            // Create directory if not exists
+            var dir = Path.GetDirectoryName(CurrentDatabaseVersionPath);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
 
             // Get current version from metadata table
-            var currentVersion = int.Parse(GetMetadata("DB_VERSION")?.Value ?? "0");
+            var currentVersion = GetCurrentVersion();
+            if (currentVersion == 0)
+            {
+                var result = SetCurrentVersion(currentVersion);
+                if (!result)
+                {
+                    _logger.Error($"Failed to set current database version: {currentVersion}");
+                }
+            }
 
             // Get newest version from migration files
             var newestVersion = GetNewestDbVersion();
@@ -56,25 +68,6 @@
                 Thread.Sleep(30 * 1000);
             }
             Migrate(currentVersion, newestVersion).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Get newest database version from local migration file numbers
-        /// </summary>
-        /// <returns>Returns the latest version number</returns>
-        private int GetNewestDbVersion()
-        {
-            var current = 0;
-            var keepChecking = true;
-            while (keepChecking)
-            {
-                var path = Path.Combine(MigrationsFolder, (current + 1) + ".sql");
-                if (File.Exists(path))
-                    current++;
-                else
-                    keepChecking = false;
-            }
-            return current;
         }
 
         /// <summary>
@@ -126,12 +119,11 @@
 
                 // Build query to update metadata table version key
                 var newVersion = fromVersion + 1;
-                var updateVersionSQL = string.Format(Strings.SQL_INSERT_METADATA_FORMAT, newVersion);
                 try
                 {
                     // Execute update version SQL
-                    var result = await Execute(updateVersionSQL);
-                    if (result > 0)
+                    var result = SetCurrentVersion(newVersion);
+                    if (result)
                     {
                         // Success
                     }
@@ -154,11 +146,77 @@
         }
 
         /// <summary>
+        /// Get newest database version from local migration file numbers
+        /// </summary>
+        /// <returns>Returns the latest version number</returns>
+        private int GetNewestDbVersion()
+        {
+            var current = 0;
+            var keepChecking = true;
+            while (keepChecking)
+            {
+                var path = Path.Combine(MigrationsFolder, (current + 1) + ".sql");
+                if (File.Exists(path))
+                    current++;
+                else
+                    keepChecking = false;
+            }
+            return current;
+        }
+
+        /// <summary>
+        /// Set current database version
+        /// </summary>
+        /// <param name="version">Current database version to save</param>
+        private static bool SetCurrentVersion(int version)
+        {
+            try
+            {
+                // Save current version
+                File.WriteAllText(CurrentDatabaseVersionPath, version.ToString());
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Get the current saved database version
+        /// </summary>
+        /// <returns>Returns the current saved database version</returns>
+        private static int GetCurrentVersion()
+        {
+            if (!File.Exists(CurrentDatabaseVersionPath))
+            {
+                // Last version that was in database
+                SetCurrentVersion(4);
+            }
+            using (var sr = new StreamReader(CurrentDatabaseVersionPath))
+            {
+                var data = sr.ReadToEnd();
+                if (string.IsNullOrEmpty(data))
+                {
+                    _logger.Error($"Failed to get latest database version from {CurrentDatabaseVersionPath}, returning default.");
+                    return 0;
+                }
+                if (!int.TryParse(data, out var currentVersion))
+                {
+                    _logger.Error($"Failed to parse latest database version {data}");
+                    return 0;
+                }
+                return currentVersion;
+            }
+        }
+
+        /// <summary>
         /// Execute a raw SQL statement
         /// </summary>
         /// <param name="sql">SQL statement to execute</param>
         /// <returns>Returns the result value from the statement</returns>
-        public static async Task<int> Execute(string sql)
+        private static async Task<int> Execute(string sql)
         {
             if (string.IsNullOrEmpty(DataAccessLayer.ConnectionString))
                 return default;
@@ -176,39 +234,6 @@
                 _logger.Error(ex);
             }
             return default;
-        }
-
-        /// <summary>
-        /// Get a metadata table value by key
-        /// </summary>
-        /// <param name="key">Table key to lookup</param>
-        /// <returns>Returns the metadata key and value</returns>
-        public static Metadata GetMetadata(string key)
-        {
-            if (string.IsNullOrEmpty(DataAccessLayer.ConnectionString))
-                return default;
-
-            try
-            {
-                using (var db = DataAccessLayer.CreateFactory(DataAccessLayer.ConnectionString).Open())
-                {
-                    /*
-                    if (!db.CreateTableIfNotExists<Metadata>())
-                    {
-                        // Metadata table already exists
-                    }
-                    */
-                    var where = db.From<Metadata>();
-                    var query = db.LoadSelect(where);
-                    var data = query?.FirstOrDefault(x => string.Compare(x.Key, key, true) == 0);
-                    return data;
-                }
-            }
-            catch (MySql.Data.MySqlClient.MySqlException ex)
-            {
-                _logger.Error(ex);
-            }
-            return null;
         }
     }
 }

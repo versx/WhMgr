@@ -14,6 +14,10 @@ hljs_style: docco
 
 nav:
     - Home: index.md
+    - General:
+        - Screenshots: screenshots.md
+        - Terminology: terminology.md
+        - Updating: updating.md
     - User Guide:
         - Getting Started: user-guide/getting-started.md
         - Config: user-guide/config.md
@@ -32,17 +36,15 @@ nav:
     - Commands:
         - Subscriptions: commands/subscriptions.md
         - Owner: commands/owner.md
-    - Examples: examples.md
-    - About:
-        - Release Notes: about/release-notes.md
-        - Contributing: about/contributing.md
-        - License: about/license.md
+#    - About:
+#        - Release Notes: about/release-notes.md
+#        - Contributing: about/contributing.md
 
 markdown_extensions:
     - toc:
         permalink: 
 
-copyright: Copyright &copy; 2019 <a href="https://github.com/versx">versx</a>, Maintained by the <a href="/about/release-notes.md#maintenance-team">versx</a>.
+copyright: Copyright &copy; 2019 <a href="https://github.com/versx">versx</a>, Maintained by <a href="/about/release-notes.md#maintenance-team">versx</a>.
 
 plugins:
     - search

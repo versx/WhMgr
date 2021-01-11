@@ -20,7 +20,7 @@
         public int FormId { get; set; }
 
         [JsonProperty("level")]
-        public ushort? Level { get; set; }
+        public double? Level { get; set; }
 
         [JsonProperty("cp")]
         public int? CP { get; set; }

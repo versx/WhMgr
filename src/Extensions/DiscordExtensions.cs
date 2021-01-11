@@ -11,8 +11,7 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Entities;
     using DSharpPlus.Interactivity;
-    using POGOProtos.Map.Weather;
-    using ServiceStack;
+    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
@@ -202,14 +201,9 @@
 
         public static ulong ContextToGuild(this CommandContext ctx, Dictionary<ulong, DiscordClient> servers)
         {
-            var keys = servers.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (guildId, client) in servers)
             {
-                var guildId = keys[i];
-                if (!servers.ContainsKey(guildId))
-                    continue;
-
-                if (ctx.Client.CurrentUser.Id != servers[guildId].CurrentUser.Id)
+                if (ctx.Client.CurrentUser.Id != client.CurrentUser.Id)
                     continue;
 
                 return guildId;
@@ -352,24 +346,17 @@
             }
         }
 
-        public static bool HasRole(this DiscordClient client, DiscordMember member, string roleName)
+        public static bool HasRole(this DiscordGuild guild, DiscordMember member, string roleName)
         {
-            var role = client.GetRoleFromName(roleName);
+            var role = guild.GetRoleFromName(roleName);
             if (role == null) return false;
 
             return HasRole(member, role.Id);
         }
 
-        public static DiscordRole GetRoleFromName(this DiscordClient client, string roleName)
+        public static DiscordRole GetRoleFromName(this DiscordGuild guild, string roleName)
         {
-            foreach (var guild in client.Guilds)
-            {
-                var role = guild.Value.Roles.FirstOrDefault(x => string.Compare(x.Name, roleName, true) == 0);
-                if (role != null)
-                    return role;
-            }
-
-            return null;
+            return guild?.Roles.FirstOrDefault(x => string.Compare(x.Name, roleName, true) == 0);
         }
 
         #endregion
@@ -526,30 +513,30 @@
             return new DiscordColor(color);
         }
 
-        public static DiscordColor BuildWeatherColor(this GameplayWeather.Types.WeatherCondition weather, DiscordServerConfig server)
+        public static DiscordColor BuildWeatherColor(this WeatherCondition weather, DiscordServerConfig server)
         {
             var color = "#808080";
             switch (weather)
             {
-                case GameplayWeather.Types.WeatherCondition.Clear:
+                case WeatherCondition.Clear:
                     color = server.DiscordEmbedColors.Weather.Clear;
                     break;
-                case GameplayWeather.Types.WeatherCondition.Overcast:
+                case WeatherCondition.Overcast:
                     color = server.DiscordEmbedColors.Weather.Cloudy;
                     break;
-                case GameplayWeather.Types.WeatherCondition.Fog:
+                case WeatherCondition.Fog:
                     color = server.DiscordEmbedColors.Weather.Fog;
                     break;
-                case GameplayWeather.Types.WeatherCondition.PartlyCloudy:
+                case WeatherCondition.PartlyCloudy:
                     color = server.DiscordEmbedColors.Weather.PartlyCloudy;
                     break;
-                case GameplayWeather.Types.WeatherCondition.Rainy:
+                case WeatherCondition.Rainy:
                     color = server.DiscordEmbedColors.Weather.Rain;
                     break;
-                case GameplayWeather.Types.WeatherCondition.Snow:
+                case WeatherCondition.Snow:
                     color = server.DiscordEmbedColors.Weather.Snow;
                     break;
-                case GameplayWeather.Types.WeatherCondition.Windy:
+                case WeatherCondition.Windy:
                     color = server.DiscordEmbedColors.Weather.Windy;
                     break;
             }

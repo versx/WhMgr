@@ -55,10 +55,12 @@ Use any of the following in your alerts file to structure how notifications will
 | spawnpoint_id | Spawnpoint ID Pokemon near | 3920849203840983204980
 | encounter_id | Encounter ID of Pokemon | 392874987239487924
 | despawn_time | Pokemon despawn time | 07:33:01 PM
+| despawn_time_24h | Pokemon despawn time (24-hour format) | 19:33:01
 | despawn_time_verified | Indicates if time is confirmed or not | `~` for not verified
 | is_despawn_time_verified | Returns if despawn time is verified | true
 | time_left | Minutes and seconds of time left until despawn | 29m, 30s
 | geofence | Geofence name Pokemon is in | City1
+| address | Google Maps or OSM Nominatim address from geocoordinates | 123 Fake St
 | lat | Latitude coordinate of Pokemon location | 5.980921321
 | lng | Longitude coordinate of Pokemon location | 3.109283009
 | lat_5 | Latitude coordinate shortend to 5th precision | 5.98092
@@ -73,5 +75,5 @@ Use any of the following in your alerts file to structure how notifications will
 | pokestop_url | Image url of nearby Pokestop | https://google.com/imgs/gym.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`

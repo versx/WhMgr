@@ -7,7 +7,7 @@ Parameters in `[]` are optional parameters and default values will be used if no
 
 **enable** - Enable direct message subscription notifications.  
 **disable** - Disable direct message subscription notifications.  
-**info** - List all Pokemon, Raid, Quest, Invasion, and Gym subscriptions and settings.  
+**info** - List all Pokemon, Raid, Quest, Invasion, Lure, and Gym subscriptions and settings.  
 **expire** / **expires** - Check stripe API when Donor/Supporter subscription expires.  
 **set-number** - Set a phone number to receive text message alerts for ultra rare Pokemon.  
 
@@ -158,7 +158,7 @@ Examples:
 **invme** - Subscribe to specific Team Rocket invasion notifications.  
 Usage: `invme <reward_pokemon> [city]`  
 
-* `<grunt_type>` - Reward Pokemon i.e. `Dratini`, `147`  
+* `<reward_pokemon>` - Reward Pokemon i.e. `Dratini`, `147`  
 * `[city]` - (Optional) City name to get the notifications for or leave blank for all available cities.  
 
 Examples:  
@@ -178,6 +178,38 @@ Examples:
 * `.invmenot Bulbasaur`  
 * `.invmenot Dratini city1`  
 * `.invmenot all`  
+<br>  
+
+### Pokestop Lures  
+
+**lureme** - Subscribe to specific Pokestop lure type notifications.  
+Usage: `lureme <lure_type> [city]`  
+
+* `<lure_type>` - Pokestop lure type i.e. `All`, `Normal`, `Glacial`, `Mossy`, `Magnetic`, `501`, `504`  
+* `[city]` - (Optional) City name to get the notifications for or leave blank for all available cities.  
+
+Examples:  
+
+* `.lureme`  
+* `.lureme all all`  
+* `.lureme all city1`  
+* `.lureme norm city1`  
+* `.lureme glacial,501,moss city1,city2`  
+<br>  
+
+**luremenot** - Unsubscribe from specific Pokestop lure type notifications.  
+Usage: `luremenot <lure_type> [city]`  
+
+* `<lure_type>` - Pokestop lure type i.e. `Normal`, `Glacial`, `Mossy`, `Magnetic`, `501`, `504`  
+* `[city]` - (Optional) City name to get the notifications for or leave blank for all available cities.  
+
+Examples:  
+
+* `.luremenot`  
+* `.luremenot all all`  
+* `.luremenot all city1`  
+* `.luremenot norm city1`  
+* `.luremenot glacial,501,moss city1,city2`  
 <br>  
 
 ### Management  

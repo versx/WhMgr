@@ -1,9 +1,10 @@
-﻿namespace WhMgr
+﻿using WhMgr.Configuration;
+
+namespace WhMgr
 {
     using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using WhMgr.Diagnostics;
@@ -38,19 +39,17 @@
             var configFilePath = string.Empty;
             var managerName = string.Empty;
             // Loop through the parsed command line arguments and set the key values associated with each argument provided
-            var keys = arguments.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (key, value) in arguments)
             {
-                var key = keys[i];
                 switch (key.ToLower())
                 {
                     case "config":
                     case "c":
-                        configFilePath = arguments.ContainsKey(key) ? arguments[key]?.ToString() : Strings.ConfigFileName;
+                        configFilePath = value?.ToString() ?? Strings.ConfigFileName;
                         break;
                     case "name":
                     case "n":
-                        managerName = arguments.ContainsKey(key) ? arguments[key]?.ToString() : "Default";
+                        managerName = value?.ToString() ?? "Default";
                         break;
                 }
             }
@@ -61,7 +60,7 @@
             logger.Info(Strings.BannerAsciiText);
             logger.Info($"Version: {Strings.Version}");
             logger.Info($".NET Runtime Version: {System.Reflection.Assembly.GetExecutingAssembly().ImageRuntimeVersion}\n");
-            var whConfig = Configuration.WhConfig.Load(configFilePath);
+            var whConfig = WhConfig.Load(configFilePath);
             if (whConfig == null)
             {
                 logger.Error($"Failed to load config {configFilePath}.");
@@ -72,7 +71,7 @@
             LogLevel = whConfig.LogLevel;
 
             // Start bot
-            var bot = new Bot(whConfig);
+            var bot = new Bot(new WhConfigHolder(whConfig));
             await bot.Start();
 
             // Keep the process alive

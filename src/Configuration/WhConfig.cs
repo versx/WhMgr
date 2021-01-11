@@ -8,7 +8,6 @@
 
     using WhMgr.Data;
     using WhMgr.Diagnostics;
-    using WhMgr.Extensions;
 
     /// <summary>
     /// Configuration file class
@@ -83,10 +82,10 @@
         public Dictionary<string, string> IconStyles { get; set; }
 
         /// <summary>
-        /// Gets or sets the static maps config
+        /// Gets or sets the static map template files to use per type
         /// </summary>
         [JsonProperty("staticMaps")]
-        public StaticMaps StaticMaps { get; set; }
+        public Dictionary<string, string> StaticMaps { get; set; }
 
         /// <summary>
         /// Gets or sets the Twilio config for sending text message notifications
@@ -125,6 +124,12 @@
         public ushort MaxNotificationsPerMinute { get; set; }
 
         /// <summary>
+        /// Gets or sets a value determining whether to check for duplicate webhook messages or not
+        /// </summary>
+        [JsonProperty("checkForDuplicates")]
+        public bool CheckForDuplicates { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to log incoming webhook data to a file
         /// </summary>
         [JsonProperty("debug")]
@@ -143,21 +148,11 @@
         public string FileName { get; set; }
 
         /// <summary>
-        /// Gets the full path to the default config file
-        /// </summary>
-        [JsonIgnore]
-        public static string DefaultConfigFilePath => Path.Combine
-        (
-            Directory.GetCurrentDirectory(),
-            Strings.DefaultConfigFileName
-        );
-
-        /// <summary>
         /// Instantiate a new <see cref="WhConfig"/> class
         /// </summary>
         public WhConfig()
         {
-            ListeningHost = "*";
+            ListeningHost = "127.0.0.1";
             WebhookPort = 8008;
             Locale = "en";
             LogLevel = LogLevel.Trace;
@@ -167,11 +162,12 @@
             EventPokemonIds = new List<int>();
             EventMinimumIV = 90;
             IconStyles = new Dictionary<string, string>();
-            StaticMaps = new StaticMaps();
+            StaticMaps = new Dictionary<string, string>();
             Twilio = new TwilioConfig();
             DespawnTimeMinimumMinutes = 5;
             ReloadSubscriptionChangesMinutes = 1;
             MaxNotificationsPerMinute = 10;
+            CheckForDuplicates = true;
         }
 
         /// <summary>
@@ -193,18 +189,9 @@
         {
             if (!File.Exists(filePath))
             {
-                throw new FileNotFoundException("Config file does not exist.", filePath);
+                throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
-
-            if (!File.Exists(DefaultConfigFilePath))
-            {
-                throw new FileNotFoundException("Default config file does not exist.", DefaultConfigFilePath);
-            }
-
-            var defaultConfig = MasterFile.LoadInit<WhConfig>(DefaultConfigFilePath);
-            var config = MasterFile.LoadInit<WhConfig>(filePath);
-            config.StaticMaps.LoadConfigs();
-            return defaultConfig.MergeValues(config);
+            return MasterFile.LoadInit<WhConfig>(filePath);
         }
     }
 }

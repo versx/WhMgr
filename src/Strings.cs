@@ -5,8 +5,9 @@
     using System.IO;
     using System.Reflection;
 
-    using POGOProtos.Enums;
-    using POGOProtos.Map.Weather;
+    using POGOProtos.Rpc;
+    using WhMgr.Data.Models;
+    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     /// <summary>
     /// Static strings class
@@ -43,6 +44,7 @@
         public const string StaticFolder = "static";
         public const string TemplatesFolder = "templates";
         public const string MigrationsFolder = "migrations";
+        public static readonly string AppFolder = StaticFolder + Path.DirectorySeparatorChar + "app";
         public static readonly string DataFolder = StaticFolder + Path.DirectorySeparatorChar + "data";
         public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locale";
         public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
@@ -55,7 +57,6 @@
 
         public const string AlarmsFileName = "alarms.json";
         public const string ConfigFileName = "config.json";
-        public const string DefaultConfigFileName = "default.json";
         public const string OsmNestFileName = "nest.json";
         public const string DebugLogFileName = "debug.log";
         public const string ErrorLogFileName = "error.log";
@@ -83,7 +84,6 @@
 
         public const string All = "All";
 
-        // TODO: Make configurable.
         public const int MaxPokemonDisplayed = 70;
         public const int MaxPokemonSubscriptions = 25;
         public const int MaxPvPSubscriptions = 15;
@@ -102,16 +102,6 @@
         public const string SQL_UPDATE_CONVERTED_POKESTOPS = "UPDATE gym INNER JOIN pokestop ON pokestop.id = gym.id SET gym.name = pokestop.name, gym.url = pokestop.url;";
         public const string SQL_DELETE_CONVERTED_POKESTOPS = "DELETE FROM pokestop WHERE id IN (SELECT id FROM gym)";
         public const string SQL_DELETE_STALE_POKESTOPS = "DELETE FROM pokestop WHERE updated < UNIX_TIMESTAMP() - 90000;";
-        public const string SQL_CREATE_TABLE_METADATA = @"
-        CREATE TABLE IF NOT EXISTS metadata (
-            `key` VARCHAR(50) PRIMARY KEY NOT NULL,
-            `value` VARCHAR(50) DEFAULT NULL
-        );";
-        public const string SQL_INSERT_METADATA_FORMAT = @"
-        INSERT INTO metadata (`key`, `value`)
-        VALUES ('DB_VERSION', {0})
-        ON DUPLICATE KEY UPDATE `value` = {0};
-        ";
 
         public static readonly Dictionary<int, PokemonGenerationRange> PokemonGenerationRanges = new Dictionary<int, PokemonGenerationRange>
         {
@@ -181,16 +171,16 @@
             "gender_less"
         };
 
-        public static IReadOnlyDictionary<GameplayWeather.Types.WeatherCondition, List<PokemonType>> WeatherBoosts => new Dictionary<GameplayWeather.Types.WeatherCondition, List<PokemonType>>
+        public static IReadOnlyDictionary<WeatherCondition, List<PokemonType>> WeatherBoosts => new Dictionary<WeatherCondition, List<PokemonType>>
         {
-            { GameplayWeather.Types.WeatherCondition.None,         new List<PokemonType> { } },
-            { GameplayWeather.Types.WeatherCondition.Clear,        new List<PokemonType> { PokemonType.Fire,   PokemonType.Grass,    PokemonType.Ground } },
-            { GameplayWeather.Types.WeatherCondition.Rainy,        new List<PokemonType> { PokemonType.Water,  PokemonType.Electric, PokemonType.Bug } },
-            { GameplayWeather.Types.WeatherCondition.PartlyCloudy, new List<PokemonType> { PokemonType.Normal, PokemonType.Rock } },
-            { GameplayWeather.Types.WeatherCondition.Overcast,     new List<PokemonType> { PokemonType.Fairy,  PokemonType.Fighting, PokemonType.Poison } },
-            { GameplayWeather.Types.WeatherCondition.Windy,        new List<PokemonType> { PokemonType.Dragon, PokemonType.Flying,   PokemonType.Psychic } },
-            { GameplayWeather.Types.WeatherCondition.Snow,         new List<PokemonType> { PokemonType.Ice,    PokemonType.Steel } },
-            { GameplayWeather.Types.WeatherCondition.Fog,          new List<PokemonType> { PokemonType.Dark,   PokemonType.Ghost } }
+            { WeatherCondition.None,         new List<PokemonType> { } },
+            { WeatherCondition.Clear,        new List<PokemonType> { PokemonType.Fire,   PokemonType.Grass,    PokemonType.Ground } },
+            { WeatherCondition.Rainy,        new List<PokemonType> { PokemonType.Water,  PokemonType.Electric, PokemonType.Bug } },
+            { WeatherCondition.PartlyCloudy, new List<PokemonType> { PokemonType.Normal, PokemonType.Rock } },
+            { WeatherCondition.Overcast,     new List<PokemonType> { PokemonType.Fairy,  PokemonType.Fighting, PokemonType.Poison } },
+            { WeatherCondition.Windy,        new List<PokemonType> { PokemonType.Dragon, PokemonType.Flying,   PokemonType.Psychic } },
+            { WeatherCondition.Snow,         new List<PokemonType> { PokemonType.Ice,    PokemonType.Steel } },
+            { WeatherCondition.Fog,          new List<PokemonType> { PokemonType.Dark,   PokemonType.Ghost } }
         };
     }
 

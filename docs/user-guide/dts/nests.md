@@ -19,6 +19,7 @@ Use any of the following in your alerts file to structure how notifications will
 | types | Both types (if 2nd exists) | Dark/Fire
 | types_emoji | Type Discord emoji | <:00000:types_fire> <00001:types_dark>
 | geofence | Geofence name nest/park is in | City1
+| address | Google Maps or OSM Nominatim address from geocoordinates | 123 Fake St
 | lat | Latitude coordinate of Pokemon location | 5.980921321
 | lng | Longitude coordinate of S2Cell weather location | 3.109283009
 | lat_5 | Latitude coordinate shortend to 5th precision | 5.98092
@@ -27,5 +28,5 @@ Use any of the following in your alerts file to structure how notifications will
 | gmaps_url | Google maps location url | https://maps.google.com/maps?q=5.980921321,3.109283009
 | applemaps_url | Apple maps location url | https://maps.apple.com/maps?daddr=5.980921321,3.109283009
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`

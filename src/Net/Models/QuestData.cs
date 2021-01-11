@@ -2,20 +2,21 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
 
     using DSharpPlus;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Enums;
-    using POGOProtos.Inventory.Item;
-    using QuestConditionType = POGOProtos.Data.Quests.QuestCondition.Types.ConditionType;
-    using QuestRewardType = POGOProtos.Data.Quests.QuestReward.Types.Type;
+    using POGOProtos.Rpc;
+    using ItemId = POGOProtos.Rpc.Item;
+    using ActivityType = POGOProtos.Rpc.HoloActivityType;
+    using QuestConditionType = POGOProtos.Rpc.QuestConditionProto.Types.ConditionType;
+    using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
 
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
     using WhMgr.Extensions;
+    using WhMgr.Geofence;
     using WhMgr.Utilities;
 
     /// <summary>
@@ -63,9 +64,6 @@
         public List<QuestConditionMessage> Conditions { get; set; }
 
         [JsonIgnore]
-        public TimeSpan TimeLeft => DateTime.Today.AddDays(1) - DateTime.Now;
-
-        [JsonIgnore]
         public bool IsDitto => Rewards?[0]?.Info?.Ditto ?? false;
 
         [JsonIgnore]
@@ -82,6 +80,15 @@
             Conditions = new List<QuestConditionMessage>();
         }
 
+        /// <summary>
+        /// Generates a Discord embed message for a Pokestop Quest
+        /// </summary>
+        /// <param name="guildId">Discord Guild ID related to the data</param>
+        /// <param name="client">Discord client to use</param>
+        /// <param name="whConfig">Config to use</param>
+        /// <param name="alarm">Alarm to use</param>
+        /// <param name="city">City to specify</param>
+        /// <returns></returns>
         public DiscordEmbedNotification GenerateQuestMessage(ulong guildId, DiscordClient client, WhConfig whConfig, AlarmObject alarm, string city)
         {
             var server = whConfig.Servers[guildId];
@@ -117,13 +124,12 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(whConfig.Urls.ScannerMap, Latitude, Longitude);
-            var templatePath = Path.Combine(whConfig.StaticMaps.TemplatesFolder, whConfig.StaticMaps.Quests.TemplateFile);
-            var staticMapLink = Utils.GetStaticMapsUrl(templatePath, whConfig.Urls.StaticMap, whConfig.StaticMaps.Quests.ZoomLevel, Latitude, Longitude, questRewardImageUrl, null);
+            var staticMapLink = StaticMap.GetUrl(whConfig.Urls.StaticMap, whConfig.StaticMaps["quests"], Latitude, Longitude, questRewardImageUrl);
             var gmapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(whConfig.ShortUrlApiUrl, scannerMapsLink);
-            var address = Utils.GetAddress(city, Latitude, Longitude, whConfig);
+            var address = new Location(null, city, Latitude, Longitude).GetAddress(whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
             const string defaultMissingValue = "?";

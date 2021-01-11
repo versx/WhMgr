@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using WhMgr.Diagnostics;
 
@@ -51,6 +52,14 @@
             {
                 yield return s.Substring(i, Math.Min(partLength, s.Length));
             }
+        }
+
+        public static List<string> RemoveSpaces(this string value)
+        {
+            return value.Replace(", ", ",")
+                        .Replace(" ,", ",")
+                        .Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)
+                        .ToList();
         }
     }
 }

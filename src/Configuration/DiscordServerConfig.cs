@@ -1,4 +1,6 @@
-﻿namespace WhMgr.Configuration
+﻿using WhMgr.Geofence;
+
+namespace WhMgr.Configuration
 {
     using System;
     using System.Collections.Generic;
@@ -41,6 +43,9 @@
         [JsonProperty("donorRoleIds")]
         public List<ulong> DonorRoleIds { get; set; }
 
+        [JsonProperty("freeRoleName")]
+        public string FreeRoleName { get; set; }
+
         /// <summary>
         /// Gets or sets the moderators of the Discord server
         /// </summary>
@@ -58,12 +63,19 @@
         /// </summary>
         [JsonProperty("alarms")]
         public string AlarmsFile { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the list of Geofence files to use for the Discord server (in addition to the common ones)
+        /// </summary>
+        [JsonProperty("geofences")]
+        public string[] GeofenceFiles { get; set; }
+
+        [JsonIgnore]
+        public List<GeofenceItem> Geofences { get; } = new List<GeofenceItem>();
 
         /// <summary>
         /// Gets or sets whether to enable custom direct message subscriptions
         /// </summary>
-        //[JsonProperty("enableSubscriptions")]
-        //public bool EnableSubscriptions { get; set; }
         [JsonProperty("subscriptions")]
         public SubscriptionsConfig Subscriptions { get; set; }
 
@@ -78,6 +90,12 @@
         /// </summary>
         [JsonProperty("cityRoles")]
         public List<string> CityRoles { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value determining whether city roles should be removed when a donor role is removed from a Discord member
+        /// </summary>
+        [JsonProperty("autoRemoveCityRoles")]
+        public bool AutoRemoveCityRoles { get; set; }
 
         /// <summary>
         /// Gets or sets whether city roles require a Donor role
@@ -133,12 +151,21 @@
         [JsonProperty("status")]
         public string Status { get; set; }
 
+        /// <summary>
+        /// Gets or sets the alerts file to use with direct message subscriptions
+        /// </summary>
         [JsonProperty("dmAlertsFile")]
         public string DmAlertsFile { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Discord embed colors to use for each message type
+        /// </summary>
         [JsonProperty("embedColors")]
         public DiscordEmbedColorConfig DiscordEmbedColors { get; set; }
 
+        /// <summary>
+        /// Gets or sets the direct message alerts class to use for subscriptions
+        /// </summary>
         [JsonIgnore]
         public AlertMessage DmAlerts { get; set; }
 

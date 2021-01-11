@@ -20,6 +20,7 @@ Use any of the following in your alerts file to structure how notifications will
 | ex_emoji | Ex emoji icon | <:809809:ex>
 | slots_available | Number of available gym slots | 3
 | geofence | Geofence name raid boss is in | City1
+| address | Google Maps or OSM Nominatim address from geocoordinates | 123 Fake St
 | lat | Latitude coordinate of Pokemon location | 5.980921321
 | lng | Longitude coordinate of Pokemon location | 3.109283009
 | lat_5 | Latitude coordinate shortend to 5th precision | 5.98092
@@ -30,5 +31,5 @@ Use any of the following in your alerts file to structure how notifications will
 | wazemaps_url | Waze maps location url | https://www.waze.com/ul?ll=5.980921321,3.109283009&navigate=yes
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
-[ date_time | Current date and time | 12/12/2020 12:12:12 PM
+| date_time | Current date and time | 12/12/2020 12:12:12 PM
 | br | Newline break | `\r\n`

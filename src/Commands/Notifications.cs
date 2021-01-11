@@ -1,4 +1,6 @@
-﻿namespace WhMgr.Commands
+﻿using WhMgr.Configuration;
+
+namespace WhMgr.Commands
 {
     using System;
     using System.Collections.Generic;
@@ -12,15 +14,16 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
     using Newtonsoft.Json;
-    using POGOProtos.Enums;
 
     using WhMgr.Commands.Input;
     using WhMgr.Data;
+    using WhMgr.Data.Models;
     using WhMgr.Data.Subscriptions;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Localization;
+    using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
     public class Notifications
@@ -350,7 +353,6 @@
                 // If so, make sure they specified at least 90% or higher
                 if (realIV < 90)
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_IV").FormatText(ctx.User.Username), DiscordColor.Red);
                     return;
                 }
@@ -378,18 +380,13 @@
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
+            var areas = SubscriptionAreas.GetAreas(server, city);
 
             // Loop through each valid pokemon entry provided
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
                     continue;
                 }
@@ -400,7 +397,6 @@
                 // Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
                 if (pokemonId.IsCommonPokemon() && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_COMMON_TYPE_POKEMON").FormatText(ctx.User.Username, pokemon.Name, Strings.CommonTypeMinimumIV), DiscordColor.Red);
                     continue;
                 }
@@ -540,14 +536,11 @@
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
+            var areas = SubscriptionAreas.GetAreas(_dep.WhConfig.Servers[guildId], city);
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             var error = false;
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
                 var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
                 if (subPkmn == null)
                     continue;
@@ -626,12 +619,9 @@
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            var areas = SubscriptionAreas.GetAreas(server, city);
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
                 var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
                 if (subRaid != null)
                 {
@@ -719,7 +709,7 @@
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
+            var areas = SubscriptionAreas.GetAreas(_dep.WhConfig.Servers[guildId], city);
             foreach (var item in validation.Valid)
             {
                 var pokemonId = item.Key;
@@ -794,7 +784,7 @@
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
+            var areas = SubscriptionAreas.GetAreas(server, city);
             var subQuest = subscription.Quests.FirstOrDefault(x => string.Compare(x.RewardKeyword, rewardKeyword, true) == 0);
             if (subQuest != null)
             {
@@ -877,7 +867,7 @@
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
+            var areas = SubscriptionAreas.GetAreas(_dep.WhConfig.Servers[guildId], city);
             var subQuest = subscription.Quests.FirstOrDefault(x => string.Compare(x.RewardKeyword, rewardKeyword, true) == 0);
             // Check if subscribed
             if (subQuest == null)
@@ -1034,12 +1024,9 @@
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            var areas = SubscriptionAreas.GetAreas(server, city);
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                //var form = validation.Valid[pokemonId];
                 var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId);
                 if (subInvasion != null)
                 {
@@ -1126,7 +1113,7 @@
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
+            var areas = SubscriptionAreas.GetAreas(_dep.WhConfig.Servers[guildId], city);
             foreach (var item in validation.Valid)
             {
                 var pokemonId = item.Key;
@@ -1258,14 +1245,12 @@
             //You may only subscribe to the top 100 or higher rank.
             if (minimumRank < Strings.MinimumRank || minimumRank > Strings.MaximumRank)
             {
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumRank), DiscordColor.Red);
                 return;
             }
 
             if (minimumPercent < Strings.MinimumPercent || minimumPercent > Strings.MaximumPercent)
             {
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumPercent), DiscordColor.Red);
                 return;
             }
@@ -1288,16 +1273,11 @@
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, server.CityRoles);
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            var areas = SubscriptionAreas.GetAreas(server, city);
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
-                    await ctx.TriggerTypingAsync();
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
                     continue;
                 }
@@ -1395,7 +1375,6 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (subscription == null || subscription?.PvP?.Count == 0)
             {
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
@@ -1425,7 +1404,6 @@
                     .ToList()?
                     .ForEach(x => x.Id.Remove<PvPSubscription>());
 
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, pvpLeague));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
@@ -1438,8 +1416,163 @@
                 return;
             }
 
-            var areas = SubscriptionAreas.GetAreas(city, _dep.WhConfig.Servers[guildId].CityRoles);
+            var areas = SubscriptionAreas.GetAreas(_dep.WhConfig.Servers[guildId], city);
             await RemovePvPSubscription(ctx, subscription, validation, pvpLeague, areas);
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        #endregion
+
+        #region Lureme / Luremenot
+
+        [
+             Command("lureme"),
+             Description("Subscribe to Pokestop lure notifications based on the lure type.")
+         ]
+        public async Task LureMeAsync(CommandContext ctx,
+             [Description("Comma delimited list of Pokestop lures to subscribe to notifications.")] string lureTypes = "all",
+             [Description("City to send the notification if the lure appears in otherwise if null all will be sent."), RemainingText] string city = "all")
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+                return;
+
+            var server = _dep.WhConfig.Servers[guildId];
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            // Check subscription limits
+            if (server.Subscriptions.MaxLureSubscriptions > 0 && subscription.Lures.Count >= server.Subscriptions.MaxLureSubscriptions)
+            {
+                // Max limit for Lure subscriptions reached
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_LURE_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxLureSubscriptions), DiscordColor.Red);
+                return;
+            }
+
+            var areas = SubscriptionAreas.GetAreas(server, city);
+            var lures = GetLures(lureTypes);
+            foreach (var lureType in lures)
+            {
+                var subLure = subscription.Lures.FirstOrDefault(x => x.LureType == lureType);
+                if (subLure != null)
+                {
+                    // Existing lure subscription
+                    // Loop all areas, check if the area is already in subs, if not add it
+                    foreach (var area in areas)
+                    {
+                        if (!subLure.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                        {
+                            subLure.Areas.Add(area);
+                        }
+                    }
+                    // Save quest subscription and continue;
+                    // REVIEW: Might not be needed
+                    subLure.Save();
+                }
+                else
+                {
+                    // New lure subscription
+                    subscription.Lures.Add(new LureSubscription
+                    {
+                        GuildId = guildId,
+                        UserId = ctx.User.Id,
+                        LureType = lureType,
+                        Areas = areas
+                    });
+                }
+            }
+            subscription.Save();
+
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_LURE_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
+                ctx.User.Username,
+                string.Compare(lureTypes, Strings.All, true) == 0 ? Strings.All : string.Join(", ", lures),
+                string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+            );
+            _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+        }
+
+        [
+            Command("luremenot"),
+            Description("Unsubscribe from one or all subscribed Pokestop lure notifications by lure type.")
+        ]
+        public async Task LureMeNotAsync(CommandContext ctx,
+            [Description("Comma delimited list of Pokestop lures to unsubscribe from notifications.")] string lureTypes = "all",
+            [Description("City to send the notification if the raid appears in otherwise if null all will be sent."), RemainingText] string city = "all")
+        {
+            if (!await CanExecute(ctx))
+                return;
+
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
+            if (subscription == null || subscription?.Lures.Count == 0)
+            {
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_LURE_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
+                    DiscordColor.Red
+                );
+                return;
+            }
+
+            if (string.Compare(lureTypes, Strings.All, true) == 0)
+            {
+                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_LURE_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Lures.Count.ToString("N0")));
+                if (!result)
+                    return;
+
+                subscription.Lures.ForEach(x => x.Id.Remove<LureSubscription>());
+
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_LURE_SUBSCRIPTIONS").FormatText(ctx.User.Username));
+                _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
+                return;
+            }
+
+            var areas = SubscriptionAreas.GetAreas(_dep.WhConfig.Servers[guildId], city);
+            var lures = GetLures(lureTypes);
+            foreach (var lureType in lures)
+            {
+                var subLure = subscription.Lures.FirstOrDefault(x => x.LureType == lureType);
+                // Check if subscribed
+                if (subLure == null)
+                    return;
+
+                foreach (var area in areas)
+                {
+                    if (subLure.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                    {
+                        var index = subLure.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                        subLure.Areas.RemoveAt(index);
+                    }
+                }
+
+                // Check if there are no more areas set for the lure subscription
+                if (subLure.Areas.Count == 0)
+                {
+                    // If no more areas set for the lure subscription, delete it
+                    if (!subLure.Id.Remove<LureSubscription>())
+                    {
+                        _logger.Error($"Unable to remove lure subscription for user id {subLure.UserId} from guild id {subLure.GuildId}");
+                    }
+                }
+                else
+                {
+                    // Save/update lure subscription if cities still assigned
+                    subLure.Save();
+                }
+            }
+            subscription.Save();
+
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_LURE_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
+                ctx.User.Username,
+                string.Compare(lureTypes, Strings.All, true) == 0 ? Strings.All : string.Join(", ", lures),
+                string.IsNullOrEmpty(city)
+                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
+            );
+
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -1483,7 +1616,7 @@
                         var ivResult = await pkmnInput.GetIVResult();
                         var lvlResult = await pkmnInput.GetLevelResult();
                         var genderResult = await pkmnInput.GetGenderResult();
-                        var areasResult = await pkmnInput.GetAreasResult(_dep.WhConfig.Servers[guildId].CityRoles);
+                        var areasResult = await pkmnInput.GetAreasResult(guildId);
 
                         var validPokemonNames = string.Join(", ", pkmnResult.Valid.Keys);
                         var result = await AddPokemonSubscription(ctx, subscription, pkmnResult, ivResult, lvlResult.MinimumLevel, lvlResult.MaximumLevel, genderResult, areasResult);
@@ -1542,7 +1675,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         var pvpLeague = await pvpInput.GetLeagueResult();
                         var pvpRank = await pvpInput.GetRankResult();
                         var pvpPercent = await pvpInput.GetPercentResult();
-                        var pvpAreas = await pvpInput.GetAreasResult(server.CityRoles);
+                        var pvpAreas = await pvpInput.GetAreasResult(guildId);
 
                         var validPokemonNames = string.Join(", ", pvpPokemon.Valid.Keys);
                         var pvpResult = await AddPvPSubscription(ctx, subscription, pvpPokemon, pvpLeague, pvpRank, pvpPercent, pvpAreas);
@@ -1590,7 +1723,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
                         var raidInput = new RaidSubscriptionInput(ctx);
                         var raidPokemon = await raidInput.GetPokemonResult();
-                        var raidAreas = await raidInput.GetAreasResult(server.CityRoles);
+                        var raidAreas = await raidInput.GetAreasResult(guildId);
 
                         var validPokemonNames = string.Join(", ", raidPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value)));
                         var raidResult = AddRaidSubscription(ctx, subscription, raidPokemon, raidAreas);
@@ -1637,7 +1770,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
                         var questInput = new QuestSubscriptionInput(ctx);
                         var rewardKeyword = await questInput.GetRewardInput();
-                        var areas = await questInput.GetAreasResult(server.CityRoles);
+                        var areas = await questInput.GetAreasResult(guildId);
 
                         var subQuest = subscription.Quests.FirstOrDefault(x => string.Compare(x.RewardKeyword, rewardKeyword, true) == 0);
                         if (subQuest != null)
@@ -1690,14 +1823,11 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
                         var invasionInput = new InvasionSubscriptionInput(ctx);
                         var invasionPokemon = await invasionInput.GetPokemonResult();
-                        var invasionAreas = await invasionInput.GetAreasResult(server.CityRoles);
+                        var invasionAreas = await invasionInput.GetAreasResult(guildId);
 
                         var validPokemonNames = string.Join(", ", invasionPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name));
-                        var keys = invasionPokemon.Valid.Keys.ToList();
-                        for (var i = 0; i < keys.Count; i++)
+                        foreach (var (pokemonId, form) in invasionPokemon.Valid)
                         {
-                            var pokemonId = keys[i];
-                            //var form = validation.Valid[pokemonId];
                             var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId);
                             if (subInvasion != null)
                             {
@@ -1795,12 +1925,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
         {
             var subscribed = new List<string>();
             var alreadySubscribed = new List<string>();
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
@@ -1889,12 +2015,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
         {
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
-
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
                     await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
@@ -1957,11 +2079,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
         {
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
                 var subRaid = subscription.Raids.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
                 if (subRaid != null)
                 {
@@ -2029,7 +2148,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
                         var pkmnInput = new PokemonSubscriptionInput(ctx);
                         var pkmnResult = await pkmnInput.GetPokemonResult();
-                        var areasResult = await pkmnInput.GetAreasResult(_dep.WhConfig.Servers[guildId].CityRoles);
+                        var areasResult = await pkmnInput.GetAreasResult(guildId);
 
                         await RemovePokemonSubscription(ctx, subscription, pkmnResult, areasResult);
                         break;
@@ -2047,7 +2166,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         var pvpInput = new PvPSubscriptionInput(ctx);
                         var pvpPokemonResult = await pvpInput.GetPokemonResult();
                         var pvpLeagueResult = await pvpInput.GetLeagueResult();
-                        var pvpAreasResult = await pvpInput.GetAreasResult(_dep.WhConfig.Servers[guildId].CityRoles);
+                        var pvpAreasResult = await pvpInput.GetAreasResult(guildId);
 
                         await RemovePvPSubscription(ctx, subscription, pvpPokemonResult, pvpLeagueResult, pvpAreasResult);
                     }
@@ -2064,7 +2183,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
                         var raidInput = new RaidSubscriptionInput(ctx);
                         var raidPokemonResult = await raidInput.GetPokemonResult();
-                        var raidAreasResult = await raidInput.GetAreasResult(server.CityRoles);
+                        var raidAreasResult = await raidInput.GetAreasResult(guildId);
 
                         await RemoveRaidSubscription(ctx, subscription, null, raidAreasResult);
                     }
@@ -2081,7 +2200,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
                         var questInput = new QuestSubscriptionInput(ctx);
                         var rewardResult = await questInput.GetRewardInput();
-                        var areasResult = await questInput.GetAreasResult(server.CityRoles);
+                        var areasResult = await questInput.GetAreasResult(guildId);
 
                         var notSubscribed = new List<string>();
                         var unsubscribed = new List<string>();
@@ -2151,7 +2270,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
                         var invasionInput = new InvasionSubscriptionInput(ctx);
                         var invasionPokemonResult = await invasionInput.GetPokemonResult();
-                        var invasionAreasResult = await invasionInput.GetAreasResult(server.CityRoles);
+                        var invasionAreasResult = await invasionInput.GetAreasResult(guildId);
 
                         foreach (var item in invasionPokemonResult.Valid)
                         {
@@ -2237,11 +2356,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
         private async Task RemovePokemonSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
         {
             var error = false;
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
                 var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0));
                 if (subPkmn == null)
                     continue;
@@ -2286,11 +2402,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
         {
             var error = false;
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
-            var keys = validation.Valid.Keys.ToList();
-            for (var i = 0; i < keys.Count; i++)
+            foreach (var (pokemonId, form) in validation.Valid)
             {
-                var pokemonId = keys[i];
-                var form = validation.Valid[pokemonId];
                 var subPvP = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) && x.League == league);
                 if (subPvP == null)
                     continue;
@@ -2397,10 +2510,18 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
             if (string.IsNullOrEmpty(mention))
             {
+                var userResult = await ctx.Confirm("Are you sure you want to delete all of your subscriptions? This action is irreversible and cannot be undone.");
+                if (!userResult) return;
+
                 if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id))
                 {
-                    // TODO: Send response message
+                    // TODO: Localize
+                    await ctx.RespondEmbed($"{ctx.User.Username} failed to cleared all of your subscriptions", DiscordColor.Red);
+                    return;
                 }
+
+                // TODO: Localize
+                await ctx.RespondEmbed($"{ctx.User.Username} has cleared all subscriptions", DiscordColor.Green);
                 return;
             }
 
@@ -2425,11 +2546,18 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                 return;
             }
 
+            var modResult = await ctx.Confirm($"{ctx.User.Username} is about to delete all of {user.Username}'s subscriptions. This action is irreversible and cannot be undone, are you sure you want to do this?");
+            if (!modResult) return;
+
             if (!SubscriptionManager.RemoveAllUserSubscriptions(guildId, user.Id))
             {
-                // TODO: Send response message
+                // TODO: Localize
+                await ctx.RespondEmbed($"{ctx.User.Username} failed to cleared all of {user.Username}'s subscriptions", DiscordColor.Red);
+                return;
             }
 
+            // TODO: Localize
+            await ctx.RespondEmbed($"{ctx.User.Username} has cleared all of {user.Username}'s subscriptions", DiscordColor.Green);
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -2467,7 +2595,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             var oldSubscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (oldSubscription != null)
             {
-                var result = Data.Subscriptions.SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id);
+                var result = SubscriptionManager.RemoveAllUserSubscriptions(guildId, ctx.User.Id);
                 if (!result)
                 {
                     _logger.Error($"Failed to clear old user subscriptions for {ctx.User.Username} ({ctx.User.Id}) in guild {ctx.Guild?.Name} ({ctx.Guild?.Id}) before importing.");
@@ -2698,13 +2826,14 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
 
             var server = _dep.WhConfig.Servers[guildId];
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, user.Id);
-            var isSubbed = subscription?.Pokemon.Count > 0 || subscription?.PvP.Count > 0 || subscription?.Raids.Count > 0 || subscription?.Quests.Count > 0 || subscription?.Invasions.Count > 0 || subscription?.Gyms.Count > 0;
-            var hasPokemon = isSubbed && subscription?.Pokemon.Count > 0;
-            var hasPvP = isSubbed && subscription?.PvP.Count > 0;
-            var hasRaids = isSubbed && subscription?.Raids.Count > 0;
-            var hasGyms = isSubbed && subscription?.Gyms.Count > 0;
-            var hasQuests = isSubbed && subscription?.Quests.Count > 0;
-            var hasInvasions = isSubbed && subscription?.Invasions.Count > 0;
+            var isSubbed = subscription?.Pokemon.Count > 0 || subscription?.PvP.Count > 0 || subscription?.Raids.Count > 0 || subscription?.Quests.Count > 0 || subscription?.Invasions.Count > 0 || subscription?.Gyms.Count > 0 || subscription?.Lures.Count > 0;
+            var hasPokemon = isSubbed && subscription?.Pokemon?.Count > 0;
+            var hasPvP = isSubbed && subscription?.PvP?.Count > 0;
+            var hasRaids = isSubbed && subscription?.Raids?.Count > 0;
+            var hasGyms = isSubbed && subscription?.Gyms?.Count > 0;
+            var hasQuests = isSubbed && subscription?.Quests?.Count > 0;
+            var hasInvasions = isSubbed && subscription?.Invasions?.Count > 0;
+            var hasLures = isSubbed && subscription?.Lures?.Count > 0;
             var messages = new List<string>();
             var isSupporter = await client.IsSupporterOrHigher(user.Id, guildId, _dep.WhConfig);
 
@@ -2833,6 +2962,18 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                 invasionsBuilder.AppendLine();
                 messages.Add(invasionsBuilder.ToString());
             }
+          
+            if (hasLures)
+            {
+                var luresBuilder = new StringBuilder();
+                luresBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_LURES").FormatText(subscription.Lures.Count.ToString("N0"), server.Subscriptions.MaxLureSubscriptions == 0 ? "∞" : server.Subscriptions.MaxLureSubscriptions.ToString("N0")));
+                luresBuilder.Append("```");
+                luresBuilder.Append(string.Join(Environment.NewLine, GetLureSubscriptionNames(guildId, user.Id)));
+                luresBuilder.Append("```");
+                luresBuilder.AppendLine();
+                luresBuilder.AppendLine();
+                messages.Add(luresBuilder.ToString());
+            }
 
             return messages;
         }
@@ -2955,6 +3096,23 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             return list;
         }
 
+        private List<string> GetLureSubscriptionNames(ulong guildId, ulong userId)
+        {
+            var list = new List<string>();
+            var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
+            var subscribedLures = subscription.Lures;
+            subscribedLures.Sort((x, y) => x.LureType.CompareTo(y.LureType));
+            var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
+
+            foreach (var lure in subscribedLures)
+            {
+                var isAllCities = cityRoles.ScrambledEquals(lure.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(lure.LureType, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", lure.Areas)));
+            }
+
+            return list;
+        }
+
         private DiscordEmbedBuilder BuildExpirationMessage(ulong guildId, DiscordUser user)
         {
             var customerData = _dep.Stripe.GetCustomerData(guildId, user.Id);
@@ -2983,51 +3141,6 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             return ulong.TryParse(mention, out ulong result) ? result : 0;
         }
 
-        /*
-        private PokemonValidation ValidatePokemonList(string pokemonList)
-        {
-            if (string.IsNullOrEmpty(pokemonList))
-                return null;
-
-            pokemonList = pokemonList.Replace(" ", "");
-
-            PokemonValidation validation;
-            if (pokemonList.Contains("-") && int.TryParse(pokemonList.Split('-')[0], out var startRange) && int.TryParse(pokemonList.Split('-')[1], out var endRange))
-            {
-                //If `poke` param is a range
-                var range = GetListFromRange(startRange, endRange);
-                validation = range.ValidatePokemon();
-            }
-            else if (Strings.PokemonGenerationRanges.Select(x => "gen" + x.Key).ToList().Contains(pokemonList))
-            {
-                //If `poke` is pokemon generation
-                if (!int.TryParse(pokemonList.Replace("gen", ""), out var gen) || !Strings.PokemonGenerationRanges.ContainsKey(gen))
-                {
-                    var keys = Strings.PokemonGenerationRanges.Keys.ToList();
-                    var minValue = keys[0];
-                    var maxValue = keys[keys.Count - 1];
-                    return null;
-                }
-
-                var genRange = Strings.PokemonGenerationRanges[gen];
-                var range = GetListFromRange(genRange.Start, genRange.End);
-                validation = range.ValidatePokemon();
-            }
-            else if (string.Compare(pokemonList, Strings.All, true) == 0)
-            {
-                var list = GetListFromRange(1, Strings.MaxPokemonIds);
-                validation = list.ValidatePokemon();
-            }
-            else
-            {
-                //If `poke` param is a list
-                validation = pokemonList.Replace(" ", "").Split(',').ValidatePokemon();
-            }
-
-            return validation;
-        }
-        */
-
         private async Task<bool> CanExecute(CommandContext ctx)
         {
             if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
@@ -3053,17 +3166,40 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             return true;
         }
 
+        private static PokestopLureType GetLureFromName(string lureName)
+        {
+            lureName = lureName.ToLower();
+            if (lureName.Contains("501") || lureName.Contains("norm"))
+                return PokestopLureType.Normal;
+            else if (lureName.Contains("502") || lureName.Contains("glac"))
+                return PokestopLureType.Glacial;
+            else if (lureName.Contains("503") || lureName.Contains("mos"))
+                return PokestopLureType.Mossy;
+            else if (lureName.Contains("504") || lureName.Contains("mag"))
+                return PokestopLureType.Magnetic;
+            return PokestopLureType.None;
+        }
+
+        private static List<PokestopLureType> GetLures(string lureTypes)
+        {
+            var lureNames = lureTypes.RemoveSpaces();
+            var list = new List<PokestopLureType>();
+            lureNames.ForEach(x => list.Add(GetLureFromName(x)));
+            return list;
+        }
+
         #endregion
     }
 
     internal class SubscriptionAreas
     {
-        public static List<string> GetAreas(string city, List<string> validCities)
+        public static List<string> GetAreas(DiscordServerConfig server, string city)
         {
             // Parse user defined cities
+            var validCities = server.EnableCities ? server.CityRoles : server.Geofences.Select(g => g.Name).ToList();
             var cities = string.IsNullOrEmpty(city) || string.Compare(city, Strings.All, true) == 0
                 ? validCities
-                : city.Replace(" ,", ",").Replace(", ", ",").Split(',').ToList();
+                : city.RemoveSpaces();
             var validAreas = validCities.Select(x => x.ToLower());
             // Validate areas
             return cities

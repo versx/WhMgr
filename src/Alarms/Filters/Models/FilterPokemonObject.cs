@@ -13,86 +13,98 @@
     public class FilterPokemonObject
     {
         /// <summary>
-        /// Enable pokemon filter
+        /// Gets or sets a value determining whether to enable the pokemon filter
         /// </summary>
         [JsonProperty("enabled")]
         public bool Enabled { get; set; }
 
         /// <summary>
-        /// List of pokemon pokedex IDs to filter against
+        /// Gets or sets the list of pokemon pokedex IDs to filter against
         /// </summary>
         //TODO: Allow pokemon names and ids for pokemon filter.
         [JsonProperty("pokemon")]
         public List<int> Pokemon { get; set; }
 
         /// <summary>
-        /// Minimum IV value to report
+        /// Gets or sets the list of pokemon Form strings to filter against
+        /// </summary>
+        [JsonProperty("forms")]
+        public List<string> Forms { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of Pokemon costume strings to filter against
+        /// </summary>
+        [JsonProperty("costumes")]
+        public List<string> Costumes { get; set; }
+
+        /// <summary>
+        /// Gets or sets the minimum IV value to report
         /// </summary>
         [JsonProperty("min_iv")]
         public uint MinimumIV { get; set; }
 
         /// <summary>
-        /// Maximum IV value to report
+        /// Gets or sets the maximum IV value to report
         /// </summary>
         [JsonProperty("max_iv")]
         public uint MaximumIV { get; set; }
 
         /// <summary>
-        /// Minimum CP value to report
+        /// Gets or sets the minimum CP value to report
         /// </summary>
         [JsonProperty("min_cp")]
         public uint MinimumCP { get; set; }
 
         /// <summary>
-        /// Maximum CP value to report
+        /// Gets or sets the maximum CP value to report
         /// </summary>
         [JsonProperty("max_cp")]
         public uint MaximumCP { get; set; }
 
         /// <summary>
-        /// Minimum level value to report
+        /// Gets or sets the minimum level value to report
         /// </summary>
         [JsonProperty("min_lvl")]
         public uint MinimumLevel { get; set; }
 
         /// <summary>
-        /// Maximum level value to report
+        /// Gets or sets the maximum level value to report
         /// </summary>
         [JsonProperty("max_lvl")]
         public uint MaximumLevel { get; set; }
 
         /// <summary>
-        /// Pokemon gender to filter by
+        /// Gets or sets the Pokemon gender to filter by
         /// </summary>
         [JsonProperty("gender")]
         public char Gender { get; set; }
 
         /// <summary>
-        /// Pokemon size to filter by
+        /// Gets or sets the Pokemon size to filter by
         /// </summary>
         [JsonProperty("size")]
         public PokemonSize? Size { get; set; }
 
         /// <summary>
-        /// Only great league PvP eligible Pokemon
+        /// Gets or sets a value determining to filter only great league PvP eligible Pokemon
         /// </summary>
         [JsonProperty("great_league")]
         public bool IsPvpGreatLeague { get; set; }
 
         /// <summary>
-        /// Only ultra league PvP eligible Pokemon
+        /// Gets or sets a value determining to filter only ultra league PvP eligible Pokemon
         /// </summary>
         [JsonProperty("ultra_league")]
         public bool IsPvpUltraLeague { get; set; }
 
         /// <summary>
-        /// Minimum PvP rank to report
+        /// Gets or sets the minimum PvP rank to report
         /// </summary>
         [JsonProperty("min_rank")]
         public uint MinimumRank { get; set; }
 
         /// <summary>
-        /// Maximum PvP rank to report
+        /// Gets or sets the maximum PvP rank to report
         /// </summary>
         [JsonProperty("max_rank")]
         public uint MaximumRank { get; set; }
@@ -100,19 +112,19 @@
         //TODO: Filter by move?
 
         /// <summary>
-        /// Pokemon filter type
+        /// Gets or sets the Pokemon filter type
         /// </summary>
         [JsonProperty("type")]
         public FilterType FilterType { get; set; }
 
         /// <summary>
-        /// Event Pokemon flag indicating it was checked with an event account
+        /// Gets or sets a value determining whether a Pokemon was checked with an event account
         /// </summary>
         [JsonProperty("is_event")]
         public bool IsEvent { get; set; }
 
         /// <summary>
-        /// Ignore Pokemon missing stats
+        /// Gets or sets a value determining whether to ignore Pokemon missing stats
         /// </summary>
         [JsonProperty("ignoreMissing")]
         public bool IgnoreMissing { get; set; }
@@ -122,6 +134,9 @@
         /// </summary>
         public FilterPokemonObject()
         {
+            Pokemon = new List<int>();
+            Forms = new List<string>();
+            Costumes = new List<string>();
             MinimumIV = 0;
             MaximumIV = 100;
             MinimumCP = 0;

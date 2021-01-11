@@ -28,14 +28,12 @@ echo "Building WhMgr..."
 
 # Copy example config
 echo "Copying example files..."
-cp -R examples/alerts bin/debug/netcoreapp2.1/alerts/
-cp -R examples/filters bin/debug/netcoreapp2.1/filters/
-cp -R examples/geofences bin/debug/netcoreapp2.1/geofences/
-cp -R examples/templates bin/debug/netcoreapp2.1/templates/
-cp -R static/ bin/debug/netcoreapp2.1/static/
-cp alarms.example.json bin/debug/netcoreapp2.1/alarms.json
-cp config.example.json bin/debug/netcoreapp2.1/config.json
-cp default.json bin/debug/netcoreapp2.1/default.json
+cp -R examples/alerts bin/alerts/
+cp -R examples/filters bin/filters/
+cp -R examples/geofences bin/geofences/
+cp -R static/ bin/static/
+cp alarms.example.json bin/alarms.json
+cp config.example.json bin/config.json
 
 echo "Changing directory to build folder..."
-cd bin/debug/netcoreapp2.1
+cd bin
