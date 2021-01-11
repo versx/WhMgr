@@ -581,7 +581,7 @@
                         continue;
                     }
 
-                    var formName = Translator.Instance.GetFormName(pkmn.FormId).ToLower();
+                    var formName = Translator.Instance.GetFormName(pkmn.FormId)?.ToLower();
                     if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Forms.Select(x => x.ToLower()).Contains(formName))
                     {
                         //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id} with form {pkmn.FormId} ({formName}): filter {alarm.Filters.Pokemon.FilterType}.");
@@ -594,7 +594,7 @@
                         continue;
                     }
 
-                    var costumeName = Translator.Instance.GetCostumeName(pkmn.Costume).ToLower();
+                    var costumeName = Translator.Instance.GetCostumeName(pkmn.Costume)?.ToLower();
                     if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Costumes.Select(x => x.ToLower()).Contains(costumeName))
                     {
                         //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id} with costume {pkmn.Costume} ({costumeName}): filter {alarm.Filters.Pokemon.FilterType}.");
