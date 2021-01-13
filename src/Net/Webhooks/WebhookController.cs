@@ -765,7 +765,7 @@
                             continue;
                         }
 
-                        var formName = Translator.Instance.GetFormName(raid.Form).ToLower();
+                        var formName = Translator.Instance.GetFormName(raid.Form)?.ToLower();
                         if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Forms.Select(x => x.ToLower()).Contains(formName))
                         {
                             //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.Id} with form {raid.Form} ({formName}): filter {alarm.Filters.Raids.FilterType}.");
@@ -778,7 +778,7 @@
                             continue;
                         }
 
-                        var costumeName = Translator.Instance.GetCostumeName(raid.Costume).ToLower();
+                        var costumeName = Translator.Instance.GetCostumeName(raid.Costume)?.ToLower();
                         if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Costumes.Select(x => x.ToLower()).Contains(costumeName))
                         {
                             //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.Id} with costume {raid.Costume} ({costumeName}): filter {alarm.Filters.Raids.FilterType}.");
