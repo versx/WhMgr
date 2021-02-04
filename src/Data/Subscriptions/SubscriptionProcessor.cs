@@ -505,7 +505,7 @@ namespace WhMgr.Data.Subscriptions
                 return geofence;
             }
 
-            var subscriptions = Manager.GetUserSubscriptions();
+            var subscriptions = Manager.GetUserSubscriptionsByQuestReward(rewardKeyword);
             if (subscriptions == null)
             {
                 _logger.Warn($"Failed to get subscriptions from database table.");
