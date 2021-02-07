@@ -234,6 +234,7 @@
   },
   "gmapsKey": "",
   "nominatim": "",
+  "nominatimSchema": "{display_name}",
   "despawnTimeMinimumMinutes": 5,
   "reloadSubscriptionChangesMinutes": 1,
   "maxNotificationsPerMinute": 10,

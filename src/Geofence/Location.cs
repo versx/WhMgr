@@ -10,6 +10,8 @@
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
+    using SmartFormat;
+
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
 
@@ -77,7 +79,7 @@
                 return GetGoogleAddress(City, Latitude, Longitude, config.GoogleMapsKey);
 
             if (!string.IsNullOrEmpty(config.NominatimEndpoint))
-                return GetNominatimAddress(City, Latitude, Longitude, config.NominatimEndpoint);
+                return GetNominatimAddress(City, Latitude, Longitude, config.NominatimEndpoint, config.NominatimSchema);
 
             return null;
         }
@@ -142,7 +144,7 @@
         /// <param name="lng">Longitude to lookup</param>
         /// <param name="endpoint">Nominatim endpoint</param>
         /// <returns></returns>
-        private Location GetNominatimAddress(string city, double lat, double lng, string endpoint)
+        private Location GetNominatimAddress(string city, double lat, double lng, string endpoint, string nominatimSchema)
         {
             var unknown = "Unknown";
             var url = $"{endpoint}/reverse?format=jsonv2&lat={lat}&lon={lng}";
@@ -154,7 +156,8 @@
                     wc.Headers.Add("User-Agent", Strings.BotName);
                     var json = wc.DownloadString(url);
                     dynamic obj = JsonConvert.DeserializeObject(json);
-                    return new Location(Convert.ToString(obj.display_name), city ?? unknown, Convert.ToDouble(obj.lat), Convert.ToDouble(obj.lon));
+                    var location_string = Smart.Format(nominatimSchema, obj);
+                    return new Location(Convert.ToString(location_string), city ?? unknown, Convert.ToDouble(obj.lat), Convert.ToDouble(obj.lon));
                 }
             }
             catch (Exception ex)
