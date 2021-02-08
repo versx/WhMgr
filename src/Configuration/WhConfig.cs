@@ -106,6 +106,12 @@
         public string NominatimEndpoint { get; set; }
 
         /// <summary>
+        /// Gets or sets the OpenStreetMaps Nominatim location string schema
+        /// </summary>
+        [JsonProperty("nominatimSchema")]
+        public string NominatimSchema { get; set; }
+
+        /// <summary>
         /// Gets or sets the minimum despawn time in minutes a Pokemon must have in order to send the alarm
         /// </summary>
         [JsonProperty("despawnTimeMinimumMinutes")]
