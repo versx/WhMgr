@@ -15,7 +15,10 @@
     using WhMgr.Configuration;
     using WhMgr.Diagnostics;
 
-    public partial class ReverseLookup
+    /// <summary>
+    /// NominatimReverseLookup class
+    /// </summary>
+    public partial class NominatimReverseLookup
     {
         [JsonProperty("place_id")]
         public long PlaceId { get; set; }
@@ -57,13 +60,16 @@
         public string DisplayName { get; set; }
 
         [JsonProperty("address")]
-        public Address Address { get; set; }
+        public NominatimAddress Address { get; set; }
 
         [JsonProperty("boundingbox")]
         public decimal[] Boundingbox { get; set; }
     }
 
-    public partial class Address
+    /// <summary>
+    /// NominatimAddress class
+    /// </summary>
+    public partial class NominatimAddress
     {
         [JsonProperty("house_number")]
         public string HouseNumber { get; set; }
@@ -224,6 +230,7 @@
         /// <param name="lat">Latitude to lookup</param>
         /// <param name="lng">Longitude to lookup</param>
         /// <param name="endpoint">Nominatim endpoint</param>
+        /// <param name="nominatimSchema">Nominatim schema</param>
         /// <returns></returns>
         private Location GetNominatimAddress(string city, double lat, double lng, string endpoint, string nominatimSchema)
         {
@@ -236,7 +243,7 @@
                     wc.Proxy = null;
                     wc.Headers.Add("User-Agent", Strings.BotName);
                     var json = wc.DownloadString(url);
-                    dynamic obj = JsonConvert.DeserializeObject<ReverseLookup>(json);
+                    dynamic obj = JsonConvert.DeserializeObject<NominatimReverseLookup>(json);
                     var location_string = Smart.Format(nominatimSchema, obj);
                     return new Location(location_string, city ?? unknown, Convert.ToDouble(obj.Lat), Convert.ToDouble(obj.Lon));
                 }
