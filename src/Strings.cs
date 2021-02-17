@@ -80,7 +80,7 @@
         public const int MinimumUltraLeagueCP = 2400;
         public const int MaximumUltraLeagueCP = 2500;
 
-        public const int MaxPokemonIds = 649;
+        //public const int MaxPokemonIds = 649;
 
         public const string All = "All";
 

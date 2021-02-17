@@ -291,7 +291,7 @@
             Invalid = new List<string>();
         }
 
-        public static PokemonValidation Validate(string pokemonList)
+        public static PokemonValidation Validate(string pokemonList, int maxPokemonId)// = 999)
         {
             if (string.IsNullOrEmpty(pokemonList))
                 return null;
@@ -322,7 +322,7 @@
             }
             else if (string.Compare(pokemonList, Strings.All, true) == 0)
             {
-                var list = GetListFromRange(1, Strings.MaxPokemonIds);
+                var list = GetListFromRange(1, maxPokemonId);
                 validation = list.ValidatePokemon();
             }
             else

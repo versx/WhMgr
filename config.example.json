@@ -4,6 +4,7 @@
   "locale": "en",
   "shortUrlApiUrl": null,
   "stripeApiKey": "",
+  "maxPokemonId": 721,
   "servers": {
     "000000000000000001": {
       "commandPrefix": ".",
