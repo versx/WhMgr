@@ -8,7 +8,7 @@ chmod +x dotnet-install.sh
 
 # Install .NET Core 2.1.0
 echo "Launching .NET Core installer..."
-./dotnet-install.sh --version 2.1.803
+./dotnet-install.sh --version 2.1.813
 
 # Delete .NET Core 2.1.0 installer
 echo "Deleting .NET Core installer..."
