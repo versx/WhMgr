@@ -11,7 +11,7 @@ powershell -Command "iwr -outf ~/Desktop/dotnet-install.ps1 https://dotnet.micro
 
 :: Install .NET Core 2.1.0
 echo "Launching .NET Core installer..."
-powershell -ExecutionPolicy RemoteSigned -File dotnet-install.ps1 -Version 2.1.803
+powershell -ExecutionPolicy RemoteSigned -File dotnet-install.ps1 -Version 2.1.813
 
 :: Delete .NET Core 2.1.0 installer
 echo "Deleting .NET Core installer..."
