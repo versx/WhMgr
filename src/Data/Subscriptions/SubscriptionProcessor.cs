@@ -900,7 +900,8 @@ namespace WhMgr.Data.Subscriptions
                     if (_whConfig.Instance.Twilio.Enabled && !string.IsNullOrEmpty(item.Subscription.PhoneNumber))
                     {
                         // Check if user is in the allowed text message list or server owner
-                        if (_whConfig.Instance.Twilio.UserIds.Contains(item.Member.Id) ||
+                        if (HasRole(item.Member, _whConfig.Instance.Twilio.RoleIds) ||
+                            _whConfig.Instance.Twilio.UserIds.Contains(item.Member.Id) ||
                             _whConfig.Instance.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
                         {
                             // Send text message (max 160 characters)
@@ -923,6 +924,12 @@ namespace WhMgr.Data.Subscriptions
                 }
             })
             { IsBackground = true }.Start();
+        }
+
+        private bool HasRole(DiscordMember member, List<ulong> roleIds)
+        {
+            var memberRoles = member.Roles.Select(x => x.Id);
+            return roleIds.Any(x => memberRoles.Contains(x));
         }
 
         private bool IsUltraRare(TwilioConfig twilo, PokemonData pkmn)
