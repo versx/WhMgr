@@ -66,7 +66,7 @@
           
             _connFactory = new OrmLiteConnectionFactory(_whConfig.Instance.Database.Main.ToString(), MySqlDialect.Provider);
 
-            // Reload subscriptions every 60 seconds to account for UI changes
+            // Reload subscriptions every minute x 60 seconds to account for UI changes
             _reloadTimer = new Timer(_whConfig.Instance.ReloadSubscriptionChangesMinutes * 60 * 1000);
             _reloadTimer.Elapsed += (sender, e) => ReloadSubscriptions();
             _reloadTimer.Start();

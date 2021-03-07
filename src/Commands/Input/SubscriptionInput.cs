@@ -33,12 +33,12 @@ namespace WhMgr.Commands.Input
         /// Gets the Pokemon ID/Name list from the Discord interactivity from the user
         /// </summary>
         /// <returns>Returns a <seealso cref="PokemonValidation"/> object containing valid and invalid Pokemon specified.</returns>
-        public async Task<PokemonValidation> GetPokemonResult()
+        public async Task<PokemonValidation> GetPokemonResult(uint maxPokemonId)
         {
             var pokemonMessage = (await _context.RespondEmbed("Enter either the Pokemon name(s) or Pokedex ID(s) separated by a comma to subscribe to (i.e. Mewtwo,Dragonite):", DiscordColor.Blurple)).FirstOrDefault();
             var pokemonSubs = await _context.WaitForUserChoice();
             // Validate the provided pokemon list
-            var validation = PokemonValidation.Validate(pokemonSubs);
+            var validation = PokemonValidation.Validate(pokemonSubs, (int)maxPokemonId);
             if (validation == null || validation.Valid.Count == 0)
             {
                 await _context.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(_context.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);

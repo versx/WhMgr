@@ -141,6 +141,9 @@
         [JsonProperty("debug")]
         public bool Debug { get; set; }
 
+        [JsonProperty("maxPokemonId")]
+        public uint MaxPokemonId { get; set; }
+
         /// <summary>
         /// Gets or sets the event logging level to set
         /// </summary>
@@ -161,6 +164,7 @@
             ListeningHost = "127.0.0.1";
             WebhookPort = 8008;
             Locale = "en";
+            MaxPokemonId = 800;
             LogLevel = LogLevel.Trace;
             Servers = new Dictionary<ulong, DiscordServerConfig>();
             Database = new ConnectionStringsConfig();

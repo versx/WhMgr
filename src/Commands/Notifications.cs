@@ -373,7 +373,7 @@ namespace WhMgr.Commands
             var subscribed = new List<string>();
             var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             // Validate the provided pokemon list
-            var validation = PokemonValidation.Validate(poke);
+            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
             if (validation == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -529,7 +529,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke);
+            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -612,7 +612,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke);
+            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -702,7 +702,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke);
+            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -1017,7 +1017,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke);
+            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -1106,7 +1106,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke);
+            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -1266,7 +1266,7 @@ namespace WhMgr.Commands
 
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
-            var validation = PokemonValidation.Validate(poke);
+            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
             if (validation == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -1409,7 +1409,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke);
+            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -1612,7 +1612,7 @@ namespace WhMgr.Commands
                         }
 
                         var pkmnInput = new PokemonSubscriptionInput(ctx);
-                        var pkmnResult = await pkmnInput.GetPokemonResult();
+                        var pkmnResult = await pkmnInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var ivResult = await pkmnInput.GetIVResult();
                         var lvlResult = await pkmnInput.GetLevelResult();
                         var genderResult = await pkmnInput.GetGenderResult();
@@ -1671,7 +1671,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         }
 
                         var pvpInput = new PvPSubscriptionInput(ctx);
-                        var pvpPokemon = await pvpInput.GetPokemonResult();
+                        var pvpPokemon = await pvpInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var pvpLeague = await pvpInput.GetLeagueResult();
                         var pvpRank = await pvpInput.GetRankResult();
                         var pvpPercent = await pvpInput.GetPercentResult();
@@ -1722,7 +1722,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         }
 
                         var raidInput = new RaidSubscriptionInput(ctx);
-                        var raidPokemon = await raidInput.GetPokemonResult();
+                        var raidPokemon = await raidInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var raidAreas = await raidInput.GetAreasResult(guildId);
 
                         var validPokemonNames = string.Join(", ", raidPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value)));
@@ -1822,7 +1822,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         }
 
                         var invasionInput = new InvasionSubscriptionInput(ctx);
-                        var invasionPokemon = await invasionInput.GetPokemonResult();
+                        var invasionPokemon = await invasionInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var invasionAreas = await invasionInput.GetAreasResult(guildId);
 
                         var validPokemonNames = string.Join(", ", invasionPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name));
@@ -2147,7 +2147,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         }
 
                         var pkmnInput = new PokemonSubscriptionInput(ctx);
-                        var pkmnResult = await pkmnInput.GetPokemonResult();
+                        var pkmnResult = await pkmnInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var areasResult = await pkmnInput.GetAreasResult(guildId);
 
                         await RemovePokemonSubscription(ctx, subscription, pkmnResult, areasResult);
@@ -2164,7 +2164,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         }
 
                         var pvpInput = new PvPSubscriptionInput(ctx);
-                        var pvpPokemonResult = await pvpInput.GetPokemonResult();
+                        var pvpPokemonResult = await pvpInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var pvpLeagueResult = await pvpInput.GetLeagueResult();
                         var pvpAreasResult = await pvpInput.GetAreasResult(guildId);
 
@@ -2182,7 +2182,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         }
 
                         var raidInput = new RaidSubscriptionInput(ctx);
-                        var raidPokemonResult = await raidInput.GetPokemonResult();
+                        var raidPokemonResult = await raidInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var raidAreasResult = await raidInput.GetAreasResult(guildId);
 
                         await RemoveRaidSubscription(ctx, subscription, null, raidAreasResult);
@@ -2269,7 +2269,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         }
 
                         var invasionInput = new InvasionSubscriptionInput(ctx);
-                        var invasionPokemonResult = await invasionInput.GetPokemonResult();
+                        var invasionPokemonResult = await invasionInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var invasionAreasResult = await invasionInput.GetAreasResult(guildId);
 
                         foreach (var item in invasionPokemonResult.Valid)
