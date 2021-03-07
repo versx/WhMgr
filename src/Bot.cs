@@ -28,7 +28,6 @@
 
     // TODO: List all subscriptions with info command
     // TODO: Multiple discord bot tokens per server
-    // TODO: Check nests again
     // TODO: IV wildcards
     // TODO: Egg subscriptions (maybe)
 
