@@ -21,6 +21,9 @@
         [JsonProperty("userIds")]
         public List<ulong> UserIds { get; set; }
 
+        [JsonProperty("roleIds")]
+        public List<ulong> RoleIds { get; set; }
+
         [JsonProperty("pokemonIds")]
         public List<int> PokemonIds { get; set; }
 
