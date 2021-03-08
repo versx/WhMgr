@@ -116,7 +116,7 @@
             var uptime = DateTime.Now - started;
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"{Strings.BotName} Uptime",
+                Title = $"{ctx.Client.CurrentApplication.Name} Uptime",
                 Color = DiscordColor.Green,
             };
             embed.AddField("Started", started.ToLongDateString() + " " + started.ToLongTimeString());
