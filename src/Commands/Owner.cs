@@ -104,6 +104,25 @@
             var cmds = ctx.CommandsNext;
             await cmds.SudoAsync(member, ctx.Channel, command);
         }
+
+        [
+            Command("uptime"),
+            Description("Shows the uptime of how long the bot has been online since it was last started"),
+            Hidden,
+        ]
+        public async Task UptimeAsync(CommandContext ctx)
+        {
+            var started = System.Diagnostics.Process.GetCurrentProcess().StartTime;
+            var uptime = DateTime.Now - started;
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"{Strings.BotName} Uptime",
+                Color = DiscordColor.Green,
+            };
+            embed.AddField("Started", started.ToLongDateString() + " " + started.ToLongTimeString());
+            embed.AddField("Uptime", uptime.ToReadableString());
+            await ctx.RespondAsync(embed: embed);
+        }
     }
 }
 /*
