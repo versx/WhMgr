@@ -18,6 +18,7 @@
     using WhMgr.Localization;
     using WhMgr.Net.Models;
     using WhMgr.Net.Webhooks;
+    using WhMgr.Services;
     using WhMgr.Utilities;
 
     using DSharpPlus;

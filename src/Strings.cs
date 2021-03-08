@@ -39,6 +39,7 @@
 
         public const string GeofenceFolder = "geofences";
         public const string AlertsFolder = "alerts";
+        public const string DiscordsFolder = "discords";
         public const string FiltersFolder = "filters";
         public const string LibrariesFolder = "libs";
         public const string StaticFolder = "static";
