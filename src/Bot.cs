@@ -182,7 +182,7 @@
                 {
                     commands.RegisterCommands<Notifications>();
                 }
-                if (serverConfig.EnableCities)
+                if (serverConfig.EnableGeofenceRoles)
                 {
                     commands.RegisterCommands<Feeds>();
                 }
@@ -337,10 +337,7 @@
                 return;
 
             var server = _whConfig.Instance.Servers[e.Guild.Id];
-            if (!server.EnableCities)
-                return;
-
-            if (!server.AutoRemoveCityRoles)
+            if (!server.AutoRemoveGeofenceRoles)
                 return;
 
             var hasBefore = e.RolesBefore.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
@@ -351,7 +348,8 @@
             {
                 _logger.Info($"Member {e.Member.Username} ({e.Member.Id}) donor role removed, removing any city roles...");
                 // If so, remove all city/geofence/area roles
-                foreach (var roleName in server.CityRoles)
+                var areaRoles = server.Geofences.Select(x => x.Name.ToLower());
+                foreach (var roleName in areaRoles)
                 {
                     var role = e.Guild.GetRoleFromName(roleName);
                     if (role == null)
