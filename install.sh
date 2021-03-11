@@ -30,6 +30,7 @@ echo "Building WhMgr..."
 echo "Copying example files..."
 cp -R examples/alarms bin/alarms/
 cp -R examples/alerts bin/alerts/
+cp -R examples/discords bin/discords/
 cp -R examples/filters bin/filters/
 cp -R examples/geofences bin/geofences/
 cp -R static/ bin/static/

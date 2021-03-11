@@ -37,6 +37,7 @@
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
         public const string WazeMaps = "https://waze.com/ul?ll={0},{1}&navigate=yes";
 
+        public const string DiscordsFolder = "discords";
         public const string GeofenceFolder = "geofences";
         public const string AlarmsFolder = "alarms";
         public const string AlertsFolder = "alerts";
