@@ -396,27 +396,28 @@
         {
             _logger.Trace($"WebhookManager::LoadAlarms [AlarmsFilePath={alarmsFilePath}]");
 
-            if (!File.Exists(alarmsFilePath))
+            var alarmPath = Path.Combine(Strings.AlarmsFolder, alarmsFilePath);
+            if (!File.Exists(alarmPath))
             {
-                _logger.Error($"Failed to load file alarms file '{alarmsFilePath}'...");
+                _logger.Error($"Failed to load file alarms file '{alarmPath}'...");
                 return null;
             }
 
-            var alarmData = File.ReadAllText(alarmsFilePath);
+            var alarmData = File.ReadAllText(alarmPath);
             if (string.IsNullOrEmpty(alarmData))
             {
-                _logger.Error($"Failed to load '{alarmsFilePath}', file is empty...");
+                _logger.Error($"Failed to load '{alarmPath}', file is empty...");
                 return null;
             }
 
             var alarms = JsonConvert.DeserializeObject<AlarmList>(alarmData);
             if (alarms == null)
             {
-                _logger.Error($"Failed to deserialize the alarms file '{alarmsFilePath}', make sure you don't have any json syntax errors.");
+                _logger.Error($"Failed to deserialize the alarms file '{alarmPath}', make sure you don't have any json syntax errors.");
                 return null;
             }
 
-            _logger.Info($"Alarms file {alarmsFilePath} was loaded successfully.");
+            _logger.Info($"Alarms file {alarmPath} was loaded successfully.");
 
             foreach (var alarm in alarms.Alarms)
             {
@@ -466,10 +467,11 @@
         {
             _logger.Trace($"WebhookManager::LoadAlarmsOnChange");
 
+            var alarmsFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.AlarmsFolder);
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
                 var alarmsFile = guildConfig.AlarmsFile;
-                var path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), alarmsFile));
+                var path = Path.GetFullPath(Path.Combine(alarmsFolder, alarmsFile));
                 var fileWatcher = new FileWatcher(path);
                 
                 fileWatcher.Changed += (sender, e) => {
