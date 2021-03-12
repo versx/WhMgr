@@ -22,6 +22,7 @@
     using WhMgr.Extensions;
     using WhMgr.Geofence;
     using WhMgr.Localization;
+    using WhMgr.Services;
     using WhMgr.Utilities;
 
     /// <summary>

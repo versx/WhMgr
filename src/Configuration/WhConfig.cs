@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     using Newtonsoft.Json;
 
@@ -47,8 +48,17 @@
         /// <summary>
         /// Gets or sets the Discord servers configuration
         /// </summary>
-        [JsonProperty("servers")]
+        [JsonIgnore]
         public Dictionary<ulong, DiscordServerConfig> Servers { get; set; }
+
+        [JsonProperty("servers")]
+        public Dictionary<ulong, string> ServerConfigs { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("servers")]
+        public Dictionary<string, string> ServerConfigFiles { get; set; }
 
         /// <summary>
         /// Gets or sets the Database configuration
@@ -181,6 +191,36 @@
         }
 
         /// <summary>
+        /// Load Discords from the `/discords` folder
+        /// </summary>
+        /// <returns>Returns parsed alert message</returns>
+        public void LoadDiscordServers()
+        {
+            if (!Directory.Exists(Strings.DiscordsFolder))
+            {
+                // Discords folder does not exist
+                return;
+            }
+
+            var dict = new Dictionary<ulong, DiscordServerConfig>();
+            foreach (var (guildId, fileName) in ServerConfigFiles)
+            {
+                var id = ulong.Parse(guildId);
+                var path = Path.Combine(Strings.DiscordsFolder, fileName);
+                if (!File.Exists(path))
+                    throw new FileNotFoundException($"Discord server config file {path} not found.", path);
+
+                if (!dict.ContainsKey(id))
+                {
+                    var json = File.ReadAllText(path);
+                    var config = JsonConvert.DeserializeObject<DiscordServerConfig>(json);
+                    dict.Add(id, config);
+                }
+            }
+            Servers = dict;
+        }
+
+        /// <summary>
         /// Save the current configuration object
         /// </summary>
         /// <param name="filePath">Path to save the configuration file</param>
@@ -201,7 +241,27 @@
             {
                 throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
-            return MasterFile.LoadInit<WhConfig>(filePath);
+            var config = MasterFile.LoadInit<WhConfig>(filePath);
+            config.LoadDiscordServerConfigs();
+            return config;
+        }
+
+        public void LoadDiscordServerConfigs()
+        {
+            var discordsFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.DiscordsFolder);
+            foreach (var (guildId, guildConfigFile) in ServerConfigs)
+            {
+                if (!Servers.ContainsKey(guildId))
+                {
+                    var configPath = Path.Combine(discordsFolder, guildConfigFile);
+                    if (!File.Exists(configPath))
+                    {
+                        throw new FileNotFoundException($"File {configPath} not found", configPath);
+                    }
+                    var config = MasterFile.LoadInit<DiscordServerConfig>(configPath);
+                    Servers.Add(guildId, config);
+                }
+            }
         }
     }
 }

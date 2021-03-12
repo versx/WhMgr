@@ -67,6 +67,7 @@ namespace WhMgr
                 return;
             }
             whConfig.FileName = configFilePath;
+            whConfig.LoadDiscordServers();
 
             LogLevel = whConfig.LogLevel;
 

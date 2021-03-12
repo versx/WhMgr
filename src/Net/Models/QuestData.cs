@@ -17,6 +17,7 @@
     using WhMgr.Configuration;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
+    using WhMgr.Services;
     using WhMgr.Utilities;
 
     /// <summary>

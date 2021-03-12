@@ -21,6 +21,7 @@
     using WhMgr.Extensions;
     using WhMgr.Localization;
     using WhMgr.Geofence;
+    using WhMgr.Services;
     using WhMgr.Utilities;
 
     public class Nests

@@ -1,4 +1,4 @@
-﻿namespace WhMgr
+﻿namespace WhMgr.Services
 {
     using System;
     using System.Web;
