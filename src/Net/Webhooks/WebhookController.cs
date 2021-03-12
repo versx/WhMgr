@@ -396,7 +396,8 @@
         {
             _logger.Trace($"WebhookManager::LoadAlarms [AlarmsFilePath={alarmsFilePath}]");
 
-            var alarmPath = Path.Combine(Strings.AlarmsFolder, alarmsFilePath);
+            var alarmsFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.AlarmsFolder);
+            var alarmPath = Path.Combine(alarmsFolder, alarmsFilePath);
             if (!File.Exists(alarmPath))
             {
                 _logger.Error($"Failed to load file alarms file '{alarmPath}'...");
