@@ -28,11 +28,12 @@ echo "Building WhMgr..."
 
 # Copy example config
 echo "Copying example files..."
+cp -R examples/alarms bin/alarms/
 cp -R examples/alerts bin/alerts/
+cp -R examples/discords bin/discords/
 cp -R examples/filters bin/filters/
 cp -R examples/geofences bin/geofences/
 cp -R static/ bin/static/
-cp alarms.example.json bin/alarms.json
 cp config.example.json bin/config.json
 
 echo "Changing directory to build folder..."

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     using Newtonsoft.Json;
 
@@ -49,6 +50,9 @@
         /// </summary>
         [JsonIgnore]
         public Dictionary<ulong, DiscordServerConfig> Servers { get; set; }
+
+        [JsonProperty("servers")]
+        public Dictionary<ulong, string> ServerConfigs { get; set; }
 
         /// <summary>
         /// 
@@ -237,7 +241,27 @@
             {
                 throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
-            return MasterFile.LoadInit<WhConfig>(filePath);
+            var config = MasterFile.LoadInit<WhConfig>(filePath);
+            config.LoadDiscordServerConfigs();
+            return config;
+        }
+
+        public void LoadDiscordServerConfigs()
+        {
+            var discordsFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.DiscordsFolder);
+            foreach (var (guildId, guildConfigFile) in ServerConfigs)
+            {
+                if (!Servers.ContainsKey(guildId))
+                {
+                    var configPath = Path.Combine(discordsFolder, guildConfigFile);
+                    if (!File.Exists(configPath))
+                    {
+                        throw new FileNotFoundException($"File {configPath} not found", configPath);
+                    }
+                    var config = MasterFile.LoadInit<DiscordServerConfig>(configPath);
+                    Servers.Add(guildId, config);
+                }
+            }
         }
     }
 }
