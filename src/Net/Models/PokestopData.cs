@@ -13,11 +13,12 @@
     using WhMgr.Commands;
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Data.Models;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
     using WhMgr.Localization;
+    using WhMgr.Services;
     using WhMgr.Utilities;
-    using WhMgr.Data.Models;
 
     /// <summary>
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.

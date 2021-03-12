@@ -18,6 +18,7 @@
     using WhMgr.Geofence;
     using WhMgr.Localization;
     using WhMgr.Osm.Models;
+    using WhMgr.Services;
     using WhMgr.Utilities;
 
     public enum WeatherSeverity

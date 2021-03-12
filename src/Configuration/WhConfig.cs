@@ -47,8 +47,14 @@
         /// <summary>
         /// Gets or sets the Discord servers configuration
         /// </summary>
-        [JsonProperty("servers")]
+        [JsonIgnore]
         public Dictionary<ulong, DiscordServerConfig> Servers { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("servers")]
+        public Dictionary<string, string> ServerConfigFiles { get; set; }
 
         /// <summary>
         /// Gets or sets the Database configuration
@@ -178,6 +184,36 @@
             ReloadSubscriptionChangesMinutes = 1;
             MaxNotificationsPerMinute = 10;
             CheckForDuplicates = true;
+        }
+
+        /// <summary>
+        /// Load Discords from the `/discords` folder
+        /// </summary>
+        /// <returns>Returns parsed alert message</returns>
+        public void LoadDiscordServers()
+        {
+            if (!Directory.Exists(Strings.DiscordsFolder))
+            {
+                // Discords folder does not exist
+                return;
+            }
+
+            var dict = new Dictionary<ulong, DiscordServerConfig>();
+            foreach (var (guildId, fileName) in ServerConfigFiles)
+            {
+                var id = ulong.Parse(guildId);
+                var path = Path.Combine(Strings.DiscordsFolder, fileName);
+                if (!File.Exists(path))
+                    throw new FileNotFoundException($"Discord server config file {path} not found.", path);
+
+                if (!dict.ContainsKey(id))
+                {
+                    var json = File.ReadAllText(path);
+                    var config = JsonConvert.DeserializeObject<DiscordServerConfig>(json);
+                    dict.Add(id, config);
+                }
+            }
+            Servers = dict;
         }
 
         /// <summary>
