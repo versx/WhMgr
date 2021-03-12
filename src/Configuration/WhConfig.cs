@@ -51,9 +51,6 @@
         [JsonIgnore]
         public Dictionary<ulong, DiscordServerConfig> Servers { get; set; }
 
-        [JsonProperty("servers")]
-        public Dictionary<ulong, string> ServerConfigs { get; set; }
-
         /// <summary>
         /// 
         /// </summary>
