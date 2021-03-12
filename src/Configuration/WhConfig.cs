@@ -208,8 +208,9 @@
                 var id = ulong.Parse(guildId);
                 var path = Path.Combine(Strings.DiscordsFolder, fileName);
                 if (!File.Exists(path))
+                {
                     throw new FileNotFoundException($"Discord server config file {path} not found.", path);
-
+                }
                 if (!dict.ContainsKey(id))
                 {
                     var json = File.ReadAllText(path);
@@ -242,26 +243,8 @@
                 throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
             var config = MasterFile.LoadInit<WhConfig>(filePath);
-            config.LoadDiscordServerConfigs();
+            config.LoadDiscordServers();
             return config;
-        }
-
-        public void LoadDiscordServerConfigs()
-        {
-            var discordsFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.DiscordsFolder);
-            foreach (var (guildId, guildConfigFile) in ServerConfigs)
-            {
-                if (!Servers.ContainsKey(guildId))
-                {
-                    var configPath = Path.Combine(discordsFolder, guildConfigFile);
-                    if (!File.Exists(configPath))
-                    {
-                        throw new FileNotFoundException($"File {configPath} not found", configPath);
-                    }
-                    var config = MasterFile.LoadInit<DiscordServerConfig>(configPath);
-                    Servers.Add(guildId, config);
-                }
-            }
         }
     }
 }
