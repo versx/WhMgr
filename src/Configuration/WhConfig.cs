@@ -187,7 +187,7 @@
         }
 
         /// <summary>
-        /// Load alerts from the `/Alerts` folder
+        /// Load Discords from the `/discords` folder
         /// </summary>
         /// <returns>Returns parsed alert message</returns>
         public void LoadDiscordServers()
