@@ -490,10 +490,10 @@ namespace WhMgr.Commands
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Username} has subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", subscribed))}** notifications with a{(attack >= 0 || defense >= 0 || stamina >= 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(minLevel > 0 ? $" and between levels {minLevel}-{maxLevel}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")} and only from the following areas: {(areas.Count == server.CityRoles.Count ? Strings.All : string.Join(", ", areas))}."
+                    ? $"{ctx.User.Username} has subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", subscribed))}** notifications with a{(attack >= 0 || defense >= 0 || stamina >= 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(minLevel > 0 ? $" and between levels {minLevel}-{maxLevel}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")} and only from the following areas: {(areas.Count == server.Geofences.Count ? Strings.All : string.Join(", ", areas))}."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
-                    ? $"\r\n{ctx.User.Username} is already subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a{(attack >= 0 || defense >= 0 || stamina >= 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(minLevel > 0 ? $" and between levels {minLevel}-{maxLevel}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")} and only from the following areas: {(areas.Count == server.CityRoles.Count ? Strings.All : string.Join(", ", areas))}."
+                    ? $"\r\n{ctx.User.Username} is already subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a{(attack >= 0 || defense >= 0 || stamina >= 0 ? $"n IV value of {attack}/{defense}/{stamina}" : $" minimum IV of {iv}%")}{(minLevel > 0 ? $" and between levels {minLevel}-{maxLevel}" : null)}{(gender == "*" ? null : $" and only '{gender}' gender types")} and only from the following areas: {(areas.Count == server.Geofences.Count ? Strings.All : string.Join(", ", areas))}."
                     : string.Empty)
             );
 
@@ -1386,10 +1386,10 @@ namespace WhMgr.Commands
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Username} has subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", subscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of {minimumRank} or higher and a minimum ranking percentage of {minimumPercent}% and from the following areas: {(areas.Count == server.CityRoles.Count ? Strings.All : string.Join(", ", areas))}."
+                    ? $"{ctx.User.Username} has subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", subscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of {minimumRank} or higher and a minimum ranking percentage of {minimumPercent}% and from the following areas: {(areas.Count == server.Geofences.Count ? Strings.All : string.Join(", ", areas))}."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
-                    ? $"\r\n{ctx.User.Username} is already subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of '{minimumRank}' or higher and a minimum ranking percentage of {minimumPercent}% and from the following areas: {(areas.Count == server.CityRoles.Count ? Strings.All : string.Join(", ", areas))}."
+                    ? $"\r\n{ctx.User.Username} is already subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of '{minimumRank}' or higher and a minimum ranking percentage of {minimumPercent}% and from the following areas: {(areas.Count == server.Geofences.Count ? Strings.All : string.Join(", ", areas))}."
                     : string.Empty)
             );
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
@@ -1681,7 +1681,7 @@ namespace WhMgr.Commands
 {(ivResult.Attack >= 0 || ivResult.Defense >= 0 || ivResult.Stamina >= 0 ? $"an IV value of {ivResult.Attack}/{ivResult.Defense}/{ivResult.Stamina}" : $" a minimum IV of {ivResult.IV}%")}
 {(lvlResult.MinimumLevel > 0 ? $"and between levels {lvlResult.MinimumLevel}-{lvlResult.MaximumLevel}" : null)}
 {(genderResult == "*" ? null : $" and only '{genderResult}' gender types")}
-and only from the following areas: {(areasResult.Count == server.CityRoles.Count ? Strings.All : string.Join(", ", areasResult))}.
+and only from the following areas: {(areasResult.Count == server.Geofences.Count ? Strings.All : string.Join(", ", areasResult))}.
                     ";
 
                         await ctx.RespondEmbed
@@ -1738,10 +1738,10 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         await ctx.RespondEmbed
                         (
                             (subscribed.Count > 0
-                                ? $"{ctx.User.Username} has subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", subscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of {pvpRank} or higher and a minimum ranking percentage of {pvpPercent}% and from the following areas: {(pvpAreas.Count == server.CityRoles.Count ? Strings.All : string.Join(", ", pvpAreas))}."
+                                ? $"{ctx.User.Username} has subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", subscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of {pvpRank} or higher and a minimum ranking percentage of {pvpPercent}% and from the following areas: {(pvpAreas.Count == server.Geofences.Count ? Strings.All : string.Join(", ", pvpAreas))}."
                                 : string.Empty) +
                             (alreadySubscribed.Count > 0
-                                ? $"\r\n{ctx.User.Username} is already subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of '{pvpRank}' or higher and a minimum ranking percentage of {pvpPercent}% and from the following areas: {(pvpAreas.Count == server.CityRoles.Count ? Strings.All : string.Join(", ", pvpAreas))}."
+                                ? $"\r\n{ctx.User.Username} is already subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of '{pvpRank}' or higher and a minimum ranking percentage of {pvpPercent}% and from the following areas: {(pvpAreas.Count == server.Geofences.Count ? Strings.All : string.Join(", ", pvpAreas))}."
                                 : string.Empty)
                         );
                     }
@@ -1787,7 +1787,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                             ctx.User.Username,
                             isAll ? Strings.All : validPokemonNames,
-                            raidAreas.Count == server.CityRoles.Count
+                            raidAreas.Count == server.Geofences.Count
                                 ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
                                 : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", raidAreas))
                         ));
@@ -1840,7 +1840,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                             ctx.User.Username,
                             rewardKeyword,
-                            areas.Count == server.CityRoles.Count
+                            areas.Count == server.Geofences.Count
                                 ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
                                 : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areas))
                         ));
@@ -1903,7 +1903,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                             ctx.User.Username,
                             isAll ? Strings.All : validPokemonNames,
-                            invasionAreas.Count == server.CityRoles.Count
+                            invasionAreas.Count == server.Geofences.Count
                                 ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
                                 : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", invasionAreas))
                         ));
@@ -2289,7 +2289,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                             ctx.User.Username,
                             rewardResult,
-                            areasResult.Count == server.CityRoles.Count
+                            areasResult.Count == server.Geofences.Count
                                 ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
                                 : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areasResult)))
                         );
@@ -2348,7 +2348,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                             ctx.User.Username,
                             isAll ? Strings.All : validPokemonNames,
-                            invasionAreasResult.Count == server.CityRoles.Count
+                            invasionAreasResult.Count == server.Geofences.Count
                                 ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
                                 : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(validPokemonNames)
                         ));
@@ -2523,7 +2523,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
                 isAll ? Strings.All : validPokemonNames,
-                areas.Count == server.CityRoles.Count
+                areas.Count == server.Geofences.Count
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
                     : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(validPokemonNames))
             );
@@ -2874,7 +2874,8 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             var messages = new List<string>();
             var isSupporter = await client.IsSupporterOrHigher(user.Id, guildId, _dep.WhConfig);
 
-            var feeds = member?.Roles?.Select(x => x.Name).Where(x => _dep.WhConfig.Servers[guildId].CityRoles.Contains(x))?.ToList();
+            var areas = server.Geofences.Select(x => x.Name).ToList();
+            var feeds = member?.Roles?.Select(x => x.Name).Where(x => areas.Contains(x))?.ToList();
             if (feeds == null)
                 return messages;
             feeds.Sort();
@@ -2918,7 +2919,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                     sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED").FormatText(defaultIV, defaultCount.ToString("N0")));
                 }
 
-                var cityRoles = server.CityRoles;
+                var cityRoles = server.Geofences.Select(x => x.Name);
                 foreach (var poke in subscription.Pokemon)
                 {
                     if (poke.MinimumIV == defaultIV && poke.IVList.Count == 0 && exceedsLimits)
@@ -3067,7 +3068,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedRaids = subscription.Raids;
             subscribedRaids.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
-            var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
+            var cityRoles = _dep.WhConfig.Servers[guildId].Geofences.Select(x => x.Name.ToLower());
 
             foreach (var raid in subscribedRaids)
             {
@@ -3105,7 +3106,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedQuests = subscription.Quests;
             subscribedQuests.Sort((x, y) => string.Compare(x.RewardKeyword.ToLower(), y.RewardKeyword.ToLower(), true));
-            var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
+            var cityRoles = _dep.WhConfig.Servers[guildId].Geofences.Select(x => x.Name.ToLower());
 
             foreach (var quest in subscribedQuests)
             {
@@ -3122,7 +3123,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedInvasions = subscription.Invasions;
             subscribedInvasions.Sort((x, y) => string.Compare(MasterFile.GetPokemon(x.RewardPokemonId, 0).Name, MasterFile.GetPokemon(y.RewardPokemonId, 0).Name, true));
-            var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
+            var cityRoles = _dep.WhConfig.Servers[guildId].Geofences.Select(x => x.Name.ToLower());
 
             foreach (var invasion in subscribedInvasions)
             {
@@ -3139,7 +3140,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedLures = subscription.Lures;
             subscribedLures.Sort((x, y) => x.LureType.CompareTo(y.LureType));
-            var cityRoles = _dep.WhConfig.Servers[guildId].CityRoles.Select(x => x.ToLower());
+            var cityRoles = _dep.WhConfig.Servers[guildId].Geofences.Select(x => x.Name.ToLower());
 
             foreach (var lure in subscribedLures)
             {
@@ -3236,7 +3237,7 @@ and only from the following areas: {(areasResult.Count == server.CityRoles.Count
                 return new List<string>();
 
             // Parse user defined cities
-            var validCities = server.EnableCities ? server.CityRoles : server.Geofences.Select(g => g.Name).ToList();
+            var validCities = server.Geofences.Select(g => g.Name).ToList();
             var cities = /*string.IsNullOrEmpty(city) ||*/ string.Compare(city, Strings.All, true) == 0
                 ? validCities
                 : city.RemoveSpaces();

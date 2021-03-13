@@ -122,7 +122,7 @@
             }
             else
             {
-                var cities = server.CityRoles.Select(x => x.ToLower());
+                var cities = server.Geofences.Select(x => x.Name.ToLower()).ToList();
                 for (var i = 0; i < nests.Count; i++)
                 {
                     var nest = nests[i];
@@ -256,7 +256,7 @@
                 }
                 var geofenceName = geofence.Name;
                 var server = _dep.WhConfig.Servers[guildId];
-                var cities = server.CityRoles.Select(x => x.ToLower());
+                var cities = server.Geofences.Select(x => x.Name.ToLower()).ToList();
                 if (!cities.Contains(geofenceName.ToLower()))
                     continue;
 

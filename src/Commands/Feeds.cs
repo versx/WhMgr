@@ -41,7 +41,7 @@
                 return;
 
             var server = _dep.WhConfig.Servers[guildId];
-            var cityRoles = server.CityRoles;
+            var cityRoles = server.Geofences.Select(x => x.Name).ToList();
             cityRoles.Sort();
             var sb = new StringBuilder();
             sb.AppendLine(Translator.Instance.Translate("FEEDS_AVAILABLE_CITY_ROLES"));
@@ -102,7 +102,7 @@
             try
             {
                 var cityNames = cityName.RemoveSpaces();
-                var cityRoles = server.CityRoles.Select(x => x.ToLower());
+                var cityRoles = server.Geofences.Select(x => x.Name.ToLower());
                 foreach (var city in cityNames)
                 {
                     if (!isFreeRole && !cityRoles.Contains(city.ToLower()))
@@ -189,9 +189,10 @@
             try
             {
                 var cityNames = cityName.RemoveSpaces();
+                var areas = server.Geofences.Select(x => x.Name).ToList();
                 foreach (var city in cityNames)
                 {
-                    if (!isFreeRole && !server.CityRoles.Exists(x => string.Compare(city, x, true) == 0))
+                    if (!isFreeRole && !areas.Exists(x => string.Compare(city, x, true) == 0))
                     {
                         await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(ctx.User.Username, city, server.CommandPrefix), DiscordColor.Red);
                         continue;
@@ -236,7 +237,7 @@
         {
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
-            if (_dep.WhConfig.Servers[guildId].CityRoles == null)
+            if (_dep.WhConfig.Servers[guildId].Geofences == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
@@ -245,9 +246,10 @@
             try
             {
                 var server = _dep.WhConfig.Servers[guildId];
-                for (var i = 0; i < server.CityRoles.Count; i++)
+                var areas = server.Geofences.Select(x => x.Name).ToList();
+                for (var i = 0; i < areas.Count; i++)
                 {
-                    var city = server.CityRoles[i];
+                    var city = areas[i];
                     var cityRole = ctx.Guild.GetRoleFromName(city);
                     if (cityRole == null)
                     {
@@ -278,7 +280,7 @@
         {
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
-            if (_dep.WhConfig.Servers[guildId].CityRoles == null)
+            if (_dep.WhConfig.Servers[guildId].Geofences == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
@@ -287,9 +289,10 @@
             try
             {
                 var server = _dep.WhConfig.Servers[guildId];
-                for (var i = 0; i < server.CityRoles.Count; i++)
+                var areas = server.Geofences.Select(x => x.Name).ToList();
+                for (var i = 0; i < areas.Count; i++)
                 {
-                    var city = server.CityRoles[i];
+                    var city = areas[i];
                     var cityRole = ctx.Guild.GetRoleFromName(city);
                     if (cityRole == null)
                     {

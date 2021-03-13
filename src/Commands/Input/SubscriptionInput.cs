@@ -57,7 +57,7 @@ namespace WhMgr.Commands.Input
         {
             var deps = _context.Dependencies.GetDependency<Dependencies>();
             var server = deps.WhConfig.Servers[guildId];
-            var validAreas = server.EnableCities ? server.CityRoles : server.Geofences.Select(g => g.Name).ToList();
+            var validAreas = server.Geofences.Select(g => g.Name).ToList();
             var message = (await _context.RespondEmbed($"Enter the areas to get notifications from separated by a comma (i.e. `city1,city2`):\n**Available Areas:**\n{string.Join("\n- ", validAreas)}\n- All", DiscordColor.Blurple)).FirstOrDefault();
             var cities = await _context.WaitForUserChoice(true);
             await message.DeleteAsync();
