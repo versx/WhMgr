@@ -13,6 +13,7 @@
   ],
   "subscriptions": {
 	"enabled": false,
+	"maxNotificationsPerMinute": 10,
 	"maxPokemonSubscriptions": 0,
 	"maxPvPSubscriptions": 0,
 	"maxRaidSubscriptions": 0,
