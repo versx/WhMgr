@@ -96,7 +96,7 @@
                     var pkmnJson = JsonConvert.SerializeObject(pokemonFilter, Formatting.Indented);
                     File.WriteAllText(filterPath, pkmnJson);
                     await ctx.RespondEmbed($"Successfully added Pokemon '{string.Join(", ", validPokemonList)}' to filter {filterPath} for channel: {channel.Name}");
-                    // TODO: Reload alarms
+                    _dep.Whm.LoadAlarms();
                     break;
                 case "quest":
                 case "quests":
@@ -107,7 +107,7 @@
                     var questJson = JsonConvert.SerializeObject(questFilter, Formatting.Indented);
                     File.WriteAllText(filterPath, questJson);
                     await ctx.RespondEmbed($"Successfully added Quest reward '{add}' to filter {filterPath} for channel: {channel.Name}");
-                    // TODO: Reload alarms
+                    _dep.Whm.LoadAlarms();
                     break;
             }
         }
@@ -143,7 +143,7 @@
                     var pkmnJson = JsonConvert.SerializeObject(pokemonFilter, Formatting.Indented);
                     File.WriteAllText(filterPath, pkmnJson);
                     await ctx.RespondEmbed($"Successfully removed Pokemon '{string.Join(", ", validPokemonList)}' from filter {filterPath} for channel: {channel.Name}");
-                    // TODO: Reload alarms
+                    _dep.Whm.LoadAlarms();
                     break;
                 case "quest":
                 case "quests":
@@ -155,7 +155,7 @@
                     var questJson = JsonConvert.SerializeObject(questFilter, Formatting.Indented);
                     File.WriteAllText(filterPath, questJson);
                     await ctx.RespondEmbed($"Successfully removed Quest reward '{remove}' from filter {filterPath} for channel: {channel.Name}");
-                    // TODO: Reload alarms
+                    _dep.Whm.LoadAlarms();
                     break;
             }
         }

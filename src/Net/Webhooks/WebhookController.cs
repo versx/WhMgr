@@ -382,7 +382,7 @@
         
         #region Alarms Initialization
 
-        private void LoadAlarms()
+        public void LoadAlarms()
         {
             _alarms.Clear();
             
