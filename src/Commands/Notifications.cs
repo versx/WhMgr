@@ -373,7 +373,7 @@ namespace WhMgr.Commands
             var subscribed = new List<string>();
             var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             // Validate the provided pokemon list
-            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
+            var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -534,7 +534,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
+            var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -619,7 +619,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
+            var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -715,7 +715,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
+            var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -1040,7 +1040,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
+            var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -1135,7 +1135,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
+            var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -1297,7 +1297,7 @@ namespace WhMgr.Commands
 
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
-            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
+            var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
@@ -1446,7 +1446,7 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var validation = PokemonValidation.Validate(poke, (int)_dep.WhConfig.MaxPokemonId);
+            var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);

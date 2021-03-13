@@ -391,11 +391,14 @@
                 var alarms = LoadAlarms(serverId, serverConfig.AlarmsFile);
                 _alarms.Add(serverId, alarms);
 
-                var filters = GetFilterMappings(alarms);
-                foreach (var filter in filters)
+                ThreadPool.QueueUserWorkItem(_ =>
                 {
-                    FiltersCache.Add(filter.Key, filter.Value);
-                }
+                    var filters = GetFilterMappings(alarms);
+                    foreach (var filter in filters)
+                    {
+                        FiltersCache.Add(filter.Key, filter.Value);
+                    }
+                });
             }
         }
 
@@ -428,7 +431,7 @@
                         dict[webhook.GuildId][webhook.ChannelId] = alarm.FiltersFile;
                     }
                 }
-                Thread.Sleep(1000);
+                Thread.Sleep(5);
             }
             return dict;
         }
