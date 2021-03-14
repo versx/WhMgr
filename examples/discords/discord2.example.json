@@ -29,7 +29,7 @@
   "nestsChannelId": 0,
   "nestsMinimumPerHour": 2,
   "shinyStats": {
-	"enabled": true,
+	"enabled": false,
 	"clearMessages": false,
 	"channelId": 0
   },
