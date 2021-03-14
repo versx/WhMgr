@@ -4,6 +4,8 @@ Alarms are used to define what Pokemon, raids, eggs, field research quests, Team
 
 There is no limit to the amount of alarms you can add under the `alarms` property list, although adding hundreds could potentially affect performance.  
 
+**Note:** Place your active alarms in your `alarms` folder.  
+
 ## Example
 ```js
 {
