@@ -402,6 +402,8 @@
                         else
                             FiltersCache.Add(filter.Key, filter.Value);
                     }
+
+                    _logger.Info($"Finished building filter cache for guild {serverId}");
                 });
             }
         }
