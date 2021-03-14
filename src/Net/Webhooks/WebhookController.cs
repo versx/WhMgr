@@ -397,7 +397,10 @@
                     var filters = GetFilterMappings(alarms);
                     foreach (var filter in filters)
                     {
-                        FiltersCache.Add(filter.Key, filter.Value);
+                        if (FiltersCache.ContainsKey(filter.Key))
+                            FiltersCache[filter.Key] = filter.Value;
+                        else
+                            FiltersCache.Add(filter.Key, filter.Value);
                     }
                 });
             }
