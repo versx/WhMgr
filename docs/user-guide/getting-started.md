@@ -20,7 +20,7 @@ bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://ra
   - Input your bot token and config options.  
   - Fill out the rest of the config options.
 
-2.) Edit `alarms.json` either open in Notepad/++ or `vi alarms.json`.  
+2.) Edit `alarms/alarms.json` either open in Notepad/++ or `vi alarms/alarms.json`.  
 
 3.) Fill out the alarms file. [Alarm Instructions](./alarms.md)  
 
@@ -34,6 +34,8 @@ export PATH=~/.dotnet/dotnet:$PATH
 ```  
 
 ## Running  
+To run via command line arguments [click here](../other/commandline.md).  
+
 1.) Build executable:
 ```
 dotnet build ../../..
