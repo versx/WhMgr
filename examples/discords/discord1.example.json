@@ -21,12 +21,8 @@
 	"maxLureSubscriptions": 0,
 	"maxGymSubscriptions": 0
   },
-  "enableCities": false,
-  "cityRoles": [
-	"City1",
-	"City2"
-  ],
-  "autoRemoveCityRoles": false,
+  "enableGeofenceRoles": false,
+  "autoRemoveGeofenceRoles": false,
   "citiesRequireSupporterRole": true,
   "pruneQuestChannels": true,
   "questChannelIds": [],
