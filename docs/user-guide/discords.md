@@ -1,5 +1,5 @@
 # Discord Server Configs
-Filters allow you to narrow down what is reported. All filters are optional and can be omitted. Plenty of examples in the repository under the [`examples/Filters`](https://github.com/versx/WhMgr/tree/master/examples/filters) directory for all different needs.  
+Copy your Discord specific configs to the `bin/discords` folder and reference them in the main config under the servers section.  
 
 ```json
     {
@@ -47,15 +47,10 @@ Filters allow you to narrow down what is reported. All filters are optional and 
             // Maximum amount of Lure subscriptions a user can set, set as 0 for no limit.
             "maxLureSubscriptions": 0
         },
-        // Enable city role assignments.
-        "enableCities": false,
-        // Cities used to assign roles (if enabled), **NOT** used or related to geofences or subscriptions.  
-        "cityRoles": [
-            "City1",
-            "City2"
-        ],
+        // Enable city/geofence role assignments.
+        "enableGeofenceRoles": false,
         // Automatically remove any created and assigned city/area/geofence roles when a donor/support role is removed.
-        "autoRemoveCityRoles": false,
+        "autoRemoveGeofenceRoles": false,
         // Assigning city roles requires Donor/Supporter role.
         "citiesRequireSupporterRole": true,
         // Prune old field research quests at midnight.

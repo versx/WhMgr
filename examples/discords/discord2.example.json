@@ -13,6 +13,7 @@
   ],
   "subscriptions": {
 	"enabled": false,
+	"maxNotificationsPerMinute": 10,
 	"maxPokemonSubscriptions": 0,
 	"maxPvPSubscriptions": 0,
 	"maxRaidSubscriptions": 0,
@@ -21,12 +22,8 @@
 	"maxLureSubscriptions": 0,
 	"maxGymSubscriptions": 0
   },
-  "enableCities": false,
-  "cityRoles": [
-	"City3",
-	"City4"
-  ],
-  "autoRemoveCityRoles": false,
+  "enableGeofenceRoles": false,
+  "autoRemoveGeofenceRoles": false,
   "citiesRequireSupporterRole": true,
   "pruneQuestChannels": true,
   "questChannelIds": [],
