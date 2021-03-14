@@ -385,6 +385,7 @@
         public void LoadAlarms()
         {
             _alarms.Clear();
+            FiltersCache.Clear();
             
             foreach (var (serverId, serverConfig) in _config.Instance.Servers)
             {
@@ -396,10 +397,7 @@
                     var filters = GetFilterMappings(alarms);
                     foreach (var filter in filters)
                     {
-                        if (!FiltersCache.ContainsKey(filter.Key))
-                            FiltersCache.Add(filter.Key, filter.Value);
-                        else
-                            FiltersCache[filter.Key] = filter.Value;
+                        FiltersCache.Add(filter.Key, filter.Value);
                     }
                 });
             }
