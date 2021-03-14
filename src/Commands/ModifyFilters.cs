@@ -41,11 +41,7 @@
             if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
-                return;
-
-            var server = _dep.WhConfig.Servers[guildId];
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
             // TODO: Check if guild/channel id exist, if not tell user to wait a few more minutes
             var filter = WebhookController.FiltersCache[channel.GuildId][channel.Id];
             var filterPath = Path.Combine(Strings.FiltersFolder, filter);
@@ -75,11 +71,7 @@
             if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
-                return;
-
-            var server = _dep.WhConfig.Servers[guildId];
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
 
             var filter = WebhookController.FiltersCache[channel.GuildId][channel.Id];
             var filterPath = Path.Combine(Strings.FiltersFolder, filter);
@@ -122,11 +114,7 @@
             if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
-                return;
-
-            var server = _dep.WhConfig.Servers[guildId];
+            var server = _dep.WhConfig.Servers[ctx.Guild.Id];
 
             var filter = WebhookController.FiltersCache[channel.GuildId][channel.Id];
             var filterPath = Path.Combine(Strings.FiltersFolder, filter);
