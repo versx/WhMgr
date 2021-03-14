@@ -21,6 +21,12 @@ Usage: `set-distance <meters> <latitude>,<longitude>`
 Examples:  
 
 * `.set-distance 10 34.00001, -119.22222`
+<br>  
+
+### Interactive Subscriptions  
+**add** - Guided mode for adding new subscriptions.  
+**remove** - Guided mode for removing existing subscriptions.  
+<br>  
 
 ### Pokemon  
 
@@ -122,6 +128,28 @@ Examples:
 * `.raidmenot mewtwo city1`  
 * `.raidmenot all`  
 * `.raidmenot all city1`  
+<br>  
+
+### Gyms  
+
+**gymme** - Subscribe to specific Gym notifications. These are used with your raid subscriptions and only receive raid alerts for the gyms subscribed.  
+Usage: `gymme <gym name>`  
+
+* `<gym name>` - Exact or partial gym name to match against.  
+
+Examples:  
+
+* `.gymme Best Gym ever`  
+<br>  
+
+**gymmenot** - Unsubscribe from specific Gym notifications.  
+Usage: `gymmenot <gym name>`  
+
+* `<gym name>` - Exact or partial gym name to match against.  
+
+Examples:  
+
+* `.gymmenot Best Gym ever`  
 <br>  
 
 ### Quests  
