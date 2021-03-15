@@ -153,6 +153,16 @@
                 .ToList();
         }
 
+        public List<SubscriptionObject> GetUserSubscriptionsByGymName(string name)
+        {
+            return _subscriptions?
+                .Where(x => x.Enabled &&
+                            x.Gyms != null &&
+                            x.Gyms.Exists(y => string.Compare(y.Name, name, true) == 0 || y.Name.ToLower().Contains(name.ToLower()))
+                       )
+                .ToList();
+        }
+
         /// <summary>
         /// Get user subscriptions from subscribed Quest reward keyword
         /// </summary>
