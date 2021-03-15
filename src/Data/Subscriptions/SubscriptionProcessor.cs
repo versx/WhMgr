@@ -549,6 +549,7 @@ namespace WhMgr.Data.Subscriptions
                     var gymSub = user.Gyms.FirstOrDefault(x => string.Compare(x.Name, raid.GymName, true) == 0);
                     if (gymSub == null)
                         continue;
+
                     var checkLevel = gymSub.MinimumLevel > 0 && gymSub.MaximumLevel > 0;
                     var containsPokemon = gymSub.PokemonIDs?.Contains((uint)raid.PokemonId) ?? false;
                     if (!checkLevel && !containsPokemon)
