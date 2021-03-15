@@ -7,7 +7,7 @@ repo_url: https://github.com/versx/whmgr/
 edit_uri: ""
 
 theme:
-    name: flatly #mkdocs, bootstrap4, cinder, cosmo, cyborg, flatly, ivory, material, readthedocs, slate, yeti
+    name: mkdocs #mkdocs, bootstrap4, cinder, cosmo, cyborg, flatly, ivory, material, readthedocs, slate, yeti
 
 extends: mkdocs
 hljs_style: docco
