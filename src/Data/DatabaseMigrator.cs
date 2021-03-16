@@ -192,7 +192,7 @@
             if (!File.Exists(CurrentDatabaseVersionPath))
             {
                 // Last version that was in database
-                SetCurrentVersion(4);
+                SetCurrentVersion(0);
             }
             using (var sr = new StreamReader(CurrentDatabaseVersionPath))
             {
