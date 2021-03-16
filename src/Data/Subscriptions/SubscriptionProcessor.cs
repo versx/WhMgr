@@ -181,6 +181,12 @@ namespace WhMgr.Data.Subscriptions
                         ))
                         continue;
 
+                    if (!(float.TryParse(pkmn.Height, out var height) && float.TryParse(pkmn.Weight, out var weight) && Filters.MatchesSize(pkmn.Id.GetSize(height, weight), subscribedPokemon.Size)))
+                    {
+                        // Pokemon doesn't match size
+                        continue;
+                    }
+
                     var geofence = GetGeofence(user.GuildId);
                     if (geofence == null)
                     {
