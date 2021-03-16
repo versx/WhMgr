@@ -940,7 +940,10 @@ namespace WhMgr.Commands
             Description("Add raid notifications for specific gyms.")
         ]
         public async Task GymMeAsync(CommandContext ctx,
-            [Description("Gym name to subscribed to."), RemainingText] string gymName)
+            [Description("Gym name to subscribed to.")] string gymName,
+            [Description("Minimum raid level.")] ushort minLevel,
+            [Description("Maximum raid level.")] ushort maxLevel,
+            [Description("Comma delimited list of Pokemon name(s) and/or Pokedex IDs.")] string pokemonIds = null)
         {
             if (!await CanExecute(ctx))
                 return;
@@ -959,19 +962,34 @@ namespace WhMgr.Commands
                 return;
             }
 
-            var subGym = subscription.Gyms.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
-            if (subGym != null)
+            if (minLevel > maxLevel || maxLevel < minLevel)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_EXISTS").FormatText(ctx.User.Username, gymName), DiscordColor.Red);
+                // Invalid level range
+                // TODO: Response to user with error message
                 return;
             }
 
-            subscription.Gyms.Add(new GymSubscription
+            // Check pokemon
+            var pokemon = new List<uint>();
+            if (!string.IsNullOrEmpty(pokemonIds))
             {
+                pokemon = PokemonValidation.Validate(pokemonIds, (int)_dep.WhConfig.MaxPokemonId).Valid.Keys.ToList().ConvertAll(x =>(uint)x);
+            }
+
+            var subGym = subscription.Gyms.FirstOrDefault(x => string.Compare(x.Name, gymName, true) == 0);
+            var id = subGym?.Id ?? 0;
+            subGym = new GymSubscription
+            {
+                Id = id,
+                SubscriptionId = subscription.Id,
                 GuildId = guildId,
                 UserId = ctx.User.Id,
-                Name = gymName
-            });
+                Name = gymName,
+                MinimumLevel = minLevel,
+                MaximumLevel = maxLevel,
+                PokemonIDs = pokemon,
+            };
+            subscription.Gyms.Add(subGym);
             subscription.Save();
 
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_ADDED").FormatText(ctx.User.Username, gymName));

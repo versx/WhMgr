@@ -28,7 +28,6 @@
     using DSharpPlus.Interactivity;
 
     // TODO: List all subscriptions with info command
-    // TODO: Multiple discord bot tokens per server
     // TODO: IV wildcards
     // TODO: Egg subscriptions (maybe)
 
@@ -442,12 +441,6 @@
 
         private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
         {
-            if (e.Application == "REST")
-            {
-                _logger.Error("[DISCORD] RATE LIMITED-----------------");
-                return;
-            }
-
             //Color
             ConsoleColor color;
             switch (e.Level)
@@ -813,6 +806,12 @@
                 // Failed to queue thread
                 _logger.Error($"Failed to queue thread to process raid subscription");
             }
+
+            if (!ThreadPool.QueueUserWorkItem(async _ => await _subProcessor.ProcessGymSubscription(e)))
+            {
+                // Failed to queue thread
+                _logger.Error($"Failed to queue thread to process gym subscription");
+            }
         }
 
         private void OnQuestSubscriptionTriggered(object sender, QuestData e)
@@ -874,11 +873,10 @@
             }
 
             var guild = client.Guilds[server.EmojiGuildId];
-            for (var j = 0; j < Strings.EmojiList.Length; j++)
+            foreach (var emoji in Strings.EmojiList)
             {
                 try
                 {
-                    var emoji = Strings.EmojiList[j];
                     var emojis = await guild.GetEmojisAsync();
                     var emojiExists = emojis.FirstOrDefault(x => string.Compare(x.Name, emoji, true) == 0);
                     if (emojiExists == null)
@@ -1045,9 +1043,9 @@
             {
                 var channelIds = server.QuestChannelIds;
                 _logger.Debug($"Quest channel pruning started for {channelIds.Count:N0} channels...");
-                for (var j = 0; j < channelIds.Count; j++)
+                foreach (var channelId in channelIds)
                 {
-                    var result = await client.DeleteMessages(channelIds[j]);
+                    var result = await client.DeleteMessages(channelId);
                     _logger.Debug($"Deleted all {result.Item2:N0} quest messages from channel {result.Item1.Name}.");
                     Thread.Sleep(1000);
                 }
@@ -1072,9 +1070,8 @@
                 _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
                 var users = _subProcessor.Manager.Subscriptions;
-                for (var j = 0; j < users.Count; j++)
+                foreach (var user in users)
                 {
-                    var user = users[j];
                     var discordUser = client.GetMemberById(guildId, user.UserId);
                     if (discordUser == null)
                     {
@@ -1094,7 +1091,8 @@
         {
             var path = Path.Combine(Directory.GetCurrentDirectory(), Strings.ConfigFileName);
             var fileWatcher = new FileWatcher(path);
-            fileWatcher.Changed += (sender, e) => {
+            fileWatcher.Changed += (sender, e) =>
+            {
                 try
                 {
                     _whConfig.Instance = WhConfig.Load(e.FullPath);
@@ -1113,27 +1111,27 @@
             _logger.Debug("Unhandled exception caught.");
             _logger.Error((Exception)e.ExceptionObject);
 
-            if (e.IsTerminating)
-            {
-                foreach (var (guildId, serverConfig) in _whConfig.Instance.Servers)
-                {
-                    if (!_servers.ContainsKey(guildId))
-                    {
-                        _logger.Error($"Unable to find guild id {guildId} in Discord server client list.");
-                        continue;
-                    }
-                    var client = _servers[guildId];
-                    if (client != null)
-                    {
-                        var owner = await client.GetUserAsync(serverConfig.OwnerId);
-                        if (owner == null)
-                        {
-                            _logger.Warn($"Unable to get owner from id {serverConfig.OwnerId}.");
-                            return;
-                        }
+            if (!e.IsTerminating)
+                return;
 
-                        await client.SendDirectMessage(owner, Translator.Instance.Translate("BOT_CRASH_MESSAGE"), null);
+            foreach (var (guildId, serverConfig) in _whConfig.Instance.Servers)
+            {
+                if (!_servers.ContainsKey(guildId))
+                {
+                    _logger.Error($"Unable to find guild id {guildId} in Discord server client list.");
+                    continue;
+                }
+                var client = _servers[guildId];
+                if (client != null)
+                {
+                    var owner = await client.GetUserAsync(serverConfig.OwnerId);
+                    if (owner == null)
+                    {
+                        _logger.Warn($"Unable to get owner from id {serverConfig.OwnerId}.");
+                        return;
                     }
+
+                    await client.SendDirectMessage(owner, Translator.Instance.Translate("BOT_CRASH_MESSAGE"), null);
                 }
             }
         }

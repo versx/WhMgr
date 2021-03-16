@@ -425,19 +425,6 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    if (user.Gyms.Count > 0 && (!user.Gyms?.Exists(x =>
-                        !string.IsNullOrEmpty(x?.Name) &&
-                        (
-                            (raid.GymName?.ToLower()?.Contains(x.Name?.ToLower()) ?? false) ||
-                            (raid.GymName?.ToLower()?.StartsWith(x.Name?.ToLower()) ?? false)
-                        )
-                    ) ?? false))
-                    {
-                        //Skip if list is not empty and gym is not in list.
-                        _logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid '{raid.GymName}' is not in list of subscribed gyms.");
-                        continue;
-                    }
-
                     var form = Translator.Instance.GetFormName(raid.Form);
                     var subPkmn = user.Raids.FirstOrDefault(x =>
                         x.PokemonId == raid.PokemonId &&
@@ -467,6 +454,110 @@ namespace WhMgr.Data.Subscriptions
                     var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
                     var end = DateTime.Now;
                     _logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
+                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem(user, member, x, pokemon.Name, geofence.Name)));
+
+                    Statistics.Instance.SubscriptionRaidsSent++;
+                    Thread.Sleep(5);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                }
+            }
+
+            subscriptions.Clear();
+            subscriptions = null;
+            user = null;
+
+            await Task.CompletedTask;
+        }
+
+        public async Task ProcessGymSubscription(RaidData raid)
+        {
+            //if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
+            //    return;
+
+            // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
+            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+
+            GeofenceItem GetGeofence(ulong guildId)
+            {
+                if (!locationCache.TryGetValue(guildId, out var geofence))
+                {
+                    geofence = _whm.GetGeofence(guildId, raid.Latitude, raid.Longitude);
+                    locationCache.Add(guildId, geofence);
+                }
+
+                return geofence;
+            }
+
+            var subscriptions = Manager.GetUserSubscriptionsByGymName(raid.GymName);
+            if (subscriptions == null)
+            {
+                _logger.Warn($"Failed to get subscriptions from database table.");
+                return;
+            }
+
+            SubscriptionObject user;
+            var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
+            for (int i = 0; i < subscriptions.Count; i++)
+            {
+                var start = DateTime.Now;
+                try
+                {
+                    user = subscriptions[i];
+                    if (user == null)
+                        continue;
+
+                    if (!user.Enabled)
+                        continue;
+
+                    if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_whConfig.Instance.Servers[user.GuildId].Subscriptions.Enabled)
+                        continue;
+
+                    if (!_servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _servers[user.GuildId];
+
+                    var member = await client.GetMemberById(user.GuildId, user.UserId);
+                    if (member == null)
+                    {
+                        _logger.Warn($"Failed to find member with id {user.UserId}.");
+                        continue;
+                    }
+
+                    if (!member.HasSupporterRole(_whConfig.Instance.Servers[user.GuildId].DonorRoleIds))
+                    {
+                        _logger.Info($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name} for gym {raid.GymName}...");
+                        // Automatically disable users subscriptions if not supporter to prevent issues
+                        //user.Enabled = false;
+                        //user.Save(false);
+                        continue;
+                    }
+
+                    var geofence = GetGeofence(user.GuildId);
+                    if (geofence == null)
+                    {
+                        //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                        continue;
+                    }
+
+                    var gymSub = user.Gyms.FirstOrDefault(x => string.Compare(x.Name, raid.GymName, true) == 0);
+                    if (gymSub == null)
+                        continue;
+
+                    var checkLevel = gymSub.MinimumLevel > 0 && gymSub.MaximumLevel > 0;
+                    var containsPokemon = gymSub.PokemonIDs?.Contains((uint)raid.PokemonId) ?? false;
+                    if (!checkLevel && !containsPokemon)
+                        continue;
+
+                    var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
+                    var end = DateTime.Now;
+                    _logger.Debug($"Took {end} to process gym raid subscription for user {user.UserId}");
                     embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem(user, member, x, pokemon.Name, geofence.Name)));
 
                     Statistics.Instance.SubscriptionRaidsSent++;
