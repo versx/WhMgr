@@ -685,7 +685,7 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null && x.Filters.Raids.Enabled || x.Filters.Eggs.Enabled);
+                var raidAlarms = alarms.Alarms.FindAll(x => (x.Filters.Raids?.Enabled ?? false) || (x.Filters.Eggs?.Enabled ?? false));
                 for (var i = 0; i < raidAlarms.Count; i++)
                 {
                     var alarm = raidAlarms[i];
