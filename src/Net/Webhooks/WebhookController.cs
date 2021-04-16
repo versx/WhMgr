@@ -375,9 +375,33 @@
                 serverConfig.Geofences.AddRange(geofences);
             }
         }
-        
+
+        private void LoadGeofencesOnChange()
+        {
+            _logger.Trace($"WebhookManager::LoadGeofencesOnChange");
+
+            var geofencesFolder = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), Strings.GeofenceFolder));
+            var fileWatcher = new FileWatcher(geofencesFolder);
+
+            fileWatcher.Changed += (sender, e) => {
+                try
+                {
+                    _logger.Debug("Reloading Geofences");
+
+                    LoadGeofences();
+                    LoadAlarms(); // Reload alarms after geofences too
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Error while reloading geofences:");
+                    _logger.Error(ex);
+                }
+            };
+            fileWatcher.Start();
+        }
+
         #endregion
-        
+
         #region Alarms Initialization
 
         private void LoadAlarms()
@@ -489,30 +513,6 @@
                 };
                 fileWatcher.Start();
             }
-        }
-
-        private void LoadGeofencesOnChange()
-        {
-            _logger.Trace($"WebhookManager::LoadGeofencesOnChange");
-
-            var geofencesFolder = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), Strings.GeofenceFolder));
-            var fileWatcher = new FileWatcher(geofencesFolder);
-            
-            fileWatcher.Changed += (sender, e) => {
-                try
-                {
-                    _logger.Debug("Reloading Geofences");
-                    
-                    LoadGeofences();
-                    LoadAlarms(); // Reload alarms after geofences too
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error("Error while reloading geofences:");
-                    _logger.Error(ex);
-                }
-            };
-            fileWatcher.Start();
         }
 
         #endregion
@@ -685,7 +685,7 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null && x.Filters.Raids.Enabled);
+                var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null && x.Filters.Raids.Enabled || x.Filters.Eggs.Enabled);
                 for (var i = 0; i < raidAlarms.Count; i++)
                 {
                     var alarm = raidAlarms[i];
@@ -811,7 +811,7 @@
                             _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: IgnoreMissing=true.");
                             continue;
                         }
-
+                        
                         OnRaidAlarmTriggered(raid, alarm, guildId);
                     }
                 }
