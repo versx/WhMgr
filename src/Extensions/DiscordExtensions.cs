@@ -508,6 +508,9 @@
                 case PokestopLureType.Magnetic:
                     color = server.DiscordEmbedColors.Pokestops.Lures.Magnetic;
                     break;
+                case PokestopLureType.Rainy:
+                    color = server.DiscordEmbedColors.Pokestops.Lures.Rainy;
+                    break;
                 default:
                     return DiscordColor.White;
             }

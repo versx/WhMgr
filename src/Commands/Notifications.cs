@@ -3233,6 +3233,8 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 return PokestopLureType.Mossy;
             else if (lureName.Contains("504") || lureName.Contains("mag"))
                 return PokestopLureType.Magnetic;
+            else if (lureName.Contains("505") || lureName.Contains("rai"))
+                return PokestopLureType.Rainy;
             return PokestopLureType.None;
         }
 
