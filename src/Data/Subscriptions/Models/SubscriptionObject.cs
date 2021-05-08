@@ -22,7 +22,7 @@
         [
             JsonProperty("enabled"),
             Alias("enabled"), 
-            Default(1)
+            Default(1),
         ]
         public bool Enabled { get; set; }
 
@@ -32,7 +32,7 @@
         [
             JsonProperty("pokemon"),
             Alias("pokemon"), 
-            Reference
+            Reference,
         ]
         public List<PokemonSubscription> Pokemon { get; set; }
 
@@ -42,7 +42,7 @@
         [
             JsonProperty("pvp"),
             Alias("pvp"),
-            Reference
+            Reference,
         ]
         public List<PvPSubscription> PvP { get; set; }
 
@@ -52,7 +52,8 @@
         [
             JsonProperty("raids"),
             Alias("raids"), 
-            Reference]
+            Reference,
+        ]
         public List<RaidSubscription> Raids { get; set; }
 
         /// <summary>
@@ -61,7 +62,7 @@
         [
             JsonProperty("gyms"),
             Alias("gyms"),
-            Reference
+            Reference,
         ]
         public List<GymSubscription> Gyms { get; set; }
 
@@ -71,7 +72,7 @@
         [
             JsonProperty("quests"),
             Alias("quests"),
-            Reference
+            Reference,
         ]
         public List<QuestSubscription> Quests { get; set; }
 
@@ -81,7 +82,7 @@
         [
             JsonProperty("invasions"),
             Alias("invasions"),
-            Reference
+            Reference,
         ]
         public List<InvasionSubscription> Invasions { get; set; }
 
@@ -92,14 +93,22 @@
         [
             JsonProperty("lures"),
             Alias("lures"),
-            Reference
+            Reference,
         ]
         public List<LureSubscription> Lures { get; set; }
 
         [
+            JsonProperty("locations"),
+            Alias("locations"),
+            Reference,
+        ]
+        public List<LocationSubscription> Locations { get; set; }
+
+        /*
+        [
             JsonProperty("distance"),
             Alias("distance"),
-            Default(0)
+            Default(0),
         ]
         public int DistanceM { get; set; }
 
@@ -109,7 +118,7 @@
         [
             JsonProperty("latitude"),
             Alias("latitude"),
-            Default(0)
+            Default(0),
         ]
         public double Latitude { get; set; }
 
@@ -119,9 +128,17 @@
         [
             JsonProperty("longitude"),
             Alias("longitude"), 
-            Default(0)
+            Default(0),
         ]
         public double Longitude { get; set; }
+        */
+
+        [
+            JsonProperty("location"),
+            Alias("location"),
+            Default(null),
+        ]
+        public string Location { get; set; }
 
         /// <summary>
         /// Gets or sets the icon style to use for the subscription notification
@@ -129,7 +146,7 @@
         [
             JsonProperty("icon_style"),
             Alias("icon_style"),
-            Default("Default")
+            Default("Default"),
         ]
         public string IconStyle { get; set; }
 
@@ -138,7 +155,7 @@
         /// </summary>
         [
             JsonProperty("phone_number"),
-            Alias("phone_number")
+            Alias("phone_number"),
         ]
         public string PhoneNumber { get; set; }
 
@@ -147,7 +164,7 @@
         /// </summary>
         [
             JsonIgnore,
-            Ignore
+            Ignore,
         ]
         public NotificationLimiter Limiter { get; }
 
@@ -157,7 +174,7 @@
         /// </summary>
         [
             JsonIgnore,
-            Ignore
+            Ignore,
         ]
         public bool RateLimitNotificationSent { get; set; }
 
@@ -174,10 +191,11 @@
             Quests = new List<QuestSubscription>();
             Invasions = new List<InvasionSubscription>();
             Lures = new List<LureSubscription>();
+            Locations = new List<LocationSubscription>();
             Limiter = new NotificationLimiter();
-            DistanceM = 0;
-            Latitude = 0;
-            Longitude = 0;
+            //DistanceM = 0;
+            //Latitude = 0;
+            //Longitude = 0;
             IconStyle = "Default";
             PhoneNumber = string.Empty;
         }

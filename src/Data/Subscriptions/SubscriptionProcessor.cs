@@ -188,7 +188,8 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                    var activeLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+                    var distanceMatches = activeLocation.DistanceM > 0 && activeLocation.DistanceM > new Coordinates(activeLocation.Latitude, activeLocation.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
                     var geofenceMatches = subscribedPokemon.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
@@ -328,7 +329,8 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                    var activeLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+                    var distanceMatches = activeLocation.DistanceM > 0 && activeLocation.DistanceM > new Coordinates(activeLocation.Latitude, activeLocation.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
                     var geofenceMatches = subscribedPokemon.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
@@ -444,7 +446,8 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
+                    var activeLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+                    var distanceMatches = activeLocation.DistanceM > 0 && activeLocation.DistanceM > new Coordinates(activeLocation.Latitude, activeLocation.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
                     var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
@@ -660,7 +663,8 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
+                    var activeLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+                    var distanceMatches = activeLocation.DistanceM > 0 && activeLocation.DistanceM > new Coordinates(activeLocation.Latitude, activeLocation.Longitude).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
                     var geofenceMatches = subQuest.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
@@ -777,7 +781,8 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
+                    var activeLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+                    var distanceMatches = activeLocation.DistanceM > 0 && activeLocation.DistanceM > new Coordinates(activeLocation.Latitude, activeLocation.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
                     var geofenceMatches = subInvasion.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
@@ -883,7 +888,8 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    var distanceMatches = user.DistanceM > 0 && user.DistanceM > new Coordinates(user.Latitude, user.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
+                    var activeLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+                    var distanceMatches = activeLocation.DistanceM > 0 && activeLocation.DistanceM > new Coordinates(activeLocation.Latitude, activeLocation.Longitude).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
                     var geofenceMatches = subLure.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip lure...

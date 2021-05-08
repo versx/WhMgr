@@ -132,6 +132,7 @@ namespace WhMgr.Commands
             Description("Set the distance and location you'd like to receive raid notifications.")
         ]
         public async Task SetDistanceAsync(CommandContext ctx,
+            [Description("Name of the location you want to create i.e. Home, Work, etc")] string locationName,
             [Description("Maximum distance in meters between the set coordinates.")] int distance,
             [Description("Coordinates in `34.00,-117.00` format."), RemainingText] string coordinates)
         {
@@ -154,11 +155,30 @@ namespace WhMgr.Commands
                 return;
             }
 
-            subscription.DistanceM = distance;
-            subscription.Latitude = lat;
-            subscription.Longitude = lng;
+            var location = subscription.Locations?.FirstOrDefault(x => string.Compare(x.Name, subscription.Location, true) == 0);
+            if (location == null)
+            {
+                location = new LocationSubscription
+                {
+                    SubscriptionId = subscription.Id,
+                    GuildId = subscription.GuildId,
+                    UserId = subscription.UserId,
+                    Name = locationName,
+                    DistanceM = distance,
+                    Latitude = lat,
+                    Longitude = lng,
+                };
+                subscription.Locations.Add(location);
+            }
+            else
+            {
+                location.DistanceM = distance;
+                location.Latitude = lat;
+                location.Longitude = lng;
+            }
             subscription.Save();
 
+            // TODO: Change response message to include new/modifed location name
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_DISTANCE_SET").FormatText(ctx.User.Username, distance, lat, lng));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -381,8 +401,9 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
-            if (areas.Count == 0 && subscription.DistanceM == 0)
+            if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
+                // TODO: Provide better response
                 await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
                 return;
             }
@@ -627,7 +648,7 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
-            if (areas.Count == 0 && subscription.DistanceM == 0)
+            if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
                 await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
                 return;
@@ -800,7 +821,7 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
-            if (areas.Count == 0 && subscription.DistanceM == 0)
+            if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
                 await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
                 return;
@@ -1066,7 +1087,7 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
-            if (areas.Count == 0 && subscription.DistanceM == 0)
+            if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
                 await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
                 return;
@@ -1323,7 +1344,7 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
-            if (areas.Count == 0 && subscription.DistanceM == 0)
+            if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
                 await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
                 return;
@@ -2898,13 +2919,14 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 return messages;
             feeds.Sort();
 
-            var locationLink = $"[{subscription.Latitude},{subscription.Longitude}]({string.Format(Strings.GoogleMaps, subscription.Latitude, subscription.Longitude)})";
+            var activeLocation = subscription.Locations?.FirstOrDefault(x => string.Compare(x.Name, subscription.Location, true) == 0);
+            var locationLink = $"[{activeLocation.Latitude},{activeLocation.Longitude}]({string.Format(Strings.GoogleMaps, activeLocation.Latitude, activeLocation.Longitude)})";
             var sb = new StringBuilder();
             sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ENABLED").FormatText(subscription.Enabled ? "Yes" : "No"));
             sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ICON_STYLE").FormatText(subscription.IconStyle));
-            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(subscription.DistanceM == 0 ?
+            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(activeLocation.DistanceM == 0 ?
                 Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET") :
-                Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_KM").FormatText(subscription.DistanceM.ToString("N0"), locationLink)));
+                Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_KM").FormatText(activeLocation.DistanceM.ToString("N0"), locationLink)));
             if (!string.IsNullOrEmpty(subscription.PhoneNumber))
             {
                 sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PHONE_NUMBER").FormatText(subscription.PhoneNumber));
