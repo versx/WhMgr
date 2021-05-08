@@ -709,7 +709,7 @@ namespace WhMgr.Data.Subscriptions
             if (encounters == null)
                 return;
 
-            var subscriptions = Manager.GetUserSubscriptionsByEncounterReward(encounters);
+            var subscriptions = Manager.GetUserSubscriptionsByEncounterReward(pokestop.Name, pokestop.GruntType, encounters);
             if (subscriptions == null)
             {
                 _logger.Warn($"Failed to get subscriptions from database table.");

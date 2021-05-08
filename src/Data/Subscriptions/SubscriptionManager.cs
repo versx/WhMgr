@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Timers;
 
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
     using ServiceStack.OrmLite;
 
     using WhMgr.Configuration;
@@ -183,12 +184,16 @@
         /// </summary>
         /// <param name="encounterRewards">Invasion encounter rewards</param>
         /// <returns>Returns list of user subscription objects</returns>
-        public List<SubscriptionObject> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
+        public List<SubscriptionObject> GetUserSubscriptionsByEncounterReward(string pokestopName, InvasionCharacter gruntType, List<int> encounterRewards)
         {
             return _subscriptions?
                 .Where(x => x.Enabled &&
                             x.Invasions != null &&
-                            x.Invasions.Exists(y => encounterRewards.Contains(y.RewardPokemonId))
+                            x.Invasions.Exists(y => 
+                                encounterRewards.Contains(y.RewardPokemonId) ||
+                                gruntType == y.InvasionType ||
+                                pokestopName.Contains(y.PokestopName) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
+                            )
                       )
                 .ToList();
         }
