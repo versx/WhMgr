@@ -32,7 +32,7 @@ ALTER TABLE `gyms`
 ADD COLUMN `distance` INT(11) UNSIGNED DEFAULT 0;
 
 CREATE TABLE `locations` (
-    `id` INT(11) UNSIGNED NOT NULL,
+    `id` INT(11) UNSIGNED NOT NULL AUTO INCREMENT,
     `subscription_id` int(11) NOT NULL DEFAULT 0,
     `guild_id` bigint(20) DEFAULT NULL,
     `user_id` bigint(20) DEFAULT NULL,
