@@ -11,28 +11,28 @@ ALTER TABLE `subscriptions`
 ADD COLUMN `location` varchar(32) DEFAULT NULL;
 
 ALTER TABLE `pokemon`
-ADD COLUMN `distance` INT(11) UNSIGNED DEFAULT 0;
+ADD COLUMN `location` varchar(32) DEFAULT NULL;
 
 ALTER TABLE `pvp`
-ADD COLUMN `distance` INT(11) UNSIGNED DEFAULT 0;
+ADD COLUMN `location` varchar(32) DEFAULT NULL;
 
 ALTER TABLE `raids`
-ADD COLUMN `distance` INT(11) UNSIGNED DEFAULT 0;
+ADD COLUMN `location` varchar(32) DEFAULT NULL;
 
 ALTER TABLE `quests`
-ADD COLUMN `distance` INT(11) UNSIGNED DEFAULT 0;
+ADD COLUMN `location` varchar(32) DEFAULT NULL;
 
 ALTER TABLE `invasions`
-ADD COLUMN `distance` INT(11) UNSIGNED DEFAULT 0;
+ADD COLUMN `location` varchar(32) DEFAULT NULL;
 
 ALTER TABLE `lures`
-ADD COLUMN `distance` INT(11) UNSIGNED DEFAULT 0;
+ADD COLUMN `location` varchar(32) DEFAULT NULL;
 
 ALTER TABLE `gyms`
-ADD COLUMN `distance` INT(11) UNSIGNED DEFAULT 0;
+ADD COLUMN `location` varchar(32) DEFAULT NULL;
 
 CREATE TABLE `locations` (
-    `id` INT(11) UNSIGNED NOT NULL AUTO INCREMENT,
+    `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `subscription_id` int(11) NOT NULL DEFAULT 0,
     `guild_id` bigint(20) DEFAULT NULL,
     `user_id` bigint(20) DEFAULT NULL,
