@@ -33,14 +33,14 @@ ADD COLUMN `distance` INT(11) UNSIGNED DEFAULT 0;
 
 CREATE TABLE `locations` (
     `id` INT(11) UNSIGNED NOT NULL,
-	`subscription_id` int(11) NOT NULL DEFAULT 0,
+    `subscription_id` int(11) NOT NULL DEFAULT 0,
     `guild_id` bigint(20) DEFAULT NULL,
     `user_id` bigint(20) DEFAULT NULL,
-	`name` varchar(32) PRIMARY KEY,
+    `name` varchar(32) NOT NULL,
     `distance` int(11) DEFAULT 0,
     `latitude` double DEFAULT 0,
     `longitude` double DEFAULT 0,
-	PRIMARY KEY (`id`),
+    PRIMARY KEY (`id`),
     KEY `FK_location_subscriptions_subscription_id` (`subscription_id`),
     CONSTRAINT `FK_location_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
 );
