@@ -184,7 +184,7 @@
         /// </summary>
         /// <param name="encounterRewards">Invasion encounter rewards</param>
         /// <returns>Returns list of user subscription objects</returns>
-        public List<SubscriptionObject> GetUserSubscriptionsByEncounterReward(string pokestopName, InvasionCharacter gruntType, List<int> encounterRewards)
+        public List<SubscriptionObject> GetUserSubscriptionsByInvasion(string pokestopName, InvasionCharacter gruntType, List<int> encounterRewards)
         {
             return _subscriptions?
                 .Where(x => x.Enabled &&
@@ -192,7 +192,7 @@
                             x.Invasions.Exists(y => 
                                 encounterRewards.Contains(y.RewardPokemonId) ||
                                 gruntType == y.InvasionType ||
-                                pokestopName.Contains(y.PokestopName) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
+                                (y.PokestopName != null && (pokestopName.Contains(y.PokestopName) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
                             )
                       )
                 .ToList();

@@ -10,6 +10,7 @@ namespace WhMgr.Data.Subscriptions
 
     using DSharpPlus;
     using DSharpPlus.Entities;
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
     using ServiceStack.OrmLite;
 
     using WhMgr.Alarms.Filters;
@@ -709,7 +710,7 @@ namespace WhMgr.Data.Subscriptions
             if (encounters == null)
                 return;
 
-            var subscriptions = Manager.GetUserSubscriptionsByEncounterReward(pokestop.Name, pokestop.GruntType, encounters);
+            var subscriptions = Manager.GetUserSubscriptionsByInvasion(pokestop?.Name, pokestop?.GruntType ?? InvasionCharacter.CharacterUnset, encounters);
             if (subscriptions == null)
             {
                 _logger.Warn($"Failed to get subscriptions from database table.");
