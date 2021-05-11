@@ -2859,7 +2859,10 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             }
 
             var cmd = ctx.Message.Content.TrimStart('.', ' ');
-            subscription.Enabled = cmd.ToLower().Contains("enable");
+            var isEnableCommand = cmd.ToLower().Contains("enable");
+            subscription.Status = isEnableCommand
+                ? NotificationStatusType.All
+                : NotificationStatusType.None;
             subscription.Save();
 
             await ctx.TriggerTypingAsync();
@@ -2922,7 +2925,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var activeLocation = subscription.Locations?.FirstOrDefault(x => string.Compare(x.Name, subscription.Location, true) == 0);
             var locationLink = $"[{activeLocation.Latitude},{activeLocation.Longitude}]({string.Format(Strings.GoogleMaps, activeLocation.Latitude, activeLocation.Longitude)})";
             var sb = new StringBuilder();
-            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ENABLED").FormatText(subscription.Enabled ? "Yes" : "No"));
+            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ENABLED").FormatText(subscription.Status.ToString()));
             sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ICON_STYLE").FormatText(subscription.IconStyle));
             sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(activeLocation.DistanceM == 0 ?
                 Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET") :

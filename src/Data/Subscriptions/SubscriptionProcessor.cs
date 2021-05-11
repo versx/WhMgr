@@ -120,7 +120,7 @@ namespace WhMgr.Data.Subscriptions
                     if (user == null)
                         continue;
 
-                    if (!user.Enabled)
+                    if (!user.IsEnabled(NotificationStatusType.Pokemon))
                         continue;
 
                     if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
@@ -262,7 +262,7 @@ namespace WhMgr.Data.Subscriptions
                     if (user == null)
                         continue;
 
-                    if (!user.Enabled)
+                    if (!user.IsEnabled(NotificationStatusType.PvP))
                         continue;
 
                     if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
@@ -401,7 +401,7 @@ namespace WhMgr.Data.Subscriptions
                     if (user == null)
                         continue;
 
-                    if (!user.Enabled)
+                    if (!user.IsEnabled(NotificationStatusType.Raids))
                         continue;
 
                     if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
@@ -518,7 +518,7 @@ namespace WhMgr.Data.Subscriptions
                     if (user == null)
                         continue;
 
-                    if (!user.Enabled)
+                    if (!user.IsEnabled(NotificationStatusType.Gyms))
                         continue;
 
                     if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
@@ -636,7 +636,7 @@ namespace WhMgr.Data.Subscriptions
                     if (user == null)
                         continue;
 
-                    if (!user.Enabled)
+                    if (!user.IsEnabled(NotificationStatusType.Quests))
                         continue;
 
                     if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
@@ -757,7 +757,7 @@ namespace WhMgr.Data.Subscriptions
                     if (user == null)
                         continue;
 
-                    if (!user.Enabled)
+                    if (!user.IsEnabled(NotificationStatusType.Invasions))
                         continue;
 
                     if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
@@ -866,7 +866,7 @@ namespace WhMgr.Data.Subscriptions
                     if (user == null)
                         continue;
 
-                    if (!user.Enabled)
+                    if (!user.IsEnabled(NotificationStatusType.Lures))
                         continue;
 
                     if (!_whConfig.Instance.Servers.ContainsKey(user.GuildId))
@@ -1000,7 +1000,7 @@ namespace WhMgr.Data.Subscriptions
 
                             await _servers[item.Subscription.GuildId].SendDirectMessage(item.Member, string.Empty, eb.Build());
                             item.Subscription.RateLimitNotificationSent = true;
-                            item.Subscription.Enabled = false;
+                            item.Subscription.Status = NotificationStatusType.None;
                             if (!item.Subscription.Update())
                             {
                                 _logger.Error($"Failed to disable {item.Subscription.UserId}'s subscriptions");

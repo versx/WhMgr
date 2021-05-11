@@ -44,3 +44,9 @@ CREATE TABLE `locations` (
     KEY `FK_location_subscriptions_subscription_id` (`subscription_id`),
     CONSTRAINT `FK_location_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
 );
+
+ALTER TABLE `subscriptions`
+DROP COLUMN `enabled`;
+
+ALTER TABLE `subscriptions`
+ADD COLUMN `status` smallint(5) unsigned DEFAULT 0;

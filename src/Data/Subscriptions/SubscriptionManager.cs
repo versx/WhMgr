@@ -117,7 +117,7 @@
         public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(int pokeId)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Pokemon) &&
                             x.Pokemon != null &&
                             x.Pokemon.Exists(y => y.PokemonId == pokeId)
                       )
@@ -132,7 +132,7 @@
         public List<SubscriptionObject> GetUserSubscriptionsByPvPPokemonId(int pokeId)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.PvP) &&
                             x.PvP != null &&
                             x.PvP.Exists(y => y.PokemonId == pokeId)
                       )
@@ -147,7 +147,7 @@
         public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Raids) &&
                             x.Raids != null &&
                             x.Raids.Exists(y => y.PokemonId == pokeId)
                       )
@@ -157,7 +157,7 @@
         public List<SubscriptionObject> GetUserSubscriptionsByGymName(string name)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Gyms) &&
                             x.Gyms != null &&
                             x.Gyms.Exists(y => string.Compare(y.Name, name, true) == 0 || y.Name.ToLower().Contains(name.ToLower()))
                        )
@@ -172,7 +172,7 @@
         public List<SubscriptionObject> GetUserSubscriptionsByQuestReward(string reward)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Quests) &&
                             x.Quests != null &&
                             x.Quests.Exists(y => reward.Contains(y.RewardKeyword))
                       )
@@ -187,7 +187,7 @@
         public List<SubscriptionObject> GetUserSubscriptionsByEncounterReward(string pokestopName, InvasionCharacter gruntType, List<int> encounterRewards)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Invasions) &&
                             x.Invasions != null &&
                             x.Invasions.Exists(y => 
                                 encounterRewards.Contains(y.RewardPokemonId) ||
@@ -206,7 +206,7 @@
         public List<SubscriptionObject> GetUserSubscriptionsByLureType(PokestopLureType lureType)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Lures) &&
                             x.Lures != null &&
                             x.Lures.Exists(y => lureType == y.LureType))
                 .ToList();
@@ -228,7 +228,7 @@
                 var conn = GetConnection();
                 var where = conn?
                     .From<SubscriptionObject>()?
-                    .Where(x => x.Enabled);
+                    .Where(x => x.Status != NotificationStatusType.None);
                 var results = conn?
                     .LoadSelect(where)?
                     .ToList();

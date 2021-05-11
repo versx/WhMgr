@@ -6,6 +6,20 @@
     using Newtonsoft.Json;
     using ServiceStack.DataAnnotations;
 
+    [Flags]
+    public enum NotificationStatusType : byte
+    {
+        None = 0x0,
+        Pokemon = 0x1,
+        PvP = 0x2,
+        Raids = 0x4,
+        Quests = 0x8,
+        Invasions = 0x10,
+        Lures = 0x20,
+        Gyms = 0x40,
+        All = Pokemon | PvP | Raids | Quests | Invasions | Lures | Gyms,
+    }
+
     /// <summary>
     /// User subscription class
     /// </summary>
@@ -24,7 +38,22 @@
             Alias("enabled"), 
             Default(1),
         ]
-        public bool Enabled { get; set; }
+        public NotificationStatusType Status { get; set; }
+
+        public bool IsEnabled(NotificationStatusType status)
+        {
+            return (Status & status) == status;
+        }
+
+        public void EnableNotificationType(NotificationStatusType status)
+        {
+            Status |= status;
+        }
+
+        public void DisableNotificationType(NotificationStatusType status)
+        {
+            Status &= (~status);
+        }
 
         /// <summary>
         /// Gets or sets the Pokemon subscriptions
@@ -104,35 +133,6 @@
         ]
         public List<LocationSubscription> Locations { get; set; }
 
-        /*
-        [
-            JsonProperty("distance"),
-            Alias("distance"),
-            Default(0),
-        ]
-        public int DistanceM { get; set; }
-
-        /// <summary>
-        /// Gets or sets the latitude to use with distance checks
-        /// </summary>
-        [
-            JsonProperty("latitude"),
-            Alias("latitude"),
-            Default(0),
-        ]
-        public double Latitude { get; set; }
-
-        /// <summary>
-        /// Gets or sets the longitude to use with distance checks
-        /// </summary>
-        [
-            JsonProperty("longitude"),
-            Alias("longitude"), 
-            Default(0),
-        ]
-        public double Longitude { get; set; }
-        */
-
         [
             JsonProperty("location"),
             Alias("location"),
@@ -183,7 +183,7 @@
         /// </summary>
         public SubscriptionObject()
         {
-            Enabled = true;
+            Status = NotificationStatusType.None;
             Pokemon = new List<PokemonSubscription>();
             PvP = new List<PvPSubscription>();
             Raids = new List<RaidSubscription>();
@@ -193,9 +193,6 @@
             Lures = new List<LureSubscription>();
             Locations = new List<LocationSubscription>();
             Limiter = new NotificationLimiter();
-            //DistanceM = 0;
-            //Latitude = 0;
-            //Longitude = 0;
             IconStyle = "Default";
             PhoneNumber = string.Empty;
         }
