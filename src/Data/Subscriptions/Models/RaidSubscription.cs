@@ -8,35 +8,40 @@
 
     [
         JsonObject("raids"),
-        Alias("raids")
+        Alias("raids"),
     ]
     public class RaidSubscription : SubscriptionItem
     {
         [
             Alias("subscription_id"),
-            ForeignKey(typeof(SubscriptionObject))
+            ForeignKey(typeof(SubscriptionObject)),
         ]
         public int SubscriptionId { get; set; }
 
         [
             JsonProperty("pokemon_id"),
             Alias("pokemon_id"), 
-            Required
+            Required,
         ]
         public int PokemonId { get; set; }
 
         [
             JsonProperty("form"),
-            Alias("form")
+            Alias("form"),
         ]
         public string Form { get; set; }
 
         [
             JsonProperty("city"),
-            Alias("city"), 
-            Required
+            Alias("city"),
         ]
         public List<string> Areas { get; set; }
+
+        [
+            JsonProperty("location"),
+            Alias("location"),
+        ]
+        public string Location { get; set; }
 
         public RaidSubscription()
         {

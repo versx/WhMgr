@@ -9,13 +9,13 @@
 
     [
         JsonObject("invasions"),
-        Alias("invasions")
+        Alias("invasions"),
     ]
     public class InvasionSubscription : SubscriptionItem
     {
         [
             Alias("subscription_id"),
-            ForeignKey(typeof(SubscriptionObject))
+            ForeignKey(typeof(SubscriptionObject)),
         ]
         public int SubscriptionId { get; set; }
 
@@ -34,16 +34,20 @@
         [
             JsonProperty("reward_pokemon_id"),
             Alias("reward_pokemon_id"),
-            //Required
         ]
         public int RewardPokemonId { get; set; }
 
         [
             JsonProperty("city"),
-            Alias("city"), 
-            Required
+            Alias("city"),
         ]
         public List<string> Areas { get; set; }
+
+        [
+            JsonProperty("location"),
+            Alias("location"),
+        ]
+        public string Location { get; set; }
 
         public InvasionSubscription()
         {
