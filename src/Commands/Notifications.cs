@@ -463,7 +463,7 @@ namespace WhMgr.Commands
                     (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && hasStatsSet) ||
                     // TODO: Check against cities
                     //(string.Compare(subPkmn.City, cities, true) != 0 && !ContainsCity(subPkmn.City, cities)))
-                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
+                    !SubscriptionAreas.IsAreasEqual(subPkmn.Areas, areas))
                 {
                     subPkmn.Form = form;
                     subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : realIV;
@@ -1384,7 +1384,7 @@ namespace WhMgr.Commands
                 //Exists, check if anything changed.
                 if (minimumRank != subPkmn.MinimumRank ||
                     minimumPercent != subPkmn.MinimumPercent ||
-                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
+                    !SubscriptionAreas.IsAreasEqual(subPkmn.Areas, areas))
                 {
                     subPkmn.MinimumRank = minimumRank;
                     subPkmn.MinimumPercent = minimumPercent;
@@ -2055,7 +2055,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     maxLvl != subPkmn.MaximumLevel ||
                     gender != subPkmn.Gender ||
                     (!subPkmn.IVList.Contains($"{ivResult.Attack}/{ivResult.Defense}/{ivResult.Stamina}") && hasStatsSet) ||
-                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
+                    !SubscriptionAreas.IsAreasEqual(subPkmn.Areas, areas))
                 {
                     subPkmn.Form = form;
                     subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : ivResult.IV;
@@ -2125,7 +2125,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 //Exists, check if anything changed.
                 if (minRank != subPkmn.MinimumRank ||
                     minPercent != subPkmn.MinimumPercent ||
-                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
+                    !SubscriptionAreas.IsAreasEqual(subPkmn.Areas, areas))
                 {
                     subPkmn.MinimumRank = minRank;
                     subPkmn.MinimumPercent = minPercent;
@@ -3056,6 +3056,8 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             return messages;
         }
 
+        #region Get Subscription Names
+
         private List<string> GetPvPSubscriptionNames(ulong guildId, ulong userId)
         {
             var list = new List<string>();
@@ -3191,6 +3193,8 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             return list;
         }
 
+        #endregion
+
         private DiscordEmbedBuilder BuildExpirationMessage(ulong guildId, DiscordUser user)
         {
             var customerData = _dep.Stripe.GetCustomerData(guildId, user.Id);
@@ -3273,14 +3277,22 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
 
     internal class SubscriptionAreas
     {
+        /// <summary>
+        /// Get parsed areas from command delimited string value
+        /// </summary>
+        /// <param name="server">Discord server to get valid areas from</param>
+        /// <param name="city">Comma delimited string value of areas</param>
+        /// <returns>Returns a <c>List<string></c> of valid areas from provided string value</returns>
         public static List<string> GetAreas(DiscordServerConfig server, string city)
         {
             if (string.IsNullOrEmpty(city))
                 return new List<string>();
 
-            // Parse user defined cities
+            // Get list of valid cities for Discord server
             var validCities = server.Geofences.Select(g => g.Name).ToList();
-            var cities = /*string.IsNullOrEmpty(city) ||*/ string.Compare(city, Strings.All, true) == 0
+            // If `all` is explicitly specified then include all valid cities,
+            // otherwise parse comma separated `city` parameter
+            var cities = string.Compare(city, Strings.All, true) == 0
                 ? validCities
                 : city.RemoveSpaces();
             var validAreas = validCities.Select(x => x.ToLower());
@@ -3290,17 +3302,27 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 .ToList();
         }
 
-        public static bool ContainsCity(List<string> oldCities, List<string> newCities)
+        /// <summary>
+        /// Check if previously subscribed areas differ from newly subscribed areas or not
+        /// </summary>
+        /// <param name="oldCities">Previous areas to compare</param>
+        /// <param name="newCities">New areas to compare</param>
+        /// <returns>Returns <c>true</c> if areas are equal, otherwise returns <c>false</c>.</returns>
+        public static bool IsAreasEqual(List<string> oldCities, List<string> newCities)
         {
             var oldAreas = oldCities.Select(x => x.ToLower());
             var newAreas = newCities.Select(x => x.ToLower());
+            // Check if old subscribed areas and new areas are the same
             foreach (var newArea in newAreas)
             {
+                // If old subscribed areas contains new area, skip
                 if (oldAreas.Contains(newArea))
                     continue;
 
+                // `oldAreas` differs from `newAreas`
                 return false;
             }
+            // Subscribed areas are equal
             return true;
         }
     }
