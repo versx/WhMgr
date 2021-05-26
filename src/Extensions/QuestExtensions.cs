@@ -138,7 +138,9 @@
                     var itemName = Translator.Instance.GetItem(info.Item);
                     return Translator.Instance.Translate(rewardKey, info.Amount, itemName);
                 case QuestRewardType.PokemonEncounter:
-                    return (info.Shiny ? $"**SHINY** " : "") + Translator.Instance.GetPokemonName(info.Ditto ? 132 : info.PokemonId);
+                    var formName = info.FormId > 0 ? Translator.Instance.GetFormName(info.FormId) : null;
+                    var pkmnName = (info.Shiny ? $"**SHINY** " : "") + Translator.Instance.GetPokemonName(info.Ditto ? 132 : info.PokemonId);
+                    return $"{pkmnName} {formName}";
                 case QuestRewardType.Stardust:
                     return Translator.Instance.Translate(rewardKey, info.Amount);
                 case QuestRewardType.MegaResource:
