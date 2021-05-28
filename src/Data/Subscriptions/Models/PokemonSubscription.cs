@@ -8,7 +8,7 @@
 
     [
         JsonObject("pokemon"),
-        Alias("pokemon")
+        Alias("pokemon"),
     ]
     public class PokemonSubscription : SubscriptionItem
     {
@@ -16,7 +16,7 @@
 
         [
             Alias("subscription_id"),
-            ForeignKey(typeof(SubscriptionObject))
+            ForeignKey(typeof(SubscriptionObject)),
         ]
         public int SubscriptionId { get; set; }
 
@@ -29,51 +29,57 @@
 
         [
             JsonProperty("form"),
-            Alias("form")
+            Alias("form"),
         ]
         public string Form { get; set; }
 
         [
             JsonProperty("min_cp"),
-            Alias("min_cp")
+            Alias("min_cp"),
         ]
         public int MinimumCP { get; set; }
 
         [
             JsonProperty("min_iv"),
-            Alias("min_iv")
+            Alias("min_iv"),
         ]
         public int MinimumIV { get; set; }
 
         [
             JsonProperty("iv_list"),
-            Alias("iv_list")
+            Alias("iv_list"),
         ]
         public List<string> IVList { get; set; }
 
         [
             JsonProperty("min_lvl"),
-            Alias("min_lvl")
+            Alias("min_lvl"),
         ]
         public int MinimumLevel { get; set; }
 
         [
             JsonProperty("max_lvl"),
-            Alias("max_lvl")
+            Alias("max_lvl"),
         ]
         public int MaximumLevel { get; set; }
 
         [
             JsonProperty("gender"),
-            Alias("gender")
+            Alias("gender"),
         ]
         public string Gender { get; set; }
 
         [
             JsonProperty("city"),
-            Alias("city")
+            Alias("city"),
         ]
         public List<string> Areas { get; set; }
+
+        [
+            JsonProperty("location"),
+            Alias("location"),
+        ]
+        public string Location { get; set; }
 
         [
             JsonIgnore,

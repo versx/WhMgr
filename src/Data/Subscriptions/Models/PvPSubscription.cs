@@ -8,7 +8,7 @@
 
     [
         JsonObject("pvp"),
-        Alias("pvp")
+        Alias("pvp"),
     ]
     public class PvPSubscription : SubscriptionItem
     {
@@ -55,9 +55,14 @@
         [
             JsonProperty("city"),
             Alias("city"),
-            Default("all")
         ]
         public List<string> Areas { get; set; }
+
+        [
+            JsonProperty("location"),
+            Alias("location"),
+        ]
+        public string Location { get; set; }
 
         public PvPSubscription()
         {

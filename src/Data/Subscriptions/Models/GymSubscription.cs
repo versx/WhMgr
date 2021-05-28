@@ -19,7 +19,7 @@
         [
             JsonProperty("name"),
             Alias("name"),
-            Unique,
+            //Unique,
         ]
         public string Name { get; set; }
 
@@ -40,6 +40,12 @@
             Alias("pokemon_ids"),
         ]
         public List<uint> PokemonIDs { get; set; }
+
+        [
+            JsonProperty("location"),
+            Alias("location"),
+        ]
+        public string Location { get; set; }
 
         public GymSubscription()
         {
