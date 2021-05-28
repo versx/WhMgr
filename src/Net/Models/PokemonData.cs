@@ -300,13 +300,27 @@
             JsonIgnore,
             Ignore
         ]
-        public bool MatchesGreatLeague => GreatLeague?.Exists(x => x.Rank <= MaximumRankPVP && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP) ?? false;
+        public bool MatchesGreatLeague => GreatLeague?.Exists(x =>
+            // Check if stat rank is less than or equal to the max great league rank stat desired
+            x.Rank <= MaximumRankPVP &&
+            // Check if stat CP is greater than or equal to min great league CP
+            x.CP >= Strings.MinimumGreatLeagueCP &&
+            // Check if stat CP is less than or equal to max great league CP
+            x.CP <= Strings.MaximumGreatLeagueCP
+        ) ?? false;
 
         [
             JsonIgnore,
             Ignore
         ]
-        public bool MatchesUltraLeague => UltraLeague?.Exists(x => x.Rank <= MaximumRankPVP && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP) ?? false;
+        public bool MatchesUltraLeague => UltraLeague?.Exists(x =>
+            // Check if stat rank is less than or equal to the max ultra league rank stat desired
+            x.Rank <= MaximumRankPVP &&
+            // Check if stat CP is greater than or equal to min ultra league CP
+            x.CP >= Strings.MinimumUltraLeagueCP &&
+            // Check if stat CP is less than or equal to max ultra league CP
+            x.CP <= Strings.MaximumUltraLeagueCP
+        ) ?? false;
 
 
         [
