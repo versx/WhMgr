@@ -34,8 +34,8 @@
         /// subscriptions are enabled or not
         /// </summary>
         [
-            JsonProperty("enabled"),
-            Alias("enabled"), 
+            JsonProperty("status"),
+            Alias("status"), 
             Default(1),
         ]
         public NotificationStatusType Status { get; set; }
