@@ -74,6 +74,7 @@
         [
             JsonProperty("size"),
             Alias("size"),
+            Default(0),
         ]
         public PokemonSize Size { get; set; }
 
