@@ -2,64 +2,65 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Text.Json.Serialization;
 
-    using Newtonsoft.Json;
     using ServiceStack.DataAnnotations;
 
     [
-        JsonObject("pvp"),
+        //JsonPropertyName("pvp"),
         Alias("pvp"),
     ]
     public class PvPSubscription : SubscriptionItem
     {
         [
+            JsonPropertyName("subscription_id"),
             Alias("subscription_id"),
             ForeignKey(typeof(SubscriptionObject))
         ]
         public int SubscriptionId { get; set; }
 
         [
-            JsonProperty("pokemon_id"),
+            JsonPropertyName("pokemon_id"),
             Alias("pokemon_id"),
             Required
         ]
         public int PokemonId { get; set; }
 
         [
-            JsonProperty("form"),
+            JsonPropertyName("form"),
             Alias("form")
         ]
         public string Form { get; set; }
 
         [
-            JsonProperty("league"),
+            JsonPropertyName("league"),
             Alias("league"),
             Required
         ]
         public PvPLeague League { get; set; }
 
         [
-            JsonProperty("min_rank"),
+            JsonPropertyName("min_rank"),
             Alias("min_rank"),
             Default(25)
         ]
         public int MinimumRank { get; set; }
 
         [
-            JsonProperty("min_percent"),
+            JsonPropertyName("min_percent"),
             Alias("min_percent"),
             Default(90.0)
         ]
         public double MinimumPercent { get; set; }
 
         [
-            JsonProperty("city"),
+            JsonPropertyName("city"),
             Alias("city"),
         ]
         public List<string> Areas { get; set; }
 
         [
-            JsonProperty("location"),
+            JsonPropertyName("location"),
             Alias("location"),
         ]
         public string Location { get; set; }

@@ -2,37 +2,38 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Text.Json.Serialization;
 
-    using Newtonsoft.Json;
     using ServiceStack.DataAnnotations;
 
     [
-        JsonObject("quests"),
+        //JsonPropertyName("quests"),
         Alias("quests"),
     ]
     public class QuestSubscription : SubscriptionItem
     {
         [
+            JsonPropertyName("subscription_id"),
             Alias("subscription_id"), 
             ForeignKey(typeof(SubscriptionObject)),
         ]
         public int SubscriptionId { get; set; }
 
         [
-            JsonProperty("reward"),
+            JsonPropertyName("reward"),
             Alias("reward"), 
             Required,
         ]
         public string RewardKeyword { get; set; }
 
         [
-            JsonProperty("city"),
+            JsonPropertyName("city"),
             Alias("city"), 
         ]
         public List<string> Areas { get; set; }
 
         [
-            JsonProperty("location"),
+            JsonPropertyName("location"),
             Alias("location"),
         ]
         public string Location { get; set; }

@@ -84,7 +84,7 @@ namespace WhMgr.Data.Subscriptions
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -228,7 +228,7 @@ namespace WhMgr.Data.Subscriptions
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -371,7 +371,7 @@ namespace WhMgr.Data.Subscriptions
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -488,7 +488,7 @@ namespace WhMgr.Data.Subscriptions
             //    return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -606,7 +606,7 @@ namespace WhMgr.Data.Subscriptions
             var questName = quest.GetQuestMessage();
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -717,7 +717,7 @@ namespace WhMgr.Data.Subscriptions
         public async Task ProcessInvasionSubscription(PokestopData pokestop)
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -837,7 +837,7 @@ namespace WhMgr.Data.Subscriptions
         public async Task ProcessLureSubscription(PokestopData pokestop)
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -1049,13 +1049,13 @@ namespace WhMgr.Data.Subscriptions
             { IsBackground = true }.Start();
         }
 
-        private bool HasRole(DiscordMember member, List<ulong> roleIds)
+        private static bool HasRole(DiscordMember member, List<ulong> roleIds)
         {
             var memberRoles = member.Roles.Select(x => x.Id);
             return roleIds.Any(x => memberRoles.Contains(x));
         }
 
-        private bool IsUltraRare(TwilioConfig twilo, PokemonData pkmn)
+        private static bool IsUltraRare(TwilioConfig twilo, PokemonData pkmn)
         {
             // If no Pokemon are set, do not send text messages
             if (twilo.PokemonIds.Count == 0)

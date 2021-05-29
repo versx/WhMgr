@@ -2429,7 +2429,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
-        private async Task RemovePokemonSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
+        private static async Task RemovePokemonSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
         {
             var error = false;
             foreach (var (pokemonId, form) in validation.Valid)

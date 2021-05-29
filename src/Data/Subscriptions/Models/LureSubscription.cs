@@ -2,40 +2,41 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Text.Json.Serialization;
 
-    using Newtonsoft.Json;
     using ServiceStack.DataAnnotations;
 
     using WhMgr.Net.Models;
 
     [
-        JsonObject("lures"),
+        //JsonPropertyName("lures"),
         Alias("lures"),
     ]
     public class LureSubscription : SubscriptionItem
     {
         [
+            JsonPropertyName("subscription_id"),
             Alias("subscription_id"),
             ForeignKey(typeof(SubscriptionObject)),
         ]
         public int SubscriptionId { get; set; }
 
         [
-            JsonProperty("lure_type"),
+            JsonPropertyName("lure_type"),
             Alias("lure_type"),
             Required
         ]
         public PokestopLureType LureType { get; set; }
 
         [
-            JsonProperty("city"),
+            JsonPropertyName("city"),
             Alias("city"),
             Required
         ]
         public List<string> Areas { get; set; }
 
         [
-            JsonProperty("location"),
+            JsonPropertyName("location"),
             Alias("location"),
         ]
         public string Location { get; set; }
