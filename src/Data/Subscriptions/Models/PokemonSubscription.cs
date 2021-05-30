@@ -72,11 +72,17 @@
         public string Gender { get; set; }
 
         [
+            JsonIgnore,
+            Ignore,
+        ]
+        public PokemonSize Size => (PokemonSize)_Size;
+
+        [
             JsonProperty("size"),
             Alias("size"),
-            Default(0),
+            Default((uint)PokemonSize.All),
         ]
-        public PokemonSize Size { get; set; }
+        public uint _Size { get; set; }
 
         [
             JsonProperty("city"),
@@ -107,7 +113,7 @@
             MinimumLevel = 0;
             MaximumLevel = 35;
             Gender = "*";
-            Size = PokemonSize.All;
+            _Size = (uint)PokemonSize.All;
             Form = null;
             Areas = new List<string>();
             IVList = new List<string>();
