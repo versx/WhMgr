@@ -625,7 +625,7 @@ namespace WhMgr.Data.Subscriptions
                 return geofence;
             }
 
-            var subscriptions = Manager.GetUserSubscriptionsByQuestReward(rewardKeyword);
+            var subscriptions = Manager.GetUserSubscriptionsByQuest(quest.PokestopName, rewardKeyword);
             if (subscriptions == null)
             {
                 _logger.Warn($"Failed to get subscriptions from database table.");

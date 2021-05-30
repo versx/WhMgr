@@ -169,12 +169,15 @@
         /// </summary>
         /// <param name="reward">Ques reward keyword</param>
         /// <returns>Returns list of user subscription objects</returns>
-        public List<SubscriptionObject> GetUserSubscriptionsByQuestReward(string reward)
+        public List<SubscriptionObject> GetUserSubscriptionsByQuest(string pokestopName, string reward)
         {
             return _subscriptions?
                 .Where(x => x.IsEnabled(NotificationStatusType.Quests) &&
                             x.Quests != null &&
-                            x.Quests.Exists(y => reward.Contains(y.RewardKeyword))
+                            x.Quests.Exists(y =>
+                                reward.Contains(y.RewardKeyword) ||
+                                (y.PokestopName != null && (pokestopName.Contains(y.PokestopName) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
+                            )
                       )
                 .ToList();
         }
