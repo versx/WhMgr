@@ -84,7 +84,7 @@ namespace WhMgr.Data.Subscriptions
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -228,7 +228,7 @@ namespace WhMgr.Data.Subscriptions
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -334,8 +334,8 @@ namespace WhMgr.Data.Subscriptions
 
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                     var pokemonLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subscribedPokemon.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation.DistanceM > 0 && globalLocation.DistanceM > new Coordinates(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                    var invasionDistanceMatches = pokemonLocation.DistanceM > 0 && pokemonLocation.DistanceM > new Coordinates(pokemonLocation.Latitude, pokemonLocation.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinates(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                    var invasionDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation.Latitude, pokemonLocation.Longitude).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
                     var geofenceMatches = subscribedPokemon.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
@@ -371,7 +371,7 @@ namespace WhMgr.Data.Subscriptions
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -453,8 +453,8 @@ namespace WhMgr.Data.Subscriptions
 
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                     var pokemonLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subPkmn.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation.DistanceM > 0 && globalLocation.DistanceM > new Coordinates(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
-                    var invasionDistanceMatches = pokemonLocation.DistanceM > 0 && pokemonLocation.DistanceM > new Coordinates(pokemonLocation.Latitude, pokemonLocation.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
+                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinates(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
+                    var invasionDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation.Latitude, pokemonLocation.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
                     var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Raid Pokemon...
@@ -488,7 +488,7 @@ namespace WhMgr.Data.Subscriptions
             //    return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -606,7 +606,7 @@ namespace WhMgr.Data.Subscriptions
             var questName = quest.GetQuestMessage();
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -717,7 +717,7 @@ namespace WhMgr.Data.Subscriptions
         public async Task ProcessInvasionSubscription(PokestopData pokestop)
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -837,7 +837,7 @@ namespace WhMgr.Data.Subscriptions
         public async Task ProcessLureSubscription(PokestopData pokestop)
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
 
             GeofenceItem GetGeofence(ulong guildId)
             {
@@ -999,7 +999,7 @@ namespace WhMgr.Data.Subscriptions
                                 }
                             };
 
-                            await _servers[item.Subscription.GuildId].SendDirectMessage(item.Member, string.Empty, eb.Build());
+                            await item.Member.SendDirectMessage(eb.Build());
                             item.Subscription.RateLimitNotificationSent = true;
                             item.Subscription.Status = NotificationStatusType.None;
                             if (!item.Subscription.Update())
@@ -1041,7 +1041,7 @@ namespace WhMgr.Data.Subscriptions
 
                     // Send direct message notification to user
                     var client = _servers[item.Subscription.GuildId];
-                    await client.SendDirectMessage(item.Member, item.Embed);
+                    await item.Member.SendDirectMessage(string.Empty, item.Embed);
                     _logger.Info($"[WEBHOOK] Notified user {item.Member.Username} of {item.Description}.");
                     Thread.Sleep(10);
                 }

@@ -121,7 +121,10 @@
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                },
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = GameplayCondition.BuildWeatherColor(server),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -214,7 +217,7 @@
                 return newMultiPolygon;
 
             multiPolygon.ForEach(x => newMultiPolygon.Add(new Polygon { x[1], x[0] }));
-            newMultiPolygon.Add(newMultiPolygon[newMultiPolygon.Count - 1]);
+            newMultiPolygon.Add(newMultiPolygon[^1]);
             return newMultiPolygon;
         }
 
