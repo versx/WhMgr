@@ -156,7 +156,7 @@
         public static bool MatchesSize(PokemonSize pkmnSize, PokemonSize? filterSize)
         {
             return (filterSize.HasValue && pkmnSize == filterSize.Value) ||
-                filterSize.Value == PokemonSize.All ||
+                filterSize == PokemonSize.All ||
                 !filterSize.HasValue ||
                 filterSize == null;
         }
