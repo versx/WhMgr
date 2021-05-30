@@ -174,7 +174,7 @@ namespace WhMgr.Data.Subscriptions
                     //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
                     matchesLvl = Filters.MatchesLvl(pkmn.Level, (uint)subscribedPokemon.MinimumLevel, (uint)subscribedPokemon.MaximumLevel);
                     matchesGender = Filters.MatchesGender(pkmn.Gender, subscribedPokemon.Gender);
-                    matchesIVList = subscribedPokemon.IVList?.Exists(x => x.Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}")) ?? false;
+                    matchesIVList = subscribedPokemon.IVList?.Select(x => x.Replace("\r", null)).Contains($"{pkmn.Attack}/{pkmn.Defense}/{pkmn.Stamina}") ?? false;
 
                     if (!(
                         (!subscribedPokemon.HasStats && matchesIV && matchesLvl && matchesGender) ||
