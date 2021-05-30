@@ -183,7 +183,7 @@
         /// </summary>
         public SubscriptionObject()
         {
-            Status = NotificationStatusType.None;
+            Status = NotificationStatusType.All;
             Pokemon = new List<PokemonSubscription>();
             PvP = new List<PvPSubscription>();
             Raids = new List<RaidSubscription>();
