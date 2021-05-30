@@ -132,6 +132,7 @@ namespace WhMgr.Commands
             Description("Set the distance and location you'd like to receive raid notifications.")
         ]
         public async Task SetDistanceAsync(CommandContext ctx,
+            [Description("Name of the location you want to create i.e. Home, Work, etc")] string locationName,
             [Description("Maximum distance in meters between the set coordinates.")] int distance,
             [Description("Coordinates in `34.00,-117.00` format."), RemainingText] string coordinates)
         {
@@ -154,11 +155,30 @@ namespace WhMgr.Commands
                 return;
             }
 
-            subscription.DistanceM = distance;
-            subscription.Latitude = lat;
-            subscription.Longitude = lng;
+            var location = subscription.Locations?.FirstOrDefault(x => string.Compare(x.Name, subscription.Location, true) == 0);
+            if (location == null)
+            {
+                location = new LocationSubscription
+                {
+                    SubscriptionId = subscription.Id,
+                    GuildId = subscription.GuildId,
+                    UserId = subscription.UserId,
+                    Name = locationName,
+                    DistanceM = distance,
+                    Latitude = lat,
+                    Longitude = lng,
+                };
+                subscription.Locations.Add(location);
+            }
+            else
+            {
+                location.DistanceM = distance;
+                location.Latitude = lat;
+                location.Longitude = lng;
+            }
             subscription.Save();
 
+            // TODO: Change response message to include new/modifed location name
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_DISTANCE_SET").FormatText(ctx.User.Username, distance, lat, lng));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -381,8 +401,9 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
-            if (areas.Count == 0 && subscription.DistanceM == 0)
+            if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
+                // TODO: Provide better response
                 await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
                 return;
             }
@@ -442,7 +463,7 @@ namespace WhMgr.Commands
                     (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && hasStatsSet) ||
                     // TODO: Check against cities
                     //(string.Compare(subPkmn.City, cities, true) != 0 && !ContainsCity(subPkmn.City, cities)))
-                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
+                    !SubscriptionAreas.IsAreasEqual(subPkmn.Areas, areas))
                 {
                     subPkmn.Form = form;
                     subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : realIV;
@@ -627,7 +648,7 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
-            if (areas.Count == 0 && subscription.DistanceM == 0)
+            if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
                 await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
                 return;
@@ -800,7 +821,7 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
-            if (areas.Count == 0 && subscription.DistanceM == 0)
+            if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
                 await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
                 return;
@@ -1066,7 +1087,7 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
-            if (areas.Count == 0 && subscription.DistanceM == 0)
+            if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
                 await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
                 return;
@@ -1323,7 +1344,7 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
-            if (areas.Count == 0 && subscription.DistanceM == 0)
+            if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
                 await ctx.RespondEmbed($"{ctx.User.Username}#{ctx.User.Discriminator} You must either set a distance to receive notifications from (`set-distance <meters> <latitude>,<longitude>`) or provide a city/area for the subscription. Aborting request.", DiscordColor.Red);
                 return;
@@ -1363,7 +1384,7 @@ namespace WhMgr.Commands
                 //Exists, check if anything changed.
                 if (minimumRank != subPkmn.MinimumRank ||
                     minimumPercent != subPkmn.MinimumPercent ||
-                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
+                    !SubscriptionAreas.IsAreasEqual(subPkmn.Areas, areas))
                 {
                     subPkmn.MinimumRank = minimumRank;
                     subPkmn.MinimumPercent = minimumPercent;
@@ -2034,7 +2055,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     maxLvl != subPkmn.MaximumLevel ||
                     gender != subPkmn.Gender ||
                     (!subPkmn.IVList.Contains($"{ivResult.Attack}/{ivResult.Defense}/{ivResult.Stamina}") && hasStatsSet) ||
-                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
+                    !SubscriptionAreas.IsAreasEqual(subPkmn.Areas, areas))
                 {
                     subPkmn.Form = form;
                     subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : ivResult.IV;
@@ -2104,7 +2125,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 //Exists, check if anything changed.
                 if (minRank != subPkmn.MinimumRank ||
                     minPercent != subPkmn.MinimumPercent ||
-                    !SubscriptionAreas.ContainsCity(subPkmn.Areas, areas))
+                    !SubscriptionAreas.IsAreasEqual(subPkmn.Areas, areas))
                 {
                     subPkmn.MinimumRank = minRank;
                     subPkmn.MinimumPercent = minPercent;
@@ -2838,7 +2859,10 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             }
 
             var cmd = ctx.Message.Content.TrimStart('.', ' ');
-            subscription.Enabled = cmd.ToLower().Contains("enable");
+            var isEnableCommand = cmd.ToLower().Contains("enable");
+            subscription.Status = isEnableCommand
+                ? NotificationStatusType.All
+                : NotificationStatusType.None;
             subscription.Save();
 
             await ctx.TriggerTypingAsync();
@@ -2898,13 +2922,14 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 return messages;
             feeds.Sort();
 
-            var locationLink = $"[{subscription.Latitude},{subscription.Longitude}]({string.Format(Strings.GoogleMaps, subscription.Latitude, subscription.Longitude)})";
+            var activeLocation = subscription.Locations?.FirstOrDefault(x => string.Compare(x.Name, subscription.Location, true) == 0);
+            var locationLink = $"[{activeLocation.Latitude},{activeLocation.Longitude}]({string.Format(Strings.GoogleMaps, activeLocation.Latitude, activeLocation.Longitude)})";
             var sb = new StringBuilder();
-            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ENABLED").FormatText(subscription.Enabled ? "Yes" : "No"));
+            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ENABLED").FormatText(subscription.Status.ToString()));
             sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ICON_STYLE").FormatText(subscription.IconStyle));
-            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(subscription.DistanceM == 0 ?
+            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(activeLocation.DistanceM == 0 ?
                 Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET") :
-                Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_KM").FormatText(subscription.DistanceM.ToString("N0"), locationLink)));
+                Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_KM").FormatText(activeLocation.DistanceM.ToString("N0"), locationLink)));
             if (!string.IsNullOrEmpty(subscription.PhoneNumber))
             {
                 sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PHONE_NUMBER").FormatText(subscription.PhoneNumber));
@@ -3033,6 +3058,8 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
 
             return messages;
         }
+
+        #region Get Subscription Names
 
         private List<string> GetPvPSubscriptionNames(ulong guildId, ulong userId)
         {
@@ -3169,6 +3196,8 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             return list;
         }
 
+        #endregion
+
         private DiscordEmbedBuilder BuildExpirationMessage(ulong guildId, DiscordUser user)
         {
             var customerData = _dep.Stripe.GetCustomerData(guildId, user.Id);
@@ -3233,6 +3262,8 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 return PokestopLureType.Mossy;
             else if (lureName.Contains("504") || lureName.Contains("mag"))
                 return PokestopLureType.Magnetic;
+            else if (lureName.Contains("505") || lureName.Contains("rai"))
+                return PokestopLureType.Rainy;
             return PokestopLureType.None;
         }
 
@@ -3249,14 +3280,22 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
 
     internal class SubscriptionAreas
     {
+        /// <summary>
+        /// Get parsed areas from command delimited string value
+        /// </summary>
+        /// <param name="server">Discord server to get valid areas from</param>
+        /// <param name="city">Comma delimited string value of areas</param>
+        /// <returns>Returns a <c>List<string></c> of valid areas from provided string value</returns>
         public static List<string> GetAreas(DiscordServerConfig server, string city)
         {
             if (string.IsNullOrEmpty(city))
                 return new List<string>();
 
-            // Parse user defined cities
+            // Get list of valid cities for Discord server
             var validCities = server.Geofences.Select(g => g.Name).ToList();
-            var cities = /*string.IsNullOrEmpty(city) ||*/ string.Compare(city, Strings.All, true) == 0
+            // If `all` is explicitly specified then include all valid cities,
+            // otherwise parse comma separated `city` parameter
+            var cities = string.Compare(city, Strings.All, true) == 0
                 ? validCities
                 : city.RemoveSpaces();
             var validAreas = validCities.Select(x => x.ToLower());
@@ -3266,17 +3305,27 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 .ToList();
         }
 
-        public static bool ContainsCity(List<string> oldCities, List<string> newCities)
+        /// <summary>
+        /// Check if previously subscribed areas differ from newly subscribed areas or not
+        /// </summary>
+        /// <param name="oldCities">Previous areas to compare</param>
+        /// <param name="newCities">New areas to compare</param>
+        /// <returns>Returns <c>true</c> if areas are equal, otherwise returns <c>false</c>.</returns>
+        public static bool IsAreasEqual(List<string> oldCities, List<string> newCities)
         {
             var oldAreas = oldCities.Select(x => x.ToLower());
             var newAreas = newCities.Select(x => x.ToLower());
+            // Check if old subscribed areas and new areas are the same
             foreach (var newArea in newAreas)
             {
+                // If old subscribed areas contains new area, skip
                 if (oldAreas.Contains(newArea))
                     continue;
 
+                // `oldAreas` differs from `newAreas`
                 return false;
             }
+            // Subscribed areas are equal
             return true;
         }
     }
