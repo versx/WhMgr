@@ -6,6 +6,8 @@
     using Newtonsoft.Json;
     using ServiceStack.DataAnnotations;
 
+    using WhMgr.Net.Models;
+
     [
         JsonObject("pokemon"),
         Alias("pokemon"),
@@ -70,6 +72,13 @@
         public string Gender { get; set; }
 
         [
+            JsonProperty("size"),
+            Alias("size"),
+            Default(0),
+        ]
+        public PokemonSize Size { get; set; }
+
+        [
             JsonProperty("city"),
             Alias("city"),
         ]
@@ -98,6 +107,7 @@
             MinimumLevel = 0;
             MaximumLevel = 35;
             Gender = "*";
+            Size = PokemonSize.All;
             Form = null;
             Areas = new List<string>();
             IVList = new List<string>();
