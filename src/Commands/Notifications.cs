@@ -2863,7 +2863,8 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             subscription.Status = isEnableCommand
                 ? NotificationStatusType.All
                 : NotificationStatusType.None;
-            subscription.Save();
+            subscription.Update();
+            //subscription.Save();
 
             await ctx.TriggerTypingAsync();
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ENABLE_DISABLE").FormatText(user.Username, cmd));

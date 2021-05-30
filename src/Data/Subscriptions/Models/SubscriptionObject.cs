@@ -35,8 +35,8 @@
         /// </summary>
         [
             JsonProperty("status"),
-            Alias("status"), 
-            Default(1),
+            Alias("status"),
+            Default((int)NotificationStatusType.All),
         ]
         public NotificationStatusType Status { get; set; }
 
