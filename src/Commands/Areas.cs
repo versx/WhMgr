@@ -21,10 +21,10 @@
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("AREAS", Program.LogLevel);
 
-        private readonly WhConfig _config;
+        private readonly WhConfigHolder _config;
         private readonly WebhookController _whm;
 
-        public Areas(WhConfig config, WebhookController whm)
+        public Areas(WhConfigHolder config, WebhookController whm)
         {
             _config = config;
             _whm = whm;
@@ -36,14 +36,14 @@
         ]
         public async Task SendPaginated(CommandContext ctx)
         {
-            if (!await ctx.IsDirectMessageSupported(_config))
+            if (!await ctx.IsDirectMessageSupported(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Servers.ContainsKey(x));
-            if (!_config.Servers.ContainsKey(guildId))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 
-            var server = _config.Servers[guildId];
+            var server = _config.Instance.Servers[guildId];
             var geofences = _whm.GetServerGeofences(guildId);
             var areas = geofences.Select(geofence => geofence.Name).OrderBy(Name => Name).ToList();
 

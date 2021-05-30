@@ -31,14 +31,15 @@
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("NESTS", Program.LogLevel);
 
-        private readonly WhConfig _config;
+        private readonly WhConfigHolder _config;
         private readonly WebhookController _whm;
         private readonly OsmManager _osmManager;
 
-        public Nests(WhConfig config, WebhookController whm)
+        public Nests(WhConfigHolder config, WebhookController whm, OsmManager osm)
         {
             _config = config;
             _whm = whm;
+            _osmManager = osm;
         }
 
         [
@@ -49,14 +50,14 @@
         public async Task PostNestsAsync(CommandContext ctx,
             [Description("")] string args = null)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Servers.ContainsKey(x));
-            if (!_config.Servers.ContainsKey(guildId))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            if (!_config.Instance.Servers.ContainsKey(guildId))
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 
-            var server = _config.Servers[guildId];
+            var server = _config.Instance.Servers[guildId];
             var channelId = server.NestsChannelId;
             var channel = await ctx.Client.GetChannelAsync(channelId);
             if (channel == null)
@@ -71,7 +72,7 @@
                 _logger.Warn($"Failed to delete messages in channel: {channelId}");
             }
 
-            var nests = GetNests(_config.Database.Nests.ToString());
+            var nests = GetNests(_config.Instance.Database.Nests.ToString());
             if (nests == null)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username));
@@ -166,7 +167,7 @@
         {
             var alertMessageType = AlertMessageType.Nests;
             var alertMessage = /*alarm?.Alerts[alertMessageType] ??*/ AlertMessage.Defaults[alertMessageType]; // TODO: Add nestAlert config option
-            var server = _config.Servers[guildId];
+            var server = _config.Instance.Servers[guildId];
             var pokemonImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, nest.PokemonId);
             var properties = GetProperties(client.Guilds[guildId], nest, pokemonImageUrl);
             var eb = new DiscordEmbedBuilder
@@ -202,11 +203,11 @@
             var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
-            var scannerMapsLink = string.Format(_config.Urls.ScannerMap, nest.Latitude, nest.Longitude);
-            var staticMapLink = StaticMap.GetUrl(_config.Urls.StaticMap, _config.StaticMaps["nests"], nest.Latitude, nest.Longitude, pkmnImage, Net.Models.PokemonTeam.All, _osmManager.GetNest(nest.Name)?.FirstOrDefault());
+            var scannerMapsLink = string.Format(_config.Instance.Urls.ScannerMap, nest.Latitude, nest.Longitude);
+            var staticMapLink = StaticMap.GetUrl(_config.Instance.Urls.StaticMap, _config.Instance.StaticMaps["nests"], nest.Latitude, nest.Longitude, pkmnImage, Net.Models.PokemonTeam.All, _osmManager.GetNest(nest.Name)?.FirstOrDefault());
             var geofence = _whm.GetGeofence(guild.Id, nest.Latitude, nest.Longitude);
             var city = geofence?.Name ?? "Unknown";
-            var address = new Location(null, city, nest.Latitude, nest.Longitude).GetAddress(_config);
+            var address = new Location(null, city, nest.Latitude, nest.Longitude).GetAddress(_config.Instance);
 
             var dict = new Dictionary<string, string>
             {
@@ -264,7 +265,7 @@
                     continue;
                 }
                 var geofenceName = geofence.Name;
-                var server = _config.Servers[guildId];
+                var server = _config.Instance.Servers[guildId];
                 var cities = server.Geofences.Select(x => x.Name.ToLower()).ToList();
                 if (!cities.Contains(geofenceName.ToLower()))
                     continue;

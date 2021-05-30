@@ -143,13 +143,14 @@
 
                 // Build the dependency collection which will contain our objects that can be globally used within each command module
                 var servicesCol = new ServiceCollection()
-                    .AddSingleton(typeof(InteractivityExtension), interactivity.GetType())
-                    .AddSingleton(typeof(WhConfig), _whConfig.Instance.GetType())
+                    .AddSingleton(typeof(InteractivityExtension), interactivity)
+                    .AddSingleton(typeof(WhConfigHolder), _whConfig)
                     .AddSingleton(typeof(StripeService), new StripeService(_whConfig.Instance.StripeApiKey))
-                    .AddSingleton(typeof(WebhookController), _whm.GetType());
+                    .AddSingleton(typeof(Osm.OsmManager), new Osm.OsmManager())
+                    .AddSingleton(typeof(WebhookController), _whm);
                 //if (_subProcessor != null)
                 {
-                    servicesCol.AddSingleton(typeof(SubscriptionProcessor), (_subProcessor ?? new SubscriptionProcessor(_servers, _whConfig, _whm)).GetType());
+                    servicesCol.AddSingleton(typeof(SubscriptionProcessor), _subProcessor ?? new SubscriptionProcessor(_servers, _whConfig, _whm));
                 }
                 var services = servicesCol.BuildServiceProvider();
                 /*

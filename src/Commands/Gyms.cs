@@ -26,9 +26,9 @@
     public class Gyms : BaseCommandModule
     {
         //private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMS", Program.LogLevel);
-        private readonly WhConfig _config;
+        private readonly WhConfigHolder _config;
 
-        public Gyms(WhConfig config)
+        public Gyms(WhConfigHolder config)
         {
             _config = config;
         }
@@ -40,7 +40,7 @@
         public async Task ConvertedPokestopsToGymsAsync(CommandContext ctx,
             [Description("Real or dry run check (y/n)")] string yesNo = "y")
         {
-            using (var db = Data.DataAccessLayer.CreateFactory(_config.Database.Scanner.ToString()).Open())
+            using (var db = Data.DataAccessLayer.CreateFactory(_config.Instance.Database.Scanner.ToString()).Open())
             {
                 //Select query where ids match for pokestops and gyms
                 var convertedGyms = db.Select<Data.Models.Pokestop>(Strings.SQL_SELECT_CONVERTED_POKESTOPS);

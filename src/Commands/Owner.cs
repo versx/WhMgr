@@ -24,10 +24,10 @@
         const string NianticLabs = "https://pgorelease.nianticlabs.com/plfe/version";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("OWNER", Program.LogLevel);
-        private readonly WhConfig _config;
+        private readonly WhConfigHolder _config;
         private readonly SubscriptionProcessor _subProcessor;
 
-        public Owner(WhConfig config, SubscriptionProcessor subProcessor)
+        public Owner(WhConfigHolder config, SubscriptionProcessor subProcessor)
         {
             _config = config;
             _subProcessor = subProcessor;
@@ -66,7 +66,7 @@
         {
             _logger.Debug($"Checking if there are any subscriptions for members that are no longer apart of the server...");
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
 
             var removed = 0;
             var users = _subProcessor?.Manager?.Subscriptions;
@@ -74,7 +74,7 @@
             {
                 var user = users[i];
                 var discordUser = ctx.Client.GetMemberById(guildId, user.UserId);
-                var isSupporter = ctx.Client.HasSupporterRole(guildId, user.UserId, _config.Servers[guildId].DonorRoleIds);
+                var isSupporter = ctx.Client.HasSupporterRole(guildId, user.UserId, _config.Instance.Servers[guildId].DonorRoleIds);
                 if (discordUser == null || !isSupporter)
                 {
                     _logger.Debug($"Removing user {user.UserId} subscription settings because they are no longer a member of the server.");

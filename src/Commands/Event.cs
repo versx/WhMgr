@@ -28,9 +28,9 @@
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("COMMUNITYDAY", Program.LogLevel);
 
-        private readonly WhConfig _config;
+        private readonly WhConfigHolder _config;
 
-        public Event(WhConfig config)
+        public Event(WhConfigHolder config)
         {
             _config = config;
         }
@@ -54,9 +54,9 @@
                 }
             };
             var pkmnNames = new List<string>();
-            for (var i = 0; i < _config.EventPokemonIds.Count; i++)
+            for (var i = 0; i < _config.Instance.EventPokemonIds.Count; i++)
             {
-                var pkmnId = _config.EventPokemonIds[i];
+                var pkmnId = _config.Instance.EventPokemonIds[i];
                 if (MasterFile.Instance.Pokedex.ContainsKey(pkmnId))
                 {
                     pkmnNames.Add(pkmnId + ":" + MasterFile.Instance.Pokedex[pkmnId].Name);
@@ -90,8 +90,8 @@
                 pkmnFailed.Add(eventPokemonId);
             }
 
-            _config.EventPokemonIds = pkmnToAdd;
-            _config.Save(_config.FileName);
+            _config.Instance.EventPokemonIds = pkmnToAdd;
+            _config.Instance.Save(_config.Instance.FileName);
 
             var pkmnNames = new List<string>();
             for (var i = 0; i < pkmnToAdd.Count; i++)
@@ -134,8 +134,8 @@
                 pkmnFailed.Add(eventPokemonId);
             }
 
-            _config.EventPokemonIds.AddRange(pkmnToAdd);
-            _config.Save(_config.FileName);
+            _config.Instance.EventPokemonIds.AddRange(pkmnToAdd);
+            _config.Instance.Save(_config.Instance.FileName);
 
             var pkmnNames = new List<string>();
             for (var i = 0; i < pkmnToAdd.Count; i++)
@@ -178,8 +178,8 @@
                 pkmnFailed.Add(eventPokemonId);
             }
 
-            pkmnToRemove.ForEach(x => _config.EventPokemonIds.Remove(x));
-            _config.Save(_config.FileName);
+            pkmnToRemove.ForEach(x => _config.Instance.EventPokemonIds.Remove(x));
+            _config.Instance.Save(_config.Instance.FileName);
 
             var pkmnNames = new List<string>();
             for (var i = 0; i < pkmnToRemove.Count; i++)

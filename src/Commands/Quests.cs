@@ -18,9 +18,9 @@
     public class Quests : BaseCommandModule
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("QUESTS", Program.LogLevel);
-        private readonly WhConfig _config;
+        private readonly WhConfigHolder _config;
 
-        public Quests(WhConfig config)
+        public Quests(WhConfigHolder config)
         {
             _config = config;
         }
@@ -33,11 +33,11 @@
         public async Task ResetChannelAsync(CommandContext ctx,
             [Description("Discord channel to reset.")] DiscordChannel channel = null)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
 
             if (channel == null)
             {
-                var channelIds = _config.Servers[guildId].QuestChannelIds;
+                var channelIds = _config.Instance.Servers[guildId].QuestChannelIds;
                 for (var i = 0; i < channelIds.Count; i++)
                 {
                     var qChannel = await ctx.Client.GetChannelAsync(channelIds[i]);

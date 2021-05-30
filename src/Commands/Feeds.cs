@@ -20,9 +20,9 @@
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("FEEDS", Program.LogLevel);
 
-        private readonly WhConfig _config;
+        private readonly WhConfigHolder _config;
 
-        public Feeds(WhConfig config)
+        public Feeds(WhConfigHolder config)
         {
             _config = config;
         }
@@ -34,14 +34,14 @@
         ]
         public async Task FeedsAsync(CommandContext ctx)
         {
-            if (!await ctx.IsDirectMessageSupported(_config))
+            if (!await ctx.IsDirectMessageSupported(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Servers.ContainsKey(x));
-            if (!_config.Servers.ContainsKey(guildId))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 
-            var server = _config.Servers[guildId];
+            var server = _config.Instance.Servers[guildId];
             var cityRoles = server.Geofences.Select(x => x.Name).ToList();
             cityRoles.Sort();
             var sb = new StringBuilder();
@@ -74,15 +74,15 @@
         public async Task FeedMeAsync(CommandContext ctx,
             [Description("City name to join or all."), RemainingText] string cityName = null)
         {
-            if (!await ctx.IsDirectMessageSupported(_config))
+            if (!await ctx.IsDirectMessageSupported(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Servers.ContainsKey(x));
-            if (!_config.Servers.ContainsKey(guildId))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 
-            var server = _config.Servers[guildId];
-            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _config);
+            var server = _config.Instance.Servers[guildId];
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _config.Instance);
             var isFreeRole = !string.IsNullOrEmpty(server.FreeRoleName) && string.Compare(cityName, server.FreeRoleName, true) == 0;
             if (server.CitiesRequireSupporterRole && !isSupporter && !isFreeRole)
             {
@@ -162,15 +162,15 @@
         public async Task FeedMeNotAsync(CommandContext ctx,
             [Description("City name to leave or all."), RemainingText] string cityName)
         {
-            if (!await ctx.IsDirectMessageSupported(_config))
+            if (!await ctx.IsDirectMessageSupported(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Servers.ContainsKey(x));
-            if (!_config.Servers.ContainsKey(guildId))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 
-            var server = _config.Servers[guildId];
-            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _config);
+            var server = _config.Instance.Servers[guildId];
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _config.Instance);
             var isFreeRole = !string.IsNullOrEmpty(server.FreeRoleName) && string.Compare(cityName, server.FreeRoleName, true) == 0;
             if (server.CitiesRequireSupporterRole && !isSupporter && !isFreeRole)
             {
@@ -237,9 +237,9 @@
 
         private async Task AssignAllDefaultFeedRoles(CommandContext ctx)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
 
-            if (_config.Servers[guildId].Geofences == null)
+            if (_config.Instance.Servers[guildId].Geofences == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
@@ -247,7 +247,7 @@
 
             try
             {
-                var server = _config.Servers[guildId];
+                var server = _config.Instance.Servers[guildId];
                 var areas = server.Geofences.Select(x => x.Name).ToList();
                 for (var i = 0; i < areas.Count; i++)
                 {
@@ -280,9 +280,9 @@
 
         private async Task RemoveAllDefaultFeedRoles(CommandContext ctx)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
 
-            if (_config.Servers[guildId].Geofences == null)
+            if (_config.Instance.Servers[guildId].Geofences == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
@@ -290,7 +290,7 @@
 
             try
             {
-                var server = _config.Servers[guildId];
+                var server = _config.Instance.Servers[guildId];
                 var areas = server.Geofences.Select(x => x.Name).ToList();
                 for (var i = 0; i < areas.Count; i++)
                 {
