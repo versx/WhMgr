@@ -17,7 +17,7 @@
 
     class IconFetcher
     {
-        private static readonly IconSet _availablePokemonForms = new IconSet();
+        private static readonly IconSet _availablePokemonForms = new();
         private static IReadOnlyDictionary<string, string> _iconStyles;
 
         #region Singleton

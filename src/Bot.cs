@@ -96,34 +96,23 @@
                 serverConfig.LoadDmAlerts();
                 var client = new DiscordClient(new DiscordConfiguration
                 {
-                    //AutomaticGuildSync = true,
                     AutoReconnect = true,
                     AlwaysCacheMembers = true,
-                    //EnableCompression = true,
                     GatewayCompressionLevel = GatewayCompressionLevel.Payload,
                     Token = serverConfig.Token,
                     TokenType = TokenType.Bot,
-                    Intents = DiscordIntents.DirectMessages | DiscordIntents.DirectMessageTyping | DiscordIntents.GuildEmojis | DiscordIntents.GuildMembers | DiscordIntents.GuildMessages | DiscordIntents.GuildMessageTyping | DiscordIntents.GuildPresences | DiscordIntents.Guilds | DiscordIntents.GuildWebhooks,
-                    //UseInternalLogHandler = true
+                    MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Error,
+                    Intents = DiscordIntents.DirectMessages
+                        | DiscordIntents.DirectMessageTyping
+                        | DiscordIntents.GuildEmojis
+                        | DiscordIntents.GuildMembers
+                        | DiscordIntents.GuildMessages
+                        | DiscordIntents.GuildMessageTyping
+                        | DiscordIntents.GuildPresences
+                        | DiscordIntents.Guilds
+                        | DiscordIntents.GuildWebhooks,
+                    ReconnectIndefinitely = true,
                 });
-
-                // If you are on Windows 7 and using .NETFX, install 
-                // DSharpPlus.WebSocket.WebSocket4Net from NuGet,
-                // add appropriate usings, and uncomment the following
-                // line
-                //client.SetWebSocketClient<WebSocket4NetClient>();
-
-                // If you are on Windows 7 and using .NET Core, install 
-                // DSharpPlus.WebSocket.WebSocket4NetCore from NuGet,
-                // add appropriate usings, and uncomment the following
-                // line
-                //client.SetWebSocketClient<WebSocket4NetCoreClient>();
-
-                // If you are using Mono, install 
-                // DSharpPlus.WebSocket.WebSocketSharp from NuGet,
-                // add appropriate usings, and uncomment the following
-                // line
-                //client.SetWebSocketClient<WebSocketSharpClient>();
 
                 client.Ready += Client_Ready;
                 client.GuildAvailable += Client_GuildAvailable;
@@ -140,7 +129,6 @@
                     PaginationBehaviour = DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround,
                 });
 
-
                 // Build the dependency collection which will contain our objects that can be globally used within each command module
                 var servicesCol = new ServiceCollection()
                     .AddSingleton(typeof(InteractivityExtension), interactivity)
@@ -153,14 +141,6 @@
                     servicesCol.AddSingleton(typeof(SubscriptionProcessor), _subProcessor ?? new SubscriptionProcessor(_servers, _whConfig, _whm));
                 }
                 var services = servicesCol.BuildServiceProvider();
-                /*
-                DependencyCollection dep;
-                using (var d = new DependencyCollectionBuilder())
-                {
-                    d.AddInstance(new Dependencies(interactivity, _whm, _subProcessor, _whConfig, new StripeService(_whConfig.Instance.StripeApiKey)));
-                    dep = d.Build();
-                }
-                */
 
                 // Discord commands configuration
                 var commands = client.UseCommandsNext
@@ -389,7 +369,7 @@
         private async Task Commands_CommandExecuted(CommandsNextExtension commands, CommandExecutionEventArgs e)
         {
             // let's log the name of the command and user
-            //e.Context.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Info, Strings.BotName, $"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
+            _logger.Debug($"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
 
             // since this method is not async, let's return
             // a completed task, so that no additional work
@@ -399,7 +379,7 @@
 
         private async Task Commands_CommandErrored(CommandsNextExtension commands, CommandErrorEventArgs e)
         {
-            //e.Context.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Error, Strings.BotName, $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? e.Context.Message.Content}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
+            _logger.Error($"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? e.Context.Message.Content}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
 
             // let's check if the error is a result of lack of required permissions
             if (e.Exception is DSharpPlus.CommandsNext.Exceptions.ChecksFailedException)
@@ -418,18 +398,21 @@
             }
             else if (e.Exception is ArgumentException)
             {
+                var arguments = e.Command.Overloads.FirstOrDefault();
                 // The user lacks required permissions, 
                 var emoji = DiscordEmoji.FromName(e.Context.Client, ":x:");
 
                 var guildId = e.Context.Guild?.Id ?? e.Context.Client.Guilds.FirstOrDefault(x => _whConfig.Instance.Servers.ContainsKey(x.Key)).Key;
                 var prefix = _whConfig.Instance.Servers.ContainsKey(guildId) ? _whConfig.Instance.Servers[guildId].CommandPrefix : "!";
                 //var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", e.Command.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
+                var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", arguments.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
 
                 // let's wrap the response into an embed
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = $"{emoji} Invalid Argument(s)",
                     //Description = $"{string.Join(Environment.NewLine, e.Command.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type.ToHumanReadableString()}.**"))}.\r\n\r\n{example}",
+                    Description = $"{string.Join(Environment.NewLine, arguments.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type.ToHumanReadableString()}.**"))}.\r\n\r\n{example}",
                     Color = new DiscordColor(0xFF0000) // red
                 };
                 await e.Context.RespondAsync(embed: embed);
