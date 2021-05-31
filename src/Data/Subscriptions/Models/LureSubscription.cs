@@ -22,6 +22,12 @@
         public int SubscriptionId { get; set; }
 
         [
+            JsonPropertyName("pokestop_name"),
+            Alias("pokestop_name"),
+        ]
+        public string PokestopName { get; set; }
+
+        [
             JsonPropertyName("lure_type"),
             Alias("lure_type"),
             Required
