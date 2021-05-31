@@ -35,8 +35,8 @@
         /// </summary>
         [
             JsonProperty("status"),
-            Alias("status"), 
-            Default(1),
+            Alias("status"),
+            Default((int)NotificationStatusType.All),
         ]
         public NotificationStatusType Status { get; set; }
 
@@ -183,7 +183,7 @@
         /// </summary>
         public SubscriptionObject()
         {
-            Status = NotificationStatusType.None;
+            Status = NotificationStatusType.All;
             Pokemon = new List<PokemonSubscription>();
             PvP = new List<PvPSubscription>();
             Raids = new List<RaidSubscription>();
