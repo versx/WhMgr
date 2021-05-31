@@ -391,13 +391,6 @@
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
             var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
-            // Validate the provided pokemon list
-            var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
-            if (validation == null || validation.Valid.Count == 0)
-            {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
-                return;
-            }
 
             var areas = SubscriptionAreas.GetAreas(server, city);
             if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
@@ -410,10 +403,23 @@
             // TODO: Save pokemon_id as string.Join(",", validation.Valid);
             // TODO: Save form as form with comma delimiter;
 
-            var valid = string.Join(",", validation.Valid.Keys.ToList());
-            var forms = string.Join(",", validation.Valid.Values.ToList());
+            var isAll = string.Compare(poke, Strings.All, true) == 0;
+            // Validate the provided pokemon list
+            var validation = isAll ? new PokemonValidation() : PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
+            if (!isAll && (validation == null || validation.Valid.Count == 0))
+            {
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                return;
+            }
+
+            var valid = isAll ? "All" : string.Join(",", validation.Valid.Keys.ToList());
+            // TODO: Provide way to specify form expecitly without {id}-{form}
+            var forms = isAll ? string.Empty : string.Join(",", validation.Valid.Values.ToList());
             // Check for any subscriptions that match the pokemon_id/forms string, otherwise create a new one
             var exists = subscription.Pokemon.FirstOrDefault(x => x.PokemonIdString == valid && x.FormsString == forms);
+            //var minIV = pokemonId.IsRarePokemon() ? 0 : realIV;
+            //var minLvl = pokemonId.IsRarePokemon() ? 0 : minLevel;
+            //var maxLvl = pokemonId.IsRarePokemon() ? 35 : maxLevel;
             var hasStatsSet = attack >= 0 || defense >= 0 || stamina >= 0;
 
             if (exists != null)
@@ -456,89 +462,6 @@
                 subscribed.Add(valid);
             }
 
-            // Loop through each valid pokemon entry provided
-            /*
-            foreach (var (pokemonId, form) in validation.Valid)
-            {
-                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
-                {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
-                    continue;
-                }
-
-                var pokemon = MasterFile.Instance.Pokedex[pokemonId];
-                var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
-
-                // Check if common type pokemon e.g. Pidgey, Ratatta, Spinarak 'they are beneath him and he refuses to discuss them further'
-                if (pokemonId.IsCommonPokemon() && realIV < Strings.CommonTypeMinimumIV && !isModOrHigher)
-                {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_COMMON_TYPE_POKEMON").FormatText(ctx.User.Username, pokemon.Name, Strings.CommonTypeMinimumIV), DiscordColor.Red);
-                    continue;
-                }
-
-                var subPkmn = subscription.Pokemon.FirstOrDefault(x => x.PokemonId == pokemonId && string.Compare(x.Form, form, true) == 0);
-                // Always ignore the user's input for Unown and set it to 0 by default.
-                var minIV = pokemonId.IsRarePokemon() ? 0 : realIV;
-                var minLvl = pokemonId.IsRarePokemon() ? 0 : minLevel;
-                var maxLvl = pokemonId.IsRarePokemon() ? 35 : maxLevel;
-                var hasStatsSet = attack >= 0 || defense >= 0 || stamina >= 0;
-
-                if (subPkmn == null)
-                {
-                    // Does not exist, create.
-                    subscription.Pokemon.Add(new PokemonSubscription
-                    {
-                        GuildId = guildId,
-                        UserId = ctx.User.Id,
-                        PokemonIdString = pokemonId,
-                        Form = form,
-                        MinimumIV = minIV,
-                        MinimumLevel = minLvl,
-                        MaximumLevel = maxLvl,
-                        Gender = gender,
-                        IVList = hasStatsSet ? new List<string> { $"{attack}/{defense}/{stamina}" } : new List<string>(),
-                        Areas = areas
-                    });
-                    subscribed.Add(name);
-                    continue;
-                }
-
-                // Exists, check if anything changed.
-                if (realIV != subPkmn.MinimumIV ||
-                    string.Compare(form, subPkmn.Form, true) != 0 ||
-                    minLvl != subPkmn.MinimumLevel ||
-                    maxLvl != subPkmn.MaximumLevel ||
-                    gender != subPkmn.Gender ||
-                    (!subPkmn.IVList.Contains($"{attack}/{defense}/{stamina}") && hasStatsSet) ||
-                    // TODO: Check against cities
-                    //(string.Compare(subPkmn.City, cities, true) != 0 && !ContainsCity(subPkmn.City, cities)))
-                    !SubscriptionAreas.IsAreasEqual(subPkmn.Areas, areas))
-                {
-                    subPkmn.Form = form;
-                    subPkmn.MinimumIV = hasStatsSet ? subPkmn.MinimumIV : realIV;
-                    subPkmn.MinimumLevel = minLvl;
-                    subPkmn.MaximumLevel = maxLvl;
-                    subPkmn.Gender = gender;
-                    if (hasStatsSet)
-                    {
-                        subPkmn.IVList.Add($"{attack}/{defense}/{stamina}");
-                    }
-                    foreach (var area in areas)
-                    {
-                        if (!subPkmn.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
-                        {
-                            subPkmn.Areas.Add(area);
-                        }
-                    }
-                    subscribed.Add(name);
-                    continue;
-                }
-
-                // Already subscribed to the same Pokemon and form
-                alreadySubscribed.Add(name);
-            }
-            */
-
             subscription.Save();
             await ctx.TriggerTypingAsync();
             if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
@@ -547,7 +470,6 @@
                 return;
             }
 
-            var isAll = string.Compare(Strings.All, poke, true) == 0;
             var isGen = false;
             for (var i = 1; i < 6; i++)
             {
@@ -631,12 +553,11 @@
                     if (exists.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                     {
                         var index = exists.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
-                    exists.Areas.RemoveAt(index);
+                        exists.Areas.RemoveAt(index);
                     }
                 }
 
                 // Check if there are no more areas set for the Pokemon subscription
-                //if (subPkmn.Areas.Count == 0)
                 // If no city specified then remove the whole subscription
                 if (string.IsNullOrEmpty(city))
                 {
