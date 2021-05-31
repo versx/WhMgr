@@ -84,8 +84,7 @@ namespace WhMgr.Data.Subscriptions
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
-            Dictionary<ulong, GeofenceItem> locationCache = new Dictionary<ulong, GeofenceItem>();
-
+            var locationCache = new Dictionary<ulong, GeofenceItem>();
             GeofenceItem GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
@@ -157,11 +156,11 @@ namespace WhMgr.Data.Subscriptions
                         //user.Save(false);
                         continue;
                     }
+                    // Have all subs
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
                     subscribedPokemon = user.Pokemon.FirstOrDefault(x =>
-                        x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
+                        x.PokemonId.Contains(pkmn.Id) && x.Forms.Contains(form)
                     );
                     // Not subscribed to Pokemon
                     if (subscribedPokemon == null)

@@ -180,7 +180,7 @@
                 commands.RegisterCommands<Settings>();
                 if (serverConfig.Subscriptions.Enabled)
                 {
-                    commands.RegisterCommands<Notifications>();
+                    // TODO: commands.RegisterCommands<Notifications>();
                 }
                 if (serverConfig.EnableGeofenceRoles)
                 {
@@ -1013,10 +1013,10 @@
                 if (pokemon == 0)
                     continue;
 
-                if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon))
                     continue;
 
-                var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
+                var pkmn = MasterFile.Instance.Pokedex[pokemon];
                 var pkmnStats = stats[pokemon];
                 var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
                 if (chance == 0)

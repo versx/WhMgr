@@ -46,7 +46,7 @@
             JsonProperty("pokemon_id"),
             Alias("pokemon_id")
         ]
-        public int Id { get; set; }
+        public uint Id { get; set; }
 
         [
             JsonProperty("cp"),
@@ -292,7 +292,7 @@
             JsonProperty("display_pokemon_id"),
             Alias("display_pokemon_id")
         ]
-        public int? DisplayPokemonId { get; set; }
+        public uint? DisplayPokemonId { get; set; }
 
         #region PvP
 

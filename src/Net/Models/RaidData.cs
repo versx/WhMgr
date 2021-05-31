@@ -38,7 +38,7 @@
         public string GymUrl { get; set; }
 
         [JsonProperty("pokemon_id")]
-        public int PokemonId { get; set; }
+        public uint PokemonId { get; set; }
 
         [JsonProperty("team_id")]
         public PokemonTeam Team { get; set; } = PokemonTeam.Neutral;
