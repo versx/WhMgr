@@ -794,7 +794,7 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    var subInvasion = user.Invasions.FirstOrDefault(x => encounters.Contains(x.RewardPokemonId));
+                    var subInvasion = user.Invasions.FirstOrDefault(x => x.RewardPokemonId.Intersects(encounters));
                     // Not subscribed to invasion
                     if (subInvasion == null)
                     {

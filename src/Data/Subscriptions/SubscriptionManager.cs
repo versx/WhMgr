@@ -11,6 +11,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
     using WhMgr.Net.Models;
 
     /// <summary>
@@ -187,19 +188,21 @@
         /// </summary>
         /// <param name="encounterRewards">Invasion encounter rewards</param>
         /// <returns>Returns list of user subscription objects</returns>
-        public List<SubscriptionObject> GetUserSubscriptionsByInvasion(string pokestopName, InvasionCharacter gruntType, List<int> encounterRewards)
+        public List<SubscriptionObject> GetUserSubscriptionsByInvasion(string pokestopName, InvasionCharacter gruntType, List<uint> encounterRewards)
         {
             return _subscriptions?
                 .Where(x => x.IsEnabled(NotificationStatusType.Invasions) &&
                             x.Invasions != null &&
-                            x.Invasions.Exists(y => 
-                                encounterRewards.Contains(y.RewardPokemonId) ||
+                            x.Invasions.Exists(y =>
+                                y.RewardPokemonId.Intersects(encounterRewards) ||
                                 gruntType == y.InvasionType ||
                                 (y.PokestopName != null && (pokestopName.Contains(y.PokestopName) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
                             )
                       )
                 .ToList();
         }
+
+
 
         /// <summary>
         /// Gets user subscriptions from subscribed Pokestop lures

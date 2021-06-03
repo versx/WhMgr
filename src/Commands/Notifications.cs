@@ -1093,42 +1093,40 @@ namespace WhMgr.Commands
                 return;
             }
 
-            foreach (var (pokemonId, form) in validation.Valid)
+            var valid = string.Join(",", validation.Valid.Keys.ToList());
+            var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonIdString == valid);
+            if (subInvasion != null)
             {
-                var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId);
-                if (subInvasion != null)
+                // Existing invasion subscription
+                // Loop all areas, check if the area is already in subs, if not add it
+                foreach (var area in areas)
                 {
-                    // Existing invasion subscription
-                    // Loop all areas, check if the area is already in subs, if not add it
-                    foreach (var area in areas)
+                    if (!subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                     {
-                        if (!subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
-                        {
-                            subInvasion.Areas.Add(area);
-                        }
+                        subInvasion.Areas.Add(area);
                     }
-                    // Save quest subscription and continue;
-                    // REVIEW: Might not be needed
-                    subInvasion.Save();
                 }
-                else
+                // Save quest subscription and continue;
+                // REVIEW: Might not be needed
+                subInvasion.Save();
+            }
+            else
+            {
+                // New invasion subscription
+                subscription.Invasions.Add(new InvasionSubscription
                 {
-                    // New invasion subscription
-                    subscription.Invasions.Add(new InvasionSubscription
-                    {
-                        GuildId = guildId,
-                        UserId = ctx.User.Id,
-                        RewardPokemonId = pokemonId,
-                        Areas = areas
-                    });
-                }
+                    GuildId = guildId,
+                    UserId = ctx.User.Id,
+                    RewardPokemonIdString = valid,
+                    Areas = areas
+                });
             }
             subscription.Save();
 
-            var valid = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
+            var validPokemonNames = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                 ctx.User.Username,
-                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", valid),
+                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", validPokemonNames),
                 string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
                     : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
@@ -1182,46 +1180,43 @@ namespace WhMgr.Commands
             }
 
             var areas = SubscriptionAreas.GetAreas(_dep.WhConfig.Servers[guildId], city);
-            foreach (var item in validation.Valid)
+            var valid = string.Join(",", validation.Valid.Keys.ToList());
+            var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonIdString == valid);
+            // Check if subscribed
+            if (subInvasion == null)
+                return;
+
+            foreach (var area in areas)
             {
-                var pokemonId = item.Key;
-                var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId);
-                // Check if subscribed
-                if (subInvasion == null)
-                    return;
+                if (subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                {
+                    var index = subInvasion.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                    subInvasion.Areas.RemoveAt(index);
+                }
+            }
 
-                foreach (var area in areas)
+            // Check if there are no more areas set for the invasion subscription
+            //if (subInvasion.Areas.Count == 0)
+            // If no city specified then remove the whole subscription
+            if (string.IsNullOrEmpty(city))
+            {
+                // If no more areas set for the invasion subscription, delete it
+                if (!subInvasion.Id.Remove<InvasionSubscription>())
                 {
-                    if (subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
-                    {
-                        var index = subInvasion.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
-                        subInvasion.Areas.RemoveAt(index);
-                    }
+                    _logger.Error($"Unable to remove invasion subscription for user id {subInvasion.UserId} from guild id {subInvasion.GuildId}");
                 }
-
-                // Check if there are no more areas set for the invasion subscription
-                //if (subInvasion.Areas.Count == 0)
-                // If no city specified then remove the whole subscription
-                if (string.IsNullOrEmpty(city))
-                {
-                    // If no more areas set for the invasion subscription, delete it
-                    if (!subInvasion.Id.Remove<InvasionSubscription>())
-                    {
-                        _logger.Error($"Unable to remove invasion subscription for user id {subInvasion.UserId} from guild id {subInvasion.GuildId}");
-                    }
-                }
-                else
-                {
-                    // Save/update invasion subscription if cities still assigned
-                    subInvasion.Save();
-                }
+            }
+            else
+            {
+                // Save/update invasion subscription if cities still assigned
+                subInvasion.Save();
             }
             subscription.Save();
 
-            var valid = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
+            var validPokemonNames = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                 ctx.User.Username,
-                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", valid),
+                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", validPokemonNames),
                 string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
                     : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
@@ -1901,36 +1896,34 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var invasionPokemon = await invasionInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var invasionAreas = await invasionInput.GetAreasResult(guildId);
 
+                        var valid = string.Join(",", invasionPokemon.Valid.ToList());
                         var validPokemonNames = string.Join(", ", invasionPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name));
-                        foreach (var (pokemonId, form) in invasionPokemon.Valid)
+                            var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonIdString == valid);
+                        if (subInvasion != null)
                         {
-                            var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId);
-                            if (subInvasion != null)
+                            // Existing invasion subscription
+                            // Loop all areas, check if the area is already in subs, if not add it
+                            foreach (var area in invasionAreas)
                             {
-                                // Existing invasion subscription
-                                // Loop all areas, check if the area is already in subs, if not add it
-                                foreach (var area in invasionAreas)
+                                if (!subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
                                 {
-                                    if (!subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
-                                    {
-                                        subInvasion.Areas.Add(area);
-                                    }
+                                    subInvasion.Areas.Add(area);
                                 }
-                                // Save quest subscription and continue;
-                                // REVIEW: Might not be needed
-                                subInvasion.Save();
                             }
-                            else
+                            // Save quest subscription and continue;
+                            // REVIEW: Might not be needed
+                            subInvasion.Save();
+                        }
+                        else
+                        {
+                            // New invasion subscription
+                            subscription.Invasions.Add(new InvasionSubscription
                             {
-                                // New invasion subscription
-                                subscription.Invasions.Add(new InvasionSubscription
-                                {
-                                    GuildId = guildId,
-                                    UserId = ctx.User.Id,
-                                    RewardPokemonId = pokemonId,
-                                    Areas = invasionAreas
-                                });
-                            }
+                                GuildId = guildId,
+                                UserId = ctx.User.Id,
+                                RewardPokemonIdString = valid,
+                                Areas = invasionAreas
+                            });
                         }
                         var result = subscription.Save();
                         if (!result)
@@ -1938,7 +1931,6 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         }
 
                         var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
-                        var valid = invasionPokemon.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
                             ctx.User.Username,
                             isAll ? Strings.All : validPokemonNames,
@@ -2348,41 +2340,39 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var invasionPokemonResult = await invasionInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var invasionAreasResult = await invasionInput.GetAreasResult(guildId);
 
-                        foreach (var item in invasionPokemonResult.Valid)
+                        var valid = string.Join(",", invasionPokemonResult.Valid.Keys.ToList());
+                        var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonIdString == valid);
+                        // Check if subscribed
+                        if (subInvasion == null)
+                            return;
+
+                        foreach (var area in invasionAreasResult)
                         {
-                            var pokemonId = item.Key;
-                            var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonId == pokemonId);
-                            // Check if subscribed
-                            if (subInvasion == null)
-                                return;
+                            if (subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
+                            {
+                                var index = subInvasion.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
+                                subInvasion.Areas.RemoveAt(index);
+                            }
+                        }
 
-                            foreach (var area in invasionAreasResult)
+                        // Check if there are no more areas set for the invasion subscription
+                        if (subInvasion.Areas.Count == 0)
+                        {
+                            // If no more areas set for the invasion subscription, delete it
+                            if (!subInvasion.Id.Remove<InvasionSubscription>())
                             {
-                                if (subInvasion.Areas.Select(x => x.ToLower()).Contains(area.ToLower()))
-                                {
-                                    var index = subInvasion.Areas.FindIndex(x => string.Compare(x, area, true) == 0);
-                                    subInvasion.Areas.RemoveAt(index);
-                                }
+                                _logger.Error($"Unable to remove invasion subscription for user id {subInvasion.UserId} from guild id {subInvasion.GuildId}");
                             }
-
-                            // Check if there are no more areas set for the invasion subscription
-                            if (subInvasion.Areas.Count == 0)
-                            {
-                                // If no more areas set for the invasion subscription, delete it
-                                if (!subInvasion.Id.Remove<InvasionSubscription>())
-                                {
-                                    _logger.Error($"Unable to remove invasion subscription for user id {subInvasion.UserId} from guild id {subInvasion.GuildId}");
-                                }
-                            }
-                            else
-                            {
-                                // Save/update invasion subscription if cities still assigned
-                                subInvasion.Save();
-                            }
+                        }
+                        else
+                        {
+                            // Save/update invasion subscription if cities still assigned
+                            subInvasion.Save();
                         }
                         subscription.Save();
 
-                        var validPokemonNames = string.Join("**, **", invasionPokemonResult.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name));
+                        var validIds = valid.Split(',').Select(x => uint.Parse(x));
+                        var validPokemonNames = string.Join("**, **", validIds.Select(x => MasterFile.Instance.Pokedex[(int)x].Name));
                         var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                             ctx.User.Username,
@@ -3168,13 +3158,13 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var list = new List<string>();
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedInvasions = subscription.Invasions;
-            subscribedInvasions.Sort((x, y) => string.Compare(MasterFile.GetPokemon(x.RewardPokemonId, 0).Name, MasterFile.GetPokemon(y.RewardPokemonId, 0).Name, true));
+            subscribedInvasions.Sort((x, y) => string.Compare(string.Join(", ", x.RewardPokemonId.Select(a => MasterFile.GetPokemon((int)a, 0).Name)), string.Join(", ", y.RewardPokemonId.Select(b => MasterFile.GetPokemon((int)b, 0).Name)), true));
             var cityRoles = _dep.WhConfig.Servers[guildId].Geofences.Select(x => x.Name.ToLower());
 
             foreach (var invasion in subscribedInvasions)
             {
                 var isAllCities = cityRoles.ScrambledEquals(invasion.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(MasterFile.GetPokemon(invasion.RewardPokemonId, 0).Name, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", invasion.Areas)));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(string.Join(", ", invasion.RewardPokemonId.Select(x => MasterFile.GetPokemon((int)x, 0).Name)), isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", invasion.Areas)));
             }
 
             return list;
