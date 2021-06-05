@@ -143,7 +143,7 @@
         private IReadOnlyDictionary<string, string> GetProperties(DiscordGuild guild, WhConfig whConfig, string city, string weatherImageUrl)
         {
             var weather = Translator.Instance.GetWeather(GameplayCondition);
-            var weatherEmoji = GameplayCondition != WeatherCondition.None ? GameplayCondition.GetEmojiIcon("weather") : string.Empty;
+            var weatherEmoji = GameplayCondition != WeatherCondition.None ? GameplayCondition.GetEmojiIcon("weather", false) : string.Empty;
             var hasWeather = GameplayCondition != WeatherCondition.None;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);

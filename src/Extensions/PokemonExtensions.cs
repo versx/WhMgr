@@ -130,9 +130,13 @@
             return string.Join(" ", list);
         }
 
-        public static string GetEmojiIcon<T>(this T type, string keyPrefix, string emojiSchema = Strings.EmojiSchema)
+        public static string GetEmojiIcon<T>(this T type, string keyPrefix, bool asString, string emojiSchema = Strings.EmojiSchema)
         {
-            var key = $"{keyPrefix}_{Convert.ToInt32(type)}";
+            var key = $"{keyPrefix}_";
+            if (asString)
+                key += type.ToString();
+            else
+                key += Convert.ToInt32(type);
             var emojiId = MasterFile.Instance.Emojis[key];
             var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
                 ? emojiId > 0
