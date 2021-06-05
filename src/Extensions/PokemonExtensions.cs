@@ -134,7 +134,7 @@
         {
             var key = $"{keyPrefix}_";
             if (asString)
-                key += type.ToString();
+                key += type.ToString().ToLower();
             else
                 key += Convert.ToInt32(type);
             var emojiId = MasterFile.Instance.Emojis[key];
