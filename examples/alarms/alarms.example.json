@@ -13,7 +13,6 @@
 			"alerts": "default.json",
 			"filters": "all.json",
 			"geofences":["City1.txt", "City2.txt"],
-			"description": "<!@324234324> <iv> L<lvl> <geofence>",  
 			"webhook": "<DISCORD_WEBHOOK_URL>"
 		},
 		{
