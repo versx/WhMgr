@@ -486,7 +486,7 @@
             var weather = Weather?.ToString();
             var hasWeather = Weather.HasValue && Weather != WeatherCondition.None;
             var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherCondition.None);
-            var weatherEmoji = (Weather ?? WeatherCondition.None).GetEmojiIcon("weather", false);
+            var weatherEmoji = Weather != WeatherCondition.None ? Weather.GetEmojiIcon("weather", false) : null;
             var move1 = int.TryParse(FastMove, out var fastMoveId) ? Translator.Instance.GetMoveName(fastMoveId) : "Unknown";
             var move2 = int.TryParse(ChargeMove, out var chargeMoveId) ? Translator.Instance.GetMoveName(chargeMoveId) : "Unknown";
             var type1 = pkmnInfo?.Types?[0];
