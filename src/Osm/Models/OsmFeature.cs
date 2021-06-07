@@ -1,19 +1,19 @@
 ﻿namespace WhMgr.Osm.Models
 {
-    using Newtonsoft.Json;
+    using System.Text.Json.Serialization;
 
     public class OsmFeature
     {
-        [JsonProperty("geometry")]
+        [JsonPropertyName("geometry")]
         public OsmFeatureGeometry Geometry { get; set; }
 
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public string Type { get; set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public long Id { get; set; }
 
-        [JsonProperty("properties")]
+        [JsonPropertyName("properties")]
         public OsmFeatureProperties Properties { get; set; }
     }
 }

@@ -35,5 +35,13 @@
         {
             return now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
         }
+
+        public static DateTime FromUnix(this long unixSeconds)
+        {
+            var epochTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            var localDateTime = epochTime.AddSeconds(unixSeconds);//.ToLocalTime();
+
+            return localDateTime;
+        }
     }
 }

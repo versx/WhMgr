@@ -1,21 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
     <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX>
     <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
-    <Authors>versx</Authors>
-    <Company>WhMgr</Company>
-    <VersionSuffix>4.2.1.$([System.DateTime]::UtcNow.ToString(hmm))</VersionSuffix>
-    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">4.2.1.1</AssemblyVersion>
-    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
-    <Version Condition=" '$(VersionSuffix)' == '' ">4.2.1.0</Version>
-    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
-    <Version>4.17.0.0</Version>
-    <AssemblyVersion>4.17.0.0</AssemblyVersion>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(IsWindows)'=='true'">
     <DefineConstants>Windows</DefineConstants>
   </PropertyGroup>
@@ -31,25 +23,21 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>../bin</OutputPath>
-  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus" Version="4.0.1" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.1" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.1" />
+    <PackageReference Include="GeoTimeZone" Version="4.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
+    <PackageReference Include="NetTopologySuite" Version="2.2.0" />
+    <PackageReference Include="NetTopologySuite.Features" Version="2.1.0" />
+    <PackageReference Include="POGOProtos.Core" Version="2.54.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
+    <PackageReference Include="TimeZoneConverter" Version="3.5.0" />
+  </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="3.2.3" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="3.2.3" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="3.2.3" />
-    <PackageReference Include="GeoTimeZone" Version="4.1.0" />
-    <PackageReference Include="Microsoft.Win32.SystemEvents" Version="4.7.0" />
-    <PackageReference Include="NetTopologySuite" Version="2.1.0" />
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="POGOProtos.Core" Version="2.53.3" />
-    <PackageReference Include="ServiceStack.OrmLite.MySql" Version="5.8.0" />
-    <PackageReference Include="Stripe.net" Version="39.29.0" />
-    <PackageReference Include="TimeZoneConverter" Version="3.3.0" />
-    <PackageReference Include="Twilio" Version="5.51.0" />
-    <PackageReference Include="SmartFormat.NET" Version="2.5.3" />
+    <Folder Include="Data\Models\Subscriptions\" />
   </ItemGroup>
 
 </Project>

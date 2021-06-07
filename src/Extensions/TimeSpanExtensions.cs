@@ -16,7 +16,7 @@
             );
 
             if (formatted.EndsWith(", ", StringComparison.Ordinal))
-                formatted = formatted.Substring(0, formatted.Length - 2);
+                formatted = formatted[0..^2];
 
             if (string.IsNullOrEmpty(formatted))
                 formatted = "0 seconds";

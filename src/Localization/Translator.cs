@@ -10,16 +10,12 @@
     using TemporaryEvolutionId = POGOProtos.Rpc.HoloTemporaryEvolutionId;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
-    using WhMgr.Diagnostics;
-
     public class Translator : Language<string, string, Dictionary<string, string>>
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("LOCALE");
-
         #region Singleton
 
         private static Translator _instance;
-        
+
         public static Translator Instance
         {
             get
@@ -42,8 +38,8 @@
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to find locale translation for key '{value}'");
-                _logger.Error(ex);
+                Console.WriteLine($"Failed to find locale translation for key '{value}'");
+                Console.WriteLine(ex);
             }
             return value;
         }
@@ -59,13 +55,13 @@
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to find locale translation for key '{value}' and arguments: '{string.Join(",", args)}'");
-                _logger.Error(ex);
+                Console.WriteLine($"Failed to find locale translation for key '{value}' and arguments: '{string.Join(",", args)}'");
+                Console.WriteLine(ex);
             }
             return value;
         }
 
-        public string GetPokemonName(uint pokeId)
+        public string GetPokemonName(int pokeId)
         {
             return Translate($"poke_{pokeId}");
         }

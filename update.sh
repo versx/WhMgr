@@ -11,7 +11,7 @@ echo "Building WhMgr..."
 # Copy example configs
 if [ "$1" == "examples" ] || [ "$1" == "example" ] || [ "$1" == "all" ]; then
     echo "Copying examples"
-    cp -R "examples/alerts" "bin/"
+    cp -R "examples/embeds" "bin/"
     cp -R "examples/filters" "bin/"
     cp -R "examples/alarms" "bin/"
     cp -R "examples/discords" "bin/"

@@ -1,6 +1,6 @@
 ﻿namespace WhMgr.Configuration
 {
-    using Newtonsoft.Json;
+    using System.Text.Json.Serialization;
 
     /// <summary>
     /// Url configuration class
@@ -10,13 +10,13 @@
         /// <summary>
         /// Gets or sets the static map image url
         /// </summary>
-        [JsonProperty("staticMap")]
+        [JsonPropertyName("staticMap")]
         public string StaticMap { get; set; }
 
         /// <summary>
         /// Gets or sets the scanner map url
         /// </summary>
-        [JsonProperty("scannerMap")]
+        [JsonPropertyName("scannerMap")]
         public string ScannerMap { get; set; }
     }
 }

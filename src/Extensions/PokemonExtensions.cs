@@ -4,18 +4,15 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using POGOProtos.Rpc;
-    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
+     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
+    using WhMgr.Services.Webhook.Models;
     using WhMgr.Data;
-    using WhMgr.Data.Models;
-    using WhMgr.Data.Subscriptions.Models;
-    using WhMgr.Net.Models;
 
     public static class PokemonExtensions
     {
-        public static int MaxCpAtLevel(this uint id, int level)
+        public static int MaxCpAtLevel(this int id, int level)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id) || id == 0)
                 return 0;
@@ -29,7 +26,7 @@
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(maxAtk * maxAtk * maxDef * maxSta) / 10));
         }
 
-        public static int MinCpAtLevel(this uint id, int level)
+        public static int MinCpAtLevel(this int id, int level)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id) || id == 0)
                 return 0;
@@ -43,17 +40,17 @@
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(minAtk * minAtk * minDef * minSta) / 10));
         }
 
-        public static bool IsCommonPokemon(this uint pokeId)
+        public static bool IsCommonPokemon(this int pokeId)
         {
             return MasterFile.Instance.PokemonRarity[PokemonRarity.Common].Contains(pokeId);
         }
 
-        public static bool IsRarePokemon(this uint pokeId)
+        public static bool IsRarePokemon(this int pokeId)
         {
             return MasterFile.Instance.PokemonRarity[PokemonRarity.Rare].Contains(pokeId);
         }
 
-        public static PokemonSize GetSize(this uint id, float height, float weight)
+        public static PokemonSize GetSize(this int id, float height, float weight)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id))
                 return PokemonSize.Normal;
@@ -63,24 +60,21 @@
             var heightRatio = height / Convert.ToDouble(stats?.Height ?? 0);
             var size = heightRatio + weightRatio;
 
-            if (size < 1.5)   return PokemonSize.Tiny;
+            if (size < 1.5) return PokemonSize.Tiny;
             if (size <= 1.75) return PokemonSize.Small;
-            if (size < 2.25)  return PokemonSize.Normal;
-            if (size <= 2.5)  return PokemonSize.Large;
+            if (size < 2.25) return PokemonSize.Normal;
+            if (size <= 2.5) return PokemonSize.Large;
             return PokemonSize.Big;
         }
 
         public static string GetPokemonGenderIcon(this Gender gender)
         {
-            switch (gender)
+            return gender switch
             {
-                case Gender.Male:
-                    return "♂"; //♂ \u2642
-                case Gender.Female:
-                    return "♀"; //♀ \u2640
-                default:
-                    return "⚲"; //⚲
-            }
+                Gender.Male => "♂", //♂ \u2642
+                Gender.Female => "♀", //♀ \u2640
+                _ => "⚲",//⚲
+            };
         }
 
         public static List<PokemonType> GetStrengths(this PokemonType type)
@@ -99,7 +93,7 @@
                 return MasterFile.Instance.PokemonTypes[type].Weaknesses;
             }
             return new List<PokemonType>();
-         }
+        }
 
         public static string GetTypeEmojiIcons(this PokemonType pokemonType)
         {
@@ -137,7 +131,7 @@
                 key += type.ToString().ToLower();
             else
                 key += Convert.ToInt32(type);
-            var emojiId = MasterFile.Instance.Emojis.ContainsKey(key) ? MasterFile.Instance.Emojis[key] : 0;
+            var emojiId = MasterFile.Instance.Emojis[key];
             var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
                 ? emojiId > 0
                     ? string.Format(emojiSchema, key, emojiId)
@@ -145,52 +139,6 @@
                 : MasterFile.Instance.CustomEmojis[key];
             return emojiName;
         }
-
-        /*
-        public static string GetWeatherEmojiIcon(this WeatherCondition weather)
-        {
-            var key = $"weather_{Convert.ToInt32(weather)}";
-            var emojiId = MasterFile.Instance.Emojis[key];
-            var emojiName = emojiId > 0 ? string.Format(Strings.EmojiSchema, key, emojiId) : weather.ToString();
-            return emojiName;
-        }
-
-        public static string GetCaptureRateEmojiIcon(this CaptureRateType type)
-        {
-            var key = $"capture_{Convert.ToInt32(type)}";
-            var emojiId = MasterFile.Instance.Emojis[key];
-            var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
-                ? emojiId > 0
-                    ? string.Format(Strings.EmojiSchema, key, emojiId)
-                    : type.ToString()
-                : MasterFile.Instance.CustomEmojis[key];
-            return emojiName;
-        }
-
-        public static string GetLeagueEmojiIcon(this PvPLeague league)
-        {
-            var key = $"league_{league.ToString().ToLower()}";
-            var emojiId = MasterFile.Instance.Emojis[key];
-            var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
-                ? emojiId > 0
-                    ? string.Format(Strings.EmojiSchema, key, emojiId)
-                    : league.ToString()
-                : MasterFile.Instance.CustomEmojis[key];
-            return emojiName;
-        }
-
-        public static string GetGenderEmojiIcon(this Gender gender)
-        {
-            var key = $"gender_{gender.ToString().ToLower()}";
-            var emojiId = MasterFile.Instance.Emojis[key];
-            var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
-                ? emojiId > 0
-                    ? string.Format(Strings.EmojiSchema, key, emojiId)
-                    : gender.ToString()
-                : MasterFile.Instance.CustomEmojis[key];
-            return emojiName;
-        }
-        */
 
         public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes)
         {
@@ -220,7 +168,7 @@
             return string.Join(" ", list);
         }
 
-        public static uint PokemonIdFromName(this string name)
+        public static int PokemonIdFromName(this string name)
         {
             if (string.IsNullOrEmpty(name))
                 return 0;
@@ -236,7 +184,7 @@
                 if (p.Value.Name.ToLower().Contains(name.ToLower()))
                     return p.Key;
 
-            if (!uint.TryParse(name, out var pokeId))
+            if (!int.TryParse(name, out var pokeId))
                 return 0;
 
             if (MasterFile.Instance.Pokedex.ContainsKey(pokeId))
@@ -247,7 +195,7 @@
 
         public static PokemonValidation ValidatePokemon(this IEnumerable<string> pokemon)
         {
-            var valid = new Dictionary<uint, string>();
+            var valid = new Dictionary<int, string>();
             var invalid = new List<string>();
             foreach (var poke in pokemon)
             {
@@ -299,17 +247,17 @@
 
     public class PokemonValidation
     {
-        public Dictionary<uint, string> Valid { get; set; }
+        public Dictionary<int, string> Valid { get; set; }
 
         public List<string> Invalid { get; set; }
 
         public PokemonValidation()
         {
-            Valid = new Dictionary<uint, string>();
+            Valid = new Dictionary<int, string>();
             Invalid = new List<string>();
         }
 
-        public static PokemonValidation Validate(string pokemonList, uint maxPokemonId)// = 999)
+        public static PokemonValidation Validate(string pokemonList, int maxPokemonId)// = 999)
         {
             if (string.IsNullOrEmpty(pokemonList))
                 return null;
@@ -317,7 +265,7 @@
             pokemonList = pokemonList.Replace(" ", "");
 
             PokemonValidation validation;
-            if (pokemonList.Contains("-") && uint.TryParse(pokemonList.Split('-')[0], out var startRange) && uint.TryParse(pokemonList.Split('-')[1], out var endRange))
+            if (pokemonList.Contains("-") && int.TryParse(pokemonList.Split('-')[0], out var startRange) && int.TryParse(pokemonList.Split('-')[1], out var endRange))
             {
                 //If `poke` param is a range
                 var range = GetListFromRange(startRange, endRange);
@@ -330,12 +278,12 @@
                 {
                     var keys = Strings.PokemonGenerationRanges.Keys.ToList();
                     var minValue = keys[0];
-                    var maxValue = keys[keys.Count - 1];
+                    var maxValue = keys[^1];
                     return null;
                 }
 
                 var genRange = Strings.PokemonGenerationRanges[gen];
-                var range = GetListFromRange((uint)genRange.Start, (uint)genRange.End);
+                var range = GetListFromRange(genRange.Start, genRange.End);
                 validation = range.ValidatePokemon();
             }
             else if (string.Compare(pokemonList, Strings.All, true) == 0)
@@ -352,7 +300,7 @@
             return validation;
         }
 
-        public static List<string> GetListFromRange(uint startRange, uint endRange)
+        public static List<string> GetListFromRange(int startRange, int endRange)
         {
             var list = new List<string>();
             for (; startRange <= endRange; startRange++)

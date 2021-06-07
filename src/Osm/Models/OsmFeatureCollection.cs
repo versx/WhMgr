@@ -1,15 +1,14 @@
 ﻿namespace WhMgr.Osm.Models
 {
-    using System;
     using System.Collections.Generic;
-
-    using Newtonsoft.Json;
+    using System.Text.Json.Serialization;
 
     public class OsmFeatureCollection
     {
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public string Type { get; set; }
 
+        [JsonPropertyName("features")]
         public List<OsmFeature> Features { get; set; }
     }
 }

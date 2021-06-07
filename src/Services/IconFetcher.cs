@@ -10,45 +10,34 @@
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
     using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
-    using ServiceStack;
 
-    using WhMgr.Net.Models;
     using WhMgr.Utilities;
 
-    class IconFetcher
+    internal class IconFetcher
     {
-        private static readonly IconSet _availablePokemonForms = new IconSet();
-        private static IReadOnlyDictionary<string, string> _iconStyles;
+        private readonly IconSet _availablePokemonForms = new();
+        private IReadOnlyDictionary<string, string> _iconStyles;
 
         #region Singleton
 
         private static IconFetcher _instance;
 
-        public static IconFetcher Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new IconFetcher();
-                }
-                return _instance;
-            }
-        }
+        public static IconFetcher Instance =>
+            _instance ??= new IconFetcher();
 
         #endregion
 
-        public string GetPokemonIcon(string style, uint pokemonId, int form = 0, int evolution = 0, Gender gender = Gender.Unset, int costume = 0, bool shiny = false)
+        public string GetPokemonIcon(string style, int pokemonId, int form = 0, int evolution = 0, Gender gender = Gender.Unset, int costume = 0, bool shiny = false)
         {
             if (!_availablePokemonForms.ContainsKey(style))
             {
                 return _iconStyles[style] + "pokemon/0.png"; // Substitute Pokemon
             }
-            var evolutionSuffixes = (evolution > 0 ? new [] { "-e" + evolution, string.Empty }   : new [] { string.Empty }).ToList();
-            var formSuffixes      = (form      > 0 ? new [] { "-f" + form, string.Empty }        : new [] { string.Empty }).ToList();
-            var costumeSuffixes   = (costume   > 0 ? new [] { "-c" + costume, string.Empty }     : new [] { string.Empty }).ToList();
-            var genderSuffixes    = (gender    > 0 ? new [] { "-g" + (int)gender, string.Empty } : new [] { string.Empty }).ToList();
-            var shinySuffixes     = (shiny         ? new [] { "-shiny", string.Empty }           : new [] { string.Empty }).ToList();
+            var evolutionSuffixes = (evolution > 0 ? new[] { "-e" + evolution, string.Empty } : new[] { string.Empty }).ToList();
+            var formSuffixes = (form > 0 ? new[] { "-f" + form, string.Empty } : new[] { string.Empty }).ToList();
+            var costumeSuffixes = (costume > 0 ? new[] { "-c" + costume, string.Empty } : new[] { string.Empty }).ToList();
+            var genderSuffixes = (gender > 0 ? new[] { "-g" + (int)gender, string.Empty } : new[] { string.Empty }).ToList();
+            var shinySuffixes = (shiny ? new[] { "-shiny", string.Empty } : new[] { string.Empty }).ToList();
             foreach (var evolutionSuffix in evolutionSuffixes)
             {
                 foreach (var formSuffix in formSuffixes)
@@ -78,11 +67,12 @@
             sb.Append("raid/");
             sb.Append(level);
             if (hatched) sb.Append("-hatched");
-            if (ex)      sb.Append("-ex");
+            if (ex) sb.Append("-ex");
             sb.Append(".png");
             return _iconStyles[style] + sb.ToString();
         }
 
+        /*
         public string GetQuestIcon(string style, QuestData quest)
         {
             var sb = new StringBuilder();
@@ -133,6 +123,7 @@
         {
             return _iconStyles[style] + "reward/2-i" + (int)lureType + "-a1.png";
         }
+        */
 
         public string GetInvasionIcon(string style, InvasionCharacter gruntType)
         {
@@ -160,7 +151,7 @@
                     continue;
 
                 // Get the remote form index file from the icon repository
-                var formsListJson = NetUtil.Get(style.Value + "pokemon/index.json");
+                var formsListJson = NetUtils.Get(style.Value + "pokemon/index.json");
                 if (string.IsNullOrEmpty(formsListJson))
                 {
                     // Failed to get form list, add empty form set and skip to the next style

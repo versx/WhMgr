@@ -1,25 +1,25 @@
 ﻿namespace WhMgr.Osm.Models
 {
-    using Newtonsoft.Json;
+    using System.Text.Json.Serialization;
 
     public class OsmFeatureProperties
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("fill")]
+        [JsonPropertyName("fill")]
         public string Fill { get; set; }
 
-        [JsonProperty("fill-opacity")]
+        [JsonPropertyName("fill-opacity")]
         public double FillOpacity { get; set; }
 
-        [JsonProperty("stroke")]
+        [JsonPropertyName("stroke")]
         public string Stroke { get; set; }
 
-        [JsonProperty("stroke-opacity")]
+        [JsonPropertyName("stroke-opacity")]
         public double StrokeOpacity { get; set; }
 
-        [JsonProperty("stroke-width")]
+        [JsonPropertyName("stroke-width")]
         public double StrokeWidth { get; set; }
     }
 }

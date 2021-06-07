@@ -5,15 +5,11 @@
     using System.IO;
     using System.Linq;
 
-    using Newtonsoft.Json;
-
-    using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
     using WhMgr.Osm.Models;
 
     public class OsmManager
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("OSM", Program.LogLevel);
-
         public OsmFeatureCollection Nests { get; private set; }
 
         public OsmManager()
@@ -25,15 +21,15 @@
         {
             if (!File.Exists(Strings.OsmNestFilePath))
             {
-                _logger.Warn($"{Strings.OsmNestFilePath} does not exist, failed to load nests.");
+                Console.WriteLine($"{Strings.OsmNestFilePath} does not exist, failed to load nests.");
                 return;
             }
 
             var data = File.ReadAllText(Strings.OsmNestFilePath);
-            var obj = JsonConvert.DeserializeObject<OsmFeatureCollection>(data);
+            var obj = data.FromJson<OsmFeatureCollection>();
             if (obj == null)
             {
-                _logger.Warn($"Failed to deserialize file data from {Strings.OsmNestFilePath} for nests collection.");
+                Console.WriteLine($"Failed to deserialize file data from {Strings.OsmNestFilePath} for nests collection.");
                 return;
             }
             Nests = obj;
@@ -57,7 +53,7 @@
             for (var i = 0; i < coordinates.Count; i++)
             {
                 var multipolygon = coordinates[i];
-                sb.Append("[");
+                sb.Append('[');
                 for (var j = 0; j < multipolygon.Count; j++)
                 {
                     var polygon = multipolygon[j];
@@ -72,11 +68,11 @@
                         sb.Append($"[{lat},{lng}]");
 
                     if (j != multipolygon.Count - 1)
-                        sb.Append(",");
+                        sb.Append(',');
                 }
-                sb.Append("]");
+                sb.Append(']');
                 if (i != coordinates.Count - 1)
-                    sb.Append(",");
+                    sb.Append(',');
             }
             //sb.Append("]");
             return sb.ToString();

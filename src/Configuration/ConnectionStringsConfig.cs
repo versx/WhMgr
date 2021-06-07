@@ -1,6 +1,6 @@
 ﻿namespace WhMgr.Configuration
 {
-    using Newtonsoft.Json;
+    using System.Text.Json.Serialization;
 
     /// <summary>
     /// MySQL connection strings configuration class
@@ -10,19 +10,19 @@
         /// <summary>
         /// Gets or sets the main database options for subscriptions
         /// </summary>
-        [JsonProperty("main")]
+        [JsonPropertyName("main")]
         public DatabaseConfig Main { get; set; }
 
         /// <summary>
         /// Gets or sets the scanner database options
         /// </summary>
-        [JsonProperty("scanner")]
+        [JsonPropertyName("scanner")]
         public DatabaseConfig Scanner { get; set; }
 
         /// <summary>
         /// Gets or sets the nests database options
         /// </summary>
-        [JsonProperty("nests")]
+        [JsonPropertyName("nests")]
         public DatabaseConfig Nests { get; set; }
     }
 }

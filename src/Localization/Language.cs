@@ -6,7 +6,7 @@
     using System.Globalization;
     using System.IO;
 
-    using Newtonsoft.Json;
+    using WhMgr.Extensions;
 
     public class Language<TFrom, TTo, TDictionary> : IEnumerable<KeyValuePair<TFrom, TTo>>
         where TDictionary : IDictionary<TFrom, TTo>, new()
@@ -216,7 +216,7 @@
 
             var path = Path.Combine(LocaleDirectory, localeCode + ".json");
             var data = File.ReadAllText(path);
-            var obj = JsonConvert.DeserializeObject<TDictionary>(data);
+            var obj = data.FromJson<TDictionary>();
             return obj;
         }
 

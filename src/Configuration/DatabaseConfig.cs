@@ -1,6 +1,6 @@
 ﻿namespace WhMgr.Configuration
 {
-    using Newtonsoft.Json;
+    using System.Text.Json.Serialization;
 
     /// <summary>
     /// MySQL database configuration class.
@@ -10,31 +10,31 @@
         /// <summary>
         /// MySQL host address
         /// </summary>
-        [JsonProperty("host")]
+        [JsonPropertyName("host")]
         public string Host { get; set; }
 
         /// <summary>
         /// MySQL listening port
         /// </summary>
-        [JsonProperty("port")]
+        [JsonPropertyName("port")]
         public ushort Port { get; set; }
 
         /// <summary>
         /// MySQL username
         /// </summary>
-        [JsonProperty("username")]
+        [JsonPropertyName("username")]
         public string Username { get; set; }
 
         /// <summary>
         /// MySQL password
         /// </summary>
-        [JsonProperty("password")]
+        [JsonPropertyName("password")]
         public string Password { get; set; }
 
         /// <summary>
         /// MySQL database name
         /// </summary>
-        [JsonProperty("database")]
+        [JsonPropertyName("database")]
         public string Database { get; set; }
 
         /// <summary>

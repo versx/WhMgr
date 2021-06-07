@@ -3,16 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Text.Json.Serialization;
 
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
-    using POGOProtos.Rpc;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
-    using WhMgr.Configuration;
-    using WhMgr.Data.Models;
-    using WhMgr.Diagnostics;
-    using WhMgr.Net.Models;
+    using WhMgr.Extensions;
+    using WhMgr.Services.Webhook.Models;
 
     public class MasterFile
     {
@@ -20,37 +16,34 @@
         const string CpMultipliersFileName = "cpMultipliers.json";
         const string EmojisFileName = "emojis.json";
         const string RarityFileName = "rarity.json";
-        const string EmbedColorsFileName = "embedColors.json";
-
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER", Program.LogLevel);
 
         #region Properties
 
-        [JsonProperty("pokemon")]
-        public IReadOnlyDictionary<uint, PokedexPokemon> Pokedex { get; set; }
+        [JsonPropertyName("pokemon")]
+        public IReadOnlyDictionary<int, PokedexPokemon> Pokedex { get; set; }
 
-        //[JsonProperty("moves")]
+        //[JsonPropertyName("moves")]
         //public IReadOnlyDictionary<int, Moveset> Movesets { get; set; }
 
-        [JsonProperty("quest_conditions")]
+        [JsonPropertyName("quest_conditions")]
         public IReadOnlyDictionary<string, QuestConditionModel> QuestConditions { get; set; }
 
-        [JsonProperty("quest_types")]
+        [JsonPropertyName("quest_types")]
         public IReadOnlyDictionary<int, QuestTypeModel> QuestTypes { get; set; }
 
-        [JsonProperty("quest_reward_types")]
+        [JsonPropertyName("quest_reward_types")]
         public IReadOnlyDictionary<int, QuestRewardTypeModel> QuestRewardTypes { get; set; }
 
-        [JsonProperty("throw_types")]
+        [JsonPropertyName("throw_types")]
         public IReadOnlyDictionary<int, string> ThrowTypes { get; set; }
 
-        [JsonProperty("items")]
+        [JsonPropertyName("items")]
         public IReadOnlyDictionary<int, ItemModel> Items { get; set; }
 
-        [JsonProperty("grunt_types")]
+        [JsonPropertyName("grunt_types")]
         public IReadOnlyDictionary<InvasionCharacter, TeamRocketInvasion> GruntTypes { get; set; }
 
-        [JsonProperty("pokemon_types")]
+        [JsonPropertyName("pokemon_types")]
         public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }
 
         [JsonIgnore]
@@ -63,13 +56,7 @@
         public Dictionary<string, string> CustomEmojis { get; set; }
 
         [JsonIgnore]
-        public IReadOnlyDictionary<PokemonRarity, List<uint>> PokemonRarity { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Discord embed colors to use for each message type
-        /// </summary>
-        [JsonIgnore]
-        public DiscordEmbedColorConfig DiscordEmbedColors { get; set; }
+        public IReadOnlyDictionary<PokemonRarity, List<int>> PokemonRarity { get; set; }
 
         #region Singletons
 
@@ -94,19 +81,18 @@
         public MasterFile()
         {
             CpMultipliers = LoadInit<Dictionary<double, double>>(Path.Combine(Strings.DataFolder, CpMultipliersFileName));
-            PokemonRarity = LoadInit<Dictionary<PokemonRarity, List<uint>>>(Path.Combine(Strings.DataFolder, RarityFileName));
+            PokemonRarity = LoadInit<Dictionary<PokemonRarity, List<int>>>(Path.Combine(Strings.DataFolder, RarityFileName));
             Emojis = new Dictionary<string, ulong>();
             CustomEmojis = LoadInit<Dictionary<string, string>>(Path.Combine(Strings.DataFolder, EmojisFileName));
-            DiscordEmbedColors = LoadInit<DiscordEmbedColorConfig>(Path.Combine(Strings.DataFolder, EmbedColorsFileName));
         }
 
-        public static PokedexPokemon GetPokemon(uint pokemonId, int formId)
+        public static PokedexPokemon GetPokemon(int pokemonId, int formId)
         {
             if (!Instance.Pokedex.ContainsKey(pokemonId))
                 return null;
 
             var pkmn = Instance.Pokedex[pokemonId];
-            var useForm = !pkmn.Attack.HasValue && formId > 0 && (pkmn.Forms?.ContainsKey(formId) ?? true);
+            var useForm = !pkmn.Attack.HasValue && formId > 0 && pkmn.Forms.ContainsKey(formId);
             var pkmnForm = useForm ? pkmn.Forms[formId] : pkmn;
             pkmnForm.Name = pkmn.Name;
             return pkmnForm;
@@ -122,26 +108,26 @@
             var data = File.ReadAllText(filePath);
             if (string.IsNullOrEmpty(data))
             {
-                _logger.Error($"{filePath} database is empty.");
+                Console.WriteLine($"{filePath} database is empty.");
                 return default;
             }
 
-            return (T)JsonConvert.DeserializeObject(data, typeof(T));
+            return data.FromJson<T>();
         }
     }
 
     public class PokemonTypes
     {
-        [JsonProperty("immunes")]
+        [JsonPropertyName("immunes")]
         public List<PokemonType> Immune { get; set; }
 
-        [JsonProperty("weaknesses")]
+        [JsonPropertyName("weaknesses")]
         public List<PokemonType> Weaknesses { get; set; }
 
-        [JsonProperty("resistances")]
+        [JsonPropertyName("resistances")]
         public List<PokemonType> Resistances { get; set; }
 
-        [JsonProperty("strengths")]
+        [JsonPropertyName("strengths")]
         public List<PokemonType> Strengths { get; set; }
 
         public PokemonTypes()
@@ -162,7 +148,7 @@
         public ulong Id { get; set; }
     }
 
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum PokemonRarity
     {
         Common,
@@ -171,40 +157,40 @@
 
     public class ItemModel
     {
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
-        
-        [JsonProperty("proto")]
+
+        [JsonPropertyName("proto")]
         public string ProtoName { get; set; }
 
-        [JsonProperty("min_trainer_level")]
+        [JsonPropertyName("min_trainer_level")]
         public int MinimumTrainerLevel { get; set; }
     }
 
     public class QuestTypeModel
     {
-        [JsonProperty("prototext")]
+        [JsonPropertyName("prototext")]
         public string ProtoText { get; set; }
 
-        [JsonProperty("text")]
+        [JsonPropertyName("text")]
         public string Text { get; set; }
     }
 
     public class QuestConditionModel
     {
-        [JsonProperty("prototext")]
+        [JsonPropertyName("prototext")]
         public string ProtoText { get; set; }
 
-        [JsonProperty("text")]
+        [JsonPropertyName("text")]
         public string Text { get; set; }
     }
 
     public class QuestRewardTypeModel
     {
-        [JsonProperty("prototext")]
+        [JsonPropertyName("prototext")]
         public string ProtoText { get; set; }
 
-        [JsonProperty("text")]
+        [JsonPropertyName("text")]
         public string Text { get; set; }
     }
 }

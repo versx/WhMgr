@@ -2,15 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
-
-    using Newtonsoft.Json;
+    using System.Text.Json.Serialization;
 
     public class OsmFeatureGeometry
     {
-        [JsonProperty("type")]
+        [JsonPropertyName("type")]
         public string Type { get; set; }
 
-        [JsonProperty("coordinates")]
+        [JsonPropertyName("coordinates")]
         public List<MultiPolygon> Coordinates { get; set; }
     }
 
