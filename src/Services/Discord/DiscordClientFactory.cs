@@ -36,7 +36,7 @@
             });
 
             // Configure Discord interactivity module
-            var interactivity = client.UseInteractivity(new InteractivityConfiguration
+            client.UseInteractivity(new InteractivityConfiguration
             {
                 PollBehaviour = DSharpPlus.Interactivity.Enums.PollBehaviour.KeepEmojis,
                 Timeout = TimeSpan.FromSeconds(30),
@@ -44,7 +44,7 @@
             });
 
             // Discord commands configuration
-            var commands = client.UseCommandsNext
+            client.UseCommandsNext
             (
                 new CommandsNextConfiguration
                 {

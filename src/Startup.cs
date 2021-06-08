@@ -140,7 +140,7 @@ namespace WhMgr
             Console.WriteLine($"[DISCORD] ----- Current Application");
             Console.WriteLine($"[DISCORD] Name: {client.CurrentApplication.Name}");
             Console.WriteLine($"[DISCORD] Description: {client.CurrentApplication.Description}");
-            var owners = string.Join("\n", client.CurrentApplication.Owners.Select(x => $"{x.Username}#{x.Discriminator}"));
+            var owners = string.Join(", ", client.CurrentApplication.Owners.Select(x => $"{x.Username}#{x.Discriminator}"));
             Console.WriteLine($"[DISCORD] Owner: {owners}");
             Console.WriteLine($"[DISCORD] ----- Current User");
             Console.WriteLine($"[DISCORD] Id: {client.CurrentUser.Id}");
@@ -288,7 +288,6 @@ namespace WhMgr
                     if (!MasterFile.Instance.Emojis.ContainsKey(emoji.Name))
                     {
                         MasterFile.Instance.Emojis.Add(emoji.Name, emoji.Id);
-                        continue;
                     }
                 }
             }
