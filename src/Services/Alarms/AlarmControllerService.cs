@@ -50,15 +50,6 @@
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnablePokemon))
             {
-                if (alarms == null)
-                    continue;
-
-                if (!alarms.EnablePokemon)
-                    continue;
-
-                if (alarms.Alarms?.Count == 0)
-                    continue;
-
                 var pokemonAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Pokemon?.Pokemon != null && x.Filters.Pokemon.Enabled);
                 if (pokemonAlarms == null)
                     continue;
