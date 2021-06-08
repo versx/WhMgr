@@ -38,8 +38,12 @@
         /// Gets or sets the donor role ID(s)
         /// </summary>
         [JsonPropertyName("donorRoleIds")]
-        public List<ulong> DonorRoleIds { get; set; }
+        public List<ulong> DonorRoleIds { get; set; } = new();
 
+        /// <summary>
+        /// Gets or sets the free donor role name to assign by non-donors to get
+        /// free donor access
+        /// </summary>
         [JsonPropertyName("freeRoleName")]
         public string FreeRoleName { get; set; }
 
@@ -47,7 +51,7 @@
         /// Gets or sets the moderators of the Discord server
         /// </summary>
         [JsonPropertyName("moderatorRoleIds")]
-        public List<ulong> ModeratorRoleIds { get; set; }
+        public List<ulong> ModeratorRoleIds { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the Discord bot token
@@ -62,7 +66,8 @@
         public string AlarmsFile { get; set; }
 
         /// <summary>
-        /// Gets or sets the list of Geofence files to use for the Discord server (in addition to the common ones)
+        /// Gets or sets the list of Geofence files to use for the Discord server
+        /// (in addition to the common ones)
         /// </summary>
         [JsonPropertyName("geofences")]
         public string[] GeofenceFiles { get; set; }
@@ -77,34 +82,17 @@
         // TODO: public SubscriptionsConfig Subscriptions { get; set; }
 
         /// <summary>
-        /// Gets or sets a value whether to enable assigning geofence/area/city roles or not
+        /// Gets or sets the GeofenceRoles config to use with assigning geofence 
+        /// roles to see different sections
         /// </summary>
-        [JsonPropertyName("enableGeofenceRoles")]
-        public bool EnableGeofenceRoles { get; set; }
+        [JsonPropertyName("geofenceRoles")]
+        public GeofenceRolesConfig GeofenceRoles { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets a value determining whether city roles should be removed when a donor role is removed from a Discord member
+        /// 
         /// </summary>
-        [JsonPropertyName("autoRemoveGeofenceRoles")]
-        public bool AutoRemoveGeofenceRoles { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether city roles require a Donor role
-        /// </summary>
-        [JsonPropertyName("citiesRequireSupporterRole")]
-        public bool CitiesRequireSupporterRole { get; set; }
-
-        /// <summary>
-        /// Gets or sets whether to prune previous field research quest channels at midnight
-        /// </summary>
-        [JsonPropertyName("pruneQuestChannels")]
-        public bool PruneQuestChannels { get; set; }
-
-        /// <summary>
-        /// Gets or sets a list of field research quest channel ID(s) to reset
-        /// </summary>
-        [JsonPropertyName("questChannelIds")]
-        public List<ulong> QuestChannelIds { get; set; }
+        [JsonPropertyName("questsPurge")]
+        public QuestsPurgeConfig QuestsPurge { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the nests channel ID to report nests
@@ -133,8 +121,11 @@
         /// <summary>
         /// Gets or sets the bot channel ID(s)
         /// </summary>
-        [JsonPropertyName("botChannelIds")]
-        public List<ulong> BotChannelIds { get; set; }
+        [
+            Obsolete("Not used"),
+            JsonPropertyName("botChannelIds"),
+        ]
+        public List<ulong> BotChannelIds { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the Discord bot's custom status
@@ -166,9 +157,7 @@
         public DiscordServerConfig()
         {
             //Locale = "en";
-            ModeratorRoleIds = new List<ulong>();
             IconStyle = "Default";
-            QuestChannelIds = new List<ulong>();
             //ShinyStats = new ShinyStatsConfig();
             //Subscriptions = new SubscriptionsConfig();
             NestsMinimumPerHour = 1;

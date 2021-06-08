@@ -69,7 +69,11 @@ namespace WhMgr
                 var client = DiscordClientFactory.CreateDiscordClient(guildConfig, services);
                 client.Ready += Client_Ready;
                 client.GuildAvailable += Client_GuildAvailable;
-                client.GuildMemberUpdated += Client_GuildMemberUpdated;
+                if ((guildConfig.GeofenceRoles?.Enabled ?? false) &&
+                    (guildConfig.GeofenceRoles?.AutoRemove ?? false))
+                {
+                    client.GuildMemberUpdated += Client_GuildMemberUpdated;
+                }
                 //_client.MessageCreated += Client_MessageCreated;
                 client.ClientErrored += Client_ClientErrored;
                 //client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
@@ -170,9 +174,6 @@ namespace WhMgr
                 return;
 
             var server = _config.Instance.Servers[e.Guild.Id];
-            if (!server.AutoRemoveGeofenceRoles)
-                return;
-
             var hasBefore = e.RolesBefore.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
             var hasAfter = e.RolesAfter.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
 
