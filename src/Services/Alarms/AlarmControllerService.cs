@@ -171,7 +171,7 @@
 
                     //OnPokemonAlarmTriggered(pokemon, alarm, guildId);
                     // TODO: ThreadPool.QueueUSerWorkItem
-                    if (!ThreadPool.QueueUserWorkItem(x => SendPokemonEmbed(guildId, alarm, pokemon)))
+                    if (!ThreadPool.QueueUserWorkItem(x => SendPokemonEmbed(guildId, alarm, pokemon, geofence.Name)))
                     {
                         Console.WriteLine($"Failed to queue Pokemon alarm: {alarm.Name} for Pokemon {pokemon.Id} ({pokemon.EncounterId})");
                         continue;
@@ -181,19 +181,12 @@
             }
         }
 
-        private void SendPokemonEmbed(ulong guildId, ChannelAlarm alarm, PokemonData pokemon)
+        private void SendPokemonEmbed(ulong guildId, ChannelAlarm alarm, PokemonData pokemon, string city)
         {
             if (string.IsNullOrEmpty(alarm.Webhook))
                 return;
 
             _logger.LogInformation($"Pokemon Found [Alarm: {alarm.Name}, Pokemon: {pokemon.Id}, Despawn: {pokemon.DespawnTime}]");
-
-            var loc = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(pokemon.Latitude, pokemon.Longitude));
-            if (loc == null)
-            {
-                //_logger.Warn($"[POKEMON] Failed to lookup city from coordinates {pokemon.Latitude},{pokemon.Longitude} {pkmn.Name} {pokemon.IV}, skipping...");
-                return;
-            }
 
             if (!_discordClients.ContainsKey(guildId))
                 return;
@@ -211,7 +204,7 @@
                     Client = client,
                     Config = _config,
                     Alarm = alarm,
-                    City = loc.Name,
+                    City = city,
                 });
                 var json = eb.Build();
                 NetUtils.SendWebhook(alarm.Webhook, json);
