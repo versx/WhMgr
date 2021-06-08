@@ -22,13 +22,20 @@
 	"maxLureSubscriptions": 0,
 	"maxGymSubscriptions": 0
   },
-  "enableGeofenceRoles": false,
-  "autoRemoveGeofenceRoles": false,
-  "citiesRequireSupporterRole": true,
-  "pruneQuestChannels": true,
-  "questChannelIds": [],
-  "nestsChannelId": 0,
-  "nestsMinimumPerHour": 2,
+  "geofenceRoles": {
+    "enabled": false,
+	"autoRemove": true,
+	"requiresDonorRole": true
+  },
+  "questsPurge": {
+    "enabled": false,
+	"channelIds": [
+	]
+  },
+  "nests": {
+    "channelId": 0,
+	"minimumPerHour": 2
+  },
   "shinyStats": {
 	"enabled": false,
 	"clearMessages": false,

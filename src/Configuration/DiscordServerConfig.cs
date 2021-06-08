@@ -95,16 +95,10 @@
         public QuestsPurgeConfig QuestsPurge { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets the nests channel ID to report nests
+        /// Gets or sets the nests config to use with reporting current nests
         /// </summary>
-        [JsonPropertyName("nestsChannelId")]
-        public ulong NestsChannelId { get; set; }
-
-        /// <summary>
-        /// Gets or sets the minimum nest spawns per hour to limit nest posts by
-        /// </summary>
-        [JsonPropertyName("nestsMinimumPerHour")]
-        public int NestsMinimumPerHour { get; set; }
+        [JsonPropertyName("nests")]
+        public NestsConfig Nests { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the shiny stats configuration class
@@ -160,7 +154,6 @@
             IconStyle = "Default";
             //ShinyStats = new ShinyStatsConfig();
             //Subscriptions = new SubscriptionsConfig();
-            NestsMinimumPerHour = 1;
             DmAlertsFile = "default.json";
             //DiscordEmbedColors = new DiscordEmbedColorConfig();
 
