@@ -4,6 +4,8 @@
 
     public interface IWebhookProcessorService
     {
+        bool Enabled { get; }
+
         void Start();
 
         void Stop();

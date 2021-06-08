@@ -13,9 +13,10 @@
     {
         private readonly ILogger<WebhookProcessorService> _logger;
         private readonly IAlarmControllerService _alarmsService;
-        private bool _enabled;
 
         #region Properties
+
+        public bool Enabled { get; set; }
 
         public bool CheckForDuplicates { get; set; }
 
@@ -44,17 +45,17 @@
 
         public void Start()
         {
-            _enabled = true;
+            Enabled = true;
         }
 
         public void Stop()
         {
-            _enabled = false;
+            Enabled = false;
         }
 
         public void ParseData(List<WebhookPayload> payloads)
         {
-            if (!_enabled) return;
+            if (!Enabled) return;
 
             _logger.LogInformation($"Received {payloads.Count:N0} webhook payloads");
             for (var i = 0; i < payloads.Count; i++)
