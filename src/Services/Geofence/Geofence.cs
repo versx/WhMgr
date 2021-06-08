@@ -86,7 +86,7 @@
         /// <param name="coordinates">Location polygons of geofence</param>
         public Geofence(string name, List<Coordinate> coordinates) : this(name)
         {
-            Feature = GeofenceUtils.CoordinatesToFeature(coordinates);
+            Feature = GeometryUtils.CoordinatesToFeature(coordinates);
             BBox = Feature.Geometry.Envelope;
         }
 

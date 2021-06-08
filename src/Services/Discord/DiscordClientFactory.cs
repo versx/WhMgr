@@ -20,7 +20,7 @@
                 AutoReconnect = true,
                 AlwaysCacheMembers = true,
                 GatewayCompressionLevel = GatewayCompressionLevel.Payload,
-                Token = config.Token,
+                Token = config.Bot?.Token,
                 TokenType = TokenType.Bot,
                 MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Error,
                 Intents = DiscordIntents.DirectMessages
@@ -48,10 +48,10 @@
             (
                 new CommandsNextConfiguration
                 {
-                    StringPrefixes = new[] { config.CommandPrefix?.ToString() },
+                    StringPrefixes = new[] { config.Bot?.CommandPrefix?.ToString() },
                     EnableDms = true,
                     // If command prefix is null, allow for mention prefix
-                    EnableMentionPrefix = string.IsNullOrEmpty(config.CommandPrefix),
+                    EnableMentionPrefix = string.IsNullOrEmpty(config.Bot?.CommandPrefix),
                     // Use DSharpPlus's built-in help formatter
                     EnableDefaultHelp = true,
                     CaseSensitive = false,

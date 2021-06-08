@@ -24,14 +24,6 @@
 
         #endregion
 
-        #region Events
-
-        public event EventHandler<PokemonData> PokemonFound;
-        private void OnPokemonFound(PokemonData pokemon) =>
-            PokemonFound?.Invoke(this, pokemon);
-
-        #endregion
-
         public WebhookProcessorService(
             ILogger<WebhookProcessorService> logger,
             IAlarmControllerService alarmsService)
