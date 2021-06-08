@@ -160,11 +160,8 @@ namespace WhMgr
                 await CreateEmojis(e.Guild.Id);
 
                 // Set custom bot status if guild is in config server list
-                if (_config.Instance.Servers.ContainsKey(e.Guild.Id))
-                {
-                    var status = _config.Instance.Servers[e.Guild.Id].Status;
-                    await client.UpdateStatusAsync(new DiscordActivity(status ?? $"v{Strings.BotVersion}", ActivityType.Playing), UserStatus.Online);
-                }
+                var status = _config.Instance.Servers[e.Guild.Id].Bot?.Status ?? $"v{Strings.BotVersion}";
+                await client.UpdateStatusAsync(new DiscordActivity(status, ActivityType.Playing), UserStatus.Online);
             }
         }
 
@@ -229,13 +226,13 @@ namespace WhMgr
 
             var server = _config.Instance.Servers[guildId];
             var client = _discordClients[guildId];
-            if (!(client.Guilds?.ContainsKey(server.EmojiGuildId) ?? false))
+            if (!(client.Guilds?.ContainsKey(server.Bot.EmojiGuildId) ?? false))
             {
-                Console.WriteLine($"Bot not in emoji server {server.EmojiGuildId}");
+                Console.WriteLine($"Bot not in emoji server {server.Bot.EmojiGuildId}");
                 return;
             }
 
-            var guild = client.Guilds[server.EmojiGuildId];
+            var guild = client.Guilds[server.Bot.EmojiGuildId];
             foreach (var emoji in Strings.EmojiList)
             {
                 try
@@ -272,7 +269,7 @@ namespace WhMgr
         {
             foreach (var (guildId, serverConfig) in _config.Instance.Servers)
             {
-                var emojiGuildId = serverConfig.EmojiGuildId;
+                var emojiGuildId = serverConfig.Bot.EmojiGuildId;
                 if (!_discordClients.ContainsKey(guildId))
                     continue;
 

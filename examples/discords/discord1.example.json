@@ -1,11 +1,15 @@
 {
-  "commandPrefix": ".",
-  "emojiGuildId": 000000000000000001,
+  "bot": {
+    "commandPrefix": ".",
+    "emojiGuildId": 000000000000000001,
+	"token": "<DISCORD_BOT_TOKEN>",
+    "channelIds": [],
+    "status": null
+  }
   "ownerId": 000000000000000000,
   "donorRoleIds": [],
   "freeRoleName": "",
   "moderatorRoleIds": [],
-  "token": "<DISCORD_BOT_TOKEN>",
   "alarms": "alarms.json",
   "geofences": [
 	"City1.txt",
@@ -42,8 +46,6 @@
 	"channelId": 0
   },
   "iconStyle": "Default",
-  "botChannelIds": [],
-  "status": null,
   "dmAlertsFile": "default.json",
   "embedColors": {
 	"pokemon": {

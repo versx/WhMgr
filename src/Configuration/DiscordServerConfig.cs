@@ -14,16 +14,10 @@
     public class DiscordServerConfig
     {
         /// <summary>
-        /// Gets or sets the command prefix for all Discord commands
+        /// Gets or sets the bot configuration to use
         /// </summary>
-        [JsonPropertyName("commandPrefix")]
-        public string CommandPrefix { get; set; }
-
-        /// <summary>
-        /// Gets or sets the emoji guild id
-        /// </summary>
-        [JsonPropertyName("emojiGuildId")]
-        public ulong EmojiGuildId { get; set; }
+        [JsonPropertyName("bot")]
+        public BotConfig Bot { get; set; }
 
         /// <summary>
         /// Gets or sets the owner id
@@ -52,12 +46,6 @@
         /// </summary>
         [JsonPropertyName("moderatorRoleIds")]
         public List<ulong> ModeratorRoleIds { get; set; } = new();
-
-        /// <summary>
-        /// Gets or sets the Discord bot token
-        /// </summary>
-        [JsonPropertyName("token")]
-        public string Token { get; set; }
 
         /// <summary>
         /// Gets or sets the associated alarms file for the Discord server
@@ -120,12 +108,6 @@
             JsonPropertyName("botChannelIds"),
         ]
         public List<ulong> BotChannelIds { get; set; } = new();
-
-        /// <summary>
-        /// Gets or sets the Discord bot's custom status
-        /// </summary>
-        [JsonPropertyName("status")]
-        public string Status { get; set; }
 
         /// <summary>
         /// Gets or sets the alerts file to use with direct message subscriptions
