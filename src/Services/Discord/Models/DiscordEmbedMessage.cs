@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
-    public class DiscordEmbedMessage
+    public class DiscordEmbedMessage : DiscordEmbedImage
     {
         [JsonPropertyName("title")]
         public string Title { get; set; }
@@ -28,9 +28,6 @@
 
         [JsonPropertyName("image")]
         public DiscordEmbedImage Image { get; set; }
-
-        [JsonPropertyName("url")]
-        public string Url { get; set; }
 
         public DiscordEmbedMessage()
         {

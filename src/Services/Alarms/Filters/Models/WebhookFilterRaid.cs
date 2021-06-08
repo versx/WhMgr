@@ -68,7 +68,7 @@
         /// <summary>
         /// Gets or sets a value determining whether to ignore raids missing stats
         /// </summary>
-        [JsonPropertyName("ignoreMissing")]
+        [JsonPropertyName("ignore_missing")]
         public bool IgnoreMissing { get; set; }
 
         /// <summary>

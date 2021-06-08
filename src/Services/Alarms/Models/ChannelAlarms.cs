@@ -64,7 +64,7 @@
             var alarmPath = Path.Combine(alarmsFolder, alarmsFilePath);
             if (!File.Exists(alarmPath))
             {
-                Console.WriteLine($"Failed to load file alarms file '{alarmPath}'...");
+                Console.WriteLine($"Failed to load file alarms file '{alarmPath}' file does not exist...");
                 return null;
             }
 

@@ -29,7 +29,7 @@
         /// <summary>
         /// Only shiny field research quest rewards
         /// </summary>
-        [JsonPropertyName("isShiny")]
+        [JsonPropertyName("is_shiny")]
         public bool IsShiny { get; set; }
 
         /// <summary>
