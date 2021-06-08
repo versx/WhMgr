@@ -4,7 +4,7 @@
 		"enabled": true,
 		"min_lvl": 1,
 		"max_lvl": 5,
-		"onlyEx": true
+		"only_ex": true
 	},
 	"raids":
 	{
@@ -13,7 +13,7 @@
 		"max_lvl": 5,
 		"pokemon": [],
 		"type": "Include",
-		"onlyEx": true,
-		"ignoreMissing": false
+		"only_ex": true,
+		"ignore_missing": false
 	}
 }

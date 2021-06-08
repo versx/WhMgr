@@ -8,6 +8,6 @@
 		"min_lvl": 34,
 		"max_lvl": 35,
 		"type": "Include",
-		"ignoreMissing": true
+		"ignore_missing": true
 	}
 }

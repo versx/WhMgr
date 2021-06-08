@@ -12,6 +12,6 @@
 		"min_iv": 0,
 		"max_iv": 100,
 		"type": "Exclude",
-		"ignoreMissing": false
+		"ignore_missing": false
 	}
 }

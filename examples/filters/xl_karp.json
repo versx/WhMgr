@@ -5,6 +5,6 @@
 		"pokemon": [129],
 		"size": "Big",
 		"type": "Include",
-		"ignoreMissing": true
+		"ignore_missing": true
 	}
 }

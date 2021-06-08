@@ -5,6 +5,6 @@
 		"pokemon": [19],
 		"size": "Tiny",
 		"type": "Include",
-		"ignoreMissing": true
+		"ignore_missing": true
 	}
 }

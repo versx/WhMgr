@@ -11,6 +11,6 @@
 		"min_rank": 1,
 		"max_rank": 5,
 		"type": "Include",
-		"ignoreMissing": true
+		"ignore_missing": true
 	}
 }

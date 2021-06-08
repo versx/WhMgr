@@ -6,7 +6,7 @@
 		"max_lvl": 5,
 		"pokemon": [403],
 		"type": "Include",
-		"onlyEx": false,
-		"ignoreMissing": false
+		"only_ex": false,
+		"ignore_missing": false
 	}
 }

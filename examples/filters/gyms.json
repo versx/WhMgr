@@ -2,7 +2,7 @@
 	"gyms":
 	{
 		"enabled": true,
-		"underAttack": true,
+		"under_attack": true,
 		"team": "All"
 	}
 }

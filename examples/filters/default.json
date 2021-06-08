@@ -17,14 +17,14 @@
 		"max_rank": 5, // Maximum rank of #5 PVP stats
 		"type": "Include", // Include or Exclude the `pokemon` list
 		"is_event": false, // Only send Pokemon checked with event accounts (GoFest, etc)
-		"ignoreMissing": true // Ignore Pokemon missing stats
+		"ignore_missing": true // Ignore Pokemon missing stats
 	},
 	"eggs":
 	{
 		"enabled": true, // Filter is enabled
 		"min_lvl": 1, // Minimum egg level to send
 		"max_lvl": 6, // Maximum egg level to send
-		"onlyEx": false, // Only send ex-eligible raids.
+		"only_ex": false, // Only send ex-eligible raids.
 		"team": "All", // All, Valor, Mystic, Instinct, Neutral
 	},
 	"raids":
@@ -36,15 +36,15 @@
 		"min_lvl": 1, // Minimum raid level to send
 		"max_lvl": 6, // Maximum raid level to send
 		"type": "Include", // Include or Exclude the `pokemon` list
-		"onlyEx": false, // Only send ex-eligible raids.
+		"only_ex": false, // Only send ex-eligible raids.
 		"team": "All", // All, Valor, Mystic, Instinct, Nuetral
-		"ignoreMissing": true // Ignore raids missing stats
+		"ignore_missing": true // Ignore raids missing stats
 	},
 	"quests":
 	{
 		"enabled": true, // Filter is enabled
 		"rewards": ["spinda", "nincada"], // Quest reward string (Chansey, stardust, candy, etc.)
-		"isShiny": false, // Only shiny encounter quests.
+		"is_shiny": false, // Only shiny encounter quests.
 		"type": "Include" // Include or Exclude the `rewards` list
 	},
 	"pokestops":
@@ -57,7 +57,7 @@
 	"gyms":
 	{
 		"enabled": true, // Filter is enabled
-		"underAttack": true, // Only gyms that are under attack
+		"under_attack": true, // Only gyms that are under attack
 		"team": "All" // Team change to notify about (i.e. Neutral/Mystic/Valor/Instinct/All)
 	},
 	"weather":

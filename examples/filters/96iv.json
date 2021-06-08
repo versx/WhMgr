@@ -6,6 +6,6 @@
 		"min_iv": 95,
 		"max_iv": 99,
 		"type": "Include",
-		"ignoreMissing": true
+		"ignore_missing": true
 	}
 }

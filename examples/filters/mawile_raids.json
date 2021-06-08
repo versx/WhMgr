@@ -7,6 +7,6 @@
 		"pokemon": [303],
 		"type": "Include",
 		"onlyEx": false,
-		"ignoreMissing": false
+		"ignore_missing": false
 	}
 }
