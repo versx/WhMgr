@@ -13,6 +13,7 @@
         [JsonPropertyName("lon")]
         public double Longitude { get; set; }
 
+        [JsonPropertyName("city")]
         public string City { get; set; }
 
         public Coordinate(double lat, double lon)

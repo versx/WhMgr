@@ -5,12 +5,12 @@
     using System.Linq;
     using System.Text;
 
-    using Newtonsoft.Json;
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
     using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
+    using WhMgr.Extensions;
     using WhMgr.Utilities;
 
     internal class IconFetcher
@@ -159,7 +159,7 @@
                     continue;
                 }
                 // Deserialize json list to hash set
-                var formsList = JsonConvert.DeserializeObject<HashSet<string>>(formsListJson);
+                var formsList = formsListJson.FromJson<HashSet<string>>();
                 // Add style and form list
                 _availablePokemonForms.Add(style.Key, formsList);
             }

@@ -8,7 +8,7 @@
     using NetTopologySuite.Geometries;
     using NetTopCoordinate = NetTopologySuite.Geometries.Coordinate;
 
-    public class GeofenceUtils
+    public class GeometryUtils
     {
         /// <summary>
         /// Creates a Feature containing a Polygon created using the provided Coordinates
