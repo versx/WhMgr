@@ -180,7 +180,7 @@
                 commands.RegisterCommands<Settings>();
                 if (serverConfig.Subscriptions.Enabled)
                 {
-                    // TODO: commands.RegisterCommands<Notifications>();
+                    commands.RegisterCommands<Notifications>();
                 }
                 if (serverConfig.EnableGeofenceRoles)
                 {
