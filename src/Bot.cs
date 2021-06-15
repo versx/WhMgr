@@ -360,6 +360,14 @@
                     await e.Member.RevokeRoleAsync(role, "No longer a supporter/donor");
                 }
                 _logger.Info($"All city roles removed from member {e.Member.Username} ({e.Member.Id})");
+
+                // Disable subscriptions for user
+                var subs = _subProcessor.Manager.GetUserSubscriptions(e.Guild.Id, e.Member.Id);
+                subs.DisableNotificationType(Data.Subscriptions.Models.NotificationStatusType.All);
+                if (!subs.Save())
+                {
+                    _logger.Warn($"Failed to disable subscriptions for member no longer having donor access: ({e.Member.Username}) {e.Member.Id}");
+                }
             }
         }
 
