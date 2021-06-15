@@ -130,6 +130,23 @@
             return string.Join(" ", list);
         }
 
+        public static string GetEmojiIcon<T>(this T type, string keyPrefix, bool asString, string emojiSchema = Strings.EmojiSchema)
+        {
+            var key = $"{keyPrefix}_";
+            if (asString)
+                key += type.ToString().ToLower();
+            else
+                key += Convert.ToInt32(type);
+            var emojiId = MasterFile.Instance.Emojis[key];
+            var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
+                ? emojiId > 0
+                    ? string.Format(emojiSchema, key, emojiId)
+                    : type.ToString()
+                : MasterFile.Instance.CustomEmojis[key];
+            return emojiName;
+        }
+
+        /*
         public static string GetWeatherEmojiIcon(this WeatherCondition weather)
         {
             var key = $"weather_{Convert.ToInt32(weather)}";
@@ -173,6 +190,7 @@
                 : MasterFile.Instance.CustomEmojis[key];
             return emojiName;
         }
+        */
 
         public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes)
         {
