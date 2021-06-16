@@ -30,7 +30,6 @@
 
     // TODO: List all subscriptions with info command
     // TODO: IV wildcards
-    // TODO: Egg subscriptions (maybe)
 
     public class Bot
     {
