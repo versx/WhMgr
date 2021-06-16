@@ -155,7 +155,6 @@ namespace WhMgr.Data.Subscriptions
                         //user.Save(false);
                         continue;
                     }
-                    // Have all subs
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
                     var pokemonSubscriptions = user.Pokemon.Where(x =>
@@ -163,13 +162,6 @@ namespace WhMgr.Data.Subscriptions
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
-                        // Not subscribed to Pokemon
-                        if (pkmnSub == null)
-                        {
-                            //_logger.Debug($"User {member.Username} not subscribed to Pokemon {pokemon.Name} (Form: {form}).");
-                            continue;
-                        }
-
                         matchesIV = Filters.MatchesIV(pkmn.IV, pkmnSub.MinimumIV);
                         //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
                         matchesLvl = Filters.MatchesLvl(pkmn.Level, (uint)pkmnSub.MinimumLevel, (uint)pkmnSub.MaximumLevel);
@@ -256,7 +248,6 @@ namespace WhMgr.Data.Subscriptions
             }
 
             SubscriptionObject user;
-            PvPSubscription subscribedPokemon;
             DiscordMember member = null;
             var pokemon = MasterFile.GetPokemon(pkmn.Id, pkmn.FormId);
             var matchesGreat = false;
@@ -308,54 +299,50 @@ namespace WhMgr.Data.Subscriptions
                     }
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
-                    subscribedPokemon = user.PvP.FirstOrDefault(x =>
+                    var pokemonSubscriptions = user.PvP.Where(x =>
                         x.PokemonId == pkmn.Id &&
                         (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
                     );
-                    // Not subscribed to Pokemon
-                    if (subscribedPokemon == null)
+                    foreach (var pkmnSub in pokemonSubscriptions)
                     {
-                        //_logger.Debug($"User {member.Username} not subscribed to PvP Pokemon {pokemon.Name} (Form: {form}).");
-                        continue;
+                        matchesGreat = pkmn.GreatLeague != null && (pkmn.GreatLeague?.Exists(x => pkmnSub.League == PvPLeague.Great &&
+                                                                         (x.CP ?? 0) >= Strings.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.MaximumGreatLeagueCP &&
+                                                                         (x.Rank ?? 4096) <= pkmnSub.MinimumRank &&
+                                                                         (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent) ?? false);
+                        matchesUltra = pkmn.UltraLeague != null && (pkmn.UltraLeague?.Exists(x => pkmnSub.League == PvPLeague.Ultra &&
+                                                                         (x.CP ?? 0) >= Strings.MinimumUltraLeagueCP && (x.CP ?? 0) <= Strings.MaximumUltraLeagueCP &&
+                                                                         (x.Rank ?? 4096) <= pkmnSub.MinimumRank &&
+                                                                         (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent) ?? false);
+
+                        // Check if Pokemon IV stats match any relevant great or ultra league ranks, if not skip.
+                        if (!matchesGreat && !matchesUltra)
+                            continue;
+
+                        var geofence = GetGeofence(user.GuildId);
+                        if (geofence == null)
+                        {
+                            //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                            continue;
+                        }
+
+                        var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+                        var pokemonLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, pkmnSub.Location, true) == 0);
+                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinates(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                        var invasionDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                        var geofenceMatches = pkmnSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
+
+                        // If set distance does not match and no geofences match, then skip Pokemon...
+                        if (!globalDistanceMatches && !invasionDistanceMatches && !geofenceMatches)
+                            continue;
+
+                        var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
+                        //var end = DateTime.Now.Subtract(start);
+                        //_logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
+                        embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem(user, member, x, pokemon.Name, geofence.Name)));
+
+                        Statistics.Instance.SubscriptionPokemonSent++;
+                        Thread.Sleep(5);
                     }
-
-                    matchesGreat = pkmn.GreatLeague != null && (pkmn.GreatLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Great &&
-                                                                     (x.CP ?? 0) >= Strings.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.MaximumGreatLeagueCP &&
-                                                                     (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
-                                                                     (x.Percentage ?? 0) * 100 >= subscribedPokemon.MinimumPercent) ?? false);
-                    matchesUltra = pkmn.UltraLeague != null && (pkmn.UltraLeague?.Exists(x => subscribedPokemon.League == PvPLeague.Ultra &&
-                                                                     (x.CP ?? 0) >= Strings.MinimumUltraLeagueCP && (x.CP ?? 0) <= Strings.MaximumUltraLeagueCP &&
-                                                                     (x.Rank ?? 4096) <= subscribedPokemon.MinimumRank &&
-                                                                     (x.Percentage ?? 0) * 100 >= subscribedPokemon.MinimumPercent) ?? false);
-
-                    // Check if Pokemon IV stats match any relevant great or ultra league ranks, if not skip.
-                    if (!matchesGreat && !matchesUltra)
-                        continue;
-
-                    var geofence = GetGeofence(user.GuildId);
-                    if (geofence == null)
-                    {
-                        //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        continue;
-                    }
-
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var pokemonLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subscribedPokemon.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinates(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                    var invasionDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                    var geofenceMatches = subscribedPokemon.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                    // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !invasionDistanceMatches && !geofenceMatches)
-                        continue;
-
-                    var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
-                    //var end = DateTime.Now.Subtract(start);
-                    //_logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem(user, member, x, pokemon.Name, geofence.Name)));
-
-                    Statistics.Instance.SubscriptionPokemonSent++;
-                    Thread.Sleep(5);
                 }
                 catch (Exception ex)
                 {
