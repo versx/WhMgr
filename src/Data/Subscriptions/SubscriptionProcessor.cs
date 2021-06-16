@@ -190,11 +190,11 @@ namespace WhMgr.Data.Subscriptions
                         var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                         var pokemonLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, pkmnSub.Location, true) == 0);
                         var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinates(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                        var invasionDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                        var pokemonDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
                         var geofenceMatches = pkmnSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                         // If set distance does not match and no geofences match, then skip Pokemon...
-                        if (!globalDistanceMatches && !invasionDistanceMatches && !geofenceMatches)
+                        if (!globalDistanceMatches && !pokemonDistanceMatches && !geofenceMatches)
                             continue;
 
                         var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
@@ -328,11 +328,11 @@ namespace WhMgr.Data.Subscriptions
                         var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                         var pokemonLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, pkmnSub.Location, true) == 0);
                         var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinates(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
-                        var invasionDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
+                        var pokemonDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pkmn.Latitude, pkmn.Longitude));
                         var geofenceMatches = pkmnSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                         // If set distance does not match and no geofences match, then skip Pokemon...
-                        if (!globalDistanceMatches && !invasionDistanceMatches && !geofenceMatches)
+                        if (!globalDistanceMatches && !pokemonDistanceMatches && !geofenceMatches)
                             continue;
 
                         var embed = pkmn.GeneratePokemonMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
@@ -448,11 +448,11 @@ namespace WhMgr.Data.Subscriptions
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                     var pokemonLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subPkmn.Location, true) == 0);
                     var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinates(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
-                    var invasionDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
+                    var pokemonDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
                     var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Raid Pokemon...
-                    if (!globalDistanceMatches && !invasionDistanceMatches && !geofenceMatches)
+                    if (!globalDistanceMatches && !pokemonDistanceMatches && !geofenceMatches)
                         continue;
 
                     var embed = raid.GenerateRaidMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
@@ -680,11 +680,11 @@ namespace WhMgr.Data.Subscriptions
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                     var pokemonLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subQuest.Location, true) == 0);
                     var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinates(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
-                    var invasionDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
+                    var questDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(quest.Latitude, quest.Longitude));
                     var geofenceMatches = subQuest.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !invasionDistanceMatches && !geofenceMatches)
+                    if (!globalDistanceMatches && !questDistanceMatches && !geofenceMatches)
                         continue;
 
                     var embed = quest.GenerateQuestMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name);
@@ -909,11 +909,11 @@ namespace WhMgr.Data.Subscriptions
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                     var pokemonLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subLure.Location, true) == 0);
                     var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinates(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
-                    var invasionDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
+                    var lureDistanceMatches = pokemonLocation?.DistanceM > 0 && pokemonLocation?.DistanceM > new Coordinates(pokemonLocation?.Latitude ?? 0, pokemonLocation?.Longitude ?? 0).DistanceTo(new Coordinates(pokestop.Latitude, pokestop.Longitude));
                     var geofenceMatches = subLure.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !invasionDistanceMatches && !geofenceMatches)
+                    if (!globalDistanceMatches && !lureDistanceMatches && !geofenceMatches)
                         continue;
 
                     var embed = pokestop.GeneratePokestopMessage(user.GuildId, client, _whConfig.Instance, null, geofence.Name, true, false);
