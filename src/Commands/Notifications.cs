@@ -400,21 +400,23 @@
                 return;
             }
 
-            // TODO: Save pokemon_id as string.Join(",", validation.Valid);
-            // TODO: Save form as form with comma delimiter;
+            // TODO: Save form as form with comma delimiter
 
-            var isAll = string.Compare(poke, Strings.All, true) == 0;
             // Validate the provided pokemon list
-            var validation = isAll ? new PokemonValidation() : PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
-            if (!isAll && (validation == null || validation.Valid.Count == 0))
+            var isAll = string.Compare(Strings.All, poke, true) == 0;
+            if (isAll)
+            {
+                poke = string.Join(",", PokemonValidation.GetListFromRange(1, _dep.WhConfig.MaxPokemonId));
+            }
+            var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
+            if (validation == null || validation.Valid.Count == 0)
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
                 return;
             }
 
-            var valid = isAll ? "All" : string.Join(",", validation.Valid.Keys.ToList());
-            // TODO: Provide way to specify form expecitly without {id}-{form}
-            var forms = isAll ? string.Empty : string.Join(",", validation.Valid.Values.ToList());
+            var valid = string.Join(",", validation.Valid.Keys.ToList());
+            var forms = string.Join(",", validation.Valid.Values.ToList());
             // Check for any subscriptions that match the pokemon_id/forms string, otherwise create a new one
             var exists = subscription.Pokemon.FirstOrDefault(x => x.PokemonIdString == valid && x.FormsString == forms);
             //var minIV = pokemonId.IsRarePokemon() ? 0 : realIV;
