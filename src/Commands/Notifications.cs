@@ -407,7 +407,8 @@
             // TODO: Save form as form with comma delimiter
 
             // Validate the provided pokemon list
-            if (string.Compare(Strings.All, poke, true) == 0)
+            var isAll = string.Compare(Strings.All, poke, true) == 0;
+            if (isAll)
             {
                 poke = string.Join(",", PokemonValidation.GetListFromRange(1, _config.Instance.MaxPokemonId));
             }
