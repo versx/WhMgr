@@ -12,6 +12,7 @@
     using WhMgr.Data;
     using WhMgr.Data.Models.Discord;
     using WhMgr.Data.Subscriptions;
+    using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
@@ -327,9 +328,12 @@
 
             var hasBefore = e.RolesBefore.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
             var hasAfter = e.RolesAfter.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
+            var roleRemoved = hasBefore && !hasAfter;
+            var roleAdded = !hasBefore && hasAfter;
+            var subscription = _subProcessor.Manager.GetUserSubscriptions(e.Guild.Id, e.Member.Id);
 
             // Check if donor role was removed
-            if (hasBefore && !hasAfter)
+            if (roleRemoved)
             {
                 _logger.Info($"Member {e.Member.Username} ({e.Member.Id}) donor role removed, removing any city roles...");
                 // If so, remove all city/geofence/area roles
@@ -345,6 +349,28 @@
                     await e.Member.RevokeRoleAsync(role, "No longer a supporter/donor");
                 }
                 _logger.Info($"All city roles removed from member {e.Member.Username} ({e.Member.Id})");
+
+                if (subscription == null)
+                    return;
+
+                // Disable subscriptions for user
+                subscription.DisableNotificationType(NotificationStatusType.All);
+                if (!subscription.Save())
+                {
+                    _logger.Warn($"Failed to disable subscriptions for member no longer having donor access: ({e.Member.Username}) {e.Member.Id}");
+                }
+            }
+            else if (roleAdded)
+            {
+                if (subscription == null)
+                    return;
+
+                // Enable subscriptions for user if returning donor
+                subscription.EnableNotificationType(NotificationStatusType.All);
+                if (!subscription.Save())
+                {
+                    _logger.Warn($"Failed to enable subscriptions for returning member donor access: ({e.Member.Username}) {e.Member.Id}");
+                }
             }
         }
 
@@ -1003,10 +1029,10 @@
                 if (pokemon == 0)
                     continue;
 
-                if (!MasterFile.Instance.Pokedex.ContainsKey((int)pokemon))
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon))
                     continue;
 
-                var pkmn = MasterFile.Instance.Pokedex[(int)pokemon];
+                var pkmn = MasterFile.Instance.Pokedex[pokemon];
                 var pkmnStats = stats[pokemon];
                 var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
                 if (chance == 0)
