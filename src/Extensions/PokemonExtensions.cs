@@ -137,7 +137,7 @@
                 key += type.ToString().ToLower();
             else
                 key += Convert.ToInt32(type);
-            var emojiId = MasterFile.Instance.Emojis[key];
+            var emojiId = MasterFile.Instance.Emojis.ContainsKey(key) ? MasterFile.Instance.Emojis[key] : 0;
             var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
                 ? emojiId > 0
                     ? string.Format(emojiSchema, key, emojiId)
