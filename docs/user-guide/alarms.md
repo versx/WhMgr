@@ -4,7 +4,10 @@ Alarms are used to define what Pokemon, raids, eggs, field research quests, Team
 
 There is no limit to the amount of alarms you can add under the `alarms` property list, although adding hundreds could potentially affect performance.  
 
-**Note:** Place your active alarms in your `alarms` folder.  
+**Notes:** 
+- Place your active alarms in your `alarms` folder
+- Discord webhook permissions are based on the EVERYONE role permission, if you plan to use an external emoji server you *MUST* ensure the everyone role has the "use external emojis" permission on the destination channel.  Even if you have the channel locked to a donor type role, the everyone role still needs this permission enabled. Remember setting everyone role to allow external emoji's at server level but an explicit deny on a channel will prevent them from showing
+
 
 ## Example
 ```js
