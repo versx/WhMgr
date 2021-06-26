@@ -1,5 +1,6 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -26,9 +27,23 @@
             JsonIgnore,
             Ignore,
         ]
-        public List<uint> PokemonId => PokemonIdString?.Split(',')?
-                                                      .Select(x => uint.Parse(x))
-                                                      .ToList();
+        public List<uint> PokemonId
+        {
+            get
+            {
+                try
+                {
+                    return PokemonIdString?.Split(',')?
+                                           .Select(x => uint.Parse(x))
+                                           .ToList();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Error] Failed to parse pokemon id string: {ex}");
+                }
+                return new List<uint>();
+            }
+        }
 
         [
             JsonProperty("pokemon_id"),
