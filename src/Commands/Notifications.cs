@@ -416,7 +416,8 @@
             }
 
             var valid = string.Join(",", validation.Valid.Keys.ToList());
-            var forms = string.Join(",", validation.Valid.Values.ToList());
+            var forms = string.Join(",", validation.Valid.Values.ToList().Distinct());
+
             // Check for any subscriptions that match the pokemon_id/forms string, otherwise create a new one
             var exists = subscription.Pokemon.FirstOrDefault(x => x.PokemonIdString == valid && x.FormsString == forms);
             //var minIV = pokemonId.IsRarePokemon() ? 0 : realIV;
