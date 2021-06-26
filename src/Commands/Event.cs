@@ -86,12 +86,12 @@
             }
 
             var eventPokemonSplit = eventPokemonIds.Split(',');
-            var pkmnToAdd = new List<int>();
+            var pkmnToAdd = new List<uint>();
             var pkmnFailed = new List<string>();
             for (var i = 0; i < eventPokemonSplit.Length; i++)
             {
                 var eventPokemonId = eventPokemonSplit[i];
-                if (int.TryParse(eventPokemonId, out var pokemonId) && (pokemonId == 0 || MasterFile.Instance.Pokedex.ContainsKey(pokemonId)))
+                if (uint.TryParse(eventPokemonId, out var pokemonId) && (pokemonId == 0 || MasterFile.Instance.Pokedex.ContainsKey(pokemonId)))
                 {
                     pkmnToAdd.Add(pokemonId);
                     continue;
@@ -138,12 +138,12 @@
             [Description("Comma separated list of event Pokemon")] string eventPokemonIds)
         {
             var eventPokemonSplit = eventPokemonIds.Split(',');
-            var pkmnToAdd = new List<int>();
+            var pkmnToAdd = new List<uint>();
             var pkmnFailed = new List<string>();
             for (var i = 0; i < eventPokemonSplit.Length; i++)
             {
                 var eventPokemonId = eventPokemonSplit[i];
-                if (int.TryParse(eventPokemonId, out var pokemonId) && (pokemonId == 0 || MasterFile.Instance.Pokedex.ContainsKey(pokemonId)))
+                if (uint.TryParse(eventPokemonId, out var pokemonId) && (pokemonId == 0 || MasterFile.Instance.Pokedex.ContainsKey(pokemonId)))
                 {
                     pkmnToAdd.Add(pokemonId);
                     continue;
@@ -183,12 +183,12 @@
             [Description("Command separated list of event Pokemon")] string eventPokemonIds)
         {
             var eventPokemonSplit = eventPokemonIds.Split(',');
-            var pkmnToRemove = new List<int>();
+            var pkmnToRemove = new List<uint>();
             var pkmnFailed = new List<string>();
             for (var i = 0; i < eventPokemonSplit.Length; i++)
             {
                 var eventPokemonId = eventPokemonSplit[i];
-                if (int.TryParse(eventPokemonId, out var pokemonId) && (pokemonId == 0 || MasterFile.Instance.Pokedex.ContainsKey(pokemonId)))
+                if (uint.TryParse(eventPokemonId, out var pokemonId) && (pokemonId == 0 || MasterFile.Instance.Pokedex.ContainsKey(pokemonId)))
                 {
                     pkmnToRemove.Add(pokemonId);
                     continue;
