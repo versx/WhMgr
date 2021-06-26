@@ -939,7 +939,7 @@
                         continue;
                     }
 
-                    if (alarm.Filters.Pokestops.InvasionTypes.ContainsKey(pokestop.GruntType) && alarm.Filters.Pokestops.InvasionTypes[pokestop.GruntType] && pokestop.HasInvasion)
+                    if (alarm.Filters.Pokestops.InvasionTypes.ContainsKey(pokestop.GruntType) && !alarm.Filters.Pokestops.InvasionTypes[pokestop.GruntType] && pokestop.HasInvasion)
                     {
                         continue;
                     }
