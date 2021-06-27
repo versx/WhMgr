@@ -126,12 +126,10 @@
             return _iconStyles[style] + sb.ToString();
         }
 
-        /*
         public string GetLureIcon(string style, PokestopLureType lureType)
         {
             return _iconStyles[style] + "reward/2-i" + (int)lureType + "-a1.png";
         }
-        */
 
         public string GetInvasionIcon(string style, InvasionCharacter gruntType)
         {

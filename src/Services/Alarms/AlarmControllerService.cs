@@ -182,7 +182,7 @@
             }
         }
 
-        public void ProcessRaidAlarm(RaidData raid)
+        public void ProcessRaidAlarms(RaidData raid)
         {
             if (raid == null)
                 return;
@@ -349,7 +349,7 @@
             }
         }
 
-        public void ProcessQuestAlarm(QuestData quest)
+        public void ProcessQuestAlarms(QuestData quest)
         {
             if (quest == null)
                 return;
@@ -424,7 +424,7 @@
             }
         }
 
-        public void ProcessPokestopAlarm(PokestopData pokestop)
+        public void ProcessPokestopAlarms(PokestopData pokestop)
         {
             //Skip if Pokestop filter is not defined.
             if (pokestop == null)
@@ -486,10 +486,10 @@
                     //OnPokestopAlarmTriggered(pokestop, alarm, guildId);
                     if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, pokestop, geofence.Name)))
                     {
-                        _logger.LogError($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.PokestopName})");
+                        _logger.LogError($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.Name})");
                         continue;
                     }
-                    _logger.LogInformation($"Pokestop Found [Alarm: {alarm.Name}, PokestopId: {pokestop.PokestopId}, Name: {pokestop.PokestopName}, LureType: {pokestop.LureType}, GruntType: {pokestop.GruntType}");
+                    _logger.LogInformation($"Pokestop Found [Alarm: {alarm.Name}, PokestopId: {pokestop.PokestopId}, Name: {pokestop.Name}, LureType: {pokestop.LureType}, GruntType: {pokestop.GruntType}");
                 }
             }
         }

@@ -5,5 +5,15 @@
     public interface IAlarmControllerService
     {
         void ProcessPokemonAlarms(PokemonData pokemon);
+
+        void ProcessRaidAlarms(RaidData raid);
+
+        void ProcessQuestAlarms(QuestData quest);
+
+        void ProcessPokestopAlarms(PokestopData pokestop);
+
+        // TODO: Gym
+
+        // TODO: Weather
     }
 }
