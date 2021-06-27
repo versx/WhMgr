@@ -131,7 +131,8 @@
                 case QuestRewardType.Quest:
                     return Translator.Instance.Translate(rewardKey);
                 case QuestRewardType.Candy:
-                    return Translator.Instance.Translate(rewardKey, info.Amount);
+                    var name = Translator.Instance.GetPokemonName(info.Ditto ? 132 : info.PokemonId);
+                    return Translator.Instance.Translate(rewardKey, info.Amount, name);
                 case QuestRewardType.Experience:
                     return Translator.Instance.Translate(rewardKey, info.Amount);
                 case QuestRewardType.Item:
