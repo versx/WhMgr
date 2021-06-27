@@ -18,14 +18,14 @@
         public string AvatarUrl { get; set; }
 
         [JsonPropertyName("embeds")]
-        public List<DiscordEmbedMessage> Embeds { get; set; }
+        public List<DiscordEmbed> Embeds { get; set; }
 
         [JsonIgnore]
         public bool HasEmbeds => Embeds?.Count > 0;
 
         public DiscordWebhookMessage()
         {
-            Embeds = new List<DiscordEmbedMessage>();
+            Embeds = new List<DiscordEmbed>();
         }
 
         public string Build()

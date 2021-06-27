@@ -1,5 +1,6 @@
 ﻿namespace WhMgr.Services.Discord.Models
 {
+    /*
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
@@ -34,4 +35,5 @@
             Fields = new List<DiscordField>();
         }
     }
+    */
 }

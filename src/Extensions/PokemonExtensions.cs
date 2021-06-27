@@ -12,7 +12,7 @@
 
     public static class PokemonExtensions
     {
-        public static int MaxCpAtLevel(this int id, int level)
+        public static int MaxCpAtLevel(this uint id, int level)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id) || id == 0)
                 return 0;
@@ -26,7 +26,7 @@
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(maxAtk * maxAtk * maxDef * maxSta) / 10));
         }
 
-        public static int MinCpAtLevel(this int id, int level)
+        public static int MinCpAtLevel(this uint id, int level)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id) || id == 0)
                 return 0;
@@ -40,17 +40,17 @@
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(minAtk * minAtk * minDef * minSta) / 10));
         }
 
-        public static bool IsCommonPokemon(this int pokeId)
+        public static bool IsCommonPokemon(this uint pokeId)
         {
             return MasterFile.Instance.PokemonRarity[PokemonRarity.Common].Contains(pokeId);
         }
 
-        public static bool IsRarePokemon(this int pokeId)
+        public static bool IsRarePokemon(this uint pokeId)
         {
             return MasterFile.Instance.PokemonRarity[PokemonRarity.Rare].Contains(pokeId);
         }
 
-        public static PokemonSize GetSize(this int id, float height, float weight)
+        public static PokemonSize GetSize(this uint id, float height, float weight)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id))
                 return PokemonSize.Normal;
@@ -168,12 +168,12 @@
             return string.Join(" ", list);
         }
 
-        public static int PokemonIdFromName(this string name)
+        public static uint PokemonIdFromName(this string name)
         {
             if (string.IsNullOrEmpty(name))
                 return 0;
 
-            var pkmn = int.TryParse(name, out var id)
+            var pkmn = uint.TryParse(name, out var id)
                 ? MasterFile.Instance.Pokedex.FirstOrDefault(x => x.Key == id)
                 : MasterFile.Instance.Pokedex.FirstOrDefault(x => string.Compare(x.Value.Name, name, true) == 0);
 
@@ -184,7 +184,7 @@
                 if (p.Value.Name.ToLower().Contains(name.ToLower()))
                     return p.Key;
 
-            if (!int.TryParse(name, out var pokeId))
+            if (!uint.TryParse(name, out var pokeId))
                 return 0;
 
             if (MasterFile.Instance.Pokedex.ContainsKey(pokeId))
@@ -195,7 +195,7 @@
 
         public static PokemonValidation ValidatePokemon(this IEnumerable<string> pokemon)
         {
-            var valid = new Dictionary<int, string>();
+            var valid = new Dictionary<uint, string>();
             var invalid = new List<string>();
             foreach (var poke in pokemon)
             {
@@ -245,13 +245,13 @@
 
     public class PokemonValidation
     {
-        public Dictionary<int, string> Valid { get; set; }
+        public Dictionary<uint, string> Valid { get; set; }
 
         public List<string> Invalid { get; set; }
 
         public PokemonValidation()
         {
-            Valid = new Dictionary<int, string>();
+            Valid = new Dictionary<uint, string>();
             Invalid = new List<string>();
         }
 

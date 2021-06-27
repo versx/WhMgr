@@ -15,7 +15,6 @@
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
-    using WhMgr.Services.Geofence;
     using WhMgr.Utilities;
 
     public sealed class PokemonData : IWebhookData
@@ -28,7 +27,7 @@
             JsonPropertyName("pokemon_id"),
             //Alias("pokemon_id")
         ]
-        public int Id { get; set; }
+        public uint Id { get; set; }
 
         [
             JsonPropertyName("cp"),
@@ -271,7 +270,7 @@
             JsonPropertyName("display_pokemon_id"),
             //Alias("display_pokemon_id")
         ]
-        public int? DisplayPokemonId { get; set; }
+        public uint? DisplayPokemonId { get; set; }
 
         #region PvP
 
@@ -409,43 +408,40 @@
             var alert = settings.Alarm?.Embeds[alertType] ?? server.DmEmbeds?[alertType] ?? EmbedMessage.Defaults[alertType];
             settings.ImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
             var properties = GetProperties(settings);
-            var eb = new DiscordEmbedMessage
+            var eb = new DiscordEmbedBuilder
             {
-                Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
-                Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
-                Image = new Discord.Models.DiscordEmbedImage
+                Title = TemplateRenderer.Parse(alert.Title, properties),
+                Url = TemplateRenderer.Parse(alert.Url, properties),
+                ImageUrl = TemplateRenderer.Parse(alert.ImageUrl, properties),
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
                 {
-                    Url = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
+                    Url = TemplateRenderer.Parse(alert.IconUrl, properties),
                 },
-                Thumbnail = new Discord.Models.DiscordEmbedImage
-                {
-                    Url = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
-                },
-                Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
+                Description = TemplateRenderer.Parse(alert.Content, properties),
                 /*
                 TODO: Color = MatchesGreatLeague || MatchesUltraLeague
                     ? GetPvPColor(GreatLeague, UltraLeague, server)
                     : IV.BuildPokemonIVColor(server),
                 */
-                Footer = new Discord.Models.DiscordEmbedFooter
+                Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
-                    Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text, properties),
-                    //IconUrl = DynamicReplacementEngine.ReplaceText(alert.Footer?.IconUrl, properties)
+                    Text = TemplateRenderer.Parse(alert.Footer?.Text, properties),
+                    IconUrl = TemplateRenderer.Parse(alert.Footer?.IconUrl, properties)
                 }
             };
-            var username = DynamicReplacementEngine.ReplaceText(alert.Username, properties);
-            var iconUrl = DynamicReplacementEngine.ReplaceText(alert.AvatarUrl, properties);
-            var description = DynamicReplacementEngine.ReplaceText(settings.Alarm?.Description, properties);
+            var username = TemplateRenderer.Parse(alert.Username, properties);
+            var iconUrl = TemplateRenderer.Parse(alert.AvatarUrl, properties);
+            var description = TemplateRenderer.Parse(settings.Alarm?.Description, properties);
             return new DiscordWebhookMessage
             {
                 Username = username,
                 AvatarUrl = iconUrl,
-                Content = description ?? "Test",
-                Embeds = new List<DiscordEmbedMessage> { eb },
+                Content = description,
+                Embeds = new List<DiscordEmbed> { eb },
             };
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(AlarmMessageSettings properties)// DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
+        private dynamic GetProperties(AlarmMessageSettings properties)// DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
         {
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
             var pkmnName = Translator.Instance.GetPokemonName(Id);
@@ -489,114 +485,114 @@
             var pvpStats = GetPvP();
 
             const string defaultMissingValue = "?";
-            var dict = new Dictionary<string, string>
+            var dict = new
             {
                 // Main properties
-                { "pkmn_id", Convert.ToString(Id) },
-                { "pkmn_id_3", Id.ToString("D3") },
-                { "pkmn_name", pkmnName },
-                { "pkmn_img_url", properties.ImageUrl },
-                { "form", form },
-                { "form_id", Convert.ToString(FormId) },
-                { "form_id_3", FormId.ToString("D3") },
-                { "costume", costume ?? defaultMissingValue },
-                { "costume_id", Convert.ToString(Costume) },
-                { "costume_id_3", Costume.ToString("D3") },
-                { "cp", CP == null ? defaultMissingValue : Convert.ToString(CP) },
-                { "lvl", level == null ? defaultMissingValue : Convert.ToString(level) },
-                { "gender", gender },
-                { "gender_emoji", genderEmoji },
-                { "size", size ?? defaultMissingValue },
-                { "move_1", move1 ?? defaultMissingValue },
-                { "move_2", move2 ?? defaultMissingValue },
-                { "moveset", $"{move1}/{move2}" },
-                { "type_1", type1?.ToString() ?? defaultMissingValue },
-                { "type_2", type2?.ToString() ?? defaultMissingValue },
-                { "type_1_emoji", type1Emoji },
-                { "type_2_emoji", type2Emoji },
-                { "types", $"{type1} | {type2}" },
-                { "types_emoji", typeEmojis },
-                { "atk_iv", Attack == null ? defaultMissingValue : Convert.ToString(Attack) },
-                { "def_iv", Defense == null ? defaultMissingValue : Convert.ToString(Defense.ToString()) },
-                { "sta_iv", Stamina == null ? defaultMissingValue : Convert.ToString(Stamina.ToString()) },
-                { "iv", IV ?? defaultMissingValue },
-                { "iv_rnd", IVRounded ?? defaultMissingValue },
-                { "is_shiny", Convert.ToString(isShiny) },
+                pkmn_id = Convert.ToString(Id),
+                pkmn_id_3 = Id.ToString("D3"),
+                pkmn_name = pkmnName,
+                pkmn_img_url = properties.ImageUrl,
+                form = form,
+                form_id = Convert.ToString(FormId),
+                form_id_3 = FormId.ToString("D3"),
+                costume = costume ?? defaultMissingValue,
+                costume_id = Convert.ToString(Costume),
+                costume_id_3 = Costume.ToString("D3"),
+                cp = CP == null ? defaultMissingValue : Convert.ToString(CP),
+                lvl = level == null ? defaultMissingValue : Convert.ToString(level),
+                gender = gender,
+                gender_emoji = genderEmoji,
+                size = size ?? defaultMissingValue,
+                move_1 = move1 ?? defaultMissingValue,
+                move_2 = move2 ?? defaultMissingValue,
+                moveset = $"{move1}/{move2}",
+                type_1 = type1?.ToString() ?? defaultMissingValue,
+                type_2 = type2?.ToString() ?? defaultMissingValue,
+                type_1_emoji = type1Emoji,
+                type_2_emoji = type2Emoji,
+                types = $"{type1} | {type2}",
+                types_emoji = typeEmojis,
+                atk_iv = Attack == null ? defaultMissingValue : Convert.ToString(Attack),
+                def_iv = Defense == null ? defaultMissingValue : Convert.ToString(Defense.ToString()),
+                sta_iv = Stamina == null ? defaultMissingValue : Convert.ToString(Stamina.ToString()),
+                iv = IV ?? defaultMissingValue,
+                iv_rnd = IVRounded ?? defaultMissingValue,
+                is_shiny = isShiny,
 
                 // Catch rate properties
-                { "has_capture_rates",  Convert.ToString(CatchRate1.HasValue && CatchRate2.HasValue && CatchRate3.HasValue) },
-                { "capture_1", CatchRate1.HasValue ? Math.Round(CatchRate1.Value * 100).ToString() : string.Empty },
-                { "capture_2", CatchRate2.HasValue ? Math.Round(CatchRate2.Value * 100).ToString() : string.Empty },
-                { "capture_3", CatchRate3.HasValue ? Math.Round(CatchRate3.Value * 100).ToString() : string.Empty },
-                { "capture_1_emoji", CaptureRateType.PokeBall.GetEmojiIcon("capture", false) },
-                { "capture_2_emoji", CaptureRateType.GreatBall.GetEmojiIcon("capture", false) },
-                { "capture_3_emoji", CaptureRateType.UltraBall.GetEmojiIcon("capture", false) },
+                has_capture_rates = CatchRate1.HasValue && CatchRate2.HasValue && CatchRate3.HasValue,
+                capture_1 =  CatchRate1.HasValue ? Math.Round(CatchRate1.Value * 100).ToString() : string.Empty,
+                capture_2 = CatchRate2.HasValue ? Math.Round(CatchRate2.Value * 100).ToString() : string.Empty,
+                capture_3 = CatchRate3.HasValue ? Math.Round(CatchRate3.Value * 100).ToString() : string.Empty,
+                capture_1_emoji = CaptureRateType.PokeBall.GetEmojiIcon("capture", false),
+                capture_2_emoji = CaptureRateType.GreatBall.GetEmojiIcon("capture", false),
+                capture_3_emoji = CaptureRateType.UltraBall.GetEmojiIcon("capture", false),
 
                 // PvP stat properties
-                { "is_great", Convert.ToString(MatchesGreatLeague) },
-                { "is_ultra", Convert.ToString(MatchesUltraLeague) },
-                { "is_pvp", Convert.ToString(MatchesGreatLeague || MatchesUltraLeague) },
+                is_great = MatchesGreatLeague,
+                is_ultra = MatchesUltraLeague,
+                is_pvp = MatchesGreatLeague || MatchesUltraLeague,
                 //{ "great_league_stats", greatLeagueStats },
                 //{ "ultra_league_stats", ultraLeagueStats },
-                { "great_league_emoji", greatLeagueEmoji },
-                { "ultra_league_emoji", ultraLeagueEmoji },
-                { "pvp_stats", pvpStats },
+                great_league_emoji = greatLeagueEmoji,
+                ultra_league_emoji = ultraLeagueEmoji,
+                pvp_stats = pvpStats,
+                // TODO: Provide list for great/ultra league stats and parse in embed instead of backend
 
                 // Other properties
-                { "height", height ?? defaultMissingValue },
-                { "weight", weight ?? defaultMissingValue },
-                { "is_ditto", Convert.ToString(IsDitto) },
-                { "original_pkmn_id", Convert.ToString(DisplayPokemonId) },
-                { "original_pkmn_id_3", (DisplayPokemonId ?? 0).ToString("D3") },
-                { "original_pkmn_name", catchPokemon },
-                { "is_weather_boosted", Convert.ToString(isWeatherBoosted) },
-                { "has_weather", Convert.ToString(hasWeather) },
-                { "weather", weather ?? defaultMissingValue },
-                { "weather_emoji", weatherEmoji ?? defaultMissingValue },
-                { "username", Username ?? defaultMissingValue },
-                { "spawnpoint_id", SpawnpointId ?? defaultMissingValue },
-                { "encounter_id", EncounterId ?? defaultMissingValue },
+                height = height ?? defaultMissingValue,
+                weight = weight ?? defaultMissingValue,
+                is_ditto = IsDitto,
+                original_pkmn_id = Convert.ToString(DisplayPokemonId),
+                original_pkmn_id_3 = (DisplayPokemonId ?? 0).ToString("D3"),
+                original_pkmn_name = catchPokemon,
+                is_weather_boosted = isWeatherBoosted,
+                has_weather = hasWeather,
+                weather = weather ?? defaultMissingValue,
+                weather_emoji = weatherEmoji ?? defaultMissingValue,
+                username = Username ?? defaultMissingValue,
+                spawnpoint_id = SpawnpointId ?? defaultMissingValue,
+                encounter_id = EncounterId ?? defaultMissingValue,
 
                 // Time properties
-                { "despawn_time", DespawnTime.ToString("hh:mm:ss tt") },
-                { "despawn_time_24h", DespawnTime.ToString("HH:mm:ss") },
-                { "despawn_time_verified", DisappearTimeVerified ? "" : "~" },
-                { "is_despawn_time_verified", Convert.ToString(DisappearTimeVerified) },
-                { "time_left", SecondsLeft.ToReadableString(true) ?? defaultMissingValue },
+                despawn_time = DespawnTime.ToString("hh:mm:ss tt"),
+                despawn_time_24h = DespawnTime.ToString("HH:mm:ss"),
+                despawn_time_verified = DisappearTimeVerified ? "" : "~",
+                is_despawn_time_verified = DisappearTimeVerified,
+                time_left = SecondsLeft.ToReadableString(true) ?? defaultMissingValue,
 
                 // Location properties
-                { "geofence", properties.City ?? defaultMissingValue },
-                { "lat", Convert.ToString(Latitude) },
-                { "lng", Convert.ToString(Longitude) },
-                { "lat_5", Latitude.ToString("0.00000") },
-                { "lng_5", Longitude.ToString("0.00000") },
+                geofence = properties.City ?? defaultMissingValue,
+                lat = Convert.ToString(Latitude),
+                lng = Convert.ToString(Longitude),
+                lat_5 = Latitude.ToString("0.00000"),
+                lng_5 = Longitude.ToString("0.00000"),
 
                 // Location links
-                { "tilemaps_url", staticMapLink },
-                { "gmaps_url", gmapsLocationLink },
-                { "applemaps_url", appleMapsLocationLink },
-                { "wazemaps_url", wazeMapsLocationLink },
-                { "scanmaps_url", scannerMapsLocationLink },
+                tilemaps_url = staticMapLink,
+                gmaps_url = gmapsLocationLink,
+                applemaps_url = appleMapsLocationLink,
+                wazemaps_url = wazeMapsLocationLink,
+                scanmaps_url = scannerMapsLocationLink,
 
-                { "address", null },//address?.Address },
+                //address = null,//address?.Address },
 
                 // Pokestop properties
-                { "near_pokestop", Convert.ToString(pokestop != null) },
-                { "pokestop_id", PokestopId ?? defaultMissingValue },
-                { "pokestop_name", pokestop?.Name ?? defaultMissingValue },
-                { "pokestop_url", pokestop?.Url ?? defaultMissingValue },
+                near_pokestop = pokestop != null,
+                pokestop_id = PokestopId ?? defaultMissingValue,
+                pokestop_name = pokestop?.Name ?? defaultMissingValue,
+                pokestop_url = pokestop?.Url ?? defaultMissingValue,
 
                 // Discord Guild properties
-                { "guild_name", defaultMissingValue }, // TODO: properties.Guild?.Name },
-                { "guild_img_url", defaultMissingValue }, // TODO: properties.Guild?.IconUrl },
+                uild_name = defaultMissingValue, // TODO: properties.Guild?.Name },
+                guild_img_url = defaultMissingValue, // TODO: properties.Guild?.IconUrl },
 
                 // Event properties
-                { "is_event", Convert.ToString(IsEvent.HasValue && IsEvent.Value) },
-
-                { "date_time", DateTime.Now.ToString() },
+                is_event = IsEvent.HasValue && IsEvent.Value,
 
                 // Misc properties
-                { "br", "\r\n" }
+                date_time = DateTime.Now.ToString(),
+                br = "\r\n",
             };
             return dict;
         }

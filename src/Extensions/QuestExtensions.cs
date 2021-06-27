@@ -11,9 +11,9 @@
     using QuestConditionType = POGOProtos.Rpc.QuestConditionProto.Types.ConditionType;
     using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
 
-    using WhMgr.Data.Models;
     using WhMgr.Localization;
-    using WhMgr.Net.Models;
+    using WhMgr.Services.Webhook.Models;
+    using WhMgr.Data;
 
     public static class QuestExtensions
     {
@@ -117,10 +117,12 @@
             return GetReward(reward.Type, reward.Info);
         }
 
+        /*
         public static string GetReward(this Pokestop pokestop)
         {
             return pokestop.QuestRewards?.FirstOrDefault()?.GetReward();
         }
+        */
 
         public static string GetReward(this QuestRewardType type, QuestReward info)
         {

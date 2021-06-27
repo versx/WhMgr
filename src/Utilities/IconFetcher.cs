@@ -1,29 +1,37 @@
-﻿namespace WhMgr.Services
+﻿namespace WhMgr.Utilities
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
 
+    using Newtonsoft.Json;
+    using WhMgr.Services.Webhook.Models;
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
     using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
-    using WhMgr.Extensions;
-    using WhMgr.Utilities;
-
-    internal class IconFetcher
+    public class IconFetcher
     {
-        private readonly IconSet _availablePokemonForms = new();
-        private IReadOnlyDictionary<string, string> _iconStyles;
+        private static readonly IconSet _availablePokemonForms = new();
+        private static IReadOnlyDictionary<string, string> _iconStyles;
 
         #region Singleton
 
         private static IconFetcher _instance;
 
-        public static IconFetcher Instance =>
-            _instance ??= new IconFetcher();
+        public static IconFetcher Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new IconFetcher();
+                }
+                return _instance;
+            }
+        }
 
         #endregion
 
@@ -72,7 +80,6 @@
             return _iconStyles[style] + sb.ToString();
         }
 
-        /*
         public string GetQuestIcon(string style, QuestData quest)
         {
             var sb = new StringBuilder();
@@ -119,6 +126,7 @@
             return _iconStyles[style] + sb.ToString();
         }
 
+        /*
         public string GetLureIcon(string style, PokestopLureType lureType)
         {
             return _iconStyles[style] + "reward/2-i" + (int)lureType + "-a1.png";
@@ -141,7 +149,7 @@
             BuildAvailableFormsLists();
         }
 
-        private void BuildAvailableFormsLists()
+        private static void BuildAvailableFormsLists()
         {
             // Get available forms from remote icons repo to build form list for each icon style
             foreach (var style in _iconStyles)
@@ -159,14 +167,12 @@
                     continue;
                 }
                 // Deserialize json list to hash set
-                var formsList = formsListJson.FromJson<HashSet<string>>();
+                var formsList = JsonConvert.DeserializeObject<HashSet<string>>(formsListJson);
                 // Add style and form list
                 _availablePokemonForms.Add(style.Key, formsList);
             }
         }
     }
 
-    class IconSet : Dictionary<string, HashSet<string>>
-    {
-    }
+    class IconSet : Dictionary<string, HashSet<string>> { }
 }

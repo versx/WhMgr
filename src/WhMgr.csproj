@@ -28,6 +28,7 @@
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.1" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.1" />
     <PackageReference Include="GeoTimeZone" Version="4.1.0" />
+    <PackageReference Include="Handlebars.Net" Version="2.0.8" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
     <PackageReference Include="NetTopologySuite" Version="2.2.0" />
     <PackageReference Include="NetTopologySuite.Features" Version="2.1.0" />

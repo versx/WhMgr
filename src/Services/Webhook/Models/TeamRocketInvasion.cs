@@ -31,10 +31,10 @@
 
         public string GetPossibleInvasionEncounters()
         {
-            var toInt = new Func<string, int>(x =>
+            var toInt = new Func<string, uint>(x =>
             {
                 var val = x.Split('_')[0];
-                if (!int.TryParse(val, out var result))
+                if (!uint.TryParse(val, out var result))
                 {
                     Console.Error.WriteLine($"Failed to parse {val} as integer");
                 }
