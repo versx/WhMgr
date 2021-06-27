@@ -424,6 +424,76 @@
             }
         }
 
+        public void ProcessPokestopAlarm(PokestopData pokestop)
+        {
+            //Skip if Pokestop filter is not defined.
+            if (pokestop == null)
+                return;
+
+            // TODO: Statistics.Instance.TotalReceivedPokestops++;
+
+            foreach (var (guildId, alarms) in _alarms)
+            {
+                if (alarms == null)
+                    continue;
+
+                //Skip if EnablePokestops is disabled in the config.
+                if (!alarms.EnablePokestops)
+                    continue;
+
+                //Skip if alarms list is null or empty.
+                if (alarms.Alarms?.Count == 0)
+                    continue;
+
+                var pokestopAlarms = alarms.Alarms.FindAll(x => x.Filters?.Pokestops != null && x.Filters.Pokestops.Enabled);
+                for (var i = 0; i < pokestopAlarms.Count; i++)
+                {
+                    var alarm = pokestopAlarms[i];
+                    if (alarm.Filters.Pokestops == null)
+                        continue;
+
+                    if (!alarm.Filters.Pokestops.Enabled)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
+                        continue;
+                    }
+
+                    if (!alarm.Filters.Pokestops.Lured && pokestop.HasLure)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: lure filter not enabled.");
+                        continue;
+                    }
+
+                    if (!alarm.Filters.Pokestops.LureTypes.Select(x => x.ToLower()).Contains(pokestop.LureType.ToString().ToLower()) && alarm.Filters.Pokestops?.LureTypes?.Count > 0)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}, LureType={pokestop.LureType}: lure type not included.");
+                        continue;
+                    }
+
+                    if (!alarm.Filters.Pokestops.Invasions && pokestop.HasInvasion)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: invasion filter not enabled.");
+                        continue;
+                    }
+
+                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(pokestop.Latitude, pokestop.Longitude));
+                    if (geofence == null)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
+                        continue;
+                    }
+
+                    //OnPokestopAlarmTriggered(pokestop, alarm, guildId);
+                    if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, pokestop, geofence.Name)))
+                    {
+                        _logger.LogError($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.PokestopName})");
+                        continue;
+                    }
+                    _logger.LogInformation($"Pokestop Found [Alarm: {alarm.Name}, PokestopId: {pokestop.PokestopId}, Name: {pokestop.PokestopName}, LureType: {pokestop.LureType}, GruntType: {pokestop.GruntType}");
+                }
+            }
+        }
+
         private void SendEmbed(ulong guildId, ChannelAlarm alarm, IWebhookData data, string city)
         {
             if (string.IsNullOrEmpty(alarm.Webhook))

@@ -1,21 +1,19 @@
 ﻿namespace WhMgr.Services.Webhook.Models
 {
-    using DSharpPlus;
-    using DSharpPlus.Entities;
     using System;
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
-    using WhMgr.Configuration;
+
+    using DSharpPlus.Entities;
+    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
+
     using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Localization;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
-    using WhMgr.Services.Alarms.Models;
     using WhMgr.Services.Discord.Models;
-    using WhMgr.Services.Geofence;
     using WhMgr.Utilities;
-    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
 
     public sealed class RaidData : IWebhookData
     {

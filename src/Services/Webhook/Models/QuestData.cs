@@ -6,14 +6,12 @@
 
     using DSharpPlus.Entities;
     using POGOProtos.Rpc;
-    using ActivityType = POGOProtos.Rpc.HoloActivityType;
-    using QuestConditionType = POGOProtos.Rpc.QuestConditionProto.Types.ConditionType;
-    using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
 
     using WhMgr.Extensions;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
+    using WhMgr.Services.Webhook.Models.Quests;
     using WhMgr.Utilities;
 
     public sealed class QuestData : IWebhookData
@@ -175,113 +173,5 @@
             };
             return dict;
         }
-    }
-
-    public sealed class QuestConditionMessage
-    {
-        [JsonPropertyName("type")]
-        public QuestConditionType Type { get; set; }
-
-        [JsonPropertyName("info")]
-        public QuestCondition Info { get; set; }
-
-        public QuestConditionMessage()
-        {
-            Type = QuestConditionType.Unset;
-        }
-    }
-
-    public sealed class QuestCondition
-    {
-        [JsonPropertyName("pokemon_ids")]
-        public List<uint> PokemonIds { get; set; }
-
-        [JsonPropertyName("category_name")]
-        public string CategoryName { get; set; }
-
-        [JsonPropertyName("pokemon_type_ids")]
-        public List<int> PokemonTypeIds { get; set; }
-
-        [JsonPropertyName("throw_type_id")]
-        public ActivityType ThrowTypeId { get; set; }
-
-        [JsonPropertyName("hit")]
-        public bool Hit { get; set; }
-
-        [JsonPropertyName("raid_levels")]
-        public List<int> RaidLevels { get; set; }
-
-        [JsonPropertyName("alignment_ids")]
-        public List<int> AlignmentIds { get; set; }
-
-        [JsonPropertyName("character_category_ids")]
-        public List<int> CharacterCategoryIds { get; set; }
-
-        [JsonPropertyName("raid_pokemon_evolutions")]
-        public List<int> RaidPokemonEvolutions { get; set; }
-
-        public QuestCondition()
-        {
-            ThrowTypeId = ActivityType.ActivityUnknown;
-        }
-    }
-
-    public sealed class QuestRewardMessage
-    {
-        [JsonPropertyName("type")]
-        public QuestRewardType Type { get; set; }
-
-        [JsonPropertyName("info")]
-        public QuestReward Info { get; set; }
-
-        public QuestRewardMessage()
-        {
-            Type = QuestRewardType.Unset;
-        }
-    }
-
-    public sealed class QuestReward
-    {
-        [JsonPropertyName("pokemon_id")]
-        public uint PokemonId { get; set; }
-
-        [JsonPropertyName("costume_id")]
-        public int CostumeId { get; set; }
-
-        [JsonPropertyName("form_id")]
-        public int FormId { get; set; }
-
-        [JsonPropertyName("gender_id")]
-        public int GenderId { get; set; }
-
-        [JsonPropertyName("ditto")]
-        public bool Ditto { get; set; }
-
-        [JsonPropertyName("shiny")]
-        public bool Shiny { get; set; }
-
-        [JsonPropertyName("amount")]
-        public int Amount { get; set; }
-
-        [JsonPropertyName("item_id")]
-        public Item Item { get; set; }
-
-        [JsonPropertyName("raid_levels")]
-        public List<int> RaidLevels { get; set; }
-
-        [JsonPropertyName("mega_resource")]
-        public QuestMegaResource MegaResource { get; set; }
-
-        [JsonPropertyName("sticker_id")]
-        public string StickerId { get; set; }
-
-        // TODO: Pokemon alignment
-    }
-
-    public sealed class QuestMegaResource
-    {
-        public ushort PokemonId { get; set; }
-
-        public int Amount { get; set; }
     }
 }
