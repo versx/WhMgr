@@ -175,7 +175,7 @@
                         amount = info.Amount.ToString(),
                         pokemon = Translator.Instance.GetPokemonName(info.Ditto ? 132 : info.PokemonId),
                     });
-
+                
                 case QuestRewardType.Experience:
                 case QuestRewardType.Pokecoin:
                 case QuestRewardType.Stardust:
