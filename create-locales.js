@@ -29,6 +29,10 @@ fs.readdir(appLocalesFolder, (err, files) => {
                 { encoding: 'utf8', flag: 'r' }
             );
             translations = JSON.parse(pogoTranslations.toString());
+            Object.keys(translations).forEach(key => {
+                translations[key] = translations[key].replace('%', '{')
+                translations[key] = translations[key].replace('}', '}}')
+            });
         }
 
         if (locale !== 'en') {
