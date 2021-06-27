@@ -2313,7 +2313,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         subscription.Save();
 
                         var validIds = valid.Split(',').Select(x => uint.Parse(x));
-                        var validPokemonNames = string.Join("**, **", validIds.Select(x => MasterFile.Instance.Pokedex[(int)x].Name));
+                        var validPokemonNames = string.Join("**, **", validIds.Select(x => MasterFile.Instance.Pokedex[x].Name));
                         var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
                         await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
                             ctx.User.Username,
@@ -3103,13 +3103,13 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var list = new List<string>();
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedInvasions = subscription.Invasions;
-            subscribedInvasions.Sort((x, y) => string.Compare(string.Join(", ", x.RewardPokemonId.Select(a => MasterFile.GetPokemon((int)a, 0).Name)), string.Join(", ", y.RewardPokemonId.Select(b => MasterFile.GetPokemon((int)b, 0).Name)), true));
+            subscribedInvasions.Sort((x, y) => string.Compare(string.Join(", ", x.RewardPokemonId.Select(a => MasterFile.GetPokemon(a, 0).Name)), string.Join(", ", y.RewardPokemonId.Select(b => MasterFile.GetPokemon(b, 0).Name)), true));
             var cityRoles = _dep.WhConfig.Servers[guildId].Geofences.Select(x => x.Name.ToLower());
 
             foreach (var invasion in subscribedInvasions)
             {
                 var isAllCities = cityRoles.ScrambledEquals(invasion.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(string.Join(", ", invasion.RewardPokemonId.Select(x => MasterFile.GetPokemon((int)x, 0).Name)), isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", invasion.Areas)));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(string.Join(", ", invasion.RewardPokemonId.Select(x => MasterFile.GetPokemon(x, 0).Name)), isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", invasion.Areas)));
             }
 
             return list;
