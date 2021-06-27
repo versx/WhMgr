@@ -194,9 +194,9 @@
                 .Where(x => x.IsEnabled(NotificationStatusType.Invasions) &&
                             x.Invasions != null &&
                             x.Invasions.Exists(y =>
-                                y.RewardPokemonId.Intersects(encounterRewards) ||
+                                (y.RewardPokemonId?.Intersects(encounterRewards) ?? false) ||
                                 gruntType == y.InvasionType ||
-                                (y.PokestopName != null && (pokestopName.Contains(y.PokestopName) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
+                                (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName)) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
                             )
                       )
                 .ToList();
