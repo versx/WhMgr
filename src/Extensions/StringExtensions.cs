@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Dynamic;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     using WhMgr.Diagnostics;
 
@@ -38,6 +40,24 @@
                 _logger.Error(ex);
                 return string.Format(text, args);
             }
+        }
+
+        // TODO: Use dynamic object instead of tuple array for ease
+        public static string FormatText(this string text, (string, string)[] args)
+        {
+            /*
+            (t.prototype.applyFormatting = function (t, n, e) {
+                var r, l;
+                for (r in e) (l = new RegExp("%{" + r + "}", "g")), (t = t.replace(l, e[r]));
+                return t;
+            }),
+             */
+            foreach (var (key, obj) in args)
+            {
+                var pattern = "%{" + key + "}";
+                text = Regex.Replace(text, pattern, (m) => obj);
+            }
+            return text;
         }
 
         public static IEnumerable<string> SplitInParts(this string s, int partLength)
