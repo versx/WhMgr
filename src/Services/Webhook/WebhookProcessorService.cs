@@ -7,12 +7,14 @@
 
     using WhMgr.Extensions;
     using WhMgr.Services.Alarms;
+    using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook.Models;
 
     public class WebhookProcessorService : IWebhookProcessorService
     {
         private readonly ILogger<WebhookProcessorService> _logger;
         private readonly IAlarmControllerService _alarmsService;
+        private readonly ISubscriptionProcessorService _subscriptionService;
 
         #region Properties
 
@@ -26,10 +28,13 @@
 
         public WebhookProcessorService(
             ILogger<WebhookProcessorService> logger,
-            IAlarmControllerService alarmsService)
+            IAlarmControllerService alarmsService,
+            ISubscriptionProcessorService subscriptionService)
         {
             _logger = logger;
             _alarmsService = alarmsService;
+            _subscriptionService = subscriptionService;
+
             Start();
         }
 
@@ -59,6 +64,8 @@
                         ProcessPokemon(payload.Message);
                         break;
                     case WebhookHeaders.Raid:
+                        ProcessRaid(payload.Message);
+                        break;
                     case WebhookHeaders.Quest:
                     case WebhookHeaders.Invasion:
                     case WebhookHeaders.Pokestop:
@@ -93,6 +100,7 @@
             // TODO: Process for webhook alarms and member subscriptions
             //OnPokemonFound(pokemon);
             _alarmsService.ProcessPokemonAlarms(pokemon);
+            _subscriptionService.ProcessPokemon(pokemon);
         }
 
         private void ProcessRaid(dynamic message)
@@ -113,6 +121,7 @@
 
             // TODO: Process for webhook alarms and member subscriptions
             _alarmsService.ProcessRaidAlarms(raid);
+            _subscriptionService.ProcessRaidPokemon(raid);
         }
     }
 }
