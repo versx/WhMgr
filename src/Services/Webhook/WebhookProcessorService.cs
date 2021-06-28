@@ -58,6 +58,13 @@
                     case WebhookHeaders.Pokemon:
                         ProcessPokemon(payload.Message);
                         break;
+                    case WebhookHeaders.Raid:
+                    case WebhookHeaders.Quest:
+                    case WebhookHeaders.Invasion:
+                    case WebhookHeaders.Pokestop:
+                        break;
+                        // TODO: Gym
+                        // TODO: Weather
                 }
             }
         }
@@ -68,6 +75,11 @@
         {
             string json = Convert.ToString(message);
             var pokemon = json.FromJson<PokemonData>();
+            if (pokemon == null)
+            {
+                _logger.LogWarning($"Failed to parse pokemon {message}, skipping...");
+                return;
+            }
             pokemon.SetDespawnTime();
 
             if (pokemon.SecondsLeft.TotalMinutes < DespawnTimerMinimumMinutes)
@@ -81,6 +93,26 @@
             // TODO: Process for webhook alarms and member subscriptions
             //OnPokemonFound(pokemon);
             _alarmsService.ProcessPokemonAlarms(pokemon);
+        }
+
+        private void ProcessRaid(dynamic message)
+        {
+            string json = Convert.ToString(message);
+            var raid = json.FromJson<RaidData>();
+            if (raid == null)
+            {
+                _logger.LogWarning($"Failed to parse raid {message}, skipping...");
+                return;
+            }
+            raid.SetTimes();
+
+            if (CheckForDuplicates)
+            {
+                // TODO: lock processed pokemon, check for dups
+            }
+
+            // TODO: Process for webhook alarms and member subscriptions
+            _alarmsService.ProcessRaidAlarms(raid);
         }
     }
 }

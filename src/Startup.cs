@@ -25,6 +25,7 @@ namespace WhMgr
     using WhMgr.Services.Alarms.Models;
     using WhMgr.Services.Discord;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook;
 
     public class Startup
@@ -95,8 +96,10 @@ namespace WhMgr
         {
             services.AddSingleton<IGeofenceService>(new GeofenceService());
             // let DI create and manage the singleton instance
-            services.AddSingleton(typeof(IAlarmControllerService), typeof(AlarmControllerService));
-            services.AddSingleton(typeof(IWebhookProcessorService), typeof(WebhookProcessorService));
+            services.AddSingleton<IAlarmControllerService, AlarmControllerService>();
+            services.AddSingleton<IWebhookProcessorService, WebhookProcessorService>();
+            services.AddSingleton<ISubscriptionManagerService, SubscriptionManagerService>();
+            services.AddSingleton<ISubscriptionProcessorService, SubscriptionProcessorService>();
             services.Add(new ServiceDescriptor(typeof(ChannelAlarmsManifest), typeof(ChannelAlarmsManifest), ServiceLifetime.Singleton));
             //services.AddSingleton<ISubscriptionProcessorService>(new SubscriptionProcessorService());
             services.AddSingleton(_config);

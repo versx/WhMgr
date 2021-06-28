@@ -1,9 +1,14 @@
 ﻿namespace WhMgr.Services.Subscriptions
 {
+    using System.Collections.Generic;
+
+    using WhMgr.Services.Webhook;
     using WhMgr.Services.Webhook.Models;
 
-    public interface ISubscriptionProcessor
+    public interface ISubscriptionProcessorService
     {
+        void ParseData(List<WebhookPayload> payloads);
+
         void ProcessPokemon(PokemonData pokemon);
 
         void ProcessPvpPokemon(PokemonData pokemon);

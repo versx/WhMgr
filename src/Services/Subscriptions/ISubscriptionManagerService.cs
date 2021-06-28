@@ -1,6 +1,6 @@
 ﻿namespace WhMgr.Services.Subscriptions
 {
-    public interface ISubscriptionManager
+    public interface ISubscriptionManagerService
     {
     }
 }
