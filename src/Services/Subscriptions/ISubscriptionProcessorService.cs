@@ -11,5 +11,7 @@
         void ProcessRaidSubscription(RaidData raid);
 
         void ProcessQuestSubscription(QuestData quest);
+
+        void ProcessPokestopSubscription(PokestopData pokestop);
     }
 }

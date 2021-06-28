@@ -67,8 +67,11 @@
                         ProcessRaid(payload.Message);
                         break;
                     case WebhookHeaders.Quest:
+                        ProcessQuest(payload.Message);
+                        break;
                     case WebhookHeaders.Invasion:
                     case WebhookHeaders.Pokestop:
+                        ProcessPokestop(payload.Message);
                         break;
                         // TODO: Gym
                         // TODO: Weather
@@ -80,7 +83,7 @@
 
         private void ProcessPokemon(dynamic message)
         {
-            string json = Convert.ToString(message);
+            var json = Convert.ToString(message);
             var pokemon = json.FromJson<PokemonData>();
             if (pokemon == null)
             {
@@ -105,7 +108,7 @@
 
         private void ProcessRaid(dynamic message)
         {
-            string json = Convert.ToString(message);
+            var json = Convert.ToString(message);
             var raid = json.FromJson<RaidData>();
             if (raid == null)
             {
@@ -116,7 +119,7 @@
 
             if (CheckForDuplicates)
             {
-                // TODO: lock processed pokemon, check for dups
+                // TODO: lock processed raids, check for dups
             }
 
             // TODO: Process for webhook alarms and member subscriptions
@@ -126,7 +129,7 @@
 
         private void ProcessQuest(dynamic message)
         {
-            string json = Convert.ToString(message);
+            var json = Convert.ToString(message);
             var quest = json.FromJson<QuestData>();
             if (quest == null)
             {
@@ -136,7 +139,7 @@
 
             if (CheckForDuplicates)
             {
-                // TODO: lock processed pokemon, check for dups
+                // TODO: lock processed quests, check for dups
             }
 
             // TODO: Process for webhook alarms and member subscriptions
@@ -146,7 +149,22 @@
 
         private void ProcessPokestop(dynamic message)
         {
+            var json = Convert.ToString(message);
+            var pokestop = json.FromJson<PokestopData>();
+            if (pokestop == null)
+            {
+                _logger.LogWarning($"Failed to parse pokestop {message}, skipping...");
+                return;
+            }
 
+            if (CheckForDuplicates)
+            {
+                // TODO: lock processed pokestops, check for dups
+            }
+
+            // TODO: Process for webhook alarms and member subscriptions
+            _alarmsService.ProcessPokestopAlarms(pokestop);
+            _subscriptionService.ProcessPokestopSubscription(pokestop);
         }
     }
 }

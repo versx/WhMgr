@@ -20,6 +20,10 @@
         {
         }
 
+        public void ProcessPokestopSubscription(PokestopData pokestop)
+        {
+        }
+
         // TODO: Invasion
         
         // TODO: Lure
