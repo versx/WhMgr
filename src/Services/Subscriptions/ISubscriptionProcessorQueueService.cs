@@ -5,7 +5,5 @@
     public interface ISubscriptionProcessorQueueService
     {
         void Add(NotificationItem item);
-
-        void ProcessQueue();
     }
 }

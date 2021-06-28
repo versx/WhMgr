@@ -28,14 +28,14 @@
         private readonly ISubscriptionManagerService _subscriptionManager;
         private readonly ConfigHolder _config;
         private readonly Dictionary<ulong, DiscordClient> _discordClients;
-        private readonly NotificationQueue _queue;
+        private readonly SubscriptionProcessorQueueService _queue;
 
         public SubscriptionProcessorService(
             ILogger<ISubscriptionProcessorService> logger,
             ISubscriptionManagerService subscriptionManager,
             ConfigHolder config,
             Dictionary<ulong, DiscordClient> discordClients,
-            NotificationQueue queue)
+            SubscriptionProcessorQueueService queue)
         {
             _logger = logger;
             _subscriptionManager = subscriptionManager;
@@ -171,7 +171,7 @@
                         });
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.Debug($"Took {end} to process Pokemon subscription for user {user.UserId}");
-                        embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem
+                        embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
@@ -319,7 +319,7 @@
                         });
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
-                        embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem
+                        embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
@@ -448,7 +448,7 @@
                     });
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem
+                    embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -572,7 +572,7 @@
                     });
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process quest subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem
+                    embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -701,7 +701,7 @@
                     });
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process invasion subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem
+                    embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -820,7 +820,7 @@
                     });
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process lure subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem
+                    embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -847,12 +847,8 @@
 
         public async Task ProcessGymSubscription(RaidData raid)
         {
-            //if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
-            //    return;
-
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
-
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
@@ -946,7 +942,7 @@
                     });
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process gym raid subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem
+                    embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,

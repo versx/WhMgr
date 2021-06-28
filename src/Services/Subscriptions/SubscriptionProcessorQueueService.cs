@@ -31,6 +31,9 @@
             _discordClients = discordClients;
             // TODO: Make notification queue DI singleton
             _queue = new NotificationQueue();
+
+            // Start queue processor
+            ProcessQueue();
         }
 
         public void Add(NotificationItem item)
@@ -41,9 +44,8 @@
             }
         }
 
-        public void ProcessQueue()
+        private void ProcessQueue()
         {
-            // TODO: Process queue
             _logger.LogInformation($"SubscriptionProcessor::ProcessQueue");
 
             new Thread(async () =>
