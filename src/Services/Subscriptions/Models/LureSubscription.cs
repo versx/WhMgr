@@ -1,0 +1,46 @@
+﻿namespace WhMgr.Services.Subscriptions.Models
+{
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Text.Json.Serialization;
+
+    using WhMgr.Services.Webhook.Models;
+
+    [Table("lures")]
+    public class LureSubscription : SubscriptionItem
+    {
+        [
+            Column("subscription_id"),
+            //ForeignKey(typeof(Subscription)),
+            ForeignKey("FK_lure_subscriptions_subscription_id"),
+        ]
+        public int SubscriptionId { get; set; }
+
+        [
+            JsonPropertyName("pokestop_name"),
+            Column("pokestop_name"),
+        ]
+        public string PokestopName { get; set; }
+
+        [
+            JsonPropertyName("lure_type"),
+            Column("lure_type"),
+            //Required,
+        ]
+        public PokestopLureType LureType { get; set; } = PokestopLureType.None;
+
+        [
+            JsonPropertyName("city"),
+            Column("city"),
+            //Required,
+        ]
+        public List<string> Areas { get; set; } = new();
+
+        [
+            JsonPropertyName("location"),
+            Column("location"),
+        ]
+        public string Location { get; set; }
+    }
+}
