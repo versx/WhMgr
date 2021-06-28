@@ -348,6 +348,128 @@
 
         public async Task ProcessRaidSubscription(RaidData raid)
         {
+            if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
+                return;
+
+            // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
+            var locationCache = new Dictionary<ulong, Geofence>();
+
+            Geofence GetGeofence(ulong guildId)
+            {
+                if (!locationCache.TryGetValue(guildId, out var geofence))
+                {
+                    var geofences = _config.Instance.Servers[guildId].Geofences;
+                    geofence = GeofenceService.GetGeofence(geofences, new Coordinate(raid.Latitude, raid.Longitude));
+                    locationCache.Add(guildId, geofence);
+                }
+
+                return geofence;
+            }
+
+            var subscriptions = await _subscriptionManager.GetSubscriptionsByRaidPokemonId(raid.PokemonId);
+            if (subscriptions == null)
+            {
+                _logger.LogWarning($"Failed to get subscriptions from database table.");
+                return;
+            }
+
+            Subscription user;
+            var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
+            for (int i = 0; i < subscriptions.Count; i++)
+            {
+                //var start = DateTime.Now;
+                try
+                {
+                    user = subscriptions[i];
+
+                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
+                        continue;
+
+                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
+                        continue;
+
+                    if (!_discordClients.ContainsKey(user.GuildId))
+                        continue;
+
+                    var client = _discordClients[user.GuildId];
+
+                    var member = await client.GetMemberById(user.GuildId, user.UserId);
+                    if (member == null)
+                    {
+                        _logger.LogWarning($"Failed to find member with id {user.UserId}.");
+                        continue;
+                    }
+
+                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds))
+                    {
+                        _logger.LogInformation($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
+                        // Automatically disable users subscriptions if not supporter to prevent issues
+                        //user.Enabled = false;
+                        //user.Save(false);
+                        continue;
+                    }
+
+                    var form = Translator.Instance.GetFormName(raid.Form);
+                    var subPkmn = user.Raids.FirstOrDefault(x =>
+                        x.PokemonId == raid.PokemonId &&
+                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
+                    );
+                    // Not subscribed to Pokemon
+                    if (subPkmn == null)
+                    {
+                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
+                        continue;
+                    }
+
+                    var geofence = GetGeofence(user.GuildId);
+                    if (geofence == null)
+                    {
+                        //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                        continue;
+                    }
+
+                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+                    var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subPkmn.Location, true) == 0);
+                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinate(raid.Latitude, raid.Longitude));
+                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(new Coordinate(raid.Latitude, raid.Longitude));
+                    var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
+
+                    // If set distance does not match and no geofences match, then skip Raid Pokemon...
+                    if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                        continue;
+
+                    var embed = raid.GenerateEmbedMessage(new AlarmMessageSettings
+                    {
+                        GuildId = user.GuildId,
+                        Client = client,
+                        Config = _config,
+                        Alarm = null,
+                        City = geofence.Name
+                    });
+                    //var end = DateTime.Now;
+                    //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
+                    embed.Embeds.ForEach(x => _queue.Enqueue(new NotificationItem
+                    {
+                        Subscription = user,
+                        Member = member,
+                        Embed = x,
+                        Description = pokemon.Name,
+                        City = geofence.Name
+                    }));
+
+                    // TODO: Statistics.Instance.SubscriptionRaidsSent++;
+                    Thread.Sleep(5);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Error: {ex}");
+                }
+            }
+
+            subscriptions.Clear();
+            subscriptions = null;
+            user = null;
+
             await Task.CompletedTask;
         }
 
