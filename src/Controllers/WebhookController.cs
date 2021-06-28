@@ -37,7 +37,6 @@
         public IActionResult HandleData(List<WebhookPayload> data)
         {
             ThreadPool.QueueUserWorkItem(x => _webhookService.ParseData(data));
-            ThreadPool.QueueUserWorkItem(x => _subscriptionService.ParseData(data));
             return Ok();
         }
     }

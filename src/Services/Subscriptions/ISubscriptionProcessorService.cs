@@ -7,8 +7,6 @@
 
     public interface ISubscriptionProcessorService
     {
-        void ParseData(List<WebhookPayload> payloads);
-
         void ProcessPokemon(PokemonData pokemon);
 
         void ProcessPvpPokemon(PokemonData pokemon);
