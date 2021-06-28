@@ -17,14 +17,16 @@
     public class SubscriptionManagerService : ISubscriptionManagerService
     {
         private readonly ILogger<ISubscriptionManagerService> _logger;
+        private readonly IDbContextFactory<AppDbContext> _dbFactory;
         private readonly AppDbContext _dbContext;
 
         public SubscriptionManagerService(
             ILogger<ISubscriptionManagerService> logger,
-            AppDbContext dbContext)
+            IDbContextFactory<AppDbContext> dbFactory)
         {
             _logger = logger;
-            _dbContext = dbContext;
+            _dbFactory = dbFactory;
+            _dbContext = _dbFactory.CreateDbContext();
         }
 
         public async Task<List<Subscription>> GetSubscriptionsByPokemonId(uint pokemonId)

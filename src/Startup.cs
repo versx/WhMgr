@@ -61,7 +61,6 @@ namespace WhMgr
                 .AddSingleton(typeof(ConfigHolder), _config);
             //.AddSingleton(typeof(StripeService), new StripeService(_whConfig.Instance.StripeApiKey))
             //.AddSingleton(typeof(Osm.OsmManager), new Osm.OsmManager())
-            //.AddSingleton(typeof(WebhookController), _whm
             //if (_subProcessor != null)
             {
                 //servicesCol.AddSingleton(typeof(SubscriptionProcessor), _subProcessor ?? new SubscriptionProcessor(_servers, _whConfig, _whm));
@@ -104,16 +103,22 @@ namespace WhMgr
                 ), ServiceLifetime.Scoped
             );
 
+            services.AddDbContextFactory<AppDbContext>(options =>
+                options.UseMySql(
+                    _config.Instance.Database.Main.ToString(),
+                    ServerVersion.AutoDetect(_config.Instance.Database.Main.ToString())
+                ), ServiceLifetime.Singleton
+            );
+
             services.AddSingleton<IGeofenceService>(new GeofenceService());
             // let DI create and manage the singleton instance
             services.AddSingleton<IAlarmControllerService, AlarmControllerService>();
             services.AddScoped<IWebhookProcessorService, WebhookProcessorService>();
+            services.AddScoped<NotificationQueue, NotificationQueue>();
             services.AddScoped<ISubscriptionManagerService, SubscriptionManagerService>();
             services.AddScoped<ISubscriptionProcessorService, SubscriptionProcessorService>();
-            services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>();
-            services.AddSingleton<NotificationQueue, NotificationQueue>();
+            services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>(); // TODO: Singleton
             services.Add(new ServiceDescriptor(typeof(ChannelAlarmsManifest), typeof(ChannelAlarmsManifest), ServiceLifetime.Singleton));
-            //services.AddSingleton<ISubscriptionProcessorService>(new SubscriptionProcessorService());
             services.AddSingleton(_config);
             services.AddSingleton(_alarms);
             services.AddSingleton(_discordClients);
