@@ -161,9 +161,10 @@
                 // TODO: lock processed pokestops, check for dups
             }
 
-            // TODO: Process for webhook alarms and member subscriptions
             _alarmsService.ProcessPokestopAlarms(pokestop);
-            _subscriptionService.ProcessPokestopSubscription(pokestop);
+            // TODO: New threads
+            _subscriptionService.ProcessInvasionSubscription(pokestop);
+            _subscriptionService.ProcessLureSubscription(pokestop);
         }
     }
 }

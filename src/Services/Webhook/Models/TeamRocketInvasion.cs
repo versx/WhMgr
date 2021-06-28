@@ -58,9 +58,9 @@
             return msg;
         }
 
-        public List<int> GetEncounterRewards()
+        public List<uint> GetEncounterRewards()
         {
-            var list = new List<int>();
+            var list = new List<uint>();
             if (Encounters == null)
                 return list;
 
@@ -93,10 +93,10 @@
             return list;
         }
 
-        private static int ParsePokemonId(string value)
+        private static uint ParsePokemonId(string value)
         {
             var split = value.Split('_');
-            if (!int.TryParse(split[0], out var id))
+            if (!uint.TryParse(split[0], out var id))
             {
                 Console.WriteLine($"Failed to parse grunttype {split[0]}");
                 return 0;

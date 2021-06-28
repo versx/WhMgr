@@ -14,6 +14,10 @@
 
         Task ProcessQuestSubscription(QuestData quest);
 
-        Task ProcessPokestopSubscription(PokestopData pokestop);
+        Task ProcessInvasionSubscription(PokestopData pokestop);
+
+        Task ProcessLureSubscription(PokestopData pokestop);
+
+        Task ProcessGymSubscription(RaidData raid);
     }
 }
