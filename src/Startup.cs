@@ -12,6 +12,7 @@ namespace WhMgr
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -20,6 +21,8 @@ namespace WhMgr
 
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Data.Contexts;
+    using WhMgr.Queues;
     using WhMgr.Services;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Models;
@@ -94,12 +97,21 @@ namespace WhMgr
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseMySql(
+                    _config.Instance.Database.Main.ToString(),
+                    ServerVersion.AutoDetect(_config.Instance.Database.Main.ToString())
+                ), ServiceLifetime.Scoped
+            );
+
             services.AddSingleton<IGeofenceService>(new GeofenceService());
             // let DI create and manage the singleton instance
             services.AddSingleton<IAlarmControllerService, AlarmControllerService>();
-            services.AddSingleton<IWebhookProcessorService, WebhookProcessorService>();
-            services.AddSingleton<ISubscriptionManagerService, SubscriptionManagerService>();
-            services.AddSingleton<ISubscriptionProcessorService, SubscriptionProcessorService>();
+            services.AddScoped<IWebhookProcessorService, WebhookProcessorService>();
+            services.AddScoped<ISubscriptionManagerService, SubscriptionManagerService>();
+            services.AddScoped<ISubscriptionProcessorService, SubscriptionProcessorService>();
+            services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>();
+            services.AddSingleton<NotificationQueue, NotificationQueue>();
             services.Add(new ServiceDescriptor(typeof(ChannelAlarmsManifest), typeof(ChannelAlarmsManifest), ServiceLifetime.Singleton));
             //services.AddSingleton<ISubscriptionProcessorService>(new SubscriptionProcessorService());
             services.AddSingleton(_config);

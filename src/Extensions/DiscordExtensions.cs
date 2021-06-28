@@ -11,20 +11,17 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Entities;
     using DSharpPlus.Interactivity;
-    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Configuration;
-    using WhMgr.Diagnostics;
     using WhMgr.Localization;
-    using WhMgr.Net.Models;
+    using WhMgr.Services.Webhook.Models;
+    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     public static class DiscordExtensions
     {
         public const string ConfirmRegex = "\\b[Yy][Ee]?[Ss]?\\b|\\b[Nn][Oo]?\\b";
         public const string YesRegex = "[Yy][Ee]?[Ss]?";
         //private const string NoRegex = "[Nn][Oo]?";
-
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("DISCORD_EXTENSIONS", Program.LogLevel);
 
         #region Messages
 
@@ -74,29 +71,29 @@
             return messagesSent;
         }
 
-        public static async Task<DiscordMessage> SendDirectMessage(this DiscordClient client, DiscordUser user, DiscordEmbed embed)
+        public static async Task<DiscordMessage> SendDirectMessage(this DiscordMember member, DiscordEmbed embed)
         {
             if (embed == null)
                 return null;
 
-            return await client.SendDirectMessage(user, string.Empty, embed);
+            return await member.SendDirectMessage(string.Empty, embed);
         }
 
-        public static async Task<DiscordMessage> SendDirectMessage(this DiscordClient client, DiscordUser user, string message, DiscordEmbed embed)
+        public static async Task<DiscordMessage> SendDirectMessage(this DiscordMember member, string message, DiscordEmbed embed)
         {
             try
             {
-                var dm = await client.CreateDmAsync(user);
+                var dm = await member.CreateDmChannelAsync();
                 if (dm != null)
                 {
-                    var msg = await dm.SendMessageAsync(message, false, embed);
+                    var msg = await dm.SendMessageAsync(message, embed);
                     return msg;
                 }
             }
             catch (Exception)
             {
                 //_logger.Error(ex);
-                _logger.Error($"Failed to send DM to user {user.Username}.");
+                Console.WriteLine($"Failed to send DM to user {member.Username}.");
             }
 
             return null;
@@ -104,7 +101,7 @@
 
         #endregion
 
-        private static readonly Dictionary<(ulong, ulong), Task<DiscordMember>> MemberTasks = new Dictionary<(ulong, ulong), Task<DiscordMember>>();
+        private static readonly Dictionary<(ulong, ulong), Task<DiscordMember>> MemberTasks = new();
 
         public static async Task<DiscordMember> GetMemberById(this DiscordClient client, ulong guildId, ulong id)
         {
@@ -139,7 +136,7 @@
         }
 
         private static async Task<DiscordMember> DoGetMemberById(DiscordClient client, ulong guildId, ulong id)
-		{
+        {
             if (!client.Guilds.ContainsKey(guildId))
                 return null;
 
@@ -154,7 +151,7 @@
             DiscordMember member = null;
             try
             {
-                member = members?.FirstOrDefault(x => x.Id == id);
+                member = members?.FirstOrDefault(x => x.Key == id).Value;
             }
             catch { }
             if (member == null)
@@ -187,7 +184,7 @@
             return eb.FirstOrDefault();
         }
 
-        internal static async Task<bool> IsDirectMessageSupported(this CommandContext ctx, WhConfig config)
+        internal static async Task<bool> IsDirectMessageSupported(this CommandContext ctx, Config config)
         {
             var exists = ctx.Client.Guilds.Keys.FirstOrDefault(x => config.Servers.ContainsKey(x)) > 0;
             //if (message?.Channel?.Guild == null)
@@ -214,7 +211,7 @@
 
         #region Roles
 
-        public static async Task<bool> IsSupporterOrHigher(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)
+        public static async Task<bool> IsSupporterOrHigher(this DiscordClient client, ulong userId, ulong guildId, Config config)
         {
             try
             {
@@ -237,13 +234,13 @@
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Console.WriteLine($"Error: {ex}");
             }
 
             return false;
         }
 
-        public static async Task<bool> IsModerator(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)
+        public static async Task<bool> IsModerator(this DiscordClient client, ulong userId, ulong guildId, Config config)
         {
             if (!config.Servers.ContainsKey(guildId))
                 return false;
@@ -265,7 +262,7 @@
             return false;
         }
 
-        public static async Task<bool> IsModeratorOrHigher(this DiscordClient client, ulong userId, ulong guildId, WhConfig config)
+        public static async Task<bool> IsModeratorOrHigher(this DiscordClient client, ulong userId, ulong guildId, Config config)
         {
             if (!config.Servers.ContainsKey(guildId))
                 return false;
@@ -294,10 +291,10 @@
                 return false;
 
             var guild = client.Guilds[guildId];
-            var member = guild.Members.FirstOrDefault(x => x.Id == userId);
+            var member = guild.Members.FirstOrDefault(x => x.Key == userId).Value;
             if (member == null)
             {
-                _logger.Error($"Failed to get user with id {userId}.");
+                Console.WriteLine($"Failed to get user with id {userId}.");
                 return false;
             }
 
@@ -322,7 +319,7 @@
             var member = await client.GetMemberById(guildId, userId);
             if (member == null)
             {
-                _logger.Error($"Failed to get moderator user with id {userId}.");
+                Console.WriteLine($"Failed to get moderator user with id {userId}.");
                 return false;
             }
 
@@ -357,7 +354,7 @@
 
         public static DiscordRole GetRoleFromName(this DiscordGuild guild, string roleName)
         {
-            return guild?.Roles.FirstOrDefault(x => string.Compare(x.Name, roleName, true) == 0);
+            return guild?.Roles.FirstOrDefault(x => string.Compare(x.Value.Name, roleName, true) == 0).Value;
         }
 
         #endregion
@@ -372,13 +369,13 @@
             }
             catch (DSharpPlus.Exceptions.NotFoundException)
             {
-                _logger.Debug($"Failed to get Discord channel {channelId}, skipping...");
+                Console.WriteLine($"Failed to get Discord channel {channelId}, skipping...");
                 return null;
             }
 
             if (channel == null)
             {
-                _logger.Warn($"Failed to find channel by id {channelId}, skipping...");
+                Console.WriteLine($"Failed to find channel by id {channelId}, skipping...");
                 return null;
             }
 
@@ -408,7 +405,7 @@
                 }
                 catch (Newtonsoft.Json.JsonReaderException ex)
                 {
-                    _logger.Error(ex);
+                    Console.WriteLine($"Error: {ex}");
                     continue;
                 }
             }
@@ -419,27 +416,28 @@
         public static async Task<bool> Confirm(this CommandContext ctx, string message)
         {
             await ctx.RespondEmbed(message);
-            var interactivity = ctx.Client.GetModule<InteractivityModule>();
+            var interactivity = ctx.Client.GetExtension<InteractivityExtension>();
             if (interactivity == null)
             {
-                _logger.Error("Interactivity model failed to load!");
+                Console.WriteLine("Interactivity model failed to load!");
                 return false;
             }
 
             var m = await interactivity.WaitForMessageAsync(
                 x => x.Channel.Id == ctx.Channel.Id
                 && x.Author.Id == ctx.User.Id
-                && Regex.IsMatch(x.Content, ConfirmRegex), 
+                && Regex.IsMatch(x.Content, ConfirmRegex),
                 TimeSpan.FromMinutes(2));
 
-            return Regex.IsMatch(m.Message.Content, YesRegex);
+            return Regex.IsMatch(m.Result.Content, YesRegex);
         }
 
         #region Colors
 
+        /*
         public static DiscordColor BuildPokemonIVColor(this string iv, DiscordEmbedColorConfig config)
         {
-            if (!double.TryParse(iv.Substring(0, iv.Length - 1), out var result))
+            if (!double.TryParse(iv[0..^1], out var result))
             {
                 return DiscordColor.White;
             }
@@ -458,36 +456,21 @@
         }
 
         public static DiscordColor BuildRaidColor(this int level, DiscordEmbedColorConfig config)
-{
+        {
             if (level == 0)
             {
                 return DiscordColor.White;
             }
-            string color;
-            switch (level)
+            string color = level switch
             {
-                case 1:
-                    color = config.Raids.Level1;
-                    break;
-                case 2:
-                    color = config.Raids.Level2;
-                    break;
-                case 3:
-                    color = config.Raids.Level3;
-                    break;
-                case 4:
-                    color = config.Raids.Level4;
-                    break;
-                case 5:
-                    color = config.Raids.Level5;
-                    break;
-                case 6:
-                    color = config.Raids.Level6;
-                    break;
-                default:
-                    color = config.Raids.Ex;
-                    break;
-            }
+                1 => config.Raids.Level1,
+                2 => config.Raids.Level2,
+                3 => config.Raids.Level3,
+                4 => config.Raids.Level4,
+                5 => config.Raids.Level5,
+                6 => config.Raids.Level6,
+                _ => config.Raids.Ex,
+            };
             return new DiscordColor(color);
         }
 
@@ -546,6 +529,7 @@
             }
             return new DiscordColor(color);
         }
+        */
 
         #endregion
     }

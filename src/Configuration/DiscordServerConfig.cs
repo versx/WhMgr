@@ -66,8 +66,8 @@
         /// <summary>
         /// Gets or sets whether to enable custom direct message subscriptions
         /// </summary>
-        //[JsonPropertyName("subscriptions")]
-        // TODO: public SubscriptionsConfig Subscriptions { get; set; }
+        [JsonPropertyName("subscriptions")]
+        public SubscriptionsConfig Subscriptions { get; set; }
 
         /// <summary>
         /// Gets or sets the GeofenceRoles config to use with assigning geofence 
@@ -135,7 +135,7 @@
             //Locale = "en";
             IconStyle = "Default";
             //ShinyStats = new ShinyStatsConfig();
-            //Subscriptions = new SubscriptionsConfig();
+            Subscriptions = new SubscriptionsConfig();
             DmAlertsFile = "default.json";
             //DiscordEmbedColors = new DiscordEmbedColorConfig();
 

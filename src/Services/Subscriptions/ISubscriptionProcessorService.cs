@@ -1,17 +1,19 @@
 ﻿namespace WhMgr.Services.Subscriptions
 {
+    using System.Threading.Tasks;
+
     using WhMgr.Services.Webhook.Models;
 
     public interface ISubscriptionProcessorService
     {
-        void ProcessPokemonSubscription(PokemonData pokemon);
+        Task ProcessPokemonSubscription(PokemonData pokemon);
 
-        void ProcessPvpSubscription(PokemonData pokemon);
+        Task ProcessPvpSubscription(PokemonData pokemon);
 
-        void ProcessRaidSubscription(RaidData raid);
+        Task ProcessRaidSubscription(RaidData raid);
 
-        void ProcessQuestSubscription(QuestData quest);
+        Task ProcessQuestSubscription(QuestData quest);
 
-        void ProcessPokestopSubscription(PokestopData pokestop);
+        Task ProcessPokestopSubscription(PokestopData pokestop);
     }
 }

@@ -14,16 +14,13 @@
     {
         private readonly ILogger<WebhookController> _logger;
         private readonly IWebhookProcessorService _webhookService;
-        private readonly ISubscriptionProcessorService _subscriptionService;
 
         public WebhookController(
             ILogger<WebhookController> logger,
-            IWebhookProcessorService webhookService,
-            ISubscriptionProcessorService subscriptionService)
+            IWebhookProcessorService webhookService)
         {
             _logger = logger;
             _webhookService = webhookService;
-            _subscriptionService = subscriptionService;
         }
 
         [HttpGet("/")]

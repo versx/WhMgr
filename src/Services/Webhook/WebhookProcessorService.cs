@@ -5,7 +5,6 @@
 
     using Microsoft.Extensions.Logging;
 
-    using WhMgr.Extensions;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook.Models;

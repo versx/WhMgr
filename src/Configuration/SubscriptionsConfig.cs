@@ -1,34 +1,34 @@
 ﻿namespace WhMgr.Configuration
 {
-    using Newtonsoft.Json;
+    using System.Text.Json.Serialization;
 
     public class SubscriptionsConfig
     {
-        [JsonProperty("enabled")]
+        [JsonPropertyName("enabled")]
         public bool Enabled { get; set; }
 
-        [JsonProperty("maxPokemonSubscriptions")]
+        [JsonPropertyName("maxPokemonSubscriptions")]
         public int MaxPokemonSubscriptions { get; set; }
 
-        [JsonProperty("maxPvPSubscriptions")]
+        [JsonPropertyName("maxPvPSubscriptions")]
         public int MaxPvPSubscriptions { get; set; }
 
-        [JsonProperty("maxRaidSubscriptions")]
+        [JsonPropertyName("maxRaidSubscriptions")]
         public int MaxRaidSubscriptions { get; set; }
 
-        [JsonProperty("maxQuestSubscriptions")]
+        [JsonPropertyName("maxQuestSubscriptions")]
         public int MaxQuestSubscriptions { get; set; }
 
-        [JsonProperty("maxInvasionSubscriptions")]
+        [JsonPropertyName("maxInvasionSubscriptions")]
         public int MaxInvasionSubscriptions { get; set; }
 
-        [JsonProperty("maxLureSubscriptions")]
+        [JsonPropertyName("maxLureSubscriptions")]
         public int MaxLureSubscriptions { get; set; }
 
-        [JsonProperty("maxGymSubscriptions")]
+        [JsonPropertyName("maxGymSubscriptions")]
         public int MaxGymSubscriptions { get; set; }
 
-        [JsonProperty("maxNotificationsPerMinute")]
+        [JsonPropertyName("maxNotificationsPerMinute")]
         public int MaxNotificationsPerMinute { get; set; }
 
         public SubscriptionsConfig()
