@@ -1,25 +1,24 @@
 ﻿namespace WhMgr.Services.Subscriptions
 {
-    using System.Collections.Generic;
-
-    using WhMgr.Services.Webhook;
     using WhMgr.Services.Webhook.Models;
 
     public class SubscriptionProcessorService : ISubscriptionProcessorService
     {
-        public void ProcessPokemon(PokemonData pokemon)
+        public void ProcessPokemonSubscription(PokemonData pokemon)
         {
         }
 
-        public void ProcessPvpPokemon(PokemonData pokemon)
+        public void ProcessPvpSubscription(PokemonData pokemon)
         {
         }
 
-        public void ProcessRaidPokemon(RaidData raid)
+        public void ProcessRaidSubscription(RaidData raid)
         {
         }
 
-        // TODO: Quest
+        public void ProcessQuestSubscription(QuestData quest)
+        {
+        }
 
         // TODO: Invasion
         

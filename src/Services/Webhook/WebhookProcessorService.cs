@@ -100,7 +100,7 @@
             // TODO: Process for webhook alarms and member subscriptions
             //OnPokemonFound(pokemon);
             _alarmsService.ProcessPokemonAlarms(pokemon);
-            _subscriptionService.ProcessPokemon(pokemon);
+            _subscriptionService.ProcessPokemonSubscription(pokemon);
         }
 
         private void ProcessRaid(dynamic message)
@@ -121,7 +121,32 @@
 
             // TODO: Process for webhook alarms and member subscriptions
             _alarmsService.ProcessRaidAlarms(raid);
-            _subscriptionService.ProcessRaidPokemon(raid);
+            _subscriptionService.ProcessRaidSubscription(raid);
+        }
+
+        private void ProcessQuest(dynamic message)
+        {
+            string json = Convert.ToString(message);
+            var quest = json.FromJson<QuestData>();
+            if (quest == null)
+            {
+                _logger.LogWarning($"Failed to parse quest {message}, skipping...");
+                return;
+            }
+
+            if (CheckForDuplicates)
+            {
+                // TODO: lock processed pokemon, check for dups
+            }
+
+            // TODO: Process for webhook alarms and member subscriptions
+            _alarmsService.ProcessQuestAlarms(quest);
+            _subscriptionService.ProcessQuestSubscription(quest);
+        }
+
+        private void ProcessPokestop(dynamic message)
+        {
+
         }
     }
 }
