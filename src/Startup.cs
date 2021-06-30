@@ -100,7 +100,7 @@ namespace WhMgr
             // let DI create and manage the singleton instance
             services.AddSingleton<IAlarmControllerService, AlarmControllerService>();
             services.AddScoped<NotificationQueue, NotificationQueue>();
-            services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>(); // TODO: Singleton
+            services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>();
             services.AddSingleton<ISubscriptionProcessorService, SubscriptionProcessorService>();
             services.AddSingleton<ISubscriptionManagerService, SubscriptionManagerService>();
             services.AddSingleton<IWebhookProcessorService, WebhookProcessorService>();

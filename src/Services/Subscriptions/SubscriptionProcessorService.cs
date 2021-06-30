@@ -28,20 +28,20 @@
         private readonly ISubscriptionManagerService _subscriptionManager;
         private readonly ConfigHolder _config;
         private readonly Dictionary<ulong, DiscordClient> _discordClients;
-        //private readonly SubscriptionProcessorQueueService _queue;
+        private readonly ISubscriptionProcessorQueueService _queue;
 
         public SubscriptionProcessorService(
             ILogger<ISubscriptionProcessorService> logger,
             ISubscriptionManagerService subscriptionManager,
             ConfigHolder config,
-            Dictionary<ulong, DiscordClient> discordClients)
-            //SubscriptionProcessorQueueService queue)
+            Dictionary<ulong, DiscordClient> discordClients,
+            ISubscriptionProcessorQueueService queue)
         {
             _logger = logger;
             _subscriptionManager = subscriptionManager;
             _config = config;
             _discordClients = discordClients;
-            //_queue = queue;
+            _queue = queue;
         }
 
         public async Task ProcessPokemonSubscription(PokemonData pokemon)
@@ -969,7 +969,7 @@
 
         private void EnqueueEmbed(NotificationItem embed)
         {
-            //_queue.Add(embed);
+            _queue.Add(embed);
         }
     }
 }
