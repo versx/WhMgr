@@ -28,20 +28,20 @@
         private readonly ISubscriptionManagerService _subscriptionManager;
         private readonly ConfigHolder _config;
         private readonly Dictionary<ulong, DiscordClient> _discordClients;
-        private readonly SubscriptionProcessorQueueService _queue;
+        //private readonly SubscriptionProcessorQueueService _queue;
 
         public SubscriptionProcessorService(
             ILogger<ISubscriptionProcessorService> logger,
             ISubscriptionManagerService subscriptionManager,
             ConfigHolder config,
-            Dictionary<ulong, DiscordClient> discordClients,
-            SubscriptionProcessorQueueService queue)
+            Dictionary<ulong, DiscordClient> discordClients)
+            //SubscriptionProcessorQueueService queue)
         {
             _logger = logger;
             _subscriptionManager = subscriptionManager;
             _config = config;
             _discordClients = discordClients;
-            _queue = queue;
+            //_queue = queue;
         }
 
         public async Task ProcessPokemonSubscription(PokemonData pokemon)
@@ -171,7 +171,7 @@
                         });
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.Debug($"Took {end} to process Pokemon subscription for user {user.UserId}");
-                        embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
+                        embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
@@ -319,7 +319,7 @@
                         });
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
-                        embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
+                        embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
@@ -448,7 +448,7 @@
                     });
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
+                    embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -572,7 +572,7 @@
                     });
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process quest subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
+                    embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -701,7 +701,7 @@
                     });
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process invasion subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
+                    embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -820,7 +820,7 @@
                     });
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process lure subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
+                    embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -942,7 +942,7 @@
                     });
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process gym raid subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => _queue.Add(new NotificationItem
+                    embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -965,6 +965,11 @@
             user = null;
 
             await Task.CompletedTask;
+        }
+
+        private void EnqueueEmbed(NotificationItem embed)
+        {
+            //_queue.Add(embed);
         }
     }
 }

@@ -96,12 +96,18 @@ namespace WhMgr
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseMySql(
-                    _config.Instance.Database.Main.ToString(),
-                    ServerVersion.AutoDetect(_config.Instance.Database.Main.ToString())
-                ), ServiceLifetime.Scoped
-            );
+            services.AddSingleton<IGeofenceService>(new GeofenceService());
+            // let DI create and manage the singleton instance
+            services.AddSingleton<IAlarmControllerService, AlarmControllerService>();
+            services.AddScoped<NotificationQueue, NotificationQueue>();
+            services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>(); // TODO: Singleton
+            services.AddSingleton<ISubscriptionProcessorService, SubscriptionProcessorService>();
+            services.AddSingleton<ISubscriptionManagerService, SubscriptionManagerService>();
+            services.AddSingleton<IWebhookProcessorService, WebhookProcessorService>();
+            services.AddSingleton<ChannelAlarmsManifest, ChannelAlarmsManifest>();
+            services.AddSingleton(_config);
+            services.AddSingleton(_alarms);
+            services.AddSingleton(_discordClients);
 
             services.AddDbContextFactory<AppDbContext>(options =>
                 options.UseMySql(
@@ -110,18 +116,12 @@ namespace WhMgr
                 ), ServiceLifetime.Singleton
             );
 
-            services.AddSingleton<IGeofenceService>(new GeofenceService());
-            // let DI create and manage the singleton instance
-            services.AddSingleton<IAlarmControllerService, AlarmControllerService>();
-            services.AddScoped<IWebhookProcessorService, WebhookProcessorService>();
-            services.AddScoped<NotificationQueue, NotificationQueue>();
-            services.AddScoped<ISubscriptionManagerService, SubscriptionManagerService>();
-            services.AddScoped<ISubscriptionProcessorService, SubscriptionProcessorService>();
-            services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>(); // TODO: Singleton
-            services.Add(new ServiceDescriptor(typeof(ChannelAlarmsManifest), typeof(ChannelAlarmsManifest), ServiceLifetime.Singleton));
-            services.AddSingleton(_config);
-            services.AddSingleton(_alarms);
-            services.AddSingleton(_discordClients);
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseMySql(
+                    _config.Instance.Database.Main.ToString(),
+                    ServerVersion.AutoDetect(_config.Instance.Database.Main.ToString())
+                ), ServiceLifetime.Scoped
+            );
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
