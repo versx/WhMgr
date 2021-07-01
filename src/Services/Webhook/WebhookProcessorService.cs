@@ -5,6 +5,7 @@
 
     using Microsoft.Extensions.Logging;
 
+    using WhMgr.Extensions;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook.Models;
@@ -82,7 +83,7 @@
 
         private void ProcessPokemon(dynamic message)
         {
-            var json = Convert.ToString(message);
+            string json = Convert.ToString(message);
             var pokemon = json.FromJson<PokemonData>();
             if (pokemon == null)
             {

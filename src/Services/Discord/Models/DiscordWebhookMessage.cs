@@ -1,8 +1,10 @@
 ﻿namespace WhMgr.Services.Discord.Models
 {
-    using DSharpPlus.Entities;
+    using System;
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
+
+    using DSharpPlus.Entities;
 
     using WhMgr.Extensions;
 
@@ -30,7 +32,16 @@
 
         public string Build()
         {
-            return this.ToJson();
+            try
+            {
+                var json = this.ToJson();
+                return json;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex}");
+                return null;
+            }
         }
     }
 }

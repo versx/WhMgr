@@ -21,19 +21,15 @@
 
         private static IconFetcher _instance;
 
-        public static IconFetcher Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new IconFetcher();
-                }
-                return _instance;
-            }
-        }
+        public static IconFetcher Instance =>
+            _instance ??= new IconFetcher();
 
         #endregion
+
+        public IconFetcher()
+        {
+            _iconStyles = new Dictionary<string, string>();
+        }
 
         public string GetPokemonIcon(string style, uint pokemonId, int form = 0, int evolution = 0, Gender gender = Gender.Unset, int costume = 0, bool shiny = false)
         {
@@ -97,7 +93,7 @@
                     sb.Append(".png");
                     break;
                 case QuestRewardType.PokemonEncounter:
-                    return Instance.GetPokemonIcon
+                    return GetPokemonIcon
                     (
                         style,
                         quest.IsDitto ? 132 : quest.Rewards[0].Info.PokemonId,

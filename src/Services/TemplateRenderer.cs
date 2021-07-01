@@ -6,7 +6,7 @@
     {
         public static string Parse(string text, dynamic model)
         {
-            var template = Handlebars.Compile(text);
+            var template = Handlebars.Compile(text ?? string.Empty);
             return template(model);
         }
     }

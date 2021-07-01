@@ -603,8 +603,8 @@
                 pokestop_url = pokestop?.Url ?? defaultMissingValue,
 
                 // Discord Guild properties
-                uild_name = defaultMissingValue, // TODO: properties.Guild?.Name },
-                guild_img_url = defaultMissingValue, // TODO: properties.Guild?.IconUrl },
+                guild_name = "", // TODO: properties.Guild?.Name },
+                guild_img_url = "", // TODO: properties.Guild?.IconUrl },
 
                 // Event properties
                 is_event = IsEvent.HasValue && IsEvent.Value,

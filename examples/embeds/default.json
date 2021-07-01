@@ -5,7 +5,7 @@
         "iconUrl": "{{pkmn_img_url}}",
         "title": "{{geofence}}",
         "url": "{{gmaps_url}}",
-        "username": "{[form}} {{pkmn_name}}{{gender}}",
+        "username": "{{form}} {{pkmn_name}}{{gender}}",
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",

@@ -35,6 +35,8 @@
             _discordClients = discordClients;
             _config = config;
             _logger.LogInformation($"Alarms {_alarms?.Keys?.Count:N0}");
+
+            IconFetcher.Instance.SetIconStyles(_config.Instance.IconStyles);
         }
 
         public void ProcessPokemonAlarms(PokemonData pokemon)
