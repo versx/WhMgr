@@ -366,7 +366,8 @@
         #endregion
 
         /// <summary>
-        /// Set despawn times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
+        /// Set despawn times because .NET doesn't support Unix timestamp
+        /// deserialization to <seealso cref="DateTime"/> class by default.
         /// </summary>
         public void SetDespawnTime()
         {
@@ -375,7 +376,8 @@
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
 
             SecondsLeft = DespawnTime
-                .Subtract(DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude));
+                .Subtract(DateTime.UtcNow
+                    .ConvertTimeFromCoordinates(Latitude, Longitude));
 
             FirstSeenTime = FirstSeen
                 .FromUnix()
@@ -442,7 +444,7 @@
             };
         }
 
-        private dynamic GetProperties(AlarmMessageSettings properties)// DiscordGuild guild, WhConfig whConfig, string city, string pokemonImageUrl)
+        private dynamic GetProperties(AlarmMessageSettings properties)
         {
             var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
             var pkmnName = Translator.Instance.GetPokemonName(Id);
@@ -472,7 +474,12 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
-            var staticMapLink = StaticMap.GetUrl(properties.Config.Instance.Urls.StaticMap, properties.Config.Instance.StaticMaps["pokemon"], Latitude, Longitude, properties.ImageUrl);
+            var staticMapLink = StaticMap.GetUrl(
+                properties.Config.Instance.Urls.StaticMap,
+                properties.Config.Instance.StaticMaps["pokemon"],
+                Latitude, Longitude,
+                properties.ImageUrl
+            );
             var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
@@ -513,18 +520,30 @@
                 type_2_emoji = type2Emoji,
                 types = $"{type1} | {type2}",
                 types_emoji = typeEmojis,
-                atk_iv = Attack == null ? defaultMissingValue : Convert.ToString(Attack),
-                def_iv = Defense == null ? defaultMissingValue : Convert.ToString(Defense.ToString()),
-                sta_iv = Stamina == null ? defaultMissingValue : Convert.ToString(Stamina.ToString()),
+                atk_iv = Attack == null
+                    ? defaultMissingValue
+                    : Convert.ToString(Attack),
+                def_iv = Defense == null
+                    ? defaultMissingValue
+                    : Convert.ToString(Defense.ToString()),
+                sta_iv = Stamina == null
+                    ? defaultMissingValue
+                    : Convert.ToString(Stamina.ToString()),
                 iv = IV ?? defaultMissingValue,
                 iv_rnd = IVRounded ?? defaultMissingValue,
                 is_shiny = isShiny,
 
                 // Catch rate properties
                 has_capture_rates = CatchRate1.HasValue && CatchRate2.HasValue && CatchRate3.HasValue,
-                capture_1 =  CatchRate1.HasValue ? Math.Round(CatchRate1.Value * 100).ToString() : string.Empty,
-                capture_2 = CatchRate2.HasValue ? Math.Round(CatchRate2.Value * 100).ToString() : string.Empty,
-                capture_3 = CatchRate3.HasValue ? Math.Round(CatchRate3.Value * 100).ToString() : string.Empty,
+                capture_1 =  CatchRate1.HasValue
+                    ? Math.Round(CatchRate1.Value * 100).ToString()
+                    : string.Empty,
+                capture_2 = CatchRate2.HasValue
+                    ? Math.Round(CatchRate2.Value * 100).ToString()
+                    : string.Empty,
+                capture_3 = CatchRate3.HasValue
+                    ? Math.Round(CatchRate3.Value * 100).ToString()
+                    : string.Empty,
                 capture_1_emoji = CaptureRateType.PokeBall.GetEmojiIcon("capture", false),
                 capture_2_emoji = CaptureRateType.GreatBall.GetEmojiIcon("capture", false),
                 capture_3_emoji = CaptureRateType.UltraBall.GetEmojiIcon("capture", false),
@@ -533,12 +552,11 @@
                 is_great = MatchesGreatLeague,
                 is_ultra = MatchesUltraLeague,
                 is_pvp = MatchesGreatLeague || MatchesUltraLeague,
-                //{ "great_league_stats", greatLeagueStats },
-                //{ "ultra_league_stats", ultraLeagueStats },
                 great_league_emoji = greatLeagueEmoji,
                 ultra_league_emoji = ultraLeagueEmoji,
                 pvp_stats = pvpStats,
-                // TODO: Provide list for great/ultra league stats and parse in embed instead of backend
+                great_league = GetLeagueRanks(PvpLeague.Great),
+                ultra_league = GetLeagueRanks(PvpLeague.Ultra),
 
                 // Other properties
                 height = height ?? defaultMissingValue,
@@ -610,6 +628,41 @@
                 return header + great + ultra;
             }
             return null;
+        }
+
+        private List<PvpRankData> GetLeagueRanks(PvpLeague league)
+        {
+            var list = new List<PvpRankData>();
+            if (UltraLeague == null)
+            {
+                return list;
+            }
+            var pvpRanks = league == PvpLeague.Ultra ? UltraLeague : GreatLeague;
+            var maxCp = league == PvpLeague.Ultra ? Strings.MaximumUltraLeagueCP : Strings.MaximumGreatLeagueCP;
+            for (var i = 0; i < pvpRanks.Count; i++)
+            {
+                var pvp = pvpRanks[i];
+                var withinCpRange = pvp.CP >= Strings.MinimumUltraLeagueCP && pvp.CP <= Strings.MaximumUltraLeagueCP;
+                var withinRankRange = pvp.Rank <= MaximumRankPVP;
+                if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
+                    continue;
+
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
+                {
+                    Console.WriteLine($"Pokemon database does not contain pokemon id {pvp.PokemonId}");
+                    continue;
+                }
+                //var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
+                //var form = Translator.Instance.GetFormName(pvp.FormId);
+                //var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
+                // TODO: Set name/form in pvp class for Handlebars.Net
+                if (pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= maxCp)
+                {
+                    list.Add(pvp);
+                    //sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
+                }
+            }
+            return list;
         }
 
         private string GetGreatLeague()

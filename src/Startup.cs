@@ -37,6 +37,8 @@ namespace WhMgr
         private readonly Dictionary<ulong, ChannelAlarmsManifest> _alarms;
         private readonly ConfigHolder _config;
 
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -66,32 +68,10 @@ namespace WhMgr
                 //servicesCol.AddSingleton(typeof(SubscriptionProcessor), _subProcessor ?? new SubscriptionProcessor(_servers, _whConfig, _whm));
             }
             var services = servicesCol.BuildServiceProvider();
-            foreach (var (guildId, guildConfig) in _config.Instance.Servers)
-            {
-                Console.WriteLine($"Configured Discord server {guildId}");
-                var client = DiscordClientFactory.CreateDiscordClient(guildConfig, services);
-                client.Ready += Client_Ready;
-                client.GuildAvailable += Client_GuildAvailable;
-                if ((guildConfig.GeofenceRoles?.Enabled ?? false) &&
-                    (guildConfig.GeofenceRoles?.AutoRemove ?? false))
-                {
-                    client.GuildMemberUpdated += Client_GuildMemberUpdated;
-                }
-                //_client.MessageCreated += Client_MessageCreated;
-                client.ClientErrored += Client_ClientErrored;
-                //client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
-                if (!_discordClients.ContainsKey(guildId))
-                {
-                    client.ConnectAsync().GetAwaiter().GetResult();
-                    _discordClients.Add(guildId, client);
-                }
-
-                // Wait 3 seconds between initializing Discord clients
-                Task.Delay(3000).GetAwaiter().GetResult();
-            }
+            InitializeDiscord(services).ConfigureAwait(false)
+                                       .GetAwaiter()
+                                       .GetResult();
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -150,6 +130,32 @@ namespace WhMgr
             });
         }
 
+        private async Task InitializeDiscord(ServiceProvider services)
+        {
+            foreach (var (guildId, guildConfig) in _config.Instance.Servers)
+            {
+                Console.WriteLine($"Configured Discord server {guildId}");
+                var client = DiscordClientFactory.CreateDiscordClient(guildConfig, services);
+                client.Ready += Client_Ready;
+                client.GuildAvailable += Client_GuildAvailable;
+                if ((guildConfig.GeofenceRoles?.Enabled ?? false) &&
+                    (guildConfig.GeofenceRoles?.AutoRemove ?? false))
+                {
+                    client.GuildMemberUpdated += Client_GuildMemberUpdated;
+                }
+                //_client.MessageCreated += Client_MessageCreated;
+                client.ClientErrored += Client_ClientErrored;
+                //client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
+                if (!_discordClients.ContainsKey(guildId))
+                {
+                    _discordClients.Add(guildId, client);
+                    await client.ConnectAsync();
+                }
+
+                // Wait 3 seconds between initializing Discord clients
+                await Task.Delay(3000);
+            }
+        }
 
         #region Discord Events
 
@@ -293,11 +299,11 @@ namespace WhMgr
                 if (!_discordClients.ContainsKey(guildId))
                     continue;
 
-                var configGuild = _discordClients[guildId];
-                if (!configGuild.Guilds.ContainsKey(emojiGuildId))
+                var guild = _discordClients[guildId];
+                if (!guild.Guilds.ContainsKey(emojiGuildId))
                     continue;
 
-                var emojiGuild = configGuild.Guilds[emojiGuildId];
+                var emojiGuild = guild.Guilds[emojiGuildId];
                 var emojis = await emojiGuild.GetEmojisAsync();
                 foreach (var name in Strings.EmojiList)
                 {
