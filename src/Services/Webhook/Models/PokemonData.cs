@@ -642,11 +642,12 @@
                 return list;
             }
             var pvpRanks = league == PvpLeague.Ultra ? UltraLeague : GreatLeague;
+            var minCp = league == PvpLeague.Ultra ? Strings.MinimumUltraLeagueCP : Strings.MinimumGreatLeagueCP;
             var maxCp = league == PvpLeague.Ultra ? Strings.MaximumUltraLeagueCP : Strings.MaximumGreatLeagueCP;
             for (var i = 0; i < pvpRanks.Count; i++)
             {
                 var pvp = pvpRanks[i];
-                var withinCpRange = pvp.CP >= Strings.MinimumUltraLeagueCP && pvp.CP <= Strings.MaximumUltraLeagueCP;
+                var withinCpRange = pvp.CP >= minCp && pvp.CP <= maxCp;
                 var withinRankRange = pvp.Rank <= MaximumRankPVP;
                 if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
                     continue;
@@ -656,12 +657,12 @@
                     Console.WriteLine($"Pokemon database does not contain pokemon id {pvp.PokemonId}");
                     continue;
                 }
-                //var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
-                //var form = Translator.Instance.GetFormName(pvp.FormId);
-                //var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
-                // TODO: Set name/form in pvp class for Handlebars.Net
                 if (pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= maxCp)
                 {
+                    var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
+                    var form = Translator.Instance.GetFormName(pvp.FormId);
+                    var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
+                    pvp.PokemonName = pkmnName;
                     list.Add(pvp);
                     //sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
                 }

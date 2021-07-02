@@ -13,10 +13,10 @@
             "{{/if}}{{#if is_event}}Go Fest Spawn",
             "{{/if}}{{#if is_pvp}}",
             "{{#if is_great}}{{great_league_emoji}}**Great League**",
-            "{{#each great_league}}Rank {{rank}} {{pokemon}} {{cp}}CP @ L{{level}} {{percentage}}%",
+            "{{#each great_league}}Rank {{rank}} {{name}} {{cp}}CP @ L{{level}} {{percentage}}%",
             "{{/each}}",
             "{{/if}}{{#if is_ultra}}{{ultra_league_emoji}}**Ultra League**",
-            "{{#each ultra_league}}Rank {{rank}} {{pokemon}} {{cp}}CP @ L{{level}} {{percentage}}%",
+            "{{#each ultra_league}}Rank {{rank}} {{name}} {{cp}}CP @ L{{level}} {{percentage}}%",
             "{{/each}}",
             "{{/if}}{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
