@@ -5,14 +5,17 @@
     using System.Text.Json.Serialization;
 
     [Table("raids")]
-    public class RaidSubscription : SubscriptionItem
+    public class RaidSubscription : BaseSubscription
     {
         [
+            JsonPropertyName("subscription_id"),
             Column("subscription_id"),
             //ForeignKey(typeof(Subscription)),
-            ForeignKey("FK_raids_subscriptions_subscription_id"),
+            ForeignKey("subscription_id"),
         ]
         public int SubscriptionId { get; set; }
+
+        public Subscription Subscription { get; set; }
 
         [
             JsonPropertyName("pokemon_id"),

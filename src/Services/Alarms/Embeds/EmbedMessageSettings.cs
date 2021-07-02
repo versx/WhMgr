@@ -1,5 +1,6 @@
 ﻿namespace WhMgr.Services.Alarms.Embeds
 {
+    using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
     /// <summary>
@@ -11,7 +12,10 @@
         /// Gets or sets the Discord message content within the embed message.
         /// </summary>
         [JsonPropertyName("content")]
-        public string Content { get; set; }
+        public List<string> ContentList { get; set; }
+
+        [JsonIgnore]
+        public string Content => string.Join("\n", ContentList);
 
         /// <summary>
         /// Gets or sets the Discord message icon url (left side)

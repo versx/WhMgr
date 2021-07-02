@@ -36,7 +36,7 @@
             _config = config;
             _logger.LogInformation($"Alarms {_alarms?.Keys?.Count:N0}");
 
-            IconFetcher.Instance.SetIconStyles(_config.Instance.IconStyles);
+            // TODO: IconFetcher.Instance.SetIconStyles(_config.Instance.IconStyles);
         }
 
         public void ProcessPokemonAlarms(PokemonData pokemon)
@@ -370,7 +370,7 @@
                     continue;
 
                 var rewardKeyword = quest.GetReward();
-                var questAlarms = alarms.Alarms.FindAll(x => x.Filters?.Quests?.RewardKeywords != null && x.Filters.Quests.Enabled);
+                var questAlarms = alarms.Alarms.FindAll(x => x.Filters?.Quests?.RewardKeywords.Any() ?? false && x.Filters.Quests.Enabled);
                 for (var i = 0; i < questAlarms.Count; i++)
                 {
                     var alarm = questAlarms[i];
@@ -520,6 +520,11 @@
                     City = city,
                 });
                 var json = eb.Build();
+                if (json == null)
+                {
+                    _logger.LogError($"Failed to convert embed notification to JSON string, skipping");
+                    return;
+                }
                 NetUtils.SendWebhook(alarm.Webhook, json);
             }
             catch (Exception ex)

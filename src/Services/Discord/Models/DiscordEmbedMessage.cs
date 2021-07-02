@@ -1,6 +1,5 @@
 ﻿namespace WhMgr.Services.Discord.Models
 {
-    /*
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
@@ -19,7 +18,7 @@
         public DiscordEmbedAuthor Author { get; set; }
 
         [JsonPropertyName("fields")]
-        public List<DiscordField> Fields { get; set; }
+        public List<DiscordField> Fields { get; set; } = new();
 
         [JsonPropertyName("footer")]
         public DiscordEmbedFooter Footer { get; set; }
@@ -29,11 +28,5 @@
 
         [JsonPropertyName("image")]
         public DiscordEmbedImage Image { get; set; }
-
-        public DiscordEmbedMessage()
-        {
-            Fields = new List<DiscordField>();
-        }
     }
-    */
 }

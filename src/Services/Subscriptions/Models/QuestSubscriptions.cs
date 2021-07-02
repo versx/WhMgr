@@ -6,14 +6,17 @@
     using System.Text.Json.Serialization;
 
     [Table("quests")]
-    public class QuestSubscription : SubscriptionItem
+    public class QuestSubscription : BaseSubscription
     {
         [
+            JsonPropertyName("subscription_id"),
             Column("subscription_id"),
             //ForeignKey(typeof(Subscription)),
-            ForeignKey(""),
+            ForeignKey("subscription_id"),
         ]
         public int SubscriptionId { get; set; }
+
+        public Subscription Subscription { get; set; }
 
         [
             JsonPropertyName("pokestop_name"),

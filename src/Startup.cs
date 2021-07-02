@@ -23,13 +23,13 @@ namespace WhMgr
     using WhMgr.Data;
     using WhMgr.Data.Contexts;
     using WhMgr.Queues;
-    using WhMgr.Services;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Models;
     using WhMgr.Services.Discord;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook;
+    using WhMgr.Utilities;
 
     public class Startup
     {
@@ -121,9 +121,7 @@ namespace WhMgr
             }
 
             app.UseRouting();
-
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -143,16 +141,15 @@ namespace WhMgr
                 {
                     client.GuildMemberUpdated += Client_GuildMemberUpdated;
                 }
-                //_client.MessageCreated += Client_MessageCreated;
+                client.MessageCreated += Client_MessageCreated;
                 client.ClientErrored += Client_ClientErrored;
-                //client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
                 if (!_discordClients.ContainsKey(guildId))
                 {
                     _discordClients.Add(guildId, client);
                     await client.ConnectAsync();
                 }
 
-                // Wait 3 seconds between initializing Discord clients
+                // Wait 3 seconds between initializing each Discord client
                 await Task.Delay(3000);
             }
         }
@@ -220,16 +217,24 @@ namespace WhMgr
             }
         }
 
-        //private async Task Client_MessageCreated(MessageCreateEventArgs e)
-        //{
-        //    if (e.Author.Id == e.Client.CurrentUser.Id)
-        //        return;
+        private async Task Client_MessageCreated(DiscordClient client, MessageCreateEventArgs e)
+        {
+            // Ignore bot messages
+            if (e.Author.Id == client.CurrentUser.Id || e.Author.IsBot)
+                return;
 
-        //    if (_whConfig.Instance.BotChannelIds.Count > 0 && !_whConfig.Instance.BotChannelIds.Contains(e.Channel.Id))
-        //        return;
+            if (!_config.Instance.Servers.ContainsKey(e.Guild?.Id ?? 0))
+                return;
 
-        //    await _commands.HandleCommandsAsync(e);
-        //}
+            var guildConfig = _config.Instance.Servers[e.Guild.Id];
+            if (guildConfig.Bot.ChannelIds.Count > 0 && !guildConfig.Bot.ChannelIds.Contains(e.Channel.Id))
+                return;
+
+            // TODO: Handle command manually
+            //await _commands.HandleCommandsAsync(e);
+            Console.WriteLine($"handle command");
+            await Task.CompletedTask;
+        }
 
         private async Task Client_ClientErrored(DiscordClient client, ClientErrorEventArgs e)
         {

@@ -6,14 +6,17 @@
     using System.Text.Json.Serialization;
 
     [Table("gyms")]
-    public class GymSubscription : SubscriptionItem
+    public class GymSubscription : BaseSubscription
     {
         [
+            JsonPropertyName("subscription_id"),
             Column("subscription_id"),
             //ForeignKey(typeof(Subscription)),
-            ForeignKey("FK_gym_subscriptions_subscription_id"),
+            ForeignKey("subscription_id"),
         ]
         public int SubscriptionId { get; set; }
+
+        public Subscription Subscription { get; set; }
 
         [
             JsonPropertyName("name"),

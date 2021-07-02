@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
-    using DSharpPlus.Entities;
     using POGOProtos.Rpc;
 
     using WhMgr.Extensions;
@@ -84,18 +83,21 @@
             var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
             settings.ImageUrl = IconFetcher.Instance.GetQuestIcon(settings.Config.Instance.Servers[settings.GuildId].IconStyle, this);
             var properties = GetProperties(settings);
-            var eb = new DiscordEmbedBuilder
+            var eb = new DiscordEmbedMessage
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                ImageUrl = TemplateRenderer.Parse(embed.ImageUrl, properties),
-                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                Image = new Discord.Models.DiscordEmbedImage
+                {
+                    Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
+                },
+                Thumbnail = new Discord.Models.DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 // TODO: Color = new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Quests),
-                Footer = new DiscordEmbedBuilder.EmbedFooter
+                Footer = new Discord.Models.DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
@@ -109,7 +111,7 @@
                 Username = username,
                 AvatarUrl = iconUrl,
                 Content = description,
-                Embeds = new List<DiscordEmbed> { eb.Build() }
+                Embeds = new List<DiscordEmbedMessage> { eb }
             };
         }
 
@@ -129,6 +131,7 @@
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
             // TODO: var address = new Coordinate(city, Latitude, Longitude).GetAddress(whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
             var dict = new
@@ -164,12 +167,12 @@
                 pokestop_url = PokestopUrl ?? defaultMissingValue,
 
                 // Discord Guild properties
-                guild_name = "", // TODO: guild?.Name },
-                guild_img_url = "", // TODO: guild?.IconUrl },
+                guild_name = guild?.Name,
+                guild_img_url = guild?.IconUrl,
 
                 //Misc properties
                 date_time = DateTime.Now.ToString(),
-                br = "\r\n",
+                br = "\n",
             };
             return dict;
         }

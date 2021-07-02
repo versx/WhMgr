@@ -151,18 +151,21 @@
                 : IconFetcher.Instance.GetPokemonIcon(server.IconStyle, PokemonId, Form, Evolution, Gender, Costume, false);
             settings.ImageUrl = raidImageUrl;
             var properties = GetProperties(settings);
-            var eb = new DiscordEmbedBuilder
+            var eb = new DiscordEmbedMessage
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                ImageUrl = TemplateRenderer.Parse(embed.ImageUrl, properties),
-                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                Image = new Discord.Models.DiscordEmbedImage
+                {
+                    Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
+                },
+                Thumbnail = new Discord.Models.DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 /* TODO: Color = (IsExEligible ? 0 /ex/ : int.Parse(Level)).BuildRaidColor(MasterFile.Instance.DiscordEmbedColors),*/
-                Footer = new DiscordEmbedBuilder.EmbedFooter
+                Footer = new Discord.Models.DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
@@ -176,7 +179,7 @@
                 Username = username,
                 AvatarUrl = iconUrl,
                 Content = description,
-                Embeds = new List<DiscordEmbed> { eb },
+                Embeds = new List<DiscordEmbedMessage> { eb },
             };
         }
 
@@ -223,6 +226,7 @@
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
             var startTimeLeft = now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds();
             var endTimeLeft = now.GetTimeRemaining(EndTime).ToReadableStringNoSeconds();
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
             var dict = new
@@ -296,12 +300,12 @@
                 gym_url = GymUrl,
 
                 // Discord Guild properties
-                guild_name = "", // TODO: guild?.Name },
-                guild_img_url = "", // TODO: guild?.IconUrl },
+                guild_name = guild?.Name,
+                guild_img_url = guild?.IconUrl,
 
                 //Misc properties
                 date_time = DateTime.Now.ToString(),
-                br = "\r\n",
+                br = "\n",
             };
             return dict;
         }

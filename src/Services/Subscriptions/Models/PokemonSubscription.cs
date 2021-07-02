@@ -9,17 +9,21 @@
     using System.Text.Json.Serialization;
 
     [Table("pokemon")]
-    public class PokemonSubscription : SubscriptionItem
+    public class PokemonSubscription : BaseSubscription
     {
         #region Properties
 
         [
+            JsonPropertyName("subscription_id"),
             Column("subscription_id"),
             //ForeignKey(typeof(Subscription)),
-            ForeignKey("FK_invasion_subscriptions_subscription_id"),
+            ForeignKey("subscription_id"),
         ]
         public int SubscriptionId { get; set; }
 
+        public Subscription Subscription { get; set; }
+
+        /*
         [
             JsonIgnore,
             NotMapped,
@@ -41,13 +45,14 @@
                 return new List<uint>();
             }
         }
+        */
 
         [
             JsonPropertyName("pokemon_id"),
             Column("pokemon_id"),
             Required,
         ]
-        public string PokemonIdString { get; set; }
+        public List<uint> PokemonId { get; set; }
 
         [
             JsonIgnore,

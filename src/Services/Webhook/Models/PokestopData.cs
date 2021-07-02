@@ -100,22 +100,25 @@
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
-        public DiscordWebhookMessage GenerateEmbedMessage(AlarmMessageSettings settings)//, bool useLure, bool useInvasion)
+        public DiscordWebhookMessage GenerateEmbedMessage(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = HasInvasion ? EmbedMessageType.Invasions : HasLure ? EmbedMessageType.Lures : EmbedMessageType.Pokestops;
             var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
             var properties = GetProperties(settings);
-            var eb = new DiscordEmbedBuilder
+            var eb = new DiscordEmbedMessage
             {
-                Title = DynamicReplacementEngine.ReplaceText(embed.Title, properties),
-                Url = DynamicReplacementEngine.ReplaceText(embed.Url, properties),
-                ImageUrl = DynamicReplacementEngine.ReplaceText(embed.ImageUrl, properties),
-                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                Title = TemplateRenderer.Parse(embed.Title, properties),
+                Url = TemplateRenderer.Parse(embed.Url, properties),
+                Image = new Discord.Models.DiscordEmbedImage
                 {
-                    Url = DynamicReplacementEngine.ReplaceText(embed.IconUrl, properties),
+                    Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Description = DynamicReplacementEngine.ReplaceText(embed.Content, properties),
+                Thumbnail = new Discord.Models.DiscordEmbedImage
+                {
+                    Url = TemplateRenderer.Parse(embed.IconUrl, properties),
+                },
+                Description = TemplateRenderer.Parse(embed.Content, properties),
                 /*
                 TODO: Color = useInvasion
                     ? new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Invasions)
@@ -123,21 +126,21 @@
                         ? LureType.BuildLureColor(MasterFile.Instance.DiscordEmbedColors)
                         : DiscordColor.CornflowerBlue,
                 */
-                Footer = new DiscordEmbedBuilder.EmbedFooter
+                Footer = new Discord.Models.DiscordEmbedFooter
                 {
-                    Text = DynamicReplacementEngine.ReplaceText(embed.Footer?.Text, properties),
-                    IconUrl = DynamicReplacementEngine.ReplaceText(embed.Footer?.IconUrl, properties)
+                    Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
+                    IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
                 }
             };
-            var username = DynamicReplacementEngine.ReplaceText(embed.Username, properties);
-            var iconUrl = DynamicReplacementEngine.ReplaceText(embed.AvatarUrl, properties);
-            var description = DynamicReplacementEngine.ReplaceText(settings.Alarm?.Description, properties);
+            var username = TemplateRenderer.Parse(embed.Username, properties);
+            var iconUrl = TemplateRenderer.Parse(embed.AvatarUrl, properties);
+            var description = TemplateRenderer.Parse(settings.Alarm?.Description, properties);
             return new DiscordWebhookMessage
             {
                 Username = username,
                 AvatarUrl = iconUrl,
                 Content = description,
-                Embeds = new List<DiscordEmbed> { eb.Build() },
+                Embeds = new List<DiscordEmbedMessage> { eb },
             };
         }
 
@@ -166,7 +169,7 @@
             // TODO: var address = new Coordinate(city, Latitude, Longitude).GetAddress(whConfig);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
-            var leaderString = Translator.Instance.Translate("grunt_" + Convert.ToInt32(GruntType));
+            var leaderString = Translator.Instance.GetGruntType(GruntType);
             var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
             var invasionTypeEmoji = pokemonType == PokemonType.None
                 ? leaderString
@@ -176,6 +179,7 @@
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
             var lureExpireTimeLeft = now.GetTimeRemaining(LureExpireTime).ToReadableStringNoSeconds();
             var invasionExpireTimeLeft = now.GetTimeRemaining(InvasionExpireTime).ToReadableStringNoSeconds();
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
             var dict = new
@@ -219,12 +223,12 @@
                 //{ "address", address?.Address },
 
                 // Discord Guild properties
-                guild_name = "", // TODO: guild?.Name },
-                guild_img_url = "", // TODO: guild?.IconUrl },
+                guild_name = guild?.Name,
+                guild_img_url = guild?.IconUrl,
 
                 //Misc properties
                 date_time = DateTime.Now.ToString(),
-                br = "\r\n",
+                br = "\n",
             };
             return dict;
         }

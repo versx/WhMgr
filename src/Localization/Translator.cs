@@ -6,6 +6,7 @@
     using ActivityType = POGOProtos.Rpc.HoloActivityType;
     using AlignmentType = POGOProtos.Rpc.PokemonDisplayProto.Types.Alignment;
     using CharacterCategory = POGOProtos.Rpc.EnumWrapper.Types.CharacterCategory;
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
     using ItemId = POGOProtos.Rpc.Item;
     using TemporaryEvolutionId = POGOProtos.Rpc.HoloTemporaryEvolutionId;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
@@ -132,6 +133,11 @@
         public string GetEvolutionName(TemporaryEvolutionId evolution)
         {
             return Translate($"evo_{(int)evolution}");
+        }
+
+        public string GetGruntType(InvasionCharacter gruntType)
+        {
+            return Translate($"grunt_{(int)gruntType}");
         }
     }
 }

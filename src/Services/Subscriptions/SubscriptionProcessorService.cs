@@ -82,7 +82,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i];
+                    user = subscriptions[i].Subscription;
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -175,7 +175,7 @@
                         {
                             Subscription = user,
                             Member = member,
-                            Embed = x,
+                            // TODO: Fix embeds Embed = x,
                             Description = pkmn.Name,
                             City = geofence.Name,
                             Pokemon = pokemon,
@@ -236,7 +236,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i];
+                    user = subscriptions[i].Subscription;
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -323,7 +323,7 @@
                         {
                             Subscription = user,
                             Member = member,
-                            Embed = x,
+                            // TODO: Fix embeds Embed = x,
                             Description = pkmn.Name,
                             City = geofence.Name,
                         }));
@@ -380,7 +380,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i];
+                    user = subscriptions[i].Subscription;
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -452,7 +452,7 @@
                     {
                         Subscription = user,
                         Member = member,
-                        Embed = x,
+                        // TODO: Fix embeds Embed = x,
                         Description = pokemon.Name,
                         City = geofence.Name
                     }));
@@ -507,7 +507,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i];
+                    user = subscriptions[i].Subscription;
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -576,7 +576,7 @@
                     {
                         Subscription = user,
                         Member = member,
-                        Embed = x,
+                        // TODO: Fix embeds Embed = x,
                         Description = questName,
                         City = geofence.Name,
                     }));
@@ -637,7 +637,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i];
+                    user = subscriptions[i].Subscription;
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -705,7 +705,7 @@
                     {
                         Subscription = user,
                         Member = member,
-                        Embed = x,
+                        // TODO: Fix embeds Embed = x,
                         Description = pokestop.Name,
                         City = geofence.Name,
                     }));
@@ -730,7 +730,6 @@
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
-
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
@@ -756,7 +755,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i];
+                    user = subscriptions[i].Subscription;
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -824,7 +823,7 @@
                     {
                         Subscription = user,
                         Member = member,
-                        Embed = x,
+                        // TODO: Fix embeds Embed = x,
                         Description = pokestop.Name,
                         City = geofence.Name,
                     }));
@@ -875,7 +874,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i];
+                    user = subscriptions[i].Subscription;
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -946,7 +945,7 @@
                     {
                         Subscription = user,
                         Member = member,
-                        Embed = x,
+                        // TODO: Fix embeds Embed = x,
                         Description = pokemon.Name,
                         City = geofence.Name,
                     }));

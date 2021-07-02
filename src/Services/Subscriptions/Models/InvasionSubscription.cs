@@ -9,14 +9,17 @@
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     [Table("invasions")]
-    public class InvasionSubscription : SubscriptionItem
+    public class InvasionSubscription : BaseSubscription
     {
         [
+            JsonPropertyName("subscription_id"),
             Column("subscription_id"),
             //ForeignKey(typeof(Subscription)),
-            ForeignKey(""),
+            ForeignKey("subscription_id"),
         ]
         public int SubscriptionId { get; set; }
+
+        public Subscription Subscription { get; set; }
 
         [
             JsonPropertyName("pokestop_name"),
@@ -30,6 +33,7 @@
         ]
         public InvasionCharacter InvasionType { get; set; }
 
+        /*
         [
             JsonIgnore,
             NotMapped,
@@ -37,12 +41,13 @@
         public List<uint> RewardPokemonId => RewardPokemonIdString?.Split(',')?
                                                                    .Select(x => uint.Parse(x))
                                                                    .ToList();
+        */
 
         [
             JsonPropertyName("reward_pokemon_id"),
             Column("reward_pokemon_id"),
         ]
-        public string RewardPokemonIdString { get; set; }
+        public List<uint> RewardPokemonId { get; set; } = new();
 
         [
             JsonPropertyName("city"),

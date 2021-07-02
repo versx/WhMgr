@@ -7,7 +7,7 @@
     /// <summary>
     /// Base subscription object all subscription items inherit from
     /// </summary>
-    public abstract class SubscriptionItem
+    public abstract class BaseSubscription
     {
         /// <summary>
         /// Gets or sets the unique primary key Id for the subscription item

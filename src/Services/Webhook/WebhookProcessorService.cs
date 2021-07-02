@@ -81,6 +81,8 @@
 
         #endregion
 
+        #region Processing Methods
+
         private void ProcessPokemon(dynamic message)
         {
             string json = Convert.ToString(message);
@@ -100,10 +102,9 @@
                 // TODO: lock processed pokemon, check for dups
             }
 
-            // TODO: Process for webhook alarms and member subscriptions
             //OnPokemonFound(pokemon);
             _alarmsService.ProcessPokemonAlarms(pokemon);
-            _subscriptionService.ProcessPokemonSubscription(pokemon);
+            // TODO: _subscriptionService.ProcessPokemonSubscription(pokemon);
         }
 
         private void ProcessRaid(dynamic message)
@@ -124,7 +125,7 @@
 
             // TODO: Process for webhook alarms and member subscriptions
             _alarmsService.ProcessRaidAlarms(raid);
-            _subscriptionService.ProcessRaidSubscription(raid);
+            // TODO: _subscriptionService.ProcessRaidSubscription(raid);
         }
 
         private void ProcessQuest(dynamic message)
@@ -144,7 +145,7 @@
 
             // TODO: Process for webhook alarms and member subscriptions
             _alarmsService.ProcessQuestAlarms(quest);
-            _subscriptionService.ProcessQuestSubscription(quest);
+            // TODO: _subscriptionService.ProcessQuestSubscription(quest);
         }
 
         private void ProcessPokestop(dynamic message)
@@ -164,8 +165,10 @@
 
             _alarmsService.ProcessPokestopAlarms(pokestop);
             // TODO: New threads
-            _subscriptionService.ProcessInvasionSubscription(pokestop);
-            _subscriptionService.ProcessLureSubscription(pokestop);
+            // TODO: _subscriptionService.ProcessInvasionSubscription(pokestop);
+            // TODO: _subscriptionService.ProcessLureSubscription(pokestop);
         }
+
+        #endregion
     }
 }

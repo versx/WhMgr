@@ -48,7 +48,7 @@
                 {
                     return "?";
                 }
-                return Math.Round((Attack ?? 0 + Defense ?? 0 + Stamina ?? 0) * 100.0 / 45.0, 1) + "%";
+                return Math.Round(((Attack ?? 0) + (Defense ?? 0) + (Stamina ?? 0)) * 100.0 / 45.0, 1) + "%";
             }
         }
 
@@ -64,7 +64,7 @@
                 {
                     return "?";
                 }
-                return Math.Round((double)(Attack ?? 0 + Defense ?? 0 + Stamina ?? 0) * 100 / 45) + "%";
+                return Math.Round((double)((Attack ?? 0) + (Defense ?? 0) + (Stamina ?? 0)) * 100 / 45) + "%";
             }
         }
 
@@ -411,12 +411,15 @@
             var alert = settings.Alarm?.Embeds[alertType] ?? server.DmEmbeds?[alertType] ?? EmbedMessage.Defaults[alertType];
             settings.ImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
             var properties = GetProperties(settings);
-            var eb = new DiscordEmbedBuilder
+            var eb = new DiscordEmbedMessage
             {
                 Title = TemplateRenderer.Parse(alert.Title, properties),
                 Url = TemplateRenderer.Parse(alert.Url, properties),
-                ImageUrl = TemplateRenderer.Parse(alert.ImageUrl, properties),
-                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                Image = new Discord.Models.DiscordEmbedImage
+                {
+                    Url = TemplateRenderer.Parse(alert.ImageUrl, properties),
+                },
+                Thumbnail = new Discord.Models.DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(alert.IconUrl, properties),
                 },
@@ -426,7 +429,8 @@
                     ? GetPvPColor(GreatLeague, UltraLeague, server)
                     : IV.BuildPokemonIVColor(server),
                 */
-                Footer = new DiscordEmbedBuilder.EmbedFooter
+                Color = DiscordColor.Green.Value,
+                Footer = new Discord.Models.DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(alert.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(alert.Footer?.IconUrl, properties)
@@ -440,7 +444,7 @@
                 Username = username,
                 AvatarUrl = iconUrl,
                 Content = description,
-                Embeds = new List<DiscordEmbed> { eb },
+                Embeds = new List<DiscordEmbedMessage> { eb },
             };
         }
 
@@ -490,7 +494,7 @@
 
             var greatLeagueEmoji = PvpLeague.Great.GetEmojiIcon("league", true);
             var ultraLeagueEmoji = PvpLeague.Ultra.GetEmojiIcon("league", true);
-            var pvpStats = GetPvP();
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
             var dict = new
@@ -554,7 +558,7 @@
                 is_pvp = MatchesGreatLeague || MatchesUltraLeague,
                 great_league_emoji = greatLeagueEmoji,
                 ultra_league_emoji = ultraLeagueEmoji,
-                pvp_stats = pvpStats,
+                pvp_stats = GetPvP(),
                 great_league = GetLeagueRanks(PvpLeague.Great),
                 ultra_league = GetLeagueRanks(PvpLeague.Ultra),
 
@@ -603,15 +607,15 @@
                 pokestop_url = pokestop?.Url ?? defaultMissingValue,
 
                 // Discord Guild properties
-                guild_name = "", // TODO: properties.Guild?.Name },
-                guild_img_url = "", // TODO: properties.Guild?.IconUrl },
+                guild_name = guild?.Name,
+                guild_img_url = guild?.IconUrl,
 
                 // Event properties
                 is_event = IsEvent.HasValue && IsEvent.Value,
 
                 // Misc properties
                 date_time = DateTime.Now.ToString(),
-                br = "\r\n",
+                br = "\n",
             };
             return dict;
         }

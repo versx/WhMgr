@@ -42,6 +42,9 @@
                             Thread.Sleep(retry);
                             SendWebhook(webhookUrl, json);
                             break;
+                        case 400:
+                            Console.WriteLine($"Failed to send webhook: {ex}");
+                            break;
                     }
                 }
             }

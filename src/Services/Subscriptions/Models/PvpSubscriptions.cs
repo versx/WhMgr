@@ -9,14 +9,17 @@
     using WhMgr.Services.Webhook.Models;
 
     [Table("pvp")]
-    public class PvPSubscription : SubscriptionItem
+    public class PvpSubscription : BaseSubscription
     {
         [
+            JsonPropertyName("subscription_id"),
             Column("subscription_id"),
             //ForeignKey(typeof(Subscription))
-            ForeignKey("FK_pvp_subscriptions_subscription_id"),
+            ForeignKey("subscription_id"),
         ]
         public int SubscriptionId { get; set; }
+
+        public Subscription Subscription { get; set; }
 
         [
             JsonPropertyName("pokemon_id"),
@@ -64,7 +67,7 @@
         ]
         public string Location { get; set; }
 
-        public PvPSubscription()
+        public PvpSubscription()
         {
             Form = null;
             League = PvpLeague.Great;

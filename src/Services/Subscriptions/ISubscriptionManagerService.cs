@@ -10,18 +10,19 @@
 
     public interface ISubscriptionManagerService
     {
-        Task<List<Subscription>> GetSubscriptionsByPokemonId(uint pokemonId);
+        //Task<List<Subscription>> GetSubscriptionsByPokemonId(uint pokemonId);
+        Task<List<PokemonSubscription>> GetSubscriptionsByPokemonId(uint pokemonId);
 
-        Task<List<Subscription>> GetSubscriptionsByPvpPokemonId(uint pokemonId);
+        Task<List<PvpSubscription>> GetSubscriptionsByPvpPokemonId(uint pokemonId);
 
-        Task<List<Subscription>> GetSubscriptionsByRaidPokemonId(uint pokemonId);
+        Task<List<RaidSubscription>> GetSubscriptionsByRaidPokemonId(uint pokemonId);
 
-        Task<List<Subscription>> GetSubscriptionsByQuest(string pokestopName, string reward);
+        Task<List<QuestSubscription>> GetSubscriptionsByQuest(string pokestopName, string reward);
 
-        Task<List<Subscription>> GetSubscriptionsByInvasion(string pokestopName, InvasionCharacter gruntType, List<uint> encounters);
+        Task<List<InvasionSubscription>> GetSubscriptionsByInvasion(string pokestopName, InvasionCharacter gruntType, List<uint> encounters);
 
-        Task<List<Subscription>> GetSubscriptionsByLure(PokestopLureType lure);
+        Task<List<LureSubscription>> GetSubscriptionsByLure(PokestopLureType lure);
 
-        Task<List<Subscription>> GetSubscriptionsByGymName(string name);
+        Task<List<GymSubscription>> GetSubscriptionsByGymName(string name);
     }
 }

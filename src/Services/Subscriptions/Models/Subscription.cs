@@ -10,7 +10,7 @@
     /// User subscription class
     /// </summary>
     [Table("subscriptions")]
-    public class Subscription : SubscriptionItem
+    public class Subscription : BaseSubscription
     {
         /// <summary>
         /// Gets or sets a value determining whether the associated users
@@ -56,7 +56,7 @@
             Column("pvp"),
             //Reference,
         ]
-        public List<PvPSubscription> PvP { get; set; } = new();
+        public List<PvpSubscription> PvP { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the Raid subscriptions
@@ -105,14 +105,14 @@
         [
             JsonPropertyName("lures"),
             Column("lures"),
-        //Reference,
+            //Reference,
         ]
         public List<LureSubscription> Lures { get; set; } = new();
 
         [
             JsonPropertyName("locations"),
             Column("locations"),
-        //Reference,
+            //Reference,
         ]
         public List<LocationSubscription> Locations { get; set; } = new();
 
@@ -147,7 +147,7 @@
         /// </summary>
         [
             JsonIgnore,
-            //Ignore,
+            NotMapped,
         ]
         public NotificationLimiter Limiter { get; }
 
@@ -157,7 +157,7 @@
         /// </summary>
         [
             JsonIgnore,
-            //Ignore,
+            NotMapped,
         ]
         public bool RateLimitNotificationSent { get; set; }
 

@@ -8,14 +8,17 @@
     using WhMgr.Services.Webhook.Models;
 
     [Table("lures")]
-    public class LureSubscription : SubscriptionItem
+    public class LureSubscription : BaseSubscription
     {
         [
+            JsonPropertyName("subscription_id"),
             Column("subscription_id"),
             //ForeignKey(typeof(Subscription)),
-            ForeignKey("FK_lure_subscriptions_subscription_id"),
+            ForeignKey("subscription_id"),
         ]
         public int SubscriptionId { get; set; }
+
+        public Subscription Subscription { get; set; }
 
         [
             JsonPropertyName("pokestop_name"),

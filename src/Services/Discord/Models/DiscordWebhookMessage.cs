@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
-    using DSharpPlus.Entities;
-
     using WhMgr.Extensions;
 
     public class DiscordWebhookMessage
@@ -20,28 +18,20 @@
         public string AvatarUrl { get; set; }
 
         [JsonPropertyName("embeds")]
-        public List<DiscordEmbed> Embeds { get; set; }
+        public List<DiscordEmbedMessage> Embeds { get; set; }
 
         [JsonIgnore]
         public bool HasEmbeds => Embeds?.Count > 0;
 
         public DiscordWebhookMessage()
         {
-            Embeds = new List<DiscordEmbed>();
+            Embeds = new List<DiscordEmbedMessage>();
         }
 
         public string Build()
         {
-            try
-            {
-                var json = this.ToJson();
-                return json;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex}");
-                return null;
-            }
+            var json = this.ToJson();
+            return json;
         }
     }
 }
