@@ -1,4 +1,4 @@
-﻿namespace WhMgr
+﻿namespace WhMgr.Common
 {
     /// <summary>
     /// Pokemon generation range class

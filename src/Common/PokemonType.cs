@@ -1,4 +1,4 @@
-﻿namespace WhMgr.Data
+﻿namespace WhMgr.Common
 {
     using System.Text.Json.Serialization;
 

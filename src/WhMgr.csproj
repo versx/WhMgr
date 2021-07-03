@@ -41,6 +41,10 @@
 
   <ItemGroup>
     <Folder Include="Data\Models\Subscriptions\" />
+    <Folder Include="Common\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Common\" />
+  </ItemGroup>
 </Project>

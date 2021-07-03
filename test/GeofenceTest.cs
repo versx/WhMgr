@@ -1,28 +1,29 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using NUnit.Framework;
-using WhMgr.Geofence;
-
-namespace WhMgr.Test
+﻿namespace WhMgr.Test
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+
+    using NUnit.Framework;
+
+    using WhMgr.Services.Geofence;
+
     [TestFixture]
     public class GeofenceTests
     {
         private const string JsonGeofencesFolder = "JsonGeofences";
         private const string IniGeofencesFolder = "IniGeofences";
 
-        private static IEnumerable<GeofenceItem> LoadGeofences(string geofencesFolder)
+        private static IEnumerable<Geofence> LoadGeofences(string geofencesFolder)
         {
-            var geofences = new List<GeofenceItem>();
+            var geofences = new List<Geofence>();
 
             foreach (var file in Directory.EnumerateFiles(geofencesFolder))
             {
                 try
                 {
-                    var fileGeofences = GeofenceItem.FromFile(file);
-
+                    var fileGeofences = Geofence.FromFile(file);
                     geofences.AddRange(fileGeofences);
                 }
                 catch (Exception ex)
@@ -34,7 +35,7 @@ namespace WhMgr.Test
 
             return geofences;
         }
-        
+
         [Test]
         public void TestLoadingJson()
         {
@@ -62,7 +63,7 @@ namespace WhMgr.Test
         {
             var effectiveFolder = Path.Combine(TestContext.CurrentContext.TestDirectory, JsonGeofencesFolder);
             var geofences = LoadGeofences(effectiveFolder);
-            var insideOf = GeofenceService.GetGeofences(geofences, new Location(latitude, longitude)).ToList();
+            var insideOf = GeofenceService.GetGeofences(geofences, new Coordinate(latitude, longitude)).ToList();
 
             if (!string.IsNullOrEmpty(expectedGeofence))
             {
@@ -85,7 +86,7 @@ namespace WhMgr.Test
         {
             var effectiveFolder = Path.Combine(TestContext.CurrentContext.TestDirectory, IniGeofencesFolder);
             var geofences = LoadGeofences(effectiveFolder);
-            var insideOf = GeofenceService.GetGeofences(geofences, new Location(latitude, longitude)).ToList();
+            var insideOf = GeofenceService.GetGeofences(geofences, new Coordinate(latitude, longitude)).ToList();
 
             if (!string.IsNullOrEmpty(expectedGeofence))
             {
