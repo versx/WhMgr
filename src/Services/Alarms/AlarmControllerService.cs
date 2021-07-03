@@ -36,8 +36,6 @@
             _discordClients = discordClients;
             _config = config;
             _logger.LogInformation($"Alarms {_alarms?.Keys?.Count:N0}");
-
-            // TODO: IconFetcher.Instance.SetIconStyles(_config.Instance.IconStyles);
         }
 
         public void ProcessPokemonAlarms(PokemonData pokemon)
@@ -162,17 +160,16 @@
                     if (skipUltraLeague)
                         continue;
 
-                    //if (!Filters.MatchesGender(pkmn.Gender, alarm.Filters.Pokemon.Gender.ToString()))
-                    //{
-                    //    //_logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
-                    //    continue;
-                    //}
+                    if (!Filters.Filters.MatchesGender(pokemon.Gender, alarm.Filters.Pokemon.Gender.ToString()))
+                    {
+                        //_logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
+                        continue;
+                    }
 
-                    //
-                    // TODO: if ((alarm.Filters?.Pokemon?.IgnoreMissing ?? false) && !(pokemon.Height != null && pokemon.Weight != null && Filters.Filters.MatchesSize(pokemon.Id.GetSize(pokemon.Height, pokemon.Weight), alarm.Filters?.Pokemon?.Size)))
-                    //{
-                    //    continue;
-                    //}
+                    if ((alarm.Filters?.Pokemon?.IgnoreMissing ?? false) && !(pokemon.Height != null && pokemon.Weight != null && Filters.Filters.MatchesSize(pokemon.Id.GetSize(pokemon.Height ?? 0, pokemon.Weight ?? 0), alarm.Filters?.Pokemon?.Size)))
+                    {
+                        continue;
+                    }
 
                     //OnPokemonAlarmTriggered(pokemon, alarm, guildId);
                     if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, pokemon, geofence.Name)))

@@ -251,14 +251,11 @@
         {
             get
             {
-                // TODO: Size
-                /*
-                if (float.TryParse(Height, out var height) && float.TryParse(Weight, out var weight))
+                if (Height == null || Weight == null)
                 {
-                    return Id.GetSize(height, weight);
+                    return null;
                 }
-                */
-                return null;
+                return Id.GetSize(Height ?? 0, Weight ?? 0);
             }
         }
 

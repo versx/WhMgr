@@ -51,7 +51,7 @@
             return MasterFile.Instance.PokemonRarity[PokemonRarity.Rare].Contains(pokeId);
         }
 
-        public static PokemonSize GetSize(this uint id, float height, float weight)
+        public static PokemonSize GetSize(this uint id, double height, double weight)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(id))
                 return PokemonSize.Normal;

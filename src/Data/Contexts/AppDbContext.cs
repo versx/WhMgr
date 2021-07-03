@@ -74,7 +74,7 @@
                 .HasMany(s => s.Locations)
                 .WithOne();
 
-            // TODO: Handle json columns
+            // Handle json columns
             modelBuilder.Entity<PokemonSubscription>()
                         .Property(nameof(PokemonSubscription.PokemonId))
                         .HasConversion(CreateJsonValueConverter<List<uint>>(), CreateValueComparer<uint>());
