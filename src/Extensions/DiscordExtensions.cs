@@ -14,7 +14,6 @@
 
     using WhMgr.Configuration;
     using WhMgr.Localization;
-    using WhMgr.Services.Webhook.Models;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     public static class DiscordExtensions

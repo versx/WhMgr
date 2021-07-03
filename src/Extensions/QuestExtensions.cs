@@ -11,7 +11,7 @@
     using QuestConditionType = POGOProtos.Rpc.QuestConditionProto.Types.ConditionType;
     using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
 
-    using WhMgr.Data;
+    using WhMgr.Common;
     using WhMgr.Localization;
     using WhMgr.Services.Webhook.Models;
     using WhMgr.Services.Webhook.Models.Quests;

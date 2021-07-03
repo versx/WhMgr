@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
-    using DSharpPlus.Entities;
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
 
+    using WhMgr.Common;
     using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Localization;
@@ -155,17 +155,17 @@
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                Image = new Discord.Models.DiscordEmbedImage
+                Image = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Thumbnail = new Discord.Models.DiscordEmbedImage
+                Thumbnail = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 /* TODO: Color = (IsExEligible ? 0 /ex/ : int.Parse(Level)).BuildRaidColor(MasterFile.Instance.DiscordEmbedColors),*/
-                Footer = new Discord.Models.DiscordEmbedFooter
+                Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)

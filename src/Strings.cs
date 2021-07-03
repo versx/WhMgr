@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.IO;
 
-    using WhMgr.Data;
+    using WhMgr.Common;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     public static class Strings

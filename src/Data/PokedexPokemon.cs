@@ -3,6 +3,8 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
+    using WhMgr.Common;
+
     public class PokedexPokemon
     {
         [JsonPropertyName("pokedex_id")]

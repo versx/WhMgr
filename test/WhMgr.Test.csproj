@@ -22,6 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\WhMgr.csproj" />
+    <ProjectReference Include="..\src\WhMgr.csproj" />
   </ItemGroup>
 </Project>

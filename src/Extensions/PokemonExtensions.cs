@@ -4,11 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
 
-     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
+    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
-    using WhMgr.Services.Webhook.Models;
+    using WhMgr.Common;
     using WhMgr.Data;
+    using WhMgr.Services.Webhook.Models;
 
     public static class PokemonExtensions
     {

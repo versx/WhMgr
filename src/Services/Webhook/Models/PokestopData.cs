@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
-    using DSharpPlus.Entities;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
+    using WhMgr.Common;
     using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Localization;
