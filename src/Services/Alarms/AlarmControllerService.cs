@@ -8,6 +8,7 @@
     using DSharpPlus;
     using Microsoft.Extensions.Logging;
 
+    using WhMgr.Common;
     using WhMgr.Configuration;
     using WhMgr.Extensions;
     using WhMgr.Localization;

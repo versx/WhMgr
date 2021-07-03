@@ -8,6 +8,7 @@
 
     using WhMgr.Extensions;
     using WhMgr.Services.Geofence;
+    using WhMgr.Utilities;
 
     /// <summary>
     /// Configuration file class
@@ -91,7 +92,7 @@
         /// Gets or sets the static map template files to use per type
         /// </summary>
         [JsonPropertyName("staticMaps")]
-        public Dictionary<string, string> StaticMaps { get; set; }
+        public Dictionary<StaticMapType, StaticMapConfig> StaticMaps { get; set; }
 
         /// <summary>
         /// Gets or sets the Google maps key for location lookup
@@ -172,7 +173,7 @@
             EventPokemonIds = new List<int>();
             EventMinimumIV = 90;
             IconStyles = new Dictionary<string, string>();
-            StaticMaps = new Dictionary<string, string>();
+            StaticMaps = new Dictionary<StaticMapType, StaticMapConfig>();
             DespawnTimeMinimumMinutes = 5;
             ReloadSubscriptionChangesMinutes = 1;
             MaxNotificationsPerMinute = 10;

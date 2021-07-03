@@ -1,4 +1,4 @@
-﻿namespace WhMgr.Services.Webhook.Models
+﻿namespace WhMgr.Common
 {
     using System.Text.Json.Serialization;
 
@@ -31,6 +31,6 @@
         /// <summary>
         /// All gym teams
         /// </summary>
-        All = ushort.MaxValue
+        All = ushort.MaxValue,
     }
 }

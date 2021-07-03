@@ -1,4 +1,4 @@
-﻿namespace WhMgr.Services.Webhook.Models
+﻿namespace WhMgr.Common
 {
     using System.Text.Json.Serialization;
 

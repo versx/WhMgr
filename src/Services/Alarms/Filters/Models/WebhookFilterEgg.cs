@@ -1,7 +1,8 @@
 ﻿namespace WhMgr.Services.Alarms.Filters.Models
 {
     using System.Text.Json.Serialization;
-    using WhMgr.Services.Webhook.Models;
+
+    using WhMgr.Common;
 
     /// <summary>
     /// Raid egg filters

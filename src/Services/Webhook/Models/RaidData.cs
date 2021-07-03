@@ -215,7 +215,17 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
-            var staticMapLink = StaticMap.GetUrl(properties.Config.Instance.Urls.StaticMap, properties.Config.Instance.StaticMaps["raids"], Latitude, Longitude, properties.ImageUrl, Team);
+
+            var staticMap = new StaticMapGenerator(new StaticMapOptions
+            {
+                BaseUrl = properties.Config.Instance.StaticMaps[StaticMapType.Raids].Url,
+                TemplateName = properties.Config.Instance.StaticMaps[StaticMapType.Raids].TemplateName,
+                Latitude = Latitude,
+                Longitude = Longitude,
+                SecondaryImageUrl = properties.ImageUrl,
+                Team = Team,
+            });
+            var staticMapLink = staticMap.GenerateLink();
             var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);

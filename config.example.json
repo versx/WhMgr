@@ -35,7 +35,6 @@
   "eventPokemonIds": [],
   "eventMinimumIV": "90",
   "urls": {
-    "staticMap": "http://tiles.example.com:8080",
     "scannerMap": "http://map.example.com/@/{0}/{1}/15"
   },
   "iconStyles": {
@@ -43,14 +42,38 @@
     "Shuffle": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
   },
   "staticMaps": {
-    "pokemon": "pokemon.example",
-    "raids": "raids.example",
-    "gyms": "gyms.example",
-    "quests": "quests.example",
-    "invasions": "invasions.example",
-    "lures": "lures.example",
-    "weather": "weather.example",
-    "nests": "nests.example"
+    "pokemon": {
+      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
+      "template": "pokemon.example"
+    },
+    "raids": {
+      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team={{team}}",
+      "template": "raids.example"
+    },
+    "gyms": {
+      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team={{team}}",
+      "template": "gyms.example"
+    },
+    "quests": {
+      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
+      "template": "quests.example"
+    },
+    "invasions": {
+      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
+      "template": "invasions.example"
+    },
+    "lures": {
+      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
+      "template": "lures.example"
+    },
+    "weather": {
+      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&polygon={{polygon}}",
+      "template": "weather.example",
+    },
+    "nests": {
+      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&polygon={{polygon}}",
+      "template": "nests.example",
+    }
   },
   "twilio": {
     "enabled": false,

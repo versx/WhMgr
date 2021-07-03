@@ -4,7 +4,7 @@
 
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
 
-    using WhMgr.Services.Webhook.Models;
+    using WhMgr.Common;
 
     public static class Filters
     {

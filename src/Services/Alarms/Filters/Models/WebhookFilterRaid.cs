@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
-    using WhMgr.Services.Webhook.Models;
+    using WhMgr.Common;
 
     /// <summary>
     /// Raid boss filters

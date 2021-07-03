@@ -110,11 +110,11 @@
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                Image = new Discord.Models.DiscordEmbedImage
+                Image = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Thumbnail = new Discord.Models.DiscordEmbedImage
+                Thumbnail = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
@@ -126,7 +126,7 @@
                         ? LureType.BuildLureColor(MasterFile.Instance.DiscordEmbedColors)
                         : DiscordColor.CornflowerBlue,
                 */
-                Footer = new Discord.Models.DiscordEmbedFooter
+                Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
@@ -157,11 +157,24 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
-            var staticMapLink = StaticMap.GetUrl(properties.Config.Instance.Urls.StaticMap, HasInvasion
-                ? properties.Config.Instance.StaticMaps["invasions"]
-                : HasLure
-                    ? properties.Config.Instance.StaticMaps["lures"] :
-                    /* TODO: */"", Latitude, Longitude, imageUrl);
+
+            var staticMap = new StaticMapGenerator(new StaticMapOptions
+            {
+                BaseUrl = HasInvasion
+                    ? properties.Config.Instance.StaticMaps[StaticMapType.Invasions].Url
+                    : HasLure
+                        ? properties.Config.Instance.StaticMaps[StaticMapType.Lures].Url
+                        : string.Empty,
+                TemplateName = HasInvasion
+                    ? properties.Config.Instance.StaticMaps[StaticMapType.Invasions].TemplateName
+                    : HasLure
+                        ? properties.Config.Instance.StaticMaps[StaticMapType.Lures].TemplateName
+                        : string.Empty,
+                Latitude = Latitude,
+                Longitude = Longitude,
+                SecondaryImageUrl = imageUrl,
+            });
+            var staticMapLink = staticMap.GenerateLink();
             var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
