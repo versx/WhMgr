@@ -14,6 +14,8 @@
     using WhMgr.Queues;
     using WhMgr.Services.Subscriptions.Models;
 
+    // TODO: Set queue as singleton that hosted subscription processor service handles
+
     public class SubscriptionProcessorQueueService : ISubscriptionProcessorQueueService
     {
         private readonly ILogger<ISubscriptionProcessorQueueService> _logger;

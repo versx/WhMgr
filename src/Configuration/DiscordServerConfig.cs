@@ -67,7 +67,7 @@
         /// Gets or sets whether to enable custom direct message subscriptions
         /// </summary>
         [JsonPropertyName("subscriptions")]
-        public SubscriptionsConfig Subscriptions { get; set; }
+        public SubscriptionsConfig Subscriptions { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the GeofenceRoles config to use with assigning geofence 
@@ -92,13 +92,13 @@
         /// Gets or sets the shiny stats configuration class
         /// </summary>
         //[JsonPropertyName("shinyStats")]
-        // TODO: public ShinyStatsConfig ShinyStats { get; set; }
+        // TODO: public ShinyStatsConfig ShinyStats { get; set; } = new()
 
         /// <summary>
         /// Gets or sets the icon style for messages on the Discord server
         /// </summary>
         [JsonPropertyName("iconStyle")]
-        public string IconStyle { get; set; }
+        public string IconStyle { get; set; } = "Default";
 
         /// <summary>
         /// Gets or sets the bot channel ID(s)
@@ -113,13 +113,7 @@
         /// Gets or sets the alerts file to use with direct message subscriptions
         /// </summary>
         [JsonPropertyName("dmAlertsFile")]
-        public string DmAlertsFile { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Discord embed colors to use for each message type
-        /// </summary>
-        //[JsonPropertyName("embedColors")]
-        //public DiscordEmbedColorConfig DiscordEmbedColors { get; set; }
+        public string DmAlertsFile { get; set; } = "default.json";
 
         /// <summary>
         /// Gets or sets the direct message alerts class to use for subscriptions
@@ -128,23 +122,27 @@
         public EmbedMessage DmEmbeds { get; set; }
 
         /// <summary>
+        /// Gets or sets the Discord embed colors to use for each message type
+        /// </summary>
+        //[JsonPropertyName("embedColors")]
+        //public DiscordEmbedColorConfig DiscordEmbedColors { get; set; } = new()
+
+        /// <summary>
         /// Instantiate a new <see cref="DiscordServerConfig"/> class
         /// </summary>
         public DiscordServerConfig()
         {
             //Locale = "en";
-            IconStyle = "Default";
-            //ShinyStats = new ShinyStatsConfig();
-            Subscriptions = new SubscriptionsConfig();
-            DmAlertsFile = "default.json";
-            //DiscordEmbedColors = new DiscordEmbedColorConfig();
-
             LoadDmEmbed();
         }
 
         public void LoadDmEmbed()
         {
             var path = Path.Combine(Strings.EmbedsFolder, DmAlertsFile);
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException($"File not found at location {path}", path);
+            }
             DmEmbeds = Config.LoadInit<EmbedMessage>(path);
         }
     }

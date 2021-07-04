@@ -22,6 +22,7 @@ namespace WhMgr
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Data.Contexts;
+    using WhMgr.HostedServices;
     using WhMgr.Queues;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Models;
@@ -88,6 +89,8 @@ namespace WhMgr
             services.AddSingleton(_config);
             services.AddSingleton(_alarms);
             services.AddSingleton(_discordClients);
+
+            services.AddHostedService<QuestPurgeHostedService>();
 
             services.AddDbContextFactory<AppDbContext>(options =>
                 options.UseMySql(

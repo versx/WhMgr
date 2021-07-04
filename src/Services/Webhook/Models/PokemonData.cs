@@ -21,8 +21,6 @@
 
     public sealed class PokemonData : IWebhookData
     {
-        public const int MaximumRankPVP = 500;
-
         #region Properties
 
         [
@@ -279,7 +277,7 @@
         ]
         public bool MatchesGreatLeague => GreatLeague?.Exists(x =>
             // Check if stat rank is less than or equal to the max great league rank stat desired
-            x.Rank <= MaximumRankPVP &&
+            x.Rank <= Strings.MaximumLeagueRank &&
             // Check if stat CP is greater than or equal to min great league CP
             x.CP >= Strings.MinimumGreatLeagueCP &&
             // Check if stat CP is less than or equal to max great league CP
@@ -292,7 +290,7 @@
         ]
         public bool MatchesUltraLeague => UltraLeague?.Exists(x =>
             // Check if stat rank is less than or equal to the max ultra league rank stat desired
-            x.Rank <= MaximumRankPVP &&
+            x.Rank <= Strings.MaximumLeagueRank &&
             // Check if stat CP is greater than or equal to min ultra league CP
             x.CP >= Strings.MinimumUltraLeagueCP &&
             // Check if stat CP is less than or equal to max ultra league CP
@@ -650,7 +648,7 @@
             {
                 var pvp = pvpRanks[i];
                 var withinCpRange = pvp.CP >= minCp && pvp.CP <= maxCp;
-                var withinRankRange = pvp.Rank <= MaximumRankPVP;
+                var withinRankRange = pvp.Rank <= Strings.MaximumLeagueRank;
                 if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
                     continue;
 
@@ -659,16 +657,21 @@
                     Console.WriteLine($"Pokemon database does not contain pokemon id {pvp.PokemonId}");
                     continue;
                 }
-                if (pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= maxCp)
+                if (pvp.Rank.HasValue && pvp.Rank.Value <= Strings.MaximumLeagueRank &&
+                    pvp.Percentage.HasValue &&
+                    pvp.Level.HasValue &&
+                    pvp.CP.HasValue && pvp.CP <= maxCp)
                 {
                     var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
                     var form = Translator.Instance.GetFormName(pvp.FormId);
                     var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
+                    pvp.Percentage = Math.Round(pvp.Percentage.Value * 100, 2);
                     pvp.PokemonName = pkmnName;
                     list.Add(pvp);
                     //sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
                 }
             }
+            list.Sort((a, b) => a.Rank.Value.CompareTo(b.Rank.Value));
             return list;
         }
 
@@ -683,7 +686,7 @@
                 {
                     var pvp = GreatLeague[i];
                     var withinCpRange = pvp.CP >= Strings.MinimumGreatLeagueCP && pvp.CP <= Strings.MaximumGreatLeagueCP;
-                    var withinRankRange = pvp.Rank <= MaximumRankPVP;
+                    var withinRankRange = pvp.Rank <= Strings.MaximumLeagueRank;
                     if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
                         continue;
 
@@ -695,7 +698,7 @@
                     var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
                     var form = Translator.Instance.GetFormName(pvp.FormId);
                     var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
-                    if (pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumGreatLeagueCP)
+                    if (pvp.Rank.HasValue && pvp.Rank.Value <= Strings.MaximumLeagueRank && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumGreatLeagueCP)
                     {
                         sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
                     }
@@ -722,7 +725,7 @@
                 {
                     var pvp = UltraLeague[i];
                     var withinCpRange = pvp.CP >= Strings.MinimumUltraLeagueCP && pvp.CP <= Strings.MaximumUltraLeagueCP;
-                    var withinRankRange = pvp.Rank <= MaximumRankPVP;
+                    var withinRankRange = pvp.Rank <= Strings.MaximumLeagueRank;
                     if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
                         continue;
 
@@ -734,7 +737,7 @@
                     var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
                     var form = Translator.Instance.GetFormName(pvp.FormId);
                     var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
-                    if (pvp.Rank.HasValue && pvp.Rank.Value <= MaximumRankPVP && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumUltraLeagueCP)
+                    if (pvp.Rank.HasValue && pvp.Rank.Value <= Strings.MaximumLeagueRank && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumUltraLeagueCP)
                     {
                         sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
                     }

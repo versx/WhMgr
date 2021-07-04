@@ -26,6 +26,18 @@
             return convertedTime;
         }
 
+        public static DateTime ConvertTimeFromTimeZone(this DateTime date, string tzIana)
+        {
+#if Windows
+            // Convert to Windows acceptable TimeZone
+            tzIana = TZConvert.IanaToWindows(tzIana);
+#endif
+            var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(tzIana);
+            var dt = DateTime.SpecifyKind(date, DateTimeKind.Utc);
+            var convertedTime = TimeZoneInfo.ConvertTimeFromUtc(dt, tzInfo);
+            return convertedTime;
+        }
+
         /// <summary>
         /// Get Unix timestamp from current date time
         /// </summary>

@@ -51,6 +51,7 @@
         public const int MaximumGreatLeagueCP = 1500;
         public const int MinimumUltraLeagueCP = 2400;
         public const int MaximumUltraLeagueCP = 2500;
+        public const int MaximumLeagueRank = 100;
 
         public const string All = "All";
 

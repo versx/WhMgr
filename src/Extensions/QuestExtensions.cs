@@ -18,6 +18,8 @@
 
     public static class QuestExtensions
     {
+        #region Quest Message
+
         public static string GetQuestMessage(this QuestData quest)
         {
             return GetQuestMessage(quest.Type, quest.Target);
@@ -27,6 +29,10 @@
         {
             return Translator.Instance.Translate("quest_" + Convert.ToInt32(type), target);
         }
+
+        #endregion
+
+        #region Quest Conditions
 
         public static string GetConditions(this QuestData quest)
         {
@@ -108,6 +114,10 @@
             return null;
         }
 
+        #endregion
+
+        #region Quest Reward
+
         public static string GetReward(this QuestData quest)
         {
             return GetReward(quest.Rewards?.FirstOrDefault());
@@ -161,5 +171,7 @@
 
             return "Unknown";
         }
+
+        #endregion
     }
 }
