@@ -216,7 +216,7 @@
         #endregion
     }
 
-    internal struct ScannedPokemon : IScannedItem
+    internal class ScannedPokemon : IScannedItem
     {
         public double Latitude { get; }
 
