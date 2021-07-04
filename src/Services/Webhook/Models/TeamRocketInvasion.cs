@@ -29,7 +29,7 @@
             Encounters = new TeamRocketEncounters();
         }
 
-        public string GetPossibleInvasionEncounters()
+        public List<dynamic> GetPossibleInvasionEncounters()
         {
             var toInt = new Func<string, uint>(x =>
             {
@@ -47,15 +47,26 @@
             if (SecondReward == "true")
             {
                 //85%/15% Rate
-                msg += $"85% - {first}\r\n";
-                msg += $"15% - {second}\r\n";
+                return new List<dynamic>
+                {
+                    new { chance = "85%", pokemon = first, },
+                    new { chance = "15%", pokemon = second, },
+                };
+                //msg += $"85% - {first}\r\n";
+                //msg += $"15% - {second}\r\n";
             }
+            return new List<dynamic>
+            {
+                new { chance = "100%", pokemon = first, },
+            };
+            /*
             else
             {
                 //100% Rate
                 msg += $"100% - {first}\r\n";
             }
             return msg;
+            */
         }
 
         public List<uint> GetEncounterRewards()

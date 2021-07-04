@@ -96,7 +96,7 @@
             "**Ends:** {{end_time}} ({{end_time_left}} left)",
             "**Team:** {{team_emoji}}",
             "{{#if is_ex}}{{ex_emoji}} Gym!",
-            "{{/if**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
+            "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{pkmn_img_url}}",
         "title": "{{geofence}}: {{gym_name}}",
@@ -115,7 +115,10 @@
             "**Lure Type:** {{lure_type}}",
             "{{/if}}{{#if has_invasion}}**Expires:** {{invasion_expire_time}} ({{invasion_expire_time_left}} left)",
             "**Type:** {{grunt_type_emoji}} | **Gender:** {{grunt_gender}}",
-            "{{invasion_encounters}}",
+            "**Encounter Reward Chance:**",
+            "{{#each invasion_encounters}}",
+            "{{chance}} - {{pokemon}}",
+            "{{/each}}",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{pokestop_url}}",
@@ -168,7 +171,10 @@
         "content": [
             "{{#if has_invasion}}**Expires:** {{invasion_expire_time}} ({{invasion_expire_time_left}} left)",
             "**Type:** {{grunt_type_emoji}} | **Gender:** {{grunt_gender}}",
-            "{{invasion_encounters}}",
+            "**Encounter Reward Chance:**",
+            "{{#each invasion_encounters}}",
+            "{{chance}} - {{pokemon}}",
+            "{{/each}}",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{pokestop_url}}",

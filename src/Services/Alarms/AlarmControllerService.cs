@@ -438,28 +438,29 @@
                 {
                     var alarm = pokestopAlarms[i];
 
+                    // TODO: Combine checks
                     if (!alarm.Filters.Pokestops.Lured && pokestop.HasLure)
                     {
-                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: lure filter not enabled.");
+                        //_logger.LogInformation($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: lure filter not enabled.");
                         continue;
                     }
 
                     if (!alarm.Filters.Pokestops.LureTypes.Select(x => x.ToLower()).Contains(pokestop.LureType.ToString().ToLower()) && alarm.Filters.Pokestops?.LureTypes?.Count > 0)
                     {
-                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}, LureType={pokestop.LureType}: lure type not included.");
+                        //_logger.LogInformation($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}, LureType={pokestop.LureType}: lure type not included.");
                         continue;
                     }
 
                     if (!alarm.Filters.Pokestops.Invasions && pokestop.HasInvasion)
                     {
-                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: invasion filter not enabled.");
+                        //_logger.LogInformation($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: invasion filter not enabled.");
                         continue;
                     }
 
                     var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(pokestop.Latitude, pokestop.Longitude));
                     if (geofence == null)
                     {
-                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
+                        //_logger.LogInformation($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
                         continue;
                     }
 

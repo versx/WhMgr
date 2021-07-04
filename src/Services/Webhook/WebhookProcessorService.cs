@@ -166,6 +166,7 @@
                 _logger.LogWarning($"Failed to deserialize pokestop {message}, skipping...");
                 return;
             }
+            pokestop.SetTimes();
 
             if (CheckForDuplicates)
             {

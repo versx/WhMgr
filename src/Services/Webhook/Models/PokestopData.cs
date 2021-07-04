@@ -155,7 +155,11 @@
         public DiscordWebhookMessage GenerateEmbedMessage(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
-            var embedType = HasInvasion ? EmbedMessageType.Invasions : HasLure ? EmbedMessageType.Lures : EmbedMessageType.Pokestops;
+            var embedType = HasInvasion
+                ? EmbedMessageType.Invasions
+                : HasLure
+                    ? EmbedMessageType.Lures
+                    : EmbedMessageType.Pokestops;
             var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
             var properties = GetProperties(settings);
             var eb = new DiscordEmbedMessage
@@ -182,7 +186,7 @@
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
-                }
+                },
             };
             var username = TemplateRenderer.Parse(embed.Username, properties);
             var iconUrl = TemplateRenderer.Parse(embed.AvatarUrl, properties);
@@ -239,7 +243,7 @@
             var invasionTypeEmoji = pokemonType == PokemonType.None
                 ? leaderString
                 : pokemonType.GetTypeEmojiIcons();
-            var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : string.Empty;
+            var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : new List<dynamic>();
 
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
             var lureExpireTimeLeft = now.GetTimeRemaining(LureExpireTime).ToReadableStringNoSeconds();
@@ -250,7 +254,7 @@
             var dict = new
             {
                 //Main properties
-                has_lure = Convert.ToString(HasLure),
+                has_lure = HasLure,
                 lure_type = LureType.ToString(),
                 lure_expire_time = LureExpireTime.ToLongTimeString(),
                 lure_expire_time_24h = LureExpireTime.ToString("HH:mm:ss"),
@@ -262,7 +266,7 @@
                 invasion_expire_time = InvasionExpireTime.ToLongTimeString(),
                 invasion_expire_time_24h = InvasionExpireTime.ToString("HH:mm:ss"),
                 invasion_expire_time_left = invasionExpireTimeLeft,
-                invasion_encounters = $"**Encounter Reward Chance:**\r\n" + invasionEncounters,
+                invasion_encounters = invasionEncounters,
 
                 //Location properties
                 geofence = properties.City ?? defaultMissingValue,
