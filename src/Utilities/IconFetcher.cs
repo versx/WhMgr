@@ -5,8 +5,10 @@
     using System.Linq;
     using System.Text;
 
-    using Newtonsoft.Json;
+    using WhMgr.Common;
+    using WhMgr.Extensions;
     using WhMgr.Services.Webhook.Models;
+
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
     using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
@@ -71,6 +73,16 @@
             sb.Append("raid/");
             sb.Append(level);
             if (hatched) sb.Append("-hatched");
+            if (ex) sb.Append("-ex");
+            sb.Append(".png");
+            return _iconStyles[style] + sb.ToString();
+        }
+
+        public string GetGymIcon(string style, PokemonTeam team, bool ex = false)
+        {
+            var sb = new StringBuilder();
+            sb.Append("gym/");
+            sb.Append((uint)team);
             if (ex) sb.Append("-ex");
             sb.Append(".png");
             return _iconStyles[style] + sb.ToString();
@@ -161,7 +173,7 @@
                     continue;
                 }
                 // Deserialize json list to hash set
-                var formsList = JsonConvert.DeserializeObject<HashSet<string>>(formsListJson);
+                var formsList = formsListJson.FromJson<HashSet<string>>();
                 // Add style and form list
                 _availablePokemonForms.Add(style.Key, formsList);
             }

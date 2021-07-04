@@ -499,9 +499,6 @@
                     if (!changed)
                         continue;
 
-                    // Update map data cache with gym
-                    _mapDataCache.UpdateGym(gym);
-
                     /*
                     var oldGym = _gyms[gym.GymId];
                     var changed = oldGym.Team != gym.Team || gym.InBattle;
@@ -516,9 +513,13 @@
                         continue;
                     }
                     _logger.LogInformation($"Gym Found [Alarm: {alarm.Name}, GymId: {gym.GymId}, Name: {gym.GymName}, Team: {gym.Team}, InBattle: {gym.InBattle}");
+
+                    // Update map data cache with gym
+                    _mapDataCache.UpdateGym(gym);
                 }
             }
         }
+
 
         private void SendEmbed(ulong guildId, ChannelAlarm alarm, IWebhookData data, string city)
         {

@@ -65,7 +65,7 @@
             JsonPropertyName("sponsor_id"),
             Column("sponsor_id"),
         ]
-        public bool? SponsorId { get; set; }
+        public uint? SponsorId { get; set; }
 
         [
             JsonPropertyName("in_battle"),
@@ -146,7 +146,7 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
-            var gymImageUrl = $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
+            var gymImageUrl = IconFetcher.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);// $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
             //var staticMapLink = StaticMap.GetUrl(properties.Config.Instance.Urls.StaticMap, properties.Config.Instance.StaticMaps["gyms"], Latitude, Longitude, gymImageUrl);
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
@@ -154,7 +154,8 @@
                 TemplateName = properties.Config.Instance.StaticMaps[StaticMapType.Gyms].TemplateName,
                 Latitude = Latitude,
                 Longitude = Longitude,
-                SecondaryImageUrl = properties.ImageUrl,
+                Team = Team,
+                SecondaryImageUrl = gymImageUrl,
             });
             var staticMapLink = staticMap.GenerateLink();
             var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
