@@ -23,6 +23,7 @@
         private readonly Dictionary<string, ScannedRaid> _processedRaids;
         private readonly Dictionary<string, ScannedQuest> _processedQuests;
         private readonly Dictionary<string, ScannedPokestop> _processedPokestops;
+        private readonly Dictionary<string, ScannedGym> _processedGyms;
 
         #region Properties
 
@@ -49,6 +50,7 @@
             _processedRaids = new Dictionary<string, ScannedRaid>();
             _processedQuests = new Dictionary<string, ScannedQuest>();
             _processedPokestops = new Dictionary<string, ScannedPokestop>();
+            _processedGyms = new Dictionary<string, ScannedGym>();
 
             Start();
         }
@@ -284,7 +286,26 @@
 
             if (CheckForDuplicates)
             {
-                // TODO: lock process gyms, check for dups
+                // Lock process gyms, check for duplicates of incoming gym
+                lock (_processedGyms)
+                {
+                    if (_processedGyms.ContainsKey(gym.GymId))
+                    {
+                        if (gym.Team == gym.Team &&
+                            gym.SlotsAvailable == gym.SlotsAvailable &&
+                            gym.InBattle == gym.InBattle)
+                        {
+                            // Gym already processed
+                            return;
+                        }
+
+                        _processedGyms[gym.GymId] = new ScannedGym(gym);
+                    }
+                    else
+                    {
+                        _processedGyms.Add(gym.GymId, new ScannedGym(gym));
+                    }
+                }
             }
 
             // Process gym alarms

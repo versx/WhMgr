@@ -9,7 +9,7 @@
     using WhMgr.Services.Webhook.Models;
     using WhMgr.Services.Webhook.Models.Quests;
 
-    public class ScannedQuest : IScannedItem
+    internal class ScannedQuest : IScannedItem
     {
         public double Latitude { get; }
 
@@ -17,9 +17,9 @@
 
         public QuestType Type { get; }
 
-        public List<QuestRewardMessage> Rewards { get; }
+        public IReadOnlyList<QuestRewardMessage> Rewards { get; }
 
-        public List<QuestConditionMessage> Conditions { get; }
+        public IReadOnlyList<QuestConditionMessage> Conditions { get; }
 
         public DateTime Added { get; }
 
