@@ -49,31 +49,31 @@
         /// Gets or sets the Discord servers configuration
         /// </summary>
         [JsonIgnore]
-        public Dictionary<ulong, DiscordServerConfig> Servers { get; set; }
+        public Dictionary<ulong, DiscordServerConfig> Servers { get; set; } = new();
 
         /// <summary>
         /// 
         /// </summary>
         [JsonPropertyName("servers")]
-        public Dictionary<string, string> ServerConfigFiles { get; set; }
+        public Dictionary<string, string> ServerConfigFiles { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the Database configuration
         /// </summary>
         [JsonPropertyName("database")]
-        public ConnectionStringsConfig Database { get; set; }
+        public ConnectionStringsConfig Database { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the Urls configuration
         /// </summary>
         [JsonPropertyName("urls")]
-        public UrlConfig Urls { get; set; }
+        public UrlConfig Urls { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the event Pokemon IDs list
         /// </summary>
         [JsonPropertyName("eventPokemonIds")]
-        public List<int> EventPokemonIds { get; set; }
+        public List<int> EventPokemonIds { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the minimum IV value for an event Pokemon to be to process
@@ -86,13 +86,13 @@
         /// Gets or sets the icon styles
         /// </summary>
         [JsonPropertyName("iconStyles")]
-        public Dictionary<string, string> IconStyles { get; set; }
+        public Dictionary<string, string> IconStyles { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the static map template files to use per type
         /// </summary>
         [JsonPropertyName("staticMaps")]
-        public Dictionary<StaticMapType, StaticMapConfig> StaticMaps { get; set; }
+        public Dictionary<StaticMapType, StaticMapConfig> StaticMaps { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the Google maps key for location lookup
@@ -167,13 +167,7 @@
             Locale = "en";
             MaxPokemonId = 800;
             //LogLevel = LogLevel.Trace;
-            Servers = new Dictionary<ulong, DiscordServerConfig>();
-            Database = new ConnectionStringsConfig();
-            Urls = new UrlConfig();
-            EventPokemonIds = new List<int>();
             EventMinimumIV = 90;
-            IconStyles = new Dictionary<string, string>();
-            StaticMaps = new Dictionary<StaticMapType, StaticMapConfig>();
             DespawnTimeMinimumMinutes = 5;
             ReloadSubscriptionChangesMinutes = 1;
             MaxNotificationsPerMinute = 10;
