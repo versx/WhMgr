@@ -9,6 +9,7 @@
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Cache;
     using WhMgr.Services.Subscriptions;
+    using WhMgr.Services.Webhook.Cache;
     using WhMgr.Services.Webhook.Models;
 
     public class WebhookProcessorService : IWebhookProcessorService
@@ -19,6 +20,8 @@
         private readonly IMapDataCache _mapDataCache;
 
         private readonly Dictionary<string, ScannedPokemon> _processedPokemon;
+        private readonly Dictionary<string, ScannedRaid> _processedRaids;
+        private readonly Dictionary<string, ScannedQuest> _processedQuests;
 
         #region Properties
 
@@ -42,6 +45,8 @@
             _mapDataCache = mapDataCache;
 
             _processedPokemon = new Dictionary<string, ScannedPokemon>();
+            _processedRaids = new Dictionary<string, ScannedRaid>();
+            _processedQuests = new Dictionary<string, ScannedQuest>();
 
             Start();
         }
@@ -112,11 +117,14 @@
 
             if (CheckForDuplicates)
             {
-                // Lock processed pokemon, check for dups for incoming pokemon
+                // Lock processed pokemon, check for duplicates of incoming pokemon
                 lock (_processedPokemon)
                 {
-                    // If we have already processed pokemon, previously did not have stats, and currently does not have stats, skip.
-                    if (_processedPokemon.ContainsKey(pokemon.EncounterId) && (pokemon.IsMissingStats || (!pokemon.IsMissingStats && !_processedPokemon[pokemon.EncounterId].IsMissingStats)))
+                    // If we have already processed pokemon, previously did not have stats, and currently does
+                    // not have stats, skip.
+                    if (_processedPokemon.ContainsKey(pokemon.EncounterId)
+                        && (pokemon.IsMissingStats
+                        || (!pokemon.IsMissingStats && !_processedPokemon[pokemon.EncounterId].IsMissingStats)))
                         return;
 
                     // Check if we have not processed this encounter before, is so then add
@@ -129,6 +137,7 @@
                 }
             }
 
+            // Process pokemon alarms
             _alarmsService.ProcessPokemonAlarms(pokemon);
             // TODO: _subscriptionService.ProcessPokemonSubscription(pokemon);
         }
@@ -146,10 +155,33 @@
 
             if (CheckForDuplicates)
             {
-                // TODO: lock processed raids, check for dups
+                // Lock processed raids, check for duplicates of incoming raid
+                lock (_processedRaids)
+                {
+                    if (_processedRaids.ContainsKey(raid.GymId))
+                    {
+                        // Check if raid data matches existing scanned raids with
+                        // pokemon_id, form_id, costume_id, and not expired
+                        if (_processedRaids[raid.GymId].PokemonId == raid.PokemonId
+                            && _processedRaids[raid.GymId].FormId == raid.Form
+                            && _processedRaids[raid.GymId].CostumeId == raid.Costume
+                            && _processedRaids[raid.GymId].Level == raid.Level
+                            && !_processedRaids[raid.GymId].IsExpired)
+                        {
+                            // Processed raid already
+                            return;
+                        }
+
+                        _processedRaids[raid.GymId] = new ScannedRaid(raid);
+                    }
+                    else
+                    {
+                        _processedRaids.Add(raid.GymId, new ScannedRaid(raid));
+                    }
+                }
             }
 
-            // TODO: Process for webhook alarms and member subscriptions
+            // Process raid alarms
             _alarmsService.ProcessRaidAlarms(raid);
             // TODO: _subscriptionService.ProcessRaidSubscription(raid);
         }
@@ -166,10 +198,29 @@
 
             if (CheckForDuplicates)
             {
-                // TODO: lock processed quests, check for dups
+                // Lock processed quests, check for duplicates of incoming quest
+                lock (_processedQuests)
+                {
+                    if (_processedQuests.ContainsKey(quest.PokestopId))
+                    {
+                        if (_processedQuests[quest.PokestopId].Type == quest.Type &&
+                            _processedQuests[quest.PokestopId].Rewards == quest.Rewards &&
+                            _processedQuests[quest.PokestopId].Conditions == quest.Conditions)
+                        {
+                            // Processed quest already
+                            return;
+                        }
+
+                        _processedQuests[quest.PokestopId] = new ScannedQuest(quest);
+                    }
+                    else
+                    {
+                        _processedQuests.Add(quest.PokestopId, new ScannedQuest(quest));
+                    }
+                }
             }
 
-            // TODO: Process for webhook alarms and member subscriptions
+            // Process quest alarms
             _alarmsService.ProcessQuestAlarms(quest);
             // TODO: _subscriptionService.ProcessQuestSubscription(quest);
         }
@@ -190,6 +241,7 @@
                 // TODO: lock processed pokestops, check for dups
             }
 
+            // Process pokestop alarms
             _alarmsService.ProcessPokestopAlarms(pokestop);
             // TODO: New threads
             // TODO: _subscriptionService.ProcessInvasionSubscription(pokestop);
@@ -210,45 +262,10 @@
                 // TODO: lock process gyms, check for dups
             }
 
+            // Process gym alarms
             _alarmsService.ProcessGymAlarms(gym);
         }
 
         #endregion
-    }
-
-    internal class ScannedPokemon : IScannedItem
-    {
-        public double Latitude { get; }
-
-        public double Longitude { get; }
-
-        public bool IsMissingStats { get; }
-
-        public DateTime DespawnTime { get; }
-
-        public bool IsExpired
-        {
-            get
-            {
-                var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
-                return now > DespawnTime;
-            }
-        }
-
-        public ScannedPokemon(PokemonData pokemon)
-        {
-            Latitude = pokemon.Latitude;
-            Longitude = pokemon.Longitude;
-            IsMissingStats = pokemon.IsMissingStats;
-            DespawnTime = pokemon.DespawnTime;
-        }
-
-    }
-
-    internal interface IScannedItem
-    {
-        double Latitude { get; }
-
-        double Longitude { get; }
     }
 }
