@@ -3,7 +3,7 @@
         "avatarUrl": "{{pkmn_img_url}}",
         "content": [
             "{{pkmn_name}} {{form}}{{gender}} {{iv}} ({{atk_iv}}/{{def_iv}}/{{sta_iv}}) L{{lvl}}",
-            "**Despawn:** {{despawn_time}} ({{time_left}} left)",
+            "**Despawn:** {{despawn_time}} ({{time_left}} left){{despawn_time_verified}}",
             "**Details:** CP: {{cp}} IV: {{iv}} LV: {{lvl}}",
             "**Size:** {{size}} | {{types_emoji}}{{#if has_weather}} | {{weather_emoji}}{{#if is_weather_boosted}} (Boosted){{/if}}{{/if}}",
             "**Moveset:** {{moveset}}",
