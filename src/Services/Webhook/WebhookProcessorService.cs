@@ -22,6 +22,7 @@
         private readonly Dictionary<string, ScannedPokemon> _processedPokemon;
         private readonly Dictionary<string, ScannedRaid> _processedRaids;
         private readonly Dictionary<string, ScannedQuest> _processedQuests;
+        private readonly Dictionary<string, ScannedPokestop> _processedPokestops;
 
         #region Properties
 
@@ -47,6 +48,7 @@
             _processedPokemon = new Dictionary<string, ScannedPokemon>();
             _processedRaids = new Dictionary<string, ScannedRaid>();
             _processedQuests = new Dictionary<string, ScannedQuest>();
+            _processedPokestops = new Dictionary<string, ScannedPokestop>();
 
             Start();
         }
@@ -238,7 +240,30 @@
 
             if (CheckForDuplicates)
             {
-                // TODO: lock processed pokestops, check for dups
+                // Lock processed pokestops, check for duplicates of incoming pokestop
+                lock (_processedPokestops)
+                {
+                    if (_processedPokestops.ContainsKey(pokestop.PokestopId))
+                    {
+                        var processedLureAlready = _processedPokestops[pokestop.PokestopId].LureType == pokestop.LureType
+                            && _processedPokestops[pokestop.PokestopId].LureExpireTime == pokestop.LureExpireTime;
+                        var processedInvasionAlready = _processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType
+                            && _processedPokestops[pokestop.PokestopId].InvasionExpireTime == pokestop.InvasionExpireTime;
+
+                        if (processedLureAlready || processedInvasionAlready)
+                        {
+                            //_logger.LogDebug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
+                            // Processed pokestop lure or invasion already
+                            return;
+                        }
+
+                        _processedPokestops[pokestop.PokestopId] = new ScannedPokestop(pokestop);
+                    }
+                    else
+                    {
+                        _processedPokestops.Add(pokestop.PokestopId, new ScannedPokestop(pokestop));
+                    }
+                }
             }
 
             // Process pokestop alarms
