@@ -35,7 +35,7 @@
 		74, //Geodude
 		77, //Ponyta
 		79, //Slowpoke
-		81, //Magnemite
+		//81, //Magnemite
 		84, //Doduo
 		//86, //Seel
 		90, //Shellder
@@ -68,7 +68,7 @@
 		179, //Mareep
 		//183, //Marill
 		//185, //Sudowoodo
-		187, //Hoppip
+		//187, //Hoppip
 		//190, //Aipom
 		191, //Sunkern
 		193, //Yanma
@@ -101,7 +101,7 @@
 		300, //Skitty
 		302, //Sableye
 		304, //Aron
-		307, //Meditite
+		//307, //Meditite
 		309, //Electrike
 		311, //Plusle
 		312, //Minun
