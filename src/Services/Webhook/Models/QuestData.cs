@@ -150,9 +150,9 @@
                 quest_conditions = questConditions,
                 quest_reward = questReward,
                 quest_reward_img_url = properties.ImageUrl,
-                has_quest_conditions = Convert.ToString(!string.IsNullOrEmpty(questConditions)),
-                is_ditto = Convert.ToString(IsDitto),
-                is_shiny = Convert.ToString(IsShiny),
+                has_quest_conditions = !string.IsNullOrEmpty(questConditions),
+                is_ditto = IsDitto,
+                is_shiny = IsShiny,
 
                 //Location properties
                 geofence = properties.City ?? defaultMissingValue,

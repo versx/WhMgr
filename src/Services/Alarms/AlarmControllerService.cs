@@ -62,7 +62,7 @@
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnablePokemon))
             {
-                var pokemonAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Pokemon?.Pokemon != null && x.Filters.Pokemon.Enabled);
+                var pokemonAlarms = alarms?.Alarms?.FindAll(x => x.Filters?.Pokemon?.Pokemon != null && x.Filters.Pokemon.Enabled);
                 if (pokemonAlarms == null)
                     continue;
 
@@ -196,7 +196,7 @@
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnableRaids))
             {
-                var raidAlarms = alarms.Alarms?.FindAll(x => (x.Filters.Raids?.Enabled ?? false) || (x.Filters.Eggs?.Enabled ?? false));
+                var raidAlarms = alarms?.Alarms?.FindAll(x => (x.Filters.Raids?.Enabled ?? false) || (x.Filters.Eggs?.Enabled ?? false));
                 if (raidAlarms == null)
                     continue;
 
@@ -350,60 +350,45 @@
 
             //Statistics.Instance.TotalReceivedQuests++;
 
-            foreach (var (guildId, alarms) in _alarms)
+            foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnableQuests))
             {
-                if (alarms == null)
-                    continue;
-
-                if (!alarms.EnableQuests)
-                    continue;
-
-                if (alarms.Alarms?.Count == 0)
+                var questAlarms = alarms?.Alarms?.FindAll(x => x.Filters?.Quests != null && x.Filters.Quests.Enabled);
+                if (questAlarms == null)
                     continue;
 
                 var rewardKeyword = quest.GetReward();
-                var questAlarms = alarms.Alarms.FindAll(x => x.Filters?.Quests?.RewardKeywords.Any() ?? false && x.Filters.Quests.Enabled);
                 for (var i = 0; i < questAlarms.Count; i++)
                 {
                     var alarm = questAlarms[i];
-                    if (alarm.Filters.Quests == null)
-                        continue;
-
-                    if (!alarm.Filters.Quests.Enabled)
-                    {
-                        //_logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: quests filter not enabled.");
-                        continue;
-                    }
-
                     var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(quest.Latitude, quest.Longitude));
                     if (geofence == null)
                     {
-                        //_logger.Info($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: not in geofence.");
+                        //_logger.LogInformation($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: not in geofence.");
                         continue;
                     }
 
                     var contains = alarm.Filters.Quests.RewardKeywords.Select(x => x.ToLower()).FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.ToLower())) != null;
                     if (alarm.Filters.Quests.FilterType == FilterType.Exclude && contains)
                     {
-                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter {alarm.Filters.Quests.FilterType}.");
+                        //_logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter {alarm.Filters.Quests.FilterType}.");
                         continue;
                     }
 
                     if (!(alarm.Filters.Quests.FilterType == FilterType.Include && (contains || alarm.Filters.Quests?.RewardKeywords.Count == 0)))
                     {
-                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}: filter {alarm.Filters.Quests.FilterType}.");
+                        //_logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}: filter {alarm.Filters.Quests.FilterType}.");
                         continue;
                     }
 
                     if (!contains && alarm.Filters?.Quests?.RewardKeywords?.Count > 0)
                     {
-                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: rewards does not match reward keywords.");
+                        //_logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: rewards does not match reward keywords.");
                         continue;
                     }
 
                     if (alarm.Filters.Quests.IsShiny && !quest.IsShiny)
                     {
-                        //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter IsShiny={alarm.Filters.Quests.IsShiny} Quest={quest.IsShiny}.");
+                        //_logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter IsShiny={alarm.Filters.Quests.IsShiny} Quest={quest.IsShiny}.");
                         continue;
                     }
 
@@ -427,10 +412,7 @@
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnablePokestops))
             {
-                if (alarms == null)
-                    continue;
-
-                var pokestopAlarms = alarms.Alarms.FindAll(x => x.Filters?.Pokestops != null && x.Filters.Pokestops.Enabled);
+                var pokestopAlarms = alarms?.Alarms?.FindAll(x => x.Filters?.Pokestops != null && x.Filters.Pokestops.Enabled);
                 if (pokestopAlarms == null)
                     continue;
 
@@ -484,7 +466,7 @@
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnableGyms))
             {
-                var gymAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null && x.Filters.Gyms.Enabled);
+                var gymAlarms = alarms?.Alarms?.FindAll(x => x.Filters?.Gyms != null && x.Filters.Gyms.Enabled);
                 if (gymAlarms == null)
                     continue;
 

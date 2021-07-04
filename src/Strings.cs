@@ -9,7 +9,7 @@
     public static class Strings
     {
         public const string BotName = "Webhook Manager";
-        public const string BotVersion = "v5.0.0-b1";
+        public const string BotVersion = "5.0.0-b2";
 
         public const string GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
