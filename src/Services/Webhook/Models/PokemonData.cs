@@ -600,7 +600,7 @@
                 wazemaps_url = wazeMapsLocationLink,
                 scanmaps_url = scannerMapsLocationLink,
 
-                //address = null,//address?.Address },
+                //address = address?.Address },
 
                 // Pokestop properties
                 near_pokestop = pokestop != null,

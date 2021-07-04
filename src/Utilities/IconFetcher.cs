@@ -144,7 +144,7 @@
             return _iconStyles[style] + "invasion/" + (int)gruntType + ".png";
         }
 
-        public string GetWeatherIcon(string style, WeatherCondition weatherType)
+        public string GetWeatherIcon(string style, WhMgr.Services.Alarms.Filters.Models.WeatherCondition weatherType)
         {
             return _iconStyles[style] + "weather/" + (int)weatherType + ".png";
         }

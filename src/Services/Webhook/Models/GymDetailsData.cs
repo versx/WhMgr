@@ -118,7 +118,7 @@
             };
         }
 
-        private IReadOnlyDictionary<string, string> GetProperties(AlarmMessageSettings properties)
+        private dynamic GetProperties(AlarmMessageSettings properties)
         {
             // Get old gym from cache
             var oldGym = properties.MapDataCache.GetGym(GymId).ConfigureAwait(false)
@@ -167,53 +167,52 @@
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
-            var dict = new Dictionary<string, string>
+            var dict = new
             {
-                //Main properties
-                { "gym_id", GymId },
-                { "gym_name", GymName },
-                { "gym_url", Url },
-                { "gym_team", Team.ToString() },
-                { "gym_team_id", Convert.ToInt32(Team).ToString() },
-                { "gym_team_emoji", teamEmoji },
-                { "old_gym_team", oldGym.Team.ToString() },
-                { "old_gym_team_id", Convert.ToInt32(oldGym.Team).ToString() },
-                { "old_gym_team_emoji", oldTeamEmoji },
-                { "team_changed", Convert.ToString(oldGym?.Team != Team) },
-                { "in_battle", Convert.ToString(InBattle) },
-                { "under_attack", Convert.ToString(InBattle) },
-                { "is_ex", Convert.ToString(SponsorId) },
-                { "ex_emoji", exEmoji },
-                { "slots_available", SlotsAvailable == 0
+                // Main properties
+                gym_id = GymId,
+                gym_name = GymName,
+                gym_url = Url,
+                gym_team = Team.ToString(),
+                gym_team_id = Convert.ToInt32(Team).ToString(),
+                gym_team_emoji = teamEmoji,
+                old_gym_team = oldGym.Team.ToString(),
+                old_gym_team_id = Convert.ToInt32(oldGym.Team).ToString(),
+                old_gym_team_emoji = oldTeamEmoji,
+                team_changed = oldGym?.Team != Team,
+                in_battle = InBattle,
+                under_attack = InBattle,
+                is_ex = Convert.ToString(SponsorId),
+                ex_emoji = exEmoji,
+                slots_available = SlotsAvailable == 0
                                         ? "Full"
                                         : SlotsAvailable == 6
                                             ? "Empty"
-                                            : SlotsAvailable.ToString("N0") },
+                                            : SlotsAvailable.ToString("N0"),
 
-                //Location properties
-                { "geofence", properties.City ?? defaultMissingValue },
-                { "lat", Latitude.ToString() },
-                { "lng", Longitude.ToString() },
-                { "lat_5", Latitude.ToString("0.00000") },
-                { "lng_5", Longitude.ToString("0.00000") },
+                // Location properties
+                geofence = properties.City ?? defaultMissingValue,
+                lat = Latitude.ToString(),
+                lng = Longitude.ToString(),
+                lat_5 = Latitude.ToString("0.00000"),
+                lng_5 = Longitude.ToString("0.00000"),
 
-                //Location links
-                { "tilemaps_url", staticMapLink },
-                { "gmaps_url", gmapsLocationLink },
-                { "applemaps_url", appleMapsLocationLink },
-                { "wazemaps_url", wazeMapsLocationLink },
-                { "scanmaps_url", scannerMapsLocationLink },
+                // Location links
+                tilemaps_url = staticMapLink,
+                gmaps_url = gmapsLocationLink,
+                applemaps_url = appleMapsLocationLink,
+                wazemaps_url = wazeMapsLocationLink,
+                scanmaps_url = scannerMapsLocationLink,
 
-                //{ "address", address?.Address },
+                //address = address?.Address,
 
                 // Discord Guild properties
-                { "guild_name", guild?.Name },
-                { "guild_img_url", guild?.IconUrl },
+                guild_name = guild?.Name,
+                guild_img_url = guild?.IconUrl,
 
-                { "date_time", DateTime.Now.ToString() },
-
-                //Misc properties
-                { "br", "\n" }
+                // Misc properties
+                date_time = DateTime.Now.ToString(),
+                br = "\n",
             };
             return dict;
         }

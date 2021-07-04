@@ -8,7 +8,6 @@
     using Microsoft.EntityFrameworkCore.ChangeTracking;
     using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-    using WhMgr.Data.Models;
     using WhMgr.Extensions;
     using WhMgr.Services.Webhook.Models;
 
@@ -23,7 +22,7 @@
 
         public DbSet<GymDetailsData> Gyms { get; set; }
 
-        public DbSet<Weather> Weather { get; set; }
+        public DbSet<WeatherData> Weather { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

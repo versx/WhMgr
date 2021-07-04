@@ -245,7 +245,7 @@
             const string defaultMissingValue = "?";
             var dict = new
             {
-                //Raid boss properties
+                // Raid boss properties
                 pkmn_id = PokemonId.ToString(),
                 pkmn_id_3 = PokemonId.ToString("D3"),
                 pkmn_name = name,
@@ -284,7 +284,7 @@
                 worst_cp = worstRange.ToString(),
                 worst_cp_boosted = worstBoosted.ToString(),
 
-                //Time properties
+                // Time properties
                 start_time = StartTime.ToLongTimeString(),
                 start_time_24h = StartTime.ToString("HH:mm:ss"),
                 start_time_left = startTimeLeft,
@@ -292,23 +292,23 @@
                 end_time_24h = EndTime.ToString("HH:mm:ss"),
                 end_time_left = endTimeLeft,
 
-                //Location properties
+                // Location properties
                 geofence = properties.City ?? defaultMissingValue,
                 lat = Latitude.ToString(),
                 lng = Longitude.ToString(),
                 lat_5 = Latitude.ToString("0.00000"),
                 lng_5 = Longitude.ToString("0.00000"),
 
-                //Location links
+                // Location links
                 tilemaps_url = staticMapLink,
                 gmaps_url = gmapsLocationLink,
                 applemaps_url = appleMapsLocationLink,
                 wazemaps_url = wazeMapsLocationLink,
                 scanmaps_url = scannerMapsLocationLink,
 
-                // TODO: { "address", address?.Address },
+                // TODO: address = address?.Address,
 
-                //Gym properties
+                // Gym properties
                 gym_id = GymId,
                 gym_name = GymName,
                 gym_url = GymUrl,
@@ -317,7 +317,7 @@
                 guild_name = guild?.Name,
                 guild_img_url = guild?.IconUrl,
 
-                //Misc properties
+                // Misc properties
                 date_time = DateTime.Now.ToString(),
                 br = "\n",
             };

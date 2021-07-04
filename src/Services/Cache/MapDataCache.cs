@@ -7,7 +7,6 @@
     using Microsoft.Extensions.Logging;
 
     using WhMgr.Data.Contexts;
-    using WhMgr.Data.Models;
     using WhMgr.Services.Webhook.Models;
 
     public class MapDataCache : IMapDataCache
@@ -17,7 +16,7 @@
 
         private Dictionary<string, PokestopData> _pokestops;
         private Dictionary<string, GymDetailsData> _gyms;
-        private Dictionary<long, Weather> _weather;
+        private Dictionary<long, WeatherData> _weather;
 
         public MapDataCache(
             ILogger<IMapDataCache> logger,
@@ -110,7 +109,7 @@
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Weather> GetWeather(long id)
+        public async Task<WeatherData> GetWeather(long id)
         {
             if (id == 0)
             {
@@ -127,7 +126,7 @@
         public bool ContainsWeather(long id) =>
             _weather?.ContainsKey(id) ?? false;
 
-        public void UpdateWeather(Weather weather)
+        public void UpdateWeather(WeatherData weather)
         {
             if (ContainsWeather(weather.Id))
             {

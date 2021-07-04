@@ -14,6 +14,6 @@
 
         void ProcessGymAlarms(GymDetailsData gym);
 
-        // TODO: Weather
+        void ProcessWeatherAlarms(WeatherData weather);
     }
 }

@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
 
-    using WhMgr.Data.Models;
     using WhMgr.Services.Webhook.Models;
 
     public interface IMapDataCache
@@ -11,7 +10,7 @@
 
         Task<GymDetailsData> GetGym(string id);
 
-        Task<Weather> GetWeather(long id);
+        Task<WeatherData> GetWeather(long id);
 
         bool ContainsPokestop(string id);
 
@@ -23,7 +22,7 @@
 
         void UpdateGym(GymDetailsData gym);
 
-        void UpdateWeather(Weather weather);
+        void UpdateWeather(WeatherData weather);
 
         //Task LoadMapData();
     }

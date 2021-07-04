@@ -515,6 +515,68 @@
             }
         }
 
+        public void ProcessWeatherAlarms(WeatherData weather)
+        {
+            if (weather == null)
+                return;
+
+            // TODO: Statistics.Instance.TotalReceivedWeathers++;
+
+            foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnableWeather))
+            {
+                var weatherAlarms = alarms?.Alarms?.FindAll(x => x.Filters?.Weather != null && x.Filters.Weather.Enabled);
+                if (weatherAlarms == null)
+                    continue;
+
+                for (var i = 0; i < weatherAlarms.Count; i++)
+                {
+                    var alarm = weatherAlarms[i];
+                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(weather.Latitude, weather.Longitude));
+                    if (geofence == null)
+                    {
+                        //_logger.Info($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName}: not in geofence.");
+                        continue;
+                    }
+
+                    if (!alarm.Filters.Weather.WeatherTypes.Contains(weather.GameplayCondition))
+                    {
+                        // Weather is not in list of accepted ones to send alarms for
+                        continue;
+                    }
+
+                    var oldWeather = _mapDataCache.GetWeather(weather.Id).ConfigureAwait(false).GetAwaiter().GetResult();
+                    var changed = oldWeather.GameplayCondition != weather.GameplayCondition
+                        || oldWeather.Severity != weather.Severity;
+                    if (!changed)
+                        continue;
+
+                    /*
+                    if (!_weather.ContainsKey(weather.Id))
+                    {
+                        _weather.Add(weather.Id, weather.GameplayCondition);
+                        OnWeatherAlarmTriggered(weather, alarm, guildId);
+                        continue;
+                    }
+
+                    var oldWeather = _weather[weather.Id];
+                    // If previous weather and current weather are the same then don't report it.
+                    if (oldWeather == weather.GameplayCondition)
+                        continue;
+                    */
+
+                    //OnWeatherAlarmTriggered(weather, alarm, guildId);
+                    if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, weather, geofence.Name)))
+                    {
+                        _logger.LogError($"Failed to queue Weather alarm: {alarm.Name} for Gym {weather.Id} ({weather.GameplayCondition})");
+                        continue;
+                    }
+                    _logger.LogInformation($"Weather Found [Alarm: {alarm.Name}, Id: {weather.Id}, Name: {weather.GameplayCondition}, Severity: {weather.Severity}");
+
+                    // Update map data cache with weather
+                    _mapDataCache.UpdateWeather(weather);
+                }
+            }
+        }
 
         private void SendEmbed(ulong guildId, ChannelAlarm alarm, IWebhookData data, string city)
         {

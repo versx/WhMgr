@@ -115,7 +115,7 @@
             return Translate($"item_{(int)item}");
         }
 
-        public string GetWeather(WeatherCondition weather)
+        public string GetWeather(WhMgr.Services.Alarms.Filters.Models.WeatherCondition weather)
         {
             return Translate($"weather_{(int)weather}");
         }

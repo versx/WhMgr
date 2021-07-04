@@ -4,6 +4,8 @@
     using System.Collections.Generic;
 
     using Microsoft.Extensions.Logging;
+    //using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
+    using WeatherCondition = WhMgr.Services.Alarms.Filters.Models.WeatherCondition;
 
     using WhMgr.Extensions;
     using WhMgr.Services.Alarms;
@@ -11,6 +13,8 @@
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook.Cache;
     using WhMgr.Services.Webhook.Models;
+
+    // TODO: Clear cache method
 
     public class WebhookProcessorService : IWebhookProcessorService
     {
@@ -24,6 +28,7 @@
         private readonly Dictionary<string, ScannedQuest> _processedQuests;
         private readonly Dictionary<string, ScannedPokestop> _processedPokestops;
         private readonly Dictionary<string, ScannedGym> _processedGyms;
+        private readonly Dictionary<long, WeatherCondition> _processedWeather;
 
         #region Properties
 
@@ -51,6 +56,7 @@
             _processedQuests = new Dictionary<string, ScannedQuest>();
             _processedPokestops = new Dictionary<string, ScannedPokestop>();
             _processedGyms = new Dictionary<string, ScannedGym>();
+            _processedWeather = new Dictionary<long, WeatherCondition>();
 
             Start();
         }
@@ -95,7 +101,7 @@
                         ProcessGym(payload.Message);
                         break;
                     case WebhookHeaders.Weather:
-                        // TODO: Weather
+                        ProcessWeather(payload.Message);
                         break;
                 }
             }
@@ -310,6 +316,41 @@
 
             // Process gym alarms
             _alarmsService.ProcessGymAlarms(gym);
+        }
+
+        private void ProcessWeather(dynamic message)
+        {
+            string json = Convert.ToString(message);
+            var weather = json.FromJson<WeatherData>();
+            if (weather == null)
+            {
+                _logger.LogWarning($"Failed to deserialize weather {message}, skipping...");
+            }
+            weather.SetTimes();
+
+            if (CheckForDuplicates)
+            {
+                lock (_processedWeather)
+                {
+                    if (_processedWeather.ContainsKey(weather.Id))
+                    {
+                        if (_processedWeather[weather.Id] == weather.GameplayCondition)
+                        {
+                            // Processed weather already
+                            return;
+                        }
+
+                        _processedWeather[weather.Id] = weather.GameplayCondition;
+                    }
+                    else
+                    {
+                        _processedWeather.Add(weather.Id, weather.GameplayCondition);
+                    }
+                }
+            }
+
+            // Process weather alarms
+            _alarmsService.ProcessWeatherAlarms(weather);
         }
 
         #endregion

@@ -253,7 +253,7 @@
             const string defaultMissingValue = "?";
             var dict = new
             {
-                //Main properties
+                // Main properties
                 has_lure = HasLure,
                 lure_type = LureType.ToString(),
                 lure_expire_time = LureExpireTime.ToLongTimeString(),
@@ -268,34 +268,34 @@
                 invasion_expire_time_left = invasionExpireTimeLeft,
                 invasion_encounters = invasionEncounters,
 
-                //Location properties
+                // Location properties
                 geofence = properties.City ?? defaultMissingValue,
                 lat = Latitude.ToString(),
                 lng = Longitude.ToString(),
                 lat_5 = Latitude.ToString("0.00000"),
                 lng_5 = Longitude.ToString("0.00000"),
 
-                //Location links
+                // Location links
                 tilemaps_url = staticMapLink,
                 gmaps_url = gmapsLocationLink,
                 applemaps_url = appleMapsLocationLink,
                 wazemaps_url = wazeMapsLocationLink,
                 scanmaps_url = scannerMapsLocationLink,
 
-                //Pokestop properties
+                // Pokestop properties
                 pokestop_id = PokestopId ?? defaultMissingValue,
                 pokestop_name = Name ?? defaultMissingValue,
                 pokestop_url = Url ?? defaultMissingValue,
                 lure_img_url = lureImageUrl,
                 invasion_img_url = invasionImageUrl,
 
-                //{ "address", address?.Address },
+                //address = address?.Address,
 
                 // Discord Guild properties
                 guild_name = guild?.Name,
                 guild_img_url = guild?.IconUrl,
 
-                //Misc properties
+                // Misc properties
                 date_time = DateTime.Now.ToString(),
                 br = "\n",
             };
