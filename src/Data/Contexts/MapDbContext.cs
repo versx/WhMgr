@@ -10,6 +10,7 @@
 
     using WhMgr.Data.Models;
     using WhMgr.Extensions;
+    using WhMgr.Services.Webhook.Models;
 
     public class MapDbContext : DbContext
     {
@@ -18,9 +19,9 @@
         {
         }
 
-        public DbSet<Pokestop> Pokestops { get; set; }
+        public DbSet<PokestopData> Pokestops { get; set; }
 
-        public DbSet<Gym> Gyms { get; set; }
+        public DbSet<GymDetailsData> Gyms { get; set; }
 
         public DbSet<Weather> Weather { get; set; }
 

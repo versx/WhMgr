@@ -47,11 +47,11 @@
       "template": "pokemon.example"
     },
     "raids": {
-      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team={{team}}",
+      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team_id={{team_id}}",
       "template": "raids.example"
     },
     "gyms": {
-      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team={{team}}",
+      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team_id={{team_id}}",
       "template": "gyms.example"
     },
     "quests": {

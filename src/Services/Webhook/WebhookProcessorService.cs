@@ -79,7 +79,7 @@
                         break;
                     case WebhookHeaders.Gym:
                     case WebhookHeaders.GymDetails:
-                        // TODO: Gym
+                        ProcessGym(payload.Message);
                         break;
                     case WebhookHeaders.Weather:
                         // TODO: Weather
@@ -98,7 +98,7 @@
             var pokemon = json.FromJson<PokemonData>();
             if (pokemon == null)
             {
-                _logger.LogWarning($"Failed to parse pokemon {message}, skipping...");
+                _logger.LogWarning($"Failed to deserialize pokemon {message}, skipping...");
                 return;
             }
             pokemon.SetDespawnTime();
@@ -118,11 +118,11 @@
 
         private void ProcessRaid(dynamic message)
         {
-            var json = Convert.ToString(message);
+            string json = Convert.ToString(message);
             var raid = json.FromJson<RaidData>();
             if (raid == null)
             {
-                _logger.LogWarning($"Failed to parse raid {message}, skipping...");
+                _logger.LogWarning($"Failed to deserialize raid {message}, skipping...");
                 return;
             }
             raid.SetTimes();
@@ -139,11 +139,11 @@
 
         private void ProcessQuest(dynamic message)
         {
-            var json = Convert.ToString(message);
+            string json = Convert.ToString(message);
             var quest = json.FromJson<QuestData>();
             if (quest == null)
             {
-                _logger.LogWarning($"Failed to parse quest {message}, skipping...");
+                _logger.LogWarning($"Failed to deserialize quest {message}, skipping...");
                 return;
             }
 
@@ -159,11 +159,11 @@
 
         private void ProcessPokestop(dynamic message)
         {
-            var json = Convert.ToString(message);
+            string json = Convert.ToString(message);
             var pokestop = json.FromJson<PokestopData>();
             if (pokestop == null)
             {
-                _logger.LogWarning($"Failed to parse pokestop {message}, skipping...");
+                _logger.LogWarning($"Failed to deserialize pokestop {message}, skipping...");
                 return;
             }
 
@@ -176,6 +176,23 @@
             // TODO: New threads
             // TODO: _subscriptionService.ProcessInvasionSubscription(pokestop);
             // TODO: _subscriptionService.ProcessLureSubscription(pokestop);
+        }
+
+        private void ProcessGym(dynamic message)
+        {
+            string json = Convert.ToString(message);
+            var gym = json.FromJson<GymDetailsData>();
+            if (gym == null)
+            {
+                _logger.LogWarning($"Failed to deserialize gym {message}, skipping...");
+            }
+
+            if (CheckForDuplicates)
+            {
+                // TODO: lock process gyms, check for dups
+            }
+
+            _alarmsService.ProcessGymAlarms(gym);
         }
 
         #endregion

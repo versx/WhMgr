@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
@@ -18,56 +20,106 @@
     /// <summary>
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
     /// </summary>
+    [Table("pokestop")]
     public sealed class PokestopData : IWebhookData
     {
         #region Properties
 
-        [JsonPropertyName("pokestop_id")]
+        [
+            JsonPropertyName("pokestop_id"),
+            Column("id"),
+            Key,
+        ]
         public string PokestopId { get; set; }
 
-        [JsonPropertyName("latitude")]
+        [
+            JsonPropertyName("latitude"),
+            Column("lat"),
+        ]
         public double Latitude { get; set; }
 
-        [JsonPropertyName("longitude")]
+        [
+            JsonPropertyName("longitude"),
+            Column("lon"),
+        ]
         public double Longitude { get; set; }
 
-        [JsonPropertyName("name")]
+        [
+            JsonPropertyName("name"),
+            Column("name"),
+        ]
         public string Name { get; set; } = "Unknown";
 
-        [JsonPropertyName("url")]
+        [
+            JsonPropertyName("url"),
+            Column("url"),
+        ]
         public string Url { get; set; }
 
-        [JsonPropertyName("enabled")]
+        [
+            JsonPropertyName("enabled"),
+            Column("enabled"),
+        ]
         public bool Enabled { get; set; }
 
-        [JsonPropertyName("lure_expiration")]
+        [
+            JsonPropertyName("lure_expiration"),
+            NotMapped,
+        ]
         public long LureExpire { get; set; }
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped,
+        ]
         public DateTime LureExpireTime { get; set; }
 
-        [JsonPropertyName("lure_id")]
+        [
+            JsonPropertyName("lure_id"),
+            NotMapped,
+        ]
         public PokestopLureType LureType { get; set; }
 
-        [JsonPropertyName("incident_expire_timestamp")]
+        [
+            JsonPropertyName("incident_expire_timestamp"),
+            NotMapped,
+        ]
         public long IncidentExpire { get; set; }
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped,
+        ]
         public DateTime InvasionExpireTime { get; set; }
 
-        [JsonPropertyName("grunt_type")]
+        [
+            JsonPropertyName("grunt_type"),
+            NotMapped,
+        ]
         public InvasionCharacter GruntType { get; set; }
 
-        [JsonPropertyName("last_modified")]
+        [
+            JsonPropertyName("last_modified"),
+            NotMapped,
+        ]
         public ulong LastModified { get; set; }
 
-        [JsonPropertyName("updated")]
+        [
+            JsonPropertyName("updated"),
+            NotMapped,
+        ]
         public ulong Updated { get; set; }
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped,
+        ]
         public bool HasLure => LureExpire > 0 && LureType != PokestopLureType.None && LureExpireTime > DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
 
-        [JsonIgnore]
+        [
+            JsonIgnore,
+            NotMapped,
+        ]
         public bool HasInvasion => IncidentExpire > 0 && InvasionExpireTime > DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
 
         #endregion

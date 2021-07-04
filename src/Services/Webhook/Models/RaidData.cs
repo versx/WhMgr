@@ -35,16 +35,16 @@
         public PokemonTeam Team { get; set; } = PokemonTeam.Neutral;
 
         [JsonPropertyName("level")]
-        public string Level { get; set; }
+        public ushort Level { get; set; }
 
         [JsonPropertyName("cp")]
-        public string CP { get; set; }
+        public ushort CP { get; set; }
 
         [JsonPropertyName("move_1")]
-        public int FastMove { get; set; }
+        public uint FastMove { get; set; }
 
         [JsonPropertyName("move_2")]
-        public int ChargeMove { get; set; }
+        public uint ChargeMove { get; set; }
 
         [JsonPropertyName("latitude")]
         public double Latitude { get; set; }
@@ -53,16 +53,20 @@
         public double Longitude { get; set; }
 
         [JsonPropertyName("start")]
-        public long Start { get; set; }
+        public ulong Start { get; set; }
 
         [JsonPropertyName("end")]
-        public long End { get; set; }
+        public ulong End { get; set; }
 
         [JsonPropertyName("ex_raid_eligible")]
         public bool IsExEligible { get; set; }
 
+        // TODO: Provide DTS options
+        [JsonPropertyName("is_exclusive")]
+        public bool IsExclusive { get; set; }
+
         [JsonPropertyName("sponsor_id")]
-        public bool SponsorId { get; set; }
+        public uint SponsorId { get; set; }
 
         [JsonPropertyName("form")]
         public int Form { get; set; }
@@ -261,8 +265,8 @@
                 team = Team.ToString(),
                 team_id = Convert.ToInt32(Team).ToString(),
                 team_emoji = teamEmoji,
-                cp = CP ?? defaultMissingValue,
-                lvl = level ?? defaultMissingValue,
+                cp = CP,
+                lvl = level,
                 gender = gender ?? defaultMissingValue,
                 move_1 = move1 ?? defaultMissingValue,
                 move_2 = move2 ?? defaultMissingValue,

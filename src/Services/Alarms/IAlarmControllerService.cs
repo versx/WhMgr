@@ -12,7 +12,7 @@
 
         void ProcessPokestopAlarms(PokestopData pokestop);
 
-        // TODO: Gym
+        void ProcessGymAlarms(GymDetailsData gym);
 
         // TODO: Weather
     }

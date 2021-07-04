@@ -55,7 +55,7 @@
             {
                 lat = _options.Latitude,
                 lon = _options.Longitude,
-                team = _options.Team != PokemonTeam.All ? (uint?)_options.Team : null,
+                team_id = _options.Team != PokemonTeam.All ? (uint)_options.Team : 0,
                 polygon = _options.PolygonPath,
                 template_name = _options.TemplateName,
                 url2 = _options.SecondaryImageUrl,

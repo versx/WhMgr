@@ -97,7 +97,7 @@
             return evo;
         }
 
-        public string GetMoveName(int moveId)
+        public string GetMoveName(uint moveId)
         {
             if (moveId == 0)
                 return "Unknown"; // TODO: Localize

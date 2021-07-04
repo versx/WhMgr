@@ -1,5 +1,6 @@
 ﻿namespace WhMgr.Data.Models
 {
+    /*
     using System.ComponentModel.DataAnnotations.Schema;
 
     [Table("pokestop")]
@@ -20,4 +21,5 @@
         [Column("url")]
         public string Url { get; set; }
     }
+    */
 }

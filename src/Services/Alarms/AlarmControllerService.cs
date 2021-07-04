@@ -19,6 +19,11 @@
     using WhMgr.Services.Webhook.Models;
     using WhMgr.Utilities;
 
+    public class MapGymCache
+    {
+
+    }
+
     public class AlarmControllerService : IAlarmControllerService
     {
         private readonly ILogger<AlarmControllerService> _logger;
@@ -64,15 +69,6 @@
                 for (var i = 0; i < pokemonAlarms.Count; i++)
                 {
                     var alarm = pokemonAlarms[i];
-                    if (alarm.Filters.Pokemon == null)
-                        continue;
-
-                    if (!alarm.Filters.Pokemon.Enabled)
-                    {
-                        //_logger.LogInformation($"[{alarm.Name}] Skipping pokemon {pkmn.Id}: Pokemon filter not enabled.");
-                        continue;
-                    }
-
                     var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(pokemon.Latitude, pokemon.Longitude));
                     if (geofence == null)
                     {
@@ -198,18 +194,12 @@
                 Statistics.Instance.TotalReceivedRaids++;
             */
 
-            foreach (var (guildId, alarms) in _alarms)
+            foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnableRaids))
             {
-                if (alarms == null)
+                var raidAlarms = alarms.Alarms?.FindAll(x => (x.Filters.Raids?.Enabled ?? false) || (x.Filters.Eggs?.Enabled ?? false));
+                if (raidAlarms == null)
                     continue;
 
-                if (!alarms.EnableRaids)
-                    continue;
-
-                if (alarms.Alarms?.Count == 0)
-                    continue;
-
-                var raidAlarms = alarms.Alarms.FindAll(x => (x.Filters.Raids?.Enabled ?? false) || (x.Filters.Eggs?.Enabled ?? false));
                 for (var i = 0; i < raidAlarms.Count; i++)
                 {
                     var alarm = raidAlarms[i];
@@ -231,13 +221,13 @@
                             continue;
                         }
 
-                        if (!int.TryParse(raid.Level, out var level))
+                        if (raid.Level == 0)
                         {
                             _logger.LogWarning($"[{alarm.Name}] [{geofence.Name}] Failed to parse '{raid.Level}' as raid level.");
                             continue;
                         }
 
-                        if (!(level >= alarm.Filters.Eggs.MinimumLevel && level <= alarm.Filters.Eggs.MaximumLevel))
+                        if (!(raid.Level >= alarm.Filters.Eggs.MinimumLevel && raid.Level <= alarm.Filters.Eggs.MaximumLevel))
                         {
                             //_logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: '{raid.Level}' does not meet the MinimumLevel={alarm.Filters.Eggs.MinimumLevel} and MaximumLevel={alarm.Filters.Eggs.MaximumLevel} filters.");
                             continue;
@@ -273,13 +263,13 @@
                             continue;
                         }
 
-                        if (!int.TryParse(raid.Level, out var level))
+                        if (raid.Level == 0)
                         {
                             _logger.LogWarning($"[{alarm.Name}] [{geofence.Name}] Failed to parse '{raid.Level}' as raid level.");
                             continue;
                         }
 
-                        if (!(level >= alarm.Filters.Raids.MinimumLevel && level <= alarm.Filters.Raids.MaximumLevel))
+                        if (!(raid.Level >= alarm.Filters.Raids.MinimumLevel && raid.Level <= alarm.Filters.Raids.MaximumLevel))
                         {
                             //_logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid {raid.PokemonId}: '{raid.Level}' does not meet the MinimumLevel={alarm.Filters.Raids.MinimumLevel} and MaximumLevel={alarm.Filters.Raids.MaximumLevel} filters.");
                             continue;
@@ -430,37 +420,23 @@
 
         public void ProcessPokestopAlarms(PokestopData pokestop)
         {
-            //Skip if Pokestop filter is not defined.
             if (pokestop == null)
                 return;
 
             // TODO: Statistics.Instance.TotalReceivedPokestops++;
 
-            foreach (var (guildId, alarms) in _alarms)
+            foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnablePokestops))
             {
                 if (alarms == null)
                     continue;
 
-                //Skip if EnablePokestops is disabled in the config.
-                if (!alarms.EnablePokestops)
-                    continue;
-
-                //Skip if alarms list is null or empty.
-                if (alarms.Alarms?.Count == 0)
-                    continue;
-
                 var pokestopAlarms = alarms.Alarms.FindAll(x => x.Filters?.Pokestops != null && x.Filters.Pokestops.Enabled);
+                if (pokestopAlarms == null)
+                    continue;
+
                 for (var i = 0; i < pokestopAlarms.Count; i++)
                 {
                     var alarm = pokestopAlarms[i];
-                    if (alarm.Filters.Pokestops == null)
-                        continue;
-
-                    if (!alarm.Filters.Pokestops.Enabled)
-                    {
-                        //_logger.Info($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: pokestop filter not enabled.");
-                        continue;
-                    }
 
                     if (!alarm.Filters.Pokestops.Lured && pokestop.HasLure)
                     {
@@ -494,6 +470,69 @@
                         continue;
                     }
                     _logger.LogInformation($"Pokestop Found [Alarm: {alarm.Name}, PokestopId: {pokestop.PokestopId}, Name: {pokestop.Name}, LureType: {pokestop.LureType}, GruntType: {pokestop.GruntType}");
+                }
+            }
+        }
+
+        public void ProcessGymAlarms(GymDetailsData gym)
+        {
+            if (gym == null)
+                return;
+
+            // TODO: Statistics.Instance.TotalReceivedGyms++;
+
+            foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnableGyms))
+            {
+                var gymAlarms = alarms.Alarms?.FindAll(x => x.Filters?.Gyms != null && x.Filters.Gyms.Enabled);
+                if (gymAlarms == null)
+                    continue;
+
+                for (var i = 0; i < gymAlarms.Count; i++)
+                {
+                    var alarm = gymAlarms[i];
+                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(gym.Latitude, gym.Longitude));
+                    if (geofence == null)
+                    {
+                        //_logger.LogInformation($"[{alarm.Name}] Skipping gym details GymId={gym.GymId}, GymName={gym.GymName}: not in geofence.");
+                        continue;
+                    }
+
+                    if ((alarm.Filters?.Gyms?.UnderAttack ?? false) && !gym.InBattle)
+                    {
+                        //_logger.LogInformation($"[{alarm.Name}] Skipping gym details GymId={gym.GymId}, GymName{gym.GymName}, not under attack.");
+                        continue;
+                    }
+
+                    if (alarm.Filters?.Gyms?.Team != gym.Team && alarm.Filters?.Gyms?.Team != PokemonTeam.All)
+                    {
+                        //_logger.LogInformation($"[{alarm.Name}] Skipping gym details GymId={gym.GymId}, GymName{gym.GymName}, not specified team {alarm.Filters.Gyms.Team}.");
+                        continue;
+                    }
+
+                    var oldGym = _mapDataCache.GetGym(gym.GymId).ConfigureAwait(false).GetAwaiter().GetResult();
+                    var changed = oldGym.Team != gym.Team
+                        || gym.InBattle
+                        || oldGym.SlotsAvailable != gym.SlotsAvailable;
+                    if (!changed)
+                        continue;
+
+                    // Update map data cache with gym
+                    _mapDataCache.UpdateGym(gym);
+
+                    /*
+                    var oldGym = _gyms[gym.GymId];
+                    var changed = oldGym.Team != gym.Team || gym.InBattle;
+                    if (!changed)
+                        return;
+                    */
+
+                    //OnGymDetailsAlarmTriggered(gym, alarm, guildId);
+                    if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, gym, geofence.Name)))
+                    {
+                        _logger.LogError($"Failed to queue Gym alarm: {alarm.Name} for Gym {gym.GymId} ({gym.GymName})");
+                        continue;
+                    }
+                    _logger.LogInformation($"Gym Found [Alarm: {alarm.Name}, GymId: {gym.GymId}, Name: {gym.GymName}, Team: {gym.Team}, InBattle: {gym.InBattle}");
                 }
             }
         }

@@ -55,5 +55,10 @@
 
             return localDateTime;
         }
+
+        public static DateTime FromUnix(this ulong unixSeconds)
+        {
+            return FromUnix((long)unixSeconds);
+        }
     }
 }

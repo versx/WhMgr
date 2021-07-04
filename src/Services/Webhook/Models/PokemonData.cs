@@ -401,25 +401,25 @@
         {
             // If IV has value then use alarmText if not null otherwise use default. If no stats use default missing stats alarmText
             var server = settings.Config.Instance.Servers[settings.GuildId];
-            var alertType = IsMissingStats
+            var embedType = IsMissingStats
                 ? EmbedMessageType.PokemonMissingStats
                 : EmbedMessageType.Pokemon;
-            var alert = settings.Alarm?.Embeds[alertType] ?? server.DmEmbeds?[alertType] ?? EmbedMessage.Defaults[alertType];
+            var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
             settings.ImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
             var properties = GetProperties(settings);
             var eb = new DiscordEmbedMessage
             {
-                Title = TemplateRenderer.Parse(alert.Title, properties),
-                Url = TemplateRenderer.Parse(alert.Url, properties),
+                Title = TemplateRenderer.Parse(embed.Title, properties),
+                Url = TemplateRenderer.Parse(embed.Url, properties),
                 Image = new Discord.Models.DiscordEmbedImage
                 {
-                    Url = TemplateRenderer.Parse(alert.ImageUrl, properties),
+                    Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
                 Thumbnail = new Discord.Models.DiscordEmbedImage
                 {
-                    Url = TemplateRenderer.Parse(alert.IconUrl, properties),
+                    Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
-                Description = TemplateRenderer.Parse(alert.Content, properties),
+                Description = TemplateRenderer.Parse(embed.Content, properties),
                 /*
                 TODO: Color = MatchesGreatLeague || MatchesUltraLeague
                     ? GetPvPColor(GreatLeague, UltraLeague, server)
@@ -428,12 +428,12 @@
                 Color = DiscordColor.Green.Value,
                 Footer = new Discord.Models.DiscordEmbedFooter
                 {
-                    Text = TemplateRenderer.Parse(alert.Footer?.Text, properties),
-                    IconUrl = TemplateRenderer.Parse(alert.Footer?.IconUrl, properties)
+                    Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
+                    IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
                 }
             };
-            var username = TemplateRenderer.Parse(alert.Username, properties);
-            var iconUrl = TemplateRenderer.Parse(alert.AvatarUrl, properties);
+            var username = TemplateRenderer.Parse(embed.Username, properties);
+            var iconUrl = TemplateRenderer.Parse(embed.AvatarUrl, properties);
             var description = TemplateRenderer.Parse(settings.Alarm?.Description, properties);
             return new DiscordWebhookMessage
             {
