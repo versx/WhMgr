@@ -47,7 +47,6 @@
         public void Start()
         {
             Enabled = true;
-            _mapDataCache.LoadMapData().ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public void Stop()
@@ -78,8 +77,13 @@
                     case WebhookHeaders.Pokestop:
                         ProcessPokestop(payload.Message);
                         break;
+                    case WebhookHeaders.Gym:
+                    case WebhookHeaders.GymDetails:
                         // TODO: Gym
+                        break;
+                    case WebhookHeaders.Weather:
                         // TODO: Weather
+                        break;
                 }
             }
         }

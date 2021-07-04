@@ -22,7 +22,7 @@
 
         public DbSet<Gym> Gyms { get; set; }
 
-        // TODO: Weather
+        public DbSet<Weather> Weather { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,16 +1,17 @@
 ﻿namespace WhMgr.Services.Cache
 {
-    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     using WhMgr.Data.Models;
 
     public interface IMapDataCache
     {
-        List<Pokestop> Pokestops { get; }
+        Task<Pokestop> GetPokestop(string id);
 
-        List<Gym> Gyms { get; }
+        Task<Gym> GetGym(string id);
 
-        Task LoadMapData();
+        Task<Weather> GetWeather(long id);
+
+        //Task LoadMapData();
     }
 }
