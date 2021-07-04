@@ -490,7 +490,9 @@
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
             // // TODO: var address = new Coordinate(properties.City, Latitude, Longitude).GetAddress(properties.Config);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
-            dynamic pokestop = null;// = Pokestop.Pokestops.ContainsKey(PokestopId) ? Pokestop.Pokestops[PokestopId] : null;
+            var pokestop = properties.MapDataCache.Pokestops.Exists(x => x.Id == PokestopId)
+                ? properties.MapDataCache.Pokestops.Find(x => x.Id == PokestopId)
+                : null;
 
             var greatLeagueEmoji = PvpLeague.Great.GetEmojiIcon("league", true);
             var ultraLeagueEmoji = PvpLeague.Ultra.GetEmojiIcon("league", true);

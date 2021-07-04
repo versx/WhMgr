@@ -26,6 +26,7 @@ namespace WhMgr
     using WhMgr.Queues;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Models;
+    using WhMgr.Services.Cache;
     using WhMgr.Services.Discord;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Subscriptions;
@@ -89,6 +90,7 @@ namespace WhMgr
             services.AddSingleton(_config);
             services.AddSingleton(_alarms);
             services.AddSingleton(_discordClients);
+            services.AddSingleton<IMapDataCache, MapDataCache>();
 
             services.AddHostedService<QuestPurgeHostedService>();
 
@@ -103,6 +105,20 @@ namespace WhMgr
                 options.UseMySql(
                     _config.Instance.Database.Main.ToString(),
                     ServerVersion.AutoDetect(_config.Instance.Database.Main.ToString())
+                ), ServiceLifetime.Scoped
+            );
+
+            services.AddDbContextFactory<MapDbContext>(options =>
+                options.UseMySql(
+                    _config.Instance.Database.Scanner.ToString(),
+                    ServerVersion.AutoDetect(_config.Instance.Database.Scanner.ToString())
+                ), ServiceLifetime.Singleton
+            );
+
+            services.AddDbContext<MapDbContext>(options =>
+                options.UseMySql(
+                    _config.Instance.Database.Scanner.ToString(),
+                    ServerVersion.AutoDetect(_config.Instance.Database.Scanner.ToString())
                 ), ServiceLifetime.Scoped
             );
 

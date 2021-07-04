@@ -14,6 +14,7 @@
     using WhMgr.Localization;
     using WhMgr.Services.Alarms.Filters;
     using WhMgr.Services.Alarms.Models;
+    using WhMgr.Services.Cache;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Webhook.Models;
     using WhMgr.Utilities;
@@ -24,17 +25,20 @@
         private readonly Dictionary<ulong, ChannelAlarmsManifest> _alarms;
         private readonly Dictionary<ulong, DiscordClient> _discordClients;
         private readonly ConfigHolder _config;
+        private readonly IMapDataCache _mapDataCache;
 
         public AlarmControllerService(
             ILogger<AlarmControllerService> logger,
             Dictionary<ulong, ChannelAlarmsManifest> alarms,
             Dictionary<ulong, DiscordClient> discordClients,
-            ConfigHolder config)
+            ConfigHolder config,
+            IMapDataCache mapDataCache)
         {
             _logger = logger;
             _alarms = alarms;
             _discordClients = discordClients;
             _config = config;
+            _mapDataCache = mapDataCache;
             _logger.LogInformation($"Alarms {_alarms?.Keys?.Count:N0}");
         }
 
@@ -516,6 +520,7 @@
                     Config = _config,
                     Alarm = alarm,
                     City = city,
+                    MapDataCache = _mapDataCache,
                 });
                 var json = eb.Build();
                 if (json == null)

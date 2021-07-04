@@ -2,8 +2,8 @@
 {
     using System.ComponentModel.DataAnnotations.Schema;
 
-    [Table("pokestop")]
-    public class Pokestop
+    [Table("gym")]
+    public class Gym
     {
         [Column("id")]
         public string Id { get; set; }

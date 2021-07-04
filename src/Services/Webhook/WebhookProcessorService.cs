@@ -7,6 +7,7 @@
 
     using WhMgr.Extensions;
     using WhMgr.Services.Alarms;
+    using WhMgr.Services.Cache;
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook.Models;
 
@@ -15,6 +16,7 @@
         private readonly ILogger<WebhookProcessorService> _logger;
         private readonly IAlarmControllerService _alarmsService;
         private readonly ISubscriptionProcessorService _subscriptionService;
+        private readonly IMapDataCache _mapDataCache;
 
         #region Properties
 
@@ -29,11 +31,13 @@
         public WebhookProcessorService(
             ILogger<WebhookProcessorService> logger,
             IAlarmControllerService alarmsService,
-            ISubscriptionProcessorService subscriptionService)
+            ISubscriptionProcessorService subscriptionService,
+            IMapDataCache mapDataCache)
         {
             _logger = logger;
             _alarmsService = alarmsService;
             _subscriptionService = subscriptionService;
+            _mapDataCache = mapDataCache;
 
             Start();
         }
@@ -43,6 +47,7 @@
         public void Start()
         {
             Enabled = true;
+            _mapDataCache.LoadMapData().ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public void Stop()

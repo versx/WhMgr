@@ -4,6 +4,7 @@
 
     using WhMgr.Configuration;
     using WhMgr.Services.Alarms.Models;
+    using WhMgr.Services.Cache;
 
     public class AlarmMessageSettings
     {
@@ -18,5 +19,7 @@
         public string ImageUrl { get; set; }
 
         public string City { get; set; }
+
+        public IMapDataCache MapDataCache { get; set; }
     }
 }

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.Json;
     using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
@@ -402,7 +403,7 @@
                 {
                     messages = await channel.GetMessagesAsync();
                 }
-                catch (Newtonsoft.Json.JsonReaderException ex)
+                catch (JsonException ex)
                 {
                     Console.WriteLine($"Error: {ex}");
                     continue;

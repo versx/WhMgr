@@ -15,6 +15,7 @@
     using WhMgr.Services.Subscriptions.Models;
 
     // TODO: Set queue as singleton that hosted subscription processor service handles
+    // TODO: https://docs.microsoft.com/en-us/aspnet/core/fundamentals/host/hosted-services?view=aspnetcore-5.0&tabs=visual-studio
 
     public class SubscriptionProcessorQueueService : ISubscriptionProcessorQueueService
     {
