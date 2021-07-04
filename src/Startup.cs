@@ -33,6 +33,17 @@ namespace WhMgr
     using WhMgr.Services.Webhook;
     using WhMgr.Utilities;
 
+    // TODO: Reverse geocoding address lookup
+    // TODO: Discord embed colors
+    // TODO: Subscriptions
+    // TODO: Subscription commands
+    // TODO: Nest posting
+    // TODO: Shiny stats posting
+    // TODO: IV stats posting
+    // TODO: Weather alarms
+    // TODO: Check for duplicates
+    // TODO: Reload alarms/configs/filters/geofences on change
+
     public class Startup
     {
         private readonly Dictionary<ulong, DiscordClient> _discordClients;

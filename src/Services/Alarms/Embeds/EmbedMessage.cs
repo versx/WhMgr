@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
 
-    // TODO: Update values
     public class EmbedMessage : Dictionary<EmbedMessageType, EmbedMessageSettings>
     {
         public static readonly EmbedMessage Defaults = new()

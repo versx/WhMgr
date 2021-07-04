@@ -19,11 +19,6 @@
     using WhMgr.Services.Webhook.Models;
     using WhMgr.Utilities;
 
-    public class MapGymCache
-    {
-
-    }
-
     public class AlarmControllerService : IAlarmControllerService
     {
         private readonly ILogger<AlarmControllerService> _logger;
@@ -53,7 +48,7 @@
                 return;
 
             /*
-            Statistics.Instance.TotalReceivedPokemon++;
+            TODO: Statistics.Instance.TotalReceivedPokemon++;
             if (pokemon.IsMissingStats)
                 Statistics.Instance.TotalReceivedPokemonMissingStats++;
             else
@@ -96,7 +91,7 @@
                         continue;
                     }
 
-                    var formName = pokemon.FormId.ToString();// TODO: Translator.Instance.GetFormName(pokemon.FormId)?.ToLower();
+                    var formName = Translator.Instance.GetFormName(pokemon.FormId)?.ToLower();
                     if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Forms.Select(x => x.ToLower()).Contains(formName))
                     {
                         //_logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id} with form {pkmn.FormId} ({formName}): filter {alarm.Filters.Pokemon.FilterType}.");
@@ -109,7 +104,7 @@
                         continue;
                     }
 
-                    var costumeName = pokemon.Costume.ToString();//Translator.Instance.GetCostumeName(pokemon.Costume)?.ToLower();
+                    var costumeName = Translator.Instance.GetCostumeName(pokemon.Costume)?.ToLower();
                     if (alarm.Filters.Pokemon.FilterType == FilterType.Exclude && alarm.Filters.Pokemon.Costumes.Select(x => x.ToLower()).Contains(costumeName))
                     {
                         //_logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id} with costume {pkmn.Costume} ({costumeName}): filter {alarm.Filters.Pokemon.FilterType}.");
@@ -188,7 +183,7 @@
                 return;
 
             /*
-            if (raid.IsEgg)
+            TODO: if (raid.IsEgg)
                 Statistics.Instance.TotalReceivedEggs++;
             else
                 Statistics.Instance.TotalReceivedRaids++;
@@ -348,7 +343,7 @@
             if (quest == null)
                 return;
 
-            //Statistics.Instance.TotalReceivedQuests++;
+            // TODO: Statistics.Instance.TotalReceivedQuests++;
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value.EnableQuests))
             {

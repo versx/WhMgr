@@ -18,6 +18,8 @@
         private readonly ISubscriptionProcessorService _subscriptionService;
         private readonly IMapDataCache _mapDataCache;
 
+        private readonly Dictionary<string, ScannedPokemon> _processedPokemon;
+
         #region Properties
 
         public bool Enabled { get; set; }
@@ -38,6 +40,8 @@
             _alarmsService = alarmsService;
             _subscriptionService = subscriptionService;
             _mapDataCache = mapDataCache;
+
+            _processedPokemon = new Dictionary<string, ScannedPokemon>();
 
             Start();
         }
@@ -108,10 +112,23 @@
 
             if (CheckForDuplicates)
             {
-                // TODO: lock processed pokemon, check for dups
+                // Lock processed pokemon, check for dups for incoming pokemon
+                lock (_processedPokemon)
+                {
+                    // If we have already processed pokemon, previously did not have stats, and currently does not have stats, skip.
+                    if (_processedPokemon.ContainsKey(pokemon.EncounterId) && (pokemon.IsMissingStats || (!pokemon.IsMissingStats && !_processedPokemon[pokemon.EncounterId].IsMissingStats)))
+                        return;
+
+                    // Check if we have not processed this encounter before, is so then add
+                    if (!_processedPokemon.ContainsKey(pokemon.EncounterId))
+                        _processedPokemon.Add(pokemon.EncounterId, new ScannedPokemon(pokemon));
+
+                    // Check if incoming pokemon has stats but previously processed pokemon did not and update it
+                    if (!pokemon.IsMissingStats && _processedPokemon[pokemon.EncounterId].IsMissingStats)
+                        _processedPokemon[pokemon.EncounterId] = new ScannedPokemon(pokemon);
+                }
             }
 
-            //OnPokemonFound(pokemon);
             _alarmsService.ProcessPokemonAlarms(pokemon);
             // TODO: _subscriptionService.ProcessPokemonSubscription(pokemon);
         }
@@ -197,5 +214,41 @@
         }
 
         #endregion
+    }
+
+    internal struct ScannedPokemon : IScannedItem
+    {
+        public double Latitude { get; }
+
+        public double Longitude { get; }
+
+        public bool IsMissingStats { get; }
+
+        public DateTime DespawnTime { get; }
+
+        public bool IsExpired
+        {
+            get
+            {
+                var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+                return now > DespawnTime;
+            }
+        }
+
+        public ScannedPokemon(PokemonData pokemon)
+        {
+            Latitude = pokemon.Latitude;
+            Longitude = pokemon.Longitude;
+            IsMissingStats = pokemon.IsMissingStats;
+            DespawnTime = pokemon.DespawnTime;
+        }
+
+    }
+
+    internal interface IScannedItem
+    {
+        double Latitude { get; }
+
+        double Longitude { get; }
     }
 }
