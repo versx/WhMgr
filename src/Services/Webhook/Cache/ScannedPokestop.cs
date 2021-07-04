@@ -4,6 +4,7 @@
 
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
+    using WhMgr.Common;
     using WhMgr.Extensions;
     using WhMgr.Services.Webhook.Models;
 

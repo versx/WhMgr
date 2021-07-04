@@ -23,6 +23,6 @@
         Ice = 15,
         Dragon = 16,
         Dark = 17,
-        Fairy = 18
+        Fairy = 18,
     }
 }

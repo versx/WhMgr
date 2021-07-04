@@ -12,7 +12,6 @@
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
     using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
-    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     public class IconFetcher
     {
@@ -144,7 +143,7 @@
             return _iconStyles[style] + "invasion/" + (int)gruntType + ".png";
         }
 
-        public string GetWeatherIcon(string style, WhMgr.Services.Alarms.Filters.Models.WeatherCondition weatherType)
+        public string GetWeatherIcon(string style, WeatherCondition weatherType)
         {
             return _iconStyles[style] + "weather/" + (int)weatherType + ".png";
         }

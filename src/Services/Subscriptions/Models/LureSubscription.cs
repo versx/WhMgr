@@ -5,7 +5,7 @@
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
-    using WhMgr.Services.Webhook.Models;
+    using WhMgr.Common;
 
     [Table("lures")]
     public class LureSubscription : BaseSubscription

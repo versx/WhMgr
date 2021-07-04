@@ -5,15 +5,13 @@
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
-    //using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
-
+    using WhMgr.Common;
     using WhMgr.Extensions;
     using WhMgr.Localization;
     using WhMgr.Osm;
     using WhMgr.Osm.Models;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
-    using WhMgr.Services.Alarms.Filters.Models;
     using WhMgr.Services.Discord.Models;
     using WhMgr.Utilities;
 

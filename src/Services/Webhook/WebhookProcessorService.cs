@@ -4,9 +4,8 @@
     using System.Collections.Generic;
 
     using Microsoft.Extensions.Logging;
-    //using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
-    using WeatherCondition = WhMgr.Services.Alarms.Filters.Models.WeatherCondition;
 
+    using WhMgr.Common;
     using WhMgr.Extensions;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Cache;

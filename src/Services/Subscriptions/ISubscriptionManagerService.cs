@@ -5,8 +5,8 @@
 
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
+    using WhMgr.Common;
     using WhMgr.Services.Subscriptions.Models;
-    using WhMgr.Services.Webhook.Models;
 
     public interface ISubscriptionManagerService
     {

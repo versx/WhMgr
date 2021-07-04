@@ -9,7 +9,8 @@
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
     using ItemId = POGOProtos.Rpc.Item;
     using TemporaryEvolutionId = POGOProtos.Rpc.HoloTemporaryEvolutionId;
-    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
+
+    using WhMgr.Common;
 
     public class Translator : Language<string, string, Dictionary<string, string>>
     {
@@ -115,7 +116,7 @@
             return Translate($"item_{(int)item}");
         }
 
-        public string GetWeather(WhMgr.Services.Alarms.Filters.Models.WeatherCondition weather)
+        public string GetWeather(WeatherCondition weather)
         {
             return Translate($"weather_{(int)weather}");
         }

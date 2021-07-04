@@ -11,6 +11,7 @@
     using Microsoft.Extensions.Logging;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
+    using WhMgr.Common;
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;

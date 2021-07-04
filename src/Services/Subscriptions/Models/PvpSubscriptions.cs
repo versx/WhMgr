@@ -6,7 +6,7 @@
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
-    using WhMgr.Services.Webhook.Models;
+    using WhMgr.Common;
 
     [Table("pvp")]
     public class PvpSubscription : BaseSubscription

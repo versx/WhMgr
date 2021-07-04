@@ -9,10 +9,10 @@
     using Microsoft.Extensions.Logging;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
+    using WhMgr.Common;
     using WhMgr.Data.Contexts;
     using WhMgr.Extensions;
     using WhMgr.Services.Subscriptions.Models;
-    using WhMgr.Services.Webhook.Models;
 
     public class SubscriptionManagerService : ISubscriptionManagerService
     {

@@ -2,7 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
-    //using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
+
+    using WhMgr.Common;
 
     /// <summary>
     /// Weather filters
@@ -20,18 +21,5 @@
         /// </summary>
         [JsonPropertyName("types")]
         public List<WeatherCondition> WeatherTypes { get; set; } = new();
-    }
-
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum WeatherCondition
-    {
-        None = 0,
-        Clear,
-        Rainy,
-        PartlyCloudy,
-        Overcast,
-        Windy,
-        Snow,
-        Fog,
     }
 }
