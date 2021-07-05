@@ -8,6 +8,7 @@
     using DSharpPlus.Interactivity;
     using DSharpPlus.Interactivity.Extensions;
 
+    using WhMgr.Commands.Discord;
     using WhMgr.Configuration;
 
     public class DiscordClientFactory
@@ -44,7 +45,7 @@
             });
 
             // Discord commands configuration
-            client.UseCommandsNext
+            var commands = client.UseCommandsNext
             (
                 new CommandsNextConfiguration
                 {
@@ -59,6 +60,7 @@
                     Services = services,
                 }
             );
+            commands.RegisterCommands<Nests>();
             /*
             commands.CommandExecuted += Commands_CommandExecuted;
             commands.CommandErrored += Commands_CommandErrored;

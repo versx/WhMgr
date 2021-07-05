@@ -87,7 +87,7 @@
             CustomEmojis = LoadInit<Dictionary<string, string>>(Path.Combine(Strings.DataFolder, EmojisFileName));
         }
 
-        public static PokedexPokemon GetPokemon(uint pokemonId, int formId)
+        public static PokedexPokemon GetPokemon(uint pokemonId, uint formId)
         {
             if (!Instance.Pokedex.ContainsKey(pokemonId))
                 return null;

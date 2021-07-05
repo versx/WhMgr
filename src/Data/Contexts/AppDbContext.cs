@@ -1,14 +1,10 @@
 ﻿namespace WhMgr.Data.Contexts
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
 
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.ChangeTracking;
-    using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-    using WhMgr.Extensions;
+    using WhMgr.Data.Factories;
     using WhMgr.Services.Subscriptions.Models;
 
     public class AppDbContext : DbContext
@@ -77,61 +73,62 @@
             // Handle json columns
             modelBuilder.Entity<PokemonSubscription>()
                         .Property(nameof(PokemonSubscription.PokemonId))
-                        .HasConversion(CreateJsonValueConverter<List<uint>>(), CreateValueComparer<uint>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<uint>>(),
+                            DbContextFactory.CreateValueComparer<uint>());
             modelBuilder.Entity<PokemonSubscription>()
                         .Property(p => p.IVList)
-                        .HasConversion(CreateJsonValueConverter<List<string>>(), CreateValueComparer<string>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
             modelBuilder.Entity<PokemonSubscription>()
                         .Property(p => p.Areas)
-                        .HasConversion(CreateJsonValueConverter<List<string>>(), CreateValueComparer<string>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
 
             modelBuilder.Entity<PvpSubscription>()
                         .Property(p => p.Areas)
-                        .HasConversion(CreateJsonValueConverter<List<string>>(), CreateValueComparer<string>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
 
             modelBuilder.Entity<RaidSubscription>()
                         .Property(p => p.Areas)
-                        .HasConversion(CreateJsonValueConverter<List<string>>(), CreateValueComparer<string>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
 
             modelBuilder.Entity<QuestSubscription>()
                         .Property(p => p.Areas)
-                        .HasConversion(CreateJsonValueConverter<List<string>>(), CreateValueComparer<string>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
 
             modelBuilder.Entity<InvasionSubscription>()
                         .Property(p => p.Areas)
-                        .HasConversion(CreateJsonValueConverter<List<string>>(), CreateValueComparer<string>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
             modelBuilder.Entity<InvasionSubscription>()
                         .Property(p => p.RewardPokemonId)
-                        .HasConversion(CreateJsonValueConverter<List<uint>>(), CreateValueComparer<uint>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<uint>>(),
+                            DbContextFactory.CreateValueComparer<uint>());
 
             modelBuilder.Entity<LureSubscription>()
                         .Property(p => p.Areas)
-                        .HasConversion(CreateJsonValueConverter<List<string>>(), CreateValueComparer<string>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
 
             modelBuilder.Entity<GymSubscription>()
                         .Property(p => p.PokemonIDs)
-                        .HasConversion(CreateJsonValueConverter<List<uint>>(), CreateValueComparer<uint>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<uint>>(),
+                            DbContextFactory.CreateValueComparer<uint>());
 
             base.OnModelCreating(modelBuilder);
-        }
-
-        public static ValueConverter<T, string> CreateJsonValueConverter<T>()
-        {
-            return new ValueConverter<T, string>
-            (
-                v => v.ToJson(),
-                v => v.FromJson<T>()
-            );
-        }
-
-        public static ValueComparer<List<T>> CreateValueComparer<T>()
-        {
-            return new ValueComparer<List<T>>
-            (
-                (c1, c2) => c1.SequenceEqual(c2),
-                c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                c => c.ToList()
-            );
         }
     }
 }

@@ -53,6 +53,8 @@
         public const int MaximumUltraLeagueCP = 2500;
         public const int MaximumLeagueRank = 100;
 
+        public const int DiscordMaximumMessageLength = 2048;
+
         public const string All = "All";
 
         public const int MaxQueueCountWarning = 30;

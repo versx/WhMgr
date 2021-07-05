@@ -32,7 +32,7 @@
             _iconStyles = new Dictionary<string, string>();
         }
 
-        public string GetPokemonIcon(string style, uint pokemonId, int form = 0, int evolution = 0, Gender gender = Gender.Unset, int costume = 0, bool shiny = false)
+        public string GetPokemonIcon(string style, uint pokemonId, uint form = 0, uint evolution = 0, Gender gender = Gender.Unset, uint costume = 0, bool shiny = false)
         {
             if (!_availablePokemonForms.ContainsKey(style))
             {

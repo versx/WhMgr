@@ -68,7 +68,7 @@
             return Translate($"poke_{pokeId}");
         }
 
-        public string GetFormName(int formId, bool includeNormal = false)
+        public string GetFormName(uint formId, bool includeNormal = false)
         {
             if (formId == 0)
                 return null;
@@ -80,7 +80,7 @@
             return form;
         }
 
-        public string GetCostumeName(int costumeId)
+        public string GetCostumeName(uint costumeId)
         {
             if (costumeId == 0)
                 return null;
@@ -89,7 +89,7 @@
             return costume;
         }
 
-        public string GetEvolutionName(int evoId)
+        public string GetEvolutionName(uint evoId)
         {
             if (evoId == 0)
                 return null;

@@ -8,13 +8,13 @@
     public class PokedexPokemon
     {
         [JsonPropertyName("pokedex_id")]
-        public int PokedexId { get; set; }
+        public uint PokedexId { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
         [JsonPropertyName("forms")]
-        public Dictionary<int, PokedexPokemon> Forms { get; set; }
+        public Dictionary<uint, PokedexPokemon> Forms { get; set; }
 
         [JsonPropertyName("default_form_id")]
         public int? DefaultFormId { get; set; }
@@ -81,7 +81,7 @@
 
         public PokedexPokemon()
         {
-            Forms = new Dictionary<int, PokedexPokemon>();
+            Forms = new Dictionary<uint, PokedexPokemon>();
             Evolutions = new List<PokedexPokemon>();
             QuickMoves = new List<string>();
             ChargedMoves = new List<string>();

@@ -95,7 +95,7 @@
             JsonPropertyName("costume"),
             Column("costume"),
         ]
-        public int Costume { get; set; }
+        public uint Costume { get; set; }
 
         [
             JsonPropertyName("pokemon_level"),
@@ -191,7 +191,7 @@
             JsonPropertyName("form"),
             Column("form"),
         ]
-        public int FormId { get; set; }
+        public uint FormId { get; set; }
 
         [
             JsonPropertyName("shiny"),

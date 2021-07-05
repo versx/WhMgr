@@ -48,6 +48,10 @@
 
         public static string MultiPolygonToLatLng(List<MultiPolygon> coordinates, bool reverseCoordinates)
         {
+            if (coordinates == null)
+            {
+                return null;
+            }
             var sb = new System.Text.StringBuilder();
             //sb.Append("[");
             for (var i = 0; i < coordinates.Count; i++)

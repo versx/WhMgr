@@ -11,10 +11,10 @@
         public uint PokemonId { get; set; }
 
         [JsonPropertyName("costume_id")]
-        public int CostumeId { get; set; }
+        public uint CostumeId { get; set; }
 
         [JsonPropertyName("form_id")]
-        public int FormId { get; set; }
+        public uint FormId { get; set; }
 
         [JsonPropertyName("gender_id")]
         public int GenderId { get; set; }

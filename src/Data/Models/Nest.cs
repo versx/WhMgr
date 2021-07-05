@@ -1,31 +1,39 @@
 ﻿namespace WhMgr.Data.Models
 {
     using System;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
 
-    using ServiceStack.DataAnnotations;
-
-    [Alias("nests")]
+    [Table("nests")]
     public class Nest
     {
-        [Alias("name")]
+        [
+            Column("nest_id"),
+            Key,
+        ]
+        public long NestId { get; set; }
+
+        [Column("name")]
         public string Name { get; set; }
 
-        [Alias("pokemon_avg")]
-        public int Average { get; set; }
+        [Column("pokemon_avg")]
+        public double Average { get; set; }
 
-        [Alias("pokemon_count")]
-        public int Count { get; set; }
+        [Column("pokemon_count")]
+        public double Count { get; set; }
 
-        [Alias("pokemon_id")]
+        [Column("pokemon_id")]
         public uint PokemonId { get; set; }
 
-        [Alias("lat")]
+        [Column("lat")]
         public double Latitude { get; set; }
 
-        [Alias("lon")]
+        [Column("lon")]
         public double Longitude { get; set; }
 
-        [Alias("updated")]
-        public DateTime LastUpdated { get; set; }
+        [Column("updated")]
+        public ulong LastUpdated { get; set; }
+
+        // TODO: LastUpdatedTime
     }
 }

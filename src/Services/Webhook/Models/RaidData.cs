@@ -69,13 +69,13 @@
         public uint SponsorId { get; set; }
 
         [JsonPropertyName("form")]
-        public int Form { get; set; }
+        public uint Form { get; set; }
 
         [JsonPropertyName("costume")]
-        public int Costume { get; set; }
+        public uint Costume { get; set; }
 
         [JsonPropertyName("evolution")]
-        public int Evolution { get; set; }
+        public uint Evolution { get; set; }
 
         [JsonPropertyName("gender")]
         public Gender Gender { get; set; }

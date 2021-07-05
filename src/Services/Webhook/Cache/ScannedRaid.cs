@@ -15,9 +15,9 @@
 
         public uint PokemonId { get; }
 
-        public int FormId { get; }
+        public uint FormId { get; }
 
-        public int CostumeId { get; }
+        public uint CostumeId { get; }
 
         public DateTime ExpireTime { get; }
 

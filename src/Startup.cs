@@ -37,11 +37,8 @@ namespace WhMgr
     // TODO: Discord embed colors
     // TODO: Subscriptions
     // TODO: Subscription commands
-    // TODO: Nest posting
     // TODO: Shiny stats posting
     // TODO: IV stats posting
-    // TODO: Weather alarms
-    // TODO: Check for duplicates
     // TODO: Reload alarms/configs/filters/geofences on change
 
     public class Startup
@@ -73,9 +70,9 @@ namespace WhMgr
             // Build the dependency collection which will contain our objects that can be globally used within each command module
             var servicesCol = new ServiceCollection()
                 //.AddSingleton(typeof(InteractivityExtension), interactivity)
-                .AddSingleton(typeof(ConfigHolder), _config);
+                .AddSingleton(typeof(ConfigHolder), _config)
+                .AddSingleton(typeof(Osm.OsmManager), new Osm.OsmManager());
             //.AddSingleton(typeof(StripeService), new StripeService(_whConfig.Instance.StripeApiKey))
-            //.AddSingleton(typeof(Osm.OsmManager), new Osm.OsmManager())
             //if (_subProcessor != null)
             {
                 //servicesCol.AddSingleton(typeof(SubscriptionProcessor), _subProcessor ?? new SubscriptionProcessor(_servers, _whConfig, _whm));
@@ -105,31 +102,49 @@ namespace WhMgr
 
             services.AddHostedService<QuestPurgeHostedService>();
 
+            var mainConnectionString = _config.Instance.Database.Main.ToString();
+            var scannerConnectionString = _config.Instance.Database.Scanner.ToString();
+            var nestsConnectionString = _config.Instance.Database.Nests.ToString();
+
             services.AddDbContextFactory<AppDbContext>(options =>
                 options.UseMySql(
-                    _config.Instance.Database.Main.ToString(),
-                    ServerVersion.AutoDetect(_config.Instance.Database.Main.ToString())
+                    mainConnectionString,
+                    ServerVersion.AutoDetect(mainConnectionString)
                 ), ServiceLifetime.Singleton
             );
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseMySql(
-                    _config.Instance.Database.Main.ToString(),
-                    ServerVersion.AutoDetect(_config.Instance.Database.Main.ToString())
+                    mainConnectionString,
+                    ServerVersion.AutoDetect(mainConnectionString)
                 ), ServiceLifetime.Scoped
             );
 
             services.AddDbContextFactory<MapDbContext>(options =>
                 options.UseMySql(
-                    _config.Instance.Database.Scanner.ToString(),
-                    ServerVersion.AutoDetect(_config.Instance.Database.Scanner.ToString())
+                    scannerConnectionString,
+                    ServerVersion.AutoDetect(scannerConnectionString)
                 ), ServiceLifetime.Singleton
             );
 
             services.AddDbContext<MapDbContext>(options =>
                 options.UseMySql(
-                    _config.Instance.Database.Scanner.ToString(),
-                    ServerVersion.AutoDetect(_config.Instance.Database.Scanner.ToString())
+                    scannerConnectionString,
+                    ServerVersion.AutoDetect(scannerConnectionString)
+                ), ServiceLifetime.Scoped
+            );
+
+            services.AddDbContextFactory<ManualDbContext>(options =>
+                options.UseMySql(
+                    nestsConnectionString,
+                    ServerVersion.AutoDetect(nestsConnectionString)
+                ), ServiceLifetime.Singleton
+            );
+
+            services.AddDbContext<ManualDbContext>(options =>
+                options.UseMySql(
+                    nestsConnectionString,
+                    ServerVersion.AutoDetect(nestsConnectionString)
                 ), ServiceLifetime.Scoped
             );
 
@@ -173,6 +188,7 @@ namespace WhMgr
                 }
                 client.MessageCreated += Client_MessageCreated;
                 client.ClientErrored += Client_ClientErrored;
+
                 if (!_discordClients.ContainsKey(guildId))
                 {
                     _discordClients.Add(guildId, client);

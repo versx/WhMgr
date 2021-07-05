@@ -17,7 +17,7 @@
         public uint PokemonId { get; set; }
 
         [JsonPropertyName("form")]
-        public int FormId { get; set; }
+        public uint FormId { get; set; }
 
         [JsonPropertyName("level")]
         public double? Level { get; set; }
