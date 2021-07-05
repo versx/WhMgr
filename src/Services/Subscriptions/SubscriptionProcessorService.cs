@@ -220,7 +220,7 @@
                 return geofence;
             }
 
-            var subscriptions = await _subscriptionManager.GetSubscriptionsByPvpPokemonId(pokemon.Id);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByPvpPokemonId(pokemon.Id);
             if (subscriptions == null)
             {
                 _logger.LogWarning($"Failed to get subscriptions from database table.");
@@ -237,7 +237,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i].Subscription;
+                    user = subscriptions[i];
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -368,7 +368,7 @@
                 return geofence;
             }
 
-            var subscriptions = await _subscriptionManager.GetSubscriptionsByRaidPokemonId(raid.PokemonId);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByRaidPokemonId(raid.PokemonId);
             if (subscriptions == null)
             {
                 _logger.LogWarning($"Failed to get subscriptions from database table.");
@@ -382,7 +382,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i].Subscription;
+                    user = subscriptions[i];
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -495,7 +495,7 @@
                 return geofence;
             }
 
-            var subscriptions = await _subscriptionManager.GetSubscriptionsByQuest(quest.PokestopName, rewardKeyword);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByQuest(quest.PokestopName, rewardKeyword);
             if (subscriptions == null)
             {
                 _logger.LogWarning($"Failed to get subscriptions from database table.");
@@ -509,7 +509,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i].Subscription;
+                    user = subscriptions[i];
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -620,7 +620,7 @@
             if (encounters == null)
                 return;
 
-            var subscriptions = await _subscriptionManager.GetSubscriptionsByInvasion(pokestop?.Name, pokestop?.GruntType ?? InvasionCharacter.CharacterUnset, encounters);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByInvasion(pokestop?.Name, pokestop?.GruntType ?? InvasionCharacter.CharacterUnset, encounters);
             if (subscriptions == null)
             {
                 _logger.LogWarning($"Failed to get subscriptions from database table.");
@@ -639,7 +639,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i].Subscription;
+                    user = subscriptions[i];
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -744,7 +744,7 @@
                 return geofence;
             }
 
-            var subscriptions = await _subscriptionManager.GetSubscriptionsByLure(pokestop.LureType);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByLure(pokestop.LureType);
             if (subscriptions == null)
             {
                 _logger.LogWarning($"Failed to get subscriptions from database table.");
@@ -757,7 +757,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i].Subscription;
+                    user = subscriptions[i];
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -862,7 +862,7 @@
                 return geofence;
             }
 
-            var subscriptions = await _subscriptionManager.GetSubscriptionsByGymName(raid.GymName);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByGymName(raid.GymName);
             if (subscriptions == null)
             {
                 _logger.LogWarning($"Failed to get subscriptions from database table.");
@@ -876,7 +876,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i].Subscription;
+                    user = subscriptions[i];
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;

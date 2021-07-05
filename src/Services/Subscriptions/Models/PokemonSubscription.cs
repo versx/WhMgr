@@ -23,30 +23,6 @@
 
         public Subscription Subscription { get; set; }
 
-        /*
-        [
-            JsonIgnore,
-            NotMapped,
-        ]
-        public List<uint> PokemonId
-        {
-            get
-            {
-                try
-                {
-                    return PokemonIdString?.Split(',')?
-                                           .Select(x => uint.Parse(x))
-                                           .ToList();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[Error] Failed to parse pokemon id string: {ex}");
-                }
-                return new List<uint>();
-            }
-        }
-        */
-
         [
             JsonPropertyName("pokemon_id"),
             Column("pokemon_id"),

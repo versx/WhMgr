@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Linq;
     using System.Text.Json.Serialization;
 
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
@@ -32,16 +31,6 @@
             Column("grunt_type"),
         ]
         public InvasionCharacter InvasionType { get; set; }
-
-        /*
-        [
-            JsonIgnore,
-            NotMapped,
-        ]
-        public List<uint> RewardPokemonId => RewardPokemonIdString?.Split(',')?
-                                                                   .Select(x => uint.Parse(x))
-                                                                   .ToList();
-        */
 
         [
             JsonPropertyName("reward_pokemon_id"),
