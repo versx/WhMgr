@@ -20,6 +20,7 @@
     public class Coordinate
     {
         private static readonly LocationCache _cache = new();
+        private readonly object _lock = new();
 
         #region Properties
 
@@ -91,31 +92,34 @@
         /// <returns>Returns a <seealso cref="Location"/> object containing the address</returns>
         public Coordinate GetAddress(Config config)
         {
-            var key = (Latitude, Longitude);
-            // Check if cache already contains lat/lon tuple key, if so return it.
-            if (_cache.ContainsKey(key))
+            lock (_lock)
             {
-                return _cache[key];
-            }
+                var key = (Latitude, Longitude);
+                // Check if cache already contains lat/lon tuple key, if so return it.
+                if (_cache.ContainsKey(key))
+                {
+                    return _cache[key];
+                }
 
-            // Check if we want any reverse geocoding address
-            Coordinate location = null;
-            if (!string.IsNullOrEmpty(config.GoogleMapsKey))
-            {
-                location = GetGoogleAddress(City, Latitude, Longitude, config.GoogleMapsKey);
-            }
+                // Check if we want any reverse geocoding address
+                Coordinate location = null;
+                if (!string.IsNullOrEmpty(config.GoogleMapsKey))
+                {
+                    location = GetGoogleAddress(City, Latitude, Longitude, config.GoogleMapsKey);
+                }
 
-            if (!string.IsNullOrEmpty(config.NominatimEndpoint))
-            {
-                location = GetNominatimAddress(City, Latitude, Longitude, config.NominatimEndpoint, config.NominatimSchema);
-            }
+                if (!string.IsNullOrEmpty(config.NominatimEndpoint))
+                {
+                    location = GetNominatimAddress(City, Latitude, Longitude, config.NominatimEndpoint, config.NominatimSchema);
+                }
 
-            // Check if lat/lon tuple key has not been cached already, if not add it.
-            if (!_cache.ContainsKey(key))
-            {
-                _cache.Add(key, location);
+                // Check if lat/lon tuple key has not been cached already, if not add it.
+                if (!_cache.ContainsKey(key))
+                {
+                    _cache.Add(key, location);
+                }
+                return location;
             }
-            return location;
         }
 
         /// <summary>
