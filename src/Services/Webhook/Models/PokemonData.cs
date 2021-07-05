@@ -19,6 +19,8 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Utilities;
+    using System.Linq;
+    using WhMgr.Configuration;
 
     public sealed class PokemonData : IWebhookData
     {
@@ -421,12 +423,11 @@
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                /*
-                TODO: Color = MatchesGreatLeague || MatchesUltraLeague
-                    ? GetPvPColor(GreatLeague, UltraLeague, server)
-                    : IV.BuildPokemonIVColor(server),
-                */
-                Color = DiscordColor.Green.Value,
+                Color = (
+                    MatchesGreatLeague || MatchesUltraLeague
+                        ? GetPvPColor(GreatLeague, UltraLeague, MasterFile.Instance.DiscordEmbedColors)
+                        : IV.BuildPokemonIVColor(MasterFile.Instance.DiscordEmbedColors)
+                    ).Value,
                 Footer = new Discord.Models.DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
@@ -756,16 +757,24 @@
             return result;
         }
 
-        #endregion
-    }
+        private static DiscordColor GetPvPColor(List<PvpRankData> greatLeague, List<PvpRankData> ultraLeague, DiscordEmbedColorsConfig config)
+        {
+            if (greatLeague != null)
+                greatLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
 
-    /// <summary>
-    /// Pokemon capture rate
-    /// </summary>
-    public enum CaptureRateType
-    {
-        PokeBall = 1,
-        GreatBall,
-        UltraBall,
+            if (ultraLeague != null)
+                ultraLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
+
+            var greatRank = greatLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP);
+            var ultraRank = ultraLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP);
+            var color = config.Pokemon.PvP.FirstOrDefault(x => ((greatRank?.Rank ?? 0) >= x.Minimum && (greatRank?.Rank ?? 0) <= x.Maximum) || ((ultraRank?.Rank ?? 0) >= x.Minimum && (ultraRank?.Rank ?? 0) <= x.Maximum));
+            if (color == null)
+            {
+                return DiscordColor.White;
+            }
+            return new DiscordColor(color.Color);
+        }
+
+        #endregion
     }
 }

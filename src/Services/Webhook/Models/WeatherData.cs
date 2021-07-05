@@ -6,6 +6,7 @@
     using System.Text.Json.Serialization;
 
     using WhMgr.Common;
+    using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Localization;
     using WhMgr.Osm;
@@ -161,7 +162,7 @@
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                // TODO: Color = GameplayCondition.BuildWeatherColor(MasterFile.Instance.DiscordEmbedColors),
+                Color = GameplayCondition.BuildWeatherColor(MasterFile.Instance.DiscordEmbedColors).Value,
                 Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),

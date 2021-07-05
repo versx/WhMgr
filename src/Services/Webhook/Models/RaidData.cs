@@ -169,12 +169,12 @@
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                /* TODO: Color = (IsExEligible ? 0 /ex/ : int.Parse(Level)).BuildRaidColor(MasterFile.Instance.DiscordEmbedColors),*/
+                Color = IsExEligible ? 0 /*ex*/ : Level.BuildRaidColor(MasterFile.Instance.DiscordEmbedColors).Value,
                 Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
-                }
+                },
             };
             var username = TemplateRenderer.Parse(embed.Username, properties);
             var iconUrl = TemplateRenderer.Parse(embed.AvatarUrl, properties);

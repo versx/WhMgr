@@ -33,7 +33,6 @@ namespace WhMgr
     using WhMgr.Services.Webhook;
     using WhMgr.Utilities;
 
-    // TODO: Reverse geocoding address lookup
     // TODO: Discord embed colors
     // TODO: Subscriptions
     // TODO: Subscription commands
@@ -70,7 +69,6 @@ namespace WhMgr
 
             // Build the dependency collection which will contain our objects that can be globally used within each command module
             var servicesCol = new ServiceCollection()
-                //.AddSingleton(typeof(InteractivityExtension), interactivity)
                 .AddSingleton(typeof(ConfigHolder), _config)
                 .AddSingleton(typeof(Osm.OsmManager), new Osm.OsmManager());
             //.AddSingleton(typeof(StripeService), new StripeService(_whConfig.Instance.StripeApiKey))

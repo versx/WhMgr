@@ -13,9 +13,9 @@
     using DSharpPlus.Entities;
     using DSharpPlus.Interactivity;
 
+    using WhMgr.Common;
     using WhMgr.Configuration;
     using WhMgr.Localization;
-    using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     public static class DiscordExtensions
     {
@@ -434,8 +434,7 @@
 
         #region Colors
 
-        /*
-        public static DiscordColor BuildPokemonIVColor(this string iv, DiscordEmbedColorConfig config)
+        public static DiscordColor BuildPokemonIVColor(this string iv, DiscordEmbedColorsConfig config)
         {
             if (!double.TryParse(iv[0..^1], out var result))
             {
@@ -445,7 +444,7 @@
             return new DiscordColor(color.Color);
         }
 
-        public static DiscordColor BuildPokemonPvPColor(this int rank, DiscordEmbedColorConfig config)
+        public static DiscordColor BuildPokemonPvPColor(this int rank, DiscordEmbedColorsConfig config)
         {
             if (rank <= 0)
             {
@@ -455,7 +454,7 @@
             return new DiscordColor(color.Color);
         }
 
-        public static DiscordColor BuildRaidColor(this int level, DiscordEmbedColorConfig config)
+        public static DiscordColor BuildRaidColor(this ushort level, DiscordEmbedColorsConfig config)
         {
             if (level == 0)
             {
@@ -474,7 +473,7 @@
             return new DiscordColor(color);
         }
 
-        public static DiscordColor BuildLureColor(this PokestopLureType lureType, DiscordEmbedColorConfig config)
+        public static DiscordColor BuildLureColor(this PokestopLureType lureType, DiscordEmbedColorsConfig config)
         {
             string color;
             switch (lureType)
@@ -500,7 +499,7 @@
             return new DiscordColor(color);
         }
 
-        public static DiscordColor BuildWeatherColor(this WeatherCondition weather, DiscordEmbedColorConfig config)
+        public static DiscordColor BuildWeatherColor(this WeatherCondition weather, DiscordEmbedColorsConfig config)
         {
             var color = "#808080";
             switch (weather)
@@ -529,8 +528,7 @@
             }
             return new DiscordColor(color);
         }
-        */
-
+ 
         #endregion
     }
 }

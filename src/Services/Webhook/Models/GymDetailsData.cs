@@ -1,5 +1,6 @@
 ﻿namespace WhMgr.Services.Webhook.Models
 {
+    using DSharpPlus.Entities;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
@@ -86,22 +87,25 @@
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                Image = new DiscordEmbedImage
+                Image = new Discord.Models.DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Thumbnail = new DiscordEmbedImage
+                Thumbnail = new Discord.Models.DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                /*
-                 TODO: Color = Team == PokemonTeam.Mystic ? DiscordColor.Blue :
-                        Team == PokemonTeam.Valor ? DiscordColor.Red :
-                        Team == PokemonTeam.Instinct ? DiscordColor.Yellow :
-                        DiscordColor.LightGray,
-                */
-                Footer = new DiscordEmbedFooter
+                Color = (
+                    Team == PokemonTeam.Mystic
+                    ? DiscordColor.Blue
+                    : Team == PokemonTeam.Valor
+                        ? DiscordColor.Red
+                        : Team == PokemonTeam.Instinct
+                            ? DiscordColor.Yellow
+                            : DiscordColor.LightGray
+                    ).Value,
+                Footer = new Discord.Models.DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)

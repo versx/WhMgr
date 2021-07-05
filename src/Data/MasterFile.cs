@@ -8,6 +8,7 @@
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Common;
+    using WhMgr.Configuration;
     using WhMgr.Extensions;
     using WhMgr.Services.Webhook.Models;
 
@@ -17,6 +18,7 @@
         const string CpMultipliersFileName = "cpMultipliers.json";
         const string EmojisFileName = "emojis.json";
         const string RarityFileName = "rarity.json";
+        const string EmbedColorsFileName = "embedColors.json";
 
         #region Properties
 
@@ -59,6 +61,12 @@
         [JsonIgnore]
         public IReadOnlyDictionary<PokemonRarity, List<uint>> PokemonRarity { get; set; }
 
+        /// <summary>
+        /// Gets or sets the Discord embed colors to use for each message type
+        /// </summary>
+        [JsonIgnore]
+        public DiscordEmbedColorsConfig DiscordEmbedColors { get; set; }
+
         #region Singletons
 
         private static MasterFile _instance;
@@ -85,6 +93,7 @@
             PokemonRarity = LoadInit<Dictionary<PokemonRarity, List<uint>>>(Path.Combine(Strings.DataFolder, RarityFileName));
             Emojis = new Dictionary<string, ulong>();
             CustomEmojis = LoadInit<Dictionary<string, string>>(Path.Combine(Strings.DataFolder, EmojisFileName));
+            DiscordEmbedColors = LoadInit<DiscordEmbedColorsConfig>(Path.Combine(Strings.DataFolder, EmbedColorsFileName));
         }
 
         public static PokedexPokemon GetPokemon(uint pokemonId, uint formId)

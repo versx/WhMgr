@@ -17,6 +17,7 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Utilities;
+    using DSharpPlus.Entities;
 
     /// <summary>
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
@@ -167,23 +168,23 @@
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                Image = new DiscordEmbedImage
+                Image = new Discord.Models.DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Thumbnail = new DiscordEmbedImage
+                Thumbnail = new Discord.Models.DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                /*
-                TODO: Color = useInvasion
+                Color = (
+                    HasInvasion
                     ? new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Invasions)
-                    : useLure
+                    : HasLure
                         ? LureType.BuildLureColor(MasterFile.Instance.DiscordEmbedColors)
-                        : DiscordColor.CornflowerBlue,
-                */
-                Footer = new DiscordEmbedFooter
+                        : DiscordColor.CornflowerBlue
+                    ).Value,
+                Footer = new Discord.Models.DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
