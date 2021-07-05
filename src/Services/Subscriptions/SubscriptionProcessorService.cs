@@ -64,7 +64,7 @@
                 return geofence;
             }
 
-            var subscriptions = await _subscriptionManager.GetSubscriptionsByPokemonId(pokemon.Id);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByPokemonId(pokemon.Id);
             if (subscriptions == null)
             {
                 _logger.LogWarning($"Failed to get subscriptions from database table.");
@@ -275,7 +275,8 @@
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
                     var pokemonSubscriptions = user.PvP.Where(x =>
-                        x.PokemonId == pokemon.Id &&
+                        x.PokemonId.Contains(pokemon.Id) &&
+                        // TODO: Allow multiple forms
                         (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)

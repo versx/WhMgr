@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
@@ -29,9 +30,9 @@
         [
             JsonPropertyName("lure_type"),
             Column("lure_type"),
-            //Required,
+            Required,
         ]
-        public PokestopLureType LureType { get; set; } = PokestopLureType.None;
+        public PokestopLureType LureType { get; set; } = PokestopLureType.None; // TODO: Fix string to int parse
 
         [
             JsonPropertyName("city"),

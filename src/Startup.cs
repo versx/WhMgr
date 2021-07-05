@@ -33,7 +33,6 @@ namespace WhMgr
     using WhMgr.Services.Webhook;
     using WhMgr.Utilities;
 
-    // TODO: Discord embed colors
     // TODO: Subscriptions
     // TODO: Subscription commands
     // TODO: Shiny stats posting

@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Services.Subscriptions.Models
 {
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
@@ -20,9 +21,9 @@
         [
             JsonPropertyName("pokemon_id"),
             Column("pokemon_id"),
-            //Required,
+            Required,
         ]
-        public uint PokemonId { get; set; }
+        public uint PokemonId { get; set; } // TODO: Support multiple per subscription
 
         [
             JsonPropertyName("form"),

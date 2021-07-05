@@ -4,6 +4,8 @@
 
     using Microsoft.EntityFrameworkCore;
 
+    using WhMgr.Common;
+    using WhMgr.Extensions;
     using WhMgr.Data.Factories;
     using WhMgr.Services.Subscriptions.Models;
 
@@ -79,6 +81,14 @@
                             DbContextFactory.CreateValueComparer<string>());
 
             modelBuilder.Entity<PvpSubscription>()
+                        .Property(p => p.PokemonId)
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<uint>>(),
+                            DbContextFactory.CreateValueComparer<uint>());
+            modelBuilder.Entity<PvpSubscription>()
+                        .Property(p => p.League)
+                        .HasConversion(x => x.ObjectToString(), x => x.StringToObject<PvpLeague>());
+            modelBuilder.Entity<PvpSubscription>()
                         .Property(p => p.Areas)
                         .HasConversion(
                             DbContextFactory.CreateJsonValueConverter<List<string>>(),
@@ -107,6 +117,9 @@
                             DbContextFactory.CreateJsonValueConverter<List<uint>>(),
                             DbContextFactory.CreateValueComparer<uint>());
 
+            modelBuilder.Entity<LureSubscription>()
+                        .Property(p => p.LureType)
+                        .HasConversion(x => x.ObjectToString(), x => x.StringToObject<PokestopLureType>());
             modelBuilder.Entity<LureSubscription>()
                         .Property(p => p.Areas)
                         .HasConversion(

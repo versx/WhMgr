@@ -27,6 +27,7 @@
             _logger = logger;
             _dbFactory = dbFactory;
 
+            // TODO: Fix
             ReloadSubscriptions().ConfigureAwait(false)
                                  .GetAwaiter()
                                  .GetResult();
@@ -36,16 +37,40 @@
         {
             using (var ctx = _dbFactory.CreateDbContext())
             {
-                var subscriptions = (await ctx.Subscriptions.Include(p => p.Pokemon)
-                                                            .ThenInclude(p => p.Subscription)
-                                                            .ToListAsync())
-                                                            .Where(x => x.Status != NotificationStatusType.None)
-                                                            .ToList();
-                return subscriptions;
+                _subscriptions = (await ctx.Subscriptions.Where(s => s.Status != NotificationStatusType.None)
+                                                         // Include Pokemon subscriptions
+                                                         .Include(s => s.Pokemon)
+                                                         .ThenInclude(p => p.Subscription)
+                                                         // Include PvP subscriptions
+                                                         .Include(s => s.PvP)
+                                                         .ThenInclude(p => p.Subscription)
+                                                         // Include Raid subscriptions
+                                                         .Include(s => s.Raids)
+                                                         .ThenInclude(r => r.Subscription)
+                                                         // Include Quest subscriptions
+                                                         .Include(s => s.Quests)
+                                                         .ThenInclude(q => q.Subscription)
+                                                         // Include Invasion subscriptions
+                                                         .Include(s => s.Invasions)
+                                                         .ThenInclude(i => i.Subscription)
+                                                         // Include Lure subscriptions
+                                                         .Include(s => s.Lures)
+                                                         .ThenInclude(l => l.Subscription)
+                                                         // Include Gym subscriptions
+                                                         .Include(s => s.Gyms)
+                                                         .ThenInclude(g => g.Subscription)
+                                                         // Include Location subscriptions
+                                                         .Include(s => s.Locations)
+                                                         .ThenInclude(l => l.Subscription)
+                                                         .ToListAsync()
+                                                         )
+                                                         //.Where(x => x.Status != NotificationStatusType.None)
+                                                         .ToList();
+                return _subscriptions;
             }
         }
 
-        public async Task<List<Subscription>> GetSubscriptionsByPokemonId(uint pokemonId)
+        public List<Subscription> GetSubscriptionsByPokemonId(uint pokemonId)
         {
             /*
             var subscriptions = _subscriptions.Where(x =>
@@ -55,19 +80,19 @@
             ).ToList();
             return subscriptions;
             */
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
+            //using (var ctx = _dbFactory.CreateDbContext())
+            //{
                 /*
                 var pokemon = await ctx.Subscriptions.Where(x => x.Pokemon.FirstOrDefault(y => y.PokemonId.Contains(pokemonId)) != null).ToListAsync();
                 return pokemon;
                 */
-                return await ctx.Subscriptions?
+                return _subscriptions?
                     .Where(x => x.IsEnabled(NotificationStatusType.Pokemon) &&
                                 x.Pokemon != null &&
                                 x.Pokemon.Any(y => y.PokemonId.Contains(pokemonId))
                           )
-                    .ToListAsync();
-            }
+                    .ToList();
+            //}
         }
 
         public async Task<List<PvpSubscription>> GetSubscriptionsByPvpPokemonId(uint pokemonId)
@@ -81,7 +106,7 @@
             */
             using (var ctx = _dbFactory.CreateDbContext())
             {
-                var pvp = await ctx.Pvp.Where(x => x.PokemonId == pokemonId).ToListAsync();
+                var pvp = await ctx.Pvp.Where(x => x.PokemonId.Contains(pokemonId)).ToListAsync();
                 return pvp;
             }
         }

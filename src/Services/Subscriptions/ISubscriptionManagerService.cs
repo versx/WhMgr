@@ -11,7 +11,7 @@
     public interface ISubscriptionManagerService
     {
         //Task<List<Subscription>> GetSubscriptionsByPokemonId(uint pokemonId);
-        Task<List<Subscription>> GetSubscriptionsByPokemonId(uint pokemonId);
+       List<Subscription> GetSubscriptionsByPokemonId(uint pokemonId);
 
         Task<List<PvpSubscription>> GetSubscriptionsByPvpPokemonId(uint pokemonId);
 
