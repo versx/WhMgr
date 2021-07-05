@@ -36,43 +36,34 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            /*
             modelBuilder.Entity<Subscription>()
                 .HasMany(s => s.Pokemon)
-                .WithOne()
-                .HasForeignKey(s => s.SubscriptionId);
-            */
-            //.HasConstraintName("FK_pokemon_subscriptions_subscription_id");
-            //modelBuilder.Entity<Subscription>()
-
-            modelBuilder.Entity<PokemonSubscription>()
-                .HasOne(s => s.Subscription);
-
+                .WithOne(p => p.Subscription);
             modelBuilder.Entity<Subscription>()
                 .HasMany(s => s.PvP)
-                .WithOne();
+                .WithOne(p => p.Subscription);
             modelBuilder.Entity<Subscription>()
                 .HasMany(s => s.Raids)
-                .WithOne();
+                .WithOne(r => r.Subscription);
             modelBuilder.Entity<Subscription>()
                 .HasMany(s => s.Quests)
-                .WithOne();
+                .WithOne(q => q.Subscription);
             modelBuilder.Entity<Subscription>()
                 .HasMany(s => s.Invasions)
-                .WithOne();
+                .WithOne(i => i.Subscription);
             modelBuilder.Entity<Subscription>()
                 .HasMany(s => s.Lures)
-                .WithOne();
+                .WithOne(l => l.Subscription);
             modelBuilder.Entity<Subscription>()
                 .HasMany(s => s.Gyms)
-                .WithOne();
+                .WithOne(g => g.Subscription);
             modelBuilder.Entity<Subscription>()
                 .HasMany(s => s.Locations)
-                .WithOne();
+                .WithOne(l => l.Subscription);
 
             // Handle json columns
             modelBuilder.Entity<PokemonSubscription>()
-                        .Property(nameof(PokemonSubscription.PokemonId))
+                        .Property(p => p.PokemonId)
                         .HasConversion(
                             DbContextFactory.CreateJsonValueConverter<List<uint>>(),
                             DbContextFactory.CreateValueComparer<uint>());

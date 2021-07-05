@@ -46,7 +46,7 @@
             Column("pokemon"),
             //Reference,
         ]
-        public List<PokemonSubscription> Pokemon { get; set; } = new();
+        public ICollection<PokemonSubscription> Pokemon { get; set; }
 
         /// <summary>
         /// Gets or sets the PvP Pokemon subscriptions
@@ -56,7 +56,7 @@
             Column("pvp"),
             //Reference,
         ]
-        public List<PvpSubscription> PvP { get; set; } = new();
+        public ICollection<PvpSubscription> PvP { get; set; }
 
         /// <summary>
         /// Gets or sets the Raid subscriptions
@@ -66,7 +66,7 @@
             Column("raids"),
             //Reference,
         ]
-        public List<RaidSubscription> Raids { get; set; } = new();
+        public ICollection<RaidSubscription> Raids { get; set; }
 
         /// <summary>
         /// Gets or sets the Gym subscriptions to use with Raid subscriptions
@@ -76,7 +76,7 @@
             Column("gyms"),
             //Reference,
         ]
-        public List<GymSubscription> Gyms { get; set; } = new();
+        public ICollection<GymSubscription> Gyms { get; set; }
 
         /// <summary>
         /// Gets or sets the Quest subscriptions
@@ -86,7 +86,7 @@
             Column("quests"),
             //Reference,
         ]
-        public List<QuestSubscription> Quests { get; set; } = new();
+        public ICollection<QuestSubscription> Quests { get; set; }
 
         /// <summary>
         /// Gets or sets the Team Rocket Invasion subscriptions
@@ -96,7 +96,7 @@
             Column("invasions"),
             //Reference,
         ]
-        public List<InvasionSubscription> Invasions { get; set; } = new();
+        public ICollection<InvasionSubscription> Invasions { get; set; }
 
         /// <summary>
         /// Gets or sets the distance in meters a subscription should be within
@@ -107,14 +107,14 @@
             Column("lures"),
             //Reference,
         ]
-        public List<LureSubscription> Lures { get; set; } = new();
+        public ICollection<LureSubscription> Lures { get; set; }
 
         [
             JsonPropertyName("locations"),
             Column("locations"),
             //Reference,
         ]
-        public List<LocationSubscription> Locations { get; set; } = new();
+        public ICollection<LocationSubscription> Locations { get; set; }
 
         [
             JsonPropertyName("location"),

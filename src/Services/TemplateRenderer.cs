@@ -1,5 +1,7 @@
 ﻿namespace WhMgr.Services
 {
+    using System;
+
     using HandlebarsDotNet;
     using HandlebarsDotNet.Helpers;
 
@@ -11,6 +13,10 @@
         {
             _context = Handlebars.Create();
             _context.Configuration.TextEncoder = null;
+            _context.RegisterHelper("getPokemonName", new HandlebarsHelper((writer, ctx, args) =>
+            {
+                // TODO: GetPokemonName helper
+            }));
             HandlebarsHelpers.Register(_context);
         }
 

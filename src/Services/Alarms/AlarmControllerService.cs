@@ -578,6 +578,7 @@
             }
         }
 
+        // TODO: Alarm queue service (background service or hosted service)
         private void SendEmbed(ulong guildId, ChannelAlarm alarm, IWebhookData data, string city)
         {
             if (string.IsNullOrEmpty(alarm.Webhook))

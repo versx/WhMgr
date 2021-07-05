@@ -83,7 +83,7 @@
                 //var start = DateTime.Now;
                 try
                 {
-                    user = subscriptions[i].Subscription;
+                    user = subscriptions[i];
 
                     if (!_config.Instance.Servers.ContainsKey(user.GuildId))
                         continue;
@@ -176,7 +176,7 @@
                         {
                             Subscription = user,
                             Member = member,
-                            // TODO: Fix embeds Embed = x,
+                            // TODO: Embed = x,
                             Description = pkmn.Name,
                             City = geofence.Name,
                             Pokemon = pokemon,

@@ -40,6 +40,7 @@ namespace WhMgr
     // TODO: Shiny stats posting
     // TODO: IV stats posting
     // TODO: Reload alarms/configs/filters/geofences on change
+    // TODO: Fix Pvp pokemon name not showing on Pokemon embed
 
     public class Startup
     {

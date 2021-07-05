@@ -17,6 +17,7 @@
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
+    using WhMgr.Services.Geofence;
     using WhMgr.Utilities;
 
     public sealed class PokemonData : IWebhookData
@@ -488,7 +489,7 @@
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
-            // // TODO: var address = new Coordinate(properties.City, Latitude, Longitude).GetAddress(properties.Config);
+            var address = new Coordinate(properties.City, Latitude, Longitude).GetAddress(properties.Config.Instance);
             //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var pokestop = properties.MapDataCache.GetPokestop(PokestopId).ConfigureAwait(false)
                                                   .GetAwaiter()
@@ -600,7 +601,7 @@
                 wazemaps_url = wazeMapsLocationLink,
                 scanmaps_url = scannerMapsLocationLink,
 
-                //address = address?.Address },
+                address = address?.Address,
 
                 // Pokestop properties
                 near_pokestop = pokestop != null,

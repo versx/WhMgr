@@ -102,6 +102,9 @@
                     case WebhookHeaders.Weather:
                         ProcessWeather(payload.Message);
                         break;
+                    default:
+                        _logger.LogWarning($"Unhandled webhook type: {payload.Type}");
+                        break;
                 }
             }
         }

@@ -27,32 +27,25 @@
             _logger = logger;
             _dbFactory = dbFactory;
 
-            /*
-            TODO: ReloadSubscriptions().ConfigureAwait(false)
+            ReloadSubscriptions().ConfigureAwait(false)
                                  .GetAwaiter()
                                  .GetResult();
-            */
         }
 
         public async Task<List<Subscription>> GetUserSubscriptions()
         {
             using (var ctx = _dbFactory.CreateDbContext())
             {
-                return (await ctx.Subscriptions.Include(x => x.Pokemon)
-                                               .Include(x => x.PvP)
-                                               .Include(x => x.Raids)
-                                               .Include(x => x.Quests)
-                                               .Include(x => x.Invasions)
-                                               .Include(x => x.Lures)
-                                               .Include(x => x.Gyms)
-                                               .Include(x => x.Locations)
-                                              .ToListAsync())
-                                              .Where(x => x.Status != NotificationStatusType.None)
-                                              .ToList();
+                var subscriptions = (await ctx.Subscriptions.Include(p => p.Pokemon)
+                                                            .ThenInclude(p => p.Subscription)
+                                                            .ToListAsync())
+                                                            .Where(x => x.Status != NotificationStatusType.None)
+                                                            .ToList();
+                return subscriptions;
             }
         }
 
-        public async Task<List<PokemonSubscription>> GetSubscriptionsByPokemonId(uint pokemonId)
+        public async Task<List<Subscription>> GetSubscriptionsByPokemonId(uint pokemonId)
         {
             /*
             var subscriptions = _subscriptions.Where(x =>
@@ -64,8 +57,16 @@
             */
             using (var ctx = _dbFactory.CreateDbContext())
             {
-                var pokemon = await ctx.Pokemon.Where(x => x.PokemonId.Contains(pokemonId)).ToListAsync();
+                /*
+                var pokemon = await ctx.Subscriptions.Where(x => x.Pokemon.FirstOrDefault(y => y.PokemonId.Contains(pokemonId)) != null).ToListAsync();
                 return pokemon;
+                */
+                return await ctx.Subscriptions?
+                    .Where(x => x.IsEnabled(NotificationStatusType.Pokemon) &&
+                                x.Pokemon != null &&
+                                x.Pokemon.Any(y => y.PokemonId.Contains(pokemonId))
+                          )
+                    .ToListAsync();
             }
         }
 
