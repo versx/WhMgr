@@ -39,6 +39,9 @@ namespace WhMgr
     // TODO: Reload alarms/configs/filters/geofences on change
     // TODO: Fix Pvp pokemon name not showing on Pokemon embed
     // TODO: Twilio notifications
+    // TODO: HostedService webhook queue
+    // TODO: HostedService subscription queue
+    // TODO: Translations
 
     public class Startup
     {
