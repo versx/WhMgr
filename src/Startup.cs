@@ -67,6 +67,10 @@ namespace WhMgr
             _alarms = ChannelAlarmsManifest.LoadAlarms(config.Servers);
             _discordClients = new Dictionary<ulong, DiscordClient>();
 
+            // Create locale translation files
+            Localization.Translator.Instance.CreateLocaleFiles();
+            Localization.Translator.Instance.SetLocale(_config.Instance.Locale);
+
             IconFetcher.Instance.SetIconStyles(_config.Instance.IconStyles);
 
             // Build the dependency collection which will contain our objects that can be globally used within each command module
