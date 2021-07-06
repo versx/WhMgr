@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
+    using DSharpPlus.Entities;
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
 
     using WhMgr.Common;
@@ -160,17 +161,17 @@
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                Image = new DiscordEmbedImage
+                Image = new Discord.Models.DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Thumbnail = new DiscordEmbedImage
+                Thumbnail = new Discord.Models.DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 Color = IsExEligible ? 0 /*ex*/ : Level.BuildRaidColor(MasterFile.Instance.DiscordEmbedColors).Value,
-                Footer = new DiscordEmbedFooter
+                Footer = new Discord.Models.DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
@@ -236,7 +237,6 @@
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
             var address = new Coordinate(properties.City, Latitude, Longitude).GetAddress(properties.Config.Instance);
-            //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
 
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
             var startTimeLeft = now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds();

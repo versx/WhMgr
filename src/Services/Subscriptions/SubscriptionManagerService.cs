@@ -33,6 +33,8 @@
                                  .GetResult();
         }
 
+        #region Get Subscriptions
+
         public async Task<List<Subscription>> GetUserSubscriptions()
         {
             using (var ctx = _dbFactory.CreateDbContext())
@@ -40,28 +42,28 @@
                 _subscriptions = (await ctx.Subscriptions.Where(s => s.Status != NotificationStatusType.None)
                                                          // Include Pokemon subscriptions
                                                          .Include(s => s.Pokemon)
-                                                         .ThenInclude(p => p.Subscription)
+                                                         //.ThenInclude(p => p.Subscription)
                                                          // Include PvP subscriptions
                                                          .Include(s => s.PvP)
-                                                         .ThenInclude(p => p.Subscription)
+                                                         //.ThenInclude(p => p.Subscription)
                                                          // Include Raid subscriptions
                                                          .Include(s => s.Raids)
-                                                         .ThenInclude(r => r.Subscription)
+                                                         //.ThenInclude(r => r.Subscription)
                                                          // Include Quest subscriptions
                                                          .Include(s => s.Quests)
-                                                         .ThenInclude(q => q.Subscription)
+                                                         //.ThenInclude(q => q.Subscription)
                                                          // Include Invasion subscriptions
                                                          .Include(s => s.Invasions)
-                                                         .ThenInclude(i => i.Subscription)
+                                                         //.ThenInclude(i => i.Subscription)
                                                          // Include Lure subscriptions
                                                          .Include(s => s.Lures)
-                                                         .ThenInclude(l => l.Subscription)
+                                                         //.ThenInclude(l => l.Subscription)
                                                          // Include Gym subscriptions
                                                          .Include(s => s.Gyms)
-                                                         .ThenInclude(g => g.Subscription)
+                                                         //.ThenInclude(g => g.Subscription)
                                                          // Include Location subscriptions
                                                          .Include(s => s.Locations)
-                                                         .ThenInclude(l => l.Subscription)
+                                                         //.ThenInclude(l => l.Subscription)
                                                          .ToListAsync()
                                                          )
                                                          //.Where(x => x.Status != NotificationStatusType.None)
@@ -109,8 +111,8 @@
                                 reward.Contains(y.RewardKeyword) ||
                                 (y.PokestopName != null && (pokestopName.Contains(y.PokestopName) ||
                                 string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
-                )
-            ).ToList();
+                      )
+                ).ToList();
         }
 
         public List<Subscription> GetSubscriptionsByInvasion(string pokestopName, InvasionCharacter gruntType, List<uint> encounterRewards)
@@ -128,7 +130,6 @@
                 .ToList();
         }
 
-        // TODO: Pokestop name
         public List<Subscription> GetSubscriptionsByLure(string pokestopName, PokestopLureType lure)
         {
             return _subscriptions?
@@ -136,7 +137,8 @@
                             x.Lures != null &&
                             x.Lures.Any(y => lure == y.LureType ||
                                             (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName))
-                                            || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
+                                            || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase))
+                      )
                 .ToList();
         }
 
@@ -146,10 +148,11 @@
                 .Where(x => x.IsEnabled(NotificationStatusType.Gyms) &&
                             x.Gyms != null &&
                             x.Gyms.Any(y => string.Compare(y.Name, name, true) == 0 || y.Name.ToLower().Contains(name.ToLower()))
-                        )
+                      )
                 .ToList();
         }
 
+        #endregion
 
         /// <summary>
         /// Reload all user subscriptions
@@ -157,7 +160,6 @@
         public async Task ReloadSubscriptions()
         {
             // TODO: Only reload based on last_changed timestamp in metadata table
-
             var subs = await GetUserSubscriptions();
             if (subs == null)
                 return;

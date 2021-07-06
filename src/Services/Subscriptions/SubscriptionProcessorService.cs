@@ -129,10 +129,6 @@
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
-                        if (pokemon.IV == "100%")
-                        {
-                            _logger.LogDebug($"Found 100% Pokemon: {pokemon.Id} ({pokemon.EncounterId})");
-                        }
                         matchesIV = Filters.MatchesIV(pokemon.IV, (uint)pkmnSub.MinimumIV, 100);
                         //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
                         matchesLvl = Filters.MatchesLvl(pokemon.Level, (uint)pkmnSub.MinimumLevel, (uint)pkmnSub.MaximumLevel);
@@ -179,13 +175,14 @@
                             City = geofence.Name,
                             MapDataCache = _mapDataCache,
                         });
+
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.Debug($"Took {end} to process Pokemon subscription for user {user.UserId}");
                         embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
-                            // TODO: Embed = x,
+                            Embed = x.GenerateDiscordMessage(),
                             Description = pkmn.Name,
                             City = geofence.Name,
                             Pokemon = pokemon,
@@ -334,7 +331,7 @@
                         {
                             Subscription = user,
                             Member = member,
-                            // TODO: Fix embeds Embed = x,
+                            Embed = x.GenerateDiscordMessage(),
                             Description = pkmn.Name,
                             City = geofence.Name,
                         }));
@@ -463,7 +460,7 @@
                     {
                         Subscription = user,
                         Member = member,
-                        // TODO: Fix embeds Embed = x,
+                        Embed = x.GenerateDiscordMessage(),
                         Description = pokemon.Name,
                         City = geofence.Name
                     }));
@@ -587,7 +584,7 @@
                     {
                         Subscription = user,
                         Member = member,
-                        // TODO: Fix embeds Embed = x,
+                        Embed = x.GenerateDiscordMessage(),
                         Description = questName,
                         City = geofence.Name,
                     }));
@@ -716,7 +713,7 @@
                     {
                         Subscription = user,
                         Member = member,
-                        // TODO: Fix embeds Embed = x,
+                        Embed = x.GenerateDiscordMessage(),
                         Description = pokestop.Name,
                         City = geofence.Name,
                     }));
@@ -834,7 +831,7 @@
                     {
                         Subscription = user,
                         Member = member,
-                        // TODO: Fix embeds Embed = x,
+                        Embed = x.GenerateDiscordMessage(),
                         Description = pokestop.Name,
                         City = geofence.Name,
                     }));
@@ -956,7 +953,7 @@
                     {
                         Subscription = user,
                         Member = member,
-                        // TODO: Fix embeds Embed = x,
+                        Embed = x.GenerateDiscordMessage(),
                         Description = pokemon.Name,
                         City = geofence.Name,
                     }));

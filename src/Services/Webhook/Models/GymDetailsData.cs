@@ -152,7 +152,6 @@
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
             var gymImageUrl = IconFetcher.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);// $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
-            //var staticMapLink = StaticMap.GetUrl(properties.Config.Instance.Urls.StaticMap, properties.Config.Instance.StaticMaps["gyms"], Latitude, Longitude, gymImageUrl);
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
                 BaseUrl = properties.Config.Instance.StaticMaps[StaticMapType.Gyms].Url,
@@ -168,7 +167,6 @@
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
             var address = new Coordinate(properties.City, Latitude, Longitude).GetAddress(properties.Config.Instance);
-            //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";

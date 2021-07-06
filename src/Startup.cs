@@ -34,7 +34,6 @@ namespace WhMgr
     using WhMgr.Utilities;
 
     // TODO: Database migrations
-    // TODO: Subscriptions
     // TODO: Subscription commands
     // TODO: Shiny stats posting
     // TODO: IV stats posting
@@ -269,6 +268,7 @@ namespace WhMgr
             if (e.Author.Id == client.CurrentUser.Id || e.Author.IsBot)
                 return;
 
+            // Bot not configured for guild
             if (!_config.Instance.Servers.ContainsKey(e.Guild?.Id ?? 0))
                 return;
 
@@ -277,7 +277,6 @@ namespace WhMgr
                 return;
 
             // TODO: Handle command manually
-            //await _commands.HandleCommandsAsync(e);
             Console.WriteLine($"handle command");
             await Task.CompletedTask;
         }

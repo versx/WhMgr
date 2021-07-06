@@ -132,11 +132,11 @@
         /// <returns></returns>
         public static Coordinate GetGoogleAddress(string city, double lat, double lon, string gmapsKey)
         {
+            // TODO: Google reverse geocoding parse
             var apiKey = string.IsNullOrEmpty(gmapsKey) ? string.Empty : $"&key={gmapsKey}";
             var url = $"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}&sensor=true{apiKey}";
-            var unknown = "Unknown";
-            // TODO: Google reverse geocoding parse
             /*
+            var unknown = "Unknown";
             try
             {
                 var request = (HttpWebRequest)WebRequest.Create(url);

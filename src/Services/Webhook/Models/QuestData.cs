@@ -114,7 +114,7 @@
                 Username = username,
                 AvatarUrl = iconUrl,
                 Content = description,
-                Embeds = new List<DiscordEmbedMessage> { eb }
+                Embeds = new List<DiscordEmbedMessage> { eb },
             };
         }
 
@@ -142,7 +142,6 @@
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
             var address = new Coordinate(properties.City, Latitude, Longitude).GetAddress(properties.Config.Instance);
-            //var staticMapLocationLink = string.IsNullOrEmpty(whConfig.ShortUrlApiUrl) ? staticMapLink : NetUtil.CreateShortUrl(whConfig.ShortUrlApiUrl, staticMapLink);
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
@@ -187,6 +186,11 @@
                 br = "\n",
             };
             return dict;
+        }
+
+        public DiscordWebhookMessage2 GenerateDiscordEmbedMessage(AlarmMessageSettings settings)
+        {
+            return null;
         }
     }
 }

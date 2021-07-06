@@ -38,31 +38,6 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Subscription>()
-                .HasMany(s => s.Pokemon)
-                .WithOne(p => p.Subscription);
-            modelBuilder.Entity<Subscription>()
-                .HasMany(s => s.PvP)
-                .WithOne(p => p.Subscription);
-            modelBuilder.Entity<Subscription>()
-                .HasMany(s => s.Raids)
-                .WithOne(r => r.Subscription);
-            modelBuilder.Entity<Subscription>()
-                .HasMany(s => s.Quests)
-                .WithOne(q => q.Subscription);
-            modelBuilder.Entity<Subscription>()
-                .HasMany(s => s.Invasions)
-                .WithOne(i => i.Subscription);
-            modelBuilder.Entity<Subscription>()
-                .HasMany(s => s.Lures)
-                .WithOne(l => l.Subscription);
-            modelBuilder.Entity<Subscription>()
-                .HasMany(s => s.Gyms)
-                .WithOne(g => g.Subscription);
-            modelBuilder.Entity<Subscription>()
-                .HasMany(s => s.Locations)
-                .WithOne(l => l.Subscription);
-
             // Handle json columns
             modelBuilder.Entity<PokemonSubscription>()
                         .Property(p => p.PokemonId)
