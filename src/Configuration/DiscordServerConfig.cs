@@ -91,8 +91,8 @@
         /// <summary>
         /// Gets or sets the shiny stats configuration class
         /// </summary>
-        //[JsonPropertyName("shinyStats")]
-        // TODO: public ShinyStatsConfig ShinyStats { get; set; } = new()
+        [JsonPropertyName("shinyStats")]
+        public ShinyStatsConfig ShinyStats { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the icon style for messages on the Discord server

@@ -187,10 +187,5 @@
             };
             return dict;
         }
-
-        public DiscordWebhookMessage2 GenerateDiscordEmbedMessage(AlarmMessageSettings settings)
-        {
-            return null;
-        }
     }
 }

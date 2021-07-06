@@ -1,4 +1,4 @@
-﻿namespace WhMgr.Commands
+﻿namespace WhMgr.Commands.Discord
 {
     using System;
     using System.Collections.Generic;
@@ -10,48 +10,45 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-
-    using ServiceStack;
-    using ServiceStack.DataAnnotations;
-    using ServiceStack.OrmLite;
-
+    using Microsoft.EntityFrameworkCore;
+    using WhMgr.Configuration;
     using WhMgr.Data;
-    using WhMgr.Diagnostics;
+    using WhMgr.Data.Factories;
+    using WhMgr.Data.Models;
     using WhMgr.Extensions;
     using WhMgr.Localization;
 
-    public class ShinyStats
+    public class ShinyStats : BaseCommandModule
     {
-        private static readonly IEventLogger _logger = EventLogger.GetLogger("SHINY_STATS", Program.LogLevel);
-        private readonly Dependencies _dep;
+        private readonly ConfigHolder _config;
 
-        public ShinyStats(Dependencies dep)
+        public ShinyStats(ConfigHolder config)
         {
-            _dep = dep;
+            _config = config;
         }
 
         [
             Command("shiny-stats"),
-            RequirePermissions(Permissions.KickMembers)
+            RequirePermissions(Permissions.KickMembers),
         ]
         public async Task GetShinyStatsAsync(CommandContext ctx)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
 
-            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+            if (!_config.Instance.Servers.ContainsKey(guildId))
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 
-            var server = _dep.WhConfig.Servers[guildId];
+            var server = _config.Instance.Servers[guildId];
             if (!server.ShinyStats.Enabled)
                 return;
 
             var statsChannel = await ctx.Client.GetChannelAsync(server.ShinyStats.ChannelId);
             if (statsChannel == null)
             {
-                _logger.Warn($"Failed to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
+                Console.WriteLine($"Failed to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
                 await ctx.RespondEmbed(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(ctx.User.Username), DiscordColor.Yellow);
                 return;
             }
@@ -61,7 +58,7 @@
                 await ctx.Client.DeleteMessages(server.ShinyStats.ChannelId);
             }
 
-            var stats = await GetShinyStats(_dep.WhConfig.Database.Scanner.ToString());
+            var stats = await GetShinyStats(_config.Instance.Database.Scanner.ToString());
             var sorted = stats.Keys.ToList();
             sorted.Sort();
             if (sorted.Count > 0)
@@ -106,7 +103,17 @@
             }
         }
 
-        internal static Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStats(string scannerConnectionString)
+        [
+            Command("iv-stats"),
+            RequirePermissions(Permissions.KickMembers),
+        ]
+        public async Task GetIVStatsAsync(CommandContext ctx)
+        {
+            // TODO: IV stats postings
+            await Task.CompletedTask;
+        }
+
+        internal static async Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStats(string scannerConnectionString)
         {
             var list = new Dictionary<uint, ShinyPokemonStats>
             {
@@ -114,12 +121,12 @@
             };
             try
             {
-                using (var db = DataAccessLayer.CreateFactory(scannerConnectionString).Open())
+                using (var ctx = DbContextFactory.CreateMapContext(scannerConnectionString))
                 {
-                    db.SetCommandTimeout(30 * 1000); // 30 seconds timeout
+                    ctx.Database.SetCommandTimeout(TimeSpan.FromSeconds(30)); // 30 seconds timeout
                     var yesterday = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToString("yyyy/MM/dd");
-                    var pokemonShiny = db.Select<PokemonStatsShiny>().Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0).ToList();
-                    var pokemonIV = db.Select<PokemonStatsIV>().Where(x => string.Compare(x.Date.ToString("yyyy/MM/dd"), yesterday, true) == 0)?.ToDictionary(x => x.PokemonId);
+                    var pokemonShiny = (await ctx.PokemonStatsShiny.ToListAsync()).Where(x => x.Date.ToString("yyyy/MM/dd") == yesterday).ToList();
+                    var pokemonIV = (await ctx.PokemonStatsIV.ToListAsync()).Where(x => x.Date.ToString("yyyy/MM/dd") == yesterday)?.ToDictionary(x => x.PokemonId);
                     for (var i = 0; i < pokemonShiny.Count; i++)
                     {
                         var curPkmn = pokemonShiny[i];
@@ -135,41 +142,15 @@
                             list[curPkmn.PokemonId].Total += pokemonIV.ContainsKey(curPkmn.PokemonId) ? Convert.ToInt32(pokemonIV[curPkmn.PokemonId].Count) : 0;
                         }
                     }
-                    list.ForEach((x, y) => list[0].Shiny += y.Shiny);
-                    list.ForEach((x, y) => list[0].Total += y.Total);
+                    // TODO: list.ForEach((x, y) => list[0].Shiny += y.Shiny);
+                    // TODO: list.ForEach((x, y) => list[0].Total += y.Total);
                 }
             }
             catch (Exception ex)
             {
-                _logger.Error(ex);
+                Console.WriteLine($"Error: {ex}");
             }
-            return Task.FromResult(list);
-        }
-
-        [Alias("pokemon_iv_stats")]
-        internal class PokemonStatsIV
-        {
-            [Alias("date")]
-            public DateTime Date { get; set; }
-
-            [Alias("pokemon_id")]
-            public uint PokemonId { get; set; }
-
-            [Alias("count")]
-            public ulong Count { get; set; }
-        }
-
-        [Alias("pokemon_shiny_stats")]
-        internal class PokemonStatsShiny
-        {
-            [Alias("date")]
-            public DateTime Date { get; set; }
-
-            [Alias("pokemon_id")]
-            public uint PokemonId { get; set; }
-
-            [Alias("count")]
-            public ulong Count { get; set; }
+            return list;
         }
 
         internal class ShinyPokemonStats

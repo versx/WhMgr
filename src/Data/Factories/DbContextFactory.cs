@@ -32,6 +32,25 @@
             return null;
         }
 
+        public static MapDbContext CreateMapContext(string connectionString)// where T : DbContext
+        {
+            try
+            {
+                var optionsBuilder = new DbContextOptionsBuilder<MapDbContext>();
+                optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+
+                var ctx = new MapDbContext(optionsBuilder.Options);
+                //ctx.ChangeTracker.AutoDetectChangesEnabled = false;
+                return ctx;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex}");
+                Environment.Exit(0);
+            }
+            return null;
+        }
+
         public static ValueConverter<T, string> CreateJsonValueConverter<T>()
         {
             return new ValueConverter<T, string>

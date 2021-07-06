@@ -2,6 +2,7 @@
 {
     using Microsoft.EntityFrameworkCore;
 
+    using WhMgr.Data.Models;
     using WhMgr.Services.Webhook.Models;
 
     public class MapDbContext : DbContext
@@ -16,6 +17,10 @@
         public DbSet<GymDetailsData> Gyms { get; set; }
 
         public DbSet<WeatherData> Weather { get; set; }
+
+        public DbSet<PokemonStatsIV> PokemonStatsIV { get; set; }
+
+        public DbSet<PokemonStatsShiny> PokemonStatsShiny { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
