@@ -22,12 +22,12 @@
         private readonly ILogger<ISubscriptionProcessorQueueService> _logger;
         private readonly ConfigHolder _config;
         private readonly NotificationQueue _queue;
-        private readonly Dictionary<ulong, DiscordClient> _discordClients;
+        private readonly IReadOnlyDictionary<ulong, DiscordClient> _discordClients;
 
         public SubscriptionProcessorQueueService(
             ILogger<ISubscriptionProcessorQueueService> logger,
             ConfigHolder config,
-            Dictionary<ulong, DiscordClient> discordClients)
+            IReadOnlyDictionary<ulong, DiscordClient> discordClients)
         {
             _logger = logger;
             _config = config;

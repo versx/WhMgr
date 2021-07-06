@@ -96,8 +96,8 @@ namespace WhMgr
             services.AddSingleton<IWebhookProcessorService, WebhookProcessorService>();
             services.AddSingleton<ChannelAlarmsManifest, ChannelAlarmsManifest>();
             services.AddSingleton(_config);
-            services.AddSingleton(_alarms);
-            services.AddSingleton(_discordClients);
+            services.AddSingleton<IReadOnlyDictionary<ulong, ChannelAlarmsManifest>>(_alarms);
+            services.AddSingleton<IReadOnlyDictionary<ulong, DiscordClient>>(_discordClients);
             services.AddSingleton<IMapDataCache, MapDataCache>();
 
             services.AddHostedService<QuestPurgeHostedService>();

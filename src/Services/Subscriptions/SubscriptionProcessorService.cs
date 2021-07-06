@@ -29,7 +29,7 @@
         private readonly ILogger<ISubscriptionProcessorService> _logger;
         private readonly ISubscriptionManagerService _subscriptionManager;
         private readonly ConfigHolder _config;
-        private readonly Dictionary<ulong, DiscordClient> _discordClients;
+        private readonly IReadOnlyDictionary<ulong, DiscordClient> _discordClients;
         private readonly ISubscriptionProcessorQueueService _queue;
         private readonly IMapDataCache _mapDataCache;
 
@@ -37,7 +37,7 @@
             ILogger<ISubscriptionProcessorService> logger,
             ISubscriptionManagerService subscriptionManager,
             ConfigHolder config,
-            Dictionary<ulong, DiscordClient> discordClients,
+            IReadOnlyDictionary<ulong, DiscordClient> discordClients,
             ISubscriptionProcessorQueueService queue,
             IMapDataCache mapDataCache)
         {
@@ -753,7 +753,7 @@
                 return geofence;
             }
 
-            var subscriptions = _subscriptionManager.GetSubscriptionsByLure(pokestop.LureType);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByLure(pokestop.Name, pokestop.LureType);
             if (subscriptions == null)
             {
                 _logger.LogWarning($"Failed to get subscriptions from database table.");

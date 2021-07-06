@@ -107,7 +107,8 @@
                             x.Quests != null &&
                             x.Quests.Any(y =>
                                 reward.Contains(y.RewardKeyword) ||
-                                (y.PokestopName != null && (pokestopName.Contains(y.PokestopName) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
+                                (y.PokestopName != null && (pokestopName.Contains(y.PokestopName) ||
+                                string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
                 )
             ).ToList();
         }
@@ -120,19 +121,22 @@
                             x.Invasions.Any(y =>
                                 y.RewardPokemonId.Intersects(encounterRewards) ||
                                 gruntType == y.InvasionType ||
-                                (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName)) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
+                                (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName))
+                                || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
                             )
                         )
                 .ToList();
         }
 
         // TODO: Pokestop name
-        public List<Subscription> GetSubscriptionsByLure(PokestopLureType lure)
+        public List<Subscription> GetSubscriptionsByLure(string pokestopName, PokestopLureType lure)
         {
             return _subscriptions?
                 .Where(x => x.IsEnabled(NotificationStatusType.Lures) &&
                             x.Lures != null &&
-                            x.Lures.Any(y => lure == y.LureType))
+                            x.Lures.Any(y => lure == y.LureType ||
+                                            (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName))
+                                            || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
         }
 

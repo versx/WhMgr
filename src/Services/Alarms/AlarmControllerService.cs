@@ -22,15 +22,15 @@
     public class AlarmControllerService : IAlarmControllerService
     {
         private readonly ILogger<AlarmControllerService> _logger;
-        private readonly Dictionary<ulong, ChannelAlarmsManifest> _alarms;
-        private readonly Dictionary<ulong, DiscordClient> _discordClients;
+        private readonly IReadOnlyDictionary<ulong, ChannelAlarmsManifest> _alarms;
+        private readonly IReadOnlyDictionary<ulong, DiscordClient> _discordClients;
         private readonly ConfigHolder _config;
         private readonly IMapDataCache _mapDataCache;
 
         public AlarmControllerService(
             ILogger<AlarmControllerService> logger,
-            Dictionary<ulong, ChannelAlarmsManifest> alarms,
-            Dictionary<ulong, DiscordClient> discordClients,
+            IReadOnlyDictionary<ulong, ChannelAlarmsManifest> alarms,
+            IReadOnlyDictionary<ulong, DiscordClient> discordClients,
             ConfigHolder config,
             IMapDataCache mapDataCache)
         {
@@ -39,7 +39,7 @@
             _discordClients = discordClients;
             _config = config;
             _mapDataCache = mapDataCache;
-            _logger.LogInformation($"Alarms {_alarms?.Keys?.Count:N0}");
+            _logger.LogInformation($"Alarms {_alarms?.Keys?.Count():N0}");
         }
 
         public void ProcessPokemonAlarms(PokemonData pokemon)

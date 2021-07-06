@@ -19,7 +19,7 @@
 
         List<Subscription> GetSubscriptionsByInvasion(string pokestopName, InvasionCharacter gruntType, List<uint> encounters);
 
-        List<Subscription> GetSubscriptionsByLure(PokestopLureType lure);
+        List<Subscription> GetSubscriptionsByLure(string pokestopName, PokestopLureType lure);
 
         List<Subscription> GetSubscriptionsByGymName(string name);
     }

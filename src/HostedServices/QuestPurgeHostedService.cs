@@ -19,7 +19,7 @@
         private readonly ILogger<QuestPurgeHostedService> _logger;
         private readonly ConfigHolder _config;
         private readonly Dictionary<string, MidnightTimer> _tzMidnightTimers;
-        private readonly Dictionary<ulong, DiscordClient> _discordClients;
+        private readonly IReadOnlyDictionary<ulong, DiscordClient> _discordClients;
 
         #endregion
 
@@ -28,11 +28,12 @@
         public QuestPurgeHostedService(
             ILogger<QuestPurgeHostedService> logger,
             ConfigHolder config,
-            Dictionary<ulong, DiscordClient> discordClients)
+            IReadOnlyDictionary<ulong, DiscordClient> discordClients)
         {
             _logger = logger;
             _config = config;
             _discordClients = discordClients;
+            _tzMidnightTimers = new Dictionary<string, MidnightTimer>();
         }
 
         #endregion
@@ -86,7 +87,7 @@
         public void Dispose()
         {
             _logger.LogDebug($"Disposing...");
-            _discordClients.Clear();
+            //_discordClients.Clear();
             _tzMidnightTimers.Clear();
         }
 
