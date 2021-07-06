@@ -6,6 +6,7 @@
     using Microsoft.Extensions.Logging;
 
     using WhMgr.Common;
+    using WhMgr.Configuration;
     using WhMgr.Extensions;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Cache;
@@ -18,6 +19,7 @@
     public class WebhookProcessorService : IWebhookProcessorService
     {
         private readonly ILogger<WebhookProcessorService> _logger;
+        private readonly ConfigHolder _config;
         private readonly IAlarmControllerService _alarmsService;
         private readonly ISubscriptionProcessorService _subscriptionService;
         private readonly IMapDataCache _mapDataCache;
@@ -41,11 +43,13 @@
 
         public WebhookProcessorService(
             ILogger<WebhookProcessorService> logger,
+            ConfigHolder config,
             IAlarmControllerService alarmsService,
             ISubscriptionProcessorService subscriptionService,
             IMapDataCache mapDataCache)
         {
             _logger = logger;
+            _config = config;
             _alarmsService = alarmsService;
             _subscriptionService = subscriptionService;
             _mapDataCache = mapDataCache;
@@ -56,6 +60,9 @@
             _processedPokestops = new Dictionary<string, ScannedPokestop>();
             _processedGyms = new Dictionary<string, ScannedGym>();
             _processedWeather = new Dictionary<long, WeatherCondition>();
+
+            CheckForDuplicates = _config.Instance.CheckForDuplicates;
+            DespawnTimerMinimumMinutes = _config.Instance.DespawnTimeMinimumMinutes;
 
             Start();
         }

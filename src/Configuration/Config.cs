@@ -116,7 +116,7 @@
         /// Gets or sets the minimum despawn time in minutes a Pokemon must have in order to send the alarm
         /// </summary>
         [JsonPropertyName("despawnTimeMinimumMinutes")]
-        public int DespawnTimeMinimumMinutes { get; set; }
+        public ushort DespawnTimeMinimumMinutes { get; set; }
 
         /// <summary>
         /// Gets or sets the interval in minutes to reload subscriptions to accomodate the UI changes

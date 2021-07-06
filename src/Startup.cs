@@ -35,10 +35,10 @@ namespace WhMgr
 
     // TODO: Database migrations
     // TODO: Subscription commands
-    // TODO: Shiny stats posting
     // TODO: IV stats posting
     // TODO: Reload alarms/configs/filters/geofences on change
     // TODO: Fix Pvp pokemon name not showing on Pokemon embed
+    // TODO: Twilio notifications
 
     public class Startup
     {
