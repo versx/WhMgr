@@ -49,7 +49,7 @@
 
         private void ProcessQueue()
         {
-            _logger.LogInformation($"SubscriptionProcessor::ProcessQueue");
+            _logger.LogTrace($"SubscriptionProcessor::ProcessQueue");
 
             new Thread(async () =>
             {

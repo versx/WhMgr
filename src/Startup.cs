@@ -33,6 +33,7 @@ namespace WhMgr
     using WhMgr.Services.Webhook;
     using WhMgr.Utilities;
 
+    // TODO: Database migrations
     // TODO: Subscriptions
     // TODO: Subscription commands
     // TODO: Shiny stats posting
@@ -76,6 +77,7 @@ namespace WhMgr
                 //servicesCol.AddSingleton(typeof(SubscriptionProcessor), _subProcessor ?? new SubscriptionProcessor(_servers, _whConfig, _whm));
             }
             var services = servicesCol.BuildServiceProvider();
+            // TODO: Fix await
             InitializeDiscord(services).ConfigureAwait(false)
                                        .GetAwaiter()
                                        .GetResult();

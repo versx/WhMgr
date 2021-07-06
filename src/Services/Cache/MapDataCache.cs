@@ -35,7 +35,7 @@
         /// <returns></returns>
         public async Task<PokestopData> GetPokestop(string id)
         {
-            if (string.IsNullOrEmpty(id) || id == "None")
+            if (string.IsNullOrEmpty(id) || string.Compare(id, "None", true) == 0)
             {
                 return null;
             }

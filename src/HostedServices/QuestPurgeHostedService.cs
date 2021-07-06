@@ -78,6 +78,7 @@
             {
                 _logger.LogInformation($"Stopping midnight timer for timezone {timezone}");
                 midnightTimer.Stop();
+                midnightTimer.Dispose();
             }
             return Task.CompletedTask;
         }

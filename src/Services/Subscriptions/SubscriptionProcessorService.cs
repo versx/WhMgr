@@ -19,6 +19,7 @@
     using WhMgr.Queues;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Filters;
+    using WhMgr.Services.Cache;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Subscriptions.Models;
     using WhMgr.Services.Webhook.Models;
@@ -30,19 +31,22 @@
         private readonly ConfigHolder _config;
         private readonly Dictionary<ulong, DiscordClient> _discordClients;
         private readonly ISubscriptionProcessorQueueService _queue;
+        private readonly IMapDataCache _mapDataCache;
 
         public SubscriptionProcessorService(
             ILogger<ISubscriptionProcessorService> logger,
             ISubscriptionManagerService subscriptionManager,
             ConfigHolder config,
             Dictionary<ulong, DiscordClient> discordClients,
-            ISubscriptionProcessorQueueService queue)
+            ISubscriptionProcessorQueueService queue,
+            IMapDataCache mapDataCache)
         {
             _logger = logger;
             _subscriptionManager = subscriptionManager;
             _config = config;
             _discordClients = discordClients;
             _queue = queue;
+            _mapDataCache = mapDataCache;
         }
 
         public async Task ProcessPokemonSubscription(PokemonData pokemon)
@@ -125,11 +129,15 @@
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
+                        if (pokemon.IV == "100%")
+                        {
+                            _logger.LogDebug($"Found 100% Pokemon: {pokemon.Id} ({pokemon.EncounterId})");
+                        }
                         matchesIV = Filters.MatchesIV(pokemon.IV, (uint)pkmnSub.MinimumIV, 100);
                         //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
                         matchesLvl = Filters.MatchesLvl(pokemon.Level, (uint)pkmnSub.MinimumLevel, (uint)pkmnSub.MaximumLevel);
                         matchesGender = Filters.MatchesGender(pokemon.Gender, pkmnSub.Gender);
-                        matchesIVList = pkmnSub.IVList?.Select(x => x.Replace("\r", null)).Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
+                        matchesIVList = pkmnSub.IVList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
 
                         if (!(
                             (!pkmnSub.HasStats && matchesIV && matchesLvl && matchesGender) ||
@@ -148,7 +156,7 @@
                         var geofence = GetGeofence(user.GuildId);
                         if (geofence == null)
                         {
-                            //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                            //_logger.LogWarning($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
                             continue;
                         }
 
@@ -169,6 +177,7 @@
                             Config = _config,
                             Alarm = null,
                             City = geofence.Name,
+                            MapDataCache = _mapDataCache,
                         });
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.Debug($"Took {end} to process Pokemon subscription for user {user.UserId}");

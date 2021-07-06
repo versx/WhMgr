@@ -151,7 +151,7 @@
 
             // Process pokemon alarms
             _alarmsService.ProcessPokemonAlarms(pokemon);
-            // TODO: _subscriptionService.ProcessPokemonSubscription(pokemon);
+            _subscriptionService.ProcessPokemonSubscription(pokemon);
         }
 
         private void ProcessRaid(dynamic message)
@@ -195,7 +195,7 @@
 
             // Process raid alarms
             _alarmsService.ProcessRaidAlarms(raid);
-            // TODO: _subscriptionService.ProcessRaidSubscription(raid);
+            _subscriptionService.ProcessRaidSubscription(raid);
         }
 
         private void ProcessQuest(dynamic message)
@@ -234,7 +234,7 @@
 
             // Process quest alarms
             _alarmsService.ProcessQuestAlarms(quest);
-            // TODO: _subscriptionService.ProcessQuestSubscription(quest);
+            _subscriptionService.ProcessQuestSubscription(quest);
         }
 
         private void ProcessPokestop(dynamic message)
@@ -279,8 +279,8 @@
             // Process pokestop alarms
             _alarmsService.ProcessPokestopAlarms(pokestop);
             // TODO: New threads
-            // TODO: _subscriptionService.ProcessInvasionSubscription(pokestop);
-            // TODO: _subscriptionService.ProcessLureSubscription(pokestop);
+            _subscriptionService.ProcessInvasionSubscription(pokestop);
+            _subscriptionService.ProcessLureSubscription(pokestop);
         }
 
         private void ProcessGym(dynamic message)

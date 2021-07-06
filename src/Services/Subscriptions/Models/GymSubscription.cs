@@ -21,7 +21,6 @@
         [
             JsonPropertyName("name"),
             Column("name"),
-            //Unique,
         ]
         public string Name { get; set; }
 
