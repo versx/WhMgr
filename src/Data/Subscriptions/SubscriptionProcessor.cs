@@ -290,8 +290,7 @@ namespace WhMgr.Data.Subscriptions
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
                     var pokemonSubscriptions = user.PvP.Where(x =>
-                        x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
+                        x.PokemonId.Contains(pkmn.Id) && (x.Forms?.Contains(form) ?? true)
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {

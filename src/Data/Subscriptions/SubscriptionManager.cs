@@ -135,7 +135,7 @@
             return _subscriptions?
                 .Where(x => x.IsEnabled(NotificationStatusType.PvP) &&
                             x.PvP != null &&
-                            x.PvP.Exists(y => y.PokemonId == pokeId)
+                            x.PvP.Exists(y => y.PokemonId.Contains(pokeId))
                       )
                 .ToList();
         }
