@@ -97,7 +97,7 @@
             return _subscriptions?
                 .Where(x => x.IsEnabled(NotificationStatusType.Raids) &&
                             x.Raids != null &&
-                            x.Raids.Any(y => y.PokemonId == pokemonId)
+                            x.Raids.Any(y => y.PokemonId.Contains(pokemonId))
                       )
                 .ToList();
         }

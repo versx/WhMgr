@@ -419,7 +419,8 @@
 
                     var form = Translator.Instance.GetFormName(raid.Form);
                     var subPkmn = user.Raids.FirstOrDefault(x =>
-                        x.PokemonId == raid.PokemonId &&
+                        x.PokemonId.Contains(raid.PokemonId) &&
+                        // TODO: Support multiple raid forms
                         (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
                     );
                     // Not subscribed to Pokemon

@@ -23,7 +23,7 @@
             Column("pokemon_id"),
             Required,
         ]
-        public uint PokemonId { get; set; } // TODO: Support multiple per subscription
+        public List<uint> PokemonId { get; set; }
 
         [
             JsonPropertyName("form"),

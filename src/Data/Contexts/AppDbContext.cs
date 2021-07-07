@@ -74,6 +74,11 @@
                             DbContextFactory.CreateValueComparer<string>());
 
             modelBuilder.Entity<RaidSubscription>()
+                        .Property(p => p.PokemonId)
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<uint>>(),
+                            DbContextFactory.CreateValueComparer<uint>());
+            modelBuilder.Entity<RaidSubscription>()
                         .Property(p => p.Areas)
                         .HasConversion(
                             DbContextFactory.CreateJsonValueConverter<List<string>>(),
