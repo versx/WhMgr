@@ -72,7 +72,7 @@
             CurrentCulture = new CultureInfo(DefaultLanguage);
             LocaleDirectory = Strings.LocaleFolder;
 
-            _map = LoadCountry(CurrentCulture.TwoLetterISOLanguageName);
+            //_map = LoadCountry(CurrentCulture.TwoLetterISOLanguageName);
         }
 
         /// <summary>

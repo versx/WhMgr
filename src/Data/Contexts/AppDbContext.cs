@@ -14,6 +14,10 @@
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
+            // Migrate to latest
+            //var createSql = Database.GenerateCreateScript();
+            //System.Console.WriteLine($"CreateSql: {createSql}");
+            base.Database.Migrate();
         }
 
         public DbSet<Subscription> Subscriptions { get; set; }

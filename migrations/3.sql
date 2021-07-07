@@ -1,5 +1,0 @@
-ALTER TABLE `pokemon` MODIFY COLUMN `city` longtext DEFAULT NULL;
-ALTER TABLE `pvp` MODIFY COLUMN `city` longtext DEFAULT NULL;
-ALTER TABLE `raids` MODIFY COLUMN `city` longtext DEFAULT NULL;
-ALTER TABLE `quests` MODIFY COLUMN `city` longtext DEFAULT NULL;
-ALTER TABLE `invasions` MODIFY COLUMN `city` longtext DEFAULT NULL;

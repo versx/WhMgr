@@ -1,5 +1,0 @@
-ALTER TABLE `quests`
-ADD COLUMN `pokestop_name` VARCHAR(255) DEFAULT NULL;
-
-ALTER TABLE `lures`
-ADD COLUMN `pokestop_name` VARCHAR(255) DEFAULT NULL;
