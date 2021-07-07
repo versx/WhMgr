@@ -13,10 +13,7 @@
         ]
         public DateTime Date { get; set; }
 
-        [
-            Column("pokemon_id"),
-            Key,
-        ]
+        [Column("pokemon_id")]
         public uint PokemonId { get; set; }
 
         [Column("count")]
