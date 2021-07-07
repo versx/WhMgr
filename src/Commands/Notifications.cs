@@ -1435,6 +1435,12 @@
 
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
+
+            var isAll = string.Compare(Strings.All, poke, true) == 0;
+            if (isAll)
+            {
+                poke = string.Join(",", PokemonValidation.GetListFromRange(1, _dep.WhConfig.MaxPokemonId));
+            }
             var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation == null || validation.Valid.Count == 0)
             {
@@ -1446,6 +1452,9 @@
                 return;
             }
 
+            var valid = string.Join(",", validation.Valid.Keys.ToList());
+            var forms = string.Join(",", validation.Valid.Values.ToList().Distinct());
+
             var areas = SubscriptionAreas.GetAreas(server, city);
             if (areas.Count == 0 && string.IsNullOrEmpty(subscription.Location))
             {
@@ -1453,7 +1462,8 @@
                 return;
             }
 
-            foreach (var (pokemonId, form) in validation.Valid)
+            /*
+            if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
             {
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 {
@@ -1464,30 +1474,33 @@
                     }), DiscordColor.Red);
                     continue;
                 }
+            }
+            */
 
-                var pokemon = MasterFile.Instance.Pokedex[pokemonId];
-                var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
-                var subPkmn = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId &&
-                                                                   (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
-                                                                   x.League == pvpLeague);
-                if (subPkmn == null)
+            //var pokemon = MasterFile.Instance.Pokedex[pokemonId];
+            //var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
+            var subPkmn = subscription.PvP.FirstOrDefault(x => x.PokemonIdString == valid &&
+                                                                x.FormsString == forms &&
+                                                                x.League == pvpLeague);
+            if (subPkmn == null)
+            {
+                //Does not exist, create.
+                subscription.PvP.Add(new PvPSubscription
                 {
-                    //Does not exist, create.
-                    subscription.PvP.Add(new PvPSubscription
-                    {
-                        GuildId = guildId,
-                        UserId = ctx.User.Id,
-                        PokemonId = pokemonId,
-                        Form = form,
-                        League = pvpLeague,
-                        MinimumRank = minimumRank,
-                        MinimumPercent = minimumPercent,
-                        Areas = areas
-                    });
-                    subscribed.Add(name);
-                    continue;
-                }
-
+                    GuildId = guildId,
+                    UserId = ctx.User.Id,
+                    PokemonIdString = valid,
+                    FormsString = forms,
+                    League = pvpLeague,
+                    MinimumRank = minimumRank,
+                    MinimumPercent = minimumPercent,
+                    Areas = areas
+                });
+                subscribed.Add(valid);
+                //continue;
+            }
+            else
+            {
                 //Exists, check if anything changed.
                 if (minimumRank != subPkmn.MinimumRank ||
                     minimumPercent != subPkmn.MinimumPercent ||
@@ -1502,12 +1515,8 @@
                             subPkmn.Areas.Add(area);
                         }
                     }
-                    subscribed.Add(name);
-                    continue;
+                    subscribed.Add(valid);
                 }
-
-                //Already subscribed to the same Pokemon and form
-                alreadySubscribed.Add(name);
             }
 
             var result = subscription.Save();
@@ -1518,7 +1527,6 @@
                 return;
             }
 
-            var isAll = string.Compare(Strings.All, poke, true) == 0;
             var isGen = false;
             for (var i = 1; i < 6; i++)
             {
@@ -1529,10 +1537,11 @@
                 }
             }
 
+            var pkmnNames = string.Join(", ", subscribed.Select(x => MasterFile.GetPokemon(uint.Parse(x), 0)?.Name));
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
-                    ? $"{ctx.User.Username} has subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", subscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of {minimumRank} or higher and a minimum ranking percentage of {minimumPercent}% and from the following areas: {(areas.Count == server.Geofences.Count ? Strings.All : string.Join(", ", areas))}."
+                    ? $"{ctx.User.Username} has subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", pkmnNames))}** notifications with a minimum {pvpLeague} League PvP ranking of {minimumRank} or higher and a minimum ranking percentage of {minimumPercent}% and from the following areas: {(areas.Count == server.Geofences.Count ? Strings.All : string.Join(", ", areas))}."
                     : string.Empty) +
                 (alreadySubscribed.Count > 0
                     ? $"\r\n{ctx.User.Username} is already subscribed to **{(isAll || isGen ? "All" : string.Join("**, **", alreadySubscribed))}** notifications with a minimum {pvpLeague} League PvP ranking of '{minimumRank}' or higher and a minimum ranking percentage of {minimumPercent}% and from the following areas: {(areas.Count == server.Geofences.Count ? Strings.All : string.Join(", ", areas))}."
@@ -1898,7 +1907,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var pvpAreas = await pvpInput.GetAreasResult(guildId);
 
                         var validPokemonNames = string.Join(", ", pvpPokemon.Valid.Keys);
-                        var pvpResult = await AddPvPSubscription(ctx, subscription, pvpPokemon, pvpLeague, pvpRank, pvpPercent, pvpAreas);
+                        var pvpResult = AddPvPSubscription(ctx, subscription, pvpPokemon, pvpLeague, pvpRank, pvpPercent, pvpAreas);
                         var subscribed = pvpResult.Key;
                         var alreadySubscribed = pvpResult.Value;
                         if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
@@ -2271,10 +2280,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             return new KeyValuePair<List<string>, List<string>>(subscribed, alreadySubscribed);
         }
 
-        private async Task<KeyValuePair<List<string>, List<string>>> AddPvPSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, PvPLeague league, int minRank, double minPercent, List<string> areas)
+        private KeyValuePair<List<string>, List<string>> AddPvPSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, PvPLeague league, int minRank, double minPercent, List<string> areas)
         {
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
+
             foreach (var (pokemonId, form) in validation.Valid)
             {
                 if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
@@ -2286,30 +2296,32 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     }), DiscordColor.Red);
                     continue;
                 }
+            }
 
-                var pokemon = MasterFile.Instance.Pokedex[pokemonId];
-                var name = string.IsNullOrEmpty(form) ? pokemon.Name : pokemon.Name + "-" + form;
-                var subPkmn = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId &&
-                                                                   (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) &&
-                                                                   x.League == league);
-                if (subPkmn == null)
+            var valid = string.Join(",", validation.Valid.Keys.ToList());
+            var forms = string.Join(",", validation.Valid.Values.ToList());
+
+            var subPkmn = subscription.PvP.FirstOrDefault(x => x.PokemonIdString == valid &&
+                                                               x.FormsString == forms &&
+                                                               x.League == league);
+            if (subPkmn == null)
+            {
+                //Does not exist, create.
+                subscription.PvP.Add(new PvPSubscription
                 {
-                    //Does not exist, create.
-                    subscription.PvP.Add(new PvPSubscription
-                    {
-                        GuildId = subscription.GuildId,
-                        UserId = ctx.User.Id,
-                        PokemonId = pokemonId,
-                        Form = form,
-                        League = league,
-                        MinimumRank = minRank,
-                        MinimumPercent = minPercent,
-                        Areas = areas
-                    });
-                    subscribed.Add(name);
-                    continue;
-                }
-
+                    GuildId = subscription.GuildId,
+                    UserId = ctx.User.Id,
+                    PokemonIdString = valid,
+                    FormsString = forms,
+                    League = league,
+                    MinimumRank = minRank,
+                    MinimumPercent = minPercent,
+                    Areas = areas
+                });
+                subscribed.Add(valid);
+            }
+            else
+            {
                 //Exists, check if anything changed.
                 if (minRank != subPkmn.MinimumRank ||
                     minPercent != subPkmn.MinimumPercent ||
@@ -2324,12 +2336,8 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                             subPkmn.Areas.Add(area);
                         }
                     }
-                    subscribed.Add(name);
-                    continue;
+                    subscribed.Add(valid);
                 }
-
-                //Already subscribed to the same Pokemon and form
-                alreadySubscribed.Add(name);
             }
 
             var result = subscription.Save();
@@ -2684,10 +2692,12 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
         private async Task RemovePvPSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, PvPLeague league, List<string> areas)
         {
             var error = false;
+            var valid = string.Join(",", validation.Valid.Keys.ToList());
+            var forms = string.Join(",", validation.Valid.Values.ToList());
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             foreach (var (pokemonId, form) in validation.Valid)
             {
-                var subPvP = subscription.PvP.FirstOrDefault(x => x.PokemonId == pokemonId && (string.IsNullOrEmpty(x.Form) || string.Compare(x.Form, form, true) == 0) && x.League == league);
+                var subPvP = subscription.PvP.FirstOrDefault(x => x.PokemonIdString == valid && x.FormsString == forms && x.League == league);
                 if (subPvP == null)
                     continue;
 
@@ -3348,7 +3358,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var list = new List<string>();
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, userId);
             var subscribedPvP = subscription.PvP;
-            subscribedPvP.Sort((x, y) => x.PokemonId.CompareTo(y.PokemonId));
+            subscribedPvP.Sort((x, y) => x.PokemonIdString.CompareTo(y.PokemonIdString));
 
             var defaultRank = 0;
             var defaultCount = 0;
@@ -3378,14 +3388,8 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 if (pvp.MinimumRank == defaultRank && exceedsLimits)
                     continue;
 
-                if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
-                    continue;
-
-                var pokemon = MasterFile.Instance.Pokedex[pvp.PokemonId];
-                if (pokemon == null)
-                    continue;
-
-                list.Add($"{pvp.PokemonId}: {pokemon.Name} {(string.IsNullOrEmpty(pvp.Form) ? string.Empty : $" {pvp.Form} ")}({pvp.League} Rank: 1-{pvp.MinimumRank} Percent: {pvp.MinimumPercent}%+)");
+                var pkmnNames = string.Join(", ", pvp.PokemonId.Select(x => MasterFile.GetPokemon(x, 0).Name));
+                list.Add($"{pkmnNames} {(string.IsNullOrEmpty(pvp.FormsString) ? string.Empty : $" {pvp.FormsString} ")}({pvp.League} Rank: 1-{pvp.MinimumRank} Percent: {pvp.MinimumPercent}%+)");
                 //var isAllCities = cityRoles.ScrambledEquals(poke.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
                 //sb.AppendLine(Translator.Instance.Translate("NOTIFY_FROM").FormatText(msg, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", poke.Areas)));
             }
