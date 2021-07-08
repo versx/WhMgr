@@ -1907,7 +1907,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var pvpAreas = await pvpInput.GetAreasResult(guildId);
 
                         var validPokemonNames = string.Join(", ", pvpPokemon.Valid.Keys);
-                        var pvpResult = AddPvPSubscription(ctx, subscription, pvpPokemon, pvpLeague, pvpRank, pvpPercent, pvpAreas);
+                        var pvpResult = await AddPvPSubscription(ctx, subscription, pvpPokemon, pvpLeague, pvpRank, pvpPercent, pvpAreas);
                         var subscribed = pvpResult.Key;
                         var alreadySubscribed = pvpResult.Value;
                         if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
@@ -2280,7 +2280,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             return new KeyValuePair<List<string>, List<string>>(subscribed, alreadySubscribed);
         }
 
-        private KeyValuePair<List<string>, List<string>> AddPvPSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, PvPLeague league, int minRank, double minPercent, List<string> areas)
+        private async Task<KeyValuePair<List<string>, List<string>>> AddPvPSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, PvPLeague league, int minRank, double minPercent, List<string> areas)
         {
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();

@@ -62,6 +62,7 @@
 
             // Set translation language
             Translator.Instance.SetLocale(_whConfig.Instance.Locale);
+            Translator.Instance.CreateLocaleFiles();
 
             // Set database connection strings to static properties so we can access within our extension classes
             DataAccessLayer.ConnectionString = _whConfig.Instance.Database.Main.ToString();
