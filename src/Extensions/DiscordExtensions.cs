@@ -528,7 +528,32 @@
             }
             return new DiscordColor(color);
         }
- 
+
         #endregion
+
+        public static async Task<bool> CanExecuteCommand(this CommandContext ctx, Config config)
+        {
+            if (!await ctx.IsDirectMessageSupported(config))
+                return false;
+
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.FirstOrDefault(x => config.Servers.ContainsKey(x.Key)).Key;
+            if (guildId == 0 || !config.Servers.ContainsKey(guildId))
+                return false;
+
+            if (!config.Servers[guildId].Subscriptions.Enabled)
+            {
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
+                return false;
+            }
+
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, config);
+            if (!isSupporter)
+            {
+                await ctx.DonateUnlockFeaturesMessage();
+                return false;
+            }
+
+            return true;
+        }
     }
 }

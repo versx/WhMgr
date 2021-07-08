@@ -24,6 +24,12 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<PokemonStatsIV>()
+                        .HasKey(p => new { p.Date, p.PokemonId });
+
+            modelBuilder.Entity<PokemonStatsShiny>()
+                        .HasKey(p => new { p.Date, p.PokemonId });
+
             base.OnModelCreating(modelBuilder);
         }
     }

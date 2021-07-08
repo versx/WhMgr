@@ -142,8 +142,13 @@
                             list[curPkmn.PokemonId].Total += pokemonIV.ContainsKey(curPkmn.PokemonId) ? Convert.ToInt32(pokemonIV[curPkmn.PokemonId].Count) : 0;
                         }
                     }
-                    // TODO: list.ForEach((x, y) => list[0].Shiny += y.Shiny);
-                    // TODO: list.ForEach((x, y) => list[0].Total += y.Total);
+                    list.Values.ToList().ForEach(x =>
+                    {
+                        list[0].Shiny += x.Shiny;
+                        list[0].Total += x.Total;
+                    });
+                    var test = list;
+                    Console.WriteLine($"Shiny list: {list}");
                 }
             }
             catch (Exception ex)
