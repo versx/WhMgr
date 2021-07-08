@@ -33,7 +33,6 @@ namespace WhMgr
     using WhMgr.Services.Webhook;
     using WhMgr.Utilities;
 
-    // TODO: Database migrations
     // TODO: Subscription commands
     // TODO: IV stats posting
     // TODO: Reload alarms/configs/filters/geofences on change
@@ -41,7 +40,6 @@ namespace WhMgr
     // TODO: Twilio notifications
     // TODO: HostedService webhook queue
     // TODO: HostedService subscription queue
-    // TODO: Translations
 
     public class Startup
     {

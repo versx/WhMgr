@@ -17,7 +17,7 @@ namespace WhMgr
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls("http://10.0.0.2:5000");
+                    webBuilder.UseUrls("http://*:5000");
                 });
     }
 }

@@ -15,7 +15,7 @@
     {
         public static DiscordClient CreateDiscordClient(DiscordServerConfig config, IServiceProvider services)
         {
-            // TODO: config.LoadDmAlerts();
+            config.LoadDmEmbed();
             var client = new DiscordClient(new DiscordConfiguration
             {
                 AutoReconnect = true,

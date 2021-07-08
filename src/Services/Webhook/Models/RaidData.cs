@@ -63,7 +63,7 @@
         [JsonPropertyName("ex_raid_eligible")]
         public bool IsExEligible { get; set; }
 
-        // TODO: Provide DTS options
+        // TODO: Provide DTS options for is_exclusive
         [JsonPropertyName("is_exclusive")]
         public bool IsExclusive { get; set; }
 

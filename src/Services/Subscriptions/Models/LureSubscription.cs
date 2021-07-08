@@ -32,12 +32,11 @@
             Column("lure_type"),
             Required,
         ]
-        public PokestopLureType LureType { get; set; } = PokestopLureType.None; // TODO: Fix string to int parse
+        public PokestopLureType LureType { get; set; } = PokestopLureType.None;
 
         [
             JsonPropertyName("city"),
             Column("city"),
-            //Required,
         ]
         public List<string> Areas { get; set; } = new();
 
