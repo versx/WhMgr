@@ -62,6 +62,14 @@
             );
             commands.RegisterCommands<Nests>();
             commands.RegisterCommands<ShinyStats>();
+            if (config.Subscriptions.Enabled)
+            {
+                commands.RegisterCommands<Subscriptions>();
+            }
+            if (config.GeofenceRoles?.Enabled ?? false)
+            {
+                commands.RegisterCommands<Feeds>();
+            }
             /*
             commands.CommandExecuted += Commands_CommandExecuted;
             commands.CommandErrored += Commands_CommandErrored;

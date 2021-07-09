@@ -74,7 +74,9 @@ namespace WhMgr
             // Build the dependency collection which will contain our objects that can be globally used within each command module
             var servicesCol = new ServiceCollection()
                 .AddSingleton(typeof(ConfigHolder), _config)
-                .AddSingleton(typeof(Osm.OsmManager), new Osm.OsmManager());
+                .AddSingleton(typeof(Osm.OsmManager), new Osm.OsmManager())
+                //.AddSingleton(typeof(ISubscriptionManagerService), new SubscriptionManagerService(null, null));
+                .AddSingleton<ILoggerFactory>(LoggerFactory.Create(configure => configure.AddConsole()));
             //.AddSingleton(typeof(StripeService), new StripeService(_whConfig.Instance.StripeApiKey))
             //if (_subProcessor != null)
             {

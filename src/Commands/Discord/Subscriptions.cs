@@ -11,15 +11,18 @@
     using WhMgr.Configuration;
     using WhMgr.Extensions;
     using WhMgr.Localization;
+    using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Subscriptions.Models;
 
-    public class Subscriptions
+    public class Subscriptions : BaseCommandModule
     {
         private readonly ConfigHolder _config;
+        //private readonly ISubscriptionManagerService _subscriptionManager;
 
-        public Subscriptions(ConfigHolder config)
+        public Subscriptions(ConfigHolder config)//, ISubscriptionManagerService subscriptionManager)
         {
             _config = config;
+            //_subscriptionManager = subscriptionManager;
         }
 
         [
@@ -72,10 +75,9 @@
         private async Task EnableDisableUserSubscriptions(CommandContext ctx, DiscordUser user, ulong guildId)
         {
             /*
-            var subscription = _subscriptionProcessor.Manager.GetUserSubscriptions(guildId, user.Id);
+            var subscription = await _subscriptionManager.GetUserSubscriptionsAsync(guildId, user.Id);
             if (subscription == null)
             {
-                await ctx.TriggerTypingAsync();
                 await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(user.Username), DiscordColor.Red);
                 return;
             }
@@ -83,32 +85,30 @@
 
             var commandPrefix = _config.Instance.Servers[guildId].Bot.CommandPrefix;
             var cmd = ctx.Message.Content.TrimStart(Convert.ToChar(commandPrefix), ' ');
-            /*
             var isEnableCommand = cmd.ToLower().Contains("enable");
+            /*
             subscription.Status = isEnableCommand
                 ? NotificationStatusType.All
                 : NotificationStatusType.None;
-            subscription.Update();
-            //subscription.Save();
-            */
-            await ctx.TriggerTypingAsync();
+            _subscriptionManager.Save(subscription);
             await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ENABLE_DISABLE").FormatText(new
             {
                 author = user.Username,
                 command = cmd,
             }));
 
-            // TODO: _subscriptionProcessor.Manager.ReloadSubscriptions();
+            await _subscriptionManager.ReloadSubscriptionsAsync();
+            */
         }
 
         private static ulong ConvertMentionToUserId(string mention)
         {
             //<@201909896357216256>
             //mention = Utils.GetBetween(mention, "<", ">");
-            mention = mention.Replace("<", null);
-            mention = mention.Replace(">", null);
-            mention = mention.Replace("@", null);
-            mention = mention.Replace("!", null);
+            mention = mention.Replace("<", null)
+                             .Replace(">", null)
+                             .Replace("@", null)
+                             .Replace("!", null);
 
             return ulong.TryParse(mention, out ulong result) ? result : 0;
         }

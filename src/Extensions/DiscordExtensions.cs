@@ -176,7 +176,7 @@
                 await ctx.TriggerTypingAsync();
             }
 
-            var message = Translator.Instance.Translate("DONATE_MESSAGE", ctx.User.Username) ??
+            var message = Translator.Instance.Translate("DONATE_MESSAGE", new { author = ctx.User.Username }) ??
                 $"{ctx.User.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
                 $"Donation information can be found by typing the `$donate` command.\r\n\r\n" +
                 $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
@@ -190,7 +190,7 @@
             //if (message?.Channel?.Guild == null)
             if (!exists)
             {
-                await ctx.Message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", ctx.Message.Author.Username), DiscordColor.Yellow);
+                await ctx.Message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", new { author = ctx.Message.Author.Username }), DiscordColor.Yellow);
                 return false;
             }
 

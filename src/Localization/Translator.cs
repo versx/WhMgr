@@ -36,13 +36,18 @@
                                  .Select(x => Path.GetFileName(x))
                                  .ToList();
             var pogoLocalesFiles = new List<string>();
-            if (Directory.Exists(_pogoLocalesFolder))
+            // If pogo-translation files folder does not exist, make it known
+            if (!Directory.Exists(_pogoLocalesFolder))
             {
-                pogoLocalesFiles = Directory.GetFiles(_pogoLocalesFolder, "*.json")
-                                            .Select(x => Path.GetFileName(x))
-                                            .ToList();
+                Console.WriteLine($"'pogo-translations' at '{_pogoLocalesFolder}' not installed, please run `npm install` at root of project.");
             }
 
+            // Get a list of pogo-translation files
+            pogoLocalesFiles = Directory.GetFiles(_pogoLocalesFolder, "*.json")
+                                        .Select(x => Path.GetFileName(x))
+                                        .ToList();
+
+            // Loop all local default translation files
             foreach (var file in files)
             {
                 // TODO: Filter by `_` prefix
@@ -52,11 +57,13 @@
 
                 Console.WriteLine($"Creating locale {locale}");
 
+                // Check if pogo-translations has local locale file
                 if (pogoLocalesFiles.Contains(localeFile))
                 {
                     Console.WriteLine($"Found pogo-translations for locale {locale}");
                     var pogoTranslations = File.ReadAllText(Path.Combine(_pogoLocalesFolder, localeFile));
                     translations = pogoTranslations.FromJson<Dictionary<string, string>>();
+                    // Loop translations and change to mustache syntax
                     foreach (var (key, value) in translations)
                     {
                         translations[key] = value.Replace("%", "{");
@@ -64,6 +71,8 @@
                     }
                 }
 
+                // If locale is not English, set english as default fallback
+                // incase desired language does not have translations
                 if (locale != "en")
                 {
                     // Include en as fallback first
@@ -74,9 +83,18 @@
                     translations = MergeDictionaries(translations, fallbackTranslations);
                 }
 
+                // Merge pogo-translations with local translations
                 var appTranslations = File.ReadAllText(Path.Combine(_appLocalesFolder, file));
                 translations = MergeDictionaries(translations, appTranslations.FromJson<Dictionary<string, string>>());
 
+                // Create bin locale folder if it does not exist
+                if (!Directory.Exists(_binLocalesFolder))
+                {
+                    Console.WriteLine($"Locales folder does not exist, creating it...");
+                    Directory.CreateDirectory(_binLocalesFolder);
+                }
+
+                // Write final translation file to bin locale folder
                 File.WriteAllText(
                     Path.Combine(_binLocalesFolder, localeFile),
                     translations.ToJson()

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Timers;
     using System.Threading.Tasks;
 
     using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,9 @@
         private readonly ILogger<ISubscriptionManagerService> _logger;
         private readonly IDbContextFactory<AppDbContext> _dbFactory;
         private List<Subscription> _subscriptions;
+        private readonly Timer _timer;
+
+        public IReadOnlyList<Subscription> Subscriptions => _subscriptions;
 
         public SubscriptionManagerService(
             ILogger<ISubscriptionManagerService> logger,
@@ -27,10 +31,15 @@
             _logger = logger;
             _dbFactory = dbFactory;
 
+            _timer = new Timer(60 * 1000); // every minute TODO: Use config value
+            _timer.Elapsed += async (sender, e) =>
+            {
+                await ReloadSubscriptionsAsync();
+            };
+            _timer.Start();
+
             // TODO: Fix
-            ReloadSubscriptions().ConfigureAwait(false)
-                                 .GetAwaiter()
-                                 .GetResult();
+            ReloadSubscriptionsAsync();
         }
 
         #region Get Subscriptions
@@ -69,6 +78,45 @@
                                                          //.Where(x => x.Status != NotificationStatusType.None)
                                                          .ToList();
                 return _subscriptions;
+            }
+        }
+
+        public async Task<Subscription> GetUserSubscriptionsAsync(ulong guildId, ulong userId)
+        {
+            using (var ctx = _dbFactory.CreateDbContext())
+            {
+                var subscription = await ctx.Subscriptions.FirstOrDefaultAsync(s => s.Status != NotificationStatusType.None
+                                                                                  && s.GuildId == guildId
+                                                                                  && s.UserId == userId);
+                    /*
+                                                         // Include Pokemon subscriptions
+                                                         .Include(s => s.Pokemon)
+                                                         //.ThenInclude(p => p.Subscription)
+                                                         // Include PvP subscriptions
+                                                         .Include(s => s.PvP)
+                                                         //.ThenInclude(p => p.Subscription)
+                                                         // Include Raid subscriptions
+                                                         .Include(s => s.Raids)
+                                                         //.ThenInclude(r => r.Subscription)
+                                                         // Include Quest subscriptions
+                                                         .Include(s => s.Quests)
+                                                         //.ThenInclude(q => q.Subscription)
+                                                         // Include Invasion subscriptions
+                                                         .Include(s => s.Invasions)
+                                                         //.ThenInclude(i => i.Subscription)
+                                                         // Include Lure subscriptions
+                                                         .Include(s => s.Lures)
+                                                         //.ThenInclude(l => l.Subscription)
+                                                         // Include Gym subscriptions
+                                                         .Include(s => s.Gyms)
+                                                         //.ThenInclude(g => g.Subscription)
+                                                         // Include Location subscriptions
+                                                         .Include(s => s.Locations)
+                                                         //.ThenInclude(l => l.Subscription)
+                                                         .ToListAsync()
+                                                         );
+                */
+                return subscription;
             }
         }
 
@@ -154,10 +202,15 @@
 
         #endregion
 
+        public bool Save(Subscription subscription)
+        {
+            return true;
+        }
+
         /// <summary>
         /// Reload all user subscriptions
         /// </summary>
-        public async Task ReloadSubscriptions()
+        public async Task ReloadSubscriptionsAsync()
         {
             // TODO: Only reload based on last_changed timestamp in metadata table
             var subs = await GetUserSubscriptions();
