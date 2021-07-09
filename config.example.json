@@ -44,35 +44,51 @@
   "staticMaps": {
     "pokemon": {
       "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
-      "template": "pokemon.example"
+      "template": "pokemon.example",
+      "includeGyms": false,
+      "includePokestops": false
     },
     "raids": {
       "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team_id={{team_id}}",
-      "template": "raids.example"
+      "template": "raids.example",
+      "includeGyms": false,
+      "includePokestops": false
     },
     "gyms": {
       "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team_id={{team_id}}",
-      "template": "gyms.example"
+      "template": "gyms.example",
+      "includeGyms": false,
+      "includePokestops": false
     },
     "quests": {
       "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
-      "template": "quests.example"
+      "template": "quests.example",
+      "includeGyms": false,
+      "includePokestops": false
     },
     "invasions": {
       "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
-      "template": "invasions.example"
+      "template": "invasions.example",
+      "includeGyms": false,
+      "includePokestops": false
     },
     "lures": {
       "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
-      "template": "lures.example"
+      "template": "lures.example",
+      "includeGyms": false,
+      "includePokestops": false
     },
     "weather": {
       "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&polygon={{polygon}}",
       "template": "weather.example",
+      "includeGyms": false,
+      "includePokestops": false
     },
     "nests": {
       "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&polygon={{polygon}}",
       "template": "nests.example",
+      "includeGyms": false,
+      "includePokestops": false
     }
   },
   "twilio": {

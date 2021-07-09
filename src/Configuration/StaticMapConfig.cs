@@ -9,5 +9,11 @@
 
         [JsonPropertyName("template")]
         public string TemplateName { get; set; }
+
+        [JsonPropertyName("includeGyms")]
+        public bool IncludeNearbyGyms { get; set; }
+
+        [JsonPropertyName("includePokestops")]
+        public bool IncludeNearbyPokestops { get; set; }
     }
 }

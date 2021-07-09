@@ -1,9 +1,11 @@
 ﻿namespace WhMgr.Utilities
 {
+    using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
     using WhMgr.Common;
     using WhMgr.Services;
+    using WhMgr.Services.Webhook.Models;
 
     public interface IStaticMapGenerator
     {
@@ -38,6 +40,10 @@
         public string PolygonPath { get; set; }
 
         public string SecondaryImageUrl { get; set; }
+
+        public List<dynamic> Gyms { get; set; } = new();
+
+        public List<dynamic> Pokestops { get; set; } = new();
     }
 
     public class StaticMapGenerator : IStaticMapGenerator
@@ -59,6 +65,8 @@
                 polygon = _options.PolygonPath,
                 template_name = _options.TemplateName,
                 url2 = _options.SecondaryImageUrl,
+                pokestops = _options.Pokestops,
+                gyms = _options.Gyms,
             };
 
             // Parse static map template string with values

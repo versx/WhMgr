@@ -216,21 +216,27 @@
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
+            var staticMapConfigType = HasInvasion
+                    ? StaticMapType.Invasions
+                    : HasLure
+                        ? StaticMapType.Lures
+                        : StaticMapType.Invasions; // TODO: Fix
+            var staticMapConfig = properties.Config.Instance.StaticMaps[staticMapConfigType];
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
-                BaseUrl = HasInvasion
-                    ? properties.Config.Instance.StaticMaps[StaticMapType.Invasions].Url
-                    : HasLure
-                        ? properties.Config.Instance.StaticMaps[StaticMapType.Lures].Url
-                        : string.Empty,
-                TemplateName = HasInvasion
-                    ? properties.Config.Instance.StaticMaps[StaticMapType.Invasions].TemplateName
-                    : HasLure
-                        ? properties.Config.Instance.StaticMaps[StaticMapType.Lures].TemplateName
-                        : string.Empty,
+                BaseUrl = staticMapConfig.Url,
+                TemplateName = staticMapConfig.TemplateName,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = imageUrl,
+                Gyms = staticMapConfig.IncludeNearbyGyms
+                    // Fetch nearby gyms from MapDataCache
+                    ? properties.MapDataCache.GetGymsNearby(Latitude, Longitude)
+                    : new List<dynamic>(),
+                Pokestops = staticMapConfig.IncludeNearbyPokestops
+                    // Fetch nearby pokestops from MapDataCache
+                    ? properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude)
+                    : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
             var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);

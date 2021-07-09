@@ -128,13 +128,22 @@
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
+            var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Quests];
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
-                BaseUrl = properties.Config.Instance.StaticMaps[StaticMapType.Quests].Url,
-                TemplateName = properties.Config.Instance.StaticMaps[StaticMapType.Quests].TemplateName,
+                BaseUrl = staticMapConfig.Url,
+                TemplateName = staticMapConfig.TemplateName,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = properties.ImageUrl,
+                Gyms = staticMapConfig.IncludeNearbyGyms
+                    // Fetch nearby gyms from MapDataCache
+                    ? properties.MapDataCache.GetGymsNearby(Latitude, Longitude)
+                    : new List<dynamic>(),
+                Pokestops = staticMapConfig.IncludeNearbyPokestops
+                    // Fetch nearby gyms from MapDataCache
+                    ? properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude)
+                    : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
             var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);

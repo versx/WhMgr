@@ -1,13 +1,18 @@
 ﻿namespace WhMgr.Services.Cache
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
 
     using WhMgr.Data.Contexts;
+    using WhMgr.Extensions;
+    using WhMgr.Services.Geofence;
     using WhMgr.Services.Webhook.Models;
+    using WhMgr.Utilities;
 
     public class MapDataCache : IMapDataCache
     {
@@ -159,6 +164,60 @@
                 _gyms = await ctx.Gyms.ToDictionaryAsync(key => key.GymId, value => value);
                 _weather = await ctx.Weather.ToDictionaryAsync(key => key.Id, value => value);
             }
+        }
+
+        public List<dynamic> GetPokestopsNearby(double latitude, double longitude, double radiusM = 100)
+        {
+            if (_pokestops == null)
+            {
+                LoadMapData(); // TODO: Await
+            }
+
+            var nearby = _pokestops.Values.Where(stop =>
+            {
+                var stopCoord = new Coordinate(stop.Latitude, stop.Longitude);
+                var mapCoord = new Coordinate(latitude, longitude);
+                var distance = stopCoord.DistanceTo(mapCoord);
+                var isWithinRadius = distance <= radiusM;
+                return isWithinRadius;
+            }).Select(x => new
+            {
+                id = x.PokestopId,
+                lat = x.Latitude,
+                lon = x.Longitude,
+                lure_id = Convert.ToInt32(x.LureType),
+                lure = x.LureType,
+                marker = x.HasInvasion
+                    ? IconFetcher.Instance.GetInvasionIcon("Default", x.GruntType)
+                    : IconFetcher.Instance.GetLureIcon("Default", x.LureType), // TODO: Get icon style
+            }).ToList<dynamic>();
+            return nearby;
+        }
+
+        public List<dynamic> GetGymsNearby(double latitude, double longitude, double radiusM = 100)
+        {
+            if (_gyms == null)
+            {
+                LoadMapData(); // TODO: Await
+            }
+
+            var nearby = _gyms.Values.Where(gym =>
+            {
+                var gymCoord = new Coordinate(gym.Latitude, gym.Longitude);
+                var mapCoord = new Coordinate(latitude, longitude);
+                var distance = gymCoord.DistanceTo(mapCoord);
+                var isWithinRadius = distance <= radiusM;
+                return isWithinRadius;
+            }).Select(x => new
+            {
+                id = x.GymId,
+                lat = x.Latitude,
+                lon = x.Longitude,
+                team_id = Convert.ToInt32(x.Team),
+                team = x.Team,
+                marker = IconFetcher.Instance.GetGymIcon("Default", x.Team), // TODO: Get icon style
+            }).ToList<dynamic>();
+            return nearby;
         }
     }
 }

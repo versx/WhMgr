@@ -152,14 +152,24 @@
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
             var gymImageUrl = IconFetcher.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);// $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
+
+            var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Gyms];
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
-                BaseUrl = properties.Config.Instance.StaticMaps[StaticMapType.Gyms].Url,
-                TemplateName = properties.Config.Instance.StaticMaps[StaticMapType.Gyms].TemplateName,
+                BaseUrl = staticMapConfig.Url,
+                TemplateName = staticMapConfig.TemplateName,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 Team = Team,
                 SecondaryImageUrl = gymImageUrl,
+                Gyms = staticMapConfig.IncludeNearbyGyms
+                    // Fetch nearby gyms from MapDataCache
+                    ? properties.MapDataCache.GetGymsNearby(Latitude, Longitude)
+                    : new List<dynamic>(),
+                Pokestops = staticMapConfig.IncludeNearbyPokestops
+                    // Fetch nearby pokestops from MapDataCache
+                    ? properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude)
+                    : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
             var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);

@@ -1,12 +1,17 @@
 ﻿namespace WhMgr.Services.Cache
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
 
     using WhMgr.Services.Webhook.Models;
 
     public interface IMapDataCache
     {
+        List<dynamic> GetPokestopsNearby(double latitude, double longitude, double radiusM = 500);
+
         Task<PokestopData> GetPokestop(string id);
+
+        List<dynamic> GetGymsNearby(double latitude, double longitude, double radiusM = 500);
 
         Task<GymDetailsData> GetGym(string id);
 
