@@ -1,5 +1,6 @@
 ﻿namespace WhMgr.Test
 {
+    /*
     using NUnit.Framework;
 
     [TestFixture]
@@ -21,4 +22,5 @@
             Assert.IsTrue(string.Compare(config?.ToString(), args[3], true) == 0);
         }
     }
+    */
 }

@@ -40,6 +40,8 @@
             if (!Directory.Exists(_pogoLocalesFolder))
             {
                 Console.WriteLine($"'pogo-translations' at '{_pogoLocalesFolder}' not installed, please run `npm install` at root of project.");
+                Environment.Exit(-1);
+                return;
             }
 
             // Get a list of pogo-translation files
