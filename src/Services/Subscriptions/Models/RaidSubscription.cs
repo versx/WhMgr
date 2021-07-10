@@ -1,8 +1,10 @@
 ﻿namespace WhMgr.Services.Subscriptions.Models
 {
+    using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
+    using System.Linq;
     using System.Text.Json.Serialization;
 
     [Table("raids")]
@@ -26,10 +28,16 @@
         public List<uint> PokemonId { get; set; }
 
         [
+            JsonIgnore,
+            NotMapped,
+        ]
+        public List<string> Forms => FormsString?.Split(',').ToList();
+
+        [
             JsonPropertyName("form"),
             Column("form"),
         ]
-        public string Form { get; set; }
+        public string FormsString { get; set; }
 
         [
             JsonPropertyName("city"),

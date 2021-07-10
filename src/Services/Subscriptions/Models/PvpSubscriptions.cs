@@ -5,6 +5,7 @@
     using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
+    using System.Linq;
     using System.Text.Json.Serialization;
 
     using WhMgr.Common;
@@ -30,10 +31,16 @@
         public List<uint> PokemonId { get; set; }
 
         [
+            JsonIgnore,
+            NotMapped,
+        ]
+        public List<string> Forms => FormsString?.Split(',').ToList();
+
+        [
             JsonPropertyName("form"),
             Column("form"),
         ]
-        public string Form { get; set; }
+        public string FormsString { get; set; }
 
         [
             JsonPropertyName("league"),
@@ -70,7 +77,7 @@
 
         public PvpSubscription()
         {
-            Form = null;
+            FormsString = null;
             League = PvpLeague.Great;
             MinimumRank = 25;
             MinimumPercent = 95;

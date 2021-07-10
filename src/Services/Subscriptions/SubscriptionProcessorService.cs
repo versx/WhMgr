@@ -282,9 +282,7 @@
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
                     var pokemonSubscriptions = user.PvP.Where(x =>
-                        x.PokemonId.Contains(pokemon.Id) &&
-                        // TODO: Allow multiple forms
-                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
+                        x.PokemonId.Contains(pokemon.Id) && (x.Forms?.Contains(form) ?? true)
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
@@ -420,9 +418,7 @@
 
                     var form = Translator.Instance.GetFormName(raid.Form);
                     var subPkmn = user.Raids.FirstOrDefault(x =>
-                        x.PokemonId.Contains(raid.PokemonId) &&
-                        // TODO: Support multiple raid forms
-                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
+                        x.PokemonId.Contains(raid.PokemonId) && (x.Forms?.Contains(form) ?? true)
                     );
                     // Not subscribed to Pokemon
                     if (subPkmn == null)
