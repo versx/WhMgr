@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
     using DSharpPlus.CommandsNext;
@@ -105,11 +106,8 @@
         {
             //<@201909896357216256>
             //mention = Utils.GetBetween(mention, "<", ">");
-            mention = mention.Replace("<", null)
-                             .Replace(">", null)
-                             .Replace("@", null)
-                             .Replace("!", null);
-
+            var pattern = new Regex("[<>@! ]");
+            mention = pattern.Replace(mention, "");
             return ulong.TryParse(mention, out ulong result) ? result : 0;
         }
     }
