@@ -146,8 +146,8 @@
                 return null;
 
             var form = Translate("form_" + formId);
-            // TODO: Localize
-            if (!includeNormal && string.Compare(form, "Normal", true) == 0)
+            var normal = Translate("NORMAL");
+            if (!includeNormal && string.Compare(form, normal, true) == 0)
                 return string.Empty;
             return form;
         }
@@ -173,7 +173,7 @@
         public string GetMoveName(uint moveId)
         {
             if (moveId == 0)
-                return "Unknown"; // TODO: Localize
+                return Translate("UNKNOWN");
 
             return Translate($"move_{moveId}");
         }

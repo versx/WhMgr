@@ -142,5 +142,7 @@
     "TIME_MINUTES": "minutes",
     "TIME_SECONDS": "seconds",
     "TIME_YEARS": "years",
-    "UNKNOWN_POKESTOP": "Unknown Pokestop"
+    "UNKNOWN_POKESTOP": "Unknown Pokestop",
+    "NORMAL": Normal",
+    "UNKNOWN": "Unknown"
 }
