@@ -1,5 +1,6 @@
 ﻿namespace WhMgr.Data.Subscriptions.Models
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text.Json.Serialization;
@@ -24,17 +25,45 @@
         public int SubscriptionId { get; set; }
 
         [
+            JsonIgnore,
+            Ignore,
+        ]
+        public List<uint> PokemonId
+        {
+            get
+            {
+                try
+                {
+                    return PokemonIdString?.Split(',')?
+                                           .Select(x => uint.Parse(x))
+                                           .ToList();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Error] Failed to parse pokemon id string: {ex}");
+                }
+                return new List<uint>();
+            }
+        }
+
+        [
             JsonPropertyName("pokemon_id"),
             Alias("pokemon_id"),
-            Required
+            Required,
         ]
-        public int PokemonId { get; set; }
+        public string PokemonIdString { get; set; }
+
+        [
+            JsonIgnore,
+            Ignore,
+        ]
+        public List<string> Forms => FormsString?.Split(',').ToList();
 
         [
             JsonPropertyName("form"),
             Alias("form"),
         ]
-        public string Form { get; set; }
+        public string FormsString { get; set; }
 
         [
             JsonPropertyName("min_cp"),
@@ -115,7 +144,7 @@
             MaximumLevel = 35;
             Gender = "*";
             _Size = (uint)PokemonSize.All;
-            Form = null;
+            FormsString = null;
             Areas = new List<string>();
             IVList = new List<string>();
         }

@@ -37,7 +37,7 @@
             Alias("latitude"),
             Default(0),
         ]
-        public double Longitude { get; set; }
+        public double Latitude { get; set; }
 
         /// <summary>
         /// Gets or sets the longitude to use with distance checks
@@ -47,6 +47,6 @@
             Alias("longitude"),
             Default(0),
         ]
-        public double Latitude { get; set; }
+        public double Longitude { get; set; }
     }
 }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text.Json.Serialization;
 
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
@@ -33,10 +34,18 @@
         public InvasionCharacter InvasionType { get; set; }
 
         [
+            JsonIgnore,
+            Ignore,
+        ]
+        public List<uint> RewardPokemonId => RewardPokemonIdString?.Split(',')?
+                                                                   .Select(x => uint.Parse(x))
+                                                                   .ToList();
+
+        [
             JsonPropertyName("reward_pokemon_id"),
             Alias("reward_pokemon_id"),
         ]
-        public int RewardPokemonId { get; set; }
+        public string RewardPokemonIdString { get; set; }
 
         [
             JsonPropertyName("city"),
