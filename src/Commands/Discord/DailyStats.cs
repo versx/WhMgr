@@ -228,7 +228,7 @@
                 {
                     ctx.Database.SetCommandTimeout(TimeSpan.FromSeconds(30)); // 30 seconds timeout
                     var yesterday = Convert.ToInt64(Math.Round(DateTime.UtcNow.Subtract(TimeSpan.FromHours(24)).GetUnixTimestamp()));
-                    // TODO: Checks within last 24 hours and 100% IV (or use statistics cache?)
+                    // Checks within last 24 hours and 100% IV (or use statistics cache?)
                     var pokemon = ctx.Pokemon
                         .Where(x =>
                             x.Attack != null && x.Defense != null && x.Stamina != null

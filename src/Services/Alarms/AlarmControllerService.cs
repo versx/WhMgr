@@ -64,7 +64,6 @@
                 for (var i = 0; i < pokemonAlarms.Count; i++)
                 {
                     var alarm = pokemonAlarms[i];
-                    // TODO: Allow for multiple geofences to be returned
                     var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokemon.Latitude, pokemon.Longitude));
                     if (geofences == null)
                     {

@@ -159,7 +159,12 @@
                     return Translator.Instance.Translate(rewardKey, info.Amount);
                 case QuestRewardType.MegaResource:
                     return Translator.Instance.Translate(rewardKey, info.PokemonId, info.Amount);
-                case QuestRewardType.XlCandy: // TODO: By PokemonId?
+                case QuestRewardType.XlCandy:
+                    if (info.PokemonId > 0)
+                    {
+                        // TODO: Quest.Reward.XlCandy  by PokemonId
+                        return null;
+                    }
                     return Translator.Instance.Translate(rewardKey, info.Amount);
                 case QuestRewardType.Sticker:
                     return Translator.Instance.Translate(rewardKey, info.StickerId, info.Amount);

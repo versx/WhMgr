@@ -572,7 +572,6 @@
                 is_pvp = MatchesGreatLeague || MatchesUltraLeague,
                 great_league_emoji = greatLeagueEmoji,
                 ultra_league_emoji = ultraLeagueEmoji,
-                pvp_stats = GetPvP(),
                 great_league = GetLeagueRanks(PvpLeague.Great),
                 ultra_league = GetLeagueRanks(PvpLeague.Ultra),
 
@@ -636,18 +635,6 @@
 
         #region PvP
 
-        private string GetPvP()
-        {
-            var great = GetGreatLeague();
-            var ultra = GetUltraLeague();
-            if (!string.IsNullOrEmpty(great) || !string.IsNullOrEmpty(ultra))
-            {
-                var header = "__**PvP Rank Statistics**__\r\n";
-                return header + great + ultra;
-            }
-            return null;
-        }
-
         private List<PvpRankData> GetLeagueRanks(PvpLeague league)
         {
             var list = new List<PvpRankData>();
@@ -678,7 +665,7 @@
                 {
                     var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
                     var form = Translator.Instance.GetFormName(pvp.FormId);
-                    var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
+                    var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})";
                     pvp.Percentage = Math.Round(pvp.Percentage.Value * 100, 2);
                     pvp.PokemonName = pkmnName;
                     list.Add(pvp);
@@ -687,84 +674,6 @@
             }
             list.Sort((a, b) => a.Rank.Value.CompareTo(b.Rank.Value));
             return list;
-        }
-
-        private string GetGreatLeague()
-        {
-            var sb = new StringBuilder();
-            if (GreatLeague != null)
-            {
-                var rankText = Translator.Instance.Translate("PVP_RANK");
-                var cpText = Translator.Instance.Translate("PVP_CP");
-                for (var i = 0; i < GreatLeague.Count; i++)
-                {
-                    var pvp = GreatLeague[i];
-                    var withinCpRange = pvp.CP >= Strings.MinimumGreatLeagueCP && pvp.CP <= Strings.MaximumGreatLeagueCP;
-                    var withinRankRange = pvp.Rank <= Strings.MaximumLeagueRank;
-                    if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
-                        continue;
-
-                    if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
-                    {
-                        Console.WriteLine($"Pokemon database doesn't contain pokemon id {pvp.PokemonId}");
-                        continue;
-                    }
-                    var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
-                    var form = Translator.Instance.GetFormName(pvp.FormId);
-                    var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
-                    if (pvp.Rank.HasValue && pvp.Rank.Value <= Strings.MaximumLeagueRank && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumGreatLeagueCP)
-                    {
-                        sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
-                    }
-                }
-            }
-            var result = sb.ToString();
-            if (!string.IsNullOrEmpty(result))
-            {
-                var greatLeagueText = Translator.Instance.Translate("PVP_GREAT_LEAGUE");
-                var greatLeagueEmoji = PvpLeague.Great.GetEmojiIcon("league", true);
-                result = greatLeagueEmoji + $" **{greatLeagueText}:**\r\n" + result;
-            }
-            return result;
-        }
-
-        private string GetUltraLeague()
-        {
-            var sb = new StringBuilder();
-            if (UltraLeague != null)
-            {
-                var rankText = Translator.Instance.Translate("PVP_RANK");
-                var cpText = Translator.Instance.Translate("PVP_CP");
-                for (var i = 0; i < UltraLeague.Count; i++)
-                {
-                    var pvp = UltraLeague[i];
-                    var withinCpRange = pvp.CP >= Strings.MinimumUltraLeagueCP && pvp.CP <= Strings.MaximumUltraLeagueCP;
-                    var withinRankRange = pvp.Rank <= Strings.MaximumLeagueRank;
-                    if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
-                        continue;
-
-                    if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
-                    {
-                        Console.WriteLine($"Pokemon database doesn't contain pokemon id {pvp.PokemonId}");
-                        continue;
-                    }
-                    var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
-                    var form = Translator.Instance.GetFormName(pvp.FormId);
-                    var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})"; // TODO: Localize `Normal` text
-                    if (pvp.Rank.HasValue && pvp.Rank.Value <= Strings.MaximumLeagueRank && pvp.Percentage.HasValue && pvp.Level.HasValue && pvp.CP.HasValue && pvp.CP <= Strings.MaximumUltraLeagueCP)
-                    {
-                        sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
-                    }
-                }
-            }
-            var result = sb.ToString();
-            if (!string.IsNullOrEmpty(result))
-            {
-                var ultraLeagueText = Translator.Instance.Translate("PVP_ULTRA_LEAGUE");
-                var ultraLeagueEmoji = PvpLeague.Ultra.GetEmojiIcon("league", true);
-                result = ultraLeagueEmoji + $" **{ultraLeagueText}:**\r\n" + result;
-            }
-            return result;
         }
 
         private static DiscordColor GetPvPColor(List<PvpRankData> greatLeague, List<PvpRankData> ultraLeague, DiscordEmbedColorsConfig config)

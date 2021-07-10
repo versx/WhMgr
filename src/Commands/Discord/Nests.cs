@@ -102,7 +102,7 @@
                         var pkmn = MasterFile.GetPokemon(nest.PokemonId, 0);
                         var pkmnName = Translator.Instance.GetPokemonName(pkmn.PokedexId);
                         var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
-                        // TODO: Check if possible shiny
+                        // TODO: Check if possible shiny (emoji)
                         message += $"[**{nest.Name}**]({gmapsLink}): {pkmnName} (#{nest.PokemonId}) {nest.Average:N0} per hour\n";
                         if (message.Length >= Strings.DiscordMaximumMessageLength)
                         {
@@ -277,7 +277,7 @@
                 );
                 if (geofence == null)
                 {
-                    // TODO: _logger.Warn($"Failed to find geofence for nest {nest.Name}.");
+                    // _logger.LogWarn($"Failed to find geofence for nest {nest.Name}.");
                     continue;
                 }
                 var geofenceName = geofence.Name;
