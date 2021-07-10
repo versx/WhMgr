@@ -4,6 +4,8 @@
 
     public interface ISubscriptionProcessorQueueService
     {
+        uint QueueLength { get; }
+
         void Add(NotificationItem item);
     }
 }

@@ -24,6 +24,9 @@
         private readonly NotificationQueue _queue;
         private readonly IReadOnlyDictionary<ulong, DiscordClient> _discordClients;
 
+        // TODO: Use QueueLength with health checks
+        public uint QueueLength => (uint)_queue?.Count;
+
         public SubscriptionProcessorQueueService(
             ILogger<ISubscriptionProcessorQueueService> logger,
             ConfigHolder config,
