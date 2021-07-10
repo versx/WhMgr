@@ -32,6 +32,7 @@
         private readonly IReadOnlyDictionary<ulong, DiscordClient> _discordClients;
         private readonly ISubscriptionProcessorQueueService _queue;
         private readonly IMapDataCache _mapDataCache;
+        private readonly IStaticsticsService _statsService;
 
         public SubscriptionProcessorService(
             ILogger<ISubscriptionProcessorService> logger,
@@ -39,7 +40,8 @@
             ConfigHolder config,
             IReadOnlyDictionary<ulong, DiscordClient> discordClients,
             ISubscriptionProcessorQueueService queue,
-            IMapDataCache mapDataCache)
+            IMapDataCache mapDataCache,
+            IStaticsticsService statsService)
         {
             _logger = logger;
             _subscriptionManager = subscriptionManager;
@@ -47,6 +49,7 @@
             _discordClients = discordClients;
             _queue = queue;
             _mapDataCache = mapDataCache;
+            _statsService = statsService;
         }
 
         public async Task ProcessPokemonSubscription(PokemonData pokemon)
@@ -65,7 +68,6 @@
                     geofence = GeofenceService.GetGeofence(geofences, new Coordinate(pokemon.Latitude, pokemon.Longitude));
                     locationCache.Add(guildId, geofence);
                 }
-
                 return geofence;
             }
 
@@ -189,7 +191,7 @@
                             Pokemon = pokemon,
                         }));
 
-                        // TODO: Statistics.Instance.SubscriptionPokemonSent++;
+                        _statsService.TotalPokemonSubscriptionsSent++;
                         Thread.Sleep(5);
                     }
                 }
@@ -223,7 +225,6 @@
                     geofence = GeofenceService.GetGeofence(geofences, new Coordinate(pokemon.Latitude, pokemon.Longitude));
                     locationCache.Add(guildId, geofence);
                 }
-
                 return geofence;
             }
 
@@ -335,7 +336,7 @@
                             City = geofence.Name,
                         }));
 
-                        // TODO: Statistics.Instance.SubscriptionPokemonSent++;
+                        _statsService.TotalPvpSubscriptionsSent++;
                         Thread.Sleep(5);
                     }
                 }
@@ -369,7 +370,6 @@
                     geofence = GeofenceService.GetGeofence(geofences, new Coordinate(raid.Latitude, raid.Longitude));
                     locationCache.Add(guildId, geofence);
                 }
-
                 return geofence;
             }
 
@@ -463,7 +463,7 @@
                         City = geofence.Name
                     }));
 
-                    // TODO: Statistics.Instance.SubscriptionRaidsSent++;
+                    // TODO: _statsService.SubscriptionRaidsSent++;
                     Thread.Sleep(5);
                 }
                 catch (Exception ex)
@@ -495,7 +495,6 @@
                     geofence = GeofenceService.GetGeofence(geofences, new Coordinate(quest.Latitude, quest.Longitude));
                     locationCache.Add(guildId, geofence);
                 }
-
                 return geofence;
             }
 
@@ -587,7 +586,7 @@
                         City = geofence.Name,
                     }));
 
-                    // TODO: Statistics.Instance.SubscriptionQuestsSent++;
+                    _statsService.TotalQuestSubscriptionsSent++;
                     Thread.Sleep(5);
                 }
                 catch (Exception ex)
@@ -615,7 +614,6 @@
                     geofence = GeofenceService.GetGeofence(geofences, new Coordinate(pokestop.Latitude, pokestop.Longitude));
                     locationCache.Add(guildId, geofence);
                 }
-
                 return geofence;
             }
 
@@ -706,7 +704,7 @@
                         City = geofence?.Name,
                     });
                     //var end = DateTime.Now.Subtract(start);
-                    //_logger.Debug($"Took {end} to process invasion subscription for user {user.UserId}");
+                    //_logger.LogDebug($"Took {end} to process invasion subscription for user {user.UserId}");
                     embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
@@ -716,7 +714,7 @@
                         City = geofence.Name,
                     }));
 
-                    // TODO: Statistics.Instance.SubscriptionInvasionsSent++;
+                    _statsService.TotalInvasionSubscriptionsSent++;
                     Thread.Sleep(5);
                 }
                 catch (Exception ex)
@@ -744,7 +742,6 @@
                     geofence = GeofenceService.GetGeofence(geofences, new Coordinate(pokestop.Latitude, pokestop.Longitude));
                     locationCache.Add(guildId, geofence);
                 }
-
                 return geofence;
             }
 
@@ -834,7 +831,7 @@
                         City = geofence.Name,
                     }));
 
-                    // TODO: Statistics.Instance.SubscriptionLuresSent++;
+                    _statsService.TotalLureSubscriptionsSent++;
                     Thread.Sleep(5);
                 }
                 catch (Exception ex)
@@ -862,7 +859,6 @@
                     geofence = GeofenceService.GetGeofence(geofences, new Coordinate(raid.Latitude, raid.Longitude));
                     locationCache.Add(guildId, geofence);
                 }
-
                 return geofence;
             }
 
@@ -956,7 +952,7 @@
                         City = geofence.Name,
                     }));
 
-                    // TODO: Statistics.Instance.SubscriptionRaidsSent++;
+                    _statsService.TotalGymSubscriptionsSent++;
                     Thread.Sleep(5);
                 }
                 catch (Exception ex)

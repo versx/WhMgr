@@ -24,6 +24,7 @@ namespace WhMgr
     using WhMgr.Data.Contexts;
     using WhMgr.HostedServices;
     using WhMgr.Queues;
+    using WhMgr.Services;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Models;
     using WhMgr.Services.Cache;
@@ -103,6 +104,7 @@ namespace WhMgr
             services.AddSingleton<IReadOnlyDictionary<ulong, ChannelAlarmsManifest>>(_alarms);
             services.AddSingleton<IReadOnlyDictionary<ulong, DiscordClient>>(_discordClients);
             services.AddSingleton<IMapDataCache, MapDataCache>();
+            services.AddSingleton<IStaticsticsService, StatisticsService>();
 
             services.AddHostedService<QuestPurgeHostedService>();
 

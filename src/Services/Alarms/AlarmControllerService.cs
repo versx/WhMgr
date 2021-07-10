@@ -26,19 +26,22 @@
         private readonly IReadOnlyDictionary<ulong, DiscordClient> _discordClients;
         private readonly ConfigHolder _config;
         private readonly IMapDataCache _mapDataCache;
+        private readonly IStaticsticsService _statsService;
 
         public AlarmControllerService(
             ILogger<AlarmControllerService> logger,
             IReadOnlyDictionary<ulong, ChannelAlarmsManifest> alarms,
             IReadOnlyDictionary<ulong, DiscordClient> discordClients,
             ConfigHolder config,
-            IMapDataCache mapDataCache)
+            IMapDataCache mapDataCache,
+            IStaticsticsService statsService)
         {
             _logger = logger;
             _alarms = alarms;
             _discordClients = discordClients;
             _config = config;
             _mapDataCache = mapDataCache;
+            _statsService = statsService;
             _logger.LogInformation($"Alarms {_alarms?.Keys?.Count():N0}");
         }
 
@@ -47,13 +50,11 @@
             if (pokemon == null)
                 return;
 
-            /*
-            TODO: Statistics.Instance.TotalReceivedPokemon++;
+            _statsService.TotalPokemonReceived++;
             if (pokemon.IsMissingStats)
-                Statistics.Instance.TotalReceivedPokemonMissingStats++;
+                _statsService.TotalPokemonMissingStatsReceived++;
             else
-                Statistics.Instance.TotalReceivedPokemonWithStats++;
-            */
+                _statsService.TotalPokemonWithStatsReceived++;
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value?.EnablePokemon ?? false))
             {
@@ -185,12 +186,10 @@
             if (raid == null)
                 return;
 
-            /*
-            TODO: if (raid.IsEgg)
-                Statistics.Instance.TotalReceivedEggs++;
+            if (raid.IsEgg)
+                _statsService.TotalEggsReceived++;
             else
-                Statistics.Instance.TotalReceivedRaids++;
-            */
+                _statsService.TotalRaidsReceived++;
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value?.EnableRaids ?? false))
             {
@@ -345,7 +344,7 @@
             if (quest == null)
                 return;
 
-            // TODO: Statistics.Instance.TotalReceivedQuests++;
+            _statsService.TotalQuestsReceived++;
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value?.EnableQuests ?? false))
             {
@@ -407,7 +406,11 @@
             if (pokestop == null)
                 return;
 
-            // TODO: Statistics.Instance.TotalReceivedPokestops++;
+            _statsService.TotalPokestopsReceived++;
+            if (pokestop.HasInvasion)
+                _statsService.TotalInvasionsReceived++;
+            if (pokestop.HasLure)
+                _statsService.TotalLuresReceived++;
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value?.EnablePokestops ?? false))
             {
@@ -463,7 +466,7 @@
             if (gym == null)
                 return;
 
-            // TODO: Statistics.Instance.TotalReceivedGyms++;
+            _statsService.TotalGymsReceived++;
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value?.EnableGyms ?? false))
             {
@@ -528,7 +531,7 @@
             if (weather == null)
                 return;
 
-            // TODO: Statistics.Instance.TotalReceivedWeathers++;
+            _statsService.TotalWeatherReceived++;
 
             foreach (var (guildId, alarms) in _alarms.Where(x => x.Value?.EnableWeather ?? false))
             {

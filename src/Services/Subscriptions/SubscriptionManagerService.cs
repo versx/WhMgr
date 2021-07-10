@@ -51,31 +51,21 @@
                 _subscriptions = (await ctx.Subscriptions.Where(s => s.Status != NotificationStatusType.None)
                                                          // Include Pokemon subscriptions
                                                          .Include(s => s.Pokemon)
-                                                         //.ThenInclude(p => p.Subscription)
                                                          // Include PvP subscriptions
                                                          .Include(s => s.PvP)
-                                                         //.ThenInclude(p => p.Subscription)
                                                          // Include Raid subscriptions
                                                          .Include(s => s.Raids)
-                                                         //.ThenInclude(r => r.Subscription)
                                                          // Include Quest subscriptions
                                                          .Include(s => s.Quests)
-                                                         //.ThenInclude(q => q.Subscription)
                                                          // Include Invasion subscriptions
                                                          .Include(s => s.Invasions)
-                                                         //.ThenInclude(i => i.Subscription)
                                                          // Include Lure subscriptions
                                                          .Include(s => s.Lures)
-                                                         //.ThenInclude(l => l.Subscription)
                                                          // Include Gym subscriptions
                                                          .Include(s => s.Gyms)
-                                                         //.ThenInclude(g => g.Subscription)
                                                          // Include Location subscriptions
                                                          .Include(s => s.Locations)
-                                                         //.ThenInclude(l => l.Subscription)
-                                                         .ToListAsync()
-                                                         )
-                                                         //.Where(x => x.Status != NotificationStatusType.None)
+                                                         .ToListAsync())
                                                          .ToList();
                 return _subscriptions;
             }
@@ -86,12 +76,19 @@
             using (var ctx = _dbFactory.CreateDbContext())
             {
                 var subscription = await ctx.Subscriptions.Include(s => s.Pokemon)
+                                                          // Include PvP subscriptions
                                                           .Include(s => s.PvP)
+                                                          // Include Raid subscriptions
                                                           .Include(s => s.Raids)
+                                                          // Include Quest subscriptions
                                                           .Include(s => s.Quests)
+                                                          // Include Invasion subscriptions
                                                           .Include(s => s.Invasions)
+                                                          // Include Lure subscriptions
                                                           .Include(s => s.Lures)
+                                                          // Include Gym subscriptions
                                                           .Include(s => s.Gyms)
+                                                          // Include Location subscriptions
                                                           .Include(s => s.Locations)
                                                           .FirstOrDefaultAsync(s => s.Status != NotificationStatusType.None
                                                                                  && s.GuildId == guildId
