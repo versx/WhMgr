@@ -63,7 +63,6 @@
         [JsonPropertyName("ex_raid_eligible")]
         public bool IsExEligible { get; set; }
 
-        // TODO: Provide DTS options for is_exclusive
         [JsonPropertyName("is_exclusive")]
         public bool IsExclusive { get; set; }
 
@@ -271,6 +270,7 @@
                 costume_id_3 = Costume.ToString("D3"),
                 is_egg = IsEgg,
                 is_ex = IsExEligible,
+                is_ex_exclusive = IsExclusive,
                 ex_emoji = exEmoji,
                 team = Team.ToString(),
                 team_id = Convert.ToInt32(Team).ToString(),

@@ -33,8 +33,6 @@ namespace WhMgr
     using WhMgr.Services.Webhook;
     using WhMgr.Utilities;
 
-    // TODO: Subscription commands
-    // TODO: IV stats posting
     // TODO: Reload alarms/configs/filters/geofences on change
     // TODO: Fix Pvp pokemon name not showing on Pokemon embed
     // TODO: Twilio notifications
@@ -195,7 +193,7 @@ namespace WhMgr
                 {
                     client.GuildMemberUpdated += Client_GuildMemberUpdated;
                 }
-                client.MessageCreated += Client_MessageCreated;
+                //client.MessageCreated += Client_MessageCreated;
                 client.ClientErrored += Client_ClientErrored;
 
                 if (!_discordClients.ContainsKey(guildId))
@@ -260,7 +258,7 @@ namespace WhMgr
                 var areaRoles = server.Geofences.Select(x => x.Name.ToLower());
                 foreach (var roleName in areaRoles)
                 {
-                    var role = e.Guild.Roles.FirstOrDefault(x => x.Value.Name == roleName).Value; // TODO: GetRoleFromName(roleName);
+                    var role = e.Guild.Roles.FirstOrDefault(x => x.Value.Name == roleName).Value;
                     if (role == null)
                     {
                         Console.WriteLine($"Failed to get role by name {roleName}");
@@ -272,6 +270,7 @@ namespace WhMgr
             }
         }
 
+        /*
         private async Task Client_MessageCreated(DiscordClient client, MessageCreateEventArgs e)
         {
             // Ignore bot messages
@@ -286,10 +285,9 @@ namespace WhMgr
             if (guildConfig.Bot.ChannelIds.Count > 0 && !guildConfig.Bot.ChannelIds.Contains(e.Channel.Id))
                 return;
 
-            // TODO: Handle command manually
-            Console.WriteLine($"handle command");
             await Task.CompletedTask;
         }
+        */
 
         private async Task Client_ClientErrored(DiscordClient client, ClientErrorEventArgs e)
         {
