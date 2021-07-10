@@ -65,8 +65,8 @@
                 {
                     var alarm = pokemonAlarms[i];
                     // TODO: Allow for multiple geofences to be returned
-                    var geofence = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokemon.Latitude, pokemon.Longitude));
-                    if (geofence == null)
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokemon.Latitude, pokemon.Longitude));
+                    if (geofences == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping pokemon {pkmn.Id}: not in geofence.");
                         continue;
@@ -168,12 +168,15 @@
                     }
 
                     // TODO: Proper queue service
-                    if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, pokemon, geofence.Name)))
+                    foreach (var geofence in geofences)
                     {
-                        _logger.LogError($"Failed to queue Pokemon alarm: {alarm.Name} for Pokemon {pokemon.Id} ({pokemon.EncounterId})");
-                        continue;
+                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, pokemon, geofence.Name)))
+                        {
+                            _logger.LogError($"Failed to queue Pokemon alarm: {alarm.Name} for Pokemon {pokemon.Id} ({pokemon.EncounterId}) from geofence {geofence.Name}");
+                            continue;
+                        }
+                        _logger.LogInformation($"Pokemon Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Pokemon: {pokemon.Id}, Despawn: {pokemon.DespawnTime}]");
                     }
-                    _logger.LogInformation($"Pokemon Found [Alarm: {alarm.Name}, Pokemon: {pokemon.Id}, Despawn: {pokemon.DespawnTime}]");
                 }
             }
         }
@@ -199,10 +202,16 @@
                 for (var i = 0; i < raidAlarms.Count; i++)
                 {
                     var alarm = raidAlarms[i];
-                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(raid.Latitude, raid.Longitude));
-                    if (geofence == null)
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(raid.Latitude, raid.Longitude));
+                    if (geofences == null)
                     {
                         //_logger.LogWarning($"[{alarm.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level}: not in geofence.");
+                        continue;
+                    }
+
+                    if (raid.Level == 0)
+                    {
+                        _logger.LogWarning($"[{alarm.Name}] Failed to parse '{raid.Level}' as raid level.");
                         continue;
                     }
 
@@ -214,12 +223,6 @@
                         if (!alarm.Filters.Eggs.Enabled)
                         {
                             //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: raids filter not enabled.");
-                            continue;
-                        }
-
-                        if (raid.Level == 0)
-                        {
-                            _logger.LogWarning($"[{alarm.Name}] [{geofence.Name}] Failed to parse '{raid.Level}' as raid level.");
                             continue;
                         }
 
@@ -241,10 +244,14 @@
                             continue;
                         }
 
-                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, raid, geofence.Name)))
+                        foreach (var geofence in geofences)
                         {
-                            _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level})");
-                            continue;
+                            if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, raid, geofence.Name)))
+                            {
+                                _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level}) from geofence {geofence.Name}");
+                                continue;
+                            }
+                            _logger.LogInformation($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Raid: {raid.PokemonId}, Level: {raid.Level}, StartTime: {raid.StartTime}]");
                         }
                     }
                     else
@@ -255,12 +262,6 @@
                         if (!alarm.Filters.Raids.Enabled)
                         {
                             //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: raids filter not enabled.");
-                            continue;
-                        }
-
-                        if (raid.Level == 0)
-                        {
-                            _logger.LogWarning($"[{alarm.Name}] [{geofence.Name}] Failed to parse '{raid.Level}' as raid level.");
                             continue;
                         }
 
@@ -322,16 +323,19 @@
 
                         if (alarm.Filters.Raids.IgnoreMissing && raid.IsMissingStats)
                         {
-                            _logger.LogInformation($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: IgnoreMissing=true.");
+                            _logger.LogInformation($"[{alarm.Name}] Skipping raid boss {raid.PokemonId}: IgnoreMissing=true.");
                             continue;
                         }
 
-                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, raid, geofence.Name)))
+                        foreach (var geofence in geofences)
                         {
-                            _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level})");
-                            continue;
+                            if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, raid, geofence.Name)))
+                            {
+                                _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level}) from geofence {geofence.Name}");
+                                continue;
+                            }
+                            _logger.LogInformation($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Raid: {raid.PokemonId}, Level: {raid.Level}, StartTime: {raid.StartTime}]");
                         }
-                        _logger.LogInformation($"Raid Found [Alarm: {alarm.Name}, Raid: {raid.PokemonId}, Level: {raid.Level}, StartTime: {raid.StartTime}]");
                     }
                 }
             }
@@ -354,8 +358,8 @@
                 for (var i = 0; i < questAlarms.Count; i++)
                 {
                     var alarm = questAlarms[i];
-                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(quest.Latitude, quest.Longitude));
-                    if (geofence == null)
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(quest.Latitude, quest.Longitude));
+                    if (geofences == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: not in geofence.");
                         continue;
@@ -386,12 +390,15 @@
                         continue;
                     }
 
-                    if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, quest, geofence.Name)))
+                    foreach (var geofence in geofences)
                     {
-                        _logger.LogError($"Failed to queue Quest alarm: {alarm.Name} for Quest {quest.PokestopId} ({quest.PokestopName})");
-                        continue;
+                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, quest, geofence.Name)))
+                        {
+                            _logger.LogError($"Failed to queue Quest alarm: {alarm.Name} for Quest {quest.PokestopId} ({quest.PokestopName}) from geofence {geofence.Name}");
+                            continue;
+                        }
+                        _logger.LogInformation($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, PokestopId: {quest.PokestopId}, Name: {quest.PokestopName}, Template: {quest.Template}]");
                     }
-                    _logger.LogInformation($"Raid Found [Alarm: {alarm.Name}, PokestopId: {quest.PokestopId}, Name: {quest.PokestopName}, Template: {quest.Template}]");
                 }
             }
         }
@@ -432,20 +439,22 @@
                         continue;
                     }
 
-                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(pokestop.Latitude, pokestop.Longitude));
-                    if (geofence == null)
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokestop.Latitude, pokestop.Longitude));
+                    if (geofences == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
                         continue;
                     }
 
-                    //OnPokestopAlarmTriggered(pokestop, alarm, guildId);
-                    if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, pokestop, geofence.Name)))
+                    foreach (var geofence in geofences)
                     {
-                        _logger.LogError($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.Name})");
-                        continue;
+                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, pokestop, geofence.Name)))
+                        {
+                            _logger.LogError($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.Name}) from geofence {geofence.Name}");
+                            continue;
+                        }
+                        _logger.LogInformation($"Pokestop Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, PokestopId: {pokestop.PokestopId}, Name: {pokestop.Name}, LureType: {pokestop.LureType}, GruntType: {pokestop.GruntType}");
                     }
-                    _logger.LogInformation($"Pokestop Found [Alarm: {alarm.Name}, PokestopId: {pokestop.PokestopId}, Name: {pokestop.Name}, LureType: {pokestop.LureType}, GruntType: {pokestop.GruntType}");
                 }
             }
         }
@@ -466,8 +475,8 @@
                 for (var i = 0; i < gymAlarms.Count; i++)
                 {
                     var alarm = gymAlarms[i];
-                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(gym.Latitude, gym.Longitude));
-                    if (geofence == null)
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(gym.Latitude, gym.Longitude));
+                    if (geofences == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping gym details GymId={gym.GymId}, GymName={gym.GymName}: not in geofence.");
                         continue;
@@ -499,12 +508,15 @@
                         return;
                     */
 
-                    if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, gym, geofence.Name)))
+                    foreach (var geofence in geofences)
                     {
-                        _logger.LogError($"Failed to queue Gym alarm: {alarm.Name} for Gym {gym.GymId} ({gym.GymName})");
-                        continue;
+                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, gym, geofence.Name)))
+                        {
+                            _logger.LogError($"Failed to queue Gym alarm: {alarm.Name} for Gym {gym.GymId} ({gym.GymName}) from geofence {geofence.Name}");
+                            continue;
+                        }
+                        _logger.LogInformation($"Gym Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, GymId: {gym.GymId}, Name: {gym.GymName}, Team: {gym.Team}, InBattle: {gym.InBattle}");
                     }
-                    _logger.LogInformation($"Gym Found [Alarm: {alarm.Name}, GymId: {gym.GymId}, Name: {gym.GymName}, Team: {gym.Team}, InBattle: {gym.InBattle}");
 
                     // Update map data cache with gym
                     _mapDataCache.UpdateGym(gym);
@@ -528,8 +540,8 @@
                 for (var i = 0; i < weatherAlarms.Count; i++)
                 {
                     var alarm = weatherAlarms[i];
-                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(weather.Latitude, weather.Longitude));
-                    if (geofence == null)
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(weather.Latitude, weather.Longitude));
+                    if (geofences == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName}: not in geofence.");
                         continue;
@@ -561,12 +573,15 @@
                         continue;
                     */
 
-                    if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, weather, geofence.Name)))
+                    foreach (var geofence in geofences)
                     {
-                        _logger.LogError($"Failed to queue Weather alarm: {alarm.Name} for Gym {weather.Id} ({weather.GameplayCondition})");
-                        continue;
+                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, weather, geofence.Name)))
+                        {
+                            _logger.LogError($"Failed to queue Weather alarm: {alarm.Name} for Gym {weather.Id} ({weather.GameplayCondition}) from geofence {geofence.Name}");
+                            continue;
+                        }
+                        _logger.LogInformation($"Weather Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Id: {weather.Id}, Name: {weather.GameplayCondition}, Severity: {weather.Severity}");
                     }
-                    _logger.LogInformation($"Weather Found [Alarm: {alarm.Name}, Id: {weather.Id}, Name: {weather.GameplayCondition}, Severity: {weather.Severity}");
 
                     // Update map data cache with weather
                     _mapDataCache.UpdateWeather(weather);

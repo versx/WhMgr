@@ -18,6 +18,13 @@
     using WhMgr.Extensions;
     using WhMgr.Localization;
 
+    // TODO: Change config to stats = { shiny, iv }
+    // TODO: Automated IV stats postings
+    // TODO: Manual IV stats postings
+    // TODO: Simplified IV stats postings via command with arg `list`
+    // TODO: Get total IV found for IV stats
+    // TODO: Include forms with shiny/iv stats
+
     public class DailyStats : BaseCommandModule
     {
         private readonly ConfigHolder _config;
@@ -127,8 +134,6 @@
         ]
         public async Task GetIVStatsAsync(CommandContext ctx)
         {
-            // TODO: Allow `list` argument for simplied embed
-            // TODO: IV stats postings
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
 
             if (!_config.Instance.Servers.ContainsKey(guildId))
@@ -150,15 +155,12 @@
                 return;
             }
 
-            /*
             if (server.ShinyStats.ClearMessages)
             {
                 await ctx.Client.DeleteMessages(server.ShinyStats.ChannelId);
             }
-            */
 
             var stats = await GetIvStats(_config.Instance.Database.Scanner.ToString());
-            Console.WriteLine($"IV stats: {stats}");
 
             var sb = new System.Text.StringBuilder();
             foreach (var (pokemonId, count) in stats)
@@ -222,8 +224,6 @@
         {
             try
             {
-                // TODO: Include forms
-                // TODO: Get total iv found
                 using (var ctx = DbContextFactory.CreateMapContext(scannerConnectionString))
                 {
                     ctx.Database.SetCommandTimeout(TimeSpan.FromSeconds(30)); // 30 seconds timeout
