@@ -191,7 +191,7 @@
         private dynamic GetProperties(AlarmMessageSettings properties)
         {
             var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
-            var name = IsEgg ? "Egg" /*TODO: Localize*/ : Translator.Instance.GetPokemonName(PokemonId);
+            var name = IsEgg ? Translator.Instance.Translate("EGG") : Translator.Instance.GetPokemonName(PokemonId);
             var form = Translator.Instance.GetFormName(Form);
             var costume = Translator.Instance.GetCostumeName(Costume);
             var evo = Translator.Instance.GetEvolutionName(Evolution);
