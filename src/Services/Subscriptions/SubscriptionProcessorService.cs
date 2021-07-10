@@ -20,6 +20,7 @@
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Filters;
     using WhMgr.Services.Cache;
+    using WhMgr.Services.Discord;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Subscriptions.Models;
     using WhMgr.Services.Webhook.Models;
@@ -29,7 +30,7 @@
         private readonly ILogger<ISubscriptionProcessorService> _logger;
         private readonly ISubscriptionManagerService _subscriptionManager;
         private readonly ConfigHolder _config;
-        private readonly IReadOnlyDictionary<ulong, DiscordClient> _discordClients;
+        private readonly IDiscordClientService _discordService;
         private readonly ISubscriptionProcessorQueueService _queue;
         private readonly IMapDataCache _mapDataCache;
         private readonly IStaticsticsService _statsService;
@@ -38,7 +39,7 @@
             ILogger<ISubscriptionProcessorService> logger,
             ISubscriptionManagerService subscriptionManager,
             ConfigHolder config,
-            IReadOnlyDictionary<ulong, DiscordClient> discordClients,
+            IDiscordClientService discordService,
             ISubscriptionProcessorQueueService queue,
             IMapDataCache mapDataCache,
             IStaticsticsService statsService)
@@ -46,7 +47,7 @@
             _logger = logger;
             _subscriptionManager = subscriptionManager;
             _config = config;
-            _discordClients = discordClients;
+            _discordService = discordService;
             _queue = queue;
             _mapDataCache = mapDataCache;
             _statsService = statsService;
@@ -98,10 +99,10 @@
                     if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
-                    if (!_discordClients.ContainsKey(user.GuildId))
+                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
                         continue;
 
-                    var client = _discordClients[user.GuildId];
+                    var client = _discordService.DiscordClients[user.GuildId];
 
                     try
                     {
@@ -253,10 +254,10 @@
                     if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
-                    if (!_discordClients.ContainsKey(user.GuildId))
+                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
                         continue;
 
-                    var client = _discordClients[user.GuildId];
+                    var client = _discordService.DiscordClients[user.GuildId];
 
                     try
                     {
@@ -395,10 +396,10 @@
                     if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
-                    if (!_discordClients.ContainsKey(user.GuildId))
+                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
                         continue;
 
-                    var client = _discordClients[user.GuildId];
+                    var client = _discordService.DiscordClients[user.GuildId];
 
                     var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
@@ -520,10 +521,10 @@
                     if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
-                    if (!_discordClients.ContainsKey(user.GuildId))
+                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
                         continue;
 
-                    var client = _discordClients[user.GuildId];
+                    var client = _discordService.DiscordClients[user.GuildId];
 
                     var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
@@ -649,10 +650,10 @@
                     if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
-                    if (!_discordClients.ContainsKey(user.GuildId))
+                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
                         continue;
 
-                    var client = _discordClients[user.GuildId];
+                    var client = _discordService.DiscordClients[user.GuildId];
 
                     var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
@@ -766,10 +767,10 @@
                     if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
-                    if (!_discordClients.ContainsKey(user.GuildId))
+                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
                         continue;
 
-                    var client = _discordClients[user.GuildId];
+                    var client = _discordService.DiscordClients[user.GuildId];
 
                     var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
@@ -884,10 +885,10 @@
                     if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
                         continue;
 
-                    if (!_discordClients.ContainsKey(user.GuildId))
+                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
                         continue;
 
-                    var client = _discordClients[user.GuildId];
+                    var client = _discordService.DiscordClients[user.GuildId];
 
                     var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)

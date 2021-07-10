@@ -15,6 +15,7 @@
     using WhMgr.Services.Alarms.Filters;
     using WhMgr.Services.Alarms.Models;
     using WhMgr.Services.Cache;
+    using WhMgr.Services.Discord;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Webhook.Models;
     using WhMgr.Utilities;
@@ -23,7 +24,7 @@
     {
         private readonly ILogger<AlarmControllerService> _logger;
         private readonly IReadOnlyDictionary<ulong, ChannelAlarmsManifest> _alarms;
-        private readonly IReadOnlyDictionary<ulong, DiscordClient> _discordClients;
+        private readonly IDiscordClientService _discordService;
         private readonly ConfigHolder _config;
         private readonly IMapDataCache _mapDataCache;
         private readonly IStaticsticsService _statsService;
@@ -31,14 +32,14 @@
         public AlarmControllerService(
             ILogger<AlarmControllerService> logger,
             IReadOnlyDictionary<ulong, ChannelAlarmsManifest> alarms,
-            IReadOnlyDictionary<ulong, DiscordClient> discordClients,
+            IDiscordClientService discordService,
             ConfigHolder config,
             IMapDataCache mapDataCache,
             IStaticsticsService statsService)
         {
             _logger = logger;
             _alarms = alarms;
-            _discordClients = discordClients;
+            _discordService = discordService;
             _config = config;
             _mapDataCache = mapDataCache;
             _statsService = statsService;
@@ -597,7 +598,7 @@
             if (string.IsNullOrEmpty(alarm.Webhook))
                 return;
 
-            if (!_discordClients.ContainsKey(guildId))
+            if (!_discordService.DiscordClients.ContainsKey(guildId))
                 return;
 
             if (!_config.Instance.Servers.ContainsKey(guildId))
@@ -606,7 +607,7 @@
             try
             {
                 var server = _config.Instance.Servers[guildId];
-                var client = _discordClients[guildId];
+                var client = _discordService.DiscordClients[guildId];
                 var eb = data.GenerateEmbedMessage(new AlarmMessageSettings
                 {
                     GuildId = guildId,

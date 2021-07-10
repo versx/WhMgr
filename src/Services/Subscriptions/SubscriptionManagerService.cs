@@ -38,8 +38,7 @@
             };
             _timer.Start();
 
-            // TODO: Fix
-            ReloadSubscriptionsAsync();
+            Task.Run(async () => await ReloadSubscriptionsAsync());
         }
 
         #region Get Subscriptions

@@ -5,12 +5,12 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using DSharpPlus;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
 
     using WhMgr.Configuration;
     using WhMgr.Extensions;
+    using WhMgr.Services.Discord;
 
     public class QuestPurgeHostedService : IHostedService, IDisposable
     {
@@ -19,7 +19,7 @@
         private readonly ILogger<QuestPurgeHostedService> _logger;
         private readonly ConfigHolder _config;
         private readonly Dictionary<string, MidnightTimer> _tzMidnightTimers;
-        private readonly IReadOnlyDictionary<ulong, DiscordClient> _discordClients;
+        private readonly IDiscordClientService _discordService;
 
         #endregion
 
@@ -28,11 +28,11 @@
         public QuestPurgeHostedService(
             ILogger<QuestPurgeHostedService> logger,
             ConfigHolder config,
-            IReadOnlyDictionary<ulong, DiscordClient> discordClients)
+            IDiscordClientService discordService)
         {
             _logger = logger;
             _config = config;
-            _discordClients = discordClients;
+            _discordService = discordService;
             _tzMidnightTimers = new Dictionary<string, MidnightTimer>();
         }
 
@@ -121,7 +121,7 @@
             foreach (var channelId in channelIds)
             {
                 // Loop all provided Discord clients
-                foreach (var (serverId, serverClient) in _discordClients)
+                foreach (var (serverId, serverClient) in _discordService.DiscordClients)
                 {
                     // Get Discord channel if available
                     _logger.LogInformation($"Deleting messages in channel {channelId}");
