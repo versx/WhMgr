@@ -85,37 +85,17 @@
         {
             using (var ctx = _dbFactory.CreateDbContext())
             {
-                var subscription = await ctx.Subscriptions.FirstOrDefaultAsync(s => s.Status != NotificationStatusType.None
-                                                                                  && s.GuildId == guildId
-                                                                                  && s.UserId == userId);
-                    /*
-                                                         // Include Pokemon subscriptions
-                                                         .Include(s => s.Pokemon)
-                                                         //.ThenInclude(p => p.Subscription)
-                                                         // Include PvP subscriptions
-                                                         .Include(s => s.PvP)
-                                                         //.ThenInclude(p => p.Subscription)
-                                                         // Include Raid subscriptions
-                                                         .Include(s => s.Raids)
-                                                         //.ThenInclude(r => r.Subscription)
-                                                         // Include Quest subscriptions
-                                                         .Include(s => s.Quests)
-                                                         //.ThenInclude(q => q.Subscription)
-                                                         // Include Invasion subscriptions
-                                                         .Include(s => s.Invasions)
-                                                         //.ThenInclude(i => i.Subscription)
-                                                         // Include Lure subscriptions
-                                                         .Include(s => s.Lures)
-                                                         //.ThenInclude(l => l.Subscription)
-                                                         // Include Gym subscriptions
-                                                         .Include(s => s.Gyms)
-                                                         //.ThenInclude(g => g.Subscription)
-                                                         // Include Location subscriptions
-                                                         .Include(s => s.Locations)
-                                                         //.ThenInclude(l => l.Subscription)
-                                                         .ToListAsync()
-                                                         );
-                */
+                var subscription = await ctx.Subscriptions.Include(s => s.Pokemon)
+                                                          .Include(s => s.PvP)
+                                                          .Include(s => s.Raids)
+                                                          .Include(s => s.Quests)
+                                                          .Include(s => s.Invasions)
+                                                          .Include(s => s.Lures)
+                                                          .Include(s => s.Gyms)
+                                                          .Include(s => s.Locations)
+                                                          .FirstOrDefaultAsync(s => s.Status != NotificationStatusType.None
+                                                                                 && s.GuildId == guildId
+                                                                                 && s.UserId == userId);
                 return subscription;
             }
         }

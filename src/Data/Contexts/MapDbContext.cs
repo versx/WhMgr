@@ -1,7 +1,8 @@
 ﻿namespace WhMgr.Data.Contexts
 {
     using Microsoft.EntityFrameworkCore;
-
+    using System.Collections.Generic;
+    using WhMgr.Data.Factories;
     using WhMgr.Data.Models;
     using WhMgr.Services.Webhook.Models;
 
@@ -11,6 +12,8 @@
             : base(options)
         {
         }
+
+        public DbSet<PokemonData> Pokemon { get; set; }
 
         public DbSet<PokestopData> Pokestops { get; set; }
 
@@ -24,6 +27,16 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<PvpRankData>()
+                        .HasNoKey();
+
+            modelBuilder.Entity<PokemonData>()
+                        .Property(p => p.GreatLeague)
+                        .HasConversion(DbContextFactory.CreateJsonValueConverter<List<PvpRankData>>());
+            modelBuilder.Entity<PokemonData>()
+                        .Property(p => p.UltraLeague)
+                        .HasConversion(DbContextFactory.CreateJsonValueConverter<List<PvpRankData>>());
+
             modelBuilder.Entity<PokemonStatsIV>()
                         .HasKey(p => new { p.Date, p.PokemonId });
 

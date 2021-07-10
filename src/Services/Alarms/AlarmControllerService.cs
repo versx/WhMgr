@@ -64,7 +64,8 @@
                 for (var i = 0; i < pokemonAlarms.Count; i++)
                 {
                     var alarm = pokemonAlarms[i];
-                    var geofence = GeofenceService.GetGeofence(alarm.GeofenceItems, new Coordinate(pokemon.Latitude, pokemon.Longitude));
+                    // TODO: Allow for multiple geofences to be returned
+                    var geofence = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokemon.Latitude, pokemon.Longitude));
                     if (geofence == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping pokemon {pkmn.Id}: not in geofence.");

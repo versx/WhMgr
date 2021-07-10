@@ -154,6 +154,8 @@ namespace WhMgr
                 ), ServiceLifetime.Scoped
             );
 
+            services.AddHealthChecks();
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -176,6 +178,7 @@ namespace WhMgr
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
             });
         }
 

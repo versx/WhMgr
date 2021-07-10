@@ -60,8 +60,9 @@
                     Services = services,
                 }
             );
+            // Register available Discord command handler classes
             commands.RegisterCommands<Nests>();
-            commands.RegisterCommands<ShinyStats>();
+            commands.RegisterCommands<DailyStats>();
             if (config.Subscriptions.Enabled)
             {
                 commands.RegisterCommands<Subscriptions>();
@@ -70,27 +71,18 @@
             {
                 commands.RegisterCommands<Feeds>();
             }
+            //else
+            //{
+            //    commands.RegisterCommands<Areas>();
+            //}
             /*
-            commands.CommandExecuted += Commands_CommandExecuted;
-            commands.CommandErrored += Commands_CommandErrored;
-            // Register Discord command handler classes
             commands.RegisterCommands<Owner>();
             commands.RegisterCommands<Event>();
             commands.RegisterCommands<Gyms>();
             commands.RegisterCommands<Quests>();
             commands.RegisterCommands<Settings>();
-            if (config.Subscriptions.Enabled)
-            {
-                commands.RegisterCommands<Notifications>();
-            }
-            if (config.EnableGeofenceRoles)
-            {
-                commands.RegisterCommands<Feeds>();
-            }
-            else
-            {
-                commands.RegisterCommands<Areas>();
-            }
+            commands.CommandExecuted += Commands_CommandExecuted;
+            commands.CommandErrored += Commands_CommandErrored;
             */
             return client;
         }

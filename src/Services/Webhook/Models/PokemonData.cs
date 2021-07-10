@@ -22,6 +22,7 @@
     using System.Linq;
     using WhMgr.Configuration;
 
+    [Table("pokemon")]
     public sealed class PokemonData : IWebhookData
     {
         #region Properties
@@ -150,7 +151,8 @@
 
         [
             JsonPropertyName("spawnpoint_id"),
-            Column("spawn_id"),
+            //Column("spawn_id"),
+            NotMapped,
         ]
         public string SpawnpointId { get; set; }
 

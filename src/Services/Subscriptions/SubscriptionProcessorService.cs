@@ -51,6 +51,7 @@
 
         public async Task ProcessPokemonSubscription(PokemonData pokemon)
         {
+            var subUser = await _subscriptionManager.GetUserSubscriptionsAsync(342025055510855680, 266771160253988875);
             if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon.Id))
                 return;
 
@@ -177,7 +178,7 @@
                         });
 
                         //var end = DateTime.Now.Subtract(start);
-                        //_logger.Debug($"Took {end} to process Pokemon subscription for user {user.UserId}");
+                        //_logger.LogDebug($"Took {end} to process Pokemon subscription for user {user.UserId}");
                         embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
                         {
                             Subscription = user,
