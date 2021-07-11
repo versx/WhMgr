@@ -17,6 +17,7 @@
 
     public class DiscordClientService : IDiscordClientService
     {
+        private readonly ILogger<IDiscordClientService> _logger;
         private readonly Dictionary<ulong, DiscordClient> _discordClients;
         private readonly ConfigHolder _config;
         private readonly IServiceProvider _serviceProvider;
@@ -24,8 +25,12 @@
         public IReadOnlyDictionary<ulong, DiscordClient> DiscordClients =>
             _discordClients;
 
-        public DiscordClientService(ConfigHolder config, IServiceProvider serviceProvider)
+        public DiscordClientService(
+            ILogger<IDiscordClientService> logger,
+            ConfigHolder config,
+            IServiceProvider serviceProvider)
         {
+            _logger = logger;
             _config = config;
             _serviceProvider = serviceProvider;
 
@@ -36,6 +41,8 @@
 
         public async Task Start()
         {
+            _logger.LogTrace($"Initializing Discord clients...");
+
             // Build the dependency collection which will contain our objects that can be globally used within each command module
             var servicesCol = new ServiceCollection()
                 .AddSingleton(typeof(ConfigHolder), _config)
@@ -49,9 +56,12 @@
 
         public async Task Stop()
         {
-            foreach (var (_, discordClient) in _discordClients)
+            _logger.LogTrace($"Stopping Discord clients...");
+
+            foreach (var (guildId, discordClient) in _discordClients)
             {
                 await discordClient.DisconnectAsync();
+                _logger.LogDebug($"Discord client for guild {guildId} disconnected.");
             }
         }
 
@@ -61,7 +71,7 @@
         {
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
-                Console.WriteLine($"Configured Discord server {guildId}");
+                _logger.LogDebug($"Configured Discord server {guildId}");
                 var client = DiscordClientFactory.CreateDiscordClient(guildConfig, services);
                 client.Ready += Client_Ready;
                 client.GuildAvailable += Client_GuildAvailable;
@@ -77,6 +87,7 @@
                 {
                     _discordClients.Add(guildId, client);
                     await client.ConnectAsync();
+                    _logger.LogDebug($"Discord client for guild {guildId} connecting...");
                 }
 
                 // Wait 3 seconds between initializing each Discord client
@@ -88,18 +99,18 @@
 
         private Task Client_Ready(DiscordClient client, ReadyEventArgs e)
         {
-            Console.WriteLine($"------------------------------------------");
-            Console.WriteLine($"[DISCORD] Connected.");
-            Console.WriteLine($"[DISCORD] ----- Current Application");
-            Console.WriteLine($"[DISCORD] Name: {client.CurrentApplication.Name}");
-            Console.WriteLine($"[DISCORD] Description: {client.CurrentApplication.Description}");
+            _logger.LogInformation($"------------------------------------------");
+            _logger.LogInformation($"[DISCORD] Connected.");
+            _logger.LogInformation($"[DISCORD] ----- Current Application");
+            _logger.LogInformation($"[DISCORD] Name: {client.CurrentApplication.Name}");
+            _logger.LogInformation($"[DISCORD] Description: {client.CurrentApplication.Description}");
             var owners = string.Join(", ", client.CurrentApplication.Owners.Select(x => $"{x.Username}#{x.Discriminator}"));
-            Console.WriteLine($"[DISCORD] Owner: {owners}");
-            Console.WriteLine($"[DISCORD] ----- Current User");
-            Console.WriteLine($"[DISCORD] Id: {client.CurrentUser.Id}");
-            Console.WriteLine($"[DISCORD] Name: {client.CurrentUser.Username}#{client.CurrentUser.Discriminator}");
-            Console.WriteLine($"[DISCORD] Email: {client.CurrentUser.Email}");
-            Console.WriteLine($"------------------------------------------");
+            _logger.LogInformation($"[DISCORD] Owner: {owners}");
+            _logger.LogInformation($"[DISCORD] ----- Current User");
+            _logger.LogInformation($"[DISCORD] Id: {client.CurrentUser.Id}");
+            _logger.LogInformation($"[DISCORD] Name: {client.CurrentUser.Username}#{client.CurrentUser.Discriminator}");
+            _logger.LogInformation($"[DISCORD] Email: {client.CurrentUser.Email}");
+            _logger.LogInformation($"------------------------------------------");
 
             return Task.CompletedTask;
         }
@@ -130,7 +141,7 @@
             // Check if donor role was removed
             if (hasBefore && !hasAfter)
             {
-                Console.WriteLine($"Member {e.Member.Username} ({e.Member.Id}) donor role removed, removing any city roles...");
+                _logger.LogInformation($"Member {e.Member.Username} ({e.Member.Id}) donor role removed, removing any city roles...");
                 // If so, remove all city/geofence/area roles
                 var areaRoles = server.Geofences.Select(x => x.Name.ToLower());
                 foreach (var roleName in areaRoles)
@@ -138,12 +149,12 @@
                     var role = e.Guild.Roles.FirstOrDefault(x => x.Value.Name == roleName).Value;
                     if (role == null)
                     {
-                        Console.WriteLine($"Failed to get role by name {roleName}");
+                        _logger.LogError($"Failed to get role by name {roleName}");
                         continue;
                     }
                     await e.Member.RevokeRoleAsync(role, "No longer a supporter/donor");
                 }
-                Console.WriteLine($"All city roles removed from member {e.Member.Username} ({e.Member.Id})");
+                _logger.LogInformation($"All city roles removed from member {e.Member.Username} ({e.Member.Id})");
             }
         }
 
@@ -168,7 +179,7 @@
 
         private async Task Client_ClientErrored(DiscordClient client, ClientErrorEventArgs e)
         {
-            Console.WriteLine(e.Exception);
+            _logger.LogError(e.Exception.ToString());
 
             await Task.CompletedTask;
         }
@@ -181,7 +192,7 @@
         {
             if (!_discordClients.ContainsKey(guildId))
             {
-                Console.WriteLine($"Discord client not ready yet to create emojis for guild {guildId}");
+                _logger.LogWarning($"Discord client not ready yet to create emojis for guild {guildId}");
                 return;
             }
 
@@ -189,7 +200,7 @@
             var client = _discordClients[guildId];
             if (!(client.Guilds?.ContainsKey(server.Bot.EmojiGuildId) ?? false))
             {
-                Console.WriteLine($"Bot not in emoji server {server.Bot.EmojiGuildId}");
+                _logger.LogWarning($"Bot not in emoji server {server.Bot.EmojiGuildId}");
                 return;
             }
 
@@ -202,24 +213,24 @@
                     var emojiExists = emojis.FirstOrDefault(x => string.Compare(x.Name, emoji, true) == 0);
                     if (emojiExists == null)
                     {
-                        Console.WriteLine($"Emoji {emoji} doesn't exist, creating...");
+                        _logger.LogDebug($"Emoji {emoji} doesn't exist, creating...");
 
                         var emojiPath = Path.Combine(Strings.EmojisFolder, emoji + ".png");
                         if (!File.Exists(emojiPath))
                         {
-                            Console.WriteLine($"Unable to find emoji file at {emojiPath}, skipping...");
+                            _logger.LogWarning($"Unable to find emoji file at {emojiPath}, skipping...");
                             continue;
                         }
 
                         var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
                         await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
 
-                        Console.WriteLine($"Emoji {emoji} created successfully.");
+                        _logger.LogInformation($"Emoji {emoji} created successfully.");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    _logger.LogError(ex.ToString());
                 }
             }
 
