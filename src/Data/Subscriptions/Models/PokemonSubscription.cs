@@ -31,7 +31,7 @@
         {
             get
             {
-                try
+              /*try
                 {
                     return PokemonIdString?.Split(',')?
                                            .Select(x => uint.Parse(x))
@@ -42,6 +42,27 @@
                     Console.WriteLine($"[Error] Failed to parse pokemon id string: {ex}");
                 }
                 return new List<uint>();
+                */
+                var result = new List<uint>();
+                if (string.IsNullOrEmpty(PokemonIdString) || !PokemonIdString.Contains(","))
+                    return result;
+                var item = PokemonIdString.Split(',')?.ToList();
+                if (item?.Any() != true)
+                {
+                    return result;
+                }
+                else
+                {
+                    //uint myvar = 0U;
+                    foreach (var id in item)
+                    {
+                        if (!uint.TryParse(id, out uint myvar))
+                        {
+                            result.Add(myvar);
+                        }
+                    }
+                    return result;
+                }            
             }
         }
 
