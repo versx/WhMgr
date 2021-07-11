@@ -160,7 +160,7 @@
                 await ctx.Client.DeleteMessages(server.ShinyStats.ChannelId);
             }
 
-            var stats = await GetIvStats(_config.Instance.Database.Scanner.ToString());
+            var stats = GetIvStats(_config.Instance.Database.Scanner.ToString());
 
             var sb = new System.Text.StringBuilder();
             foreach (var (pokemonId, count) in stats)
@@ -220,7 +220,7 @@
             return list;
         }
 
-        internal static async Task<Dictionary<uint, int>> GetIvStats(string scannerConnectionString)
+        internal static Dictionary<uint, int> GetIvStats(string scannerConnectionString)
         {
             try
             {

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using Microsoft.Extensions.Logging;
 
@@ -18,6 +19,8 @@
 
     public class WebhookProcessorService : IWebhookProcessorService
     {
+        private const uint ClearCacheInterval = 60000 * 15; // Every 15 minutes
+
         private readonly ILogger<WebhookProcessorService> _logger;
         private readonly ConfigHolder _config;
         private readonly IAlarmControllerService _alarmsService;
@@ -30,6 +33,7 @@
         private readonly Dictionary<string, ScannedPokestop> _processedPokestops;
         private readonly Dictionary<string, ScannedGym> _processedGyms;
         private readonly Dictionary<long, WeatherCondition> _processedWeather;
+        private readonly System.Timers.Timer _clearCache;
 
         #region Properties
 
@@ -60,6 +64,11 @@
             _processedPokestops = new Dictionary<string, ScannedPokestop>();
             _processedGyms = new Dictionary<string, ScannedGym>();
             _processedWeather = new Dictionary<long, WeatherCondition>();
+            _clearCache = new System.Timers.Timer
+            {
+                Interval = ClearCacheInterval,
+            };
+            _clearCache.Elapsed += (sender, e) => OnClearCache();
 
             CheckForDuplicates = _config.Instance.CheckForDuplicates;
             DespawnTimerMinimumMinutes = _config.Instance.DespawnTimeMinimumMinutes;
@@ -72,11 +81,22 @@
         public void Start()
         {
             Enabled = true;
+
+            // Start cache cleaning timer
+            if (!_clearCache.Enabled)
+            {
+                _clearCache.Start();
+            }
         }
 
         public void Stop()
         {
             Enabled = false;
+
+            if (_clearCache?.Enabled ?? false)
+            {
+                _clearCache.Stop();
+            }
         }
 
         public void ParseData(List<WebhookPayload> payloads)
@@ -363,5 +383,48 @@
         }
 
         #endregion
+
+        private void OnClearCache()
+        {
+            lock (_processedPokemon)
+            {
+                var expiredEncounters = _processedPokemon.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                foreach (var encounterId in expiredEncounters)
+                {
+                    // Spawn expired, remove from cache
+                    _processedPokemon.Remove(encounterId);
+                }
+            }
+
+            lock (_processedRaids)
+            {
+                var expiredRaids = _processedRaids.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                foreach (var gymId in expiredRaids)
+                {
+                    // Gym expired, remove from cache
+                    _processedRaids.Remove(gymId);
+                }
+            }
+
+            lock (_processedQuests)
+            {
+                var expiredQuests = _processedQuests.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                foreach (var pokestopId in expiredQuests)
+                {
+                    // Quest expired, remove from cache
+                    _processedQuests.Remove(pokestopId);
+                }
+            }
+
+            lock (_processedPokestops)
+            {
+                var expiredPokestops = _processedPokestops.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                foreach (var pokestopId in expiredPokestops)
+                {
+                    // Pokestop lure or invasion expired, remove from cache
+                    _processedPokestops.Remove(pokestopId);
+                }
+            }
+        }
     }
 }

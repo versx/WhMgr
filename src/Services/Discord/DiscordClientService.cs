@@ -15,6 +15,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data;
 
+    // TODO: HostedService
     public class DiscordClientService : IDiscordClientService
     {
         private readonly ILogger<IDiscordClientService> _logger;

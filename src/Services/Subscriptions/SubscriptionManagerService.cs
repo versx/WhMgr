@@ -180,6 +180,7 @@
 
         public bool Save(Subscription subscription)
         {
+            // TODO: Save subscription from Discord commands
             return true;
         }
 

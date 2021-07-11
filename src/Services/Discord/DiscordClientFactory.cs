@@ -63,10 +63,6 @@
             // Register available Discord command handler classes
             commands.RegisterCommands<Nests>();
             commands.RegisterCommands<DailyStats>();
-            if (config.Subscriptions.Enabled)
-            {
-                commands.RegisterCommands<Subscriptions>();
-            }
             if (config.GeofenceRoles?.Enabled ?? false)
             {
                 commands.RegisterCommands<Feeds>();

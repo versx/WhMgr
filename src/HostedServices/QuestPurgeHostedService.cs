@@ -84,11 +84,13 @@
             return Task.CompletedTask;
         }
 
-        public void Dispose()
+        public async void Dispose()
         {
             _logger.LogDebug($"Disposing...");
-            //_discordClients.Clear();
+            await _discordService.Stop();
             _tzMidnightTimers.Clear();
+
+            GC.SuppressFinalize(this);
         }
 
         #endregion
