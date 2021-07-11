@@ -47,7 +47,7 @@
                     {
                         foreach (var id in item)
                         {
-                            if (!uint.TryParse(id, out uint myvar))
+                            if (uint.TryParse(id, out uint myvar))
                             {
                                 result.Add(myvar);
                             }
@@ -57,7 +57,7 @@
                 }
                 else if (!PokemonIdString.Contains(" "))
                 {
-                    if (!uint.TryParse(PokemonIdString, out uint myvar))
+                    if (uint.TryParse(PokemonIdString, out uint myvar))
                     {
                         result.Add(myvar);
                     }
