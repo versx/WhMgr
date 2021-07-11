@@ -171,6 +171,7 @@
             FormsString = null;
             Areas = new List<string>();
             IVList = new List<string>();
+            PokemonIdString = null;
         }
 
         #endregion
