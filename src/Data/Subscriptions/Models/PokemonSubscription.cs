@@ -31,38 +31,42 @@
         {
             get
             {
-              /*try
-                {
-                    return PokemonIdString?.Split(',')?
-                                           .Select(x => uint.Parse(x))
-                                           .ToList();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[Error] Failed to parse pokemon id string: {ex}");
-                }
-                return new List<uint>();
-                */
                 var result = new List<uint>();
-                if (string.IsNullOrEmpty(PokemonIdString) || !PokemonIdString.Contains(","))
-                    return result;
-                var item = PokemonIdString.Split(',')?.ToList();
-                if (item?.Any() != true)
+                if (string.IsNullOrEmpty(PokemonIdString))
                 {
+                    return result;
+                }
+                else if (PokemonIdString.Contains(","))
+                {
+                    var item = PokemonIdString.Split(',')?.ToList();
+                    if (item?.Any() != true)
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        foreach (var id in item)
+                        {
+                            if (!uint.TryParse(id, out uint myvar))
+                            {
+                                result.Add(myvar);
+                            }
+                        }
+                        return result;
+                    }
+                }
+                else if (!PokemonIdString.Contains(" "))
+                {
+                    if (!uint.TryParse(PokemonIdString, out uint myvar))
+                    {
+                        result.Add(myvar);
+                    }
                     return result;
                 }
                 else
                 {
-                    //uint myvar = 0U;
-                    foreach (var id in item)
-                    {
-                        if (!uint.TryParse(id, out uint myvar))
-                        {
-                            result.Add(myvar);
-                        }
-                    }
                     return result;
-                }            
+                }
             }
         }
 
