@@ -178,6 +178,15 @@
 
         #endregion
 
+        public async Task SetSubscriptionStatus(Subscription subscription, NotificationStatusType status)
+        {
+            using (var ctx = _dbFactory.CreateDbContext())
+            {
+                subscription.Status = status;
+                await ctx.SaveChangesAsync(true);
+            }
+        }
+
         public bool Save(Subscription subscription)
         {
             // TODO: Save subscription from Discord commands

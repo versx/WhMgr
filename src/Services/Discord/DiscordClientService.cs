@@ -14,14 +14,19 @@
 
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Services.Subscriptions;
 
     // TODO: HostedService
     public class DiscordClientService : IDiscordClientService
     {
+        public const uint DiscordAccessValidationInterval = 5 * 60000; // Every 5 minutes
+
         private readonly ILogger<IDiscordClientService> _logger;
         private readonly Dictionary<ulong, DiscordClient> _discordClients;
         private readonly ConfigHolder _config;
+        private readonly ISubscriptionManagerService _subscriptionManager;
         private readonly IServiceProvider _serviceProvider;
+        private readonly System.Timers.Timer _accessValidator;
 
         public IReadOnlyDictionary<ulong, DiscordClient> DiscordClients =>
             _discordClients;
@@ -29,13 +34,17 @@
         public DiscordClientService(
             ILogger<IDiscordClientService> logger,
             ConfigHolder config,
+            ISubscriptionManagerService subscriptionManager,
             IServiceProvider serviceProvider)
         {
             _logger = logger;
             _config = config;
+            _subscriptionManager = subscriptionManager;
             _serviceProvider = serviceProvider;
 
             _discordClients = new Dictionary<ulong, DiscordClient>();
+            _accessValidator = new System.Timers.Timer(DiscordAccessValidationInterval);
+            _accessValidator.Elapsed += async (sender, e) => await ValidateDiscordMemberAccess();
         }
 
         #region Public Methods
@@ -53,6 +62,9 @@
                 .AddSingleton<ILoggerFactory>(LoggerFactory.Create(configure => configure.AddConsole()));
             var services = servicesCol.BuildServiceProvider();
             await InitializeDiscord(services);
+
+            // Start validating Discord member access
+            _accessValidator.Start();
         }
 
         public async Task Stop()
@@ -93,6 +105,56 @@
 
                 // Wait 3 seconds between initializing each Discord client
                 await Task.Delay(3000);
+            }
+        }
+
+        private async Task ValidateDiscordMemberAccess()
+        {
+            // Check if any Discord clients configured
+            if (_discordClients.Count == 0)
+                return;
+
+            var validRoleIdsPerGuild = _config.Instance.Servers.Values
+                                                               .ToList()
+                                                               .Aggregate(new List<ulong>(), (x, y) => x.Concat(y.DonorRoleIds).ToList());
+            // Loop all available subscriptions
+            var subscriptions = _subscriptionManager.Subscriptions;
+            foreach (var subscription in subscriptions)
+            {
+                // TODO: Check if guild_id and user_id get member, if not has donor roles, disable subs
+                if (!_discordClients.Any(x => x.Value.Guilds.ContainsKey(subscription.GuildId)))
+                    continue;
+
+                // Check if configured Discord clients configured with subscription Discord guild
+                var discordClient = _discordClients.FirstOrDefault(x => x.Value.Guilds.ContainsKey(subscription.GuildId));
+                if (discordClient.Value == null)
+                    continue;
+
+                // Get guild for subscription
+                var guild = discordClient.Value.Guilds[subscription.GuildId];
+                if (guild == null)
+                    continue;
+
+                // Get member for subscriptions
+                var member = await guild.GetMemberAsync(subscription.UserId);
+                if (member == null)
+                    continue;
+
+                // Check if guild configured
+                if (!_config.Instance.Servers.ContainsKey(guild.Id))
+                    continue;
+
+                var memberRoleIds = member.Roles.Select(x => x.Id).ToList();
+                foreach (var validRoleId in validRoleIdsPerGuild)
+                {
+                    // If not valid, disable subs if available
+                    if (!memberRoleIds.Contains(validRoleId))
+                    {
+                        // Disable all subscriptions
+                        await _subscriptionManager.SetSubscriptionStatus(subscription, Subscriptions.Models.NotificationStatusType.None);
+                        _logger.LogInformation($"Disabled all subscriptions for user {member.Username} ({member.Id})...");
+                    }
+                }
             }
         }
 

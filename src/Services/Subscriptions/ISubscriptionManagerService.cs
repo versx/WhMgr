@@ -12,6 +12,8 @@
     {
         IReadOnlyList<Subscription> Subscriptions { get; }
 
+        Task SetSubscriptionStatus(Subscription subscription, NotificationStatusType status);
+
         Task<Subscription> GetUserSubscriptionsAsync(ulong guildId, ulong userId);
 
         List<Subscription> GetSubscriptionsByPokemonId(uint pokemonId);
