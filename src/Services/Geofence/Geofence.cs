@@ -107,12 +107,6 @@
             FeatureCollection featureCollection;
             // Read the JSON from the file and deserialize it into a GeoJSON FeatureCollection
             var jsonText = File.ReadAllText(filePath);
-            /*
-            var serializer = GeoJsonSerializer.Create();
-            using (var stringReader = new StringReader(jsonText))
-            using (var jsonReader = new Utf8JsonReader(stringReader))
-                featureCollection = serializer.Deserialize<FeatureCollection>(jsonReader);
-            */
             featureCollection = jsonText.FromJson<FeatureCollection>();
 
             if (featureCollection == null)

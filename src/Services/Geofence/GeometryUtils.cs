@@ -13,12 +13,12 @@
         /// <summary>
         /// Creates a Feature containing a Polygon created using the provided Coordinates
         /// </summary>
-        public static Feature CoordinatesToFeature(IEnumerable<Coordinate> locations, IAttributesTable attributes = default)
+        public static Feature CoordinatesToFeature(IEnumerable<Coordinate> coordinates, IAttributesTable attributes = default)
         {
-            var coordinateList = locations.Select(c => (NetTopCoordinate)c).ToList();
+            var coordinateList = coordinates.Select(c => (NetTopCoordinate)c).ToList();
 
             if (coordinateList?.Count < 3)
-                throw new ArgumentException("At least three locations are required", nameof(locations));
+                throw new ArgumentException("At least three locations are required", nameof(coordinates));
 
             if (!coordinateList.First().Equals2D(coordinateList.Last(), double.Epsilon))
                 // A closed linear ring requires the same point at the start and end of the list

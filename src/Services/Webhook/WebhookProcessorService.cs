@@ -15,8 +15,6 @@
     using WhMgr.Services.Webhook.Cache;
     using WhMgr.Services.Webhook.Models;
 
-    // TODO: Clear cache method
-
     public class WebhookProcessorService : IWebhookProcessorService
     {
         private const uint ClearCacheInterval = 60000 * 15; // Every 15 minutes

@@ -18,6 +18,7 @@ namespace WhMgr
     using WhMgr.Configuration;
     using WhMgr.Data.Contexts;
     using WhMgr.HostedServices;
+    using WhMgr.IO;
     using WhMgr.Queues;
     using WhMgr.Services;
     using WhMgr.Services.Alarms;
@@ -45,7 +46,10 @@ namespace WhMgr
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            var configPath = Path.Combine(Environment.CurrentDirectory, Strings.BasePath + Strings.ConfigFileName);
+            var configPath = Path.Combine(
+                Environment.CurrentDirectory,
+                Strings.BasePath + Strings.ConfigFileName
+            );
             var config = Config.Load(configPath);
             if (config == null)
             {
@@ -55,6 +59,13 @@ namespace WhMgr
             config.FileName = configPath;
             config.LoadDiscordServers();
             _config = new ConfigHolder(config);
+            _config.Reloaded += () =>
+            {
+                _config.Instance.LoadDiscordServers();
+                // TODO: _alarms = ChannelAlarmsManifest.LoadAlarms(config.Servers);
+                // TODO: filters and embeds
+                // TODO: Use FileWatcher
+            };
             _alarms = ChannelAlarmsManifest.LoadAlarms(config.Servers);
 
             // Create locale translation files
@@ -68,7 +79,6 @@ namespace WhMgr
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IGeofenceService>(new GeofenceService());
-            // let DI create and manage the singleton instance
             services.AddSingleton<IAlarmControllerService, AlarmControllerService>();
             services.AddScoped<NotificationQueue, NotificationQueue>();
             services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>();
@@ -140,7 +150,10 @@ namespace WhMgr
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            IDiscordClientService discordClientService)
         {
             if (env.IsDevelopment())
             {
@@ -149,11 +162,8 @@ namespace WhMgr
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WhMgr v1"));
             }
 
-            Task.Run(async () =>
-            {
-                var discordClientService = app.ApplicationServices.GetRequiredService<IDiscordClientService>();
-                await discordClientService.Start();
-            });
+            // Initialize and start Discord clients
+            Task.Run(async () => await discordClientService.Start());
 
             app.UseRouting();
             app.UseAuthorization();
