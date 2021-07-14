@@ -145,15 +145,20 @@
                     continue;
 
                 var memberRoleIds = member.Roles.Select(x => x.Id).ToList();
+                var isValid = false;
                 foreach (var validRoleId in validRoleIdsPerGuild)
                 {
                     // If not valid, disable subs if available
-                    if (!memberRoleIds.Contains(validRoleId))
+                    if (memberRoleIds.Contains(validRoleId))
                     {
-                        // Disable all subscriptions
-                        await _subscriptionManager.SetSubscriptionStatus(subscription, Subscriptions.Models.NotificationStatusType.None);
-                        _logger.LogInformation($"Disabled all subscriptions for user {member.Username} ({member.Id})...");
+                        isValid = true;
                     }
+                }
+                if (!isValid)
+                {
+                    // Disable all subscriptions
+                    await _subscriptionManager.SetSubscriptionStatus(subscription, Subscriptions.Models.NotificationStatusType.None);
+                    _logger.LogInformation($"Disabled all subscriptions for user {member.Username} ({member.Id})...");
                 }
             }
         }
