@@ -22,6 +22,7 @@
         private readonly ConfigHolder _config;
         private readonly NotificationQueue _queue;
         private readonly IDiscordClientService _discordService;
+        private readonly ISubscriptionManagerService _subscriptionManager;
 
         // TODO: Use QueueLength with health checks
         public uint QueueLength => (uint)_queue?.Count;
@@ -29,11 +30,13 @@
         public SubscriptionProcessorQueueService(
             ILogger<ISubscriptionProcessorQueueService> logger,
             ConfigHolder config,
-            IDiscordClientService discordService)
+            IDiscordClientService discordService,
+            ISubscriptionManagerService subscriptionManager)
         {
             _logger = logger;
             _config = config;
             _discordService = discordService;
+            _subscriptionManager = subscriptionManager;
             // TODO: Make notification queue DI singleton
             _queue = new NotificationQueue();
 
@@ -104,13 +107,10 @@
                             await item.Member.SendDirectMessage(eb.Build());
                             item.Subscription.RateLimitNotificationSent = true;
                             item.Subscription.Status = NotificationStatusType.None;
-                            // TODO: Update database, set status to 0 via ISubscriptionManager
-                            /*
-                            if (!item.Subscription.Update())
+                            if (!_subscriptionManager.Save(item.Subscription))
                             {
                                 _logger.LogError($"Failed to disable {item.Subscription.UserId}'s subscriptions");
                             }
-                            */
                         }
                         continue;
                     }

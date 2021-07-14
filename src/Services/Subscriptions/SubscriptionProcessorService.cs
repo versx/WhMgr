@@ -229,6 +229,7 @@
                 return geofence;
             }
 
+            // TODO: PvP subscriptions support for evolutions not just base evo
             var subscriptions = _subscriptionManager.GetSubscriptionsByPvpPokemonId(pokemon.Id);
             if (subscriptions == null)
             {
