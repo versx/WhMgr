@@ -443,8 +443,8 @@
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = MatchesGreatLeague || MatchesUltraLeague
-                    ? GetPvPColor(GreatLeague, UltraLeague, server)
-                    : IV.BuildPokemonIVColor(server),
+                    ? GetPvPColor(GreatLeague, UltraLeague, MasterFile.Instance.DiscordEmbedColors)
+                    : IV.BuildPokemonIVColor(MasterFile.Instance.DiscordEmbedColors),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text, properties),
@@ -629,7 +629,7 @@
             return dict;
         }
 
-        private DiscordColor GetPvPColor(List<PVPRank> greatLeague, List<PVPRank> ultraLeague, DiscordServerConfig server)
+        private DiscordColor GetPvPColor(List<PVPRank> greatLeague, List<PVPRank> ultraLeague, DiscordEmbedColorConfig config)
         {
             if (greatLeague != null)
                 greatLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
@@ -639,7 +639,7 @@
 
             var greatRank = greatLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP);
             var ultraRank = ultraLeague.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP);
-            var color = server.DiscordEmbedColors.Pokemon.PvP.FirstOrDefault(x => ((greatRank?.Rank ?? 0) >= x.Minimum && (greatRank?.Rank ?? 0) <= x.Maximum) || ((ultraRank?.Rank ?? 0) >= x.Minimum && (ultraRank?.Rank ?? 0) <= x.Maximum));
+            var color = config.Pokemon.PvP.FirstOrDefault(x => ((greatRank?.Rank ?? 0) >= x.Minimum && (greatRank?.Rank ?? 0) <= x.Maximum) || ((ultraRank?.Rank ?? 0) >= x.Minimum && (ultraRank?.Rank ?? 0) <= x.Maximum));
             if (color == null)
             {
                 return DiscordColor.White;

@@ -122,9 +122,9 @@
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = useInvasion
-                    ? new DiscordColor(server.DiscordEmbedColors.Pokestops.Invasions)
+                    ? new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Invasions)
                     : useLure
-                        ? LureType.BuildLureColor(server)
+                        ? LureType.BuildLureColor(MasterFile.Instance.DiscordEmbedColors)
                         : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {

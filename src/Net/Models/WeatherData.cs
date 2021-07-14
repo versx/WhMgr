@@ -123,7 +123,7 @@
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
                 ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
-                Color = GameplayCondition.BuildWeatherColor(server),
+                Color = GameplayCondition.BuildWeatherColor(MasterFile.Instance.DiscordEmbedColors),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text, properties),
