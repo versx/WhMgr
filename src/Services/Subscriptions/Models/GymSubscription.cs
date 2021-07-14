@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
@@ -41,6 +42,13 @@
             Column("pokemon_ids"),
         ]
         public List<uint> PokemonIDs { get; set; } = new();
+
+        [
+            JsonPropertyName("ex_eligible"),
+            Column("ex_eligible"),
+            DefaultValue(false),
+        ]
+        public bool IsExEligible { get; set; }
 
         [
             JsonPropertyName("location"),

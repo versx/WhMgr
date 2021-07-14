@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
@@ -38,6 +39,13 @@
             Column("form"),
         ]
         public string FormsString { get; set; }
+
+        [
+            JsonPropertyName("ex_eligible"),
+            Column("ex_eligible"),
+            DefaultValue(false),
+        ]
+        public bool IsExEligible { get; set; }
 
         [
             JsonPropertyName("city"),

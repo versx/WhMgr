@@ -435,6 +435,12 @@
                         continue;
                     }
 
+                    if (!raid.IsExEligible && subPkmn.IsExEligible)
+                    {
+                        // Skip raids that are not ex eligible when we want ex eligible raids
+                        continue;
+                    }
+
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                     var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subPkmn.Location, true) == 0);
                     var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinate(raid.Latitude, raid.Longitude));
@@ -918,9 +924,15 @@
                         continue;
 
                     var checkLevel = gymSub.MinimumLevel > 0 && gymSub.MaximumLevel > 0;
-                    var containsPokemon = gymSub.PokemonIDs?.Contains((uint)raid.PokemonId) ?? false;
+                    var containsPokemon = gymSub.PokemonIDs?.Contains(raid.PokemonId) ?? false;
                     if (!checkLevel && !containsPokemon)
                         continue;
+
+                    if (!raid.IsExEligible && gymSub.IsExEligible)
+                    {
+                        // Skip raids that are not ex eligible when we want ex eligible raids
+                        continue;
+                    }
 
                     /*
                     // TODO: Gym distance location
