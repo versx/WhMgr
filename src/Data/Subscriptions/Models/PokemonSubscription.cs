@@ -33,7 +33,8 @@
             {
                 try
                 {
-                    return PokemonIdString?.Split(',')?
+                    return PokemonIdString?.TrimEnd(',')
+                                           .Split(',')?
                                            .Select(x => uint.Parse(x))
                                            .ToList();
                 }
