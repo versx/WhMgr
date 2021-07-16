@@ -71,8 +71,12 @@
         {
             CurrentCulture = new CultureInfo(DefaultLanguage);
             LocaleDirectory = Strings.LocaleFolder;
+            if (!Directory.Exists(LocaleDirectory))
+            {
+                Directory.CreateDirectory(LocaleDirectory);
+            }
 
-            _map = LoadCountry(CurrentCulture.TwoLetterISOLanguageName);
+            //_map = LoadCountry(CurrentCulture.TwoLetterISOLanguageName);
         }
 
         /// <summary>
@@ -213,6 +217,11 @@
         private TDictionary LoadCountry(string localeCode)
         {
             CurrentCulture = new CultureInfo(localeCode);
+
+            if (!Directory.Exists(LocaleDirectory))
+            {
+                Directory.CreateDirectory(LocaleDirectory);
+            }
 
             var path = Path.Combine(LocaleDirectory, localeCode + ".json");
             if (!File.Exists(path))

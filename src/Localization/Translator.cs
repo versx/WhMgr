@@ -20,7 +20,7 @@
         private static readonly IEventLogger _logger = EventLogger.GetLogger("LOCALE");
 
         private readonly string _appLocalesFolder = Directory.GetCurrentDirectory() + "/../static/locales";
-        private readonly string _binLocalesFolder = Directory.GetCurrentDirectory() + $"/../bin/debug/static/locales";
+        private readonly string _binLocalesFolder = Directory.GetCurrentDirectory() + $"/../bin/static/locales";
         private readonly string _pogoLocalesFolder = Directory.GetCurrentDirectory() + "/../node_modules/pogo-translations/static/locales";
 
         #region Singleton
@@ -68,10 +68,12 @@
                     Console.WriteLine($"Found pogo-translations for locale {locale}");
                     var pogoTranslations = File.ReadAllText(Path.Combine(_pogoLocalesFolder, localeFile));
                     translations = pogoTranslations.FromJson<Dictionary<string, string>>();
-                    foreach (var (key, value) in translations)
+                    var keys = translations.Keys.ToList();
+                    for (var i = 0; i < keys.Count; i++)
                     {
-                        translations[key] = value.Replace("%", "{");
-                        translations[key] = value.Replace("}", "}}");
+                        var key = keys[i];
+                        translations[key] = translations[key].Replace("%", "{");
+                        translations[key] = translations[key].Replace("}", "}}");
                     }
                 }
 
