@@ -145,15 +145,7 @@
                     continue;
 
                 var memberRoleIds = member.Roles.Select(x => x.Id).ToList();
-                var isValid = false;
-                foreach (var validRoleId in validRoleIdsPerGuild)
-                {
-                    // If not valid, disable subs if available
-                    if (memberRoleIds.Contains(validRoleId))
-                    {
-                        isValid = true;
-                    }
-                }
+                var isValid = validRoleIdsPerGuild.Exists(x => memberRoleIds.Contains(x));
                 if (!isValid)
                 {
                     // Disable all subscriptions
@@ -223,6 +215,28 @@
                     await e.Member.RevokeRoleAsync(role, "No longer a supporter/donor");
                 }
                 _logger.LogInformation($"All city roles removed from member {e.Member.Username} ({e.Member.Id})");
+            }
+            else if (!hasBefore && hasAfter)
+            {
+                // Send thanks for becoming a donor message and include instructions to setting up subscriptions
+                _logger.LogInformation($"Member {e.Member.Username} ({e.Member.Id}) donor role added...");
+                var eb = new DiscordEmbedBuilder
+                {
+                    // TODO: Localize
+                    Title = $"Welcome to {e.Guild?.Name} {e.Member.Username}#{e.Member.Discriminator}!",
+                    Description = $"Thank you for joining {e.Guild?.Name}! Please look around and get familar, you can get " +
+                        "exclusive access to Pokemon, Raids, Quests, Invasions, Lures, and Gyms by typing `$donate` in the #bot " +
+                        "channel and following the upgrade link.\n\n" +
+                        // TODO: Only show if geofenceRoles enabled
+                        $"To see different city sections type `{server.Bot?.CommandPrefix}feedme city1,city2` in the #bot channel.\n" +
+                        $"Type `{server.Bot?.CommandPrefix}help for more information.",
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"{e.Guild?.Name} {DateTime.Now}",
+                        IconUrl = e.Guild?.IconUrl,
+                    },
+                };
+                await e.Member.SendMessageAsync(eb.Build());
             }
         }
 

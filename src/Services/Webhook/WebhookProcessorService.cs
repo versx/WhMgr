@@ -70,8 +70,6 @@
 
             CheckForDuplicates = _config.Instance.CheckForDuplicates;
             DespawnTimerMinimumMinutes = _config.Instance.DespawnTimeMinimumMinutes;
-
-            Start();
         }
 
         #region Public Methods

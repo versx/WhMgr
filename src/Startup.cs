@@ -30,11 +30,12 @@ namespace WhMgr
     using WhMgr.Services.Webhook;
     using WhMgr.Utilities;
 
-    // TODO: Reload alarms/configs/filters/geofences on change
+    // TODO: Reload alarms/filters/geofences on change
     // TODO: Fix Pvp pokemon name not showing on Pokemon embed
     // TODO: Twilio notifications
     // TODO: HostedService webhook queue
     // TODO: HostedService subscription queue
+    // TODO: Simplify alarm and subscription filter checks
 
     public class Startup
     {
@@ -153,7 +154,8 @@ namespace WhMgr
         public void Configure(
             IApplicationBuilder app,
             IWebHostEnvironment env,
-            IDiscordClientService discordClientService)
+            IDiscordClientService discordClientService,
+            IWebhookProcessorService webhookProcessorService)
         {
             if (env.IsDevelopment())
             {
@@ -172,6 +174,9 @@ namespace WhMgr
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks("/health");
             });
+
+            // Initialize webhook processor service
+            webhookProcessorService.Start();
         }
     }
 }
