@@ -40,7 +40,11 @@
             var validation = PokemonValidation.Validate(pokemonSubs, maxPokemonId);
             if (validation == null || validation.Valid.Count == 0)
             {
-                await _context.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(_context.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                await _context.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = _context.User.Username,
+                    pokemon = string.Join(", ", validation.Invalid),
+                }), DiscordColor.Red);
                 return new PokemonValidation();
             }
             await pokemonMessage.DeleteAsync();
