@@ -442,6 +442,11 @@
                         continue;
                     }
 
+                    if (pokestop.HasInvasion && alarm.Filters.Pokestops.InvasionTypes.ContainsKey(pokestop.GruntType) && !alarm.Filters.Pokestops.InvasionTypes[pokestop.GruntType])
+                    {
+                        continue;
+                    }
+                        
                     var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokestop.Latitude, pokestop.Longitude));
                     if (geofences == null)
                     {

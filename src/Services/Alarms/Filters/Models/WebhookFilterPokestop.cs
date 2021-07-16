@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
+
     /// <summary>
     /// Pokemon filters
     /// </summary>
@@ -25,7 +27,7 @@
         /// Gets or sets the Pokestop lure types to report
         /// </summary>
         [JsonPropertyName("lure_types")]
-        public List<string> LureTypes { get; set; }
+        public List<string> LureTypes { get; set; } = new();
 
         /// <summary>
         /// Gets or sets a value determining whether to only report Team Rocket invasion Pokestops
@@ -34,11 +36,8 @@
         public bool Invasions { get; set; }
 
         /// <summary>
-        /// Instantiate a new <see cref="WebhookFilterPokestop"/> class
+        /// Gets or sets the Invasion types to report
         /// </summary>
-        public WebhookFilterPokestop()
-        {
-            LureTypes = new List<string>();
-        }
+        public Dictionary<InvasionCharacter, bool> InvasionTypes { get; set; } = new();
     }
 }
