@@ -6,6 +6,7 @@
     using WhMgr.Data.Subscriptions;
     using WhMgr.Net.Webhooks;
     using WhMgr.Osm;
+    using WhMgr.Services;
 
     public class Dependencies
     {

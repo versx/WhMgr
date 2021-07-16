@@ -15,8 +15,10 @@
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
+    using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
+    using WhMgr.Services;
     using WhMgr.Utilities;
 
     /// <summary>
@@ -102,7 +104,7 @@
                 ImageUrl = Renderer.Parse(alert.ImageUrl, properties),
                 ThumbnailUrl = Renderer.Parse(alert.IconUrl, properties),
                 Description = Renderer.Parse(alert.Content, properties),
-                Color = new DiscordColor(server.DiscordEmbedColors.Pokestops.Quests),
+                Color = new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Quests),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = Renderer.Parse(alert.Footer?.Text, properties),
@@ -195,7 +197,7 @@
     public sealed class QuestCondition
     {
         [JsonProperty("pokemon_ids")]
-        public List<int> PokemonIds { get; set; }
+        public List<uint> PokemonIds { get; set; }
 
         [JsonProperty("category_name")]
         public string CategoryName { get; set; }
@@ -244,7 +246,7 @@
     public sealed class QuestReward
     {
         [JsonProperty("pokemon_id")]
-        public int PokemonId { get; set; }
+        public uint PokemonId { get; set; }
 
         [JsonProperty("costume_id")]
         public int CostumeId { get; set; }

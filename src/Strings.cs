@@ -38,7 +38,9 @@
         public const string WazeMaps = "https://waze.com/ul?ll={0},{1}&navigate=yes";
 
         public const string GeofenceFolder = "geofences";
+        public const string AlarmsFolder = "alarms";
         public const string AlertsFolder = "alerts";
+        public const string DiscordsFolder = "discords";
         public const string FiltersFolder = "filters";
         public const string LibrariesFolder = "libs";
         public const string StaticFolder = "static";
@@ -46,7 +48,7 @@
         public const string MigrationsFolder = "migrations";
         public static readonly string AppFolder = StaticFolder + Path.DirectorySeparatorChar + "app";
         public static readonly string DataFolder = StaticFolder + Path.DirectorySeparatorChar + "data";
-        public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locale";
+        public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locales";
         public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
         public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
         public const string StatsFolder = "stats";
@@ -55,7 +57,6 @@
         public const string DefaultResponseMessage = "WH Test Running!";
         public static readonly string[] LocalEndPoint = { "localhost", "127.0.0.1" };
 
-        public const string AlarmsFileName = "alarms.json";
         public const string ConfigFileName = "config.json";
         public const string OsmNestFileName = "nest.json";
         public const string DebugLogFileName = "debug.log";
@@ -79,8 +80,6 @@
         public const int MaximumGreatLeagueCP = 1500;
         public const int MinimumUltraLeagueCP = 2400;
         public const int MaximumUltraLeagueCP = 2500;
-
-        public const int MaxPokemonIds = 649;
 
         public const string All = "All";
 

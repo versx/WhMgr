@@ -12,11 +12,12 @@
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Data.Models;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
     using WhMgr.Localization;
+    using WhMgr.Services;
     using WhMgr.Utilities;
-    using WhMgr.Data.Models;
 
     /// <summary>
     /// RealDeviceMap Raid/Egg webhook model class.
@@ -37,7 +38,7 @@
         public string GymUrl { get; set; }
 
         [JsonProperty("pokemon_id")]
-        public int PokemonId { get; set; }
+        public uint PokemonId { get; set; }
 
         [JsonProperty("team_id")]
         public PokemonTeam Team { get; set; } = PokemonTeam.Neutral;
@@ -165,7 +166,7 @@
                 ImageUrl = Renderer.Parse(alert.ImageUrl, properties),
                 ThumbnailUrl = Renderer.Parse(alert.IconUrl, properties),
                 Description = Renderer.Parse(alert.Content, properties),
-                Color = (IsExEligible ? 0 /*ex*/ : int.Parse(Level)).BuildRaidColor(server),
+                Color = (IsExEligible ? 0 /*ex*/ : int.Parse(Level)).BuildRaidColor(MasterFile.Instance.DiscordEmbedColors),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = Renderer.Parse(alert.Footer?.Text, properties),

@@ -5,11 +5,13 @@
     using System.Linq;
     using System.Timers;
 
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
     using ServiceStack.OrmLite;
 
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
     using WhMgr.Net.Models;
 
     /// <summary>
@@ -66,7 +68,7 @@
           
             _connFactory = new OrmLiteConnectionFactory(_whConfig.Instance.Database.Main.ToString(), MySqlDialect.Provider);
 
-            // Reload subscriptions every 60 seconds to account for UI changes
+            // Reload subscriptions every minute x 60 seconds to account for UI changes
             _reloadTimer = new Timer(_whConfig.Instance.ReloadSubscriptionChangesMinutes * 60 * 1000);
             _reloadTimer.Elapsed += (sender, e) => ReloadSubscriptions();
             _reloadTimer.Start();
@@ -113,12 +115,12 @@
         /// </summary>
         /// <param name="pokeId">Pokemon ID to lookup</param>
         /// <returns>Returns list of user subscription objects</returns>
-        public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(int pokeId)
+        public List<SubscriptionObject> GetUserSubscriptionsByPokemonId(uint pokeId)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Pokemon) &&
                             x.Pokemon != null &&
-                            x.Pokemon.Exists(y => y.PokemonId == pokeId)
+                            x.Pokemon.Exists(y => y.PokemonId.Contains(pokeId))
                       )
                 .ToList();
         }
@@ -128,12 +130,12 @@
         /// </summary>
         /// <param name="pokeId">Pokemon ID to lookup</param>
         /// <returns>Returns list of user subscription objects</returns>
-        public List<SubscriptionObject> GetUserSubscriptionsByPvPPokemonId(int pokeId)
+        public List<SubscriptionObject> GetUserSubscriptionsByPvPPokemonId(uint pokeId)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.PvP) &&
                             x.PvP != null &&
-                            x.PvP.Exists(y => y.PokemonId == pokeId)
+                            x.PvP.Exists(y => y.PokemonId.Contains(pokeId))
                       )
                 .ToList();
         }
@@ -143,13 +145,23 @@
         /// </summary>
         /// <param name="pokeId">Pokemon ID to lookup</param>
         /// <returns>Returns list of user subscription objects</returns>
-        public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(int pokeId)
+        public List<SubscriptionObject> GetUserSubscriptionsByRaidBossId(uint pokeId)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Raids) &&
                             x.Raids != null &&
                             x.Raids.Exists(y => y.PokemonId == pokeId)
                       )
+                .ToList();
+        }
+
+        public List<SubscriptionObject> GetUserSubscriptionsByGymName(string name)
+        {
+            return _subscriptions?
+                .Where(x => x.IsEnabled(NotificationStatusType.Gyms) &&
+                            x.Gyms != null &&
+                            x.Gyms.Exists(y => string.Compare(y.Name, name, true) == 0 || y.Name.ToLower().Contains(name.ToLower()))
+                       )
                 .ToList();
         }
 
@@ -158,12 +170,15 @@
         /// </summary>
         /// <param name="reward">Ques reward keyword</param>
         /// <returns>Returns list of user subscription objects</returns>
-        public List<SubscriptionObject> GetUserSubscriptionsByQuestReward(string reward)
+        public List<SubscriptionObject> GetUserSubscriptionsByQuest(string pokestopName, string reward)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Quests) &&
                             x.Quests != null &&
-                            x.Quests.Exists(y => reward.Contains(y.RewardKeyword))
+                            x.Quests.Exists(y =>
+                                reward.Contains(y.RewardKeyword) ||
+                                (y.PokestopName != null && (pokestopName.Contains(y.PokestopName) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
+                            )
                       )
                 .ToList();
         }
@@ -173,15 +188,21 @@
         /// </summary>
         /// <param name="encounterRewards">Invasion encounter rewards</param>
         /// <returns>Returns list of user subscription objects</returns>
-        public List<SubscriptionObject> GetUserSubscriptionsByEncounterReward(List<int> encounterRewards)
+        public List<SubscriptionObject> GetUserSubscriptionsByInvasion(string pokestopName, InvasionCharacter gruntType, List<uint> encounterRewards)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Invasions) &&
                             x.Invasions != null &&
-                            x.Invasions.Exists(y => encounterRewards.Contains(y.RewardPokemonId))
+                            x.Invasions.Exists(y =>
+                                (y.RewardPokemonId?.Intersects(encounterRewards) ?? false) ||
+                                gruntType == y.InvasionType ||
+                                (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName)) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
+                            )
                       )
                 .ToList();
         }
+
+
 
         /// <summary>
         /// Gets user subscriptions from subscribed Pokestop lures
@@ -191,7 +212,7 @@
         public List<SubscriptionObject> GetUserSubscriptionsByLureType(PokestopLureType lureType)
         {
             return _subscriptions?
-                .Where(x => x.Enabled &&
+                .Where(x => x.IsEnabled(NotificationStatusType.Lures) &&
                             x.Lures != null &&
                             x.Lures.Exists(y => lureType == y.LureType))
                 .ToList();
@@ -213,7 +234,7 @@
                 var conn = GetConnection();
                 var where = conn?
                     .From<SubscriptionObject>()?
-                    .Where(x => x.Enabled);
+                    .Where(x => x.Status != NotificationStatusType.None);
                 var results = conn?
                     .LoadSelect(where)?
                     .ToList();

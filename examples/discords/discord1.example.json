@@ -1,0 +1,41 @@
+{
+  "commandPrefix": ".",
+  "emojiGuildId": 000000000000000001,
+  "ownerId": 000000000000000000,
+  "donorRoleIds": [],
+  "freeRoleName": "",
+  "moderatorRoleIds": [],
+  "token": "<DISCORD_BOT_TOKEN>",
+  "alarms": "alarms.json",
+  "geofences": [
+	"City1.txt",
+	"City2.json"
+  ],
+  "subscriptions": {
+	"enabled": false,
+	"maxNotificationsPerMinute": 10,
+	"maxPokemonSubscriptions": 0,
+	"maxPvPSubscriptions": 0,
+	"maxRaidSubscriptions": 0,
+	"maxQuestSubscriptions": 0,
+	"maxInvasionSubscriptions": 0,
+	"maxLureSubscriptions": 0,
+	"maxGymSubscriptions": 0
+  },
+  "enableGeofenceRoles": false,
+  "autoRemoveGeofenceRoles": false,
+  "citiesRequireSupporterRole": true,
+  "pruneQuestChannels": true,
+  "questChannelIds": [],
+  "nestsChannelId": 0,
+  "nestsMinimumPerHour": 2,
+  "shinyStats": {
+	"enabled": false,
+	"clearMessages": false,
+	"channelId": 0
+  },
+  "iconStyle": "Default",
+  "botChannelIds": [],
+  "status": null,
+  "dmAlertsFile": "default.json",
+}

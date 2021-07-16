@@ -86,7 +86,11 @@
                 }
             }
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("REMOVED_TOTAL_DEPARTED_MEMBERS").FormatText(removed.ToString("N0"), users.Count.ToString("N0")));
+            await ctx.RespondEmbed(Translator.Instance.Translate("REMOVED_TOTAL_DEPARTED_MEMBERS").FormatText(new
+            {
+                removed = removed.ToString("N0"),
+                users = users.Count.ToString("N0"),
+            }));
         }
 
         [
@@ -103,6 +107,25 @@
             // get the command service, we need this for sudo purposes
             var cmds = ctx.CommandsNext;
             await cmds.SudoAsync(member, ctx.Channel, command);
+        }
+
+        [
+            Command("uptime"),
+            Description("Shows the uptime of how long the bot has been online since it was last started"),
+            Hidden,
+        ]
+        public async Task UptimeAsync(CommandContext ctx)
+        {
+            var started = System.Diagnostics.Process.GetCurrentProcess().StartTime;
+            var uptime = DateTime.Now - started;
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"{ctx.Client.CurrentApplication.Name} Uptime",
+                Color = DiscordColor.Green,
+            };
+            embed.AddField("Started", started.ToLongDateString() + " " + started.ToLongTimeString());
+            embed.AddField("Uptime", uptime.ToReadableString());
+            await ctx.RespondAsync(embed: embed);
         }
     }
 }

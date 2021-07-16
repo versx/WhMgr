@@ -375,9 +375,33 @@
                 serverConfig.Geofences.AddRange(geofences);
             }
         }
-        
+
+        private void LoadGeofencesOnChange()
+        {
+            _logger.Trace($"WebhookManager::LoadGeofencesOnChange");
+
+            var geofencesFolder = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), Strings.GeofenceFolder));
+            var fileWatcher = new FileWatcher(geofencesFolder);
+
+            fileWatcher.Changed += (sender, e) => {
+                try
+                {
+                    _logger.Debug("Reloading Geofences");
+
+                    LoadGeofences();
+                    LoadAlarms(); // Reload alarms after geofences too
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error("Error while reloading geofences:");
+                    _logger.Error(ex);
+                }
+            };
+            fileWatcher.Start();
+        }
+
         #endregion
-        
+
         #region Alarms Initialization
 
         private void LoadAlarms()
@@ -396,27 +420,29 @@
         {
             _logger.Trace($"WebhookManager::LoadAlarms [AlarmsFilePath={alarmsFilePath}]");
 
-            if (!File.Exists(alarmsFilePath))
+            var alarmsFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.AlarmsFolder);
+            var alarmPath = Path.Combine(alarmsFolder, alarmsFilePath);
+            if (!File.Exists(alarmPath))
             {
-                _logger.Error($"Failed to load file alarms file '{alarmsFilePath}'...");
+                _logger.Error($"Failed to load file alarms file '{alarmPath}'...");
                 return null;
             }
 
-            var alarmData = File.ReadAllText(alarmsFilePath);
+            var alarmData = File.ReadAllText(alarmPath);
             if (string.IsNullOrEmpty(alarmData))
             {
-                _logger.Error($"Failed to load '{alarmsFilePath}', file is empty...");
+                _logger.Error($"Failed to load '{alarmPath}', file is empty...");
                 return null;
             }
 
             var alarms = JsonConvert.DeserializeObject<AlarmList>(alarmData);
             if (alarms == null)
             {
-                _logger.Error($"Failed to deserialize the alarms file '{alarmsFilePath}', make sure you don't have any json syntax errors.");
+                _logger.Error($"Failed to deserialize the alarms file '{alarmPath}', make sure you don't have any json syntax errors.");
                 return null;
             }
 
-            _logger.Info($"Alarms file {alarmsFilePath} was loaded successfully.");
+            _logger.Info($"Alarms file {alarmPath} was loaded successfully.");
 
             foreach (var alarm in alarms.Alarms)
             {
@@ -466,10 +492,11 @@
         {
             _logger.Trace($"WebhookManager::LoadAlarmsOnChange");
 
+            var alarmsFolder = Path.Combine(Directory.GetCurrentDirectory(), Strings.AlarmsFolder);
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
                 var alarmsFile = guildConfig.AlarmsFile;
-                var path = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), alarmsFile));
+                var path = Path.GetFullPath(Path.Combine(alarmsFolder, alarmsFile));
                 var fileWatcher = new FileWatcher(path);
                 
                 fileWatcher.Changed += (sender, e) => {
@@ -486,30 +513,6 @@
                 };
                 fileWatcher.Start();
             }
-        }
-
-        private void LoadGeofencesOnChange()
-        {
-            _logger.Trace($"WebhookManager::LoadGeofencesOnChange");
-
-            var geofencesFolder = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), Strings.GeofenceFolder));
-            var fileWatcher = new FileWatcher(geofencesFolder);
-            
-            fileWatcher.Changed += (sender, e) => {
-                try
-                {
-                    _logger.Debug("Reloading Geofences");
-                    
-                    LoadGeofences();
-                    LoadAlarms(); // Reload alarms after geofences too
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error("Error while reloading geofences:");
-                    _logger.Error(ex);
-                }
-            };
-            fileWatcher.Start();
         }
 
         #endregion
@@ -682,7 +685,7 @@
                 if (alarms.Alarms?.Count == 0)
                     continue;
 
-                var raidAlarms = alarms.Alarms.FindAll(x => x.Filters?.Raids?.Pokemon != null && x.Filters.Raids.Enabled);
+                var raidAlarms = alarms.Alarms.FindAll(x => (x.Filters.Raids?.Enabled ?? false) || (x.Filters.Eggs?.Enabled ?? false));
                 for (var i = 0; i < raidAlarms.Count; i++)
                 {
                     var alarm = raidAlarms[i];
@@ -765,7 +768,7 @@
                             continue;
                         }
 
-                        var formName = Translator.Instance.GetFormName(raid.Form).ToLower();
+                        var formName = Translator.Instance.GetFormName(raid.Form)?.ToLower();
                         if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Forms.Select(x => x.ToLower()).Contains(formName))
                         {
                             //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.Id} with form {raid.Form} ({formName}): filter {alarm.Filters.Raids.FilterType}.");
@@ -778,7 +781,7 @@
                             continue;
                         }
 
-                        var costumeName = Translator.Instance.GetCostumeName(raid.Costume).ToLower();
+                        var costumeName = Translator.Instance.GetCostumeName(raid.Costume)?.ToLower();
                         if (alarm.Filters.Raids.FilterType == FilterType.Exclude && alarm.Filters.Raids.Costumes.Select(x => x.ToLower()).Contains(costumeName))
                         {
                             //_logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.Id} with costume {raid.Costume} ({costumeName}): filter {alarm.Filters.Raids.FilterType}.");
@@ -808,7 +811,7 @@
                             _logger.Info($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: IgnoreMissing=true.");
                             continue;
                         }
-
+                        
                         OnRaidAlarmTriggered(raid, alarm, guildId);
                     }
                 }

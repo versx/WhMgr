@@ -4,6 +4,7 @@ Works with the following backends:
 
 - [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
 - [Chuck](https://github.com/WatWowMap/Chuck)  
+- [ChuckDeviceController](https://github.com/versx/ChuckDeviceController)  
 
 
 Made in C#, runs on .NET Core CLR. Cross platform compatibility, can run on Windows, macOS, and Linux operating systems.  

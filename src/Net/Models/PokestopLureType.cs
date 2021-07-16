@@ -28,6 +28,11 @@
         /// <summary>
         /// Magnetic Pokestop lure deployed
         /// </summary>
-        Magnetic = 504
+        Magnetic = 504,
+
+        /// <summary>
+        /// Rainy Pokestop lure deployed
+        /// </summary>
+        Rainy = 505,
     }
 }
