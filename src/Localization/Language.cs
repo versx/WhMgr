@@ -218,11 +218,6 @@
         {
             CurrentCulture = new CultureInfo(localeCode);
 
-            if (!Directory.Exists(LocaleDirectory))
-            {
-                Directory.CreateDirectory(LocaleDirectory);
-            }
-
             var path = Path.Combine(LocaleDirectory, localeCode + ".json");
             if (!File.Exists(path))
             {
