@@ -34,13 +34,14 @@
             {
                 try
                 {
-                    return PokemonIdString?.Split(',')?
+                    return PokemonIdString?.TrimEnd(',')
+                                           .Split(',')?
                                            .Select(x => uint.Parse(x))
                                            .ToList();
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[Error] Failed to parse pokemon id string: {ex}");
+                    Console.WriteLine($"[Error] Failed to parse pokemon id string: {PokemonIdString}\nSubscriptionId: {SubscriptionId}\nPokemonSubscriptionId: {Id}\nError: {ex}");
                 }
                 return new List<uint>();
             }

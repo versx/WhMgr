@@ -58,14 +58,18 @@
             var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             if (!isModOrHigher)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(ctx.User.Mention), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(new { author = ctx.User.Mention }), DiscordColor.Red);
                 return;
             }
 
             var userId = ConvertMentionToUserId(mention);
             if (userId <= 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_INVALID_USER_MENTION").FormatText(ctx.User.Mention, mention), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_INVALID_USER_MENTION").FormatText(new
+                {
+                    author = ctx.User.Mention,
+                    mention = mention,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -103,14 +107,18 @@
             var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             if (!isModOrHigher)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(ctx.User.Mention), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(new { author = ctx.User.Mention }), DiscordColor.Red);
                 return;
             }
 
             var userId = ConvertMentionToUserId(mention);
             if (userId <= 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_INVALID_USER_MENTION").FormatText(ctx.User.Mention, mention), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_INVALID_USER_MENTION").FormatText(new
+                {
+                    author = ctx.User.Mention,
+                    mention = mention,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -143,14 +151,18 @@
             var parts = coordinates.Replace(" ", null).Split(',');
             if (!double.TryParse(parts[0], out var lat) || !double.TryParse(parts[1], out var lng))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_COORDINATES").FormatText(ctx.User.Username, coordinates), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_COORDINATES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    coordinates = coordinates,
+                }), DiscordColor.Red);
                 return;
             }
 
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (subscription == null)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_USER_NOT_SUBSCRIBED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return;
             }
 
@@ -178,7 +190,13 @@
             subscription.Save();
 
             // TODO: Change response message to include new/modifed location name
-            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_DISTANCE_SET").FormatText(ctx.User.Username, distance, lat, lng));
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_DISTANCE_SET").FormatText(new
+            {
+                author = ctx.User.Username,
+                distance = distance,
+                latitude = lat,
+                longitude = lng,
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -208,7 +226,11 @@
             subscription.PhoneNumber = phoneNumber;
             subscription.Save();
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_PHONE_NUMBER_SET").FormatText(ctx.User.Username, phoneNumber));
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_PHONE_NUMBER_SET").FormatText(new
+            {
+                author = ctx.User.Username,
+                number = phoneNumber,
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -242,7 +264,11 @@
 
             if (!ulong.TryParse(userId, out var realUserId))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_PARSING_USER_ID").FormatText(ctx.User.Username, userId), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_PARSING_USER_ID").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    id = userId,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -293,22 +319,38 @@
                 var split = iv.Split('-');
                 if (split.Length != 3)
                 {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_IV_VALUES").FormatText(ctx.User.Username, iv), DiscordColor.Red);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_IV_VALUES").FormatText(new
+                    {
+                        author = ctx.User.Username,
+                        iv = iv,
+                    }), DiscordColor.Red);
                     return;
                 }
                 if (!int.TryParse(split[0], out attack))
                 {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_ATTACK_VALUE").FormatText(ctx.User.Username, split[0]), DiscordColor.Red);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_ATTACK_VALUE").FormatText(new
+                    {
+                        author = ctx.User.Username,
+                        atk_iv = split[0],
+                    }), DiscordColor.Red);
                     return;
                 }
                 if (!int.TryParse(split[1], out defense))
                 {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_DEFENSE_VALUE").FormatText(ctx.User.Username, split[1]), DiscordColor.Red);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_DEFENSE_VALUE").FormatText(new
+                    {
+                        author = ctx.User.Username,
+                        def_iv = split[1],
+                    }), DiscordColor.Red);
                     return;
                 }
                 if (!int.TryParse(split[2], out stamina))
                 {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_STAMINA_VALUE").FormatText(ctx.User.Username, split[2]), DiscordColor.Red);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_STAMINA_VALUE").FormatText(new
+                    {
+                        author = ctx.User.Username,
+                        sta_iv = split[2],
+                    }), DiscordColor.Red);
                     return;
                 }
             }
@@ -318,7 +360,11 @@
                 if (!int.TryParse(iv, out realIV) || realIV < Strings.MinimumIV || realIV > Strings.MaximumIV)
                 {
                     await ctx.TriggerTypingAsync();
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_IV_RANGE").FormatText(ctx.User.Username, iv), DiscordColor.Red);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_IV_RANGE").FormatText(new
+                    {
+                        author = ctx.User.Username,
+                        iv = iv,
+                    }), DiscordColor.Red);
                     return;
                 }
             }
@@ -331,12 +377,20 @@
                 var split = lvl.Split('-');
                 if (!int.TryParse(split[0], out minLevel))
                 {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_LEVEL", ctx.User.Username, split[0]), DiscordColor.Red);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_LEVEL", new
+                    {
+                        author = ctx.User.Username,
+                        level = split[0],
+                    }), DiscordColor.Red);
                     return;
                 }
                 if (!int.TryParse(split[1], out maxLevel))
                 {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MAXIMUM_LEVEL", ctx.User.Username, split[1]), DiscordColor.Red);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MAXIMUM_LEVEL", new
+                    {
+                        author = ctx.User.Username,
+                        level = split[1],
+                    }), DiscordColor.Red);
                     return;
                 }
             }
@@ -345,7 +399,11 @@
                 // Only minimum level was provided
                 if (!int.TryParse(lvl, out minLevel))
                 {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_LEVEL", ctx.User.Username, lvl), DiscordColor.Red);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_LEVEL", new
+                    {
+                        author = ctx.User.Username,
+                        level = lvl,
+                    }), DiscordColor.Red);
                     return;
                 }
             }
@@ -353,16 +411,22 @@
             // Validate minimum and maximum levels are within range
             if (minLevel < 0 || minLevel > 35)
             {
-                await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_LEVEL").FormatText(ctx.User.Username, lvl), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_LEVEL").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    level = lvl,
+                }), DiscordColor.Red);
                 return;
             }
 
             // Check if gender is a valid gender provided
             if (!Strings.ValidGenders.Contains(gender.ToLower()))
             {
-                await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_GENDER").FormatText(ctx.User.Username, gender), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_GENDER").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    gender = gender,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -372,7 +436,7 @@
                 // If so, make sure they specified at least 90% or higher
                 if (realIV < 90)
                 {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_IV").FormatText(ctx.User.Username), DiscordColor.Red);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_MINIMUM_IV").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                     return;
                 }
             }
@@ -384,7 +448,11 @@
             if (server.Subscriptions.MaxPokemonSubscriptions > 0 && subscription.Pokemon.Count >= server.Subscriptions.MaxPokemonSubscriptions)
             {
                 // Max limit for Pokemon subscriptions reached
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxPokemonSubscriptions), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SUBSCRIPTIONS_LIMIT").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = server.Subscriptions.MaxPokemonSubscriptions,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -411,7 +479,11 @@
             var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", validation.Invalid),
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -469,7 +541,7 @@
             await ctx.TriggerTypingAsync();
             if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return;
             }
 
@@ -512,7 +584,7 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (subscription == null || subscription?.Pokemon?.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return;
             }
 
@@ -520,13 +592,17 @@
             if (string.Compare(poke, Strings.All, true) == 0)
             {
                 // Send a confirmation confirming the user actually wants to remove all of their Pokemon subscriptions
-                var confirm = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Pokemon.Count.ToString("N0")));
+                var confirm = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_POKEMON_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = subscription.Pokemon.Count.ToString("N0"),
+                }));
                 if (!confirm)
                     return;
 
                 // Loop through all Pokemon subscriptions and remove them
                 subscription.Pokemon.ForEach(x => x.Id.Remove<PokemonSubscription>());
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_POKEMON_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
             }
@@ -534,7 +610,11 @@
             var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", validation.Invalid),
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -582,11 +662,19 @@
 
             if (error)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join(", ", pokemonNames)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", pokemonNames),
+                }), DiscordColor.Red);
                 return;
             }
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join("**, **", pokemonNames)));
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                pokemon = string.Join("**, **", pokemonNames),
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -615,14 +703,22 @@
             if (server.Subscriptions.MaxRaidSubscriptions > 0 && subscription.Raids.Count >= server.Subscriptions.MaxRaidSubscriptions)
             {
                 // Max limit for Raid subscriptions reached
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_RAID_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxRaidSubscriptions), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_RAID_SUBSCRIPTIONS_LIMIT").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = server.Subscriptions.MaxRaidSubscriptions,
+                }), DiscordColor.Red);
                 return;
             }
 
             var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", validation.Invalid),
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -666,13 +762,14 @@
             subscription.Save();
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
-                ctx.User.Username,
-                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join("**, **", pokemonNames),
-                string.IsNullOrEmpty(city)
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                pokemon = string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join("**, **", pokemonNames),
+                cities = string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
-            );
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city }),
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -692,25 +789,30 @@
             if (subscription == null || subscription?.Raids.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username,
-                    string.IsNullOrEmpty(city)
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_RAID_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    cities = string.IsNullOrEmpty(city)
                         ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                        : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
-                    DiscordColor.Red
-                );
+                        : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city }),
+                }), DiscordColor.Red);
                 return;
             }
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Raids.Count.ToString("N0")));
+                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_RAID_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = subscription.Raids.Count.ToString("N0"),
+                }));
                 if (!result)
                     return;
 
                 subscription.Raids.ForEach(x => x.Id.Remove<RaidSubscription>());
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_RAID_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
             }
@@ -718,7 +820,11 @@
             var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", validation.Invalid),
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -760,13 +866,14 @@
             }
 
             var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
-                ctx.User.Username,
-                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join("**, **", pokemonNames),
-                string.IsNullOrEmpty(city)
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                pokemon = string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join("**, **", pokemonNames),
+                cities = string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areas)))
-            );
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = string.Join(", ", areas) }),
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -795,7 +902,11 @@
             if (server.Subscriptions.MaxQuestSubscriptions > 0 && subscription.Quests.Count >= server.Subscriptions.MaxQuestSubscriptions)
             {
                 // Max limit for Quest subscriptions reached
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_QUEST_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxQuestSubscriptions), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_QUEST_SUBSCRIPTIONS_LIMIT").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = server.Subscriptions.MaxQuestSubscriptions,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -834,13 +945,14 @@
             }
 
             subscription.Save();
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
-                ctx.User.Username,
-                rewardKeyword,
-                string.IsNullOrEmpty(city)
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                reward = rewardKeyword,
+                cities = string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
-            );
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city }),
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -860,14 +972,13 @@
             if (subscription == null || subscription?.Quests.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_QUEST_SUBSCRIPTIONS").FormatText(
-                    ctx.User.Username,
-                    rewardKeyword,
-                    string.IsNullOrEmpty(city)
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_QUEST_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    cities = string.IsNullOrEmpty(city)
                         ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                        : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
-                    DiscordColor.Red
-                );
+                        : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city })
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -877,7 +988,11 @@
 
             if (string.Compare(rewardKeyword, Strings.All, true) == 0)
             {
-                var removeAllResult = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_QUEST_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Quests.Count.ToString("N0")));
+                var removeAllResult = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_QUEST_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = subscription.Quests.Count.ToString("N0"),
+                }));
                 if (!removeAllResult)
                     return;
 
@@ -921,13 +1036,14 @@
             }
             subscription.Save();
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
-                ctx.User.Username,
-                rewardKeyword,
-                string.IsNullOrEmpty(city)
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                reward = rewardKeyword,
+                cities = string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
-            );
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city }),
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -958,7 +1074,11 @@
             if (server.Subscriptions.MaxGymSubscriptions > 0 && subscription.Gyms.Count >= server.Subscriptions.MaxGymSubscriptions)
             {
                 // Max limit for Gym subscriptions reached
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_GYM_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxGymSubscriptions), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_GYM_SUBSCRIPTIONS_LIMIT").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = server.Subscriptions.MaxGymSubscriptions,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -992,7 +1112,11 @@
             subscription.Gyms.Add(subGym);
             subscription.Save();
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_ADDED").FormatText(ctx.User.Username, gymName));
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_ADDED").FormatText(new
+            {
+                author = ctx.User.Username,
+                gym = gymName,
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -1011,12 +1135,16 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (string.Compare(Strings.All, gymName, true) == 0)
             {
-                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Gyms.Count.ToString("N0")));
+                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = subscription.Gyms.Count.ToString("N0"),
+                }));
                 if (!result)
                     return;
 
                 subscription.Gyms.ForEach(x => x.Id.Remove<GymSubscription>());
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
             }
@@ -1025,7 +1153,11 @@
                 .Where(x => string.Compare(x.Name, gymName, true) == 0)?
                 .ToList()?
                 .ForEach(x => x.Id.Remove<GymSubscription>());
-            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_REMOVED").FormatText(ctx.User.Username, gymName));
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_REMOVED").FormatText(new
+            {
+                author = ctx.User.Username,
+                gym = gymName,
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -1054,14 +1186,22 @@
             if (server.Subscriptions.MaxInvasionSubscriptions > 0 && subscription.Invasions.Count >= server.Subscriptions.MaxInvasionSubscriptions)
             {
                 // Max limit for Invasion subscriptions reached
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_INVASION_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxInvasionSubscriptions), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_INVASION_SUBSCRIPTIONS_LIMIT").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = server.Subscriptions.MaxInvasionSubscriptions,
+                }), DiscordColor.Red);
                 return;
             }
 
             var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", validation.Invalid),
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -1103,13 +1243,14 @@
             subscription.Save();
 
             var validPokemonNames = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
-                ctx.User.Username,
-                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", validPokemonNames),
-                string.IsNullOrEmpty(city)
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                pokemon = string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", validPokemonNames),
+                cities = string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
-            );
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city }),
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -1129,9 +1270,13 @@
             if (subscription == null || subscription?.Invasions.Count == 0)
             {
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city)
-                    ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_INVASION_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    cities = string.IsNullOrEmpty(city)
+                        ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
+                        : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city })
+                    }),
                     DiscordColor.Red
                 );
                 return;
@@ -1139,14 +1284,18 @@
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Invasions.Count.ToString("N0")));
+                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_INVASION_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = subscription.Invasions.Count.ToString("N0"),
+                }));
                 if (!result)
                     return;
 
                 subscription.Invasions.ForEach(x => x.Id.Remove<InvasionSubscription>());
 
                 await ctx.TriggerTypingAsync();
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_INVASION_SUBSCRIPTIONS").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_INVASION_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
             }
@@ -1154,7 +1303,11 @@
             var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", validation.Invalid),
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -1193,13 +1346,14 @@
             subscription.Save();
 
             var validPokemonNames = validation.Valid.Keys.Select(x => MasterFile.GetPokemon(x, 0).Name);
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
-                ctx.User.Username,
-                string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", validPokemonNames),
-                string.IsNullOrEmpty(city)
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                pokemon = string.Compare(poke, Strings.All, true) == 0 ? Strings.All : string.Join(", ", validPokemonNames),
+                cities = string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
-            );
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city }),
+            }));
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -1237,20 +1391,32 @@
 
             if (pvpLeague == PvPLeague.Other)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_LEAGUE").FormatText(ctx.User.Username, league), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_LEAGUE").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    league = league,
+                }), DiscordColor.Red);
                 return;
             }
 
             //You may only subscribe to the top 100 or higher rank.
             if (minimumRank < Strings.MinimumRank || minimumRank > Strings.MaximumRank)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumRank), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    rank = minimumRank,
+                }), DiscordColor.Red);
                 return;
             }
 
             if (minimumPercent < Strings.MinimumPercent || minimumPercent > Strings.MaximumPercent)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_RANK_RANGE").FormatText(ctx.User.Username, minimumPercent), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_PERCENT_RANGE").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    percent = minimumPercent,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -1259,7 +1425,11 @@
             if (server.Subscriptions.MaxPvPSubscriptions > 0 && subscription.PvP.Count >= server.Subscriptions.MaxPvPSubscriptions)
             {
                 // Max limit for PvP subscriptions reached
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxPvPSubscriptions), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_SUBSCRIPTIONS_LIMIT", new
+                {
+                    author = ctx.User.Username,
+                    amount = server.Subscriptions.MaxPvPSubscriptions,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -1274,7 +1444,11 @@
             var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", validation.Invalid),
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -1291,8 +1465,15 @@
             /*
             if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, pokemonId), DiscordColor.Red);
-                continue;
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
+                {
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(new
+                    {
+                        author = ctx.User.Username,
+                        pokemon = pokemonId,
+                    }), DiscordColor.Red);
+                    continue;
+                }
             }
             */
 
@@ -1342,7 +1523,7 @@
 
             if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return;
             }
 
@@ -1386,7 +1567,7 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (subscription == null || subscription?.PvP?.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_PVP_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return;
             }
 
@@ -1400,13 +1581,22 @@
 
             if (pvpLeague == PvPLeague.Other)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_LEAGUE").FormatText(ctx.User.Username, league), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_LEAGUE").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    league = league,
+                }), DiscordColor.Red);
                 return;
             }
 
             if (string.Compare(poke, Strings.All, true) == 0)
             {
-                var confirm = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.PvP.Count(x => x.League == pvpLeague).ToString("N0"), pvpLeague));
+                var confirm = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = subscription.PvP.Count(x => x.League == pvpLeague).ToString("N0"),
+                    league = pvpLeague,
+                }));
                 if (!confirm)
                     return;
 
@@ -1415,7 +1605,11 @@
                     .ToList()?
                     .ForEach(x => x.Id.Remove<PvPSubscription>());
 
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(ctx.User.Username, pvpLeague));
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_PVP_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    league = pvpLeague,
+                }));
                 _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                 return;
             }
@@ -1423,7 +1617,11 @@
             var validation = PokemonValidation.Validate(poke, _dep.WhConfig.MaxPokemonId);
             if (validation.Valid == null || validation.Valid.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", validation.Invalid),
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -1457,7 +1655,11 @@
             if (server.Subscriptions.MaxLureSubscriptions > 0 && subscription.Lures.Count >= server.Subscriptions.MaxLureSubscriptions)
             {
                 // Max limit for Lure subscriptions reached
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_LURE_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxLureSubscriptions), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_LURE_SUBSCRIPTIONS_LIMIT").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = server.Subscriptions.MaxLureSubscriptions,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -1495,13 +1697,14 @@
             }
             subscription.Save();
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_LURE_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
-                ctx.User.Username,
-                string.Compare(lureTypes, Strings.All, true) == 0 ? Strings.All : string.Join(", ", lures),
-                string.IsNullOrEmpty(city)
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_LURE_SUBSCRIPTIONS_SUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                lure = string.Compare(lureTypes, Strings.All, true) == 0 ? Strings.All : string.Join(", ", lures),
+                cities = string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
-            );
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city }),
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -1520,17 +1723,23 @@
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (subscription == null || subscription?.Lures.Count == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_LURE_SUBSCRIPTIONS").FormatText(ctx.User.Username, string.IsNullOrEmpty(city)
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_LURE_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    cities = string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city)),
-                    DiscordColor.Red
-                );
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city })
+                }), DiscordColor.Red);
                 return;
             }
 
             if (string.Compare(lureTypes, Strings.All, true) == 0)
             {
-                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_LURE_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Lures.Count.ToString("N0")));
+                var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_LURE_SUBSCRIPTIONS").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    amount = subscription.Lures.Count.ToString("N0"),
+                }));
                 if (!result)
                     return;
 
@@ -1576,13 +1785,14 @@
             }
             subscription.Save();
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_LURE_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
-                ctx.User.Username,
-                string.Compare(lureTypes, Strings.All, true) == 0 ? Strings.All : string.Join(", ", lures),
-                string.IsNullOrEmpty(city)
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_LURE_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                lure = string.Compare(lureTypes, Strings.All, true) == 0 ? Strings.All : string.Join(", ", lures),
+                cities = string.IsNullOrEmpty(city)
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(city))
-            );
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = city }),
+            }));
 
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
@@ -1618,7 +1828,11 @@
                         if (server.Subscriptions.MaxPokemonSubscriptions > 0 && subscription.Pokemon.Count >= server.Subscriptions.MaxPokemonSubscriptions)
                         {
                             // Max limit for Pokemon subscriptions reached
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxPokemonSubscriptions), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SUBSCRIPTIONS_LIMIT", new
+                            {
+                                author = ctx.User.Username,
+                                amount = server.Subscriptions.MaxPokemonSubscriptions,
+                            }), DiscordColor.Red);
                             return;
                         }
 
@@ -1636,7 +1850,7 @@
                         var alreadySubscribed = result.Value;
                         if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
                         {
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(ctx.User.Username), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                             return;
                         }
 
@@ -1677,7 +1891,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         if (server.Subscriptions.MaxPvPSubscriptions > 0 && subscription.PvP.Count >= server.Subscriptions.MaxPvPSubscriptions)
                         {
                             // Max limit for PvP Pokemon subscriptions reached
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxPvPSubscriptions), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_PVP_SUBSCRIPTIONS_LIMIT", new
+                            {
+                                author = ctx.User.Username,
+                                amount = server.Subscriptions.MaxPvPSubscriptions,
+                            }), DiscordColor.Red);
                             return;
                         }
 
@@ -1689,12 +1907,12 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var pvpAreas = await pvpInput.GetAreasResult(guildId);
 
                         var validPokemonNames = string.Join(", ", pvpPokemon.Valid.Keys);
-                        var pvpResult = AddPvPSubscription(ctx, subscription, pvpPokemon, pvpLeague, pvpRank, pvpPercent, pvpAreas);
+                        var pvpResult = await AddPvPSubscription(ctx, subscription, pvpPokemon, pvpLeague, pvpRank, pvpPercent, pvpAreas);
                         var subscribed = pvpResult.Key;
                         var alreadySubscribed = pvpResult.Value;
                         if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
                         {
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(ctx.User.Username), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                             return;
                         }
 
@@ -1728,7 +1946,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         if (server.Subscriptions.MaxRaidSubscriptions > 0 && subscription.Raids.Count >= server.Subscriptions.MaxRaidSubscriptions)
                         {
                             // Max limit for Raid subscriptions reached
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_RAID_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxRaidSubscriptions), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_RAID_SUBSCRIPTIONS_LIMIT").FormatText(new
+                            {
+                                author = ctx.User.Username,
+                                amount = server.Subscriptions.MaxRaidSubscriptions,
+                            }), DiscordColor.Red);
                             return;
                         }
 
@@ -1742,7 +1964,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var alreadySubscribed = raidResult.Value;
                         if (subscribed.Count == 0 && alreadySubscribed.Count == 0)
                         {
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(ctx.User.Username), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_SPECIFIED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                             return;
                         }
 
@@ -1758,13 +1980,14 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                             }
                         }
                         */
-                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
-                            ctx.User.Username,
-                            isAll ? Strings.All : validPokemonNames,
-                            raidAreas.Count == server.Geofences.Count
+                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            pokemon = isAll ? Strings.All : validPokemonNames,
+                            cities = raidAreas.Count == server.Geofences.Count
                                 ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", raidAreas))
-                        ));
+                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = string.Join(", ", raidAreas) }),
+                        }));
                     }
                     #endregion
                     break;
@@ -1775,7 +1998,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         if (server.Subscriptions.MaxQuestSubscriptions > 0 && subscription.Quests.Count >= server.Subscriptions.MaxQuestSubscriptions)
                         {
                             // Max limit for Quest subscriptions reached
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_QUEST_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxQuestSubscriptions), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_QUEST_SUBSCRIPTIONS_LIMIT").FormatText(new
+                            {
+                                author = ctx.User.Username,
+                                amount = server.Subscriptions.MaxQuestSubscriptions,
+                            }), DiscordColor.Red);
                             return;
                         }
 
@@ -1811,13 +2038,14 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         }
 
                         subscription.Save();
-                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
-                            ctx.User.Username,
-                            rewardKeyword,
-                            areas.Count == server.Geofences.Count
+                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_SUBSCRIBE").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            reward = rewardKeyword,
+                            cities = areas.Count == server.Geofences.Count
                                 ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areas))
-                        ));
+                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = string.Join(", ", areas) }),
+                        }));
                     }
                     #endregion
                     break;
@@ -1828,7 +2056,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         if (server.Subscriptions.MaxInvasionSubscriptions > 0 && subscription.Invasions.Count >= server.Subscriptions.MaxInvasionSubscriptions)
                         {
                             // Max limit for Invasion subscriptions reached
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_INVASION_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxInvasionSubscriptions), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_INVASION_SUBSCRIPTIONS_LIMIT").FormatText(new
+                            {
+                                author = ctx.User.Username,
+                                amount = server.Subscriptions.MaxInvasionSubscriptions,
+                            }), DiscordColor.Red);
                             return;
                         }
 
@@ -1871,13 +2103,14 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         }
 
                         var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
-                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(
-                            ctx.User.Username,
-                            isAll ? Strings.All : validPokemonNames,
-                            invasionAreas.Count == server.Geofences.Count
+                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_SUBSCRIBE").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            pokemon = isAll ? Strings.All : validPokemonNames,
+                            cities = invasionAreas.Count == server.Geofences.Count
                                 ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", invasionAreas))
-                        ));
+                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = string.Join(", ", invasionAreas) }),
+                        }));
                     }
                     #endregion
                     break;
@@ -1888,7 +2121,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         if (server.Subscriptions.MaxGymSubscriptions > 0 && subscription.Gyms.Count >= server.Subscriptions.MaxGymSubscriptions)
                         {
                             // Max limit for Gym subscriptions reached
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_GYM_SUBSCRIPTIONS_LIMIT", ctx.User.Username, server.Subscriptions.MaxGymSubscriptions), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_GYM_SUBSCRIPTIONS_LIMIT").FormatText(new
+                            {
+                                author = ctx.User.Username,
+                                amount = server.Subscriptions.MaxGymSubscriptions,
+                            }), DiscordColor.Red);
                             return;
                         }
 
@@ -1905,7 +2142,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var gymExists = subscription.Gyms.Exists(x => string.Compare(x.Name, gymName, true) == 0);
                         if (gymExists)
                         {
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_EXISTS").FormatText(ctx.User.Username, gymName), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_EXISTS").FormatText(new
+                            {
+                                author = ctx.User.Username,
+                                gym = gymName,
+                            }), DiscordColor.Red);
                             return;
                         }
 
@@ -1917,7 +2158,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         });
                         subscription.Save();
 
-                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_ADDED").FormatText(ctx.User.Username, gymName));
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_ADDED").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            gym = gymName,
+                        }));
                         _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                     }
                     break;
@@ -1940,7 +2185,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 //if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
                 if (validation.Invalid.Count > 0)
                 {
-                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(ctx.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(new
+                    {
+                        author = ctx.User.Username,
+                        pokemon = string.Join(", ", validation.Invalid),
+                    }), DiscordColor.Red);
                     //continue;
                     return new KeyValuePair<List<string>, List<string>>();
                 }
@@ -1957,7 +2206,12 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var pokemon = MasterFile.Instance.Pokedex[validId];
                         var name = string.IsNullOrEmpty(validForm) ? pokemon.Name : pokemon.Name + "-" + validForm;
                         await ctx.TriggerTypingAsync();
-                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_COMMON_TYPE_POKEMON").FormatText(ctx.User.Username, name, Strings.CommonTypeMinimumIV), DiscordColor.Red);
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_COMMON_TYPE_POKEMON").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            pokemon = name,
+                            min_iv = Strings.CommonTypeMinimumIV,
+                        }), DiscordColor.Red);
                         continue;
                     }
                 }
@@ -2026,10 +2280,23 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             return new KeyValuePair<List<string>, List<string>>(subscribed, alreadySubscribed);
         }
 
-        private KeyValuePair<List<string>, List<string>> AddPvPSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, PvPLeague league, int minRank, double minPercent, List<string> areas)
+        private async Task<KeyValuePair<List<string>, List<string>>> AddPvPSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, PvPLeague league, int minRank, double minPercent, List<string> areas)
         {
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
+
+            foreach (var (pokemonId, form) in validation.Valid)
+            {
+                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemonId))
+                {
+                    await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_ID").FormatText(new
+                    {
+                        author = ctx.User.Username,
+                        pokemon = pokemonId,
+                    }), DiscordColor.Red);
+                    continue;
+                }
+            }
 
             var valid = string.Join(",", validation.Valid.Keys.ToList());
             var forms = string.Join(",", validation.Valid.Values.ToList());
@@ -2147,7 +2414,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     {
                         if (subscription == null || subscription?.Pokemon.Count == 0)
                         {
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                             return;
                         }
 
@@ -2164,7 +2431,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     {
                         if (subscription == null || subscription?.PvP.Count == 0)
                         {
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_POKEMON_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_NO_PVP_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                             return;
                         }
 
@@ -2182,7 +2449,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     {
                         if (subscription == null || subscription?.Raids.Count == 0)
                         {
-                            await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_RAID_SUBSCRIPTIONS").FormatText(ctx.User.Username, DiscordColor.Red));
+                            await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_RAID_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                             return;
                         }
 
@@ -2199,7 +2466,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     {
                         if (subscription == null || subscription?.Quests.Count == 0)
                         {
-                            await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_QUEST_SUBSCRIPTIONS").FormatText(ctx.User.Username, DiscordColor.Red));
+                            await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NO_QUEST_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                             return;
                         }
 
@@ -2213,7 +2480,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
 
                         if (string.Compare(rewardResult, Strings.All, true) == 0)
                         {
-                            var removeAllResult = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_QUEST_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Quests.Count.ToString("N0")));
+                            var removeAllResult = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_QUEST_SUBSCRIPTIONS").FormatText(new
+                            {
+                                author = ctx.User.Username,
+                                amount = subscription.Quests.Count.ToString("N0"),
+                            }));
                             if (!removeAllResult)
                                 return;
 
@@ -2254,13 +2525,14 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         }
                         subscription.Save();
 
-                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
-                            ctx.User.Username,
-                            rewardResult,
-                            areasResult.Count == server.Geofences.Count
+                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_QUEST_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            reward = rewardResult,
+                            cities = areasResult.Count == server.Geofences.Count
                                 ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(string.Join(", ", areasResult)))
-                        );
+                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = string.Join(", ", areasResult) }),
+                        }));
                     }
                     #endregion
                     break;
@@ -2311,13 +2583,14 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var validIds = valid.Split(',').Select(x => uint.Parse(x));
                         var validPokemonNames = string.Join("**, **", validIds.Select(x => MasterFile.Instance.Pokedex[x].Name));
                         var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
-                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
-                            ctx.User.Username,
-                            isAll ? Strings.All : validPokemonNames,
-                            invasionAreasResult.Count == server.Geofences.Count
+                        await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_INVASION_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            pokemon = isAll ? Strings.All : validPokemonNames,
+                            cities = invasionAreasResult.Count == server.Geofences.Count
                                 ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(validPokemonNames)
-                        ));
+                                : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = string.Join(", ", invasionAreasResult) }),
+                        }));
                     }
                     #endregion
                     break;
@@ -2330,12 +2603,16 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
 
                         if (string.Compare(Strings.All, gymName, true) == 0)
                         {
-                            var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(ctx.User.Username, subscription.Gyms.Count.ToString("N0")));
+                            var result = await ctx.Confirm(Translator.Instance.Translate("NOTIFY_CONFIRM_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(new
+                            {
+                                author = ctx.User.Username,
+                                amount = subscription.Gyms.Count.ToString("N0"),
+                            }));
                             if (!result)
                                 return;
 
                             subscription.Gyms.ForEach(x => x.Id.Remove<GymSubscription>());
-                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(ctx.User.Username));
+                            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_SUCCESS_REMOVE_ALL_GYM_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }));
                             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
                             return;
                         }
@@ -2344,7 +2621,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                             .Where(x => string.Compare(x.Name, gymName, true) == 0)?
                             .ToList()?
                             .ForEach(x => x.Id.Remove<GymSubscription>());
-                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_REMOVED").FormatText(ctx.User.Username, gymName));
+                        await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_GYM_SUBSCRIPTION_REMOVED").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            gym = gymName,
+                        }));
                     }
                     break;
                     #endregion
@@ -2399,7 +2680,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             if (error)
             {
                 var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
-                await ctx.RespondEmbed(Translator.Instance.Translate("FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, pokemonNames), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = pokemonNames,
+                }), DiscordColor.Red);
                 return;
             }
         }
@@ -2445,11 +2730,20 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
 
             if (error)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join(", ", pokemonNames)), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", pokemonNames),
+                }), DiscordColor.Red);
                 return;
             }
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(ctx.User.Username, string.Join("**, **", pokemonNames), league));
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_PVP_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                pokemon = string.Join("**, **", pokemonNames),
+                league = league,
+            }));
         }
 
         private async Task RemoveRaidSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
@@ -2489,15 +2783,16 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 }
             }
 
-            var validPokemonNames = string.Join("**, **", validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value)));;
+            var validPokemonNames = string.Join("**, **", validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value))); ;
             var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
-            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(
-                ctx.User.Username,
-                isAll ? Strings.All : validPokemonNames,
-                areas.Count == server.Geofences.Count
+            await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
+            {
+                author = ctx.User.Username,
+                pokemon = isAll ? Strings.All : validPokemonNames,
+                cities = areas.Count == server.Geofences.Count
                     ? Translator.Instance.Translate("SUBSCRIPTIONS_FROM_ALL_CITIES")
-                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(validPokemonNames))
-            );
+                    : Translator.Instance.Translate("SUBSCRIPTIONS_FROM_CITY").FormatText(new { city = string.Join(", ", areas) }),
+            }));
         }
 
         #endregion
@@ -2536,14 +2831,18 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var isModOrHigher = await ctx.Client.IsModeratorOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
             if (!isModOrHigher)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(ctx.User.Mention), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_NOT_MODERATOR_OR_HIGHER").FormatText(new { author = ctx.User.Mention }), DiscordColor.Red);
                 return;
             }
 
             var userId = ConvertMentionToUserId(mention);
             if (userId <= 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_INVALID_USER_MENTION").FormatText(ctx.User.Mention, mention), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_INVALID_USER_MENTION").FormatText(new
+                {
+                    author = ctx.User.Mention,
+                    mention = mention,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -2584,7 +2883,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_IMPORT_UPLOAD_FILE").FormatText(ctx.User.Username));
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_IMPORT_UPLOAD_FILE").FormatText(new { author = ctx.User.Username }));
             var xc = await _dep.Interactivity.WaitForMessageAsync(x => x.Author.Id == ctx.User.Id && x.Attachments.Count > 0, TimeSpan.FromSeconds(180));
             if (xc == null)
                 return;
@@ -2596,7 +2895,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var data = NetUtil.Get(attachment.Url);
             if (string.IsNullOrEmpty(data))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_IMPORT_INVALID_ATTACHMENT").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_IMPORT_INVALID_ATTACHMENT").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return;
             }
 
@@ -2613,11 +2912,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var subscription = JsonConvert.DeserializeObject<SubscriptionObject>(data);
             if (subscription == null)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_IMPORT_MALFORMED_DATA").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_IMPORT_MALFORMED_DATA").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return;
             }
             subscription.Save();
-            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_IMPORT_SUCCESS").FormatText(ctx.User.Username));
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_IMPORT_SUCCESS").FormatText(new { author = ctx.User.Username }));
         }
 
         [
@@ -2634,7 +2933,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var subscription = _dep.SubscriptionProcessor.Manager.GetUserSubscriptions(guildId, ctx.User.Id);
             if (subscription == null)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_EXPORT_NO_SUBSCRIPTIONS").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_EXPORT_NO_SUBSCRIPTIONS").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return;
             }
 
@@ -2642,7 +2941,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var tmpFile = Path.Combine(Path.GetTempPath(), $"{ctx.Guild?.Name}_{ctx.User.Username}_subscriptions_{DateTime.Now:yyyy-MM-dd}.json");
             File.WriteAllText(tmpFile, json);
 
-            await ctx.RespondWithFileAsync(tmpFile, Translator.Instance.Translate("NOTIFY_EXPORT_SUCCESS").FormatText(ctx.User.Username));
+            await ctx.RespondWithFileAsync(tmpFile, Translator.Instance.Translate("NOTIFY_EXPORT_SUCCESS").FormatText(new { author = ctx.User.Username }));
         }
 
         #endregion
@@ -2694,7 +2993,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
 
             if (!_dep.WhConfig.IconStyles.Select(x => x.Key.ToLower()).Contains(iconStyle.ToLower()))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_ICON_STYLE").FormatText(ctx.User.Username, _dep.WhConfig.Servers[guildId].CommandPrefix), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_ICON_STYLE").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    prefix = _dep.WhConfig.Servers[guildId].CommandPrefix,
+                }), DiscordColor.Red);
                 return;
             }
 
@@ -2708,7 +3011,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             subscription.IconStyle = iconStyle;
             subscription.Save();
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ICON_STYLE_CHANGE").FormatText(ctx.User.Username, iconStyle));
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ICON_STYLE_CHANGE").FormatText(new
+            {
+                author = ctx.User.Username,
+                style = iconStyle,
+            }));
             _dep.SubscriptionProcessor.Manager.ReloadSubscriptions();
         }
 
@@ -2799,7 +3106,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             //subscription.Save();
 
             await ctx.TriggerTypingAsync();
-            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ENABLE_DISABLE").FormatText(user.Username, cmd));
+            await ctx.RespondEmbed(Translator.Instance.Translate("NOTIFY_ENABLE_DISABLE").FormatText(new
+            {
+                author = user.Username,
+                command = cmd,
+            }));
         }
 
         private async Task SendUserSubscriptionSettings(DiscordClient client, DiscordUser receiver, DiscordUser user, ulong guildId)
@@ -2811,7 +3122,12 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 message = message.Length > 2000 ? message.Substring(0, Math.Min(message.Length, 1500)) : message;
                 var eb = new DiscordEmbedBuilder
                 {
-                    Title = Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_TITLE").FormatText(user.Username, i + 1, messages.Count),
+                    Title = Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_TITLE").FormatText(new
+                    {
+                        author = user.Username,
+                        page = i + 1,
+                        pages = messages.Count,
+                    }),
                     Description = message,
                     Color = DiscordColor.CornflowerBlue,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
@@ -2858,14 +3174,20 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var activeLocation = subscription.Locations?.FirstOrDefault(x => string.Compare(x.Name, subscription.Location, true) == 0);
             var locationLink = $"[{activeLocation?.Latitude},{activeLocation?.Longitude}]({string.Format(Strings.GoogleMaps, activeLocation?.Latitude, activeLocation?.Longitude)})";
             var sb = new StringBuilder();
-            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ENABLED").FormatText(subscription.Status.ToString()));
-            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ICON_STYLE").FormatText(subscription.IconStyle));
-            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(activeLocation?.DistanceM == 0 ?
-                Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET") :
-                Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_KM").FormatText(activeLocation?.DistanceM.ToString("N0"), locationLink)));
+            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ENABLED").FormatText(new { status = subscription.Status.ToString() }));
+            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_ICON_STYLE").FormatText(new { style = subscription.IconStyle }));
+            sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE").FormatText(new
+            {
+                distance = activeLocation?.DistanceM == 0
+                ? Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_NOT_SET")
+                : Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_DISTANCE_KM").FormatText(new
+                {
+                    location_url = locationLink,
+                })
+            }));
             if (!string.IsNullOrEmpty(subscription.PhoneNumber))
             {
-                sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PHONE_NUMBER").FormatText(subscription.PhoneNumber));
+                sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PHONE_NUMBER").FormatText(new { number = subscription.PhoneNumber }));
             }
             sb.AppendLine(Environment.NewLine);
 
@@ -2887,12 +3209,20 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     }
                 }
 
-                sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_POKEMON").FormatText(pokemon.Count, server.Subscriptions.MaxPokemonSubscriptions == 0 ? "∞" : server.Subscriptions.MaxPokemonSubscriptions.ToString("N0")));
+                sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_POKEMON").FormatText(new
+                {
+                    amount = pokemon.Count,
+                    max = server.Subscriptions.MaxPokemonSubscriptions == 0 ? "∞" : server.Subscriptions.MaxPokemonSubscriptions.ToString("N0"),
+                }));
                 sb.Append("```");
 
                 if (exceedsLimits)
                 {
-                    sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED").FormatText(defaultIV, defaultCount.ToString("N0")));
+                    sb.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_POKEMON_DEFAULT_UNLISTED").FormatText(new
+                    {
+                        iv = defaultIV,
+                        amount = defaultCount.ToString("N0"),
+                    }));
                 }
 
                 var cityRoles = server.Geofences.Select(x => x.Name);
@@ -2909,7 +3239,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     //var msg = $"{poke.PokemonId}: {pkmn.Name}{form} {(poke.MinimumIV + "%+ " + (poke.HasStats ? string.Join(", ", poke.IVList) : string.Empty))}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}";
                     var msg = $"{poke.PokemonIdString}: {poke}{form} {(poke.MinimumIV + "%+ " + (poke.HasStats ? string.Join(", ", poke.IVList) : string.Empty))}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}";
                     var isAllCities = cityRoles.ScrambledEquals(poke.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                    sb.AppendLine(Translator.Instance.Translate("NOTIFY_FROM").FormatText(msg, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", poke.Areas)));
+                    sb.AppendLine(Translator.Instance.Translate("NOTIFY_FROM").FormatText(new
+                    {
+                        line = msg,
+                        cities = isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", poke.Areas),
+                    }));
                 }
 
                 sb.Append("```");
@@ -2921,7 +3255,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             if (hasPvP)
             {
                 var pvpBuilder = new StringBuilder();
-                pvpBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP").FormatText(subscription.PvP.Count.ToString("N0"), server.Subscriptions.MaxPvPSubscriptions == 0 ? "∞" : server.Subscriptions.MaxPvPSubscriptions.ToString("N0")));
+                pvpBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP").FormatText(new
+                {
+                    amount = subscription.PvP.Count.ToString("N0"),
+                    max = server.Subscriptions.MaxPvPSubscriptions == 0 ? "∞" : server.Subscriptions.MaxPvPSubscriptions.ToString("N0"),
+                }));
                 pvpBuilder.Append("```");
                 pvpBuilder.Append(string.Join(Environment.NewLine, GetPvPSubscriptionNames(guildId, user.Id)));
                 pvpBuilder.Append("```");
@@ -2933,7 +3271,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             if (hasRaids)
             {
                 var raidsBuilder = new StringBuilder();
-                raidsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_RAIDS").FormatText(subscription.Raids.Count.ToString("N0"), server.Subscriptions.MaxRaidSubscriptions == 0 ? "∞" : server.Subscriptions.MaxRaidSubscriptions.ToString("N0")));
+                raidsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_RAIDS").FormatText(new
+                {
+                    amount = subscription.Raids.Count.ToString("N0"),
+                    max = server.Subscriptions.MaxRaidSubscriptions == 0 ? "∞" : server.Subscriptions.MaxRaidSubscriptions.ToString("N0"),
+                }));
                 raidsBuilder.Append("```");
                 raidsBuilder.Append(string.Join(Environment.NewLine, GetRaidSubscriptionNames(guildId, user.Id)));
                 raidsBuilder.Append("```");
@@ -2945,7 +3287,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             if (hasGyms)
             {
                 var gymsBuilder = new StringBuilder();
-                gymsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_GYMS").FormatText(subscription.Gyms.Count.ToString("N0"), server.Subscriptions.MaxGymSubscriptions == 0 ? "" : server.Subscriptions.MaxGymSubscriptions.ToString("N0")));
+                gymsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_GYMS").FormatText(new
+                {
+                    amount = subscription.Gyms.Count.ToString("N0"),
+                    max = server.Subscriptions.MaxGymSubscriptions == 0 ? "" : server.Subscriptions.MaxGymSubscriptions.ToString("N0"),
+                }));
                 gymsBuilder.Append("```");
                 gymsBuilder.Append(string.Join(Environment.NewLine, GetGymSubscriptionNames(guildId, user.Id)));
                 gymsBuilder.Append("```");
@@ -2957,7 +3303,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             if (hasQuests)
             {
                 var questsBuilder = new StringBuilder();
-                questsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_QUESTS").FormatText(subscription.Quests.Count.ToString("N0"), server.Subscriptions.MaxQuestSubscriptions == 0 ? "∞" : server.Subscriptions.MaxQuestSubscriptions.ToString("N0")));
+                questsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_QUESTS").FormatText(new
+                {
+                    amount = subscription.Quests.Count.ToString("N0"),
+                    max = server.Subscriptions.MaxQuestSubscriptions == 0 ? "∞" : server.Subscriptions.MaxQuestSubscriptions.ToString("N0"),
+                }));
                 questsBuilder.Append("```");
                 questsBuilder.Append(string.Join(Environment.NewLine, GetQuestSubscriptionNames(guildId, user.Id)));
                 questsBuilder.Append("```");
@@ -2969,7 +3319,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             if (hasInvasions)
             {
                 var invasionsBuilder = new StringBuilder();
-                invasionsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_INVASIONS").FormatText(subscription.Invasions.Count.ToString("N0"), server.Subscriptions.MaxInvasionSubscriptions == 0 ? "∞" : server.Subscriptions.MaxInvasionSubscriptions.ToString("N0")));
+                invasionsBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_INVASIONS").FormatText(new
+                {
+                    amount = subscription.Invasions.Count.ToString("N0"),
+                    max = server.Subscriptions.MaxInvasionSubscriptions == 0 ? "∞" : server.Subscriptions.MaxInvasionSubscriptions.ToString("N0"),
+                }));
                 invasionsBuilder.Append("```");
                 invasionsBuilder.Append(string.Join(Environment.NewLine, GetInvasionSubscriptionNames(guildId, user.Id)));
                 invasionsBuilder.Append("```");
@@ -2981,7 +3335,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             if (hasLures)
             {
                 var luresBuilder = new StringBuilder();
-                luresBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_LURES").FormatText(subscription.Lures.Count.ToString("N0"), server.Subscriptions.MaxLureSubscriptions == 0 ? "∞" : server.Subscriptions.MaxLureSubscriptions.ToString("N0")));
+                luresBuilder.AppendLine(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_LURES").FormatText(new
+                {
+                    amount = subscription.Lures.Count.ToString("N0"),
+                    max = server.Subscriptions.MaxLureSubscriptions == 0 ? "∞" : server.Subscriptions.MaxLureSubscriptions.ToString("N0"),
+                }));
                 luresBuilder.Append("```");
                 luresBuilder.Append(string.Join(Environment.NewLine, GetLureSubscriptionNames(guildId, user.Id)));
                 luresBuilder.Append("```");
@@ -3017,7 +3375,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var exceedsLimits = subscribedPvP.Count > Strings.MaxPokemonDisplayed;
             if (exceedsLimits)
             {
-                list.Add(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP_DEFAULT_UNLISTED").FormatText(defaultRank, defaultCount.ToString("N0")));
+                list.Add(Translator.Instance.Translate("NOTIFY_SETTINGS_EMBED_PVP_DEFAULT_UNLISTED").FormatText(new
+                {
+                    rank = defaultRank,
+                    amount = defaultCount.ToString("N0"),
+                }));
             }
 
             //var cityRoles = server.CityRoles;
@@ -3053,7 +3415,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     continue;
 
                 var isAllCities = cityRoles.ScrambledEquals(raid.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(pokemon.Name, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", raid.Areas)));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(new
+                {
+                    line = pokemon.Name,
+                    cities = isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", raid.Areas),
+                }));
             }
 
             return list;
@@ -3084,7 +3450,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             foreach (var quest in subscribedQuests)
             {
                 var isAllCities = cityRoles.ScrambledEquals(quest.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(quest.RewardKeyword, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", quest.Areas)));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(new
+                {
+                    line = quest.RewardKeyword,
+                    cities = isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", quest.Areas),
+                }));
             }
 
             return list;
@@ -3101,7 +3471,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             foreach (var invasion in subscribedInvasions)
             {
                 var isAllCities = cityRoles.ScrambledEquals(invasion.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(string.Join(", ", invasion.RewardPokemonId.Select(x => MasterFile.GetPokemon(x, 0).Name)), isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", invasion.Areas)));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(new
+                {
+                    line = string.Join(", ", invasion.RewardPokemonId.Select(x => MasterFile.GetPokemon(x, 0).Name)),
+                    cities = isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", invasion.Areas),
+                }));
             }
 
             return list;
@@ -3118,7 +3492,11 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             foreach (var lure in subscribedLures)
             {
                 var isAllCities = cityRoles.ScrambledEquals(lure.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
-                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(lure.LureType, isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", lure.Areas)));
+                list.Add(Translator.Instance.Translate("NOTIFY_FROM").FormatText(new
+                {
+                    line = lure.LureType,
+                    cities = isAllCities ? Translator.Instance.Translate("ALL_AREAS") : string.Join(", ", lure.Areas),
+                }));
             }
 
             return list;
@@ -3165,7 +3543,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
 
             if (!_dep.WhConfig.Servers[guildId].Subscriptions.Enabled)
             {
-                await ctx.RespondEmbed(string.Format(Translator.Instance.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED"), ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return false;
             }
 
