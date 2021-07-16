@@ -10,7 +10,7 @@ CREATE TABLE `subscriptions` (
    PRIMARY KEY (`id`)
 );
 
-CREATE TABLE `pokemon` (
+CREATE TABLE IF NOT EXISTS `pokemon` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `subscription_id` int(11) NOT NULL DEFAULT 0,
   `guild_id` bigint(20) DEFAULT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE `pokemon` (
   CONSTRAINT `FK_pokemon_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
 );
 
-CREATE TABLE `raids` (
+CREATE TABLE IF NOT EXISTS `raids` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `subscription_id` int(11) NOT NULL DEFAULT 0,
   `guild_id` bigint(20) DEFAULT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE `raids` (
   CONSTRAINT `FK_raid_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
 );
 
-CREATE TABLE `quests` (
+CREATE TABLE IF NOT EXISTS `quests` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `subscription_id` int(11) NOT NULL DEFAULT 0,
   `guild_id` bigint(20) DEFAULT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE `quests` (
   CONSTRAINT `FK_quest_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
 );
 
-CREATE TABLE `gyms` (
+CREATE TABLE IF NOT EXISTS `gyms` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `subscription_id` int(11) NOT NULL DEFAULT 0,
   `guild_id` bigint(20) DEFAULT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE `gyms` (
   CONSTRAINT `FK_gym_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
 );
 
-CREATE TABLE `invasions` (
+CREATE TABLE IF NOT EXISTS `invasions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `subscription_id` int(11) NOT NULL DEFAULT 0,
   `guild_id` bigint(20) DEFAULT NULL,
@@ -77,7 +77,7 @@ CREATE TABLE `invasions` (
   CONSTRAINT `FK_invasion_subscriptions_subscription_id` FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
 );
 
-CREATE TABLE `pvp` (
+CREATE TABLE IF NOT EXISTS `pvp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `guild_id` bigint(20) NOT NULL,
   `user_id` bigint(20) NOT NULL,

@@ -21,6 +21,7 @@
     using WhMgr.Extensions;
     using WhMgr.Localization;
     using WhMgr.Geofence;
+    using WhMgr.Services;
     using WhMgr.Utilities;
 
     public class Nests
@@ -54,7 +55,7 @@
             var channel = await ctx.Client.GetChannelAsync(channelId);
             if (channel == null)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_DISABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_DISABLED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return;
             }
 
@@ -67,7 +68,7 @@
             var nests = GetNests(_dep.WhConfig.Database.Nests.ToString());
             if (nests == null)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username));
+                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_LIST").FormatText(new { author = ctx.User.Username }));
                 return;
             }
 
@@ -121,7 +122,7 @@
             }
             else
             {
-                var cities = server.CityRoles.Select(x => x.ToLower());
+                var cities = server.Geofences.Select(x => x.Name.ToLower()).ToList();
                 for (var i = 0; i < nests.Count; i++)
                 {
                     var nest = nests[i];
@@ -255,7 +256,7 @@
                 }
                 var geofenceName = geofence.Name;
                 var server = _dep.WhConfig.Servers[guildId];
-                var cities = server.CityRoles.Select(x => x.ToLower());
+                var cities = server.Geofences.Select(x => x.Name.ToLower()).ToList();
                 if (!cities.Contains(geofenceName.ToLower()))
                     continue;
 

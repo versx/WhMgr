@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
 
     using Newtonsoft.Json;
 
@@ -47,8 +48,14 @@
         /// <summary>
         /// Gets or sets the Discord servers configuration
         /// </summary>
-        [JsonProperty("servers")]
+        [JsonIgnore]
         public Dictionary<ulong, DiscordServerConfig> Servers { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [JsonProperty("servers")]
+        public Dictionary<string, string> ServerConfigFiles { get; set; }
 
         /// <summary>
         /// Gets or sets the Database configuration
@@ -66,7 +73,7 @@
         /// Gets or sets the event Pokemon IDs list
         /// </summary>
         [JsonProperty("eventPokemonIds")]
-        public List<int> EventPokemonIds { get; set; }
+        public List<uint> EventPokemonIds { get; set; }
 
         /// <summary>
         /// Gets or sets the minimum IV value for an event Pokemon to be to process
@@ -106,6 +113,12 @@
         public string NominatimEndpoint { get; set; }
 
         /// <summary>
+        /// Gets or sets the OpenStreetMaps Nominatim location string schema
+        /// </summary>
+        [JsonProperty("nominatimSchema")]
+        public string NominatimSchema { get; set; }
+
+        /// <summary>
         /// Gets or sets the minimum despawn time in minutes a Pokemon must have in order to send the alarm
         /// </summary>
         [JsonProperty("despawnTimeMinimumMinutes")]
@@ -135,6 +148,9 @@
         [JsonProperty("debug")]
         public bool Debug { get; set; }
 
+        [JsonProperty("maxPokemonId")]
+        public uint MaxPokemonId { get; set; }
+
         /// <summary>
         /// Gets or sets the event logging level to set
         /// </summary>
@@ -155,11 +171,12 @@
             ListeningHost = "127.0.0.1";
             WebhookPort = 8008;
             Locale = "en";
+            MaxPokemonId = 800;
             LogLevel = LogLevel.Trace;
             Servers = new Dictionary<ulong, DiscordServerConfig>();
             Database = new ConnectionStringsConfig();
             Urls = new UrlConfig();
-            EventPokemonIds = new List<int>();
+            EventPokemonIds = new List<uint>();
             EventMinimumIV = 90;
             IconStyles = new Dictionary<string, string>();
             StaticMaps = new Dictionary<string, string>();
@@ -168,6 +185,37 @@
             ReloadSubscriptionChangesMinutes = 1;
             MaxNotificationsPerMinute = 10;
             CheckForDuplicates = true;
+        }
+
+        /// <summary>
+        /// Load Discords from the `/discords` folder
+        /// </summary>
+        /// <returns>Returns parsed alert message</returns>
+        public void LoadDiscordServers()
+        {
+            if (!Directory.Exists(Strings.DiscordsFolder))
+            {
+                // Discords folder does not exist
+                return;
+            }
+
+            var dict = new Dictionary<ulong, DiscordServerConfig>();
+            foreach (var (guildId, fileName) in ServerConfigFiles)
+            {
+                var id = ulong.Parse(guildId);
+                var path = Path.Combine(Strings.DiscordsFolder, fileName);
+                if (!File.Exists(path))
+                {
+                    throw new FileNotFoundException($"Discord server config file {path} not found.", path);
+                }
+                if (!dict.ContainsKey(id))
+                {
+                    var json = File.ReadAllText(path);
+                    var config = JsonConvert.DeserializeObject<DiscordServerConfig>(json);
+                    dict.Add(id, config);
+                }
+            }
+            Servers = dict;
         }
 
         /// <summary>
@@ -191,7 +239,9 @@
             {
                 throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
-            return MasterFile.LoadInit<WhConfig>(filePath);
+            var config = MasterFile.LoadInit<WhConfig>(filePath);
+            config.LoadDiscordServers();
+            return config;
         }
     }
 }

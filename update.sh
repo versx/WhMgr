@@ -13,6 +13,8 @@ if [ "$1" == "examples" ] || [ "$1" == "example" ] || [ "$1" == "all" ]; then
     echo "Copying examples"
     cp -R "examples/alerts" "bin/"
     cp -R "examples/filters" "bin/"
+    cp -R "examples/alarms" "bin/"
+    cp -R "examples/discords" "bin/"
 fi
 if [ "$1" == "geofences" ] || [ "$1" == "geofence" ] || [ "$1" == "all" ]; then
     echo "Copying geofences..."
@@ -22,7 +24,6 @@ fi
 # Copy locale translation files
 echo "Copying locale translation files... "
 mkdir -p "bin/static"
-cp -R "static/locale" "bin/static/"
 
 echo "Copying latest master file..."
 mkdir -p "bin/static/data"

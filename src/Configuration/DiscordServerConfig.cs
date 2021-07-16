@@ -68,7 +68,7 @@ namespace WhMgr.Configuration
         /// Gets or sets the list of Geofence files to use for the Discord server (in addition to the common ones)
         /// </summary>
         [JsonProperty("geofences")]
-        public string[] GeofenceFiles { get; set; }
+        public List<string> GeofenceFiles { get; set; }
 
         [JsonIgnore]
         public List<GeofenceItem> Geofences { get; } = new List<GeofenceItem>();
@@ -80,22 +80,16 @@ namespace WhMgr.Configuration
         public SubscriptionsConfig Subscriptions { get; set; }
 
         /// <summary>
-        /// Gets or sets whether to enable Discord city roles
+        /// Gets or sets a value whether to enable assigning geofence/area/city roles or not
         /// </summary>
-        [JsonProperty("enableCities")]
-        public bool EnableCities { get; set; }
-
-        /// <summary>
-        /// Gets or sets a list of named Discord roles associated with Geofence files
-        /// </summary>
-        [JsonProperty("cityRoles")]
-        public List<string> CityRoles { get; set; }
+        [JsonProperty("enableGeofenceRoles")]
+        public bool EnableGeofenceRoles { get; set; }
 
         /// <summary>
         /// Gets or sets a value determining whether city roles should be removed when a donor role is removed from a Discord member
         /// </summary>
-        [JsonProperty("autoRemoveCityRoles")]
-        public bool AutoRemoveCityRoles { get; set; }
+        [JsonProperty("autoRemoveGeofenceRoles")]
+        public bool AutoRemoveGeofenceRoles { get; set; }
 
         /// <summary>
         /// Gets or sets whether city roles require a Donor role
@@ -158,12 +152,6 @@ namespace WhMgr.Configuration
         public string DmAlertsFile { get; set; }
 
         /// <summary>
-        /// Gets or sets the Discord embed colors to use for each message type
-        /// </summary>
-        [JsonProperty("embedColors")]
-        public DiscordEmbedColorConfig DiscordEmbedColors { get; set; }
-
-        /// <summary>
         /// Gets or sets the direct message alerts class to use for subscriptions
         /// </summary>
         [JsonIgnore]
@@ -176,14 +164,12 @@ namespace WhMgr.Configuration
         {
             //Locale = "en";
             ModeratorRoleIds = new List<ulong>();
-            CityRoles = new List<string>();
             IconStyle = "Default";
             QuestChannelIds = new List<ulong>();
             ShinyStats = new ShinyStatsConfig();
             Subscriptions = new SubscriptionsConfig();
             NestsMinimumPerHour = 1;
             DmAlertsFile = "default.json";
-            DiscordEmbedColors = new DiscordEmbedColorConfig();
 
             LoadDmAlerts();
         }

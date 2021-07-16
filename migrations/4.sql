@@ -1,4 +1,4 @@
-CREATE TABLE `lures` (
+CREATE TABLE IF NOT EXISTS `lures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `subscription_id` int(11) NOT NULL DEFAULT 0,
   `guild_id` bigint(20) DEFAULT NULL,

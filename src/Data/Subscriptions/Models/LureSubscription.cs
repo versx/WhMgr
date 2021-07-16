@@ -10,15 +10,21 @@
 
     [
         JsonObject("lures"),
-        Alias("lures")
+        Alias("lures"),
     ]
     public class LureSubscription : SubscriptionItem
     {
         [
             Alias("subscription_id"),
-            ForeignKey(typeof(SubscriptionObject))
+            ForeignKey(typeof(SubscriptionObject)),
         ]
         public int SubscriptionId { get; set; }
+
+        [
+            JsonProperty("pokestop_name"),
+            Alias("pokestop_name"),
+        ]
+        public string PokestopName { get; set; }
 
         [
             JsonProperty("lure_type"),
@@ -33,6 +39,12 @@
             Required
         ]
         public List<string> Areas { get; set; }
+
+        [
+            JsonProperty("location"),
+            Alias("location"),
+        ]
+        public string Location { get; set; }
 
         public LureSubscription()
         {

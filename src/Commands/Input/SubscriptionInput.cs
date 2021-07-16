@@ -1,6 +1,4 @@
-﻿using WhMgr.Configuration;
-
-namespace WhMgr.Commands.Input
+﻿namespace WhMgr.Commands.Input
 {
     using System;
     using System.Collections.Generic;
@@ -10,6 +8,7 @@ namespace WhMgr.Commands.Input
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Entities;
 
+    using WhMgr.Configuration;
     using WhMgr.Extensions;
     using WhMgr.Localization;
 
@@ -33,15 +32,19 @@ namespace WhMgr.Commands.Input
         /// Gets the Pokemon ID/Name list from the Discord interactivity from the user
         /// </summary>
         /// <returns>Returns a <seealso cref="PokemonValidation"/> object containing valid and invalid Pokemon specified.</returns>
-        public async Task<PokemonValidation> GetPokemonResult()
+        public async Task<PokemonValidation> GetPokemonResult(uint maxPokemonId)
         {
             var pokemonMessage = (await _context.RespondEmbed("Enter either the Pokemon name(s) or Pokedex ID(s) separated by a comma to subscribe to (i.e. Mewtwo,Dragonite):", DiscordColor.Blurple)).FirstOrDefault();
             var pokemonSubs = await _context.WaitForUserChoice();
             // Validate the provided pokemon list
-            var validation = PokemonValidation.Validate(pokemonSubs);
+            var validation = PokemonValidation.Validate(pokemonSubs, maxPokemonId);
             if (validation == null || validation.Valid.Count == 0)
             {
-                await _context.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(_context.User.Username, string.Join(", ", validation.Invalid)), DiscordColor.Red);
+                await _context.RespondEmbed(Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = _context.User.Username,
+                    pokemon = string.Join(", ", validation.Invalid),
+                }), DiscordColor.Red);
                 return new PokemonValidation();
             }
             await pokemonMessage.DeleteAsync();
@@ -57,20 +60,18 @@ namespace WhMgr.Commands.Input
         {
             var deps = _context.Dependencies.GetDependency<Dependencies>();
             var server = deps.WhConfig.Servers[guildId];
-            var validAreas = server.EnableCities ? server.CityRoles : server.Geofences.Select(g => g.Name).ToList();
+            var validAreas = server.Geofences.Select(g => g.Name).ToList();
             var message = (await _context.RespondEmbed($"Enter the areas to get notifications from separated by a comma (i.e. `city1,city2`):\n**Available Areas:**\n{string.Join("\n- ", validAreas)}\n- All", DiscordColor.Blurple)).FirstOrDefault();
             var cities = await _context.WaitForUserChoice(true);
+            await message.DeleteAsync();
 
-            // Check if gender is a valid gender provided
+            // Check if provided areas are valid and only return valid areas
             var areas = SubscriptionAreas.GetAreas(server, cities);
             if (areas.Count == 0)
             {
                 // No valid areas provided
-                await _context.RespondEmbed($"Invalid areas provided.");
                 return new List<string>();
             }
-            await message.DeleteAsync();
-
             return areas;
         }
     }

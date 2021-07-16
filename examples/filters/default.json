@@ -1,8 +1,10 @@
 {
-	"pokemon":
+  "pokemon":
 	{
 		"enabled": true, // Filter is enabled
 		"pokemon": [280,337,374], // List of Pokemon for the filter or empty for all
+		"forms": ["Alola","Galarian"], // List of forms for the filter or empty for all
+		"costumes": ["Detective","Holiday"], // List of costumes for the filter or empty for all
 		"min_iv": 0, // Minimum IV of Pokemon to send
 		"max_iv": 100, // Maximum IV of Pokemon to send
 		"min_cp": 0, // Minimum CP of Pokemon
@@ -29,6 +31,8 @@
 	{
 		"enabled": true, // Filter is enabled
 		"pokemon": [], // Raid bosses to include or none for all.
+		"costumes": ["Detective","Holiday"], //List of costumes for the filter or empty for all
+		"forms": ["Alola","Galarian"], //List of forms for the filter or empty for all
 		"min_lvl": 1, // Minimum raid level to send
 		"max_lvl": 6, // Maximum raid level to send
 		"type": "Include", // Include or Exclude the `pokemon` list

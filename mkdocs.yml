@@ -7,7 +7,7 @@ repo_url: https://github.com/versx/whmgr/
 edit_uri: ""
 
 theme:
-    name: flatly #mkdocs, bootstrap4, cinder, cosmo, cyborg, flatly, ivory, material, readthedocs, slate, yeti
+    name: readthedocs #mkdocs, bootstrap4, cinder, cosmo, cyborg, flatly, ivory, material, readthedocs, slate, yeti
 
 extends: mkdocs
 hljs_style: docco
@@ -21,6 +21,7 @@ nav:
     - User Guide:
         - Getting Started: user-guide/getting-started.md
         - Config: user-guide/config.md
+        - Discord: user-guide/discords.md
         - Geofences: user-guide/geofences.md
         - Alarms: user-guide/alarms.md
         - Filters: user-guide/filters.md
@@ -31,11 +32,13 @@ nav:
             - Quests: user-guide/dts/quests.md
             - Pokestops: user-guide/dts/pokestops.md
             - Gyms: user-guide/dts/gyms.md
-            - weather: user-guide/dts/weather.md
-            - nests: user-guide/dts/nests.md
+            - Weather: user-guide/dts/weather.md
+            - Nests: user-guide/dts/nests.md
     - Commands:
         - Subscriptions: commands/subscriptions.md
         - Owner: commands/owner.md
+    - Other:
+        - Command Line: other/commandline.md
 #    - About:
 #        - Release Notes: about/release-notes.md
 #        - Contributing: about/contributing.md

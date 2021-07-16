@@ -58,7 +58,7 @@
                 catch (WebException ex)
                 {
                     var resp = (HttpWebResponse)ex.Response;
-                    switch ((int)resp.StatusCode)
+                    switch ((int)(resp?.StatusCode ?? 0))
                     {
                         //https://discordapp.com/developers/docs/topics/rate-limits
                         case 429:

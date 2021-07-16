@@ -379,11 +379,13 @@
                     return;
                 }
 
+                /*
                 if (SkipEggs && raid.PokemonId == 0)
                 {
                     _logger.Debug($"Level {raid.Level} Egg, skipping...");
                     return;
                 }
+                */
 
                 raid.SetTimes();
 
@@ -788,7 +790,7 @@
 
             public string Level { get; }
 
-            public int PokemonId { get; }
+            public uint PokemonId { get; }
 
             public int FormId { get; }
 

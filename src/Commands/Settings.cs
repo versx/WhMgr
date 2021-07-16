@@ -64,15 +64,6 @@
                     _dep.WhConfig.Servers[guildId].CommandPrefix = value;
                     _dep.WhConfig.Save(_dep.WhConfig.FileName);
                     break;
-                case "enable_cities":
-                    if (!bool.TryParse(value, out var enableCities))
-                    {
-                        await ctx.RespondEmbed($"{ctx.User.Username}", DiscordColor.Red);
-                        return;
-                    }
-                    _dep.WhConfig.Servers[guildId].EnableCities = enableCities;
-                    _dep.WhConfig.Save(_dep.WhConfig.FileName);
-                    break;
                 case "enable_subscriptions":
                     if (!bool.TryParse(value, out var enableSubscriptions))
                     {
@@ -154,8 +145,7 @@
             };
 
             // TODO: Localize
-            eb.AddField($"Enable Cities", guildConfig.EnableCities ? "Yes" : "No", true);
-            eb.AddField($"City Roles", string.Join("\r\n", guildConfig.CityRoles), true);
+            eb.AddField($"City Roles", string.Join("\r\n", guildConfig.Geofences.Select(x => x.Name)), true);
             eb.AddField($"Enable Subscriptions", guildConfig.Subscriptions.Enabled ? "Yes" : "No", true);
             eb.AddField($"Command Prefix", guildConfig.CommandPrefix ?? "@BotMentionHere", true);
             eb.AddField($"City Roles Require Donor Role", guildConfig.CitiesRequireSupporterRole ? "Yes" : "No", true);
@@ -170,160 +160,6 @@
             eb.AddField($"Clear Previous Shiny Stats", guildConfig.ShinyStats?.ClearMessages ?? false ? "Yes" : "No", true);
             eb.AddField($"Icon Style", guildConfig.IconStyle, true);
             await ctx.RespondAsync(embed: eb);
-        }
-
-        [
-            Group("roles"),
-            Aliases("cities"),
-            Description("Event Pokemon management commands."),
-            Hidden,
-            RequirePermissions(Permissions.KickMembers)
-        ]
-        public class CityRoles
-        {
-            private readonly Dependencies _dep;
-
-            public CityRoles(Dependencies dep)
-            {
-                _dep = dep;
-            }
-
-            [
-                Command("list"),
-                Aliases("l"),
-                Description("")
-            ]
-            public async Task ListAsync(CommandContext ctx)
-            {
-                if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
-                    return;
-
-                var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-
-                if (!_dep.WhConfig.Servers.ContainsKey(guildId))
-                {
-                    // TODO: Localize
-                    await ctx.RespondEmbed($"{ctx.User.Username} Guild {ctx.Guild?.Name} ({guildId}) not configured in {Strings.ConfigFileName}", DiscordColor.Red);
-                    return;
-                }
-
-                var guildConfig = _dep.WhConfig.Servers[guildId];
-                var eb = new DiscordEmbedBuilder
-                {
-                    Color = DiscordColor.Blurple,
-                    Title = $"{ctx.Guild.Name} Config - City Roles",
-                    // TODO: Add EnabledCities/CitiesRequiresDonorRole to description
-                    Description = $"- {string.Join("\r\n- ", guildConfig.CityRoles)}",
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"{ctx.Guild?.Name} | {DateTime.Now}",
-                        IconUrl = ctx.Guild?.IconUrl
-                    }
-                };
-                await ctx.RespondAsync(embed: eb);
-            }
-
-            [
-                Command("add"),
-                Description("a")
-            ]
-            public async Task AddAsync(CommandContext ctx,
-                [Description(""), RemainingText] string roleNames)
-            {
-                if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
-                    return;
-
-                var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-
-                if (!_dep.WhConfig.Servers.ContainsKey(guildId))
-                {
-                    // TODO: Localize
-                    await ctx.RespondEmbed($"{ctx.User.Username} Guild {ctx.Guild?.Name} ({guildId}) not configured in {Strings.ConfigFileName}", DiscordColor.Red);
-                    return;
-                }
-
-                var guildConfig = _dep.WhConfig.Servers[guildId];
-
-                var rolesAdded = new List<string>();
-                var rolesFailed = new List<string>();
-                var guildRoleNames = ctx.Guild.Roles.Select(x => x.Name.ToLower()).ToList();
-                var split = roleNames.Split(',');
-                for (var i = 0; i < split.Length; i++)
-                {
-                    var roleName = split[i];
-                    if (guildRoleNames.Contains(roleName) && guildConfig.CityRoles.Select(x => x.ToLower()).Contains(roleName.ToLower()))
-                    {
-                        rolesAdded.Add(roleName);
-                        continue;
-                    }
-
-                    rolesFailed.Add(roleName);
-                }
-
-                _dep.WhConfig.Servers[guildId].CityRoles.AddRange(rolesAdded);
-                _dep.WhConfig.Save(_dep.WhConfig.FileName);
-
-                // TODO: Localize
-                var message = $"{ctx.User.Username} Successfully added the following roles: {string.Join(", ", rolesAdded)}";
-                if (rolesFailed.Count > 0)
-                {
-                    message += $"\r\n{ctx.User.Username} Failed to add the following roles: {string.Join(", ", rolesFailed)}";
-                }
-                await ctx.RespondEmbed(message);
-
-                // TODO: Reload config
-            }
-
-            [
-                Command("remove"),
-                Aliases("rem", "rm", "r"),
-                Description("")
-            ]
-            public async Task RemoveAsync(CommandContext ctx,
-                [Description(""), RemainingText] string roleNames)
-            {
-                if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
-                    return;
-
-                var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-
-                if (!_dep.WhConfig.Servers.ContainsKey(guildId))
-                {
-                    // TODO: Localize
-                    await ctx.RespondEmbed($"{ctx.User.Username} Guild {ctx.Guild?.Name} ({guildId}) not configured in {Strings.ConfigFileName}", DiscordColor.Red);
-                    return;
-                }
-
-                var guildConfig = _dep.WhConfig.Servers[guildId];
-
-                var rolesRemoved = new List<string>();
-                var rolesFailed = new List<string>();
-                var split = roleNames.Split(',');
-                for (var i = 0; i < split.Length; i++)
-                {
-                    var roleName = split[i];
-                    if (guildConfig.CityRoles.Select(x => x.ToLower()).Contains(roleName.ToLower()))
-                    {
-                        rolesRemoved.Add(roleName);
-                        continue;
-                    }
-
-                    rolesFailed.Add(roleName);
-                }
-
-                rolesRemoved.ForEach(x => _dep.WhConfig.Servers[guildId].CityRoles.Remove(x));
-                _dep.WhConfig.Save(_dep.WhConfig.FileName);
-
-                // TODO: Localize
-                var message = $"{ctx.User.Username} Successfully removed the following roles: {string.Join(", ", rolesRemoved)}";
-                if (rolesFailed.Count > 0)
-                {
-                    message += $"\r\n{ctx.User.Username} Failed to remove the following roles: {string.Join(", ", rolesFailed)}";
-                }
-                await ctx.RespondEmbed(message);
-
-                // TODO: Reload config
-            }
         }
     }
 }

@@ -164,12 +164,16 @@
         [JsonProperty("magnetic")]
         public string Magnetic { get; set; }
 
+        [JsonProperty("rainy")]
+        public string Rainy { get; set; }
+
         public DiscordEmbedColorPokestopLures()
         {
             Normal = "#ff69b4";
             Glacial = "#6495ed";
             Mossy = "#507d2a";
             Magnetic = "#808080";
+            Rainy = "#1da7de";
         }
     }
 

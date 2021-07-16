@@ -6,6 +6,20 @@
     using Newtonsoft.Json;
     using ServiceStack.DataAnnotations;
 
+    [Flags]
+    public enum NotificationStatusType : byte
+    {
+        None = 0x0,
+        Pokemon = 0x1,
+        PvP = 0x2,
+        Raids = 0x4,
+        Quests = 0x8,
+        Invasions = 0x10,
+        Lures = 0x20,
+        Gyms = 0x40,
+        All = Pokemon | PvP | Raids | Quests | Invasions | Lures | Gyms,
+    }
+
     /// <summary>
     /// User subscription class
     /// </summary>
@@ -20,11 +34,26 @@
         /// subscriptions are enabled or not
         /// </summary>
         [
-            JsonProperty("enabled"),
-            Alias("enabled"), 
-            Default(1)
+            JsonProperty("status"),
+            Alias("status"),
+            Default((int)NotificationStatusType.All),
         ]
-        public bool Enabled { get; set; }
+        public NotificationStatusType Status { get; set; }
+
+        public bool IsEnabled(NotificationStatusType status)
+        {
+            return (Status & status) == status;
+        }
+
+        public void EnableNotificationType(NotificationStatusType status)
+        {
+            Status |= status;
+        }
+
+        public void DisableNotificationType(NotificationStatusType status)
+        {
+            Status &= (~status);
+        }
 
         /// <summary>
         /// Gets or sets the Pokemon subscriptions
@@ -32,7 +61,7 @@
         [
             JsonProperty("pokemon"),
             Alias("pokemon"), 
-            Reference
+            Reference,
         ]
         public List<PokemonSubscription> Pokemon { get; set; }
 
@@ -42,7 +71,7 @@
         [
             JsonProperty("pvp"),
             Alias("pvp"),
-            Reference
+            Reference,
         ]
         public List<PvPSubscription> PvP { get; set; }
 
@@ -52,7 +81,8 @@
         [
             JsonProperty("raids"),
             Alias("raids"), 
-            Reference]
+            Reference,
+        ]
         public List<RaidSubscription> Raids { get; set; }
 
         /// <summary>
@@ -61,7 +91,7 @@
         [
             JsonProperty("gyms"),
             Alias("gyms"),
-            Reference
+            Reference,
         ]
         public List<GymSubscription> Gyms { get; set; }
 
@@ -71,7 +101,7 @@
         [
             JsonProperty("quests"),
             Alias("quests"),
-            Reference
+            Reference,
         ]
         public List<QuestSubscription> Quests { get; set; }
 
@@ -81,7 +111,7 @@
         [
             JsonProperty("invasions"),
             Alias("invasions"),
-            Reference
+            Reference,
         ]
         public List<InvasionSubscription> Invasions { get; set; }
 
@@ -92,36 +122,23 @@
         [
             JsonProperty("lures"),
             Alias("lures"),
-            Reference
+            Reference,
         ]
         public List<LureSubscription> Lures { get; set; }
 
         [
-            JsonProperty("distance"),
-            Alias("distance"),
-            Default(0)
+            JsonProperty("locations"),
+            Alias("locations"),
+            Reference,
         ]
-        public int DistanceM { get; set; }
+        public List<LocationSubscription> Locations { get; set; }
 
-        /// <summary>
-        /// Gets or sets the latitude to use with distance checks
-        /// </summary>
         [
-            JsonProperty("latitude"),
-            Alias("latitude"),
-            Default(0)
+            JsonProperty("location"),
+            Alias("location"),
+            Default(null),
         ]
-        public double Latitude { get; set; }
-
-        /// <summary>
-        /// Gets or sets the longitude to use with distance checks
-        /// </summary>
-        [
-            JsonProperty("longitude"),
-            Alias("longitude"), 
-            Default(0)
-        ]
-        public double Longitude { get; set; }
+        public string Location { get; set; }
 
         /// <summary>
         /// Gets or sets the icon style to use for the subscription notification
@@ -129,7 +146,7 @@
         [
             JsonProperty("icon_style"),
             Alias("icon_style"),
-            Default("Default")
+            Default("Default"),
         ]
         public string IconStyle { get; set; }
 
@@ -138,7 +155,7 @@
         /// </summary>
         [
             JsonProperty("phone_number"),
-            Alias("phone_number")
+            Alias("phone_number"),
         ]
         public string PhoneNumber { get; set; }
 
@@ -147,7 +164,7 @@
         /// </summary>
         [
             JsonIgnore,
-            Ignore
+            Ignore,
         ]
         public NotificationLimiter Limiter { get; }
 
@@ -157,7 +174,7 @@
         /// </summary>
         [
             JsonIgnore,
-            Ignore
+            Ignore,
         ]
         public bool RateLimitNotificationSent { get; set; }
 
@@ -166,7 +183,7 @@
         /// </summary>
         public SubscriptionObject()
         {
-            Enabled = true;
+            Status = NotificationStatusType.All;
             Pokemon = new List<PokemonSubscription>();
             PvP = new List<PvPSubscription>();
             Raids = new List<RaidSubscription>();
@@ -174,10 +191,8 @@
             Quests = new List<QuestSubscription>();
             Invasions = new List<InvasionSubscription>();
             Lures = new List<LureSubscription>();
+            Locations = new List<LocationSubscription>();
             Limiter = new NotificationLimiter();
-            DistanceM = 0;
-            Latitude = 0;
-            Longitude = 0;
             IconStyle = "Default";
             PhoneNumber = string.Empty;
         }
