@@ -118,7 +118,7 @@
                     if (member?.Roles == null)
                         continue;
 
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
                         _logger.LogDebug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pkmn.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -126,6 +126,10 @@
                         //user.Save(false);
                         continue;
                     }
+
+                    // Check donor role access for Pokemon
+                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Pokemon))
+                        continue;
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
                     var pokemonSubscriptions = user.Pokemon.Where(x =>
@@ -274,7 +278,7 @@
                     if (member?.Roles == null)
                         continue;
 
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
                         _logger.LogDebug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pvp pokemon {pkmn.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -282,6 +286,10 @@
                         //user.Save(false);
                         continue;
                     }
+
+                    // Check donor role access for PvP
+                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.PvP))
+                        continue;
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
                     var pokemonSubscriptions = user.PvP.Where(x =>
@@ -409,7 +417,7 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
                         _logger.LogInformation($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -417,6 +425,10 @@
                         //user.Save(false);
                         continue;
                     }
+
+                    // Check donor role access for Raids
+                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Raids))
+                        continue;
 
                     var form = Translator.Instance.GetFormName(raid.Form);
                     var subPkmn = user.Raids.FirstOrDefault(x =>
@@ -540,7 +552,7 @@
                         continue;
                     }
 
-                    isSupporter = member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds);
+                    isSupporter = member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList());
                     if (!isSupporter)
                     {
                         _logger.LogInformation($"User {user.UserId} is not a supporter, skipping quest {questName}...");
@@ -549,6 +561,10 @@
                         //user.Save(false);
                         continue;
                     }
+
+                    // Check donor role access for Quests
+                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Quests))
+                        continue;
 
                     var subQuest = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
                     // Not subscribed to quest
@@ -669,7 +685,7 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
                         _logger.LogInformation($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -677,6 +693,10 @@
                         //user.Save(false);
                         continue;
                     }
+
+                    // Check donor role access for Invasions
+                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Invasions))
+                        continue;
 
                     var subInvasion = user.Invasions.FirstOrDefault(x => x.RewardPokemonId.Intersects(encounters));
                     // Not subscribed to invasion
@@ -786,7 +806,7 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
                         _logger.LogInformation($"User {user.UserId} is not a supporter, skipping Pokestop lure {pokestop.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -794,6 +814,10 @@
                         //user.Save(false);
                         continue;
                     }
+
+                    // Check donor role access for Lures
+                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Lures))
+                        continue;
 
                     var subLure = user.Lures.FirstOrDefault(x => x.LureType == pokestop.LureType);
                     // Not subscribed to lure
@@ -904,7 +928,7 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds))
+                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
                         _logger.LogInformation($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name} for gym {raid.GymName}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
@@ -912,6 +936,10 @@
                         //user.Save(false);
                         continue;
                     }
+
+                    // Check donor role access for Gyms
+                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Gyms))
+                        continue;
 
                     var geofence = GetGeofence(user.GuildId);
                     if (geofence == null)

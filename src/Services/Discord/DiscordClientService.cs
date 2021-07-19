@@ -116,7 +116,8 @@
 
             var validRoleIdsPerGuild = _config.Instance.Servers.Values
                                                                .ToList()
-                                                               .Aggregate(new List<ulong>(), (x, y) => x.Concat(y.DonorRoleIds).ToList());
+                                                               .Aggregate(new List<ulong>(), (x, y) => x.Concat(y.DonorRoleIds.Keys.ToList())
+                                                                                                        .ToList());
             // Loop all available subscriptions
             var subscriptions = _subscriptionManager.Subscriptions;
             foreach (var subscription in subscriptions)
@@ -195,8 +196,9 @@
                 return;
 
             var server = _config.Instance.Servers[e.Guild.Id];
-            var hasBefore = e.RolesBefore.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
-            var hasAfter = e.RolesAfter.FirstOrDefault(x => server.DonorRoleIds.Contains(x.Id)) != null;
+            var donorRoleIds = server.DonorRoleIds.Keys.ToList();
+            var hasBefore = e.RolesBefore.FirstOrDefault(x => donorRoleIds.Contains(x.Id)) != null;
+            var hasAfter = e.RolesAfter.FirstOrDefault(x => donorRoleIds.Contains(x.Id)) != null;
 
             // Check if donor role was removed
             if (hasBefore && !hasAfter)

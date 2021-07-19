@@ -228,7 +228,7 @@
                 if (isModerator)
                     return true;
 
-                var isSupporter = client.HasSupporterRole(guildId, userId, server.DonorRoleIds);
+                var isSupporter = client.HasSupporterRole(guildId, userId, server.DonorRoleIds.Keys.ToList());
                 if (isSupporter)
                     return true;
             }
@@ -303,6 +303,8 @@
 
         public static bool HasSupporterRole(this DiscordMember member, List<ulong> supporterRoleIds)
         {
+            return supporterRoleIds.Exists(x => HasRole(member, x));
+            /*
             for (var i = 0; i < supporterRoleIds.Count; i++)
             {
                 if (HasRole(member, supporterRoleIds[i]))
@@ -310,7 +312,28 @@
                     return true;
                 }
             }
+            return false;
+            */
+        }
 
+        public static bool HasRoleAccess(this DiscordMember member, Dictionary<ulong, List<SubscriptionAccessType>> accessConfig, SubscriptionAccessType desiredAccessType)
+        {
+            // TODO: HasRoleAccess
+            // Loop all access configs
+            // Check if member has role for access type
+            foreach (var (donorRoleId, accessType) in accessConfig)
+            {
+                // Check if member has donor role
+                if (member.Roles.FirstOrDefault(x => x.Id == donorRoleId) == null)
+                    continue;
+
+                var donorRoleAccess = accessConfig[donorRoleId];
+                // Check if donor role access config contains desired access type or no access type specified so include all
+                if (donorRoleAccess.Contains(desiredAccessType) || donorRoleAccess.Count == 0)
+                {
+                    return true;
+                }
+            }
             return false;
         }
 

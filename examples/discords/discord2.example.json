@@ -2,42 +2,46 @@
   "bot": {
     "commandPrefix": ".",
     "emojiGuildId": 000000000000000001,
-	"token": "<DISCORD_BOT_TOKEN>",
+    "token": "<DISCORD_BOT_TOKEN>",
     "channelIds": [],
     "status": "Test #2"
   }
   "ownerId": 000000000000000000,
-  "donorRoleIds": [],
+  "donorRoleIds": {
+    "000000000000000000": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
+    "000000000000000001": [],
+    "000000000000000002": ["pokestops", "gyms"],
+  },
   "freeRoleName": "",
   "moderatorRoleIds": [],
   "alarms": "alarms2.json",
   "geofences": [
-	"City3.txt",
-	"City4.json"
+    "City3.txt",
+    "City4.json"
   ],
   "subscriptions": {
-	"enabled": false,
-	"maxNotificationsPerMinute": 10,
-	"maxPokemonSubscriptions": 0,
-	"maxPvPSubscriptions": 0,
-	"maxRaidSubscriptions": 0,
-	"maxQuestSubscriptions": 0,
-	"maxInvasionSubscriptions": 0,
-	"maxLureSubscriptions": 0,
-	"maxGymSubscriptions": 0
+    "enabled": false,
+    "maxNotificationsPerMinute": 10,
+    "maxPokemonSubscriptions": 0,
+    "maxPvPSubscriptions": 0,
+    "maxRaidSubscriptions": 0,
+    "maxQuestSubscriptions": 0,
+    "maxInvasionSubscriptions": 0,
+    "maxLureSubscriptions": 0,
+    "maxGymSubscriptions": 0
   },
   "geofenceRoles": {
     "enabled": false,
-	"autoRemove": true,
-	"requiresDonorRole": true
+    "autoRemove": true,
+    "requiresDonorRole": true
   },
   "questsPurge": {
     "enabled": false,
-	"channels": {
+    "channels": {
       "America/Denver": [
         000000000000000000,
         000000000000000001
-	  ],
+      ],
       "America/New_York": [
         000000000000000000,
         000000000000000001
@@ -46,12 +50,12 @@
   },
   "nests": {
     "channelId": 0,
-	"minimumPerHour": 2
+    "minimumPerHour": 2
   },
   "shinyStats": {
-	"enabled": false,
-	"clearMessages": false,
-	"channelId": 000000000000000000
+    "enabled": false,
+    "clearMessages": false,
+    "channelId": 000000000000000000
   },
   "iconStyle": "Default",
   "dmAlertsFile": "default.json"

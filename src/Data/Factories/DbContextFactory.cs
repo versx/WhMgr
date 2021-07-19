@@ -11,6 +11,20 @@
     using WhMgr.Data.Contexts;
     using WhMgr.Extensions;
 
+    /*
+     * Reference: https://docs.microsoft.com/en-us/ef/core/cli/dbcontext-creation?tabs=dotnet-core-cli
+    public class DbContextFactory2<T> : Microsoft.EntityFrameworkCore.Design.IDesignTimeDbContextFactory<T> where T : DbContext
+    {
+        public T CreateDbContext(string[] args)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<T>();
+            optionsBuilder.UseMySql(args[0], ServerVersion.AutoDetect(args[0]));
+
+            return new T(optionsBuilder.Options);
+        }
+    }
+    */
+
     public class DbContextFactory
     {
         public static ManualDbContext CreateManualContext(string connectionString)// where T : DbContext
