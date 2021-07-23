@@ -70,6 +70,11 @@
             Conditions = new List<QuestConditionMessage>();
         }
 
+        public void SetTimes()
+        {
+            // No times to change
+        }
+
         /// <summary>
         /// Generates a Discord embed message for a Pokestop Quest
         /// </summary>

@@ -18,7 +18,6 @@ namespace WhMgr
     using WhMgr.Configuration;
     using WhMgr.Data.Contexts;
     using WhMgr.HostedServices;
-    using WhMgr.IO;
     using WhMgr.Queues;
     using WhMgr.Services;
     using WhMgr.Services.Alarms;

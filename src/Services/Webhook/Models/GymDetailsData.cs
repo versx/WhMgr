@@ -77,6 +77,11 @@
 
         #endregion
 
+        public void SetTimes()
+        {
+            // No times to change
+        }
+
         public DiscordWebhookMessage GenerateEmbedMessage(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];

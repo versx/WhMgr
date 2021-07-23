@@ -370,7 +370,7 @@
         /// Set despawn times because .NET doesn't support Unix timestamp
         /// deserialization to <seealso cref="DateTime"/> class by default.
         /// </summary>
-        public void SetDespawnTime()
+        public void SetTimes()
         {
             DespawnTime = DisappearTime
                 .FromUnix()

@@ -145,7 +145,7 @@
                 _logger.LogWarning($"Failed to deserialize pokemon {message}, skipping...");
                 return;
             }
-            pokemon.SetDespawnTime();
+            pokemon.SetTimes();
 
             if (pokemon.SecondsLeft.TotalMinutes < DespawnTimerMinimumMinutes)
                 return;

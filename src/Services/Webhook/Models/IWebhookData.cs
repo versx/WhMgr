@@ -6,5 +6,7 @@
     public interface IWebhookData
     {
         DiscordWebhookMessage GenerateEmbedMessage(AlarmMessageSettings settings);
+
+        void SetTimes();
     }
 }
