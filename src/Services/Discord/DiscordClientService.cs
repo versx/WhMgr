@@ -347,6 +347,21 @@
                     }
                 }
             }
+
+            _logger.LogDebug($"Cached {MasterFile.Instance.Emojis.Count:N0} emojis:");
+            foreach (var (emojiName, emojiId) in MasterFile.Instance.Emojis)
+            {
+                _logger.LogDebug($"- {emojiName} ({emojiId})");
+            }
+
+            _logger.LogDebug($"Emojis overwritten by custom unicode emojis:");
+            foreach (var (emojiName, emojiUnicode) in MasterFile.Instance.CustomEmojis)
+            {
+                if (string.IsNullOrEmpty(emojiUnicode))
+                    continue;
+
+                _logger.LogDebug($"- {emojiName} ({emojiUnicode})");
+            }
         }
 
         #endregion
