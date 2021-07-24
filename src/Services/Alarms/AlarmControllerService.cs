@@ -423,7 +423,7 @@
                 {
                     var alarm = pokestopAlarms[i];
 
-                    // TODO: Combine checks
+                    // TODO: Combine Pokestop lure and invasion checks
                     if (!alarm.Filters.Pokestops.Lured && pokestop.HasLure)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: lure filter not enabled.");

@@ -1,6 +1,8 @@
 ﻿namespace WhMgr.Services.Discord
 {
     using System;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     using DSharpPlus;
     using DSharpPlus.CommandsNext;
@@ -10,6 +12,7 @@
 
     using WhMgr.Commands.Discord;
     using WhMgr.Configuration;
+    using WhMgr.Extensions;
 
     public class DiscordClientFactory
     {
@@ -67,24 +70,24 @@
             {
                 commands.RegisterCommands<Feeds>();
             }
-            //else
-            //{
-            //    commands.RegisterCommands<Areas>();
-            //}
+            else
+            {
+                // TODO: Add basic area listing command
+                //commands.RegisterCommands<Areas>();
+            }
             /*
             commands.RegisterCommands<Owner>();
             commands.RegisterCommands<Event>();
             commands.RegisterCommands<Gyms>();
             commands.RegisterCommands<Quests>();
             commands.RegisterCommands<Settings>();
+            */
             commands.CommandExecuted += Commands_CommandExecuted;
             commands.CommandErrored += Commands_CommandErrored;
-            */
             return client;
         }
 
-        /*
-        private async Task Commands_CommandExecuted(CommandsNextExtension commands, CommandExecutionEventArgs e)
+        private static async Task Commands_CommandExecuted(CommandsNextExtension commands, CommandExecutionEventArgs e)
         {
             // let's log the name of the command and user
             Console.WriteLine($"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
@@ -95,7 +98,7 @@
             await Task.CompletedTask;
         }
 
-        private async Task Commands_CommandErrored(CommandsNextExtension commands, CommandErrorEventArgs e)
+        private static async Task Commands_CommandErrored(CommandsNextExtension commands, CommandErrorEventArgs e)
         {
             Console.WriteLine($"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? e.Context.Message.Content}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
 
@@ -116,12 +119,13 @@
             }
             else if (e.Exception is ArgumentException)
             {
+                var config = (ConfigHolder)commands.Services.GetService(typeof(ConfigHolder));
                 var arguments = e.Command.Overloads.FirstOrDefault();
                 // The user lacks required permissions, 
                 var emoji = DiscordEmoji.FromName(e.Context.Client, ":x:");
 
-                var guildId = e.Context.Guild?.Id ?? e.Context.Client.Guilds.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x.Key)).Key;
-                var prefix = _config.Instance.Servers.ContainsKey(guildId) ? _config.Instance.Servers[guildId].CommandPrefix : "!";
+                var guildId = e.Context.Guild?.Id ?? e.Context.Client.Guilds.FirstOrDefault(x => config.Instance.Servers.ContainsKey(x.Key)).Key;
+                var prefix = config.Instance.Servers.ContainsKey(guildId) ? config.Instance.Servers[guildId].Bot.CommandPrefix : "!";
                 //var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", e.Command.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
                 var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", arguments.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
 
@@ -144,6 +148,5 @@
                 Console.WriteLine($"User {e.Context.User.Username} tried executing command {e.Command?.Name} and unknown error occurred.\r\n: {e.Exception}");
             }
         }
-        */
     }
 }
