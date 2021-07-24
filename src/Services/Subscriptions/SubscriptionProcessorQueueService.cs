@@ -89,7 +89,7 @@
                             var server = _discordService.DiscordClients[item.Subscription.GuildId].Guilds[item.Subscription.GuildId];
                             var emoji = DiscordEmoji.FromName(_discordService.DiscordClients.FirstOrDefault().Value, ":no_entry:");
                             var guildIconUrl = _discordService.DiscordClients.ContainsKey(item.Subscription.GuildId) ? _discordService.DiscordClients[item.Subscription.GuildId].Guilds[item.Subscription.GuildId]?.IconUrl : string.Empty;
-                            // TODO: Localize
+                            // TODO: Localize rate limited messaged
                             var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0}) per minute and are now being rate limited." +
                                                    $"Please adjust your subscriptions to receive a maximum of {maxNotificationsPerMinute:N0} notifications within a {NotificationLimiter.ThresholdTimeout} second time span.";
                             var eb = new DiscordEmbedBuilder
