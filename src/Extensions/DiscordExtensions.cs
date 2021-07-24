@@ -318,7 +318,6 @@
 
         public static bool HasRoleAccess(this DiscordMember member, Dictionary<ulong, List<SubscriptionAccessType>> accessConfig, SubscriptionAccessType desiredAccessType)
         {
-            // TODO: HasRoleAccess
             // Loop all access configs
             // Check if member has role for access type
             foreach (var (donorRoleId, accessType) in accessConfig)

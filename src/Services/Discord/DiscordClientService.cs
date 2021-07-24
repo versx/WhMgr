@@ -122,7 +122,6 @@
             var subscriptions = _subscriptionManager.Subscriptions;
             foreach (var subscription in subscriptions)
             {
-                // TODO: Check if guild_id and user_id get member, if not has donor roles, disable subs
                 if (!_discordClients.Any(x => x.Value.Guilds.ContainsKey(subscription.GuildId)))
                     continue;
 
@@ -145,7 +144,10 @@
                 if (!_config.Instance.Servers.ContainsKey(guild.Id))
                     continue;
 
+                // Get members existing role ids
                 var memberRoleIds = member.Roles.Select(x => x.Id).ToList();
+
+                // Check if member roles contains any of the valid roles for the guild
                 var isValid = validRoleIdsPerGuild.Exists(x => memberRoleIds.Contains(x));
                 if (!isValid)
                 {

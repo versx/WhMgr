@@ -1,4 +1,4 @@
-﻿namespace WhMgr
+﻿namespace WhMgr.Configuration
 {
     using System.Text.Json.Serialization;
 

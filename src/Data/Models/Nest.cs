@@ -34,6 +34,6 @@
         [Column("updated")]
         public ulong LastUpdated { get; set; }
 
-        // TODO: LastUpdatedTime
+        // TODO: LastUpdatedTime (check if updated within the last 2 weeks before posting?)
     }
 }

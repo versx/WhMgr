@@ -39,7 +39,5 @@
 
         [JsonPropertyName("sticker_id")]
         public string StickerId { get; set; }
-
-        // TODO: Pokemon alignment
     }
 }

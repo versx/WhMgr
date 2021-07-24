@@ -16,9 +16,9 @@
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
         public const string WazeMaps = "https://waze.com/ul?ll={0},{1}&navigate=yes";
 
-        public const string BasePath = "bin/debug/";
+        public const string BasePath = "bin/debug/"; // TODO: Fix path
         public const string GeofenceFolder = BasePath + "geofences";
-        public const string AlarmsFolder = BasePath + "alarms"; // TODO: Fix path
+        public const string AlarmsFolder = BasePath + "alarms";
         public const string EmbedsFolder = BasePath + "embeds";
         public const string DiscordsFolder = BasePath + "discords";
         public const string FiltersFolder = BasePath + "filters";
@@ -131,6 +131,7 @@
             "gender_less"
         };
 
+        // Pokemon weather boosts based on Pokemon types
         public static IReadOnlyDictionary<WeatherCondition, List<PokemonType>> WeatherBoosts => new Dictionary<WeatherCondition, List<PokemonType>>
         {
             { WeatherCondition.None,         new List<PokemonType> { } },
