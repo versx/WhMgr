@@ -6,6 +6,8 @@
     using System.Linq;
     using System.Text.Json.Serialization;
 
+    using Microsoft.Extensions.Logging;
+
     using WhMgr.Extensions;
     using WhMgr.Services.Geofence;
     using WhMgr.Utilities;
@@ -142,14 +144,17 @@
         [JsonPropertyName("debug")]
         public bool Debug { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value determining the maximum Pokemon ID to support
+        /// </summary>
         [JsonPropertyName("maxPokemonId")]
         public uint MaxPokemonId { get; set; }
 
         /// <summary>
         /// Gets or sets the event logging level to set
         /// </summary>
-        //[JsonPropertyName("logLevel")]
-        // TODO: public LogLevel LogLevel { get; set; }
+        [JsonPropertyName("logLevel")]
+        public LogLevel LogLevel { get; set; }
 
         /// <summary>
         /// Gets or sets the configuration file path

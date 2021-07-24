@@ -49,20 +49,20 @@
             }
 
             var server = _config.Instance.Servers[guildId];
-            if (!server.ShinyStats.Enabled)
+            if (!server.DailyStats.ShinyStats.Enabled)
                 return;
 
-            var statsChannel = await ctx.Client.GetChannelAsync(server.ShinyStats.ChannelId);
+            var statsChannel = await ctx.Client.GetChannelAsync(server.DailyStats.ShinyStats.ChannelId);
             if (statsChannel == null)
             {
-                Console.WriteLine($"Failed to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
+                Console.WriteLine($"Failed to get channel id {server.DailyStats.ShinyStats.ChannelId} to post shiny stats.");
                 await ctx.RespondEmbed(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(new { author = ctx.User.Username }), DiscordColor.Yellow);
                 return;
             }
 
-            if (server.ShinyStats.ClearMessages)
+            if (server.DailyStats.ShinyStats.ClearMessages)
             {
-                await ctx.Client.DeleteMessages(server.ShinyStats.ChannelId);
+                await ctx.Client.DeleteMessages(server.DailyStats.ShinyStats.ChannelId);
             }
 
             var stats = await GetShinyStats(_config.Instance.Database.Scanner.ToString());
@@ -143,21 +143,21 @@
             }
 
             var server = _config.Instance.Servers[guildId];
-            if (!server.ShinyStats.Enabled)
+            if (!server.DailyStats.IVStats.Enabled)
                 return;
 
             // TODO: Separate IV stats channel
-            var statsChannel = await ctx.Client.GetChannelAsync(server.ShinyStats.ChannelId);
+            var statsChannel = await ctx.Client.GetChannelAsync(server.DailyStats.IVStats.ChannelId);
             if (statsChannel == null)
             {
-                Console.WriteLine($"Failed to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
+                Console.WriteLine($"Failed to get channel id {server.DailyStats.IVStats.ChannelId} to post shiny stats.");
                 await ctx.RespondEmbed(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(ctx.User.Username), DiscordColor.Yellow);
                 return;
             }
 
-            if (server.ShinyStats.ClearMessages)
+            if (server.DailyStats.IVStats.ClearMessages)
             {
-                await ctx.Client.DeleteMessages(server.ShinyStats.ChannelId);
+                await ctx.Client.DeleteMessages(server.DailyStats.IVStats.ChannelId);
             }
 
             var stats = GetIvStats(_config.Instance.Database.Scanner.ToString());

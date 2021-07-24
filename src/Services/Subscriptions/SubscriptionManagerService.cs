@@ -132,9 +132,9 @@
                 .Where(x => x.IsEnabled(NotificationStatusType.Quests) &&
                             x.Quests != null &&
                             x.Quests.Any(y =>
-                                reward.Contains(y.RewardKeyword) ||
-                                (y.PokestopName != null && (pokestopName.Contains(y.PokestopName) ||
-                                string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
+                                reward.Contains(y.RewardKeyword)
+                                || (y.PokestopName != null && (pokestopName.Contains(y.PokestopName)
+                                || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
                       )
                 ).ToList();
         }
@@ -145,9 +145,9 @@
                 .Where(x => x.IsEnabled(NotificationStatusType.Invasions) &&
                             x.Invasions != null &&
                             x.Invasions.Any(y =>
-                                y.RewardPokemonId.Intersects(encounterRewards) ||
-                                gruntType == y.InvasionType ||
-                                (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName))
+                                y.RewardPokemonId.Intersects(encounterRewards)
+                                || gruntType == y.InvasionType
+                                || (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName))
                                 || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
                             )
                         )
@@ -159,9 +159,10 @@
             return _subscriptions?
                 .Where(x => x.IsEnabled(NotificationStatusType.Lures) &&
                             x.Lures != null &&
-                            x.Lures.Any(y => lure == y.LureType ||
-                                            (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName))
-                                            || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase))
+                            x.Lures.Any(y =>
+                                lure == y.LureType
+                                || (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName))
+                                || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase))
                       )
                 .ToList();
         }
@@ -189,8 +190,21 @@
 
         public bool Save(Subscription subscription)
         {
-            // TODO: Save subscription from Discord commands
-            return true;
+            // Save subscription changes
+            try
+            {
+                using (var ctx = _dbFactory.CreateDbContext())
+                {
+                    ctx.Update(subscription);
+                    ctx.SaveChanges();
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to save subscription with id {subscription.Id} (UserId: {subscription.UserId}, GuildId: {subscription.GuildId}): {ex}");
+                return false;
+            }
         }
 
         /// <summary>

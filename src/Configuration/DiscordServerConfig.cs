@@ -89,10 +89,10 @@
         public NestsConfig Nests { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets the shiny stats configuration class
+        /// Gets or sets the daily stats configuration for nightly channel postings
         /// </summary>
-        [JsonPropertyName("shinyStats")]
-        public ShinyStatsConfig ShinyStats { get; set; } = new();
+        [JsonPropertyName("dailyStats")]
+        public DailyStatsConfig DailyStats { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the icon style for messages on the Discord server

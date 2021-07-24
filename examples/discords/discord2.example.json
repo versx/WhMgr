@@ -49,13 +49,21 @@
     }
   },
   "nests": {
-    "channelId": 0,
+    "enabled": false,
+    "channelId": 000000000000000000,
     "minimumPerHour": 2
   },
-  "shinyStats": {
-    "enabled": false,
-    "clearMessages": false,
-    "channelId": 000000000000000000
+  "dailyStats": {
+    "shiny": {
+      "enabled": false,
+      "clearMessages": false,
+      "channelId": 000000000000000000
+    },
+    "iv": {
+      "enabled": false,
+      "clearMessages": false,
+      "channelId": 000000000000000000
+    }
   },
   "iconStyle": "Default",
   "dmAlertsFile": "default.json"

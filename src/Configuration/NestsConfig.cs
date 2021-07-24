@@ -5,6 +5,11 @@
     public class NestsConfig
     {
         /// <summary>
+        /// Gets or sets a value determining whether to post nest listings or not
+        /// </summary>
+        public bool Enabled { get; set; }
+
+        /// <summary>
         /// Gets or sets the nests channel ID to report nests
         /// </summary>
         [JsonPropertyName("channelId")]
