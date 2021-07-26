@@ -31,6 +31,9 @@
         [JsonPropertyName("maxNotificationsPerMinute")]
         public int MaxNotificationsPerMinute { get; set; }
 
+        [JsonPropertyName("url")]
+        public string Url { get; set; }
+
         public SubscriptionsConfig()
         {
             Enabled = false;

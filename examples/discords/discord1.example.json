@@ -28,7 +28,8 @@
     "maxQuestSubscriptions": 0,
     "maxInvasionSubscriptions": 0,
     "maxLureSubscriptions": 0,
-    "maxGymSubscriptions": 0
+    "maxGymSubscriptions": 0,
+    "url": "http://127.0.0.1:8009"
   },
   "geofenceRoles": {
     "enabled": false,
