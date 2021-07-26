@@ -38,7 +38,7 @@
             };
             _timer.Start();
 
-            Task.Run(async () => await ReloadSubscriptionsAsync());
+            Task.Run(async () => await ReloadSubscriptionsAsync(true));
         }
 
         #region Get Subscriptions
@@ -210,14 +210,32 @@
         /// <summary>
         /// Reload all user subscriptions
         /// </summary>
-        public async Task ReloadSubscriptionsAsync()
+        public async Task ReloadSubscriptionsAsync(bool skipCheck = false, ushort reloadM = 5)
         {
-            // TODO: Only reload based on last_changed timestamp in metadata table
+            // Only reload based on last_changed timestamp in metadata table
+            var lastModifiedTimestamp = GetLastModifiedTimestamp();
+            var utcNow = DateTime.UtcNow.GetUnixTimestamp();
+            var fiveMinutes = reloadM * 60 * 60;
+            var delta = utcNow - lastModifiedTimestamp;
+            // Check if last_modified was set within the last 5 minutes
+            if (!skipCheck && delta > fiveMinutes)
+                return;
+
+            // Updated, reload subscriptions
             var subs = await GetUserSubscriptions();
             if (subs == null)
                 return;
 
             _subscriptions = subs;
+        }
+
+        private ulong GetLastModifiedTimestamp()
+        {
+            using (var ctx = _dbFactory.CreateDbContext())
+            {
+                var lastModified = ctx.Metadata.Find("LAST_MODIFIED");
+                return ulong.Parse(lastModified.Value);
+            }
         }
     }
 }

@@ -30,7 +30,7 @@
 
         List<Subscription> GetSubscriptionsByGymName(string name);
 
-        Task ReloadSubscriptionsAsync();
+        Task ReloadSubscriptionsAsync(bool skipCheck = false, ushort reloadM = 5);
 
         bool Save(Subscription subscription);
     }
