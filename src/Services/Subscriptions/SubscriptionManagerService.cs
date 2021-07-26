@@ -234,7 +234,9 @@
             using (var ctx = _dbFactory.CreateDbContext())
             {
                 var lastModified = ctx.Metadata.Find("LAST_MODIFIED");
-                return ulong.Parse(lastModified.Value);
+                if (!ulong.TryParse(lastModified?.Value, out var value))
+                    return 0;
+                return value;
             }
         }
     }
