@@ -42,15 +42,15 @@
     <PackageReference Include="GeoTimeZone" Version="4.1.0" />
     <PackageReference Include="Handlebars.Net" Version="2.0.8" />
     <PackageReference Include="Microsoft.Win32.SystemEvents" Version="4.7.0" />
-    <PackageReference Include="NetTopologySuite" Version="2.1.0" />
+    <PackageReference Include="NetTopologySuite" Version="2.3.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="POGOProtos.Core" Version="2.54.7" />
     <PackageReference Include="ServiceStack.OrmLite.MySql" Version="5.8.0" />
-    <PackageReference Include="Stripe.net" Version="39.29.0" />
-    <PackageReference Include="TimeZoneConverter" Version="3.3.0" />
-    <PackageReference Include="Twilio" Version="5.51.0" />
-    <PackageReference Include="SmartFormat.NET" Version="2.5.3" />
+    <PackageReference Include="Stripe.net" Version="39.61.0" />
+    <PackageReference Include="TimeZoneConverter" Version="3.5.0" />
+    <PackageReference Include="Twilio" Version="5.64.0" />
+    <PackageReference Include="SmartFormat.NET" Version="2.7.0" />
   </ItemGroup>
 
 </Project>
