@@ -231,15 +231,8 @@
                     Description = $"Thank you for joining {e.Guild?.Name}! Please look around and get familar, you can get " +
                         "exclusive access to Pokemon, Raids, Quests, Invasions, Lures, and Gyms by typing `$donate` in the #bot " +
                         "channel and following the upgrade link.\n\n" +
-                        // Only show if geofenceRoles enabled
-                        (
-                            server.GeofenceRoles.Enabled
-                                ? (
-                                    $"To see different city sections type `{server.Bot?.CommandPrefix}feedme city1,city2` in the #bot channel.\n" +
-                                    $"Type `{server.Bot?.CommandPrefix}help for more information."
-                                )
-                                : null
-                        ),
+                        $"To see different city sections type `{server.Bot?.CommandPrefix}feedme city1,city2` in the #bot channel.\n" +
+                        $"Type `{server.Bot?.CommandPrefix}help for more information.",
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = $"{e.Guild?.Name} {DateTime.Now}",
