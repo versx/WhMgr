@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhMgr", "src\WhMgr.csproj", "{6B59CEAE-3BFA-4E31-B86E-0AA276C4796A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhMgr", "src\WhMgr.csproj", "{6B59CEAE-3BFA-4E31-B86E-0AA276C4796A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhMgr.Test", "test\WhMgr.Test.csproj", "{2BBAB7C9-3F59-4E88-9477-481C6466C4F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhMgr.Test", "test\WhMgr.Test.csproj", "{2BBAB7C9-3F59-4E88-9477-481C6466C4F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
