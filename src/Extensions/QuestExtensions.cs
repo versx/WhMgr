@@ -153,6 +153,7 @@
                     return Translator.Instance.Translate(rewardKey, info.Amount, itemName);
                 case QuestRewardType.PokemonEncounter:
                     var formName = info.FormId > 0 ? Translator.Instance.GetFormName(info.FormId) : null;
+                    // TODO: Localize **SHINY**
                     var pkmnName = (info.Shiny ? $"**SHINY** " : "") + Translator.Instance.GetPokemonName(info.Ditto ? 132 : info.PokemonId);
                     return $"{pkmnName} {formName}";
                 case QuestRewardType.Stardust:

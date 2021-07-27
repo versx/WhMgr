@@ -17,6 +17,7 @@
             {
                 // TODO: GetPokemonName helper
             }));
+            // TODO: Add other helpers
             HandlebarsHelpers.Register(_context);
         }
 

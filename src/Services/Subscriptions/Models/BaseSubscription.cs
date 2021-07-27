@@ -13,10 +13,9 @@
         /// Gets or sets the unique primary key Id for the subscription item
         /// </summary>
         [
-            JsonIgnore,//JsonProperty("id"),
+            JsonIgnore, //JsonProperty("id"),
             Column("id"),
             Key,
-            // TODO: AutoIncrement,
         ]
         public int Id { get; set; }
 
