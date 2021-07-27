@@ -22,7 +22,9 @@
         private readonly ConfigHolder _config;
         private readonly ILogger<Feeds> _logger;
 
-        public Feeds(ConfigHolder config, ILoggerFactory loggerFactory)
+        public Feeds(
+            ConfigHolder config,
+            ILoggerFactory loggerFactory)
         {
             _config = config;
             _logger = loggerFactory.CreateLogger<Feeds>();
