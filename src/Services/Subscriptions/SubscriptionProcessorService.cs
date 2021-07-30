@@ -61,12 +61,13 @@
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
+            var pkmnCoord = new Coordinate(pokemon.Latitude, pokemon.Longitude);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
                 {
                     var geofences = _config.Instance.Servers[guildId].Geofences;
-                    geofence = GeofenceService.GetGeofence(geofences, new Coordinate(pokemon.Latitude, pokemon.Longitude));
+                    geofence = GeofenceService.GetGeofence(geofences, pkmnCoord);
                     locationCache.Add(guildId, geofence);
                 }
                 return geofence;
@@ -166,8 +167,8 @@
 
                         var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                         var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, pkmnSub.Location, true) == 0);
-                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinate(pokemon.Latitude, pokemon.Longitude));
-                        var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(new Coordinate(pokemon.Latitude, pokemon.Longitude));
+                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
+                        var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
                         var geofenceMatches = pkmnSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                         // If set distance does not match and no geofences match, then skip Pokemon...
@@ -222,12 +223,13 @@
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
+            var pkmnCoord = new Coordinate(pokemon.Latitude, pokemon.Longitude);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
                 {
                     var geofences = _config.Instance.Servers[guildId].Geofences;
-                    geofence = GeofenceService.GetGeofence(geofences, new Coordinate(pokemon.Latitude, pokemon.Longitude));
+                    geofence = GeofenceService.GetGeofence(geofences, pkmnCoord);
                     locationCache.Add(guildId, geofence);
                 }
                 return geofence;
@@ -319,8 +321,8 @@
 
                         var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                         var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, pkmnSub.Location, true) == 0);
-                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinate(pokemon.Latitude, pokemon.Longitude));
-                        var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(new Coordinate(pokemon.Latitude, pokemon.Longitude));
+                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
+                        var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
                         var geofenceMatches = pkmnSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                         // If set distance does not match and no geofences match, then skip Pokemon...
@@ -372,12 +374,13 @@
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
+            var raidCoord = new Coordinate(raid.Latitude, raid.Longitude);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
                 {
                     var geofences = _config.Instance.Servers[guildId].Geofences;
-                    geofence = GeofenceService.GetGeofence(geofences, new Coordinate(raid.Latitude, raid.Longitude));
+                    geofence = GeofenceService.GetGeofence(geofences, raidCoord);
                     locationCache.Add(guildId, geofence);
                 }
                 return geofence;
@@ -456,8 +459,8 @@
 
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                     var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subPkmn.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinate(raid.Latitude, raid.Longitude));
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(new Coordinate(raid.Latitude, raid.Longitude));
+                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(raidCoord);
+                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(raidCoord);
                     var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Raid Pokemon...
@@ -507,12 +510,13 @@
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
+            var questCoord = new Coordinate(quest.Latitude, quest.Longitude);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
                 {
                     var geofences = _config.Instance.Servers[guildId].Geofences;
-                    geofence = GeofenceService.GetGeofence(geofences, new Coordinate(quest.Latitude, quest.Longitude));
+                    geofence = GeofenceService.GetGeofence(geofences, questCoord);
                     locationCache.Add(guildId, geofence);
                 }
                 return geofence;
@@ -583,8 +587,8 @@
 
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                     var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subQuest.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinate(quest.Latitude, quest.Longitude));
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(new Coordinate(quest.Latitude, quest.Longitude));
+                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(questCoord);
+                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(questCoord);
                     var geofenceMatches = subQuest.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
@@ -630,12 +634,13 @@
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
+            var invasionCoord = new Coordinate(pokestop.Latitude, pokestop.Longitude);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
                 {
                     var geofences = _config.Instance.Servers[guildId].Geofences;
-                    geofence = GeofenceService.GetGeofence(geofences, new Coordinate(pokestop.Latitude, pokestop.Longitude));
+                    geofence = GeofenceService.GetGeofence(geofences, invasionCoord);
                     locationCache.Add(guildId, geofence);
                 }
                 return geofence;
@@ -715,8 +720,8 @@
 
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                     var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subInvasion.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinate(pokestop.Latitude, pokestop.Longitude));
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(new Coordinate(pokestop.Latitude, pokestop.Longitude));
+                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(invasionCoord);
+                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(invasionCoord);
                     var geofenceMatches = subInvasion.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
@@ -762,12 +767,13 @@
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
+            var lureCoord = new Coordinate(pokestop.Latitude, pokestop.Longitude);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
                 {
                     var geofences = _config.Instance.Servers[guildId].Geofences;
-                    geofence = GeofenceService.GetGeofence(geofences, new Coordinate(pokestop.Latitude, pokestop.Longitude));
+                    geofence = GeofenceService.GetGeofence(geofences, lureCoord);
                     locationCache.Add(guildId, geofence);
                 }
                 return geofence;
@@ -836,8 +842,8 @@
 
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
                     var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subLure.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(new Coordinate(pokestop.Latitude, pokestop.Longitude));
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(new Coordinate(pokestop.Latitude, pokestop.Longitude));
+                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(lureCoord);
+                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(lureCoord);
                     var geofenceMatches = subLure.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // If set distance does not match and no geofences match, then skip Pokemon...
@@ -883,12 +889,13 @@
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
+            var gymCoord = new Coordinate(raid.Latitude, raid.Longitude);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
                 {
                     var geofences = _config.Instance.Servers[guildId].Geofences;
-                    geofence = GeofenceService.GetGeofence(geofences, new Coordinate(raid.Latitude, raid.Longitude));
+                    geofence = GeofenceService.GetGeofence(geofences, gymCoord);
                     locationCache.Add(guildId, geofence);
                 }
                 return geofence;
@@ -963,17 +970,14 @@
                         continue;
                     }
 
-                    /*
-                    // TODO: Gym distance location
                     var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var pokemonLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subPkmn.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation.DistanceM > 0 && globalLocation.DistanceM > new Coordinates(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
-                    var invasionDistanceMatches = pokemonLocation.DistanceM > 0 && pokemonLocation.DistanceM > new Coordinates(pokemonLocation.Latitude, pokemonLocation.Longitude).DistanceTo(new Coordinates(raid.Latitude, raid.Longitude));
-                    var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
+                    var gymLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, gymSub.Location, true) == 0);
+                    var globalDistanceMatches = globalLocation.DistanceM > 0 && globalLocation.DistanceM > new Coordinate(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(gymCoord);
+                    var gymDistanceMatches = gymLocation.DistanceM > 0 && gymLocation.DistanceM > new Coordinate(gymLocation.Latitude, gymLocation.Longitude).DistanceTo(gymCoord);
+                    //var geofenceMatches = gymSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
                     // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !invasionDistanceMatches && !geofenceMatches)
+                    if (!globalDistanceMatches && !gymDistanceMatches)
                         continue;
-                    */
 
                     var embed = raid.GenerateEmbedMessage(new AlarmMessageSettings
                     {
