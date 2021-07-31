@@ -18,7 +18,6 @@
     using WhMgr.Extensions;
     using WhMgr.Localization;
 
-    // TODO: Change config to stats = { shiny, iv }
     // TODO: Automated IV stats postings
     // TODO: Manual IV stats postings
     // TODO: Simplified IV stats postings via command with arg `list`

@@ -16,7 +16,7 @@
         public const string AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
         public const string WazeMaps = "https://waze.com/ul?ll={0},{1}&navigate=yes";
 
-        public const string BasePath = "bin/debug/"; // TODO: Fix path
+        public const string BasePath = "../bin/";
         public const string GeofenceFolder = BasePath + "geofences";
         public const string AlarmsFolder = BasePath + "alarms";
         public const string EmbedsFolder = BasePath + "embeds";

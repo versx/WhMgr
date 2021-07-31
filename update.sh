@@ -21,11 +21,6 @@ if [ "$1" == "geofences" ] || [ "$1" == "geofence" ] || [ "$1" == "all" ]; then
     cp -R "geofences" "bin/"
 fi
 
-# Copy locale translation files
-echo "Copying locale translation files... "
-mkdir -p "bin/static"
-cp -R "static/locale" "bin/static/"
-
 echo "Copying latest master file..."
 mkdir -p "bin/static/data"
 cp "static/data/masterfile.json" "bin/static/data/masterfile.json"

@@ -1,19 +1,19 @@
 @echo off
 
 SET prjDir=%CD%\WhMgr
-SET binDir=%prjDir%\bin\debug\netcoreapp2.1
+SET binDir=%prjDir%\bin
 
-:: Download .NET Core 2.1 installer
+:: Download .NET 5.0 installer
 echo "Downloading .NET Core 2.1 installer..."
-powershell -Command "iwr -outf ~/Desktop/dotnet-install.ps1 https://dotnet.microsoft.com/download/dotnet-core/scripts/v1/dotnet-install.ps1"
+powershell -Command "iwr -outf ~/Desktop/dotnet-install.ps1 https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1"
 
 :: Make installer executable
 
-:: Install .NET Core 2.1.0
+:: Install .NET 5.0 SDK
 echo "Launching .NET Core installer..."
-powershell -ExecutionPolicy RemoteSigned -File dotnet-install.ps1 -Version 2.1.813
+powershell -ExecutionPolicy RemoteSigned -File dotnet-install.ps1 -Version 5.0.202
 
-:: Delete .NET Core 2.1.0 installer
+:: Delete .NET 5.0 installer
 echo "Deleting .NET Core installer..."
 del dotnet-install.ps1
 
