@@ -1009,8 +1009,8 @@ namespace WhMgr.Data.Subscriptions
 
         private bool HasRole(DiscordMember member, List<ulong> roleIds)
         {
-            var memberRoles = member.Roles.Select(x => x.Id);
-            return roleIds.Any(x => memberRoles.Contains(x));
+            var memberRoles = member?.Roles.Select(x => x.Id);
+            return roleIds?.Any(x => memberRoles.Contains(x)) ?? false;
         }
 
         private bool IsUltraRare(TwilioConfig twilo, PokemonData pkmn)
