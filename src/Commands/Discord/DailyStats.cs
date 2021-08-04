@@ -19,7 +19,6 @@
     using WhMgr.Localization;
 
     // TODO: Automated IV stats postings
-    // TODO: Manual IV stats postings
     // TODO: Simplified IV stats postings via command with arg `list`
     // TODO: Get total IV found for IV stats
     // TODO: Include forms with shiny/iv stats

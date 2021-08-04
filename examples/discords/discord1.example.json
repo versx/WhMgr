@@ -67,5 +67,5 @@
     }
   },
   "iconStyle": "Default",
-  "dmAlertsFile": "default.json"
+  "dmEmbedsFile": "default.json"
 }
