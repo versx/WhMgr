@@ -110,10 +110,10 @@
         public List<ulong> BotChannelIds { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets the alerts file to use with direct message subscriptions
+        /// Gets or sets the embeds file to use with direct message subscriptions
         /// </summary>
-        [JsonPropertyName("dmAlertsFile")]
-        public string DmAlertsFile { get; set; } = "default.json";
+        [JsonPropertyName("dmEmbedsFile")]
+        public string DmEmbedsFile { get; set; } = "default.json";
 
         /// <summary>
         /// Gets or sets the direct message alerts class to use for subscriptions
@@ -133,12 +133,12 @@
         public DiscordServerConfig()
         {
             //Locale = "en";
-            LoadDmEmbed();
+            LoadDmEmbeds();
         }
 
-        public void LoadDmEmbed()
+        public void LoadDmEmbeds()
         {
-            var path = Path.Combine(Strings.EmbedsFolder, DmAlertsFile);
+            var path = Path.Combine(Strings.EmbedsFolder, DmEmbedsFile);
             if (!File.Exists(path))
             {
                 throw new FileNotFoundException($"File not found at location {path}", path);

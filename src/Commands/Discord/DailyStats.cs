@@ -145,7 +145,6 @@
             if (!server.DailyStats.IVStats.Enabled)
                 return;
 
-            // TODO: Separate IV stats channel
             var statsChannel = await ctx.Client.GetChannelAsync(server.DailyStats.IVStats.ChannelId);
             if (statsChannel == null)
             {
@@ -227,11 +226,12 @@
                 using (var ctx = DbContextFactory.CreateMapContext(scannerConnectionString))
                 {
                     ctx.Database.SetCommandTimeout(TimeSpan.FromSeconds(30)); // 30 seconds timeout
-                    var yesterday = Convert.ToInt64(Math.Round(DateTime.UtcNow.Subtract(TimeSpan.FromHours(24)).GetUnixTimestamp()));
+                    var now = DateTime.UtcNow;
+                    var hoursAgo = TimeSpan.FromHours(24);
+                    var yesterday = Convert.ToInt64(Math.Round(now.Subtract(hoursAgo).GetUnixTimestamp()));
                     // Checks within last 24 hours and 100% IV (or use statistics cache?)
                     var pokemon = ctx.Pokemon
-                        .Where(x =>
-                            x.Attack != null && x.Defense != null && x.Stamina != null
+                        .Where(x => x.Attack != null && x.Defense != null && x.Stamina != null
                             && x.DisappearTime > yesterday
                             && x.Attack == 15
                             && x.Defense == 15
