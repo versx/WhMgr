@@ -43,22 +43,13 @@ namespace WhMgr
 
         public IConfiguration Configuration { get; }
 
+        public static Config Config { get; set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            var configPath = Path.Combine(
-                Environment.CurrentDirectory,
-                Strings.BasePath + Strings.ConfigFileName
-            );
-            var config = Config.Load(configPath);
-            if (config == null)
-            {
-                Console.WriteLine($"Failed to load config {configPath}.");
-                return;
-            }
-            config.FileName = configPath;
-            config.LoadDiscordServers();
-            _config = new ConfigHolder(config);
+
+            _config = new ConfigHolder(Config);
             _config.Reloaded += () =>
             {
                 _config.Instance.LoadDiscordServers();
@@ -66,7 +57,7 @@ namespace WhMgr
                 // TODO: filters and embeds
                 // TODO: Use FileWatcher
             };
-            _alarms = ChannelAlarmsManifest.LoadAlarms(config.Servers);
+            _alarms = ChannelAlarmsManifest.LoadAlarms(Config.Servers);
 
             // Create locale translation files
             Localization.Translator.Instance.CreateLocaleFiles();
