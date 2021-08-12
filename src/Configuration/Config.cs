@@ -155,6 +155,15 @@
         /// </summary>
         [JsonPropertyName("logLevel")]
         public LogLevel LogLevel { get; set; }
+        /*
+         * Trace: 0
+         * Debug: 1
+         * Info: 2
+         * Warning: 3
+         * Error: 4
+         * Critical: 5
+         * None: 6
+         */
 
         /// <summary>
         /// Gets or sets the configuration file path
@@ -171,7 +180,7 @@
             WebhookPort = 8008;
             Locale = "en";
             MaxPokemonId = 800;
-            //LogLevel = LogLevel.Trace;
+            LogLevel = LogLevel.Trace;
             EventMinimumIV = 90;
             DespawnTimeMinimumMinutes = 5;
             ReloadSubscriptionChangesMinutes = 1;

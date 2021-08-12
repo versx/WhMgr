@@ -34,6 +34,7 @@ namespace WhMgr
                     config.FileName = configPath;
                     config.LoadDiscordServers();
                     Startup.Config = config;
+
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseUrls($"http://*:{config.WebhookPort}");
                 });
