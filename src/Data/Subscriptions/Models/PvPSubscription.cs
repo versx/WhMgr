@@ -35,7 +35,7 @@
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[Error] Failed to parse pokemon id string: {ex}");
+                    Console.WriteLine($"[Error] Failed to parse pokemon id string: {PokemonIdString}\nSubscriptionId: {SubscriptionId}\nPvpSubscriptionId: {Id}\nError: {ex}");
                 }
                 return new List<uint>();
             }
