@@ -958,6 +958,21 @@
                     }
                 }
             }
+
+            _logger.Debug($"Cached {MasterFile.Instance.Emojis.Count:N0} emojis:");
+            foreach (var (emojiName, emojiId) in MasterFile.Instance.Emojis)
+            {
+                _logger.Debug($"- {emojiName} ({emojiId})");
+            }
+
+            _logger.Debug($"Emojis overwritten by custom unicode emojis:");
+            foreach (var (emojiName, emojiUnicode) in MasterFile.Instance.CustomEmojis)
+            {
+                if (string.IsNullOrEmpty(emojiUnicode))
+                    continue;
+
+                _logger.Debug($"- {emojiName} ({emojiUnicode})");
+            }
         }
 
         private async Task OnMidnightTimer()

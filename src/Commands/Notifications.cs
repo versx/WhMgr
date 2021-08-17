@@ -619,7 +619,7 @@
             }
 
             var areas = SubscriptionAreas.GetAreas(_dep.WhConfig.Servers[guildId], city);
-            var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
+            var pokemonNames = validation.Valid.Select(x => MasterFile.GetPokemon(x.Key, 0).Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             var error = false;
             //foreach (var (pokemonId, form) in validation.Valid)
             //{
@@ -761,7 +761,7 @@
             }
             subscription.Save();
 
-            var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
+            var pokemonNames = validation.Valid.Select(x => MasterFile.GetPokemon(x.Key, 0).Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_SUBSCRIBE").FormatText(new
             {
                 author = ctx.User.Username,
@@ -865,7 +865,7 @@
                 }
             }
 
-            var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
+            var pokemonNames = validation.Valid.Select(x => MasterFile.GetPokemon(x.Key, 0).Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
             {
                 author = ctx.User.Username,
@@ -1537,7 +1537,7 @@
                 }
             }
 
-            var pkmnNames = string.Join(", ", subscribed.Select(x => MasterFile.GetPokemon(uint.Parse(x), 0)?.Name));
+            var pkmnNames = string.Join(", ", validation.Valid.Select(x => MasterFile.GetPokemon(x.Key, 0)?.Name));
             await ctx.RespondEmbed
             (
                 (subscribed.Count > 0
@@ -1958,7 +1958,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var raidPokemon = await raidInput.GetPokemonResult(_dep.WhConfig.MaxPokemonId);
                         var raidAreas = await raidInput.GetAreasResult(guildId);
 
-                        var validPokemonNames = string.Join(", ", raidPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value)));
+                        var validPokemonNames = string.Join(", ", raidPokemon.Valid.Select(x => MasterFile.GetPokemon(x.Key, 0).Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value)));
                         var raidResult = AddRaidSubscription(ctx, subscription, raidPokemon, raidAreas);
                         var subscribed = raidResult.Key;
                         var alreadySubscribed = raidResult.Value;
@@ -2069,7 +2069,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                         var invasionAreas = await invasionInput.GetAreasResult(guildId);
 
                         var valid = string.Join(",", invasionPokemon.Valid.ToList());
-                        var validPokemonNames = string.Join(", ", invasionPokemon.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name));
+                        var validPokemonNames = string.Join(", ", invasionPokemon.Valid.Select(x => MasterFile.GetPokemon(x.Key, 0).Name));
                             var subInvasion = subscription.Invasions.FirstOrDefault(x => x.RewardPokemonIdString == valid);
                         if (subInvasion != null)
                         {
@@ -2679,7 +2679,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
 
             if (error)
             {
-                var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
+                var pokemonNames = validation.Valid.Select(x => MasterFile.GetPokemon(x.Key, 0).Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
                 await ctx.RespondEmbed(Translator.Instance.Translate("FAILED_POKEMON_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
                 {
                     author = ctx.User.Username,
@@ -2694,7 +2694,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             var error = false;
             var valid = string.Join(",", validation.Valid.Keys.ToList());
             var forms = string.Join(",", validation.Valid.Values.ToList());
-            var pokemonNames = validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
+            var pokemonNames = validation.Valid.Select(x => MasterFile.GetPokemon(x.Key, 0).Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value));
             foreach (var (pokemonId, form) in validation.Valid)
             {
                 var subPvP = subscription.PvP.FirstOrDefault(x => x.PokemonIdString == valid && x.FormsString == forms && x.League == league);
@@ -2783,7 +2783,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 }
             }
 
-            var validPokemonNames = string.Join("**, **", validation.Valid.Select(x => MasterFile.Instance.Pokedex[x.Key].Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value))); ;
+            var validPokemonNames = string.Join("**, **", validation.Valid.Select(x => MasterFile.GetPokemon(x.Key, 0).Name + (string.IsNullOrEmpty(x.Value) ? string.Empty : "-" + x.Value))); ;
             var isAll = string.Compare(Strings.All, validPokemonNames, true) == 0;
             await ctx.RespondEmbed(Translator.Instance.Translate("SUCCESS_RAID_SUBSCRIPTIONS_UNSUBSCRIBE").FormatText(new
             {
@@ -3237,7 +3237,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                     //var pkmn = MasterFile.Instance.Pokedex[poke.PokemonId];
                     var form = string.IsNullOrEmpty(poke.FormsString) ? string.Empty : $" ({string.Join(", ", poke.FormsString)})";
                     //var msg = $"{poke.PokemonId}: {pkmn.Name}{form} {(poke.MinimumIV + "%+ " + (poke.HasStats ? string.Join(", ", poke.IVList) : string.Empty))}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}";
-                    var msg = $"{poke.PokemonIdString}: {poke}{form} {(poke.MinimumIV + "%+ " + (poke.HasStats ? string.Join(", ", poke.IVList) : string.Empty))}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}";
+                    var msg = $"- {string.Join(", ", poke.PokemonId.Select(x => MasterFile.GetPokemon(x, 0).Name))}{form} {(poke.MinimumIV + "%+ " + (poke.HasStats ? string.Join(", ", poke.IVList) : string.Empty))}{(poke.MinimumLevel > 0 ? $", L{poke.MinimumLevel}+" : null)}{(poke.Gender == "*" ? null : $", Gender: {poke.Gender}")}";
                     var isAllCities = cityRoles.ScrambledEquals(poke.Areas, StringComparer.Create(System.Globalization.CultureInfo.CurrentCulture, true));
                     sb.AppendLine(Translator.Instance.Translate("NOTIFY_FROM").FormatText(new
                     {
