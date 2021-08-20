@@ -21,7 +21,6 @@
 
         private readonly string _appLocalesFolder = Directory.GetCurrentDirectory() + "/../static/locales";
         private readonly string _binLocalesFolder = Directory.GetCurrentDirectory() + $"/../bin/static/locales";
-        private readonly string _pogoLocalesFolder = Directory.GetCurrentDirectory() + "/../node_modules/pogo-translations/static/locales";
 
         #region Singleton
 
@@ -46,35 +45,24 @@
             var files = Directory.GetFiles(_appLocalesFolder, "*.json")
                                  .Select(x => Path.GetFileName(x))
                                  .ToList();
-            var pogoLocalesFiles = new List<string>();
-            if (Directory.Exists(_pogoLocalesFolder))
-            {
-                pogoLocalesFiles = Directory.GetFiles(_pogoLocalesFolder, "*.json")
-                                            .Select(x => Path.GetFileName(x))
-                                            .ToList();
-            }
 
             foreach (var file in files)
             {
                 // TODO: Filter by `_` prefix
                 var locale = Path.GetFileName(file).Replace("_", null);
                 var localeFile = locale;
-                var translations = new Dictionary<string, string>();
 
+                var json = Utilities.NetUtil.Get("https://raw.githubusercontent.com/WatWowMap/pogo-translations/master/static/locales/" + locale);
+                var remote = json.FromJson<Dictionary<string, string>>();
+                
                 Console.WriteLine($"Creating locale {locale}");
 
-                if (pogoLocalesFiles.Contains(localeFile))
+                var keys = remote.Keys.ToList();
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    Console.WriteLine($"Found pogo-translations for locale {locale}");
-                    var pogoTranslations = File.ReadAllText(Path.Combine(_pogoLocalesFolder, localeFile));
-                    translations = pogoTranslations.FromJson<Dictionary<string, string>>();
-                    var keys = translations.Keys.ToList();
-                    for (var i = 0; i < keys.Count; i++)
-                    {
-                        var key = keys[i];
-                        translations[key] = translations[key].Replace("%", "{");
-                        translations[key] = translations[key].Replace("}", "}}");
-                    }
+                    var key = keys[i];
+                    remote[key] = remote[key].Replace("%", "{");
+                    remote[key] = remote[key].Replace("}", "}}");
                 }
 
                 if (locale != "en")
@@ -84,15 +72,15 @@
                         Path.Combine(_appLocalesFolder, "_en.json")
                     );
                     var fallbackTranslations = appTransFallback.FromJson<Dictionary<string, string>>();
-                    translations = MergeDictionaries(translations, fallbackTranslations);
+                    remote = MergeDictionaries(remote, fallbackTranslations);
                 }
 
                 var appTranslations = File.ReadAllText(Path.Combine(_appLocalesFolder, file));
-                translations = MergeDictionaries(translations, appTranslations.FromJson<Dictionary<string, string>>());
+                remote = MergeDictionaries(remote, appTranslations.FromJson<Dictionary<string, string>>());
 
                 File.WriteAllText(
                     Path.Combine(_binLocalesFolder, localeFile),
-                    translations.ToJson()
+                    remote.ToJson()
                 );
                 Console.WriteLine($"{localeFile} file saved.");
             }
