@@ -698,7 +698,7 @@ namespace WhMgr.Data.Subscriptions
                 return geofence;
             }
 
-            var invasion = MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType) ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
+            var invasion = MasterFile.Instance.GruntTypes?.ContainsKey(pokestop.GruntType) ?? false ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
             var encounters = invasion?.GetEncounterRewards();
             if (encounters == null)
                 return;
