@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
 
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Logging;
+    //using Microsoft.Extensions.Logging;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Common;
@@ -17,7 +17,7 @@
 
     public class SubscriptionManagerService : ISubscriptionManagerService
     {
-        private readonly ILogger<ISubscriptionManagerService> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger<ISubscriptionManagerService> _logger;
         private readonly IDbContextFactory<AppDbContext> _dbFactory;
         private List<Subscription> _subscriptions;
         private readonly Timer _timer;
@@ -25,7 +25,7 @@
         public IReadOnlyList<Subscription> Subscriptions => _subscriptions;
 
         public SubscriptionManagerService(
-            ILogger<ISubscriptionManagerService> logger,
+            Microsoft.Extensions.Logging.ILogger<ISubscriptionManagerService> logger,
             IDbContextFactory<AppDbContext> dbFactory)
         {
             _logger = logger;

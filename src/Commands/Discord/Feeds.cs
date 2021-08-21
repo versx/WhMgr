@@ -11,7 +11,7 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-    using Microsoft.Extensions.Logging;
+    //using Microsoft.Extensions.Logging;
 
     using WhMgr.Configuration;
     using WhMgr.Extensions;
@@ -20,14 +20,14 @@
     public class Feeds : BaseCommandModule
     {
         private readonly ConfigHolder _config;
-        private readonly ILogger<Feeds> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger<Feeds> _logger;
 
         public Feeds(
             ConfigHolder config,
-            ILoggerFactory loggerFactory)
+            Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
         {
             _config = config;
-            _logger = loggerFactory.CreateLogger<Feeds>();
+            _logger = (Microsoft.Extensions.Logging.ILogger<Feeds>)loggerFactory.CreateLogger(typeof(Feeds).FullName); // CreateLogger<Feeds>();
         }
 
         [

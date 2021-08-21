@@ -4,7 +4,7 @@
 
     using Microsoft.Extensions.Logging;
 
-    public static class LoggingExtensions
+    public static partial class LoggingExtensions
     {
         // Current log level
         private static readonly LogLevel _logLevel = Startup.Config.LogLevel;

@@ -8,7 +8,7 @@
 
     using DSharpPlus;
     using DSharpPlus.Entities;
-    using Microsoft.Extensions.Logging;
+    //using Microsoft.Extensions.Logging;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Common;
@@ -27,7 +27,7 @@
 
     public class SubscriptionProcessorService : ISubscriptionProcessorService
     {
-        private readonly ILogger<ISubscriptionProcessorService> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger<ISubscriptionProcessorService> _logger;
         private readonly ISubscriptionManagerService _subscriptionManager;
         private readonly ConfigHolder _config;
         private readonly IDiscordClientService _discordService;
@@ -36,7 +36,7 @@
         private readonly IStaticsticsService _statsService;
 
         public SubscriptionProcessorService(
-            ILogger<ISubscriptionProcessorService> logger,
+            Microsoft.Extensions.Logging.ILogger<ISubscriptionProcessorService> logger,
             ISubscriptionManagerService subscriptionManager,
             ConfigHolder config,
             IDiscordClientService discordService,

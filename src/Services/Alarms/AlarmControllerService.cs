@@ -6,7 +6,7 @@
     using System.Threading;
 
     using DSharpPlus;
-    using Microsoft.Extensions.Logging;
+    //using Microsoft.Extensions.Logging;
 
     using WhMgr.Common;
     using WhMgr.Configuration;
@@ -22,7 +22,7 @@
 
     public class AlarmControllerService : IAlarmControllerService
     {
-        private readonly ILogger<AlarmControllerService> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger<AlarmControllerService> _logger;
         private readonly IReadOnlyDictionary<ulong, ChannelAlarmsManifest> _alarms;
         private readonly IDiscordClientService _discordService;
         private readonly ConfigHolder _config;
@@ -30,7 +30,7 @@
         private readonly IStaticsticsService _statsService;
 
         public AlarmControllerService(
-            ILogger<AlarmControllerService> logger,
+            Microsoft.Extensions.Logging.ILogger<AlarmControllerService> logger,
             IReadOnlyDictionary<ulong, ChannelAlarmsManifest> alarms,
             IDiscordClientService discordService,
             ConfigHolder config,

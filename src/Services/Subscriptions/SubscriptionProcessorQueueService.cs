@@ -5,7 +5,7 @@
     using System.Threading;
 
     using DSharpPlus.Entities;
-    using Microsoft.Extensions.Logging;
+    //using Microsoft.Extensions.Logging;
 
     using WhMgr.Configuration;
     using WhMgr.Extensions;
@@ -18,7 +18,7 @@
 
     public class SubscriptionProcessorQueueService : ISubscriptionProcessorQueueService
     {
-        private readonly ILogger<ISubscriptionProcessorQueueService> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger<ISubscriptionProcessorQueueService> _logger;
         private readonly ConfigHolder _config;
         private readonly NotificationQueue _queue;
         private readonly IDiscordClientService _discordService;
@@ -28,7 +28,7 @@
         public uint QueueLength => (uint)_queue?.Count;
 
         public SubscriptionProcessorQueueService(
-            ILogger<ISubscriptionProcessorQueueService> logger,
+            Microsoft.Extensions.Logging.ILogger<ISubscriptionProcessorQueueService> logger,
             ConfigHolder config,
             IDiscordClientService discordService,
             ISubscriptionManagerService subscriptionManager)

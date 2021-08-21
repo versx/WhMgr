@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
 
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Logging;
+    //using Microsoft.Extensions.Logging;
 
     using WhMgr.Data.Contexts;
     using WhMgr.Extensions;
@@ -16,7 +16,7 @@
 
     public class MapDataCache : IMapDataCache
     {
-        private readonly ILogger<IMapDataCache> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger<IMapDataCache> _logger;
         private readonly IDbContextFactory<MapDbContext> _dbFactory;
 
         private Dictionary<string, PokestopData> _pokestops;
@@ -24,7 +24,7 @@
         private Dictionary<long, WeatherData> _weather;
 
         public MapDataCache(
-            ILogger<IMapDataCache> logger,
+            Microsoft.Extensions.Logging.ILogger<IMapDataCache> logger,
             IDbContextFactory<MapDbContext> dbFactory)
         {
             _logger = logger;

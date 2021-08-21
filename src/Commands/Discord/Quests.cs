@@ -9,7 +9,7 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-    using Microsoft.Extensions.Logging;
+    //using Microsoft.Extensions.Logging;
 
     using WhMgr.Configuration;
     using WhMgr.Extensions;
@@ -18,14 +18,14 @@
     public class Quests : BaseCommandModule
     {
         private readonly ConfigHolder _config;
-        private readonly ILogger<Quests> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger _logger;
 
         public Quests(
             ConfigHolder config,
-            ILoggerFactory loggerFactory)
+            Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
         {
             _config = config;
-            _logger = loggerFactory.CreateLogger<Quests>();
+            _logger = loggerFactory.CreateLogger("Quests");//<Quests>();
         }
 
         [

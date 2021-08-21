@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
 
     using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
+    //using Microsoft.Extensions.Logging;
 
     using WhMgr.Configuration;
     using WhMgr.Extensions;
@@ -16,7 +16,7 @@
     {
         #region Variables
 
-        private readonly ILogger<QuestPurgeHostedService> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger<QuestPurgeHostedService> _logger;
         private readonly ConfigHolder _config;
         private readonly Dictionary<string, MidnightTimer> _tzMidnightTimers;
         private readonly IDiscordClientService _discordService;
@@ -26,7 +26,7 @@
         #region Constructor
 
         public QuestPurgeHostedService(
-            ILogger<QuestPurgeHostedService> logger,
+            Microsoft.Extensions.Logging.ILogger<QuestPurgeHostedService> logger,
             ConfigHolder config,
             IDiscordClientService discordService)
         {

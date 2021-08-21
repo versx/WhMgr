@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    using Microsoft.Extensions.Logging;
+    //using Microsoft.Extensions.Logging;
 
     using WhMgr.Common;
     using WhMgr.Configuration;
@@ -19,7 +19,7 @@
     {
         private const uint ClearCacheInterval = 60000 * 15; // Every 15 minutes
 
-        private readonly ILogger<WebhookProcessorService> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger<WebhookProcessorService> _logger;
         private readonly ConfigHolder _config;
         private readonly IAlarmControllerService _alarmsService;
         private readonly ISubscriptionProcessorService _subscriptionService;
@@ -44,7 +44,7 @@
         #endregion
 
         public WebhookProcessorService(
-            ILogger<WebhookProcessorService> logger,
+            Microsoft.Extensions.Logging.ILogger<WebhookProcessorService> logger,
             ConfigHolder config,
             IAlarmControllerService alarmsService,
             ISubscriptionProcessorService subscriptionService,
