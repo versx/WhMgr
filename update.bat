@@ -17,7 +17,7 @@ dotnet build
 ::xcopy /s /e %prjDir%\examples\filters\* %binDir%\filters\
 
 echo "Copying latest master file..."
-xcopy /s /e %prjDir%\static\data\masterfile.json %binDir%\static\data\masterfile.json
+curl https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json > %binDir%\static\data\masterfile.json
 xcopy /s /e %prjDir%\static\data\cpMultipliers.json %binDir%\static\data\cpMultipliers.json
 
 echo "Update Complete"

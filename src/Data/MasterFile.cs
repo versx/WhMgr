@@ -47,7 +47,7 @@
         [JsonProperty("items")]
         public IReadOnlyDictionary<int, ItemModel> Items { get; set; }
 
-        [JsonProperty("grunt_types")]
+        [JsonProperty("invasions")]
         public IReadOnlyDictionary<InvasionCharacter, TeamRocketInvasion> GruntTypes { get; set; }
 
         [JsonProperty("pokemon_types")]
