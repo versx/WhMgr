@@ -179,8 +179,8 @@
                 await ctx.TriggerTypingAsync();
             }
 
-            var message = Translator.Instance.Translate("DONATE_MESSAGE", new { author = ctx.User.Username }) ??
-                $"{ctx.User.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
+            var message = Translator.Instance.Translate("DONATE_MESSAGE", new { author = ctx.Message.Author.Username }) ??
+                $"{ctx.Message.Author.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
                 $"Donation information can be found by typing the `$donate` command.\r\n\r\n" +
                 $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
             var eb = await ctx.RespondEmbed(message);
