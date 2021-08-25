@@ -18,6 +18,6 @@ dotnet build
 
 echo "Copying latest master file..."
 curl https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json > %binDir%\static\data\masterfile.json
-xcopy /s /e /d %prjDir%\static\data\cpMultipliers.json %binDir%\static\data\cpMultipliers.json
+xcopy /y /s /e /d %prjDir%\static\data\cpMultipliers.json %binDir%\static\data\cpMultipliers.json
 
 echo "Update Complete"
