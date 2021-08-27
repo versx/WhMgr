@@ -4,7 +4,7 @@
   "locale": "en",
   "shortUrlApiUrl": null,
   "stripeApiKey": "",
-  "maxPokemonId": 721,
+  "maxPokemonId": 898,
   "servers": {
     "000000000000000001": "discord1.example.json",
     "000000000000000002": "discord2.example.json"
