@@ -14,18 +14,8 @@
             ReadCommentHandling = JsonCommentHandling.Skip,
         };
 
-        public static T FromJson<T>(this string json)
-        {
-            try
-            {
-                return JsonSerializer.Deserialize<T>(json, _jsonOptions);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex}\nJson: {json}");
-                return default;
-            }
-        }
+        public static T FromJson<T>(this string json) =>
+            JsonSerializer.Deserialize<T>(json, _jsonOptions);
 
         public static string ToJson<T>(this T obj) =>
             JsonSerializer.Serialize(obj, _jsonOptions);

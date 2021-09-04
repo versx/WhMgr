@@ -151,14 +151,12 @@
                             {
                                 var rewardMatches = y.RewardPokemonId.Intersects(encounterRewards);
                                 var typeMatches = (gruntType == y.InvasionType && gruntType != InvasionCharacter.CharacterUnset);
-                                var pokestopMatches = (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName));
-                                var pokestopMatches2 = string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase);
-                                var matches = rewardMatches || typeMatches || pokestopMatches || pokestopMatches2;
-                                if (matches)
-                                {
-                                    Console.WriteLine($"Matches: {matches}");
-                                }
-                                return matches;
+                                var pokestopMatches = !string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) &&
+                                (
+                                    pokestopName.Contains(y.PokestopName)
+                                    || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
+                                );
+                                return rewardMatches || typeMatches || pokestopMatches;
                             })
                         )
                 .ToList();
