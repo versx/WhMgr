@@ -33,7 +33,7 @@
     }
   },
   "eventPokemonIds": [],
-  "eventMinimumIV": "90",
+  "eventMinimumIV": 90,
   "urls": {
     "scannerMap": "http://map.example.com/@/{0}/{1}/15"
   },
