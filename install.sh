@@ -35,6 +35,7 @@ cp -R examples/filters bin/filters/
 cp -R examples/geofences bin/geofences/
 cp -R static/ bin/static/
 cp config.example.json bin/config.json
+curl https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json > bin/static/data/masterfile.json
 
 echo "Changing directory to build folder..."
 cd bin

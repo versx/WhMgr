@@ -1,4 +1,5 @@
-﻿namespace WhMgr.Services.Subscriptions
+﻿/*
+namespace WhMgr.Services.Subscriptions
 {
     using WhMgr.Queues;
 
@@ -9,3 +10,4 @@
         void Add(NotificationItem item);
     }
 }
+*/

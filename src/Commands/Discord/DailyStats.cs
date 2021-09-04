@@ -101,7 +101,7 @@
                         id = pokemon,
                         shiny = pkmnStats.Shiny.ToString("N0"),
                         total = pkmnStats.Total.ToString("N0"),
-                        chance = chance,
+                        chance,
                     }));
                 }
                 Thread.Sleep(500);

@@ -14,12 +14,13 @@
 
     using WhMgr.Common;
     using WhMgr.Extensions;
+    using WhMgr.Utilities;
 
     public class Translator : Language<string, string, Dictionary<string, string>>
     {
+        private const string SourceLocaleUrl = "https://raw.githubusercontent.com/WatWowMap/pogo-translations/master/static/locales/";
         private readonly string _appLocalesFolder = Directory.GetCurrentDirectory() + "/../static/locales";
         private readonly string _binLocalesFolder = Directory.GetCurrentDirectory() + $"/{Strings.BasePath}/static/locales";
-        private readonly string _pogoLocalesFolder = Directory.GetCurrentDirectory() + "/../node_modules/pogo-translations/static/locales";
 
         #region Singleton
 
@@ -35,46 +36,26 @@
             var files = Directory.GetFiles(_appLocalesFolder, "*.json")
                                  .Select(x => Path.GetFileName(x))
                                  .ToList();
-            var pogoLocalesFiles = new List<string>();
-            // If pogo-translation files folder does not exist, make it known
-            if (!Directory.Exists(_pogoLocalesFolder))
-            {
-                Console.WriteLine($"'pogo-translations' at '{_pogoLocalesFolder}' not installed, please run `npm install` at root of project.");
-                Environment.Exit(-1);
-                return;
-            }
 
-            // Get a list of pogo-translation files
-            pogoLocalesFiles = Directory.GetFiles(_pogoLocalesFolder, "*.json")
-                                        .Select(x => Path.GetFileName(x))
-                                        .ToList();
-
-            // Loop all local default translation files
             foreach (var file in files)
             {
                 // TODO: Filter by `_` prefix
                 var locale = Path.GetFileName(file).Replace("_", null);
                 var localeFile = locale;
-                var translations = new Dictionary<string, string>();
+
+                var json = NetUtils.Get(SourceLocaleUrl + locale);
+                var remote = json.FromJson<Dictionary<string, string>>();
 
                 Console.WriteLine($"Creating locale {locale}");
 
-                // Check if pogo-translations has local locale file
-                if (pogoLocalesFiles.Contains(localeFile))
+                var keys = remote.Keys.ToList();
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    Console.WriteLine($"Found pogo-translations for locale {locale}");
-                    var pogoTranslations = File.ReadAllText(Path.Combine(_pogoLocalesFolder, localeFile));
-                    translations = pogoTranslations.FromJson<Dictionary<string, string>>();
-                    // Loop translations and change to mustache syntax
-                    foreach (var (key, value) in translations)
-                    {
-                        translations[key] = value.Replace("%", "{");
-                        translations[key] = value.Replace("}", "}}");
-                    }
+                    var key = keys[i];
+                    remote[key] = remote[key].Replace("%", "{");
+                    remote[key] = remote[key].Replace("}", "}}");
                 }
 
-                // If locale is not English, set english as default fallback
-                // incase desired language does not have translations
                 if (locale != "en")
                 {
                     // Include en as fallback first
@@ -82,24 +63,15 @@
                         Path.Combine(_appLocalesFolder, "_en.json")
                     );
                     var fallbackTranslations = appTransFallback.FromJson<Dictionary<string, string>>();
-                    translations = MergeDictionaries(translations, fallbackTranslations);
+                    remote = MergeDictionaries(remote, fallbackTranslations);
                 }
 
-                // Merge pogo-translations with local translations
                 var appTranslations = File.ReadAllText(Path.Combine(_appLocalesFolder, file));
-                translations = MergeDictionaries(translations, appTranslations.FromJson<Dictionary<string, string>>());
+                remote = MergeDictionaries(remote, appTranslations.FromJson<Dictionary<string, string>>());
 
-                // Create bin locale folder if it does not exist
-                if (!Directory.Exists(_binLocalesFolder))
-                {
-                    Console.WriteLine($"Locales folder does not exist, creating it...");
-                    Directory.CreateDirectory(_binLocalesFolder);
-                }
-
-                // Write final translation file to bin locale folder
                 File.WriteAllText(
                     Path.Combine(_binLocalesFolder, localeFile),
-                    translations.ToJson()
+                    remote.ToJson()
                 );
                 Console.WriteLine($"{localeFile} file saved.");
             }

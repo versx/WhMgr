@@ -2,13 +2,10 @@ namespace WhMgr
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Threading.Tasks;
 
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -17,7 +14,9 @@ namespace WhMgr
 
     using WhMgr.Configuration;
     using WhMgr.Data.Contexts;
+    using WhMgr.Extensions;
     using WhMgr.HostedServices;
+    using WhMgr.HostedServices.TaskQueue;
     using WhMgr.Queues;
     using WhMgr.Services;
     using WhMgr.Services.Alarms;
@@ -72,7 +71,7 @@ namespace WhMgr
             services.AddSingleton<IGeofenceService>(new GeofenceService());
             services.AddSingleton<IAlarmControllerService, AlarmControllerService>();
             services.AddScoped<NotificationQueue, NotificationQueue>();
-            services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>();
+            //services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>();
             services.AddSingleton<ISubscriptionProcessorService, SubscriptionProcessorService>();
             services.AddSingleton<ISubscriptionManagerService, SubscriptionManagerService>();
             services.AddSingleton<IWebhookProcessorService, WebhookProcessorService>();
@@ -83,53 +82,24 @@ namespace WhMgr
             services.AddSingleton<IStaticsticsService, StatisticsService>();
             services.AddSingleton<IDiscordClientService, DiscordClientService>();
 
+            services.AddHostedService<SubscriptionProcessorService>();
+            // Subscription processor queue
+            services.AddSingleton<IBackgroundTaskQueue>(_ =>
+            {
+                // TODO: Get max subscription queue capacity config value
+                var maxQueueCapacity = 500;
+                return new DefaultBackgroundTaskQueue(maxQueueCapacity);
+            });
+
             services.AddHostedService<QuestPurgeHostedService>();
 
             var mainConnectionString = _config.Instance.Database.Main.ToString();
             var scannerConnectionString = _config.Instance.Database.Scanner.ToString();
             var nestsConnectionString = _config.Instance.Database.Nests.ToString();
 
-            services.AddDbContextFactory<AppDbContext>(options =>
-                options.UseMySql(
-                    mainConnectionString,
-                    ServerVersion.AutoDetect(mainConnectionString)
-                ), ServiceLifetime.Singleton
-            );
-
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseMySql(
-                    mainConnectionString,
-                    ServerVersion.AutoDetect(mainConnectionString)
-                ), ServiceLifetime.Scoped
-            );
-
-            services.AddDbContextFactory<MapDbContext>(options =>
-                options.UseMySql(
-                    scannerConnectionString,
-                    ServerVersion.AutoDetect(scannerConnectionString)
-                ), ServiceLifetime.Singleton
-            );
-
-            services.AddDbContext<MapDbContext>(options =>
-                options.UseMySql(
-                    scannerConnectionString,
-                    ServerVersion.AutoDetect(scannerConnectionString)
-                ), ServiceLifetime.Scoped
-            );
-
-            services.AddDbContextFactory<ManualDbContext>(options =>
-                options.UseMySql(
-                    nestsConnectionString,
-                    ServerVersion.AutoDetect(nestsConnectionString)
-                ), ServiceLifetime.Singleton
-            );
-
-            services.AddDbContext<ManualDbContext>(options =>
-                options.UseMySql(
-                    nestsConnectionString,
-                    ServerVersion.AutoDetect(nestsConnectionString)
-                ), ServiceLifetime.Scoped
-            );
+            services.AddDatabase<AppDbContext>(mainConnectionString);
+            services.AddDatabase<MapDbContext>(scannerConnectionString);
+            services.AddDatabase<ManualDbContext>(nestsConnectionString);
 
             services.AddHealthChecks();
 

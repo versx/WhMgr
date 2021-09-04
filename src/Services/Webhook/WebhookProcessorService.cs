@@ -302,8 +302,19 @@
             // Process pokestop alarms
             _alarmsService.ProcessPokestopAlarms(pokestop);
             // TODO: New threads
-            _subscriptionService.ProcessInvasionSubscription(pokestop);
-            _subscriptionService.ProcessLureSubscription(pokestop);
+            if (pokestop.HasInvasion && pokestop.HasLure)
+            {
+                _subscriptionService.ProcessInvasionSubscription(pokestop);
+                _subscriptionService.ProcessLureSubscription(pokestop);
+            }
+            else if (pokestop.HasInvasion)
+            {
+                _subscriptionService.ProcessInvasionSubscription(pokestop);
+            }
+            else if (pokestop.HasLure)
+            {
+                _subscriptionService.ProcessLureSubscription(pokestop);
+            }
         }
 
         private void ProcessGym(dynamic message)

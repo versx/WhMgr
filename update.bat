@@ -1,6 +1,6 @@
 @echo off
 
-SET prjDir=%CD%\WhMgr
+SET prjDir=%CD%
 SET binDir=%prjDir%\bin
 
 :: Pull latest Git repository
@@ -17,7 +17,7 @@ dotnet build
 ::xcopy /s /e %prjDir%\examples\filters\* %binDir%\filters\
 
 echo "Copying latest master file..."
-xcopy /s /e %prjDir%\static\data\masterfile.json %binDir%\static\data\masterfile.json
-xcopy /s /e %prjDir%\static\data\cpMultipliers.json %binDir%\static\data\cpMultipliers.json
+curl https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json > %binDir%\static\data\masterfile.json
+xcopy /y /s /e /d %prjDir%\static\data\cpMultipliers.json %binDir%\static\data\cpMultipliers.json
 
 echo "Update Complete"

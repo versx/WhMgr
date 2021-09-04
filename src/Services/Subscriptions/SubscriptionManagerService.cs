@@ -43,7 +43,7 @@
 
         #region Get Subscriptions
 
-        public async Task<List<Subscription>> GetUserSubscriptions()
+        public async Task<List<Subscription>> GetUserSubscriptionsAsync()
         {
             using (var ctx = _dbFactory.CreateDbContext())
             {
@@ -70,8 +70,9 @@
             }
         }
 
-        public async Task<Subscription> GetUserSubscriptionsAsync(ulong guildId, ulong userId)
+        public Subscription GetUserSubscriptions(ulong guildId, ulong userId)
         {
+            /*
             using (var ctx = _dbFactory.CreateDbContext())
             {
                 var subscription = await ctx.Subscriptions.Include(s => s.Pokemon)
@@ -94,6 +95,8 @@
                                                                                  && s.UserId == userId);
                 return subscription;
             }
+            */
+            return _subscriptions?.FirstOrDefault(x => x.GuildId == guildId && x.UserId == userId);
         }
 
         public List<Subscription> GetSubscriptionsByPokemonId(uint pokemonId)
@@ -145,11 +148,18 @@
                 .Where(x => x.IsEnabled(NotificationStatusType.Invasions) &&
                             x.Invasions != null &&
                             x.Invasions.Any(y =>
-                                y.RewardPokemonId.Intersects(encounterRewards)
-                                || gruntType == y.InvasionType
-                                || (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName))
-                                || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
-                            )
+                            {
+                                var rewardMatches = y.RewardPokemonId.Intersects(encounterRewards);
+                                var typeMatches = (gruntType == y.InvasionType && gruntType != InvasionCharacter.CharacterUnset);
+                                var pokestopMatches = (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName));
+                                var pokestopMatches2 = string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase);
+                                var matches = rewardMatches || typeMatches || pokestopMatches || pokestopMatches2;
+                                if (matches)
+                                {
+                                    Console.WriteLine($"Matches: {matches}");
+                                }
+                                return matches;
+                            })
                         )
                 .ToList();
         }
@@ -222,7 +232,7 @@
                 return;
 
             // Updated, reload subscriptions
-            var subs = await GetUserSubscriptions();
+            var subs = await GetUserSubscriptionsAsync();
             if (subs == null)
                 return;
 

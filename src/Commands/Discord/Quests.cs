@@ -25,7 +25,7 @@
             Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
         {
             _config = config;
-            _logger = loggerFactory.CreateLogger("Quests");//<Quests>();
+            _logger = loggerFactory.CreateLogger(typeof(Quests).FullName);
         }
 
         [

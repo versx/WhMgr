@@ -1,4 +1,5 @@
-﻿namespace WhMgr.Services.Subscriptions
+﻿/*
+namespace WhMgr.Services.Subscriptions
 {
     using System;
     using System.Linq;
@@ -125,7 +126,7 @@
                     }
 
                     // Send text message notification to user if a phone number is set
-                    /* TODO: Twilio notifications
+                    // TODO: Twilio notifications
                     if (_config.Twilio.Enabled && !string.IsNullOrEmpty(item.Subscription.PhoneNumber))
                     {
                         // Check if user is in the allowed text message list or server owner
@@ -144,7 +145,7 @@
                             }
                         }
                     }
-                    */
+                    //
 
                     // Send direct message notification to user
                     var client = _discordService.DiscordClients[item.Subscription.GuildId];
@@ -157,3 +158,4 @@
         }
     }
 }
+*/

@@ -9,12 +9,14 @@
     using DSharpPlus;
     using DSharpPlus.Entities;
     //using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Hosting;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Common;
     using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.HostedServices.TaskQueue;
     using WhMgr.Localization;
     using WhMgr.Queues;
     using WhMgr.Services.Alarms;
@@ -25,37 +27,41 @@
     using WhMgr.Services.Subscriptions.Models;
     using WhMgr.Services.Webhook.Models;
 
-    public class SubscriptionProcessorService : ISubscriptionProcessorService
+    public class SubscriptionProcessorService : BackgroundService, ISubscriptionProcessorService
     {
         private readonly Microsoft.Extensions.Logging.ILogger<ISubscriptionProcessorService> _logger;
         private readonly ISubscriptionManagerService _subscriptionManager;
         private readonly ConfigHolder _config;
         private readonly IDiscordClientService _discordService;
-        private readonly ISubscriptionProcessorQueueService _queue;
+        //private readonly ISubscriptionProcessorQueueService _queue;
         private readonly IMapDataCache _mapDataCache;
         private readonly IStaticsticsService _statsService;
+        private readonly IBackgroundTaskQueue _taskQueue;
 
         public SubscriptionProcessorService(
             Microsoft.Extensions.Logging.ILogger<ISubscriptionProcessorService> logger,
             ISubscriptionManagerService subscriptionManager,
             ConfigHolder config,
             IDiscordClientService discordService,
-            ISubscriptionProcessorQueueService queue,
             IMapDataCache mapDataCache,
-            IStaticsticsService statsService)
+            IStaticsticsService statsService,
+            IBackgroundTaskQueue taskQueue)
         {
             _logger = logger;
             _subscriptionManager = subscriptionManager;
             _config = config;
             _discordService = discordService;
-            _queue = queue;
+            //_queue = queue;
             _mapDataCache = mapDataCache;
             _statsService = statsService;
+            _taskQueue = taskQueue;
+            // TODO: _cancellationToken lifetime
         }
+
+        #region Subscription Processing
 
         public async Task ProcessPokemonSubscription(PokemonData pokemon)
         {
-            var subUser = await _subscriptionManager.GetUserSubscriptionsAsync(342025055510855680, 266771160253988875);
             if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon.Id))
                 return;
 
@@ -187,7 +193,7 @@
 
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.LogDebug($"Took {end} to process Pokemon subscription for user {user.UserId}");
-                        embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
+                        embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
@@ -339,7 +345,7 @@
                         });
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
-                        embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
+                        embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
@@ -395,7 +401,7 @@
 
             Subscription user;
             var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
-            for (int i = 0; i < subscriptions.Count; i++)
+            for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
                 try
@@ -477,7 +483,7 @@
                     });
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
+                    embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -531,7 +537,7 @@
 
             bool isSupporter;
             Subscription user;
-            for (int i = 0; i < subscriptions.Count; i++)
+            for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
                 try
@@ -605,7 +611,7 @@
                     });
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process quest subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
+                    embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -646,7 +652,7 @@
                 return geofence;
             }
 
-            var invasion = MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType) ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
+            var invasion = MasterFile.Instance.GruntTypes?.ContainsKey(pokestop.GruntType) ?? false ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
             var encounters = invasion?.GetEncounterRewards();
             if (encounters == null)
                 return;
@@ -658,6 +664,9 @@
                 return;
             }
 
+            if (subscriptions?.Count == 0)
+                return;
+
             if (!MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType))
             {
                 //_logger.Error($"Failed to parse grunt type {pokestop.GruntType}, not in `grunttype.json` list.");
@@ -665,7 +674,7 @@
             }
 
             Subscription user;
-            for (int i = 0; i < subscriptions.Count; i++)
+            for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
                 try
@@ -738,7 +747,7 @@
                     });
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.LogDebug($"Took {end} to process invasion subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
+                    embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -787,7 +796,7 @@
             }
 
             Subscription user;
-            for (int i = 0; i < subscriptions.Count; i++)
+            for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
                 try
@@ -860,7 +869,7 @@
                     });
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process lure subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
+                    embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -910,7 +919,7 @@
 
             Subscription user;
             var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
-            for (int i = 0; i < subscriptions.Count; i++)
+            for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
                 try
@@ -989,7 +998,7 @@
                     });
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process gym raid subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(x => EnqueueEmbed(new NotificationItem
+                    embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -1014,9 +1023,138 @@
             await Task.CompletedTask;
         }
 
-        private void EnqueueEmbed(NotificationItem embed)
+        #endregion
+
+        #region Background Service
+
+        public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            _queue.Add(embed);
+            _logger.LogInformation(
+                $"{nameof(SubscriptionProcessorService)} is stopping.");
+
+            await base.StopAsync(stoppingToken);
         }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            await BackgroundProcessing(stoppingToken);
+        }
+
+        private async Task BackgroundProcessing(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    var workItem = await _taskQueue.DequeueAsync(stoppingToken);
+                    await workItem(stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Prevent throwing if stoppingToken was signaled
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error occurred executing task work item.");
+                }
+            }
+        }
+
+        private async Task EnqueueEmbed(NotificationItem embed)
+        {
+            await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+                await ProcessWorkItem(embed, token));
+        }
+
+        private async Task<CancellationToken> ProcessWorkItem(NotificationItem embed, CancellationToken stoppingToken)
+        {
+            if (_taskQueue.Count > Strings.MaxQueueCountWarning)
+            {
+                _logger.LogWarning($"Subscription queue is {_taskQueue.Count:N0} items long.");
+            }
+
+            if (embed == null || embed?.Subscription == null || embed?.Member == null || embed?.Embed == null)
+                return stoppingToken;
+
+            if (!_discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId))
+            {
+                _logger.LogError($"User subscription for guild that's not configured. UserId={embed.Subscription.UserId} GuildId={embed.Subscription.GuildId}");
+                return stoppingToken;
+            }
+
+            // Check if user is receiving messages too fast.
+            var maxNotificationsPerMinute = _config.Instance.MaxNotificationsPerMinute;
+            if (embed.Subscription.Limiter.IsLimited(maxNotificationsPerMinute))
+            {
+                _logger.LogWarning($"{embed.Member.Username} notifications rate limited, waiting {(60 - embed.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", embed.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+                // Send ratelimited notification to user if not already sent to adjust subscription settings to more reasonable settings.
+                if (!embed.Subscription.RateLimitNotificationSent)
+                {
+                    if (!_discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId))
+                        return stoppingToken;
+
+                    var server = _discordService.DiscordClients[embed.Subscription.GuildId].Guilds[embed.Subscription.GuildId];
+                    var emoji = DiscordEmoji.FromName(_discordService.DiscordClients.FirstOrDefault().Value, ":no_entry:");
+                    var guildIconUrl = _discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId) ? server?.IconUrl : string.Empty;
+                    // TODO: Localize rate limited messaged
+                    var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0}) per minute and are now being rate limited." +
+                                           $"Please adjust your subscriptions to receive a maximum of {maxNotificationsPerMinute:N0} notifications within a {NotificationLimiter.ThresholdTimeout} second time span.";
+                    var eb = new DiscordEmbedBuilder
+                    {
+                        Title = "Rate Limited",
+                        Description = rateLimitMessage,
+                        Color = DiscordColor.Red,
+                        Footer = new DiscordEmbedBuilder.EmbedFooter
+                        {
+                            Text = $"{server?.Name} | {DateTime.Now}",
+                            IconUrl = guildIconUrl,
+                        }
+                    };
+
+                    await embed.Member.SendDirectMessage(eb.Build());
+                    embed.Subscription.RateLimitNotificationSent = true;
+                    embed.Subscription.Status = NotificationStatusType.None;
+                    if (!_subscriptionManager.Save(embed.Subscription))
+                    {
+                        _logger.LogError($"Failed to disable {embed.Subscription.UserId}'s subscriptions");
+                    }
+                }
+                return stoppingToken;
+            }
+
+            // Ratelimit is up, allow for ratelimiting again
+            embed.Subscription.RateLimitNotificationSent = false;
+
+            // Send text message notification to user if a phone number is set
+            /* TODO: Twilio notifications
+            if (_config.Twilio.Enabled && !string.IsNullOrEmpty(item.Subscription.PhoneNumber))
+            {
+                // Check if user is in the allowed text message list or server owner
+                if (HasRole(item.Member, _config.Instance.Twilio.RoleIds) ||
+                    _config.Instance.Twilio.UserIds.Contains(item.Member.Id) ||
+                    _config.Instance.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
+                {
+                    // Send text message (max 160 characters)
+                    if (item.Pokemon != null && IsUltraRare(_config.Instance.Twilio, item.Pokemon))
+                    {
+                        var result = Utils.SendSmsMessage(StripEmbed(item), _config.Instance.Twilio, item.Subscription.PhoneNumber);
+                        if (!result)
+                        {
+                            _logger.LogError($"Failed to send text message to phone number '{item.Subscription.PhoneNumber}' for user {item.Subscription.UserId}");
+                        }
+                    }
+                }
+            }
+            */
+
+            // Send direct message notification to user
+            await embed.Member.SendDirectMessage(string.Empty, embed.Embed);
+            _logger.LogInformation($"[WEBHOOK] Notified user {embed.Member.Username} of {embed.Description}.");
+            Thread.Sleep(1);
+
+            return stoppingToken;
+        }
+
+        #endregion
     }
 }

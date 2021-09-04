@@ -21,9 +21,13 @@ if [ "$1" == "geofences" ] || [ "$1" == "geofence" ] || [ "$1" == "all" ]; then
     cp -R "geofences" "bin/"
 fi
 
+# Copy locale translation files
+echo "Copying locale translation files... "
+mkdir -p "bin/static"
+
 echo "Copying latest master file..."
 mkdir -p "bin/static/data"
-cp "static/data/masterfile.json" "bin/static/data/masterfile.json"
+curl https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json > bin/static/data/masterfile.json
 cp "static/data/cpMultipliers.json" "bin/static/data/cpMultipliers.json"
 
 echo "Update Complete"

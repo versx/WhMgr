@@ -170,7 +170,7 @@
         {
             if (_pokestops == null)
             {
-                LoadMapData(); // TODO: Await
+                LoadMapData().ConfigureAwait(false).GetAwaiter(); // TODO: Await
             }
 
             var nearby = _pokestops.Values.Where(stop =>
@@ -198,7 +198,7 @@
         {
             if (_gyms == null)
             {
-                LoadMapData(); // TODO: Await
+                LoadMapData().ConfigureAwait(false).GetAwaiter(); // TODO: Await
             }
 
             var nearby = _gyms.Values.Where(gym =>

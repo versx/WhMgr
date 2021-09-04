@@ -16,7 +16,7 @@
         public string Grunt { get; set; }
 
         [JsonPropertyName("second_reward")]
-        public string SecondReward { get; set; }
+        public bool? SecondReward { get; set; }
 
         [JsonPropertyName("encounters")]
         public TeamRocketEncounters Encounters { get; set; }
@@ -31,20 +31,11 @@
 
         public List<dynamic> GetPossibleInvasionEncounters()
         {
-            var toInt = new Func<string, uint>(x =>
-            {
-                var val = x.Split('_')[0];
-                if (!uint.TryParse(val, out var result))
-                {
-                    Console.Error.WriteLine($"Failed to parse {val} as integer");
-                }
-                return result;
-            });
-            var first = string.Join(", ", Encounters.First.Select(x => MasterFile.GetPokemon(toInt(x), 0)?.Name));
-            var second = string.Join(", ", Encounters.Second.Select(x => MasterFile.GetPokemon(toInt(x), 0)?.Name));
+            var first = string.Join(", ", Encounters.First.Select(id => MasterFile.GetPokemon(id, 0)?.Name));
+            var second = string.Join(", ", Encounters.Second.Select(id => MasterFile.GetPokemon(id, 0)?.Name));
             //var third = string.Join(", ", invasion.Encounters.Third.Select(x => Database.Instance.Pokemon[x].Name));
             var msg = string.Empty;
-            if (SecondReward == "true")
+            if (SecondReward ?? false)
             {
                 //85%/15% Rate
                 return new List<dynamic>
@@ -75,63 +66,36 @@
             if (Encounters == null)
                 return list;
 
-            if (SecondReward == "true")
+            if (SecondReward ?? false)
             {
-                //85%/15% Rate
-                for (var i = 0; i < Encounters.Second.Count; i++)
-                {
-                    var mon = Encounters.Second[i];
-                    var id = ParsePokemonId(mon);
-                    if (id == 0)
-                        continue;
-
-                    list.Add(id);
-                }
+                // 85%/15% Rate
+                list.AddRange(Encounters.Second);
             }
             else
             {
-                //100% Rate
-                for (var i = 0; i < Encounters.First.Count; i++)
-                {
-                    var mon = Encounters.First[i];
-                    var id = ParsePokemonId(mon);
-                    if (id == 0)
-                        continue;
-
-                    list.Add(id);
-                }
+                // 100% Rate
+                list.AddRange(Encounters.First);
             }
             return list;
-        }
-
-        private static uint ParsePokemonId(string value)
-        {
-            var split = value.Split('_');
-            if (!uint.TryParse(split[0], out var id))
-            {
-                Console.WriteLine($"Failed to parse grunttype {split[0]}");
-                return 0;
-            }
-            return id;
         }
     }
 
     public class TeamRocketEncounters
     {
         [JsonPropertyName("first")]
-        public List<string> First { get; set; }
+        public List<uint> First { get; set; }
 
         [JsonPropertyName("second")]
-        public List<string> Second { get; set; }
+        public List<uint> Second { get; set; }
 
         [JsonPropertyName("third")]
-        public List<string> Third { get; set; }
+        public List<uint> Third { get; set; }
 
         public TeamRocketEncounters()
         {
-            First = new List<string>();
-            Second = new List<string>();
-            Third = new List<string>();
+            First = new List<uint>();
+            Second = new List<uint>();
+            Third = new List<uint>();
         }
     }
 }

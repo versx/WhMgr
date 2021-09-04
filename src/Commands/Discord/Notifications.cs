@@ -18,6 +18,8 @@
             _config = config;
         }
 
+        // TODO: Add support for info and enable/disable commands
+
         [Command("pokeme")]
         public async Task PokeMeAsync(CommandContext ctx) => await RespondUserInterface(ctx);
         [Command("pokemenot")]

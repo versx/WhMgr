@@ -20,14 +20,15 @@
     public class Feeds : BaseCommandModule
     {
         private readonly ConfigHolder _config;
-        private readonly Microsoft.Extensions.Logging.ILogger<Feeds> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger _logger;
 
         public Feeds(
             ConfigHolder config,
             Microsoft.Extensions.Logging.ILoggerFactory loggerFactory)
         {
             _config = config;
-            _logger = (Microsoft.Extensions.Logging.ILogger<Feeds>)loggerFactory.CreateLogger(typeof(Feeds).FullName); // CreateLogger<Feeds>();
+            //_logger = (Microsoft.Extensions.Logging.ILogger<Feeds>)loggerFactory.CreateLogger(typeof(Feeds).FullName); // CreateLogger<Feeds>();
+            _logger = loggerFactory.CreateLogger(typeof(Feeds).FullName);//<Quests>();
         }
 
         [
@@ -116,7 +117,7 @@
                         await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(new
                         {
                             author = ctx.User.Username,
-                            city = city,
+                            city,
                             prefix = server.Bot.CommandPrefix,
                         }), DiscordColor.Red);
                         continue;
@@ -128,7 +129,7 @@
                         await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME").FormatText(new
                         {
                             author = ctx.User.Username,
-                            city = city,
+                            city,
                         }), DiscordColor.Red);
                         continue;
                     }
@@ -220,7 +221,7 @@
                         await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(new
                         {
                             author = ctx.User.Username,
-                            city = city,
+                            city,
                             server.Bot.CommandPrefix,
                         }), DiscordColor.Red);
                         continue;
@@ -232,7 +233,7 @@
                         await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME").FormatText(new
                         {
                             author = ctx.User.Username,
-                            city = city,
+                            city,
                         }), DiscordColor.Red);
                         continue;
                     }

@@ -305,10 +305,8 @@
 
         private async Task<List<Nest>> GetNests()
         {
-            using (var ctx = DbContextFactory.CreateManualContext(_config.Instance.Database.Nests.ToString()))
-            {
-                return await ctx.Nests.ToListAsync();
-            }
+            using var ctx = DbContextFactory.CreateManualContext(_config.Instance.Database.Nests.ToString());
+            return await ctx.Nests.ToListAsync();
         }
     }
 }
