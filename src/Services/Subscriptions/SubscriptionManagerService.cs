@@ -151,7 +151,7 @@
                             {
                                 var rewardMatches = y.RewardPokemonId.Intersects(encounterRewards);
                                 var typeMatches = (gruntType == y.InvasionType && gruntType != InvasionCharacter.CharacterUnset);
-                                var pokestopMatches = !string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) &&
+                                var pokestopMatches = !string.IsNullOrWhiteSpace(y.PokestopName) && !string.IsNullOrWhiteSpace(pokestopName) &&
                                 (
                                     pokestopName.Contains(y.PokestopName)
                                     || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
@@ -169,8 +169,12 @@
                             x.Lures != null &&
                             x.Lures.Any(y =>
                                 lure == y.LureType
-                                || (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName))
-                                || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase))
+                                || !string.IsNullOrWhiteSpace(y.PokestopName) && !string.IsNullOrWhiteSpace(pokestopName) &&
+                                (
+                                    pokestopName.Contains(y.PokestopName)
+                                    || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
+                                )
+                            )
                       )
                 .ToList();
         }
@@ -180,7 +184,7 @@
             return _subscriptions?
                 .Where(x => x.IsEnabled(NotificationStatusType.Gyms) &&
                             x.Gyms != null &&
-                            x.Gyms.Any(y => string.Compare(y.Name, name, true) == 0 || y.Name.ToLower().Contains(name.ToLower()))
+                            x.Gyms.Any(y => string.Equals(name, y.Name, StringComparison.OrdinalIgnoreCase) || y.Name.ToLower().Contains(name.ToLower()))
                       )
                 .ToList();
         }

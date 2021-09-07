@@ -122,7 +122,9 @@
             JsonIgnore,
             NotMapped,
         ]
-        public bool HasInvasion => IncidentExpire > 0 && InvasionExpireTime > DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+        public bool HasInvasion => GruntType != InvasionCharacter.CharacterUnset
+            && IncidentExpire > 0
+            && InvasionExpireTime > DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
 
         #endregion
 

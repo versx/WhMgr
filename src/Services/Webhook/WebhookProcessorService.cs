@@ -174,7 +174,7 @@
 
             // Process pokemon alarms
             _alarmsService.ProcessPokemonAlarms(pokemon);
-            _subscriptionService.ProcessPokemonSubscription(pokemon);
+            _subscriptionService.ProcessPokemonSubscription(pokemon).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void ProcessRaid(dynamic message)
@@ -218,7 +218,7 @@
 
             // Process raid alarms
             _alarmsService.ProcessRaidAlarms(raid);
-            _subscriptionService.ProcessRaidSubscription(raid);
+            _subscriptionService.ProcessRaidSubscription(raid).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void ProcessQuest(dynamic message)
@@ -257,7 +257,7 @@
 
             // Process quest alarms
             _alarmsService.ProcessQuestAlarms(quest);
-            _subscriptionService.ProcessQuestSubscription(quest);
+            _subscriptionService.ProcessQuestSubscription(quest).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void ProcessPokestop(dynamic message)
@@ -301,19 +301,17 @@
 
             // Process pokestop alarms
             _alarmsService.ProcessPokestopAlarms(pokestop);
-            // TODO: New threads
-            if (pokestop.HasInvasion && pokestop.HasLure)
+
+            // Process invasion subscriptions
+            if (pokestop.HasInvasion)
             {
-                _subscriptionService.ProcessInvasionSubscription(pokestop);
-                _subscriptionService.ProcessLureSubscription(pokestop);
+                _subscriptionService.ProcessInvasionSubscription(pokestop).ConfigureAwait(false).GetAwaiter().GetResult();
             }
-            else if (pokestop.HasInvasion)
+
+            // Process lure subscriptions
+            if (pokestop.HasLure)
             {
-                _subscriptionService.ProcessInvasionSubscription(pokestop);
-            }
-            else if (pokestop.HasLure)
-            {
-                _subscriptionService.ProcessLureSubscription(pokestop);
+                _subscriptionService.ProcessLureSubscription(pokestop).ConfigureAwait(false).GetAwaiter().GetResult();
             }
         }
 

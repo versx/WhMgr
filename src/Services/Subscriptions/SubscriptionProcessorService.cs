@@ -140,7 +140,11 @@
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
                     var pokemonSubscriptions = user.Pokemon.Where(x =>
-                        x.PokemonId.Contains(pokemon.Id) && (x.Forms?.Contains(form) ?? true)
+                        x.PokemonId.Contains(pokemon.Id)
+                        && (
+                            string.IsNullOrWhiteSpace(x.FormsString) ||
+                            (x.Forms?.Contains(form) ?? true)
+                           )
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
@@ -301,7 +305,11 @@
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
                     var pokemonSubscriptions = user.PvP.Where(x =>
-                        x.PokemonId.Contains(pokemon.Id) && (x.Forms?.Contains(form) ?? true)
+                        x.PokemonId.Contains(pokemon.Id)
+                        && (
+                            string.IsNullOrWhiteSpace(x.FormsString) ||
+                            (x.Forms?.Contains(form) ?? true)
+                           )
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
@@ -441,7 +449,11 @@
 
                     var form = Translator.Instance.GetFormName(raid.Form);
                     var subPkmn = user.Raids.FirstOrDefault(x =>
-                        x.PokemonId.Contains(raid.PokemonId) && (x.Forms?.Contains(form) ?? true)
+                        x.PokemonId.Contains(raid.PokemonId)
+                        && (
+                            string.IsNullOrWhiteSpace(x.FormsString) ||
+                            (x.Forms?.Contains(form) ?? true)
+                           )
                     );
                     // Not subscribed to Pokemon
                     if (subPkmn == null)
@@ -638,6 +650,9 @@
 
         public async Task ProcessInvasionSubscription(PokestopData pokestop)
         {
+            if (pokestop.GruntType == InvasionCharacter.CharacterUnset)
+                return;
+
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
             var invasionCoord = new Coordinate(pokestop.Latitude, pokestop.Longitude);
@@ -1058,10 +1073,17 @@
                     _logger.LogError(ex, "Error occurred executing task work item.");
                 }
             }
+
+            _logger.LogError("Exited background processing...");
         }
 
         private async Task EnqueueEmbed(NotificationItem embed)
         {
+            if (_taskQueue.Count > Strings.MaxQueueCountWarning)
+            {
+                _logger.LogWarning($"Subscription queue is {_taskQueue.Count:N0} items long.");
+            }
+
             await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
                 await ProcessWorkItem(embed, token));
         }
