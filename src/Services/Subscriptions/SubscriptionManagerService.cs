@@ -150,7 +150,7 @@
                             x.Invasions.Any(y =>
                             {
                                 var rewardMatches = y.RewardPokemonId.Intersects(encounterRewards);
-                                var typeMatches = (gruntType == y.InvasionType && gruntType != InvasionCharacter.CharacterUnset);
+                                var typeMatches = y.InvasionType.Contains(gruntType) && gruntType != InvasionCharacter.CharacterUnset;
                                 var pokestopMatches = !string.IsNullOrWhiteSpace(y.PokestopName) && !string.IsNullOrWhiteSpace(pokestopName) &&
                                 (
                                     pokestopName.Contains(y.PokestopName)

@@ -20,6 +20,8 @@
     using WhMgr.Services.Webhook.Models;
     using WhMgr.Utilities;
 
+    // TODO: HostedService BackgroundItemQueue for alarms
+
     public class AlarmControllerService : IAlarmControllerService
     {
         private readonly Microsoft.Extensions.Logging.ILogger<AlarmControllerService> _logger;

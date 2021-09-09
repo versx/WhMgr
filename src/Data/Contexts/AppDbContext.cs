@@ -3,6 +3,7 @@
     using System.Collections.Generic;
 
     using Microsoft.EntityFrameworkCore;
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Common;
     using WhMgr.Extensions;
@@ -91,15 +92,20 @@
                             DbContextFactory.CreateValueComparer<string>());
 
             modelBuilder.Entity<InvasionSubscription>()
-                        .Property(p => p.Areas)
+                        .Property(p => p.InvasionType)
                         .HasConversion(
-                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
-                            DbContextFactory.CreateValueComparer<string>());
+                            DbContextFactory.CreateJsonValueConverter<List<InvasionCharacter>>(),
+                            DbContextFactory.CreateValueComparer<InvasionCharacter>());
             modelBuilder.Entity<InvasionSubscription>()
                         .Property(p => p.RewardPokemonId)
                         .HasConversion(
                             DbContextFactory.CreateJsonValueConverter<List<uint>>(),
                             DbContextFactory.CreateValueComparer<uint>());
+            modelBuilder.Entity<InvasionSubscription>()
+                        .Property(p => p.Areas)
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
 
             modelBuilder.Entity<LureSubscription>()
                         .Property(p => p.LureType)

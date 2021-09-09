@@ -1,4 +1,5 @@
-﻿namespace WhMgr.Services.Subscriptions.Models
+﻿
+namespace WhMgr.Services.Subscriptions.Models
 {
     using System;
     using System.Collections.Generic;
@@ -30,7 +31,7 @@
             JsonPropertyName("grunt_type"),
             Column("grunt_type"),
         ]
-        public InvasionCharacter InvasionType { get; set; }
+        public List<InvasionCharacter> InvasionType { get; set; } = new();
 
         [
             JsonPropertyName("reward_pokemon_id"),
