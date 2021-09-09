@@ -32,7 +32,7 @@
             Column("lure_type"),
             Required,
         ]
-        public PokestopLureType LureType { get; set; } = PokestopLureType.None;
+        public List<PokestopLureType> LureType { get; set; } = new();
 
         [
             JsonPropertyName("city"),

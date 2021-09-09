@@ -168,7 +168,7 @@
                 .Where(x => x.IsEnabled(NotificationStatusType.Lures) &&
                             x.Lures != null &&
                             x.Lures.Any(y =>
-                                lure == y.LureType
+                                y.LureType?.Contains(lure) ?? false
                                 || !string.IsNullOrWhiteSpace(y.PokestopName) && !string.IsNullOrWhiteSpace(pokestopName) &&
                                 (
                                     pokestopName.Contains(y.PokestopName)

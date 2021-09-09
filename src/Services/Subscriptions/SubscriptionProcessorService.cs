@@ -849,7 +849,7 @@
                     if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Lures))
                         continue;
 
-                    var subLure = user.Lures.FirstOrDefault(x => x.LureType == pokestop.LureType);
+                    var subLure = user.Lures.FirstOrDefault(x => x.LureType?.Contains(pokestop.LureType) ?? false);
                     // Not subscribed to lure
                     if (subLure == null)
                     {

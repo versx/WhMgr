@@ -109,7 +109,9 @@
 
             modelBuilder.Entity<LureSubscription>()
                         .Property(p => p.LureType)
-                        .HasConversion(x => x.ObjectToString(), x => x.StringToObject<PokestopLureType>());
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<PokestopLureType>>(),
+                            DbContextFactory.CreateValueComparer<PokestopLureType>());
             modelBuilder.Entity<LureSubscription>()
                         .Property(p => p.Areas)
                         .HasConversion(
