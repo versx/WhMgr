@@ -19,6 +19,14 @@
         }
 
         // TODO: Add support for info and enable/disable commands
+        [Command("info")]
+        public async Task InfoAsync(CommandContext ctx) => await RespondUserInterface(ctx);
+
+        [Command("enable")]
+        public async Task EnableAsync(CommandContext ctx) => await RespondUserInterface(ctx);
+        [Command("disable")]
+        public async Task DisableAsync(CommandContext ctx) => await RespondUserInterface(ctx);
+
 
         [Command("pokeme")]
         public async Task PokeMeAsync(CommandContext ctx) => await RespondUserInterface(ctx);
