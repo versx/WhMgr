@@ -14,15 +14,15 @@
 
         public OsmManager()
         {
-            LoadNests();
+            Nests = LoadNests();
         }
 
-        private void LoadNests()
+        private static OsmFeatureCollection LoadNests()
         {
             if (!File.Exists(Strings.OsmNestFilePath))
             {
                 Console.WriteLine($"{Strings.OsmNestFilePath} does not exist, failed to load nests.");
-                return;
+                return null;
             }
 
             var data = File.ReadAllText(Strings.OsmNestFilePath);
@@ -30,9 +30,9 @@
             if (obj == null)
             {
                 Console.WriteLine($"Failed to deserialize file data from {Strings.OsmNestFilePath} for nests collection.");
-                return;
+                return null;
             }
-            Nests = obj;
+            return obj;
         }
 
         public List<OsmFeature> GetNest(string name)

@@ -133,8 +133,12 @@
         public static Coordinate GetGoogleAddress(string city, double lat, double lon, string gmapsKey)
         {
             // TODO: Google reverse geocoding parse
-            var apiKey = string.IsNullOrEmpty(gmapsKey) ? string.Empty : $"&key={gmapsKey}";
-            var url = $"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}&sensor=true{apiKey}";
+            if (string.IsNullOrEmpty(gmapsKey))
+            {
+                return null;
+            }
+
+            var url = $"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}&sensor=true&key={gmapsKey}";
             /*
             var unknown = "Unknown";
             try
@@ -183,8 +187,19 @@
                 {
                     wc.Proxy = null;
                     wc.Headers.Add("User-Agent", Strings.BotName);
+
                     var json = wc.DownloadString(url);
+                    if (string.IsNullOrEmpty(json))
+                    {
+                        return null;
+                    }
+
                     var obj = json.FromJson<NominatimReverseLookup>();
+                    if (obj == null)
+                    {
+                        return null;
+                    }
+
                     var parsedLocation = TemplateRenderer.Parse(nominatimSchema, obj);
                     return new Coordinate(parsedLocation, city ?? unknown, Convert.ToDouble(obj.Latitude), Convert.ToDouble(obj.Longitude));
                 }

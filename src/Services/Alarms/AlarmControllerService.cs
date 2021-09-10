@@ -170,7 +170,6 @@
                         continue;
                     }
 
-                    // TODO: Proper queue service
                     foreach (var geofence in geofences)
                     {
                         if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, pokemon, geofence.Name)))
@@ -425,7 +424,18 @@
                 {
                     var alarm = pokestopAlarms[i];
 
-                    // TODO: Combine Pokestop lure and invasion checks
+                    var hasLure = alarm.Filters.Pokestops.Lured && pokestop.HasLure;
+                    var hasLureType = alarm.Filters.Pokestops.LureTypes.Select(lure => lure.ToLower()).Contains(pokestop.LureType.ToString().ToLower())
+                        && alarm.Filters.Pokestops.LureTypes.Count > 0;
+
+                    var hasInvasion = alarm.Filters.Pokestops.Invasions && pokestop.HasInvasion;
+                    var hasInvasionType = alarm.Filters.Pokestops.InvasionTypes.ContainsKey(pokestop.GruntType)
+                        && alarm.Filters.Pokestops.InvasionTypes[pokestop.GruntType];
+
+                    if (!((hasLure && hasLureType) || (hasInvasion && hasInvasionType)))
+                        continue;
+
+                    /*
                     if (!alarm.Filters.Pokestops.Lured && pokestop.HasLure)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: lure filter not enabled.");
@@ -448,6 +458,7 @@
                     {
                         continue;
                     }
+                    */
                         
                     var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokestop.Latitude, pokestop.Longitude));
                     if (geofences == null)

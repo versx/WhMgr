@@ -14,6 +14,7 @@
 
     using WhMgr.Configuration;
     using WhMgr.Data;
+    using WhMgr.Osm;
     using WhMgr.Services.Subscriptions;
 
     // TODO: HostedService
@@ -56,12 +57,12 @@
             // Build the dependency collection which will contain our objects that can be globally used within each command module
             var servicesCol = new ServiceCollection()
                 .AddSingleton(typeof(ConfigHolder), _config)
-                .AddSingleton(typeof(Osm.OsmManager), new Osm.OsmManager())
+                .AddSingleton(typeof(OsmManager), new OsmManager())
                 .AddSingleton(typeof(IServiceProvider), _serviceProvider)
                 //.AddSingleton(typeof(ISubscriptionManagerService), new SubscriptionManagerService(null, null));
                 .AddSingleton<ILoggerFactory>(LoggerFactory.Create(configure => configure.AddConsole()));
             var services = servicesCol.BuildServiceProvider();
-            await InitializeDiscord(services);
+            await InitializeDiscordClients(services);
 
             // Start validating Discord member access
             _accessValidator.Start();
@@ -80,7 +81,7 @@
 
         #endregion
 
-        private async Task InitializeDiscord(ServiceProvider services)
+        private async Task InitializeDiscordClients(ServiceProvider services)
         {
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
@@ -229,8 +230,8 @@
                     // TODO: Localize
                     Title = $"Welcome to {e.Guild?.Name} {e.Member.Username}#{e.Member.Discriminator}!",
                     Description = $"Thank you for joining {e.Guild?.Name}! Please look around and get familar, you can get " +
-                        "exclusive access to Pokemon, Raids, Quests, Invasions, Lures, and Gyms by typing `$donate` in the #bot " +
-                        "channel and following the upgrade link.\n\n" +
+                        "exclusive access to Pokemon, PvP, Raids, Quests, Invasions, Lures, and Gyms by typing `$donate` in the #bot " +
+                        "channel then following the upgrade link.\n\n" +
                         $"To see different city sections type `{server.Bot?.CommandPrefix}feedme city1,city2` in the #bot channel.\n" +
                         $"Type `{server.Bot?.CommandPrefix}help for more information.",
                     Footer = new DiscordEmbedBuilder.EmbedFooter
