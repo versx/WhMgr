@@ -66,6 +66,7 @@
             // Register available Discord command handler classes
             commands.RegisterCommands<Nests>();
             commands.RegisterCommands<DailyStats>();
+            commands.RegisterCommands<Quests>();
             if (config.GeofenceRoles?.Enabled ?? false)
             {
                 commands.RegisterCommands<Feeds>();
@@ -79,7 +80,6 @@
             commands.RegisterCommands<Owner>();
             commands.RegisterCommands<Event>();
             commands.RegisterCommands<Gyms>();
-            commands.RegisterCommands<Quests>();
             commands.RegisterCommands<Settings>();
             */
             commands.CommandExecuted += Commands_CommandExecuted;
