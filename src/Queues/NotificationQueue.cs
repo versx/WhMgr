@@ -7,6 +7,5 @@
     /// </summary>
     public sealed class NotificationQueue : Queue<NotificationItem>
     {
-        // TODO: Add/Remove/Get/Process
     }
 }

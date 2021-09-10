@@ -55,7 +55,6 @@
             _mapDataCache = mapDataCache;
             _statsService = statsService;
             _taskQueue = taskQueue;
-            // TODO: _cancellationToken lifetime
         }
 
         #region Subscription Processing
@@ -185,7 +184,7 @@
                         if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
                             continue;
 
-                        var embed = pokemon.GenerateEmbedMessage(new AlarmMessageSettings
+                        var embed = await pokemon.GenerateEmbedMessageAsync(new AlarmMessageSettings
                         {
                             GuildId = user.GuildId,
                             Client = client,
@@ -193,7 +192,7 @@
                             Alarm = null,
                             City = geofence.Name,
                             MapDataCache = _mapDataCache,
-                        });
+                        }).ConfigureAwait(false);
 
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.LogDebug($"Took {end} to process Pokemon subscription for user {user.UserId}");
@@ -246,6 +245,7 @@
             }
 
             // TODO: PvP subscriptions support for evolutions not just base evo
+            // Get evolution ids from masterfile for incoming pokemon, check if subscriptions for evo/base
             var subscriptions = _subscriptionManager.GetSubscriptionsByPvpPokemonId(pokemon.Id);
             if (subscriptions == null)
             {
@@ -343,14 +343,14 @@
                         if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
                             continue;
 
-                        var embed = pokemon.GenerateEmbedMessage(new AlarmMessageSettings
+                        var embed = await pokemon.GenerateEmbedMessageAsync(new AlarmMessageSettings
                         {
                             GuildId = user.GuildId,
                             Client = client,
                             Config = _config,
                             Alarm = null,
                             City = geofence.Name,
-                        });
+                        }).ConfigureAwait(false);
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
                         embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
@@ -485,14 +485,14 @@
                     if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = raid.GenerateEmbedMessage(new AlarmMessageSettings
+                    var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
                     {
                         GuildId = user.GuildId,
                         Client = client,
                         Config = _config,
                         Alarm = null,
                         City = geofence.Name
-                    });
+                    }).ConfigureAwait(false);
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
                     embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
@@ -504,7 +504,7 @@
                         City = geofence.Name
                     }));
 
-                    // TODO: _statsService.SubscriptionRaidsSent++;
+                    _statsService.TotalRaidSubscriptionsSent++;
                     Thread.Sleep(5);
                 }
                 catch (Exception ex)
@@ -613,14 +613,14 @@
                     if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = quest.GenerateEmbedMessage(new AlarmMessageSettings
+                    var embed = await quest.GenerateEmbedMessageAsync(new AlarmMessageSettings
                     {
                         GuildId = user.GuildId,
                         Client = client,
                         Config = _config,
                         Alarm = null,
                         City = geofence.Name,
-                    });
+                    }).ConfigureAwait(false);
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process quest subscription for user {user.UserId}");
                     embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
@@ -752,14 +752,14 @@
                     if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pokestop.GenerateEmbedMessage(new AlarmMessageSettings
+                    var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
                     {
                         GuildId = user.GuildId,
                         Client = client,
                         Config = _config,
                         Alarm = null,
                         City = geofence?.Name,
-                    });
+                    }).ConfigureAwait(false);
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.LogDebug($"Took {end} to process invasion subscription for user {user.UserId}");
                     embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
@@ -874,14 +874,14 @@
                     if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
                         continue;
 
-                    var embed = pokestop.GenerateEmbedMessage(new AlarmMessageSettings
+                    var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
                     {
                         GuildId = user.GuildId,
                         Client = client,
                         Config = _config,
                         Alarm = null,
                         City = geofence.Name,
-                    });
+                    }).ConfigureAwait(false);
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process lure subscription for user {user.UserId}");
                     embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
@@ -1003,14 +1003,14 @@
                     if (!globalDistanceMatches && !gymDistanceMatches)
                         continue;
 
-                    var embed = raid.GenerateEmbedMessage(new AlarmMessageSettings
+                    var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
                     {
                         GuildId = user.GuildId,
                         Client = client,
                         Config = _config,
                         Alarm = null,
                         City = geofence.Name,
-                    });
+                    }).ConfigureAwait(false);
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process gym raid subscription for user {user.UserId}");
                     embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem

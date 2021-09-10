@@ -31,7 +31,6 @@
         /// <summary>
         /// Gets or sets the Raid boss pokedex ID list to filter against
         /// </summary>
-        //TODO: Allow pokemon names and ids for raid filter.
         [JsonPropertyName("pokemon")]
         public List<uint> Pokemon { get; set; }
 

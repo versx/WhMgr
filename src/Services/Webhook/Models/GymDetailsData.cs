@@ -6,6 +6,7 @@
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
+    using System.Threading.Tasks;
 
     using WhMgr.Common;
     using WhMgr.Data;
@@ -82,12 +83,12 @@
             // No times to change
         }
 
-        public DiscordWebhookMessage GenerateEmbedMessage(AlarmMessageSettings settings)
+        public async Task<DiscordWebhookMessage> GenerateEmbedMessageAsync(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = EmbedMessageType.Gyms;
             var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
-            var properties = GetProperties(settings);
+            var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
@@ -128,13 +129,10 @@
             };
         }
 
-        private dynamic GetProperties(AlarmMessageSettings properties)
+        private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
             // Get old gym from cache
-            var oldGym = properties.MapDataCache.GetGym(GymId).ConfigureAwait(false)
-                                                .GetAwaiter()
-                                                .GetResult();
-
+            var oldGym = await properties.MapDataCache.GetGym(GymId).ConfigureAwait(false);
             var exEmojiId = MasterFile.Instance.Emojis["ex"];
             var exEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis["ex"]) ? exEmojiId > 0
                 ? string.Format(Strings.EmojiSchema, "ex", exEmojiId) : "EX"
@@ -169,11 +167,11 @@
                 SecondaryImageUrl = gymImageUrl,
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
-                    ? properties.MapDataCache.GetGymsNearby(Latitude, Longitude)
+                    ? await properties.MapDataCache.GetGymsNearby(Latitude, Longitude).ConfigureAwait(false)
                     : new List<dynamic>(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby pokestops from MapDataCache
-                    ? properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude)
+                    ? await properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude).ConfigureAwait(false)
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();

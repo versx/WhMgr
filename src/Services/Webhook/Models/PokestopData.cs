@@ -5,6 +5,7 @@
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
+    using System.Threading.Tasks;
 
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
@@ -156,7 +157,7 @@
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
-        public DiscordWebhookMessage GenerateEmbedMessage(AlarmMessageSettings settings)
+        public async Task<DiscordWebhookMessage> GenerateEmbedMessageAsync(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = HasInvasion
@@ -164,8 +165,10 @@
                 : HasLure
                     ? EmbedMessageType.Lures
                     : EmbedMessageType.Pokestops;
-            var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
-            var properties = GetProperties(settings);
+            var embed = settings.Alarm?.Embeds[embedType]
+                    ?? server.DmEmbeds?[embedType]
+                    ?? EmbedMessage.Defaults[embedType];
+            var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
@@ -208,11 +211,15 @@
 
         #region Private Methods
 
-        private dynamic GetProperties(AlarmMessageSettings properties)
+        private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
             var lureImageUrl = IconFetcher.Instance.GetLureIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, LureType);
             var invasionImageUrl = IconFetcher.Instance.GetInvasionIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, GruntType);
-            var imageUrl = HasInvasion ? invasionImageUrl : HasLure ? lureImageUrl : Url;
+            var imageUrl = HasInvasion
+                ? invasionImageUrl
+                : HasLure
+                    ? lureImageUrl
+                    : Url;
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
@@ -233,11 +240,11 @@
                 SecondaryImageUrl = imageUrl,
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
-                    ? properties.MapDataCache.GetGymsNearby(Latitude, Longitude)
+                    ? await properties.MapDataCache.GetGymsNearby(Latitude, Longitude).ConfigureAwait(false)
                     : new List<dynamic>(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby pokestops from MapDataCache
-                    ? properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude)
+                    ? await properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude).ConfigureAwait(false)
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();

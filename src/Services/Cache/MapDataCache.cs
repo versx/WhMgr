@@ -46,7 +46,7 @@
             }
             if (_pokestops == null)
             {
-                await LoadMapData();
+                await LoadMapData().ConfigureAwait(false);
             }
             var pokestop = _pokestops?[id];
             return pokestop;
@@ -84,7 +84,7 @@
             }
             if (_gyms == null)
             {
-                await LoadMapData();
+                await LoadMapData().ConfigureAwait(false);
             }
             var gym = _gyms?[id];
             return gym;
@@ -122,7 +122,7 @@
             }
             if (_weather == null)
             {
-                await LoadMapData();
+                await LoadMapData().ConfigureAwait(false);
             }
             var weather = _weather?[id];
             return weather;
@@ -166,11 +166,11 @@
             }
         }
 
-        public List<dynamic> GetPokestopsNearby(double latitude, double longitude, double radiusM = 100)
+        public async Task<List<dynamic>> GetPokestopsNearby(double latitude, double longitude, double radiusM = 100)
         {
             if (_pokestops == null)
             {
-                LoadMapData().ConfigureAwait(false).GetAwaiter(); // TODO: Await
+                await LoadMapData().ConfigureAwait(false);
             }
 
             var nearby = _pokestops.Values.Where(stop =>
@@ -194,11 +194,11 @@
             return nearby;
         }
 
-        public List<dynamic> GetGymsNearby(double latitude, double longitude, double radiusM = 100)
+        public async Task<List<dynamic>> GetGymsNearby(double latitude, double longitude, double radiusM = 100)
         {
             if (_gyms == null)
             {
-                LoadMapData().ConfigureAwait(false).GetAwaiter(); // TODO: Await
+                await LoadMapData().ConfigureAwait(false);
             }
 
             var nearby = _gyms.Values.Where(gym =>

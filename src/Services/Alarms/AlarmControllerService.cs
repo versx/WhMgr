@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
+    using System.Threading.Tasks;
 
     using DSharpPlus;
     //using Microsoft.Extensions.Logging;
@@ -172,7 +173,7 @@
 
                     foreach (var geofence in geofences)
                     {
-                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, pokemon, geofence.Name)))
+                        if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, pokemon, geofence.Name)))
                         {
                             _logger.LogError($"Failed to queue Pokemon alarm: {alarm.Name} for Pokemon {pokemon.Id} ({pokemon.EncounterId}) from geofence {geofence.Name}");
                             continue;
@@ -246,7 +247,7 @@
 
                         foreach (var geofence in geofences)
                         {
-                            if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, raid, geofence.Name)))
+                            if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, raid, geofence.Name)))
                             {
                                 _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level}) from geofence {geofence.Name}");
                                 continue;
@@ -329,7 +330,7 @@
 
                         foreach (var geofence in geofences)
                         {
-                            if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, raid, geofence.Name)))
+                            if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, raid, geofence.Name)))
                             {
                                 _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level}) from geofence {geofence.Name}");
                                 continue;
@@ -392,7 +393,7 @@
 
                     foreach (var geofence in geofences)
                     {
-                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, quest, geofence.Name)))
+                        if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, quest, geofence.Name)))
                         {
                             _logger.LogError($"Failed to queue Quest alarm: {alarm.Name} for Quest {quest.PokestopId} ({quest.PokestopName}) from geofence {geofence.Name}");
                             continue;
@@ -469,7 +470,7 @@
 
                     foreach (var geofence in geofences)
                     {
-                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, pokestop, geofence.Name)))
+                        if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, pokestop, geofence.Name)))
                         {
                             _logger.LogError($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.Name}) from geofence {geofence.Name}");
                             continue;
@@ -531,7 +532,7 @@
 
                     foreach (var geofence in geofences)
                     {
-                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, gym, geofence.Name)))
+                        if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, gym, geofence.Name)))
                         {
                             _logger.LogError($"Failed to queue Gym alarm: {alarm.Name} for Gym {gym.GymId} ({gym.GymName}) from geofence {geofence.Name}");
                             continue;
@@ -596,7 +597,7 @@
 
                     foreach (var geofence in geofences)
                     {
-                        if (!ThreadPool.QueueUserWorkItem(x => SendEmbed(guildId, alarm, weather, geofence.Name)))
+                        if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, weather, geofence.Name)))
                         {
                             _logger.LogError($"Failed to queue Weather alarm: {alarm.Name} for Gym {weather.Id} ({weather.GameplayCondition}) from geofence {geofence.Name}");
                             continue;
@@ -611,7 +612,7 @@
         }
 
         // TODO: Alarm queue service (background service or hosted service)
-        private void SendEmbed(ulong guildId, ChannelAlarm alarm, IWebhookData data, string city)
+        private async Task SendEmbed(ulong guildId, ChannelAlarm alarm, IWebhookData data, string city)
         {
             if (string.IsNullOrEmpty(alarm.Webhook))
                 return;
@@ -626,7 +627,7 @@
             {
                 var server = _config.Instance.Servers[guildId];
                 var client = _discordService.DiscordClients[guildId];
-                var eb = data.GenerateEmbedMessage(new AlarmMessageSettings
+                var eb = await data.GenerateEmbedMessageAsync(new AlarmMessageSettings
                 {
                     GuildId = guildId,
                     Client = client,
@@ -634,7 +635,7 @@
                     Alarm = alarm,
                     City = city,
                     MapDataCache = _mapDataCache,
-                });
+                }).ConfigureAwait(false);
                 var json = eb.Build();
                 if (json == null)
                 {

@@ -3,8 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
+    using System.Threading.Tasks;
 
-    using DSharpPlus.Entities;
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
 
     using WhMgr.Common;
@@ -146,16 +146,20 @@
         /// <param name="alarm">Webhook alarm</param>
         /// <param name="city">City the Raid was found in</param>
         /// <returns>DiscordEmbedNotification object to send</returns>
-        public DiscordWebhookMessage GenerateEmbedMessage(AlarmMessageSettings settings)
+        public async Task<DiscordWebhookMessage> GenerateEmbedMessageAsync(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
-            var embedType = PokemonId > 0 ? EmbedMessageType.Raids : EmbedMessageType.Eggs;
-            var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
+            var embedType = PokemonId > 0
+                ? EmbedMessageType.Raids
+                : EmbedMessageType.Eggs;
+            var embed = settings.Alarm?.Embeds[embedType]
+                ?? server.DmEmbeds?[embedType]
+                ?? EmbedMessage.Defaults[embedType];
             var raidImageUrl = IsEgg
                 ? IconFetcher.Instance.GetRaidEggIcon(server.IconStyle, Convert.ToInt32(Level), false, IsExEligible)
                 : IconFetcher.Instance.GetPokemonIcon(server.IconStyle, PokemonId, Form, Evolution, Gender, Costume, false);
             settings.ImageUrl = raidImageUrl;
-            var properties = GetProperties(settings);
+            var properties = await GetPropertiesAsync(settings);
             var eb = new DiscordEmbedMessage
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
@@ -188,7 +192,7 @@
             };
         }
 
-        private dynamic GetProperties(AlarmMessageSettings properties)
+        private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
             var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
             var name = IsEgg ? Translator.Instance.Translate("EGG") : Translator.Instance.GetPokemonName(PokemonId);
@@ -232,11 +236,11 @@
                 Team = Team,
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
-                    ? properties.MapDataCache.GetGymsNearby(Latitude, Longitude)
+                    ? await properties.MapDataCache.GetGymsNearby(Latitude, Longitude).ConfigureAwait(false)
                     : new List<dynamic>(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby pokestops from MapDataCache
-                    ? properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude)
+                    ? await properties .MapDataCache.GetPokestopsNearby(Latitude, Longitude).ConfigureAwait(false)
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();

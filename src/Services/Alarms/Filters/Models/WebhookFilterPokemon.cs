@@ -19,7 +19,6 @@
         /// <summary>
         /// Gets or sets the list of pokemon pokedex IDs to filter against
         /// </summary>
-        //TODO: Allow pokemon names and ids for pokemon filter.
         [JsonPropertyName("pokemon")]
         public List<uint> Pokemon { get; set; }
 

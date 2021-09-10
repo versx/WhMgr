@@ -7,11 +7,11 @@
 
     public interface IMapDataCache
     {
-        List<dynamic> GetPokestopsNearby(double latitude, double longitude, double radiusM = 500);
+        Task<List<dynamic>> GetPokestopsNearby(double latitude, double longitude, double radiusM = 500);
 
         Task<PokestopData> GetPokestop(string id);
 
-        List<dynamic> GetGymsNearby(double latitude, double longitude, double radiusM = 500);
+        Task<List<dynamic>> GetGymsNearby(double latitude, double longitude, double radiusM = 500);
 
         Task<GymDetailsData> GetGym(string id);
 

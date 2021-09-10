@@ -32,8 +32,8 @@ namespace WhMgr
     // TODO: Fix Pvp pokemon name not showing on Pokemon embed
     // TODO: Twilio notifications
     // TODO: HostedService webhook queue
-    // TODO: HostedService subscription queue
     // TODO: Simplify alarm and subscription filter checks
+    // TODO: Allow pokemon names and ids for pokemon/raid alarm filters.
 
     public class Startup
     {

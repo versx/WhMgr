@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
+    using System.Threading.Tasks;
 
     using DSharpPlus.Entities;
     using POGOProtos.Rpc;
@@ -84,13 +85,15 @@
         /// <param name="alarm">Alarm to use</param>
         /// <param name="city">City to specify</param>
         /// <returns></returns>
-        public DiscordWebhookMessage GenerateEmbedMessage(AlarmMessageSettings settings)
+        public async Task<DiscordWebhookMessage> GenerateEmbedMessageAsync(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = EmbedMessageType.Quests;
-            var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
+            var embed = settings.Alarm?.Embeds[embedType]
+                ?? server.DmEmbeds?[embedType]
+                ?? EmbedMessage.Defaults[embedType];
             settings.ImageUrl = IconFetcher.Instance.GetQuestIcon(settings.Config.Instance.Servers[settings.GuildId].IconStyle, this);
-            var properties = GetProperties(settings);
+            var properties = await GetPropertiesAsync(settings);
             var eb = new DiscordEmbedMessage
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
@@ -123,7 +126,7 @@
             };
         }
 
-        private dynamic GetProperties(AlarmMessageSettings properties)
+        private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
             var questMessage = this.GetQuestMessage();
             var questConditions = this.GetConditions();
@@ -143,11 +146,11 @@
                 SecondaryImageUrl = properties.ImageUrl,
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
-                    ? properties.MapDataCache.GetGymsNearby(Latitude, Longitude)
+                    ? await properties.MapDataCache.GetGymsNearby(Latitude, Longitude).ConfigureAwait(false)
                     : new List<dynamic>(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby gyms from MapDataCache
-                    ? properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude)
+                    ? await properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude).ConfigureAwait(false)
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
