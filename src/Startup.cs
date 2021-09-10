@@ -33,7 +33,8 @@ namespace WhMgr
     // TODO: Twilio notifications
     // TODO: HostedService webhook queue
     // TODO: Simplify alarm and subscription filter checks
-    // TODO: Allow pokemon names and ids for pokemon/raid alarm filters.
+    // TODO: Allow pokemon names and ids for pokemon/raid alarm filters
+    // TODO: Cache google/nominatim reverse geocoding lookups to disk instead of just memory
 
     public class Startup
     {
