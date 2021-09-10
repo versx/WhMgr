@@ -6,18 +6,18 @@
 
     public interface ISubscriptionProcessorService
     {
-        Task ProcessPokemonSubscription(PokemonData pokemon);
+        Task ProcessPokemonSubscriptionAsync(PokemonData pokemon);
 
-        Task ProcessPvpSubscription(PokemonData pokemon);
+        Task ProcessPvpSubscriptionAsync(PokemonData pokemon);
 
-        Task ProcessRaidSubscription(RaidData raid);
+        Task ProcessRaidSubscriptionAsync(RaidData raid);
 
-        Task ProcessQuestSubscription(QuestData quest);
+        Task ProcessQuestSubscriptionAsync(QuestData quest);
 
-        Task ProcessInvasionSubscription(PokestopData pokestop);
+        Task ProcessInvasionSubscriptionAsync(PokestopData pokestop);
 
-        Task ProcessLureSubscription(PokestopData pokestop);
+        Task ProcessLureSubscriptionAsync(PokestopData pokestop);
 
-        Task ProcessGymSubscription(RaidData raid);
+        Task ProcessGymSubscriptionAsync(RaidData raid);
     }
 }

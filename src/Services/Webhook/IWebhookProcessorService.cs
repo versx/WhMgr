@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Services.Webhook
 {
     using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public interface IWebhookProcessorService
     {
@@ -10,6 +11,6 @@
 
         void Stop();
 
-        void ParseData(List<WebhookPayload> payloads);
+        Task ParseData(List<WebhookPayload> payloads);
     }
 }

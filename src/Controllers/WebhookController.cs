@@ -33,7 +33,7 @@
         [HttpPost("/")]
         public IActionResult HandleData(List<WebhookPayload> data)
         {
-            ThreadPool.QueueUserWorkItem(x => _webhookService.ParseData(data));
+            ThreadPool.QueueUserWorkItem(async x => await _webhookService.ParseData(data));
             return Ok();
         }
     }

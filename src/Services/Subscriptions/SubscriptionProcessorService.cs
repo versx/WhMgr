@@ -59,7 +59,7 @@
 
         #region Subscription Processing
 
-        public async Task ProcessPokemonSubscription(PokemonData pokemon)
+        public async Task ProcessPokemonSubscriptionAsync(PokemonData pokemon)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon.Id))
                 return;
@@ -196,7 +196,7 @@
 
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.LogDebug($"Took {end} to process Pokemon subscription for user {user.UserId}");
-                        embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
+                        embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
@@ -225,7 +225,7 @@
             await Task.CompletedTask;
         }
 
-        public async Task ProcessPvpSubscription(PokemonData pokemon)
+        public async Task ProcessPvpSubscriptionAsync(PokemonData pokemon)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon.Id))
                 return;
@@ -353,7 +353,7 @@
                         }).ConfigureAwait(false);
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
-                        embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
+                        embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
@@ -381,7 +381,7 @@
             await Task.CompletedTask;
         }
 
-        public async Task ProcessRaidSubscription(RaidData raid)
+        public async Task ProcessRaidSubscriptionAsync(RaidData raid)
         {
             if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
                 return;
@@ -495,7 +495,7 @@
                     }).ConfigureAwait(false);
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
+                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -520,7 +520,7 @@
             await Task.CompletedTask;
         }
 
-        public async Task ProcessQuestSubscription(QuestData quest)
+        public async Task ProcessQuestSubscriptionAsync(QuestData quest)
         {
             var reward = quest.Rewards.FirstOrDefault().Info;
             var rewardKeyword = quest.GetReward();
@@ -623,7 +623,7 @@
                     }).ConfigureAwait(false);
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process quest subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
+                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -648,7 +648,7 @@
             await Task.CompletedTask;
         }
 
-        public async Task ProcessInvasionSubscription(PokestopData pokestop)
+        public async Task ProcessInvasionSubscriptionAsync(PokestopData pokestop)
         {
             if (pokestop.GruntType == InvasionCharacter.CharacterUnset)
                 return;
@@ -762,7 +762,7 @@
                     }).ConfigureAwait(false);
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.LogDebug($"Took {end} to process invasion subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
+                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -787,7 +787,7 @@
             await Task.CompletedTask;
         }
 
-        public async Task ProcessLureSubscription(PokestopData pokestop)
+        public async Task ProcessLureSubscriptionAsync(PokestopData pokestop)
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
@@ -884,7 +884,7 @@
                     }).ConfigureAwait(false);
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process lure subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
+                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -909,7 +909,7 @@
             await Task.CompletedTask;
         }
 
-        public async Task ProcessGymSubscription(RaidData raid)
+        public async Task ProcessGymSubscriptionAsync(RaidData raid)
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
@@ -1013,7 +1013,7 @@
                     }).ConfigureAwait(false);
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process gym raid subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(async x => await EnqueueEmbed(new NotificationItem
+                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
@@ -1052,10 +1052,10 @@
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await BackgroundProcessing(stoppingToken);
+            await BackgroundProcessingAsync(stoppingToken);
         }
 
-        private async Task BackgroundProcessing(CancellationToken stoppingToken)
+        private async Task BackgroundProcessingAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -1077,7 +1077,7 @@
             _logger.LogError("Exited background processing...");
         }
 
-        private async Task EnqueueEmbed(NotificationItem embed)
+        private async Task EnqueueEmbedAsync(NotificationItem embed)
         {
             if (_taskQueue.Count > Strings.MaxQueueCountWarning)
             {
@@ -1085,10 +1085,10 @@
             }
 
             await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
-                await ProcessWorkItem(embed, token));
+                await ProcessWorkItemAsync(embed, token));
         }
 
-        private async Task<CancellationToken> ProcessWorkItem(NotificationItem embed, CancellationToken stoppingToken)
+        private async Task<CancellationToken> ProcessWorkItemAsync(NotificationItem embed, CancellationToken stoppingToken)
         {
             if (_taskQueue.Count > Strings.MaxQueueCountWarning)
             {

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
 
     //using Microsoft.Extensions.Logging;
 
@@ -95,7 +96,7 @@
             }
         }
 
-        public void ParseData(List<WebhookPayload> payloads)
+        public async Task ParseData(List<WebhookPayload> payloads)
         {
             if (!Enabled) return;
 
@@ -106,17 +107,17 @@
                 switch (payload.Type)
                 {
                     case WebhookHeaders.Pokemon:
-                        ProcessPokemon(payload.Message);
+                        await ProcessPokemonAsync(payload.Message).ConfigureAwait(false);
                         break;
                     case WebhookHeaders.Raid:
-                        ProcessRaid(payload.Message);
+                        await ProcessRaidAsync(payload.Message).ConfigureAwait(false);
                         break;
                     case WebhookHeaders.Quest:
-                        ProcessQuest(payload.Message);
+                        await ProcessQuestAsync(payload.Message).ConfigureAwait(false);
                         break;
                     case WebhookHeaders.Invasion:
                     case WebhookHeaders.Pokestop:
-                        ProcessPokestop(payload.Message);
+                        await ProcessPokestopAsync(payload.Message).ConfigureAwait(false);
                         break;
                     case WebhookHeaders.Gym:
                     case WebhookHeaders.GymDetails:
@@ -136,7 +137,7 @@
 
         #region Processing Methods
 
-        private void ProcessPokemon(dynamic message)
+        private async Task ProcessPokemonAsync(dynamic message)
         {
             string json = Convert.ToString(message);
             var pokemon = json.FromJson<PokemonData>();
@@ -174,10 +175,10 @@
 
             // Process pokemon alarms
             _alarmsService.ProcessPokemonAlarms(pokemon);
-            _subscriptionService.ProcessPokemonSubscription(pokemon).ConfigureAwait(false).GetAwaiter().GetResult();
+            await _subscriptionService.ProcessPokemonSubscriptionAsync(pokemon).ConfigureAwait(false);
         }
 
-        private void ProcessRaid(dynamic message)
+        private async Task ProcessRaidAsync(dynamic message)
         {
             string json = Convert.ToString(message);
             var raid = json.FromJson<RaidData>();
@@ -218,10 +219,10 @@
 
             // Process raid alarms
             _alarmsService.ProcessRaidAlarms(raid);
-            _subscriptionService.ProcessRaidSubscription(raid).ConfigureAwait(false).GetAwaiter().GetResult();
+            await _subscriptionService.ProcessRaidSubscriptionAsync(raid).ConfigureAwait(false);
         }
 
-        private void ProcessQuest(dynamic message)
+        private async Task ProcessQuestAsync(dynamic message)
         {
             string json = Convert.ToString(message);
             var quest = json.FromJson<QuestData>();
@@ -257,10 +258,10 @@
 
             // Process quest alarms
             _alarmsService.ProcessQuestAlarms(quest);
-            _subscriptionService.ProcessQuestSubscription(quest).ConfigureAwait(false).GetAwaiter().GetResult();
+            await _subscriptionService.ProcessQuestSubscriptionAsync(quest).ConfigureAwait(false);
         }
 
-        private void ProcessPokestop(dynamic message)
+        private async Task ProcessPokestopAsync(dynamic message)
         {
             string json = Convert.ToString(message);
             var pokestop = json.FromJson<PokestopData>();
@@ -305,13 +306,13 @@
             // Process invasion subscriptions
             if (pokestop.HasInvasion)
             {
-                _subscriptionService.ProcessInvasionSubscription(pokestop).ConfigureAwait(false).GetAwaiter().GetResult();
+                await _subscriptionService.ProcessInvasionSubscriptionAsync(pokestop).ConfigureAwait(false);
             }
 
             // Process lure subscriptions
             if (pokestop.HasLure)
             {
-                _subscriptionService.ProcessLureSubscription(pokestop).ConfigureAwait(false).GetAwaiter().GetResult();
+                await _subscriptionService.ProcessLureSubscriptionAsync(pokestop).ConfigureAwait(false);
             }
         }
 
