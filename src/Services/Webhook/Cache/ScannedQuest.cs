@@ -17,10 +17,6 @@
 
         public QuestType Type { get; }
 
-        public IReadOnlyList<QuestRewardMessage> Rewards { get; }
-
-        public IReadOnlyList<QuestConditionMessage> Conditions { get; }
-
         public DateTime Added { get; }
 
         public bool IsExpired
@@ -37,8 +33,6 @@
             Latitude = quest.Latitude;
             Longitude = quest.Longitude;
             Type = quest.Type;
-            Rewards = quest.Rewards;
-            Conditions = quest.Conditions;
             Added = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
         }
     }

@@ -59,8 +59,7 @@
                 .AddSingleton(typeof(ConfigHolder), _config)
                 .AddSingleton(typeof(OsmManager), new OsmManager())
                 .AddSingleton(typeof(IServiceProvider), _serviceProvider)
-                //.AddSingleton(typeof(ISubscriptionManagerService), new SubscriptionManagerService(null, null));
-                .AddSingleton<ILoggerFactory>(LoggerFactory.Create(configure => configure.AddConsole()));
+                .AddSingleton(LoggerFactory.Create(configure => configure.AddConsole()));
             var services = servicesCol.BuildServiceProvider();
             await InitializeDiscordClients(services);
 

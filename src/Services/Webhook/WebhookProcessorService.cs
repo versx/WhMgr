@@ -16,6 +16,9 @@
     using WhMgr.Services.Webhook.Cache;
     using WhMgr.Services.Webhook.Models;
 
+    /// <summary>
+    /// Parses incoming webhook data and distributes to alarm and subscription processors
+    /// </summary>
     public class WebhookProcessorService : IWebhookProcessorService
     {
         private const uint ClearCacheInterval = 60000 * 15; // Every 15 minutes
@@ -63,6 +66,7 @@
             _processedPokestops = new Dictionary<string, ScannedPokestop>();
             _processedGyms = new Dictionary<string, ScannedGym>();
             _processedWeather = new Dictionary<long, WeatherCondition>();
+
             _clearCache = new System.Timers.Timer
             {
                 Interval = ClearCacheInterval,
@@ -239,9 +243,8 @@
                 {
                     if (_processedQuests.ContainsKey(quest.PokestopId))
                     {
-                        if (_processedQuests[quest.PokestopId].Type == quest.Type &&
-                            _processedQuests[quest.PokestopId].Rewards == quest.Rewards &&
-                            _processedQuests[quest.PokestopId].Conditions == quest.Conditions)
+                        if (_processedQuests[quest.PokestopId].Type == quest.Type
+                            && !_processedQuests[quest.PokestopId].IsExpired)
                         {
                             // Processed quest already
                             return;
@@ -286,7 +289,6 @@
 
                         if (processedLureAlready || processedInvasionAlready)
                         {
-                            //_logger.LogDebug($"PROCESSED LURE OR INVASION ALREADY: Id: {pokestop.PokestopId} Name: {pokestop.Name} Lure: {pokestop.LureType} Expires: {pokestop.LureExpireTime} Grunt: {pokestop.GruntType} Expires: {pokestop.InvasionExpireTime}");
                             // Processed pokestop lure or invasion already
                             return;
                         }
@@ -332,9 +334,9 @@
                 {
                     if (_processedGyms.ContainsKey(gym.GymId))
                     {
-                        if (gym.Team == gym.Team &&
-                            gym.SlotsAvailable == gym.SlotsAvailable &&
-                            gym.InBattle == gym.InBattle)
+                        if (gym.Team == gym.Team
+                            && gym.SlotsAvailable == gym.SlotsAvailable
+                            && gym.InBattle == gym.InBattle)
                         {
                             // Gym already processed
                             return;
@@ -394,7 +396,9 @@
         {
             lock (_processedPokemon)
             {
-                var expiredEncounters = _processedPokemon.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                var expiredEncounters = _processedPokemon.Where(pair => pair.Value.IsExpired)
+                                                         .Select(pair => pair.Key)
+                                                         .ToList();
                 foreach (var encounterId in expiredEncounters)
                 {
                     // Spawn expired, remove from cache
@@ -404,7 +408,9 @@
 
             lock (_processedRaids)
             {
-                var expiredRaids = _processedRaids.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                var expiredRaids = _processedRaids.Where(pair => pair.Value.IsExpired)
+                                                  .Select(pair => pair.Key)
+                                                  .ToList();
                 foreach (var gymId in expiredRaids)
                 {
                     // Gym expired, remove from cache
@@ -414,7 +420,9 @@
 
             lock (_processedQuests)
             {
-                var expiredQuests = _processedQuests.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                var expiredQuests = _processedQuests.Where(pair => pair.Value.IsExpired)
+                                                    .Select(pair => pair.Key)
+                                                    .ToList();
                 foreach (var pokestopId in expiredQuests)
                 {
                     // Quest expired, remove from cache
@@ -424,7 +432,9 @@
 
             lock (_processedPokestops)
             {
-                var expiredPokestops = _processedPokestops.Where(pair => pair.Value.IsExpired).Select(pair => pair.Key).ToList();
+                var expiredPokestops = _processedPokestops.Where(pair => pair.Value.IsExpired)
+                                                          .Select(pair => pair.Key)
+                                                          .ToList();
                 foreach (var pokestopId in expiredPokestops)
                 {
                     // Pokestop lure or invasion expired, remove from cache
