@@ -20,8 +20,7 @@
             _queue = Channel.CreateBounded<Func<CancellationToken, ValueTask>>(options);
         }
 
-        public async ValueTask QueueBackgroundWorkItemAsync(
-            Func<CancellationToken, ValueTask> workItem)
+        public async ValueTask EnqueueAsync(Func<CancellationToken, ValueTask> workItem)
         {
             if (workItem is null)
             {

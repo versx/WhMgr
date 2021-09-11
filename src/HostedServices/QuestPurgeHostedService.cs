@@ -127,17 +127,16 @@
                 {
                     // Get Discord channel if available
                     _logger.LogInformation($"Deleting messages in channel {channelId}");
-                    var channel = await serverClient.GetChannelAsync(channelId);
+                    var channel = await serverClient.GetChannelAsync(channelId).ConfigureAwait(false);
                     if (channel == null)
                         continue;
 
                     // Delete all Discord channel messages
                     _logger.LogInformation($"Deleting messages for channel: {channelId} (GuildId: {serverId})");
-                    await serverClient.DeleteMessages(channelId);
+                    await serverClient.DeleteMessages(channelId).ConfigureAwait(false);
                 }
             }
-            _logger.LogInformation($"Completed deleting channel messages for channel(s) {string.Join(", ", channelIds)}");
-            await Task.CompletedTask;
+            _logger.LogInformation($"Completed deleting messages for channel(s) {string.Join(", ", channelIds)}");
         }
 
         #endregion

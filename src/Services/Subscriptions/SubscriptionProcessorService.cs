@@ -1052,10 +1052,13 @@
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await BackgroundProcessingAsync(stoppingToken);
+            _logger.LogInformation(
+                $"{nameof(SubscriptionProcessorService)} is now running in the background.");
+
+            await BackgroundProcessing(stoppingToken);
         }
 
-        private async Task BackgroundProcessingAsync(CancellationToken stoppingToken)
+        private async Task BackgroundProcessing(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -1084,11 +1087,13 @@
                 _logger.LogWarning($"Subscription queue is {_taskQueue.Count:N0} items long.");
             }
 
-            await _taskQueue.QueueBackgroundWorkItemAsync(async token =>
+            await _taskQueue.EnqueueAsync(async token =>
                 await ProcessWorkItemAsync(embed, token));
         }
 
-        private async Task<CancellationToken> ProcessWorkItemAsync(NotificationItem embed, CancellationToken stoppingToken)
+        private async Task<CancellationToken> ProcessWorkItemAsync(
+            NotificationItem embed,
+            CancellationToken stoppingToken)
         {
             if (_taskQueue.Count > Strings.MaxQueueCountWarning)
             {
