@@ -1,3 +1,32 @@
+CREATE TABLE `__EFMigrationsHistory` (
+   `MigrationId` varchar(150) NOT NULL,
+   `ProductVersion` varchar(32) NOT NULL,
+   PRIMARY KEY (`MigrationId`)
+);
+
+INSERT INTO `__EFMigrationsHistory` VALUES
+(
+    '20210707002802_InitialCreate',
+    5.0.7
+),
+(
+    '20210707043736_AddMultiRaidSubSupport',
+    5.0.7
+),
+(
+    '20210714054610_AddExRaidGymSubFilter',
+    5.0.7
+),
+(
+    '20210909003442_AddMultiInvasionSubSupport',
+    5.0.8
+),
+(
+    '20210909012222_AddMultiLureSubSupport',
+    5.0.8
+);
+
+UPDATE raids ADD COLUMN `ex_eligible` tinyint(1) NOT NULL DEFAULT 0;
 UPDATE gyms ADD COLUMN `ex_eligible` tinyint(1) NOT NULL DEFAULT 0;
 
 UPDATE invasions MODIFY COLUMN `grunt_type` longtext DEFAULT NULL;
