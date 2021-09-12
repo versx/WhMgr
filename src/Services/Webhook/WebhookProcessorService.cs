@@ -39,7 +39,7 @@
 
         #region Properties
 
-        public bool Enabled { get; set; }
+        public bool Enabled { get; private set; }
 
         public bool CheckForDuplicates { get; set; }
 
