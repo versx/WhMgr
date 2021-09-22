@@ -54,7 +54,7 @@
             //_queue = queue;
             _mapDataCache = mapDataCache;
             _statsService = statsService;
-            _taskQueue = taskQueue;
+            _taskQueue = (DefaultBackgroundTaskQueue)taskQueue;
         }
 
         #region Subscription Processing
@@ -1082,10 +1082,7 @@
 
         private async Task EnqueueEmbedAsync(NotificationItem embed)
         {
-            if (_taskQueue.Count > Strings.MaxQueueCountWarning)
-            {
-                _logger.LogWarning($"Subscription queue is {_taskQueue.Count:N0} items long.");
-            }
+            CheckQueueLength();
 
             await _taskQueue.EnqueueAsync(async token =>
                 await ProcessWorkItemAsync(embed, token));
@@ -1095,10 +1092,7 @@
             NotificationItem embed,
             CancellationToken stoppingToken)
         {
-            if (_taskQueue.Count > Strings.MaxQueueCountWarning)
-            {
-                _logger.LogWarning($"Subscription queue is {_taskQueue.Count:N0} items long.");
-            }
+            CheckQueueLength();
 
             if (embed == null || embed?.Subscription == null || embed?.Member == null || embed?.Embed == null)
                 return stoppingToken;
@@ -1183,5 +1177,13 @@
         }
 
         #endregion
+
+        private void CheckQueueLength()
+        {
+            if (_taskQueue.Count > Strings.MaxQueueCountWarning)
+            {
+                _logger.LogWarning($"Subscription queue is {_taskQueue.Count:N0} items long.");
+            }
+        }
     }
 }

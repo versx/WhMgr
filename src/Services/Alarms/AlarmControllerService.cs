@@ -7,11 +7,13 @@
     using System.Threading.Tasks;
 
     using DSharpPlus;
+    using Microsoft.Extensions.Hosting;
     //using Microsoft.Extensions.Logging;
 
     using WhMgr.Common;
     using WhMgr.Configuration;
     using WhMgr.Extensions;
+    using WhMgr.HostedServices.TaskQueue;
     using WhMgr.Localization;
     using WhMgr.Services.Alarms.Filters;
     using WhMgr.Services.Alarms.Models;
@@ -23,7 +25,7 @@
 
     // TODO: HostedService BackgroundItemQueue for alarms
 
-    public class AlarmControllerService : IAlarmControllerService
+    public class AlarmControllerService : BackgroundService, IAlarmControllerService
     {
         private readonly Microsoft.Extensions.Logging.ILogger<AlarmControllerService> _logger;
         private readonly IReadOnlyDictionary<ulong, ChannelAlarmsManifest> _alarms;
@@ -31,6 +33,7 @@
         private readonly ConfigHolder _config;
         private readonly IMapDataCache _mapDataCache;
         private readonly IStaticsticsService _statsService;
+        private readonly IBackgroundTaskQueue _taskQueue;
 
         public AlarmControllerService(
             Microsoft.Extensions.Logging.ILogger<AlarmControllerService> logger,
@@ -38,7 +41,8 @@
             IDiscordClientService discordService,
             ConfigHolder config,
             IMapDataCache mapDataCache,
-            IStaticsticsService statsService)
+            IStaticsticsService statsService,
+            IBackgroundTaskQueue taskQueue)
         {
             _logger = logger;
             _alarms = alarms;
@@ -46,6 +50,7 @@
             _config = config;
             _mapDataCache = mapDataCache;
             _statsService = statsService;
+            _taskQueue = (DefaultBackgroundTaskQueue)taskQueue;
             _logger.LogInformation($"Alarms {_alarms?.Keys?.Count():N0}");
         }
 
@@ -173,7 +178,14 @@
 
                     foreach (var geofence in geofences)
                     {
-                        if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, pokemon, geofence.Name)))
+                        var taskItem = new AlarmTaskItem
+                        {
+                            GuildId = guildId,
+                            Alarm = alarm,
+                            Data = pokemon,
+                            City = geofence.Name,
+                        };
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Pokemon alarm: {alarm.Name} for Pokemon {pokemon.Id} ({pokemon.EncounterId}) from geofence {geofence.Name}");
                             continue;
@@ -243,16 +255,6 @@
                         {
                             //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: '{raid.Team}' does not meet Team={alarm.Filters.Eggs.Team} filter.");
                             continue;
-                        }
-
-                        foreach (var geofence in geofences)
-                        {
-                            if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, raid, geofence.Name)))
-                            {
-                                _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level}) from geofence {geofence.Name}");
-                                continue;
-                            }
-                            _logger.LogInformation($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Raid: {raid.PokemonId}, Level: {raid.Level}, StartTime: {raid.StartTime}]");
                         }
                     }
                     else
@@ -327,16 +329,23 @@
                             _logger.LogInformation($"[{alarm.Name}] Skipping raid boss {raid.PokemonId}: IgnoreMissing=true.");
                             continue;
                         }
+                    }
 
-                        foreach (var geofence in geofences)
+                    foreach (var geofence in geofences)
+                    {
+                        var taskItem = new AlarmTaskItem
                         {
-                            if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, raid, geofence.Name)))
-                            {
-                                _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level}) from geofence {geofence.Name}");
-                                continue;
-                            }
-                            _logger.LogInformation($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Raid: {raid.PokemonId}, Level: {raid.Level}, StartTime: {raid.StartTime}]");
+                            GuildId = guildId,
+                            Alarm = alarm,
+                            Data = raid,
+                            City = geofence.Name,
+                        };
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
+                        {
+                            _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level}) from geofence {geofence.Name}");
+                            continue;
                         }
+                        _logger.LogInformation($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Raid: {raid.PokemonId}, Level: {raid.Level}, StartTime: {raid.StartTime}]");
                     }
                 }
             }
@@ -393,7 +402,14 @@
 
                     foreach (var geofence in geofences)
                     {
-                        if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, quest, geofence.Name)))
+                        var taskItem = new AlarmTaskItem
+                        {
+                            GuildId = guildId,
+                            Alarm = alarm,
+                            Data = quest,
+                            City = geofence.Name,
+                        };
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Quest alarm: {alarm.Name} for Quest {quest.PokestopId} ({quest.PokestopName}) from geofence {geofence.Name}");
                             continue;
@@ -470,7 +486,14 @@
 
                     foreach (var geofence in geofences)
                     {
-                        if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, pokestop, geofence.Name)))
+                        var taskItem = new AlarmTaskItem
+                        {
+                            GuildId = guildId,
+                            Alarm = alarm,
+                            Data = pokestop,
+                            City = geofence.Name,
+                        };
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.Name}) from geofence {geofence.Name}");
                             continue;
@@ -532,7 +555,14 @@
 
                     foreach (var geofence in geofences)
                     {
-                        if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, gym, geofence.Name)))
+                        var taskItem = new AlarmTaskItem
+                        {
+                            GuildId = guildId,
+                            Alarm = alarm,
+                            Data = gym,
+                            City = geofence.Name,
+                        };
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Gym alarm: {alarm.Name} for Gym {gym.GymId} ({gym.GymName}) from geofence {geofence.Name}");
                             continue;
@@ -597,7 +627,14 @@
 
                     foreach (var geofence in geofences)
                     {
-                        if (!ThreadPool.QueueUserWorkItem(async x => await SendEmbed(guildId, alarm, weather, geofence.Name)))
+                        var taskItem = new AlarmTaskItem
+                        {
+                            GuildId = guildId,
+                            Alarm = alarm,
+                            Data = weather,
+                            City = geofence.Name,
+                        };
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Weather alarm: {alarm.Name} for Gym {weather.Id} ({weather.GameplayCondition}) from geofence {geofence.Name}");
                             continue;
@@ -611,42 +648,116 @@
             }
         }
 
-        private async Task SendEmbed(ulong guildId, ChannelAlarm alarm, IWebhookData data, string city)
+        private async Task SendEmbedAsync(AlarmTaskItem taskItem)
         {
-            if (string.IsNullOrEmpty(alarm.Webhook))
-                return;
+            CheckQueueLength();
 
-            if (!_discordService.DiscordClients.ContainsKey(guildId))
-                return;
+            await _taskQueue.EnqueueAsync(async token =>
+            await ProcessWorkItemAsync(taskItem, token));
+        }
 
-            if (!_config.Instance.Servers.ContainsKey(guildId))
-                return;
+        #region Background Service
+
+        public override async Task StopAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation(
+                $"{nameof(AlarmControllerService)} is stopping.");
+
+            await base.StopAsync(stoppingToken);
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation(
+                $"{nameof(AlarmControllerService)} is now running in the background.");
+
+            await BackgroundProcessing(stoppingToken);
+        }
+
+        private async Task BackgroundProcessing(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    var workItem = await _taskQueue.DequeueAsync(stoppingToken);
+                    await workItem(stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Prevent throwing if stoppingToken was signaled
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error occurred executing task work item.");
+                }
+            }
+
+            _logger.LogError("Exited background processing...");
+        }
+
+        private async Task EnqueueEmbedAsync(AlarmTaskItem taskItem)
+        {
+            if (_taskQueue.Count > Strings.MaxQueueCountWarning)
+            {
+                _logger.LogWarning($"Webhook alarms queue is {_taskQueue.Count:N0} items long.");
+            }
+
+            await _taskQueue.EnqueueAsync(async token =>
+                await ProcessWorkItemAsync(taskItem, token));
+        }
+
+        private async Task<CancellationToken> ProcessWorkItemAsync(
+            AlarmTaskItem taskItem,
+            CancellationToken stoppingToken)
+        {
+            CheckQueueLength();
+
+            if (string.IsNullOrEmpty(taskItem.Alarm.Webhook))
+                return stoppingToken;
+
+            if (!_discordService.DiscordClients.ContainsKey(taskItem.GuildId))
+                return stoppingToken;
+
+            if (!_config.Instance.Servers.ContainsKey(taskItem.GuildId))
+                return stoppingToken;
 
             try
             {
-                var server = _config.Instance.Servers[guildId];
-                var client = _discordService.DiscordClients[guildId];
-                var eb = await data.GenerateEmbedMessageAsync(new AlarmMessageSettings
+                var client = _discordService.DiscordClients[taskItem.GuildId];
+                var eb = await taskItem.Data.GenerateEmbedMessageAsync(new AlarmMessageSettings
                 {
-                    GuildId = guildId,
+                    GuildId = taskItem.GuildId,
                     Client = client,
                     Config = _config,
-                    Alarm = alarm,
-                    City = city,
+                    Alarm = taskItem.Alarm,
+                    City = taskItem.City,
                     MapDataCache = _mapDataCache,
                 }).ConfigureAwait(false);
                 var json = eb.Build();
                 if (json == null)
                 {
                     _logger.LogError($"Failed to convert embed notification to JSON string, skipping");
-                    return;
+                    return stoppingToken;
                 }
-                NetUtils.SendWebhook(alarm.Webhook, json);
+                NetUtils.SendWebhook(taskItem.Alarm.Webhook, json);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error: {ex}");
             }
+
+            return stoppingToken;
         }
+
+        private void CheckQueueLength()
+        {
+            if (_taskQueue.Count > Strings.MaxQueueCountWarning)
+            {
+                _logger.LogWarning($"Alarm controller queue is {_taskQueue.Count:N0} items long.");
+            }
+        }
+
+        #endregion
     }
 }
