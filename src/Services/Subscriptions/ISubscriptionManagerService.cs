@@ -20,6 +20,8 @@
 
         List<Subscription> GetSubscriptionsByPvpPokemonId(uint pokemonId);
 
+        List<Subscription> GetSubscriptionsByPvpPokemonId(List<uint> pokemonId);
+
         List<Subscription> GetSubscriptionsByRaidPokemonId(uint pokemonId);
 
         List<Subscription> GetSubscriptionsByQuest(string pokestopName, string reward);

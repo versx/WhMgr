@@ -111,10 +111,15 @@
 
         public List<Subscription> GetSubscriptionsByPvpPokemonId(uint pokemonId)
         {
+            return GetSubscriptionsByPvpPokemonId(new List<uint> { pokemonId });
+        }
+
+        public List<Subscription> GetSubscriptionsByPvpPokemonId(List<uint> pokemonId)
+        {
             return _subscriptions?
                 .Where(x => x.IsEnabled(NotificationStatusType.PvP) &&
                             x.PvP != null &&
-                            x.PvP.Any(y => y.PokemonId.Contains(pokemonId))
+                            x.PvP.Any(y => y.PokemonId.Exists(pokeId => pokemonId.Contains(pokeId)))
                       )
                 .ToList();
         }

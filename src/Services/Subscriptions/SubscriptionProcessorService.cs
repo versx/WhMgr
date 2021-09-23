@@ -244,9 +244,11 @@
                 return geofence;
             }
 
-            // TODO: PvP subscriptions support for evolutions not just base evo
+            var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
+            var evolutionIds = GetPokemonEvolutionIds(pkmn);
+            // PvP subscriptions support for evolutions not just base evo
             // Get evolution ids from masterfile for incoming pokemon, check if subscriptions for evo/base
-            var subscriptions = _subscriptionManager.GetSubscriptionsByPvpPokemonId(pokemon.Id);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByPvpPokemonId(evolutionIds);
             if (subscriptions == null)
             {
                 _logger.LogWarning($"Failed to get subscriptions from database table.");
@@ -255,7 +257,7 @@
 
             Subscription user;
             DiscordMember member = null;
-            var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
+            //var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
             var matchesGreat = false;
             var matchesUltra = false;
             for (var i = 0; i < subscriptions.Count; i++)
@@ -1039,6 +1041,32 @@
         }
 
         #endregion
+
+        /// <summary>
+        /// Build Pokemon evolution IDs list
+        /// </summary>
+        /// <param name="pkmn"></param>
+        /// <returns></returns>
+        private static List<uint> GetPokemonEvolutionIds(PokedexPokemon pkmn)
+        {
+            var list = new List<uint>();
+            void GetEvolutionIds(List<PokedexPokemon> evolutions)
+            {
+                foreach (var evolution in evolutions)
+                {
+                    list.Add(evolution.PokedexId);
+                    if (evolution.Evolutions?.Count > 0)
+                    {
+                        GetEvolutionIds(evolution.Evolutions);
+                    }
+                }
+            }
+            if (pkmn?.Evolutions == null)
+                return null;
+
+            GetEvolutionIds(pkmn.Evolutions);
+            return list;
+        }
 
         #region Background Service
 
