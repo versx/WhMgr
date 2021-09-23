@@ -34,12 +34,12 @@
         public void CreateLocaleFiles()
         {
             var files = Directory.GetFiles(_appLocalesFolder, "*.json")
-                                 .Select(x => Path.GetFileName(x))
+                                 .Select(fileName => Path.GetFileName(fileName))
+                                 .Where(fileName => fileName.StartsWith('_'))
                                  .ToList();
 
             foreach (var file in files)
             {
-                // TODO: Filter by `_` prefix
                 var locale = Path.GetFileName(file).Replace("_", null);
                 var localeFile = locale;
 
