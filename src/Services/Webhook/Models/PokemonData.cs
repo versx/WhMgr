@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Text;
+    using System.Linq;
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
@@ -12,6 +12,7 @@
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Common;
+    using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Localization;
@@ -19,13 +20,13 @@
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Utilities;
-    using System.Linq;
-    using WhMgr.Configuration;
 
     [Table("pokemon")]
     public sealed class PokemonData : IWebhookData
     {
+
         #region Properties
 
         [
@@ -502,7 +503,7 @@
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
-            var address = new Coordinate(properties.City, Latitude, Longitude).GetAddress(properties.Config.Instance);
+            var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
             var pokestop = properties.MapDataCache.GetPokestop(PokestopId).ConfigureAwait(false)
                                                   .GetAwaiter()
                                                   .GetResult();
@@ -612,7 +613,7 @@
                 wazemaps_url = wazeMapsLocationLink,
                 scanmaps_url = scannerMapsLocationLink,
 
-                address = address?.Address,
+                address = address ?? string.Empty,
 
                 // Pokestop properties
                 near_pokestop = pokestop != null,
