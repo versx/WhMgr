@@ -168,14 +168,6 @@
                 }
             }
 
-            if (Config.CacheToDisk)
-            {
-                if (data != null)
-                {
-                    SaveToDisk(key, data);
-                }
-            }
-
             var parsedAddress = TemplateRenderer.Parse(Config.GoogleMaps?.Schema, data);
             if (Config.CacheToDisk)
             {
