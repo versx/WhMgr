@@ -79,9 +79,9 @@
             }
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByPokemonId(pokemon.Id);
-            if (subscriptions == null)
+            if (subscriptions?.Count == 0)
             {
-                _logger.Warning($"Failed to get subscriptions from database table.");
+                //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -249,9 +249,9 @@
             // PvP subscriptions support for evolutions not just base evo
             // Get evolution ids from masterfile for incoming pokemon, check if subscriptions for evo/base
             var subscriptions = _subscriptionManager.GetSubscriptionsByPvpPokemonId(evolutionIds);
-            if (subscriptions == null)
+            if (subscriptions?.Count == 0)
             {
-                _logger.Warning($"Failed to get subscriptions from database table.");
+                //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -403,9 +403,9 @@
             }
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByRaidPokemonId(raid.PokemonId);
-            if (subscriptions == null)
+            if (subscriptions?.Count == 0)
             {
-                _logger.Warning($"Failed to get subscriptions from database table.");
+                //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -543,9 +543,9 @@
             }
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByQuest(quest.PokestopName, rewardKeyword);
-            if (subscriptions == null)
+            if (subscriptions?.Count == 0)
             {
-                _logger.Warning($"Failed to get subscriptions from database table.");
+                //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -675,14 +675,11 @@
                 return;
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByInvasion(pokestop?.Name, pokestop?.GruntType ?? InvasionCharacter.CharacterUnset, encounters);
-            if (subscriptions == null)
+            if (subscriptions?.Count == 0)
             {
-                _logger.Warning($"Failed to get subscriptions from database table.");
+                //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
-
-            if (subscriptions?.Count == 0)
-                return;
 
             if (!MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType))
             {
@@ -806,9 +803,9 @@
             }
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByLure(pokestop.Name, pokestop.LureType);
-            if (subscriptions == null)
+            if (subscriptions?.Count == 0)
             {
-                _logger.Warning($"Failed to get subscriptions from database table.");
+                //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -928,9 +925,9 @@
             }
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByGymName(raid.GymName);
-            if (subscriptions == null)
+            if (subscriptions?.Count == 0)
             {
-                _logger.Warning($"Failed to get subscriptions from database table.");
+                //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -1049,22 +1046,27 @@
         /// <returns></returns>
         private static List<uint> GetPokemonEvolutionIds(PokedexPokemon pkmn)
         {
-            var list = new List<uint>();
-            void GetEvolutionIds(List<PokedexPokemon> evolutions)
+            var list = new List<uint>
+            {
+                pkmn.PokedexId
+            };
+            void GetEvolutionIds(List<PokedexPokemonEvolution> evolutions)
             {
                 foreach (var evolution in evolutions)
                 {
-                    list.Add(evolution.PokedexId);
-                    if (evolution.Evolutions?.Count > 0)
+                    list.Add(evolution.PokemonId);
+                    var pokemon = MasterFile.GetPokemon(evolution.PokemonId, evolution.FormId);
+                    if (pokemon.Evolutions?.Count > 0)
                     {
-                        GetEvolutionIds(evolution.Evolutions);
+                        GetEvolutionIds(pokemon.Evolutions);
                     }
                 }
             }
             if (pkmn?.Evolutions == null)
-                return null;
+                return list;
 
             GetEvolutionIds(pkmn.Evolutions);
+            list = list.Distinct().ToList();
             return list;
         }
 

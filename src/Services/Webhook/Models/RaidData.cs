@@ -165,17 +165,17 @@
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                Image = new Discord.Models.DiscordEmbedImage
+                Image = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Thumbnail = new Discord.Models.DiscordEmbedImage
+                Thumbnail = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 Color = IsExEligible ? 0 /*ex*/ : Level.BuildRaidColor(MasterFile.Instance.DiscordEmbedColors).Value,
-                Footer = new Discord.Models.DiscordEmbedFooter
+                Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
@@ -237,11 +237,11 @@
                 Team = Team,
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
-                    ? await properties.MapDataCache.GetGymsNearby(Latitude, Longitude).ConfigureAwait(false)
+                    ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
                     : new List<dynamic>(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby pokestops from MapDataCache
-                    ? await properties .MapDataCache.GetPokestopsNearby(Latitude, Longitude).ConfigureAwait(false)
+                    ? await properties .MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();

@@ -19,45 +19,29 @@
         public bool? SecondReward { get; set; }
 
         [JsonPropertyName("encounters")]
-        public TeamRocketEncounters Encounters { get; set; }
+        public TeamRocketEncounters Encounters { get; set; } = new();
 
         [JsonIgnore]
         public bool HasEncounter => Encounters?.First?.Count > 0 || Encounters?.Second?.Count > 0 || Encounters?.Third?.Count > 0;
 
-        public TeamRocketInvasion()
-        {
-            Encounters = new TeamRocketEncounters();
-        }
-
         public List<dynamic> GetPossibleInvasionEncounters()
         {
-            var first = string.Join(", ", Encounters.First.Select(id => MasterFile.GetPokemon(id, 0)?.Name));
-            var second = string.Join(", ", Encounters.Second.Select(id => MasterFile.GetPokemon(id, 0)?.Name));
-            //var third = string.Join(", ", invasion.Encounters.Third.Select(x => Database.Instance.Pokemon[x].Name));
+            var first = string.Join(", ", Encounters.First.Select(id => MasterFile.GetPokemon(id)?.Name));
+            var second = string.Join(", ", Encounters.Second.Select(id => MasterFile.GetPokemon(id)?.Name));
             var msg = string.Empty;
             if (SecondReward ?? false)
             {
-                //85%/15% Rate
+                // 85%/15% Rate
                 return new List<dynamic>
                 {
                     new { chance = "85%", pokemon = first, },
                     new { chance = "15%", pokemon = second, },
                 };
-                //msg += $"85% - {first}\r\n";
-                //msg += $"15% - {second}\r\n";
             }
             return new List<dynamic>
             {
                 new { chance = "100%", pokemon = first, },
             };
-            /*
-            else
-            {
-                //100% Rate
-                msg += $"100% - {first}\r\n";
-            }
-            return msg;
-            */
         }
 
         public List<uint> GetEncounterRewards()
@@ -83,19 +67,12 @@
     public class TeamRocketEncounters
     {
         [JsonPropertyName("first")]
-        public List<uint> First { get; set; }
+        public List<uint> First { get; set; } = new();
 
         [JsonPropertyName("second")]
-        public List<uint> Second { get; set; }
+        public List<uint> Second { get; set; } = new();
 
         [JsonPropertyName("third")]
-        public List<uint> Third { get; set; }
-
-        public TeamRocketEncounters()
-        {
-            First = new List<uint>();
-            Second = new List<uint>();
-            Third = new List<uint>();
-        }
+        public List<uint> Third { get; set; } = new();
     }
 }

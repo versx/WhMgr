@@ -161,7 +161,7 @@
             var sb = new System.Text.StringBuilder();
             foreach (var (pokemonId, count) in stats)
             {
-                var pkmn = MasterFile.GetPokemon(pokemonId, 0);
+                var pkmn = MasterFile.GetPokemon(pokemonId);
                 sb.AppendLine($"- {pkmn.Name} (#{pokemonId}) {count:N0}");
             }
 

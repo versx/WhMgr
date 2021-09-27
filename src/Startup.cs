@@ -28,7 +28,6 @@ namespace WhMgr
     using WhMgr.Utilities;
 
     // TODO: Reload alarms/filters/geofences on change
-    // TODO: Fix Pvp pokemon name not showing on Pokemon embed
     // TODO: Twilio notifications
     // TODO: Simplify alarm and subscription filter checks
     // TODO: Allow pokemon names and ids for pokemon/raid alarm filters

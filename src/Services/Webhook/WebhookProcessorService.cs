@@ -194,6 +194,7 @@
             // Process pokemon alarms
             _alarmsService.ProcessPokemonAlarms(pokemon);
             await _subscriptionService.ProcessPokemonSubscriptionAsync(pokemon).ConfigureAwait(false);
+            await _subscriptionService.ProcessPvpSubscriptionAsync(pokemon).ConfigureAwait(false);
         }
 
         private async Task ProcessRaidAsync(dynamic message)

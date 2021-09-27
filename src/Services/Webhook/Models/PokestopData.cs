@@ -241,11 +241,11 @@
                 SecondaryImageUrl = imageUrl,
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
-                    ? await properties.MapDataCache.GetGymsNearby(Latitude, Longitude).ConfigureAwait(false)
+                    ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
                     : new List<dynamic>(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby pokestops from MapDataCache
-                    ? await properties.MapDataCache.GetPokestopsNearby(Latitude, Longitude).ConfigureAwait(false)
+                    ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();

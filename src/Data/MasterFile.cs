@@ -96,7 +96,7 @@
             DiscordEmbedColors = LoadInit<DiscordEmbedColorsConfig>(Path.Combine(Strings.DataFolder, EmbedColorsFileName));
         }
 
-        public static PokedexPokemon GetPokemon(uint pokemonId, uint formId)
+        public static PokedexPokemon GetPokemon(uint pokemonId, uint formId = 0)
         {
             if (!Instance.Pokedex.ContainsKey(pokemonId))
                 return null;
