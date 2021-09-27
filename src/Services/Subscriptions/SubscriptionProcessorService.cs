@@ -59,7 +59,7 @@
 
         public async Task ProcessPokemonSubscriptionAsync(PokemonData pokemon)
         {
-            if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon.Id))
+            if (!GameMaster.Instance.Pokedex.ContainsKey(pokemon.Id))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -85,7 +85,7 @@
 
             Subscription user;
             DiscordMember member = null;
-            var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
+            var pkmn = GameMaster.GetPokemon(pokemon.Id, pokemon.FormId);
             var matchesIV = false;
             var matchesLvl = false;
             var matchesGender = false;
@@ -225,7 +225,7 @@
 
         public async Task ProcessPvpSubscriptionAsync(PokemonData pokemon)
         {
-            if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon.Id))
+            if (!GameMaster.Instance.Pokedex.ContainsKey(pokemon.Id))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -242,7 +242,7 @@
                 return geofence;
             }
 
-            var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
+            var pkmn = GameMaster.GetPokemon(pokemon.Id, pokemon.FormId);
             var evolutionIds = GetPokemonEvolutionIds(pkmn);
             // PvP subscriptions support for evolutions not just base evo
             // Get evolution ids from masterfile for incoming pokemon, check if subscriptions for evo/base
@@ -383,7 +383,7 @@
 
         public async Task ProcessRaidSubscriptionAsync(RaidData raid)
         {
-            if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
+            if (!GameMaster.Instance.Pokedex.ContainsKey(raid.PokemonId))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -408,7 +408,7 @@
             }
 
             Subscription user;
-            var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
+            var pokemon = GameMaster.GetPokemon(raid.PokemonId, raid.Form);
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
@@ -667,7 +667,7 @@
                 return geofence;
             }
 
-            var invasion = MasterFile.Instance.GruntTypes?.ContainsKey(pokestop.GruntType) ?? false ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
+            var invasion = GameMaster.Instance.GruntTypes?.ContainsKey(pokestop.GruntType) ?? false ? GameMaster.Instance.GruntTypes[pokestop.GruntType] : null;
             var encounters = invasion?.GetEncounterRewards();
             if (encounters == null)
                 return;
@@ -679,7 +679,7 @@
                 return;
             }
 
-            if (!MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType))
+            if (!GameMaster.Instance.GruntTypes.ContainsKey(pokestop.GruntType))
             {
                 //_logger.Error($"Failed to parse grunt type {pokestop.GruntType}, not in `grunttype.json` list.");
                 return;
@@ -930,7 +930,7 @@
             }
 
             Subscription user;
-            var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
+            var pokemon = GameMaster.GetPokemon(raid.PokemonId, raid.Form);
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
@@ -1053,7 +1053,7 @@
                 foreach (var evolution in evolutions)
                 {
                     list.Add(evolution.PokemonId);
-                    var pokemon = MasterFile.GetPokemon(evolution.PokemonId, evolution.FormId);
+                    var pokemon = GameMaster.GetPokemon(evolution.PokemonId, evolution.FormId);
                     if (pokemon.Evolutions?.Count > 0)
                     {
                         GetEvolutionIds(pokemon.Evolutions);

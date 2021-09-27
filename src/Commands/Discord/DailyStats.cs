@@ -76,10 +76,10 @@
                 if (pokemon == 0)
                     continue;
 
-                if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon))
+                if (!GameMaster.Instance.Pokedex.ContainsKey(pokemon))
                     continue;
 
-                var pkmn = MasterFile.Instance.Pokedex[pokemon];
+                var pkmn = GameMaster.Instance.Pokedex[pokemon];
                 var pkmnStats = stats[pokemon];
                 var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
                 if (chance == 0)
@@ -161,7 +161,7 @@
             var sb = new System.Text.StringBuilder();
             foreach (var (pokemonId, count) in stats)
             {
-                var pkmn = MasterFile.GetPokemon(pokemonId);
+                var pkmn = GameMaster.GetPokemon(pokemonId);
                 sb.AppendLine($"- {pkmn.Name} (#{pokemonId}) {count:N0}");
             }
 

@@ -26,8 +26,8 @@
 
         public List<dynamic> GetPossibleInvasionEncounters()
         {
-            var first = string.Join(", ", Encounters.First.Select(id => MasterFile.GetPokemon(id)?.Name));
-            var second = string.Join(", ", Encounters.Second.Select(id => MasterFile.GetPokemon(id)?.Name));
+            var first = string.Join(", ", Encounters.First.Select(id => GameMaster.GetPokemon(id)?.Name));
+            var second = string.Join(", ", Encounters.Second.Select(id => GameMaster.GetPokemon(id)?.Name));
             var msg = string.Empty;
             if (SecondReward ?? false)
             {

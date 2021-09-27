@@ -96,13 +96,13 @@
         {
             get
             {
-                if (MasterFile.Instance.Pokedex.ContainsKey(PokemonId) && !IsEgg)
+                if (GameMaster.Instance.Pokedex.ContainsKey(PokemonId) && !IsEgg)
                 {
                     var list = new List<PokemonType>();
-                    var types = MasterFile.GetPokemon(PokemonId, Form)?.Types;
+                    var types = GameMaster.GetPokemon(PokemonId, Form)?.Types;
                     if (types != null)
                     {
-                        MasterFile.GetPokemon(PokemonId, Form)?.Types?.ForEach(x => list.AddRange(x.GetWeaknesses()));
+                        GameMaster.GetPokemon(PokemonId, Form)?.Types?.ForEach(x => list.AddRange(x.GetWeaknesses()));
                     }
                     return list;
                 }
@@ -174,7 +174,7 @@
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                Color = IsExEligible ? 0 /*ex*/ : Level.BuildRaidColor(MasterFile.Instance.DiscordEmbedColors).Value,
+                Color = IsExEligible ? 0 /*ex*/ : Level.BuildRaidColor(GameMaster.Instance.DiscordEmbedColors).Value,
                 Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
@@ -195,7 +195,7 @@
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
-            var pkmnInfo = MasterFile.GetPokemon(PokemonId, Form);
+            var pkmnInfo = GameMaster.GetPokemon(PokemonId, Form);
             var name = IsEgg ? Translator.Instance.Translate("EGG") : Translator.Instance.GetPokemonName(PokemonId);
             var form = Translator.Instance.GetFormName(Form);
             var costume = Translator.Instance.GetCostumeName(Costume);
@@ -216,9 +216,9 @@
             var boostedRange = PokemonId.MaxCpAtLevel(25);
             var worstRange = PokemonId.MinCpAtLevel(20);
             var worstBoosted = PokemonId.MinCpAtLevel(25);
-            var exEmojiId = MasterFile.Instance.Emojis["ex"];
+            var exEmojiId = GameMaster.Instance.Emojis["ex"];
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = MasterFile.Instance.Emojis[Team.ToString().ToLower()];
+            var teamEmojiId = GameMaster.Instance.Emojis[Team.ToString().ToLower()];
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);

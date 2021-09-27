@@ -166,7 +166,7 @@
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                Color = GameplayCondition.BuildWeatherColor(MasterFile.Instance.DiscordEmbedColors).Value,
+                Color = GameplayCondition.BuildWeatherColor(GameMaster.Instance.DiscordEmbedColors).Value,
                 Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),

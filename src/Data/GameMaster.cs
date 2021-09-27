@@ -12,7 +12,7 @@
     using WhMgr.Extensions;
     using WhMgr.Services.Webhook.Models;
 
-    public class MasterFile
+    public class GameMaster
     {
         const string MasterFileName = "masterfile.json";
         const string CpMultipliersFileName = "cpMultipliers.json";
@@ -69,14 +69,14 @@
 
         #region Singletons
 
-        private static MasterFile _instance;
-        public static MasterFile Instance
+        private static GameMaster _instance;
+        public static GameMaster Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = LoadInit<MasterFile>(Path.Combine(Strings.DataFolder, MasterFileName));
+                    _instance = LoadInit<GameMaster>(Path.Combine(Strings.DataFolder, MasterFileName));
                 }
 
                 return _instance;
@@ -87,7 +87,7 @@
 
         #endregion
 
-        public MasterFile()
+        public GameMaster()
         {
             CpMultipliers = LoadInit<Dictionary<double, double>>(Path.Combine(Strings.DataFolder, CpMultipliersFileName));
             PokemonRarity = LoadInit<Dictionary<PokemonRarity, List<uint>>>(Path.Combine(Strings.DataFolder, RarityFileName));

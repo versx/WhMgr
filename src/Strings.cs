@@ -23,7 +23,7 @@
         public const string DiscordsFolder = BasePath + "discords";
         public const string FiltersFolder = BasePath + "filters";
         public const string LibrariesFolder = "libs";
-        public const string StaticFolder = BasePath + "static";
+        public const string StaticFolder = "static";
         public const string TemplatesFolder = BasePath + "templates";
         public const string MigrationsFolder = "migrations";
         public static readonly string AppFolder = StaticFolder + Path.DirectorySeparatorChar + "app";

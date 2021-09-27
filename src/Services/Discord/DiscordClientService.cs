@@ -342,21 +342,21 @@
                     if (emoji == null)
                         continue;
 
-                    if (!MasterFile.Instance.Emojis.ContainsKey(emoji.Name))
+                    if (!GameMaster.Instance.Emojis.ContainsKey(emoji.Name))
                     {
-                        MasterFile.Instance.Emojis.Add(emoji.Name, emoji.Id);
+                        GameMaster.Instance.Emojis.Add(emoji.Name, emoji.Id);
                     }
                 }
             }
 
-            _logger.LogDebug($"Cached {MasterFile.Instance.Emojis.Count:N0} emojis:");
-            foreach (var (emojiName, emojiId) in MasterFile.Instance.Emojis)
+            _logger.LogDebug($"Cached {GameMaster.Instance.Emojis.Count:N0} emojis:");
+            foreach (var (emojiName, emojiId) in GameMaster.Instance.Emojis)
             {
                 _logger.LogDebug($"- {emojiName} ({emojiId})");
             }
 
             _logger.LogDebug($"Emojis overwritten by custom unicode emojis:");
-            foreach (var (emojiName, emojiUnicode) in MasterFile.Instance.CustomEmojis)
+            foreach (var (emojiName, emojiUnicode) in GameMaster.Instance.CustomEmojis)
             {
                 if (string.IsNullOrEmpty(emojiUnicode))
                     continue;

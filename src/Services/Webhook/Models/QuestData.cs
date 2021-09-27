@@ -108,7 +108,7 @@
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                Color = new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Quests).Value,
+                Color = new DiscordColor(GameMaster.Instance.DiscordEmbedColors.Pokestops.Quests).Value,
                 Footer = new Discord.Models.DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),

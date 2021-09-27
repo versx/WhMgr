@@ -103,7 +103,7 @@
                         if (nest.Average < server.Nests.MinimumPerHour)
                             continue;
 
-                        var pkmn = MasterFile.GetPokemon(nest.PokemonId);
+                        var pkmn = GameMaster.GetPokemon(nest.PokemonId);
                         var pkmnName = Translator.Instance.GetPokemonName(pkmn.PokedexId);
                         var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
                         // TODO: Check if possible shiny (emoji)
@@ -195,7 +195,7 @@
 
         public dynamic GetProperties(DiscordGuild guild, Nest nest, string pokemonImageUrl)
         {
-            var pkmnInfo = MasterFile.GetPokemon(nest.PokemonId);
+            var pkmnInfo = GameMaster.GetPokemon(nest.PokemonId);
             var pkmnImage = pokemonImageUrl;
             var nestName = nest.Name ?? "Unknown";
             var type1 = pkmnInfo?.Types?[0];

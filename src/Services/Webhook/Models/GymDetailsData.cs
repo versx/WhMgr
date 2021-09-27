@@ -134,22 +134,22 @@
         {
             // Get old gym from cache
             var oldGym = await properties.MapDataCache.GetGym(GymId).ConfigureAwait(false);
-            var exEmojiId = MasterFile.Instance.Emojis["ex"];
-            var exEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis["ex"]) ? exEmojiId > 0
+            var exEmojiId = GameMaster.Instance.Emojis["ex"];
+            var exEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis["ex"]) ? exEmojiId > 0
                 ? string.Format(Strings.EmojiSchema, "ex", exEmojiId) : "EX"
-                : MasterFile.Instance.CustomEmojis["ex"];
-            var teamEmojiId = MasterFile.Instance.Emojis[Team.ToString().ToLower()];
-            var teamEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[Team.ToString().ToLower()])
+                : GameMaster.Instance.CustomEmojis["ex"];
+            var teamEmojiId = GameMaster.Instance.Emojis[Team.ToString().ToLower()];
+            var teamEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[Team.ToString().ToLower()])
                 ? teamEmojiId > 0
                     ? string.Format(Strings.EmojiSchema, Team.ToString().ToLower(), teamEmojiId)
                     : Team.ToString()
-                : MasterFile.Instance.CustomEmojis[Team.ToString().ToLower()];
-            var oldTeamEmojiId = MasterFile.Instance.Emojis[oldGym?.Team.ToString().ToLower()];
-            var oldTeamEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[oldGym?.Team.ToString().ToLower()])
+                : GameMaster.Instance.CustomEmojis[Team.ToString().ToLower()];
+            var oldTeamEmojiId = GameMaster.Instance.Emojis[oldGym?.Team.ToString().ToLower()];
+            var oldTeamEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[oldGym?.Team.ToString().ToLower()])
                 ? oldTeamEmojiId > 0
                     ? string.Format(Strings.EmojiSchema, oldGym?.Team.ToString().ToLower(), oldTeamEmojiId)
                     : oldGym?.Team.ToString()
-                : MasterFile.Instance.CustomEmojis[oldGym.Team.ToString().ToLower()];
+                : GameMaster.Instance.CustomEmojis[oldGym.Team.ToString().ToLower()];
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);

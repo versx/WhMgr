@@ -428,8 +428,8 @@
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 Color = (
                     MatchesGreatLeague || MatchesUltraLeague
-                        ? GetPvPColor(GreatLeague, UltraLeague, MasterFile.Instance.DiscordEmbedColors)
-                        : IV.BuildPokemonIVColor(MasterFile.Instance.DiscordEmbedColors)
+                        ? GetPvPColor(GreatLeague, UltraLeague, GameMaster.Instance.DiscordEmbedColors)
+                        : IV.BuildPokemonIVColor(GameMaster.Instance.DiscordEmbedColors)
                     ).Value,
                 Footer = new Discord.Models.DiscordEmbedFooter
                 {
@@ -451,7 +451,7 @@
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
-            var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
+            var pkmnInfo = GameMaster.GetPokemon(Id, FormId);
             var pkmnName = Translator.Instance.GetPokemonName(Id);
             var form = Translator.Instance.GetFormName(FormId);
             var costume = Translator.Instance.GetCostumeName(Costume);
@@ -654,7 +654,7 @@
                 if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
                     continue;
 
-                if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
+                if (!GameMaster.Instance.Pokedex.ContainsKey(pvp.PokemonId))
                 {
                     Console.WriteLine($"Pokemon database does not contain pokemon id {pvp.PokemonId}");
                     continue;

@@ -185,9 +185,9 @@
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 Color = (
                     HasInvasion
-                    ? new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Invasions)
+                    ? new DiscordColor(GameMaster.Instance.DiscordEmbedColors.Pokestops.Invasions)
                     : HasLure
-                        ? LureType.BuildLureColor(MasterFile.Instance.DiscordEmbedColors)
+                        ? LureType.BuildLureColor(GameMaster.Instance.DiscordEmbedColors)
                         : DiscordColor.CornflowerBlue
                     ).Value,
                 Footer = new Discord.Models.DiscordEmbedFooter
@@ -254,9 +254,9 @@
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
             var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
-            var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
+            var invasion = GameMaster.Instance.GruntTypes.ContainsKey(GruntType) ? GameMaster.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.GetGruntType(GruntType);
-            var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
+            var pokemonType = GameMaster.Instance.GruntTypes.ContainsKey(GruntType) ? GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
             var invasionTypeEmoji = pokemonType == PokemonType.None
                 ? leaderString
                 : pokemonType.GetTypeEmojiIcons();
