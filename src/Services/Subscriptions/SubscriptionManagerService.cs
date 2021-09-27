@@ -214,7 +214,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to save subscription with id {subscription.Id} (UserId: {subscription.UserId}, GuildId: {subscription.GuildId}): {ex}");
+                _logger.Error($"Failed to save subscription with id {subscription.Id} (UserId: {subscription.UserId}, GuildId: {subscription.GuildId}): {ex}");
                 return false;
             }
         }

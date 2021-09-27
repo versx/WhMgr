@@ -49,7 +49,7 @@
             _mapDataCache = mapDataCache;
             _statsService = statsService;
             _taskQueue = (DefaultBackgroundTaskQueue)taskQueue;
-            _logger.LogInformation($"Alarms {_alarms?.Keys?.Count():N0}");
+            _logger.Information($"Alarms {_alarms?.Keys?.Count():N0}");
         }
 
         public void ProcessPokemonAlarms(PokemonData pokemon)
@@ -185,10 +185,10 @@
                         };
                         if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
-                            _logger.LogError($"Failed to queue Pokemon alarm: {alarm.Name} for Pokemon {pokemon.Id} ({pokemon.EncounterId}) from geofence {geofence.Name}");
+                            _logger.Error($"Failed to queue Pokemon alarm: {alarm.Name} for Pokemon {pokemon.Id} ({pokemon.EncounterId}) from geofence {geofence.Name}");
                             continue;
                         }
-                        _logger.LogInformation($"Pokemon Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Pokemon: {pokemon.Id}, Despawn: {pokemon.DespawnTime}]");
+                        _logger.Information($"Pokemon Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Pokemon: {pokemon.Id}, Despawn: {pokemon.DespawnTime}]");
                     }
                 }
             }
@@ -222,7 +222,7 @@
 
                     if (raid.Level == 0)
                     {
-                        _logger.LogWarning($"[{alarm.Name}] Failed to parse '{raid.Level}' as raid level.");
+                        _logger.Warning($"[{alarm.Name}] Failed to parse '{raid.Level}' as raid level.");
                         continue;
                     }
 
@@ -324,7 +324,7 @@
 
                         if (alarm.Filters.Raids.IgnoreMissing && raid.IsMissingStats)
                         {
-                            _logger.LogInformation($"[{alarm.Name}] Skipping raid boss {raid.PokemonId}: IgnoreMissing=true.");
+                            _logger.Information($"[{alarm.Name}] Skipping raid boss {raid.PokemonId}: IgnoreMissing=true.");
                             continue;
                         }
                     }
@@ -340,10 +340,10 @@
                         };
                         if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
-                            _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level}) from geofence {geofence.Name}");
+                            _logger.Error($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level}) from geofence {geofence.Name}");
                             continue;
                         }
-                        _logger.LogInformation($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Raid: {raid.PokemonId}, Level: {raid.Level}, StartTime: {raid.StartTime}]");
+                        _logger.Information($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Raid: {raid.PokemonId}, Level: {raid.Level}, StartTime: {raid.StartTime}]");
                     }
                 }
             }
@@ -409,10 +409,10 @@
                         };
                         if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
-                            _logger.LogError($"Failed to queue Quest alarm: {alarm.Name} for Quest {quest.PokestopId} ({quest.PokestopName}) from geofence {geofence.Name}");
+                            _logger.Error($"Failed to queue Quest alarm: {alarm.Name} for Quest {quest.PokestopId} ({quest.PokestopName}) from geofence {geofence.Name}");
                             continue;
                         }
-                        _logger.LogInformation($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, PokestopId: {quest.PokestopId}, Name: {quest.PokestopName}, Template: {quest.Template}]");
+                        _logger.Information($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, PokestopId: {quest.PokestopId}, Name: {quest.PokestopName}, Template: {quest.Template}]");
                     }
                 }
             }
@@ -493,10 +493,10 @@
                         };
                         if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
-                            _logger.LogError($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.Name}) from geofence {geofence.Name}");
+                            _logger.Error($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.Name}) from geofence {geofence.Name}");
                             continue;
                         }
-                        _logger.LogInformation($"Pokestop Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, PokestopId: {pokestop.PokestopId}, Name: {pokestop.Name}, LureType: {pokestop.LureType}, GruntType: {pokestop.GruntType}");
+                        _logger.Information($"Pokestop Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, PokestopId: {pokestop.PokestopId}, Name: {pokestop.Name}, LureType: {pokestop.LureType}, GruntType: {pokestop.GruntType}");
                     }
                 }
             }
@@ -562,10 +562,10 @@
                         };
                         if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
-                            _logger.LogError($"Failed to queue Gym alarm: {alarm.Name} for Gym {gym.GymId} ({gym.GymName}) from geofence {geofence.Name}");
+                            _logger.Error($"Failed to queue Gym alarm: {alarm.Name} for Gym {gym.GymId} ({gym.GymName}) from geofence {geofence.Name}");
                             continue;
                         }
-                        _logger.LogInformation($"Gym Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, GymId: {gym.GymId}, Name: {gym.GymName}, Team: {gym.Team}, InBattle: {gym.InBattle}");
+                        _logger.Information($"Gym Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, GymId: {gym.GymId}, Name: {gym.GymName}, Team: {gym.Team}, InBattle: {gym.InBattle}");
                     }
 
                     // Update map data cache with gym
@@ -634,10 +634,10 @@
                         };
                         if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
-                            _logger.LogError($"Failed to queue Weather alarm: {alarm.Name} for Gym {weather.Id} ({weather.GameplayCondition}) from geofence {geofence.Name}");
+                            _logger.Error($"Failed to queue Weather alarm: {alarm.Name} for Gym {weather.Id} ({weather.GameplayCondition}) from geofence {geofence.Name}");
                             continue;
                         }
-                        _logger.LogInformation($"Weather Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Id: {weather.Id}, Name: {weather.GameplayCondition}, Severity: {weather.Severity}");
+                        _logger.Information($"Weather Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, Id: {weather.Id}, Name: {weather.GameplayCondition}, Severity: {weather.Severity}");
                     }
 
                     // Update map data cache with weather
@@ -650,7 +650,7 @@
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation(
+            _logger.Information(
                 $"{nameof(AlarmControllerService)} is stopping.");
 
             await base.StopAsync(stoppingToken);
@@ -658,7 +658,7 @@
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation(
+            _logger.Information(
                 $"{nameof(AlarmControllerService)} is now running in the background.");
 
             await BackgroundProcessing(stoppingToken);
@@ -679,11 +679,11 @@
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error occurred executing task work item.");
+                    _logger.Error(ex, "Error occurred executing task work item.");
                 }
             }
 
-            _logger.LogError("Exited background processing...");
+            _logger.Error("Exited background processing...");
         }
 
         private async Task EnqueueEmbedAsync(AlarmTaskItem taskItem)
@@ -709,6 +709,8 @@
             if (!_config.Instance.Servers.ContainsKey(taskItem.GuildId))
                 return stoppingToken;
 
+            _logger.Information($"[{taskItem.City}] Found {taskItem.Data.GetType().Name} [Alarm={taskItem.Alarm.Name}, GuildId={taskItem.GuildId}]");
+
             try
             {
                 var client = _discordService.DiscordClients[taskItem.GuildId];
@@ -724,14 +726,14 @@
                 var json = eb.Build();
                 if (json == null)
                 {
-                    _logger.LogError($"Failed to convert embed notification to JSON string, skipping");
+                    _logger.Error($"Failed to convert embed notification to JSON string, skipping");
                     return stoppingToken;
                 }
                 NetUtils.SendWebhook(taskItem.Alarm.Webhook, json);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error: {ex}");
+                _logger.Error($"Error: {ex}");
             }
 
             return stoppingToken;
@@ -741,7 +743,7 @@
         {
             if (_taskQueue.Count > Strings.MaxQueueCountWarning)
             {
-                _logger.LogWarning($"Alarm controller queue is {_taskQueue.Count:N0} items long.");
+                _logger.Warning($"Alarm controller queue is {_taskQueue.Count:N0} items long.");
             }
         }
 

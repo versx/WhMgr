@@ -81,7 +81,7 @@
             var subscriptions = _subscriptionManager.GetSubscriptionsByPokemonId(pokemon.Id);
             if (subscriptions == null)
             {
-                _logger.LogWarning($"Failed to get subscriptions from database table.");
+                _logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -116,8 +116,8 @@
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogDebug($"FAILED TO GET MEMBER BY ID {user.UserId}");
-                        _logger.LogError(ex.ToString());
+                        _logger.Debug($"FAILED TO GET MEMBER BY ID {user.UserId}");
+                        _logger.Error(ex.ToString());
                         continue;
                     }
 
@@ -126,7 +126,7 @@
 
                     if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
-                        _logger.LogDebug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pkmn.Name}...");
+                        _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pkmn.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
                         //user.Enabled = false;
                         //user.Save(false);
@@ -212,7 +212,7 @@
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex.ToString());
+                    _logger.Error(ex.ToString());
                 }
             }
 
@@ -249,7 +249,7 @@
             var subscriptions = _subscriptionManager.GetSubscriptionsByPvpPokemonId(pokemon.Id);
             if (subscriptions == null)
             {
-                _logger.LogWarning($"Failed to get subscriptions from database table.");
+                _logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -282,8 +282,8 @@
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogDebug($"FAILED TO GET MEMBER BY ID {user.UserId}");
-                        _logger.LogError($"Error: {ex}");
+                        _logger.Debug($"FAILED TO GET MEMBER BY ID {user.UserId}");
+                        _logger.Error($"Error: {ex}");
                         continue;
                     }
 
@@ -292,7 +292,7 @@
 
                     if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
-                        _logger.LogDebug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pvp pokemon {pkmn.Name}...");
+                        _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pvp pokemon {pkmn.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
                         //user.Enabled = false;
                         //user.Save(false);
@@ -368,7 +368,7 @@
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error: {ex}");
+                    _logger.Error($"Error: {ex}");
                 }
             }
 
@@ -403,7 +403,7 @@
             var subscriptions = _subscriptionManager.GetSubscriptionsByRaidPokemonId(raid.PokemonId);
             if (subscriptions == null)
             {
-                _logger.LogWarning($"Failed to get subscriptions from database table.");
+                _logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -430,13 +430,13 @@
                     var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
-                        _logger.LogWarning($"Failed to find member with id {user.UserId}.");
+                        _logger.Warning($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
                     if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
-                        _logger.LogInformation($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
+                        _logger.Information($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
                         //user.Enabled = false;
                         //user.Save(false);
@@ -509,7 +509,7 @@
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error: {ex}");
+                    _logger.Error($"Error: {ex}");
                 }
             }
 
@@ -543,7 +543,7 @@
             var subscriptions = _subscriptionManager.GetSubscriptionsByQuest(quest.PokestopName, rewardKeyword);
             if (subscriptions == null)
             {
-                _logger.LogWarning($"Failed to get subscriptions from database table.");
+                _logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -570,14 +570,14 @@
                     var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
-                        _logger.LogWarning($"Failed to find member with id {user.UserId}.");
+                        _logger.Warning($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
                     isSupporter = member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList());
                     if (!isSupporter)
                     {
-                        _logger.LogInformation($"User {user.UserId} is not a supporter, skipping quest {questName}...");
+                        _logger.Information($"User {user.UserId} is not a supporter, skipping quest {questName}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
                         //user.Enabled = false;
                         //user.Save(false);
@@ -637,7 +637,7 @@
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error: {ex}");
+                    _logger.Error($"Error: {ex}");
                 }
             }
 
@@ -675,7 +675,7 @@
             var subscriptions = _subscriptionManager.GetSubscriptionsByInvasion(pokestop?.Name, pokestop?.GruntType ?? InvasionCharacter.CharacterUnset, encounters);
             if (subscriptions == null)
             {
-                _logger.LogWarning($"Failed to get subscriptions from database table.");
+                _logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -710,13 +710,13 @@
                     var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
-                        _logger.LogWarning($"Failed to find member with id {user.UserId}.");
+                        _logger.Warning($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
                     if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
-                        _logger.LogInformation($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
+                        _logger.Information($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
                         //user.Enabled = false;
                         //user.Save(false);
@@ -776,7 +776,7 @@
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error: {ex}");
+                    _logger.Error($"Error: {ex}");
                 }
             }
 
@@ -806,7 +806,7 @@
             var subscriptions = _subscriptionManager.GetSubscriptionsByLure(pokestop.Name, pokestop.LureType);
             if (subscriptions == null)
             {
-                _logger.LogWarning($"Failed to get subscriptions from database table.");
+                _logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -832,13 +832,13 @@
                     var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
-                        _logger.LogWarning($"Failed to find member with id {user.UserId}.");
+                        _logger.Warning($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
                     if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
-                        _logger.LogInformation($"User {user.UserId} is not a supporter, skipping Pokestop lure {pokestop.Name}...");
+                        _logger.Information($"User {user.UserId} is not a supporter, skipping Pokestop lure {pokestop.Name}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
                         //user.Enabled = false;
                         //user.Save(false);
@@ -898,7 +898,7 @@
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error: {ex}");
+                    _logger.Error($"Error: {ex}");
                 }
             }
 
@@ -928,7 +928,7 @@
             var subscriptions = _subscriptionManager.GetSubscriptionsByGymName(raid.GymName);
             if (subscriptions == null)
             {
-                _logger.LogWarning($"Failed to get subscriptions from database table.");
+                _logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
@@ -955,13 +955,13 @@
                     var member = await client.GetMemberById(user.GuildId, user.UserId);
                     if (member == null)
                     {
-                        _logger.LogWarning($"Failed to find member with id {user.UserId}.");
+                        _logger.Warning($"Failed to find member with id {user.UserId}.");
                         continue;
                     }
 
                     if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
                     {
-                        _logger.LogInformation($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name} for gym {raid.GymName}...");
+                        _logger.Information($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name} for gym {raid.GymName}...");
                         // Automatically disable users subscriptions if not supporter to prevent issues
                         //user.Enabled = false;
                         //user.Save(false);
@@ -1027,7 +1027,7 @@
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError($"Error: {ex}");
+                    _logger.Error($"Error: {ex}");
                 }
             }
 
@@ -1044,7 +1044,7 @@
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation(
+            _logger.Information(
                 $"{nameof(SubscriptionProcessorService)} is stopping.");
 
             await base.StopAsync(stoppingToken);
@@ -1052,7 +1052,7 @@
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation(
+            _logger.Information(
                 $"{nameof(SubscriptionProcessorService)} is now running in the background.");
 
             await BackgroundProcessing(stoppingToken);
@@ -1073,11 +1073,11 @@
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error occurred executing task work item.");
+                    _logger.Error(ex, "Error occurred executing task work item.");
                 }
             }
 
-            _logger.LogError("Exited background processing...");
+            _logger.Error("Exited background processing...");
         }
 
         private async Task EnqueueEmbedAsync(NotificationItem embed)
@@ -1099,7 +1099,7 @@
 
             if (!_discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId))
             {
-                _logger.LogError($"User subscription for guild that's not configured. UserId={embed.Subscription.UserId} GuildId={embed.Subscription.GuildId}");
+                _logger.Error($"User subscription for guild that's not configured. UserId={embed.Subscription.UserId} GuildId={embed.Subscription.GuildId}");
                 return stoppingToken;
             }
 
@@ -1107,7 +1107,7 @@
             var maxNotificationsPerMinute = _config.Instance.MaxNotificationsPerMinute;
             if (embed.Subscription.Limiter.IsLimited(maxNotificationsPerMinute))
             {
-                _logger.LogWarning($"{embed.Member.Username} notifications rate limited, waiting {(60 - embed.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", embed.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+                _logger.Warning($"{embed.Member.Username} notifications rate limited, waiting {(60 - embed.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", embed.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
                 // Send ratelimited notification to user if not already sent to adjust subscription settings to more reasonable settings.
                 if (!embed.Subscription.RateLimitNotificationSent)
                 {
@@ -1137,7 +1137,7 @@
                     embed.Subscription.Status = NotificationStatusType.None;
                     if (!_subscriptionManager.Save(embed.Subscription))
                     {
-                        _logger.LogError($"Failed to disable {embed.Subscription.UserId}'s subscriptions");
+                        _logger.Error($"Failed to disable {embed.Subscription.UserId}'s subscriptions");
                     }
                 }
                 return stoppingToken;
@@ -1170,7 +1170,7 @@
 
             // Send direct message notification to user
             await embed.Member.SendDirectMessage(string.Empty, embed.Embed);
-            _logger.LogInformation($"[WEBHOOK] Notified user {embed.Member.Username} of {embed.Description}.");
+            _logger.Information($"[WEBHOOK] Notified user {embed.Member.Username} of {embed.Description}.");
             Thread.Sleep(1);
 
             return stoppingToken;
@@ -1182,7 +1182,7 @@
         {
             if (_taskQueue.Count > Strings.MaxQueueCountWarning)
             {
-                _logger.LogWarning($"Subscription queue is {_taskQueue.Count:N0} items long.");
+                _logger.Warning($"Subscription queue is {_taskQueue.Count:N0} items long.");
             }
         }
     }

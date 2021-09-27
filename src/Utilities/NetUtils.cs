@@ -51,7 +51,11 @@
                     {
                         //https://discordapp.com/developers/docs/topics/rate-limits
                         case 429:
-                            Console.WriteLine("RATE LIMITED");
+                            if (_backlogQueue.Count > 0)
+                            {
+                                Console.WriteLine($"[Webhook] RATE LIMITED: {webhookUrl} Added to backlog queue, currently {_backlogQueue.Count:N0} items long.");
+                            }
+
                             var retryAfter = resp.Headers["Retry-After"];
                             //var limit = resp.Headers["X-RateLimit-Limit"];
                             //var remaining = resp.Headers["X-RateLimit-Remaining"];
