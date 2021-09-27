@@ -4,9 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.Caching;
-    using System.Text.Json.Serialization;
 
-    //using Microsoft.Extensions.Caching.Memory;
     using POGOProtos.Rpc;
 
     using WhMgr.Data;
@@ -27,6 +25,7 @@
             ("little", 500),
             ("great", 1500),
             ("ultra", 2500),
+            //("master", 9999),
         };
         private static readonly List<ushort> _availableLevelCaps = new List<ushort>
         {
@@ -36,7 +35,6 @@
             51,
         };
 
-        //private static readonly BaseMemoryCache _cache = new BaseMemoryCache();
         private static readonly MemoryCache _cache = MemoryCache.Default;
 
         #endregion
@@ -44,7 +42,8 @@
         #region Singleton
 
         private static PvpRankCalculator _instance;
-        public static PvpRankCalculator Instance => _instance ??= new PvpRankCalculator();
+        public static PvpRankCalculator Instance =>
+            _instance ??= new PvpRankCalculator();
 
         #endregion
 
@@ -129,13 +128,6 @@
                         // Gender doesn't match
                         continue;
                     }
-                    // Eventually remove this after masterfile is fixed
-                    /*
-                    if (evolution.PokedexId == 0)
-                        evolution.PokedexId = evolution.Pokemon;
-                    if (evolution.DefaultFormId == 0)
-                        evolution.DefaultFormId = (int)evolution.FormId;
-                    */
 
                     // Reset costume since we know it can't evolve
                     var evolvedRanks = QueryPvpRank(evolution.PokemonId, evolution.FormId, 0, atk, def, sta, level, gender);
@@ -290,40 +282,5 @@
         }
 
         #endregion
-    }
-
-    public class StatCombination : List<List<List<PvpRank>>> { }
-
-    public class PvpRank
-    {
-        [JsonPropertyName("cp")]
-        public uint CP { get; set; }
-
-        [JsonPropertyName("rank")]
-        public ushort Rank { get; set; }
-
-        [JsonPropertyName("pokemon")]
-        public ushort Pokemon { get; set; }
-
-        [JsonPropertyName("form")]
-        public ushort Form { get; set; }
-
-        [JsonPropertyName("evolution")]
-        public ushort Evolution { get; set; }
-
-        [JsonPropertyName("level")]
-        public double Level { get; set; }
-
-        [JsonPropertyName("value")]
-        public double Value { get; set; }
-
-        [JsonPropertyName("percentage")]
-        public double Percentage { get; set; }
-
-        [JsonPropertyName("cap")]
-        public ushort LevelCap { get; set; }
-
-        [JsonIgnore]
-        public bool IsCapped { get; set; }
     }
 }

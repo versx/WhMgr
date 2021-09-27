@@ -20,17 +20,8 @@
 
         #region Properties
 
-        public static IReverseGeocodingLookup Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new ReverseGeocodingLookup(Startup.Config.ReverseGeocoding);
-                }
-                return _instance;
-            }
-        }
+        public static IReverseGeocodingLookup Instance =>
+            _instance ??= new ReverseGeocodingLookup(Startup.Config.ReverseGeocoding);
 
         public ReverseGeocodingConfig Config { get; set; }
 

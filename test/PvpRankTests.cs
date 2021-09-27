@@ -21,27 +21,33 @@
             var pvpRankCalc = new PvpRankCalculator();
             for (uint i = 1; i < 900; i++)
             {
-                var ranks = pvpRankCalc.QueryPvpRank(i, 0, 0, 15, 15, 15, 1, POGOProtos.Rpc.PokemonGender.Male);
-                if (ranks == null)
+                var pvpRanks = pvpRankCalc.QueryPvpRank(i, 0, 0, 15, 15, 15, 1, POGOProtos.Rpc.PokemonGender.Male);
+                if (pvpRanks == null)
                     continue;
 
-                foreach (var rank in ranks)
+                foreach (var (league, ranks) in pvpRanks)
                 {
-                    switch (rank.Key)
+                    foreach (var rank in ranks)
                     {
-                        //case "great":
-                        //case "ultra":
-                        case "little":
-                            var value = rank.Value.Select(x => new
-                            {
-                                cp = x.CP,
-                                rank = x.Rank,
-                                percent = x.Percentage,
-                                level = x.Level,
-                                evo = x.Evolution,
-                            });
-                            Console.WriteLine($"Pokemon: {i}, League: {rank.Key}, Ranks: {string.Join(", ", value)}");
-                            break;
+                        if (rank.Rank > 25)
+                            continue;
+
+                        switch (league)
+                        {
+                            //case "great":
+                            //case "ultra":
+                            case "little":
+                                var value = new
+                                {
+                                    cp = rank.CP,
+                                    rank = rank.Rank,
+                                    percent = rank.Percentage,
+                                    level = rank.Level,
+                                    evo = rank.Evolution,
+                                };
+                                Console.WriteLine($"Pokemon: {i}, League: {league}, Ranks: {string.Join(", ", value)}");
+                                break;
+                        }
                     }
                 }
             }
