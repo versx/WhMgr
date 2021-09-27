@@ -23,8 +23,6 @@
     using WhMgr.Services.Webhook.Models;
     using WhMgr.Utilities;
 
-    // TODO: HostedService BackgroundItemQueue for alarms
-
     public class AlarmControllerService : BackgroundService, IAlarmControllerService
     {
         private readonly Microsoft.Extensions.Logging.ILogger<AlarmControllerService> _logger;
@@ -185,7 +183,7 @@
                             Data = pokemon,
                             City = geofence.Name,
                         };
-                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Pokemon alarm: {alarm.Name} for Pokemon {pokemon.Id} ({pokemon.EncounterId}) from geofence {geofence.Name}");
                             continue;
@@ -340,7 +338,7 @@
                             Data = raid,
                             City = geofence.Name,
                         };
-                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Raid alarm: {alarm.Name} for Raid {raid.PokemonId} ({raid.Level}) from geofence {geofence.Name}");
                             continue;
@@ -409,7 +407,7 @@
                             Data = quest,
                             City = geofence.Name,
                         };
-                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Quest alarm: {alarm.Name} for Quest {quest.PokestopId} ({quest.PokestopName}) from geofence {geofence.Name}");
                             continue;
@@ -493,7 +491,7 @@
                             Data = pokestop,
                             City = geofence.Name,
                         };
-                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.Name}) from geofence {geofence.Name}");
                             continue;
@@ -562,7 +560,7 @@
                             Data = gym,
                             City = geofence.Name,
                         };
-                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Gym alarm: {alarm.Name} for Gym {gym.GymId} ({gym.GymName}) from geofence {geofence.Name}");
                             continue;
@@ -634,7 +632,7 @@
                             Data = weather,
                             City = geofence.Name,
                         };
-                        if (!ThreadPool.QueueUserWorkItem(async _ => await SendEmbedAsync(taskItem)))
+                        if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
                             _logger.LogError($"Failed to queue Weather alarm: {alarm.Name} for Gym {weather.Id} ({weather.GameplayCondition}) from geofence {geofence.Name}");
                             continue;
@@ -646,14 +644,6 @@
                     _mapDataCache.UpdateWeather(weather);
                 }
             }
-        }
-
-        private async Task SendEmbedAsync(AlarmTaskItem taskItem)
-        {
-            CheckQueueLength();
-
-            await _taskQueue.EnqueueAsync(async token =>
-            await ProcessWorkItemAsync(taskItem, token));
         }
 
         #region Background Service
@@ -698,10 +688,7 @@
 
         private async Task EnqueueEmbedAsync(AlarmTaskItem taskItem)
         {
-            if (_taskQueue.Count > Strings.MaxQueueCountWarning)
-            {
-                _logger.LogWarning($"Webhook alarms queue is {_taskQueue.Count:N0} items long.");
-            }
+            CheckQueueLength();
 
             await _taskQueue.EnqueueAsync(async token =>
                 await ProcessWorkItemAsync(taskItem, token));

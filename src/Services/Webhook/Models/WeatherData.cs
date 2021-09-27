@@ -150,24 +150,24 @@
             var embed = settings.Alarm?.Embeds[embedType]
                 ?? server.DmEmbeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
-            var weatherImageUrl = IconFetcher.Instance.GetWeatherIcon(server.IconStyle, GameplayCondition);
+            //var weatherImageUrl = IconFetcher.Instance.GetWeatherIcon(server.IconStyle, GameplayCondition);
             //settings.ImageUrl = weatherImageUrl;
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                Image = new Discord.Models.DiscordEmbedImage
+                Image = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Thumbnail = new Discord.Models.DiscordEmbedImage
+                Thumbnail = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 Color = GameplayCondition.BuildWeatherColor(MasterFile.Instance.DiscordEmbedColors).Value,
-                Footer = new Discord.Models.DiscordEmbedFooter
+                Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)

@@ -191,7 +191,7 @@
 
         #endregion
 
-        public async Task SetSubscriptionStatus(Subscription subscription, NotificationStatusType status)
+        public async Task SetSubscriptionStatusAsync(Subscription subscription, NotificationStatusType status)
         {
             using (var ctx = _dbFactory.CreateDbContext())
             {

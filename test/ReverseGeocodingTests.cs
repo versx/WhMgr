@@ -26,9 +26,10 @@
         )]
         public void TestGoogleReverseGeocoding(double lat, double lon, string schema, string address)
         {
-            var reverseGeocoding = new ReverseGeocodingLookup(GetConfig(ReverseGeocodingProvider.GMaps, schema));
-            var coord = new Coordinate("Test", lat, lon);
-            var googleAddress = reverseGeocoding.GetAddress(coord);
+            var reverseGeocoding = new ReverseGeocodingLookup(
+                GetConfig(ReverseGeocodingProvider.GMaps, schema)
+            );
+            var googleAddress = reverseGeocoding.GetAddress(new Coordinate(lat, lon));
             Console.WriteLine($"Address: {googleAddress}");
             Assert.IsNotNull(googleAddress);
             Assert.IsNotEmpty(googleAddress);
@@ -39,13 +40,15 @@
             34.01,
             -117.01,
             "{{Address.Road}} {{Address.State}} {{Address.Postcode}} {{Address.Country}}",
+            //"{{DisplayName}}",
             "Canyon Terrace Drive California 92399 United States"
         )]
         public void TestNominatimReverseGeocoding(double lat, double lon, string schema, string address)
         {
-            var reverseGeocoding = new ReverseGeocodingLookup(GetConfig(ReverseGeocodingProvider.Osm, schema));
-            var coord = new Coordinate("Test", lat, lon);
-            var nominatimAddress = reverseGeocoding.GetAddress(coord);
+            var reverseGeocoding = new ReverseGeocodingLookup(
+                GetConfig(ReverseGeocodingProvider.Osm, schema)
+            );
+            var nominatimAddress = reverseGeocoding.GetAddress(new Coordinate(lat, lon));
             Console.WriteLine($"Address: {nominatimAddress}");
             Assert.IsNotNull(nominatimAddress);
             Assert.IsNotEmpty(nominatimAddress);

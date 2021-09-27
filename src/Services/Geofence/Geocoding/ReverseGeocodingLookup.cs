@@ -250,11 +250,9 @@
             if (!File.Exists(filePath))
             {
                 // If cache file does not exist, write data to disk
-                using (var sw = new StreamWriter(filePath, false, Encoding.UTF8, ushort.MaxValue))
-                {
-                    var json = data.ToJson();
-                    sw.WriteLine(json);
-                }
+                using var sw = new StreamWriter(filePath, false, Encoding.UTF8, ushort.MaxValue);
+                var json = data.ToJson();
+                sw.WriteLine(json);
             }
         }
 
@@ -269,11 +267,9 @@
             if (File.Exists(filePath))
             {
                 // If cache file exists, read data from disk
-                using (var sr = new StreamReader(filePath, Encoding.UTF8))
-                {
-                    var json = sr.ReadToEnd();
-                    return json.FromJson<T>();
-                }
+                using var sr = new StreamReader(filePath, Encoding.UTF8);
+                var json = sr.ReadToEnd();
+                return json.FromJson<T>();
             }
             return default;
         }
