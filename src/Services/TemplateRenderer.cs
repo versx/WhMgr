@@ -24,7 +24,6 @@
         public static string Parse(string text, dynamic model)
         {
             var template = _context.Compile(text ?? string.Empty);
-            Console.WriteLine($"Model: {model}");
             return template(model);
         }
     }
