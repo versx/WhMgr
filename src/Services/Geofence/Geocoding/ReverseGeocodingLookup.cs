@@ -76,7 +76,6 @@
             }
             else
             {
-                // TODO: Load address from memory cache
                 if (_cache.ContainsKey(key))
                 {
                     return _cache[key];
