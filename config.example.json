@@ -101,9 +101,18 @@
     "pokemonIds": [201, 480, 481, 482, 443, 444, 445, 633, 634, 635, 610, 611, 612],
     "minIV": 100
   },
-  "gmapsKey": "",
-  "nominatim": "",
-  "nominatimSchema": "{DisplayName}",
+  "reverseGeocoding": {
+    "provider": "osm", // osm/gmaps
+    "cacheToDisk": true,
+    "gmaps": {
+      "key": "",
+      "schema": "{{Results.[0].FormattedAddress}}"
+    },
+    "nominatim": {
+      "endpoint": "",
+      "schema": "{{Address.Road}} {{Address.State}} {{Address.Postcode}} {{Address.Country}}"
+    }
+  },
   "despawnTimeMinimumMinutes": 5,
   "reloadSubscriptionChangesMinutes": 1,
   "checkForDuplicates": true,

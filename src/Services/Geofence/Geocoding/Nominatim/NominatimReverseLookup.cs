@@ -1,4 +1,4 @@
-﻿namespace WhMgr.Services.Geofence.Nominatim
+﻿namespace WhMgr.Services.Geofence.Geocoding.Nominatim
 {
     using System.Text.Json.Serialization;
 
@@ -38,7 +38,7 @@
         public double Importance { get; set; }
 
         [JsonPropertyName("addresstype")]
-        public string Addresstype { get; set; }
+        public string AddressType { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }
@@ -50,6 +50,6 @@
         public NominatimAddress Address { get; set; }
 
         [JsonPropertyName("boundingbox")]
-        public string[] Boundingbox { get; set; }
+        public string[] BoundingBox { get; set; }
     }
 }

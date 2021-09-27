@@ -14,6 +14,7 @@
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Webhook.Models.Quests;
     using WhMgr.Utilities;
 
@@ -158,7 +159,7 @@
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
-            var address = new Coordinate(properties.City, Latitude, Longitude).GetAddress(properties.Config.Instance);
+            var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
@@ -187,7 +188,7 @@
                 wazemaps_url = wazeMapsLocationLink,
                 scanmaps_url = scannerMapsLocationLink,
 
-                address = address?.Address,
+                address = address ?? string.Empty,
 
                 // Pokestop properties
                 pokestop_id = PokestopId ?? defaultMissingValue,

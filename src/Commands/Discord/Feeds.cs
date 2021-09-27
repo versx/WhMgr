@@ -149,7 +149,7 @@
 
                 if (assigned.Count == 0 && alreadyAssigned.Count == 0)
                 {
-                    _logger.LogDebug($"No roles assigned or already assigned for user {ctx.User.Username} ({ctx.User.Id}). Value: {string.Join(", ", cityNames)}");
+                    _logger.Debug($"No roles assigned or already assigned for user {ctx.User.Username} ({ctx.User.Id}). Value: {string.Join(", ", cityNames)}");
                     return;
                 }
 
@@ -173,7 +173,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.ToString());
+                _logger.Error(ex.ToString());
             }
         }
 
@@ -270,7 +270,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.ToString());
+                _logger.Error(ex.ToString());
             }
         }
 
@@ -280,7 +280,7 @@
 
             if (_config.Instance.Servers[guildId].Geofences == null)
             {
-                _logger.LogWarning($"City roles empty.");
+                _logger.Warning($"City roles empty.");
                 return;
             }
 
@@ -294,14 +294,14 @@
                     var cityRole = ctx.Guild.GetRoleFromName(city);
                     if (cityRole == null)
                     {
-                        _logger.LogError($"Failed to get city raid role from city {city}.");
+                        _logger.Error($"Failed to get city raid role from city {city}.");
                         continue;
                     }
 
                     var result = await AddFeedRole(ctx.Member, cityRole);
                     if (!result)
                     {
-                        _logger.LogError($"Failed to assign role {cityRole.Name} to user {ctx.User.Username} ({ctx.User.Id}).");
+                        _logger.Error($"Failed to assign role {cityRole.Name} to user {ctx.User.Username} ({ctx.User.Id}).");
                     }
 
                     Thread.Sleep(500);
@@ -315,7 +315,7 @@
             }
             catch (Exception)
             {
-                _logger.LogError($"Failed to add feed role, make sure bot has correct permissions.");
+                _logger.Error($"Failed to add feed role, make sure bot has correct permissions.");
                 await ctx.RespondEmbed($"Failed to add feed role, make sure bot has correct permissions.");
             }
         }
@@ -326,7 +326,7 @@
 
             if (_config.Instance.Servers[guildId].Geofences == null)
             {
-                _logger.LogWarning($"City roles empty.");
+                _logger.Warning($"City roles empty.");
                 return;
             }
 
@@ -340,14 +340,14 @@
                     var cityRole = ctx.Guild.GetRoleFromName(city);
                     if (cityRole == null)
                     {
-                        _logger.LogError($"Failed to get city role from city {city}.");
+                        _logger.Error($"Failed to get city role from city {city}.");
                         continue;
                     }
 
                     var result = await RemoveFeedRole(ctx.Member, cityRole);
                     if (!result)
                     {
-                        _logger.LogError($"Failed to remove role {cityRole.Name} from user {ctx.User.Username} ({ctx.User.Id}).");
+                        _logger.Error($"Failed to remove role {cityRole.Name} from user {ctx.User.Username} ({ctx.User.Id}).");
                     }
 
                     Thread.Sleep(200);
@@ -361,7 +361,7 @@
             }
             catch (Exception)
             {
-                _logger.LogError($"Failed to remove feed role, make sure bot has correct permissions.");
+                _logger.Error($"Failed to remove feed role, make sure bot has correct permissions.");
                 await ctx.RespondEmbed($"Failed to remove feed role, make sure bot has correct permissions.");
                 return;
             }
@@ -371,7 +371,7 @@
         {
             if (city == null)
             {
-                _logger.LogError($"Failed to find city role {city?.Name}, please make sure it exists.");
+                _logger.Error($"Failed to find city role {city?.Name}, please make sure it exists.");
                 return false;
             }
 
@@ -383,7 +383,7 @@
         {
             if (city == null)
             {
-                _logger.LogError($"Failed to find city role {city?.Name}, please make sure it exists.");
+                _logger.Error($"Failed to find city role {city?.Name}, please make sure it exists.");
                 return false;
             }
 

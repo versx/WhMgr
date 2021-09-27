@@ -15,6 +15,7 @@
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Utilities;
 
     public sealed class RaidData : IWebhookData
@@ -248,7 +249,7 @@
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
-            var address = new Coordinate(properties.City, Latitude, Longitude).GetAddress(properties.Config.Instance);
+            var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
 
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
             var startTimeLeft = now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds();
@@ -320,7 +321,7 @@
                 wazemaps_url = wazeMapsLocationLink,
                 scanmaps_url = scannerMapsLocationLink,
 
-                address = address?.Address,
+                address = address ?? string.Empty,
 
                 // Gym properties
                 gym_id = GymId,

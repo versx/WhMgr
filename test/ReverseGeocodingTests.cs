@@ -1,8 +1,12 @@
 ﻿namespace WhMgr.Test
 {
+    using System;
+
     using NUnit.Framework;
 
+    using WhMgr.Configuration;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Geofence.Geocoding;
 
     [TestFixture]
     public class ReverseGeocodingTests
@@ -14,27 +18,60 @@
         {
         }
 
-        [Test]
-        public void TestGoogleReverseGeocoding()
+        [TestCase(
+            34.01,
+            -117.01,
+            "{{Results.[0].FormattedAddress}}",
+            "13403 Canyon Crest Rd, Yucaipa, CA 92399, USA"
+        )]
+        public void TestGoogleReverseGeocoding(double lat, double lon, string schema, string address)
         {
-            // TODO: Test Google
-            //Assert.IsNotEmpty(googleAddress);
+            var reverseGeocoding = new ReverseGeocodingLookup(
+                GetConfig(ReverseGeocodingProvider.GMaps, schema)
+            );
+            var googleAddress = reverseGeocoding.GetAddress(new Coordinate(lat, lon));
+            Console.WriteLine($"Address: {googleAddress}");
+            Assert.IsNotNull(googleAddress);
+            Assert.IsNotEmpty(googleAddress);
+            Assert.AreEqual(address, googleAddress);
         }
 
         [TestCase(
             34.01,
             -117.01,
             "{{Address.Road}} {{Address.State}} {{Address.Postcode}} {{Address.Country}}",
-            "Canyon Crest Road California 92399 United States"
+            //"{{DisplayName}}",
+            "Canyon Terrace Drive California 92399 United States"
         )]
         public void TestNominatimReverseGeocoding(double lat, double lon, string schema, string address)
         {
-            var baseUrl = "https://nominatim.openstreetmap.org";
-            var nominatimAddress = Coordinate.GetNominatimAddress("Test", lat, lon, baseUrl, schema);
-            //Console.WriteLine($"Nominatim address: {nominatimAddress}");
+            var reverseGeocoding = new ReverseGeocodingLookup(
+                GetConfig(ReverseGeocodingProvider.Osm, schema)
+            );
+            var nominatimAddress = reverseGeocoding.GetAddress(new Coordinate(lat, lon));
+            Console.WriteLine($"Address: {nominatimAddress}");
             Assert.IsNotNull(nominatimAddress);
-            Assert.IsNotEmpty(nominatimAddress?.Address);
-            Assert.AreEqual(address, nominatimAddress?.Address);
+            Assert.IsNotEmpty(nominatimAddress);
+            Assert.AreEqual(address, nominatimAddress);
+        }
+
+        private static ReverseGeocodingConfig GetConfig(ReverseGeocodingProvider provider, string schema = null)
+        {
+            return new ReverseGeocodingConfig
+            {
+                Provider = provider,
+                CacheToDisk = true,
+                GoogleMaps = new GoogleMapsConfig
+                {
+                    Key = "<GOOGLE_MAPS_KEY>",
+                    Schema = schema,
+                },
+                Nominatim = new NominatimConfig
+                {
+                    Endpoint = "https://nominatim.openstreetmap.org",
+                    Schema = schema,
+                }
+            };
         }
     }
 }

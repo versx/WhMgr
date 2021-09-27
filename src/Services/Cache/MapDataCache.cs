@@ -154,7 +154,7 @@
             if (_pokestops != null && _gyms != null && _weather != null)
             {
                 // Already cached
-                _logger.LogDebug($"Map data already cached");
+                _logger.Debug($"Map data already cached");
                 return;
             }
 

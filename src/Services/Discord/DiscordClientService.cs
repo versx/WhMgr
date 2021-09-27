@@ -152,7 +152,7 @@
                 if (!isValid)
                 {
                     // Disable all subscriptions
-                    await _subscriptionManager.SetSubscriptionStatus(subscription, Subscriptions.Models.NotificationStatusType.None);
+                    await _subscriptionManager.SetSubscriptionStatusAsync(subscription, Subscriptions.Models.NotificationStatusType.None);
                     _logger.LogInformation($"Disabled all subscriptions for user {member.Username} ({member.Id})...");
                 }
             }

@@ -10,7 +10,6 @@
         {
             // TODO: Test embeds/filters/alarms/discord config
             // TODO: Test datetime extensions
-            // TODO: Test coordinate extensions
             // TODO: Test timespan extensions
             // TODO: Test notification limiter
         }

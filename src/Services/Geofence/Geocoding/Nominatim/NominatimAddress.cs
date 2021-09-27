@@ -1,4 +1,4 @@
-﻿namespace WhMgr.Services.Geofence.Nominatim
+﻿namespace WhMgr.Services.Geofence.Geocoding.Nominatim
 {
     using System.Text.Json.Serialization;
 

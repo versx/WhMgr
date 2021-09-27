@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -45,6 +46,8 @@
 
         public ushort DespawnTimerMinimumMinutes { get; set; }
 
+        public bool Debug { get; set; }
+
         #endregion
 
         public WebhookProcessorService(
@@ -74,6 +77,7 @@
             _clearCache.Elapsed += (sender, e) => OnClearCache();
 
             CheckForDuplicates = _config.Instance.CheckForDuplicates;
+            Debug = _config.Instance.Debug;
             DespawnTimerMinimumMinutes = _config.Instance.DespawnTimeMinimumMinutes;
         }
 
@@ -104,7 +108,17 @@
         {
             if (!Enabled) return;
 
-            _logger.LogInformation($"Received {payloads.Count:N0} webhook payloads");
+            if (Debug)
+            {
+                var json = payloads?.ToJson();
+                if (!string.IsNullOrEmpty(json))
+                {
+                    using var sw = new StreamWriter(Strings.DebugLogFileName);
+                    sw.WriteLine(json);
+                }
+            }
+
+            _logger.Information($"Received {payloads.Count:N0} webhook payloads");
             for (var i = 0; i < payloads.Count; i++)
             {
                 var payload = payloads[i];
@@ -131,7 +145,7 @@
                         ProcessWeather(payload.Message);
                         break;
                     default:
-                        _logger.LogWarning($"Unhandled webhook type: {payload.Type}");
+                        _logger.Warning($"Unhandled webhook type: {payload.Type}");
                         break;
                 }
             }
@@ -147,7 +161,7 @@
             var pokemon = json.FromJson<PokemonData>();
             if (pokemon == null)
             {
-                _logger.LogWarning($"Failed to deserialize pokemon {message}, skipping...");
+                _logger.Warning($"Failed to deserialize pokemon {message}, skipping...");
                 return;
             }
             pokemon.SetTimes();
@@ -188,7 +202,7 @@
             var raid = json.FromJson<RaidData>();
             if (raid == null)
             {
-                _logger.LogWarning($"Failed to deserialize raid {message}, skipping...");
+                _logger.Warning($"Failed to deserialize raid {message}, skipping...");
                 return;
             }
             raid.SetTimes();
@@ -232,7 +246,7 @@
             var quest = json.FromJson<QuestData>();
             if (quest == null)
             {
-                _logger.LogWarning($"Failed to deserialize quest {message}, skipping...");
+                _logger.Warning($"Failed to deserialize quest {message}, skipping...");
                 return;
             }
 
@@ -270,7 +284,7 @@
             var pokestop = json.FromJson<PokestopData>();
             if (pokestop == null)
             {
-                _logger.LogWarning($"Failed to deserialize pokestop {message}, skipping...");
+                _logger.Warning($"Failed to deserialize pokestop {message}, skipping...");
                 return;
             }
             pokestop.SetTimes();
@@ -324,7 +338,7 @@
             var gym = json.FromJson<GymDetailsData>();
             if (gym == null)
             {
-                _logger.LogWarning($"Failed to deserialize gym {message}, skipping...");
+                _logger.Warning($"Failed to deserialize gym {message}, skipping...");
             }
 
             if (CheckForDuplicates)
@@ -361,7 +375,7 @@
             var weather = json.FromJson<WeatherData>();
             if (weather == null)
             {
-                _logger.LogWarning($"Failed to deserialize weather {message}, skipping...");
+                _logger.Warning($"Failed to deserialize weather {message}, skipping...");
             }
             weather.SetTimes();
 

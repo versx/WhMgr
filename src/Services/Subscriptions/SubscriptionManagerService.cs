@@ -196,7 +196,7 @@
 
         #endregion
 
-        public async Task SetSubscriptionStatus(Subscription subscription, NotificationStatusType status)
+        public async Task SetSubscriptionStatusAsync(Subscription subscription, NotificationStatusType status)
         {
             using (var ctx = _dbFactory.CreateDbContext())
             {
@@ -219,7 +219,7 @@
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to save subscription with id {subscription.Id} (UserId: {subscription.UserId}, GuildId: {subscription.GuildId}): {ex}");
+                _logger.Error($"Failed to save subscription with id {subscription.Id} (UserId: {subscription.UserId}, GuildId: {subscription.GuildId}): {ex}");
                 return false;
             }
         }

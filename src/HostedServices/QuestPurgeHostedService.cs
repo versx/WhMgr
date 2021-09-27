@@ -42,7 +42,7 @@
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Hosted service started...");
+            _logger.Information($"Hosted service started...");
 
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
@@ -56,7 +56,7 @@
                     // Check if duplicate timezone exists
                     if (_tzMidnightTimers.ContainsKey(timezone))
                     {
-                        _logger.LogWarning($"Midnight timer already configured for timezone '{timezone}'");
+                        _logger.Warning($"Midnight timer already configured for timezone '{timezone}'");
                         continue;
                     }
 
@@ -74,10 +74,10 @@
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Hosted service stopped...");
+            _logger.Information($"Hosted service stopped...");
             foreach (var (timezone, midnightTimer) in _tzMidnightTimers)
             {
-                _logger.LogInformation($"Stopping midnight timer for timezone {timezone}");
+                _logger.Information($"Stopping midnight timer for timezone {timezone}");
                 midnightTimer.Stop();
                 midnightTimer.Dispose();
             }
@@ -86,7 +86,7 @@
 
         public async void Dispose()
         {
-            _logger.LogDebug($"Disposing...");
+            _logger.Debug($"Disposing...");
             await _discordService.Stop();
             _tzMidnightTimers.Clear();
 
@@ -99,14 +99,14 @@
 
         private async void OnMidnightTimerTimeReached(DateTime time, string timezone)
         {
-            _logger.LogInformation($"Midnight timer hit {time} for timezone {timezone}");
+            _logger.Information($"Midnight timer hit {time} for timezone {timezone}");
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
                 if (!(guildConfig.QuestsPurge?.ChannelIds.ContainsKey(timezone) ?? false))
                     continue;
 
                 var channelIds = guildConfig.QuestsPurge.ChannelIds[timezone];
-                _logger.LogInformation($"Clearing quest channels {string.Join(", ", channelIds)} for guild {guildId}");
+                _logger.Information($"Clearing quest channels {string.Join(", ", channelIds)} for guild {guildId}");
                 await ClearQuestChannels(channelIds);
             }
         }
@@ -115,7 +115,7 @@
         {
             if (channelIds?.Count == 0)
             {
-                _logger.LogWarning($"Clear quest channels list was empty");
+                _logger.Warning($"Clear quest channels list was empty");
                 return;
             }
 
@@ -126,17 +126,17 @@
                 foreach (var (serverId, serverClient) in _discordService.DiscordClients)
                 {
                     // Get Discord channel if available
-                    _logger.LogInformation($"Deleting messages in channel {channelId}");
+                    _logger.Information($"Deleting messages in channel {channelId}");
                     var channel = await serverClient.GetChannelAsync(channelId).ConfigureAwait(false);
                     if (channel == null)
                         continue;
 
                     // Delete all Discord channel messages
-                    _logger.LogInformation($"Deleting messages for channel: {channelId} (GuildId: {serverId})");
+                    _logger.Information($"Deleting messages for channel: {channelId} (GuildId: {serverId})");
                     await serverClient.DeleteMessages(channelId).ConfigureAwait(false);
                 }
             }
-            _logger.LogInformation($"Completed deleting messages for channel(s) {string.Join(", ", channelIds)}");
+            _logger.Information($"Completed deleting messages for channel(s) {string.Join(", ", channelIds)}");
         }
 
         #endregion

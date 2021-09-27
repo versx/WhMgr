@@ -12,6 +12,7 @@
     using WhMgr.Common;
     using WhMgr.Data;
     using WhMgr.Extensions;
+    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Localization;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
@@ -252,7 +253,7 @@
             var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
             var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
             var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
-            var address = new Coordinate(properties.City, Latitude, Longitude).GetAddress(properties.Config.Instance);
+            var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
             var invasion = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? MasterFile.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.GetGruntType(GruntType);
             var pokemonType = MasterFile.Instance.GruntTypes.ContainsKey(GruntType) ? GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
@@ -305,7 +306,7 @@
                 lure_img_url = lureImageUrl,
                 invasion_img_url = invasionImageUrl,
 
-                address = address?.Address,
+                address = address ?? string.Empty,
 
                 // Discord Guild properties
                 guild_name = guild?.Name,

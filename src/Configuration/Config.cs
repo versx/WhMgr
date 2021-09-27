@@ -97,22 +97,10 @@
         public Dictionary<StaticMapType, StaticMapConfig> StaticMaps { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets the Google maps key for location lookup
+        /// Gets or sets the reverse geocoding location lookup configuration
         /// </summary>
-        [JsonPropertyName("gmapsKey")]
-        public string GoogleMapsKey { get; set; }
-
-        /// <summary>
-        /// Gets or sets the OpenStreetMaps Nominatim endpoint to use for reverse location lookup
-        /// </summary>
-        [JsonPropertyName("nominatim")]
-        public string NominatimEndpoint { get; set; }
-
-        /// <summary>
-        /// Gets or sets the OpenStreetMaps Nominatim location string schema
-        /// </summary>
-        [JsonPropertyName("nominatimSchema")]
-        public string NominatimSchema { get; set; }
+        [JsonPropertyName("reverseGeocoding")]
+        public ReverseGeocodingConfig ReverseGeocoding { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the minimum despawn time in minutes a Pokemon must have in order to send the alarm

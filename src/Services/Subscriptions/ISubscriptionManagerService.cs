@@ -12,7 +12,7 @@
     {
         IReadOnlyList<Subscription> Subscriptions { get; }
 
-        Task SetSubscriptionStatus(Subscription subscription, NotificationStatusType status);
+        Task SetSubscriptionStatusAsync(Subscription subscription, NotificationStatusType status);
 
         Subscription GetUserSubscriptions(ulong guildId, ulong userId);
 

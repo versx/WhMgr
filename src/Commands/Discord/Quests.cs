@@ -39,7 +39,7 @@
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
             if (guildId == 0)
             {
-                _logger.LogWarning($"Failed to find any configured guild {guildId} for Discord bot.");
+                _logger.Warning($"Failed to find any configured guild {guildId} for Discord bot.");
                 return;
             }
 
@@ -60,7 +60,7 @@
                     var questChannel = await ctx.Client.GetChannelAsync(channelId);
                     if (questChannel == null)
                     {
-                        _logger.LogWarning($"Unable to get quest channel with id '{channelId}'.");
+                        _logger.Warning($"Unable to get quest channel with id '{channelId}'.");
                         continue;
                     }
 

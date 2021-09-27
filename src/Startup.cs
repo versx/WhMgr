@@ -17,7 +17,6 @@ namespace WhMgr
     using WhMgr.Extensions;
     using WhMgr.HostedServices;
     using WhMgr.HostedServices.TaskQueue;
-    using WhMgr.Queues;
     using WhMgr.Services;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Models;
@@ -31,10 +30,8 @@ namespace WhMgr
     // TODO: Reload alarms/filters/geofences on change
     // TODO: Fix Pvp pokemon name not showing on Pokemon embed
     // TODO: Twilio notifications
-    // TODO: HostedService webhook queue
     // TODO: Simplify alarm and subscription filter checks
     // TODO: Allow pokemon names and ids for pokemon/raid alarm filters
-    // TODO: Cache google/nominatim reverse geocoding lookups to disk instead of just memory
 
     public class Startup
     {
@@ -71,7 +68,6 @@ namespace WhMgr
         {
             services.AddSingleton<IGeofenceService>(new GeofenceService());
             services.AddSingleton<IAlarmControllerService, AlarmControllerService>();
-            services.AddScoped<NotificationQueue, NotificationQueue>();
             //services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>();
             services.AddSingleton<ISubscriptionProcessorService, SubscriptionProcessorService>();
             services.AddSingleton<ISubscriptionManagerService, SubscriptionManagerService>();
