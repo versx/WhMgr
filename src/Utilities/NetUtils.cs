@@ -51,26 +51,7 @@
                     {
                         //https://discordapp.com/developers/docs/topics/rate-limits
                         case 429:
-                            if (_backlogQueue.Count > 0)
-                            {
-                                Console.WriteLine($"[Webhook] RATE LIMITED: {webhookUrl} Added to backlog queue, currently {_backlogQueue.Count:N0} items long.");
-                            }
-
-                            var retryAfter = resp.Headers["Retry-After"];
-                            //var limit = resp.Headers["X-RateLimit-Limit"];
-                            //var remaining = resp.Headers["X-RateLimit-Remaining"];
-                            //var reset = resp.Headers["X-RateLimit-Reset"];
-                            if (!int.TryParse(retryAfter, out var retry))
-                                return;
-
-                            //Thread.Sleep(retry);
-                            //SendWebhook(webhookUrl, json);
-                            _backlogQueue.Enqueue(new WebhookQueueItem
-                            {
-                                Url = webhookUrl,
-                                Json = json,
-                                RetryAfter = retry,
-                            });
+                            HandleRateLimitedRequest(resp, webhookUrl, json);
                             break;
                         case 400:
                             Console.WriteLine($"Failed to send webhook: {ex}");
@@ -101,6 +82,30 @@
             }
 
             return null;
+        }
+
+        private static void HandleRateLimitedRequest(HttpWebResponse response, string url, string json)
+        {
+            if (_backlogQueue.Count > 0)
+            {
+                Console.WriteLine($"[Webhook] RATE LIMITED: {url} Added to backlog queue, currently {_backlogQueue.Count:N0} items long.");
+            }
+
+            var retryAfter = response.Headers["Retry-After"];
+            //var limit = resp.Headers["X-RateLimit-Limit"];
+            //var remaining = resp.Headers["X-RateLimit-Remaining"];
+            //var reset = resp.Headers["X-RateLimit-Reset"];
+            if (!int.TryParse(retryAfter, out var retry))
+                return;
+
+            //Thread.Sleep(retry);
+            //SendWebhook(webhookUrl, json);
+            _backlogQueue.Enqueue(new WebhookQueueItem
+            {
+                Url = url,
+                Json = json,
+                RetryAfter = retry,
+            });
         }
 
         private static void HandleBacklogQueue()

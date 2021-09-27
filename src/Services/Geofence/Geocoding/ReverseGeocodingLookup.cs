@@ -236,7 +236,8 @@
 
         private void SaveToDisk<T>((double, double) key, T data)
         {
-            var fileName = $"{key.Item1},{key.Item2}.json";
+            var (lat, lon) = key;
+            var fileName = $"{lat},{lon}.json";
             var providerFolder = Path.Combine(
                 CacheFolder,
                 GetProviderCacheFolderName(Config.Provider)
@@ -257,7 +258,8 @@
 
         public T LoadFromDisk<T>((double, double) key)
         {
-            var fileName = $"{key.Item1},{key.Item2}.json";
+            var (lat, lon) = key;
+            var fileName = $"{lat},{lon}.json";
             var providerFolder = Path.Combine(
                 CacheFolder,
                 GetProviderCacheFolderName(Config.Provider)
