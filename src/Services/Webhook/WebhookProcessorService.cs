@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
 
     //using Microsoft.Extensions.Logging;
@@ -113,7 +114,8 @@
                 var json = payloads?.ToJson();
                 if (!string.IsNullOrEmpty(json))
                 {
-                    using var sw = new StreamWriter(Strings.DebugLogFileName);
+                    var path = Path.Combine(Strings.BasePath, Strings.DebugLogFileName);
+                    using var sw = new StreamWriter(path, true, Encoding.UTF8);
                     sw.WriteLine(json);
                 }
             }

@@ -33,7 +33,6 @@
         private readonly ISubscriptionManagerService _subscriptionManager;
         private readonly ConfigHolder _config;
         private readonly IDiscordClientService _discordService;
-        //private readonly ISubscriptionProcessorQueueService _queue;
         private readonly IMapDataCache _mapDataCache;
         private readonly IStaticsticsService _statsService;
         private readonly IBackgroundTaskQueue _taskQueue;
@@ -51,7 +50,6 @@
             _subscriptionManager = subscriptionManager;
             _config = config;
             _discordService = discordService;
-            //_queue = queue;
             _mapDataCache = mapDataCache;
             _statsService = statsService;
             _taskQueue = (DefaultBackgroundTaskQueue)taskQueue;
