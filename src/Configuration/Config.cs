@@ -10,6 +10,7 @@
 
     using WhMgr.Extensions;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Icons;
     using WhMgr.Utilities;
 
     /// <summary>
@@ -88,7 +89,8 @@
         /// Gets or sets the icon styles
         /// </summary>
         [JsonPropertyName("iconStyles")]
-        public Dictionary<string, string> IconStyles { get; set; } = new();
+        //public Dictionary<string, string> IconStyles { get; set; } = new();
+        public IconStyleCollection IconStyles { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the static map template files to use per type
@@ -171,7 +173,6 @@
             LogLevel = LogLevel.Trace;
             EventMinimumIV = 90;
             DespawnTimeMinimumMinutes = 5;
-            ReloadSubscriptionChangesMinutes = 1;
             MaxNotificationsPerMinute = 10;
             CheckForDuplicates = true;
         }

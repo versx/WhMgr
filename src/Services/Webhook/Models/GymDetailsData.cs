@@ -15,6 +15,7 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Geofence.Geocoding;
+    using WhMgr.Services.Icons;
     using WhMgr.Utilities;
 
     [Table("gym")]
@@ -155,7 +156,7 @@
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
-            var gymImageUrl = IconFetcher.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);// $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
+            var gymImageUrl = UIconService.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);// $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
 
             var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Gyms];
             var staticMap = new StaticMapGenerator(new StaticMapOptions
@@ -176,10 +177,11 @@
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
-            var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
+            var shortUrlApiUrl = properties.Config.Instance.ShortUrlApiUrl;
+            var gmapsLocationLink = UrlShortener.Create(shortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, scannerMapsLink);
             var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 

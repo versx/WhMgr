@@ -1,6 +1,6 @@
 ﻿namespace WhMgr.Services.Webhook
 {
-    public class WebhookHeaders
+    public class WebhookTypes
     {
         public const string Pokemon = "pokemon";
         public const string Raid = "raid";

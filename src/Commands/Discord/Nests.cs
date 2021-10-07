@@ -24,6 +24,7 @@
     using WhMgr.Services;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Icons;
     using WhMgr.Utilities;
 
     public class Nests : BaseCommandModule
@@ -171,7 +172,7 @@
             var alertMessageType = EmbedMessageType.Nests;
             var alertMessage = /*alarm?.Alerts[alertMessageType] ??*/ EmbedMessage.Defaults[alertMessageType]; // TODO: Add nestAlert config option
             var server = _config.Instance.Servers[guildId];
-            var pokemonImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, nest.PokemonId);
+            var pokemonImageUrl = UIconService.Instance.GetPokemonIcon(server.IconStyle, nest.PokemonId);
             var properties = GetProperties(client.Guilds[guildId], nest, pokemonImageUrl);
             var eb = new DiscordEmbedBuilder
             {

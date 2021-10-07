@@ -20,14 +20,14 @@
     {
         #region Variables
 
-        private static readonly List<(string, ushort)> _availableLeagues = new List<(string, ushort)>
+        private static readonly List<(string, ushort)> _availableLeagues = new()
         {
             ("little", 500),
             ("great", 1500),
             ("ultra", 2500),
             //("master", 9999),
         };
-        private static readonly List<ushort> _availableLevelCaps = new List<ushort>
+        private static readonly List<ushort> _availableLevelCaps = new()
         {
             40,
             41,

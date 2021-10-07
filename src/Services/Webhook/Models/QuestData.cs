@@ -15,6 +15,7 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Geofence.Geocoding;
+    using WhMgr.Services.Icons;
     using WhMgr.Services.Webhook.Models.Quests;
     using WhMgr.Utilities;
 
@@ -93,7 +94,7 @@
             var embed = settings.Alarm?.Embeds[embedType]
                 ?? server.DmEmbeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
-            settings.ImageUrl = IconFetcher.Instance.GetQuestIcon(settings.Config.Instance.Servers[settings.GuildId].IconStyle, this);
+            settings.ImageUrl = UIconService.Instance.GetRewardIcon(server.IconStyle, this);
             var properties = await GetPropertiesAsync(settings);
             var eb = new DiscordEmbedMessage
             {
@@ -155,10 +156,11 @@
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
-            var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
+            var shortUrlApiUrl = properties.Config.Instance.ShortUrlApiUrl;
+            var gmapsLocationLink = UrlShortener.Create(shortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, scannerMapsLink);
             var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 

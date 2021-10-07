@@ -5,7 +5,6 @@
 
     using WhMgr.Common;
     using WhMgr.Services;
-    using WhMgr.Services.Webhook.Models;
 
     public interface IStaticMapGenerator
     {
