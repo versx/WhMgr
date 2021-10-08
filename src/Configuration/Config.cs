@@ -117,12 +117,6 @@
         public ushort ReloadSubscriptionChangesMinutes { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum amount of notifications a user can receive per minute per server before being rate limited
-        /// </summary>
-        [JsonPropertyName("maxNotificationsPerMinute")]
-        public ushort MaxNotificationsPerMinute { get; set; }
-
-        /// <summary>
         /// Gets or sets a value determining whether to check for duplicate webhook messages or not
         /// </summary>
         [JsonPropertyName("checkForDuplicates")]
@@ -173,7 +167,6 @@
             LogLevel = LogLevel.Trace;
             EventMinimumIV = 90;
             DespawnTimeMinimumMinutes = 5;
-            MaxNotificationsPerMinute = 10;
             CheckForDuplicates = true;
         }
 

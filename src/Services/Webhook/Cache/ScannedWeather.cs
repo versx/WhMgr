@@ -22,7 +22,8 @@
             {
                 var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
                 var lastUpdated = LastUpdated.ConvertTimeFromCoordinates(Latitude, Longitude);
-                return now > lastUpdated;
+                // TODO: Check if last updated within the last 60 minutes
+                return now > lastUpdated.Subtract(new TimeSpan(0, 60, 0));
             }
         }
 

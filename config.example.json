@@ -165,6 +165,7 @@
     }
   },
   "despawnTimeMinimumMinutes": 5,
+  "reloadSubscriptionChangesMinutes": 1,
   "checkForDuplicates": true,
   "debug": false,
   /*

@@ -1122,7 +1122,7 @@
         {
             CheckQueueLength();
 
-            if (embed == null || embed?.Subscription == null || embed?.Member == null || embed?.Embed == null)
+            if (embed?.Subscription == null || embed?.Member == null || embed?.Embed == null)
                 return stoppingToken;
 
             if (!_discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId))
@@ -1132,42 +1132,16 @@
             }
 
             // Check if user is receiving messages too fast.
-            var maxNotificationsPerMinute = _config.Instance.MaxNotificationsPerMinute;
+            if (!_config.Instance.Servers.ContainsKey(embed.Subscription.GuildId))
+            {
+                // Config does not contain subscription guild for some reason o.O
+                return stoppingToken;
+            }
+            var config = _config.Instance.Servers[embed.Subscription.GuildId];
+            var maxNotificationsPerMinute = config.Subscriptions.MaxNotificationsPerMinute;
             if (embed.Subscription.Limiter.IsLimited(maxNotificationsPerMinute))
             {
-                _logger.Warning($"{embed.Member.Username} notifications rate limited, waiting {(60 - embed.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", embed.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
-                // Send ratelimited notification to user if not already sent to adjust subscription settings to more reasonable settings.
-                if (!embed.Subscription.RateLimitNotificationSent)
-                {
-                    if (!_discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId))
-                        return stoppingToken;
-
-                    var server = _discordService.DiscordClients[embed.Subscription.GuildId].Guilds[embed.Subscription.GuildId];
-                    var emoji = DiscordEmoji.FromName(_discordService.DiscordClients.FirstOrDefault().Value, ":no_entry:");
-                    var guildIconUrl = _discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId) ? server?.IconUrl : string.Empty;
-                    // TODO: Localize rate limited messaged
-                    var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0}) per minute and are now being rate limited." +
-                                           $"Please adjust your subscriptions to receive a maximum of {maxNotificationsPerMinute:N0} notifications within a {NotificationLimiter.ThresholdTimeout} second time span.";
-                    var eb = new DiscordEmbedBuilder
-                    {
-                        Title = "Rate Limited",
-                        Description = rateLimitMessage,
-                        Color = DiscordColor.Red,
-                        Footer = new DiscordEmbedBuilder.EmbedFooter
-                        {
-                            Text = $"{server?.Name} | {DateTime.Now}",
-                            IconUrl = guildIconUrl,
-                        }
-                    };
-
-                    await embed.Member.SendDirectMessage(eb.Build());
-                    embed.Subscription.RateLimitNotificationSent = true;
-                    embed.Subscription.Status = NotificationStatusType.None;
-                    if (!_subscriptionManager.Save(embed.Subscription))
-                    {
-                        _logger.Error($"Failed to disable {embed.Subscription.UserId}'s subscriptions");
-                    }
-                }
+                await SendRateLimitedMessage(embed, maxNotificationsPerMinute);
                 return stoppingToken;
             }
 
@@ -1202,6 +1176,46 @@
             Thread.Sleep(1);
 
             return stoppingToken;
+        }
+
+        private async Task SendRateLimitedMessage(NotificationItem embed, uint maxNotificationsPerMinute)
+        {
+            _logger.Warning($"{embed.Member.Username} notifications rate limited, waiting {(60 - embed.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", embed.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+            // Send ratelimited notification to user if not already sent to adjust subscription settings to more reasonable settings.
+            if (!embed.Subscription.RateLimitNotificationSent)
+            {
+                if (!_discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId))
+                    return;
+
+                var client = _discordService.DiscordClients[embed.Subscription.GuildId].Guilds[embed.Subscription.GuildId];
+                var emoji = DiscordEmoji.FromName(_discordService.DiscordClients.FirstOrDefault().Value, ":no_entry:");
+                var guildIconUrl = _discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId) ? client?.IconUrl : string.Empty;
+                // TODO: Localize rate limited messaged
+                var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0}) per minute and are now being rate limited." +
+                                       $"Please adjust your subscriptions to receive a maximum of {maxNotificationsPerMinute:N0} notifications within a {NotificationLimiter.ThresholdTimeout} second time span.";
+                var eb = new DiscordEmbedBuilder
+                {
+                    Title = "Rate Limited",
+                    Description = rateLimitMessage,
+                    Color = DiscordColor.Red,
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"{client?.Name} | {DateTime.Now}",
+                        IconUrl = guildIconUrl,
+                    }
+                };
+
+                await embed.Member.SendDirectMessage(eb.Build());
+                embed.Subscription.RateLimitNotificationSent = true;
+                embed.Subscription.Status = NotificationStatusType.None;
+                if (!_subscriptionManager.Save(embed.Subscription))
+                {
+                    var sql = $@"
+UPDATE subscriptions SET status = 0 WHERE guild_id = {embed.Subscription.GuildId} AND user_id = {embed.Subscription.UserId}
+";
+                    _logger.Error($"Failed to disable GuildId: {embed.Subscription.GuildId} UserId: {embed.Subscription.UserId}'s subscriptions, run this SQL to disable their subscription notifications manually:\n{sql}");
+                }
+            }
         }
 
         #endregion
