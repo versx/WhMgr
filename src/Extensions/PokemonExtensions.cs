@@ -9,36 +9,21 @@
 
     using WhMgr.Common;
     using WhMgr.Data;
-    using WhMgr.Services.Webhook.Models;
 
     public static class PokemonExtensions
     {
-        public static int MaxCpAtLevel(this uint id, int level)
+        public static int GetCpAtLevel(this uint id, int level, int statValue = 10)
         {
             if (!GameMaster.Instance.Pokedex.ContainsKey(id) || id == 0)
                 return 0;
 
             var pkmn = GameMaster.Instance.Pokedex[id];
             var multiplier = GameMaster.Instance.CpMultipliers[level];
-            var maxAtk = ((pkmn.Attack + 15) * multiplier) ?? 0;
-            var maxDef = ((pkmn.Defense + 15) * multiplier) ?? 0;
-            var maxSta = ((pkmn.Stamina + 15) * multiplier) ?? 0;
+            var maxAtk = ((pkmn.Attack + statValue) * multiplier) ?? 0;
+            var maxDef = ((pkmn.Defense + statValue) * multiplier) ?? 0;
+            var maxSta = ((pkmn.Stamina + statValue) * multiplier) ?? 0;
 
             return (int)Math.Max(10, Math.Floor(Math.Sqrt(maxAtk * maxAtk * maxDef * maxSta) / 10));
-        }
-
-        public static int MinCpAtLevel(this uint id, int level)
-        {
-            if (!GameMaster.Instance.Pokedex.ContainsKey(id) || id == 0)
-                return 0;
-
-            var pkmn = GameMaster.Instance.Pokedex[id];
-            var multiplier = GameMaster.Instance.CpMultipliers[level];
-            var minAtk = ((pkmn.Attack + 10) * multiplier) ?? 0;
-            var minDef = ((pkmn.Defense + 10) * multiplier) ?? 0;
-            var minSta = ((pkmn.Stamina + 10) * multiplier) ?? 0;
-
-            return (int)Math.Max(10, Math.Floor(Math.Sqrt(minAtk * minAtk * minDef * minSta) / 10));
         }
 
         public static bool IsCommonPokemon(this uint pokeId)
@@ -74,7 +59,7 @@
             {
                 Gender.Male => "♂", //♂ \u2642
                 Gender.Female => "♀", //♀ \u2640
-                _ => "⚲",//⚲
+                _ => "⚲", //⚲
             };
         }
 
@@ -169,23 +154,23 @@
             return string.Join(" ", list);
         }
 
-        public static uint PokemonIdFromName(this string name)
+        public static uint PokemonIdFromName(this string nameOrId)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(nameOrId))
                 return 0;
 
-            var pkmn = uint.TryParse(name, out var id)
+            var pkmn = uint.TryParse(nameOrId, out var id)
                 ? GameMaster.Instance.Pokedex.FirstOrDefault(x => x.Key == id)
-                : GameMaster.Instance.Pokedex.FirstOrDefault(x => string.Compare(x.Value.Name, name, true) == 0);
+                : GameMaster.Instance.Pokedex.FirstOrDefault(x => string.Compare(x.Value.Name, nameOrId, true) == 0);
 
             if (pkmn.Key > 0)
                 return pkmn.Key;
 
             foreach (var p in GameMaster.Instance.Pokedex)
-                if (p.Value.Name.ToLower().Contains(name.ToLower()))
+                if (p.Value.Name.ToLower().Contains(nameOrId.ToLower()))
                     return p.Key;
 
-            if (!uint.TryParse(name, out var pokeId))
+            if (!uint.TryParse(nameOrId, out var pokeId))
                 return 0;
 
             if (GameMaster.Instance.Pokedex.ContainsKey(pokeId))
@@ -239,16 +224,17 @@
         public static bool IsWeatherBoosted(this PokedexPokemon pkmn, WeatherCondition weather)
         {
             var types = pkmn?.Types;
-            var isBoosted = types?.Exists(x => Strings.WeatherBoosts[weather].Contains(x)) ?? false;
+            var boosts = Strings.WeatherBoosts[weather];
+            var isBoosted = types?.Exists(x => boosts.Contains(x)) ?? false;
             return isBoosted;
         }
     }
 
     public class PokemonValidation
     {
-        public Dictionary<uint, string> Valid { get; set; }
+        public IReadOnlyDictionary<uint, string> Valid { get; set; }
 
-        public List<string> Invalid { get; set; }
+        public IReadOnlyList<string> Invalid { get; set; }
 
         public PokemonValidation()
         {
@@ -266,13 +252,13 @@
             PokemonValidation validation;
             if (pokemonList.Contains("-") && int.TryParse(pokemonList.Split('-')[0], out var startRange) && int.TryParse(pokemonList.Split('-')[1], out var endRange))
             {
-                //If `poke` param is a range
+                // If `poke` param is a range
                 var range = GetListFromRange(startRange, endRange);
                 validation = range.ValidatePokemon();
             }
             else if (Strings.PokemonGenerationRanges.Select(x => "gen" + x.Key).ToList().Contains(pokemonList))
             {
-                //If `poke` is pokemon generation
+                // If `poke` is pokemon generation
                 if (!int.TryParse(pokemonList.Replace("gen", ""), out var gen) || !Strings.PokemonGenerationRanges.ContainsKey(gen))
                 {
                     var keys = Strings.PokemonGenerationRanges.Keys.ToList();
@@ -292,7 +278,7 @@
             }
             else
             {
-                //If `poke` param is a list
+                // If `poke` param is a list
                 validation = pokemonList.Replace(" ", "").Split(',').ValidatePokemon();
             }
 

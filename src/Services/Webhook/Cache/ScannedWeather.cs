@@ -22,7 +22,7 @@
             {
                 var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
                 var lastUpdated = LastUpdated.ConvertTimeFromCoordinates(Latitude, Longitude);
-                // TODO: Check if last updated within the last 60 minutes
+                // Check if lastUpdated within the last 60 minutes, otherwise it's expired
                 return now > lastUpdated.Subtract(new TimeSpan(0, 60, 0));
             }
         }

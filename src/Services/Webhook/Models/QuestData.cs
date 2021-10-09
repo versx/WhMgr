@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
@@ -56,11 +57,16 @@
         [JsonPropertyName("conditions")]
         public List<QuestConditionMessage> Conditions { get; set; }
 
-        [JsonIgnore]
-        public bool IsDitto => Rewards?[0]?.Info?.Ditto ?? false;
+        [JsonPropertyName("ar_scan_eligible")]
+        public bool IsArScanEligible { get; set; }
+
+        private QuestRewardMessage FirstReward => Rewards?.FirstOrDefault();
 
         [JsonIgnore]
-        public bool IsShiny => Rewards?[0]?.Info?.Shiny ?? false;
+        public bool IsDitto => FirstReward?.Info?.Ditto ?? false;
+
+        [JsonIgnore]
+        public bool IsShiny => FirstReward?.Info?.Shiny ?? false;
 
         #endregion
 
@@ -175,6 +181,7 @@
                 has_quest_conditions = !string.IsNullOrEmpty(questConditions),
                 is_ditto = IsDitto,
                 is_shiny = IsShiny,
+                is_ar = IsArScanEligible,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,

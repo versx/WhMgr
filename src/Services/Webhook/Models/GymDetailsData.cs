@@ -67,6 +67,12 @@
         public ushort SlotsAvailable { get; set; }
 
         [
+            JsonPropertyName("ex_raid_eligible"),
+            Column("ex_raid_eligible"),
+        ]
+        public bool IsExEligible { get; set; }
+
+        [
             JsonPropertyName("sponsor_id"),
             Column("sponsor_id"),
         ]
@@ -77,6 +83,12 @@
             Column("in_battle"),
         ]
         public bool InBattle { get; set; }
+
+        [
+            JsonPropertyName("ar_scan_eligible"),
+            Column("ar_scan_eligible"),
+        ]
+        public bool IsArScanEligible { get; set; }
 
         #endregion
 
@@ -201,13 +213,16 @@
                 team_changed = oldGym?.Team != Team,
                 in_battle = InBattle,
                 under_attack = InBattle,
-                is_ex = Convert.ToString(SponsorId),
+                is_ex = IsExEligible,
+                sponsor_id = Convert.ToString(SponsorId),
                 ex_emoji = exEmoji,
                 slots_available = SlotsAvailable == 0
-                                        ? "Full"
-                                        : SlotsAvailable == 6
-                                            ? "Empty"
-                                            : SlotsAvailable.ToString("N0"),
+                    // TODO: Localize
+                    ? "Full"
+                    : SlotsAvailable == 6
+                        ? "Empty"
+                        : SlotsAvailable.ToString("N0"),
+                is_ar = IsArScanEligible,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,

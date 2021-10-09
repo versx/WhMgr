@@ -149,7 +149,7 @@
         /// <param name="invasionActive"></param>
         /// <param name="questActive"></param>
         /// <returns></returns>
-        public string GetPokestopIcon(string style, PokestopLureType lure, bool invasionActive = false, bool questActive = false)
+        public string GetPokestopIcon(string style, PokestopLureType lure, bool invasionActive = false, bool questActive = false, bool ar = false)
         {
             if (!IsStyleSelected(style, IconType.Pokestop))
                 return GetDefaultIcon();
@@ -159,14 +159,18 @@
             var lureId = (uint)lure;
             var invasionSuffixes = (invasionActive ? new[] { "_i", string.Empty } : new[] { string.Empty }).ToList();
             var questSuffixes = (questActive ? new[] { "_q", string.Empty } : new[] { string.Empty }).ToList();
+            var arSuffixes = (ar ? new[] { "_ar", string.Empty } : new[] { string.Empty }).ToList();
             foreach (var invasionSuffix in invasionSuffixes)
             {
                 foreach (var questSuffix in questSuffixes)
                 {
-                    var result = $"{lureId}{questSuffix}{invasionSuffix}.{IconFormat}";
-                    if (iconStyle.IndexList.Contains(result))
+                    foreach (var arSuffix in arSuffixes)
                     {
-                        return $"{baseUrl}/{result}";
+                        var result = $"{lureId}{questSuffix}{invasionSuffix}{arSuffix}.{IconFormat}";
+                        if (iconStyle.IndexList.Contains(result))
+                        {
+                            return $"{baseUrl}/{result}";
+                        }
                     }
                 }
             }
@@ -226,6 +230,12 @@
             return GetDefaultIcon(baseUrl);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="style"></param>
+        /// <param name="quest"></param>
+        /// <returns></returns>
         public string GetRewardIcon(string style, QuestData quest)
         {
             if (!IsStyleSelected(style, IconType.Reward))
@@ -319,7 +329,7 @@
         /// <param name="inBattle"></param>
         /// <param name="ex"></param>
         /// <returns></returns>
-        public string GetGymIcon(string style, PokemonTeam team = PokemonTeam.Neutral, uint trainerCount = 0, bool inBattle = false, bool ex = false)
+        public string GetGymIcon(string style, PokemonTeam team = PokemonTeam.Neutral, uint trainerCount = 0, bool inBattle = false, bool ex = false, bool ar = false)
         {
             if (!IsStyleSelected(style, IconType.Gym))
                 return GetDefaultIcon();
@@ -330,16 +340,20 @@
             var trainerSuffixes = (trainerCount > 0 ? new[] { "_t" + trainerCount, string.Empty } : new[] { string.Empty }).ToList();
             var inBattleSuffixes = (inBattle ? new[] { "_b", string.Empty } : new[] { string.Empty }).ToList();
             var exSuffixes = (ex ? new[] { "_ex", string.Empty } : new[] { string.Empty }).ToList();
+            var arSuffixes = (ar ? new[] { "_ar", string.Empty } : new[] { string.Empty }).ToList();
             foreach (var trainerSuffix in trainerSuffixes)
             {
                 foreach (var inBattleSuffix in inBattleSuffixes)
                 {
                     foreach (var exSuffix in exSuffixes)
                     {
-                        var result = $"{teamId}{trainerSuffix}{inBattleSuffix}{exSuffix}.{IconFormat}";
-                        if (iconStyle.IndexList.Contains(result))
+                        foreach (var arSuffix in arSuffixes)
                         {
-                            return $"{baseUrl}/{result}";
+                            var result = $"{teamId}{trainerSuffix}{inBattleSuffix}{exSuffix}{arSuffix}.{IconFormat}";
+                            if (iconStyle.IndexList.Contains(result))
+                            {
+                                return $"{baseUrl}/{result}";
+                            }
                         }
                     }
                 }

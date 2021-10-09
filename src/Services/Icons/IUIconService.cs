@@ -13,7 +13,7 @@
 
         string GetTypeIcon(string style, PokemonType type);
 
-        string GetPokestopIcon(string style, PokestopLureType lure, bool invasionActive = false, bool questActive = false);
+        string GetPokestopIcon(string style, PokestopLureType lure, bool invasionActive = false, bool questActive = false, bool ar = false);
 
         string GetRewardIcon(string style, QuestRewardType rewardType, uint id = 0, uint amount = 0);
 
@@ -21,7 +21,7 @@
 
         string GetInvasionIcon(string style, InvasionCharacter gruntType);
 
-        string GetGymIcon(string style, PokemonTeam team = PokemonTeam.Neutral, uint trainerCount = 0, bool inBattle = false, bool ex = false);
+        string GetGymIcon(string style, PokemonTeam team = PokemonTeam.Neutral, uint trainerCount = 0, bool inBattle = false, bool ex = false, bool ar = false);
 
         string GetEggIcon(string style, uint level, bool hatched = false, bool ex = false);
 

@@ -69,7 +69,7 @@
         public bool IsExclusive { get; set; }
 
         [JsonPropertyName("sponsor_id")]
-        public uint SponsorId { get; set; }
+        public uint? SponsorId { get; set; }
 
         [JsonPropertyName("form")]
         public uint Form { get; set; }
@@ -82,6 +82,9 @@
 
         [JsonPropertyName("gender")]
         public Gender Gender { get; set; }
+
+        [JsonPropertyName("ar_scan_eligible")]
+        public bool IsArScanEligible { get; set; }
 
         [JsonIgnore]
         public DateTime StartTime { get; private set; }
@@ -213,10 +216,10 @@
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
             var weaknessesEmoji = types?.GetWeaknessEmojiIcons();
-            var perfectRange = PokemonId.MaxCpAtLevel(20);
-            var boostedRange = PokemonId.MaxCpAtLevel(25);
-            var worstRange = PokemonId.MinCpAtLevel(20);
-            var worstBoosted = PokemonId.MinCpAtLevel(25);
+            var perfectRange = PokemonId.GetCpAtLevel(20, 15);
+            var boostedRange = PokemonId.GetCpAtLevel(25, 15);
+            var worstRange = PokemonId.GetCpAtLevel(20, 10);
+            var worstBoosted = PokemonId.GetCpAtLevel(25, 10);
             var exEmojiId = GameMaster.Instance.Emojis["ex"];
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
             var teamEmojiId = GameMaster.Instance.Emojis[Team.ToString().ToLower()];
@@ -300,6 +303,7 @@
                 perfect_cp_boosted = boostedRange.ToString(),
                 worst_cp = worstRange.ToString(),
                 worst_cp_boosted = worstBoosted.ToString(),
+                is_ar = IsArScanEligible,
 
                 // Time properties
                 start_time = StartTime.ToLongTimeString(),
