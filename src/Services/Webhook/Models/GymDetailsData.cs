@@ -101,7 +101,7 @@
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = EmbedMessageType.Gyms;
-            var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
+            var embed = settings.Alarm?.Embeds[embedType] ?? server.Subscriptions?.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
             {

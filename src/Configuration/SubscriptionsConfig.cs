@@ -1,6 +1,9 @@
 ﻿namespace WhMgr.Configuration
 {
+    using System.IO;
     using System.Text.Json.Serialization;
+
+    using WhMgr.Services.Alarms.Embeds;
 
     public class SubscriptionsConfig
     {
@@ -37,6 +40,18 @@
         [JsonPropertyName("url")]
         public string Url { get; set; }
 
+        /// <summary>
+        /// Gets or sets the embeds file to use with direct message subscriptions
+        /// </summary>
+        [JsonPropertyName("dmEmbedsFile")]
+        public string DmEmbedsFile { get; set; } = "default.json";
+
+        /// <summary>
+        /// Gets or sets the direct message alerts class to use for subscriptions
+        /// </summary>
+        [JsonIgnore]
+        public EmbedMessage DmEmbeds { get; set; }
+
         public SubscriptionsConfig()
         {
             Enabled = false;
@@ -48,6 +63,18 @@
             MaxLureSubscriptions = 0;
             MaxGymSubscriptions = 0;
             MaxNotificationsPerMinute = 10;
+
+            LoadDmEmbeds();
+        }
+
+        public void LoadDmEmbeds()
+        {
+            var path = Path.Combine(Strings.EmbedsFolder, DmEmbedsFile);
+            if (!File.Exists(path))
+            {
+                throw new FileNotFoundException($"File not found at location {path}", path);
+            }
+            DmEmbeds = Config.LoadInit<EmbedMessage>(path);
         }
     }
 }

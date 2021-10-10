@@ -38,6 +38,7 @@
         /// <summary>
         /// Gets or sets the Invasion types to report
         /// </summary>
+        [JsonPropertyName("invasion_types")]
         public Dictionary<InvasionCharacter, bool> InvasionTypes { get; set; } = new();
     }
 }

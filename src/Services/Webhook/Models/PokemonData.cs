@@ -411,7 +411,7 @@
             var embedType = IsMissingStats
                 ? EmbedMessageType.PokemonMissingStats
                 : EmbedMessageType.Pokemon;
-            var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
+            var embed = settings.Alarm?.Embeds[embedType] ?? server.Subscriptions?.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
             settings.ImageUrl = UIconService.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage

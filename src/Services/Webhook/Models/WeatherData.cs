@@ -148,7 +148,7 @@
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = EmbedMessageType.Weather;
             var embed = settings.Alarm?.Embeds[embedType]
-                ?? server.DmEmbeds?[embedType]
+                ?? server.Subscriptions?.DmEmbeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
             //var weatherImageUrl = IconFetcher.Instance.GetWeatherIcon(server.IconStyle, GameplayCondition);
             //settings.ImageUrl = weatherImageUrl;

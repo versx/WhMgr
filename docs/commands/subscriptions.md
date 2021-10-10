@@ -11,6 +11,7 @@ Parameters in `[]` are optional parameters and default values will be used if no
 **expire** / **expires** - Check stripe API when Donor/Supporter subscription expires.  
 **set-number** - Set a phone number to receive text message alerts for ultra rare Pokemon.  
 
+<s>
 **set-distance** - Set minimum distance to Pokemon, raids, quests, invasions and gyms need to be within. (Measured in meters)  
 Usage: `set-distance <meters> <latitude>,<longitude>`  
 
@@ -244,6 +245,7 @@ Examples:
 
 **import** - Import saved subscriptions file.  
 **export** - Export subscriptions config file.  
+</s>
 
 ### Icon Style  
 

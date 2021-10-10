@@ -174,7 +174,7 @@
                     ? EmbedMessageType.Lures
                     : EmbedMessageType.Pokestops;
             var embed = settings.Alarm?.Embeds[embedType]
-                    ?? server.DmEmbeds?[embedType]
+                    ?? server.Subscriptions?.DmEmbeds?[embedType]
                     ?? EmbedMessage.Defaults[embedType];
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage

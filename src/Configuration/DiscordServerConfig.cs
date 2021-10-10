@@ -110,40 +110,11 @@
         public List<ulong> BotChannelIds { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets the embeds file to use with direct message subscriptions
-        /// </summary>
-        [JsonPropertyName("dmEmbedsFile")]
-        public string DmEmbedsFile { get; set; } = "default.json";
-
-        /// <summary>
-        /// Gets or sets the direct message alerts class to use for subscriptions
-        /// </summary>
-        [JsonIgnore]
-        public EmbedMessage DmEmbeds { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Discord embed colors to use for each message type
-        /// </summary>
-        //[JsonPropertyName("embedColors")]
-        //public DiscordEmbedColorConfig DiscordEmbedColors { get; set; } = new()
-
-        /// <summary>
         /// Instantiate a new <see cref="DiscordServerConfig"/> class
         /// </summary>
         public DiscordServerConfig()
         {
             //Locale = "en";
-            LoadDmEmbeds();
-        }
-
-        public void LoadDmEmbeds()
-        {
-            var path = Path.Combine(Strings.EmbedsFolder, DmEmbedsFile);
-            if (!File.Exists(path))
-            {
-                throw new FileNotFoundException($"File not found at location {path}", path);
-            }
-            DmEmbeds = Config.LoadInit<EmbedMessage>(path);
         }
     }
 }

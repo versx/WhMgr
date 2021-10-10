@@ -10,17 +10,12 @@ If you'd like to copy any of the latest example files (alerts, filters, template
 
 <hr>
 
-## Update (Normal)  
+### Update (Normal)  
 ```
 update.sh
 ```
 
-## Update (Copy example filter and alert files)  
+### Update (Copy example filter and embed files)  
 ```
 update.sh examples
-```
-
-## Update (Copy geofences from root folder)  
-```
-update.sh geofences
 ```

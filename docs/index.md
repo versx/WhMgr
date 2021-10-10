@@ -8,58 +8,105 @@ Works with the following backends:
 
 
 Made in C#, runs on .NET Core CLR. Cross platform compatibility, can run on Windows, macOS, and Linux operating systems.  
-Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, Team Rocket invasion, and Pokestop lure notifications via direct messages.
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, Pokestop lures, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, PvP, raid, quest, Team Rocket invasion, and Pokestop lure notifications via direct messages.
 
 ## Features  
 - Supports multiple Discord servers.  
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
-- Per user custom Discord notifications for Pokemon, raids, quests, invasions, and lures.  
-- User interface to configure Discord notifications with ease (as well as Discord commands). [WhMgr-UI](https://github.com/versx/WhMgr-UI)  
-- Subscription notifications based on pre-defined distance.  
-- Customizable alert messages with dynamic text replacement.  
+- Per user custom Discord notifications for Pokemon, raids, quests, invasions, lures, and gyms.  
+- User interface to configure Discord notifications with ease. [WhMgr-UI](https://github.com/versx/WhMgr-UI)  
+- Subscription notifications based on pre-defined distance and geofence areas.  
+- Customizable alert messages with dynamic text replacement/substitution.  
 - Support for multiple cities/areas using geofences per server.  
-- Daily shiny stats reporting.  
+- Daily shiny and IV stats reporting.  
 - Automatic quest message purge at midnight.  
-- Support for Donors/Supporters only notifications.  
-- Direct messages of Pokemon notifications based on city roles assigned.  
-- Pokemon and Raid subscription notifications based on specific forms.  
-- Custom prefix support as well as mentionable user support for commands.  
+- Support for Donors/Supporters only custom notifications.  
+- Pokemon, PvP, and Raid subscription notifications based on specific forms.  
+- Custom prefix support as well as mentionable bot user string for commands.  
 - Raid subscription notifications for specific gyms.  
 - Twilio text message alerts for ultra rare Pokemon.  
 - Custom image support for Discord alarm reports.  
 - Custom icon style selection for Discord user notifications.  
 - External emoji server support.  
-- Custom static map format support.  
+- Custom static map format support, including pokestop and gym marker placements.  
 - Support for language translation.  
 - Multi threaded, low processing consumption.  
-- [I.C.O.N.S.](https://github.com/Mygod/pokemon-icon-postprocessor) standard image support.
+- Rate limit backlog queue.
+- [UIcons](https://github.com/uicons/uicons) standard image support.
 - Lots more...  
 
 ## Direct Message Notification Filters  
-- Pokemon ID  
-- Pokemon Form  
-- Pokemon IV  
-- Pokemon Level  
-- List of Pokemon Attack/Defense/Stamina values  
-- Pokemon Gender  
-- Raid Boss  
-- City  
-- Gym Name  
-- Quest Reward  
-- Invasion Grunt Type  
-- Pokestop Lure Type  
-- Distance (meters)  
+- Pokemon  
+  - Pokemon IDs  
+  - Pokemon Forms  
+  ~~- Pokemon Minimum CP~~  
+  - Pokemon Minimum IV Percentage  
+  - Pokemon Minimum Level  
+  - Pokemon Maximum Level  
+  - List of Pokemon Attack/Defense/Stamina values  
+  - Pokemon Gender  
+  - Pokemon Size  
+  - Custom Location Distance (meters)  
+  - City  
+- Player vs Player (PvP)  
+  - Pokemon IDs  
+  - Pokemon Forms  
+  - PvP League  
+  - Minimum Rank  
+  - Minimum Stat Product Percentage  
+  - Custom Location Distance (meters)  
+  - City  
+- Raids  
+  - Raid Boss IDs  
+  - Raid Boss Forms  
+  - Is EX Eligible  
+  - Custom Location Distance (meters)  
+  - City  
+- Gyms  
+  - Gym Name  
+  - Raid Boss IDs  
+  - Minimum Raid Level  
+  - Maximum Raid Level  
+  - Is EX Eligible  
+  - Custom Location Distance (meters)  
+- Quests  
+  - Pokestop Name  
+  - Quest Reward Name  
+  - Custom Location Distance (meters)  
+  - City  
+- Invasions  
+  - Pokestop Name  
+  - Invasion Grunt Type IDs  
+  - Invasion Reward Pokemon IDs  
+  - Custom Location Distance (meters)  
+  - City  
+- Lures  
+  - Pokestop Name  
+  - Pokestop Lure Type IDs  
+  - Custom Location Distance (meters)  
+  - City  
 
 ## Frameworks and Libraries
-- .NET Core v2.1.803  
-- DSharpPlus v3.2.3  
-- DSharpPlus.CommandsNext v3.2.3  
-- DSharpPlus.Interactivity v3.2.3  
-- Microsoft.Win32.SystemEvents v4.7.0  
-- Newtonsoft.Json v12.0.3  
-- ServiceStack.OrmLite.MySql v5.8.0  
-- Stripe.net v37.14.0  
-- Twilio v5.44.0  
+- .NET v5.0.212  
+- DSharpPlus v4.1.0  
+- DSharpPlus.CommandsNext v4.1.0  
+- DSharpPlus.Interactivity v4.1.0  
+- GeoTimeZone v4.1.0  
+- Handlebars.Net v2.0.9  
+- Handlebars.Net.Helpers v2.2.1  
+- Microsoft.EntityFrameworkCore v5.0.10  
+- Microsoft.EntityFrameworkCore.Design v5.0.10  
+- Microsoft.NET.Test.Sdk v16.11.0  
+- Microsoft.VisualStudio.Azure.Containers.Tools.Targets v1.11.1  
+- NetTopologySuite v2.4.0  
+- NetTopologySuite.Features v2.4.0  
+- NUnit v3.13.2  
+- NUnit3TestAdapter v4.0.0  
+- POGOProtos.Core v2.55.0.1  
+- Pomelo.EntityFrameworkCore.MySql v5.0.2  
+- Swashbuckle.AspNetCore v6.2.2  
+- System.Runtime.Caching v5.0.0  
+- TimeZoneConverter v3.5.0  
 
 
-**[Click here](user-guide/config) to get started!**  
+**[Click here](config/config.md) to get started!**  

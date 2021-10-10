@@ -44,7 +44,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 
 ## [Documentation](https://whmgr.rtfd.io/)  
 
-### [Getting Started Guide](https://whmgr.readthedocs.io/en/latest/user-guide/getting-started)  
+### [Getting Started Guide](https://whmgr.readthedocs.io/en/latest/install/getting-started)  
 <hr>  
 
 ## Previews  

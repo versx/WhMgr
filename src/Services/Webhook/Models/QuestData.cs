@@ -98,7 +98,7 @@
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = EmbedMessageType.Quests;
             var embed = settings.Alarm?.Embeds[embedType]
-                ?? server.DmEmbeds?[embedType]
+                ?? server.Subscriptions?.DmEmbeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
             settings.ImageUrl = UIconService.Instance.GetRewardIcon(server.IconStyle, this);
             var properties = await GetPropertiesAsync(settings);

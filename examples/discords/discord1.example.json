@@ -29,7 +29,8 @@
     "maxInvasionSubscriptions": 0,
     "maxLureSubscriptions": 0,
     "maxGymSubscriptions": 0,
-    "url": "http://127.0.0.1:8009"
+    "url": "http://127.0.0.1:8009",
+    "dmEmbedsFile": "default.json"
   },
   "geofenceRoles": {
     "enabled": false,
@@ -66,6 +67,5 @@
       "channelId": 0
     }
   },
-  "iconStyle": "Default",
-  "dmEmbedsFile": "default.json"
+  "iconStyle": "Default"
 }

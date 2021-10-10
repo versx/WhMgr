@@ -158,7 +158,7 @@
                 ? EmbedMessageType.Raids
                 : EmbedMessageType.Eggs;
             var embed = settings.Alarm?.Embeds[embedType]
-                ?? server.DmEmbeds?[embedType]
+                ?? server.Subscriptions?.DmEmbeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
             var raidImageUrl = IsEgg
                 ? UIconService.Instance.GetEggIcon(server.IconStyle, Level, false, IsExEligible)
