@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
@@ -15,6 +16,7 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Geofence.Geocoding;
+    using WhMgr.Services.Icons;
     using WhMgr.Services.Webhook.Models.Quests;
     using WhMgr.Utilities;
 
@@ -55,11 +57,16 @@
         [JsonPropertyName("conditions")]
         public List<QuestConditionMessage> Conditions { get; set; }
 
-        [JsonIgnore]
-        public bool IsDitto => Rewards?[0]?.Info?.Ditto ?? false;
+        [JsonPropertyName("ar_scan_eligible")]
+        public bool IsArScanEligible { get; set; }
+
+        private QuestRewardMessage FirstReward => Rewards?.FirstOrDefault();
 
         [JsonIgnore]
-        public bool IsShiny => Rewards?[0]?.Info?.Shiny ?? false;
+        public bool IsDitto => FirstReward?.Info?.Ditto ?? false;
+
+        [JsonIgnore]
+        public bool IsShiny => FirstReward?.Info?.Shiny ?? false;
 
         #endregion
 
@@ -93,7 +100,7 @@
             var embed = settings.Alarm?.Embeds[embedType]
                 ?? server.DmEmbeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
-            settings.ImageUrl = IconFetcher.Instance.GetQuestIcon(settings.Config.Instance.Servers[settings.GuildId].IconStyle, this);
+            settings.ImageUrl = UIconService.Instance.GetRewardIcon(server.IconStyle, this);
             var properties = await GetPropertiesAsync(settings);
             var eb = new DiscordEmbedMessage
             {
@@ -108,7 +115,7 @@
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                Color = new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Quests).Value,
+                Color = new DiscordColor(GameMaster.Instance.DiscordEmbedColors.Pokestops.Quests).Value,
                 Footer = new Discord.Models.DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
@@ -155,10 +162,11 @@
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
-            var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
+            var shortUrlApiUrl = properties.Config.Instance.ShortUrlApiUrl;
+            var gmapsLocationLink = UrlShortener.Create(shortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, scannerMapsLink);
             var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
@@ -173,6 +181,7 @@
                 has_quest_conditions = !string.IsNullOrEmpty(questConditions),
                 is_ditto = IsDitto,
                 is_shiny = IsShiny,
+                is_ar = IsArScanEligible,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,

@@ -24,6 +24,7 @@
     using WhMgr.Services;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Icons;
     using WhMgr.Utilities;
 
     public class Nests : BaseCommandModule
@@ -103,7 +104,7 @@
                         if (nest.Average < server.Nests.MinimumPerHour)
                             continue;
 
-                        var pkmn = MasterFile.GetPokemon(nest.PokemonId, 0);
+                        var pkmn = GameMaster.GetPokemon(nest.PokemonId);
                         var pkmnName = Translator.Instance.GetPokemonName(pkmn.PokedexId);
                         var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
                         // TODO: Check if possible shiny (emoji)
@@ -171,7 +172,7 @@
             var alertMessageType = EmbedMessageType.Nests;
             var alertMessage = /*alarm?.Alerts[alertMessageType] ??*/ EmbedMessage.Defaults[alertMessageType]; // TODO: Add nestAlert config option
             var server = _config.Instance.Servers[guildId];
-            var pokemonImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, nest.PokemonId);
+            var pokemonImageUrl = UIconService.Instance.GetPokemonIcon(server.IconStyle, nest.PokemonId);
             var properties = GetProperties(client.Guilds[guildId], nest, pokemonImageUrl);
             var eb = new DiscordEmbedBuilder
             {
@@ -195,7 +196,7 @@
 
         public dynamic GetProperties(DiscordGuild guild, Nest nest, string pokemonImageUrl)
         {
-            var pkmnInfo = MasterFile.GetPokemon(nest.PokemonId, 0);
+            var pkmnInfo = GameMaster.GetPokemon(nest.PokemonId);
             var pkmnImage = pokemonImageUrl;
             var nestName = nest.Name ?? "Unknown";
             var type1 = pkmnInfo?.Types?[0];

@@ -33,7 +33,6 @@
         private readonly ISubscriptionManagerService _subscriptionManager;
         private readonly ConfigHolder _config;
         private readonly IDiscordClientService _discordService;
-        //private readonly ISubscriptionProcessorQueueService _queue;
         private readonly IMapDataCache _mapDataCache;
         private readonly IStaticsticsService _statsService;
         private readonly IBackgroundTaskQueue _taskQueue;
@@ -51,7 +50,6 @@
             _subscriptionManager = subscriptionManager;
             _config = config;
             _discordService = discordService;
-            //_queue = queue;
             _mapDataCache = mapDataCache;
             _statsService = statsService;
             _taskQueue = (DefaultBackgroundTaskQueue)taskQueue;
@@ -61,7 +59,7 @@
 
         public async Task ProcessPokemonSubscriptionAsync(PokemonData pokemon)
         {
-            if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon.Id))
+            if (!GameMaster.Instance.Pokedex.ContainsKey(pokemon.Id))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -87,7 +85,7 @@
 
             Subscription user;
             DiscordMember member = null;
-            var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
+            var pkmn = GameMaster.GetPokemon(pokemon.Id, pokemon.FormId);
             var matchesIV = false;
             var matchesLvl = false;
             var matchesGender = false;
@@ -227,7 +225,7 @@
 
         public async Task ProcessPvpSubscriptionAsync(PokemonData pokemon)
         {
-            if (!MasterFile.Instance.Pokedex.ContainsKey(pokemon.Id))
+            if (!GameMaster.Instance.Pokedex.ContainsKey(pokemon.Id))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -244,7 +242,7 @@
                 return geofence;
             }
 
-            var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
+            var pkmn = GameMaster.GetPokemon(pokemon.Id, pokemon.FormId);
             var evolutionIds = GetPokemonEvolutionIds(pkmn);
             // PvP subscriptions support for evolutions not just base evo
             // Get evolution ids from masterfile for incoming pokemon, check if subscriptions for evo/base
@@ -385,7 +383,7 @@
 
         public async Task ProcessRaidSubscriptionAsync(RaidData raid)
         {
-            if (!MasterFile.Instance.Pokedex.ContainsKey(raid.PokemonId))
+            if (!GameMaster.Instance.Pokedex.ContainsKey(raid.PokemonId))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -410,7 +408,7 @@
             }
 
             Subscription user;
-            var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
+            var pokemon = GameMaster.GetPokemon(raid.PokemonId, raid.Form);
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
@@ -669,7 +667,7 @@
                 return geofence;
             }
 
-            var invasion = MasterFile.Instance.GruntTypes?.ContainsKey(pokestop.GruntType) ?? false ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
+            var invasion = GameMaster.Instance.GruntTypes?.ContainsKey(pokestop.GruntType) ?? false ? GameMaster.Instance.GruntTypes[pokestop.GruntType] : null;
             var encounters = invasion?.GetEncounterRewards();
             if (encounters == null)
                 return;
@@ -681,7 +679,7 @@
                 return;
             }
 
-            if (!MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType))
+            if (!GameMaster.Instance.GruntTypes.ContainsKey(pokestop.GruntType))
             {
                 //_logger.Error($"Failed to parse grunt type {pokestop.GruntType}, not in `grunttype.json` list.");
                 return;
@@ -932,7 +930,7 @@
             }
 
             Subscription user;
-            var pokemon = MasterFile.GetPokemon(raid.PokemonId, raid.Form);
+            var pokemon = GameMaster.GetPokemon(raid.PokemonId, raid.Form);
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
@@ -1055,7 +1053,7 @@
                 foreach (var evolution in evolutions)
                 {
                     list.Add(evolution.PokemonId);
-                    var pokemon = MasterFile.GetPokemon(evolution.PokemonId, evolution.FormId);
+                    var pokemon = GameMaster.GetPokemon(evolution.PokemonId, evolution.FormId);
                     if (pokemon.Evolutions?.Count > 0)
                     {
                         GetEvolutionIds(pokemon.Evolutions);
@@ -1124,7 +1122,7 @@
         {
             CheckQueueLength();
 
-            if (embed == null || embed?.Subscription == null || embed?.Member == null || embed?.Embed == null)
+            if (embed?.Subscription == null || embed?.Member == null || embed?.Embed == null)
                 return stoppingToken;
 
             if (!_discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId))
@@ -1134,42 +1132,16 @@
             }
 
             // Check if user is receiving messages too fast.
-            var maxNotificationsPerMinute = _config.Instance.MaxNotificationsPerMinute;
+            if (!_config.Instance.Servers.ContainsKey(embed.Subscription.GuildId))
+            {
+                // Config does not contain subscription guild for some reason o.O
+                return stoppingToken;
+            }
+            var config = _config.Instance.Servers[embed.Subscription.GuildId];
+            var maxNotificationsPerMinute = config.Subscriptions.MaxNotificationsPerMinute;
             if (embed.Subscription.Limiter.IsLimited(maxNotificationsPerMinute))
             {
-                _logger.Warning($"{embed.Member.Username} notifications rate limited, waiting {(60 - embed.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", embed.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
-                // Send ratelimited notification to user if not already sent to adjust subscription settings to more reasonable settings.
-                if (!embed.Subscription.RateLimitNotificationSent)
-                {
-                    if (!_discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId))
-                        return stoppingToken;
-
-                    var server = _discordService.DiscordClients[embed.Subscription.GuildId].Guilds[embed.Subscription.GuildId];
-                    var emoji = DiscordEmoji.FromName(_discordService.DiscordClients.FirstOrDefault().Value, ":no_entry:");
-                    var guildIconUrl = _discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId) ? server?.IconUrl : string.Empty;
-                    // TODO: Localize rate limited messaged
-                    var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0}) per minute and are now being rate limited." +
-                                           $"Please adjust your subscriptions to receive a maximum of {maxNotificationsPerMinute:N0} notifications within a {NotificationLimiter.ThresholdTimeout} second time span.";
-                    var eb = new DiscordEmbedBuilder
-                    {
-                        Title = "Rate Limited",
-                        Description = rateLimitMessage,
-                        Color = DiscordColor.Red,
-                        Footer = new DiscordEmbedBuilder.EmbedFooter
-                        {
-                            Text = $"{server?.Name} | {DateTime.Now}",
-                            IconUrl = guildIconUrl,
-                        }
-                    };
-
-                    await embed.Member.SendDirectMessage(eb.Build());
-                    embed.Subscription.RateLimitNotificationSent = true;
-                    embed.Subscription.Status = NotificationStatusType.None;
-                    if (!_subscriptionManager.Save(embed.Subscription))
-                    {
-                        _logger.Error($"Failed to disable {embed.Subscription.UserId}'s subscriptions");
-                    }
-                }
+                await SendRateLimitedMessage(embed, maxNotificationsPerMinute);
                 return stoppingToken;
             }
 
@@ -1204,6 +1176,46 @@
             Thread.Sleep(1);
 
             return stoppingToken;
+        }
+
+        private async Task SendRateLimitedMessage(NotificationItem embed, uint maxNotificationsPerMinute)
+        {
+            _logger.Warning($"{embed.Member.Username} notifications rate limited, waiting {(60 - embed.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", embed.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+            // Send ratelimited notification to user if not already sent to adjust subscription settings to more reasonable settings.
+            if (!embed.Subscription.RateLimitNotificationSent)
+            {
+                if (!_discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId))
+                    return;
+
+                var client = _discordService.DiscordClients[embed.Subscription.GuildId].Guilds[embed.Subscription.GuildId];
+                var emoji = DiscordEmoji.FromName(_discordService.DiscordClients.FirstOrDefault().Value, ":no_entry:");
+                var guildIconUrl = _discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId) ? client?.IconUrl : string.Empty;
+                // TODO: Localize rate limited messaged
+                var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0}) per minute and are now being rate limited." +
+                                       $"Please adjust your subscriptions to receive a maximum of {maxNotificationsPerMinute:N0} notifications within a {NotificationLimiter.ThresholdTimeout} second time span.";
+                var eb = new DiscordEmbedBuilder
+                {
+                    Title = "Rate Limited",
+                    Description = rateLimitMessage,
+                    Color = DiscordColor.Red,
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"{client?.Name} | {DateTime.Now}",
+                        IconUrl = guildIconUrl,
+                    }
+                };
+
+                await embed.Member.SendDirectMessage(eb.Build());
+                embed.Subscription.RateLimitNotificationSent = true;
+                embed.Subscription.Status = NotificationStatusType.None;
+                if (!_subscriptionManager.Save(embed.Subscription))
+                {
+                    var sql = $@"
+UPDATE subscriptions SET status = 0 WHERE guild_id = {embed.Subscription.GuildId} AND user_id = {embed.Subscription.UserId}
+";
+                    _logger.Error($"Failed to disable GuildId: {embed.Subscription.GuildId} UserId: {embed.Subscription.UserId}'s subscriptions, run this SQL to disable their subscription notifications manually:\n{sql}");
+                }
+            }
         }
 
         #endregion

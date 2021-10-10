@@ -21,6 +21,7 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Geofence.Geocoding;
+    using WhMgr.Services.Icons;
     using WhMgr.Utilities;
 
     [Table("pokemon")]
@@ -411,7 +412,7 @@
                 ? EmbedMessageType.PokemonMissingStats
                 : EmbedMessageType.Pokemon;
             var embed = settings.Alarm?.Embeds[embedType] ?? server.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
-            settings.ImageUrl = IconFetcher.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
+            settings.ImageUrl = UIconService.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
             {
@@ -428,8 +429,8 @@
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 Color = (
                     MatchesGreatLeague || MatchesUltraLeague
-                        ? GetPvPColor(GreatLeague, UltraLeague, MasterFile.Instance.DiscordEmbedColors)
-                        : IV.BuildPokemonIVColor(MasterFile.Instance.DiscordEmbedColors)
+                        ? GetPvPColor(GreatLeague, UltraLeague, GameMaster.Instance.DiscordEmbedColors)
+                        : IV.BuildPokemonIVColor(GameMaster.Instance.DiscordEmbedColors)
                     ).Value,
                 Footer = new Discord.Models.DiscordEmbedFooter
                 {
@@ -451,7 +452,7 @@
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
-            var pkmnInfo = MasterFile.GetPokemon(Id, FormId);
+            var pkmnInfo = GameMaster.GetPokemon(Id, FormId);
             var pkmnName = Translator.Instance.GetPokemonName(Id);
             var form = Translator.Instance.GetFormName(FormId);
             var costume = Translator.Instance.GetCostumeName(Costume);
@@ -498,10 +499,11 @@
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
-            var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
+            var shortUrlApiUrl = properties.Config.Instance.ShortUrlApiUrl;
+            var gmapsLocationLink = UrlShortener.Create(shortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, scannerMapsLink);
             var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
             var pokestop = properties.MapDataCache.GetPokestop(PokestopId).ConfigureAwait(false)
                                                   .GetAwaiter()
@@ -654,7 +656,7 @@
                 if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
                     continue;
 
-                if (!MasterFile.Instance.Pokedex.ContainsKey(pvp.PokemonId))
+                if (!GameMaster.Instance.Pokedex.ContainsKey(pvp.PokemonId))
                 {
                     Console.WriteLine($"Pokemon database does not contain pokemon id {pvp.PokemonId}");
                     continue;

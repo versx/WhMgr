@@ -19,7 +19,7 @@
             {
                 if (!uint.TryParse(args[0]?.ToString(), out var pokeId))
                     return;
-                var pkmnName = MasterFile.GetPokemon(pokeId).Name;
+                var pkmnName = GameMaster.GetPokemon(pokeId).Name;
                 writer.Write(pkmnName);
             }));
             // GetFormName helper

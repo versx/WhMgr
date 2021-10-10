@@ -67,7 +67,7 @@
                 return null;
 
             var path = Path.Combine(Strings.EmbedsFolder, EmbedsFile);
-            return Embeds = Data.MasterFile.LoadInit<EmbedMessage>(path);
+            return Embeds = Data.GameMaster.LoadInit<EmbedMessage>(path);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@
                 return null;
 
             var path = Path.Combine(Strings.FiltersFolder, FiltersFile);
-            return Filters = Data.MasterFile.LoadInit<WebhookFilter>(path);
+            return Filters = Data.GameMaster.LoadInit<WebhookFilter>(path);
         }
     }
 }

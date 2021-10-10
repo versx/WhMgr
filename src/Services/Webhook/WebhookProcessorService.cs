@@ -4,11 +4,11 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
 
     //using Microsoft.Extensions.Logging;
 
-    using WhMgr.Common;
     using WhMgr.Configuration;
     using WhMgr.Extensions;
     using WhMgr.Services.Alarms;
@@ -35,7 +35,7 @@
         private readonly Dictionary<string, ScannedQuest> _processedQuests;
         private readonly Dictionary<string, ScannedPokestop> _processedPokestops;
         private readonly Dictionary<string, ScannedGym> _processedGyms;
-        private readonly Dictionary<long, WeatherCondition> _processedWeather;
+        private readonly Dictionary<long, ScannedWeather> _processedWeather;
         private readonly System.Timers.Timer _clearCache;
 
         #region Properties
@@ -68,7 +68,7 @@
             _processedQuests = new Dictionary<string, ScannedQuest>();
             _processedPokestops = new Dictionary<string, ScannedPokestop>();
             _processedGyms = new Dictionary<string, ScannedGym>();
-            _processedWeather = new Dictionary<long, WeatherCondition>();
+            _processedWeather = new Dictionary<long, ScannedWeather>();
 
             _clearCache = new System.Timers.Timer
             {
@@ -98,6 +98,7 @@
         {
             Enabled = false;
 
+            // Stop cache cleaning timer
             if (_clearCache?.Enabled ?? false)
             {
                 _clearCache.Stop();
@@ -113,7 +114,8 @@
                 var json = payloads?.ToJson();
                 if (!string.IsNullOrEmpty(json))
                 {
-                    using var sw = new StreamWriter(Strings.DebugLogFileName);
+                    var path = Path.Combine(Strings.BasePath, Strings.DebugLogFileName);
+                    using var sw = new StreamWriter(path, true, Encoding.UTF8);
                     sw.WriteLine(json);
                 }
             }
@@ -124,24 +126,24 @@
                 var payload = payloads[i];
                 switch (payload.Type)
                 {
-                    case WebhookHeaders.Pokemon:
+                    case WebhookTypes.Pokemon:
                         await ProcessPokemonAsync(payload.Message).ConfigureAwait(false);
                         break;
-                    case WebhookHeaders.Raid:
+                    case WebhookTypes.Raid:
                         await ProcessRaidAsync(payload.Message).ConfigureAwait(false);
                         break;
-                    case WebhookHeaders.Quest:
+                    case WebhookTypes.Quest:
                         await ProcessQuestAsync(payload.Message).ConfigureAwait(false);
                         break;
-                    case WebhookHeaders.Invasion:
-                    case WebhookHeaders.Pokestop:
+                    case WebhookTypes.Invasion:
+                    case WebhookTypes.Pokestop:
                         await ProcessPokestopAsync(payload.Message).ConfigureAwait(false);
                         break;
-                    case WebhookHeaders.Gym:
-                    case WebhookHeaders.GymDetails:
+                    case WebhookTypes.Gym:
+                    case WebhookTypes.GymDetails:
                         ProcessGym(payload.Message);
                         break;
-                    case WebhookHeaders.Weather:
+                    case WebhookTypes.Weather:
                         ProcessWeather(payload.Message);
                         break;
                     default:
@@ -302,9 +304,10 @@
                         var processedInvasionAlready = _processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType
                             && _processedPokestops[pokestop.PokestopId].InvasionExpireTime == pokestop.InvasionExpireTime;
 
-                        if (processedLureAlready || processedInvasionAlready)
+                        if ((processedLureAlready || processedInvasionAlready) &&
+                            !(processedLureAlready && processedInvasionAlready))
                         {
-                            // Processed pokestop lure or invasion already
+                            // Processed pokestop lure or invasion already and not both
                             return;
                         }
 
@@ -386,17 +389,18 @@
                 {
                     if (_processedWeather.ContainsKey(weather.Id))
                     {
-                        if (_processedWeather[weather.Id] == weather.GameplayCondition)
+                        if (_processedWeather[weather.Id].Condition == weather.GameplayCondition &&
+                            !_processedWeather[weather.Id].IsExpired)
                         {
                             // Processed weather already
                             return;
                         }
 
-                        _processedWeather[weather.Id] = weather.GameplayCondition;
+                        _processedWeather[weather.Id] = new ScannedWeather(weather);
                     }
                     else
                     {
-                        _processedWeather.Add(weather.Id, weather.GameplayCondition);
+                        _processedWeather.Add(weather.Id, new ScannedWeather(weather));
                     }
                 }
             }
@@ -454,6 +458,18 @@
                 {
                     // Pokestop lure or invasion expired, remove from cache
                     _processedPokestops.Remove(pokestopId);
+                }
+            }
+
+            lock (_processedWeather)
+            {
+                var expiredWeather = _processedWeather.Where(pair => pair.Value.IsExpired)
+                                                      .Select(pair => pair.Key)
+                                                      .ToList();
+                foreach (var weatherId in expiredWeather)
+                {
+                    // Weather expired, from from cache
+                    _processedWeather.Remove(weatherId);
                 }
             }
         }

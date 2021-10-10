@@ -3,6 +3,8 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
+    using POGOProtos.Rpc;
+
     using WhMgr.Common;
 
     public class PokedexPokemon
@@ -16,17 +18,22 @@
         [JsonPropertyName("forms")]
         public Dictionary<uint, PokedexPokemon> Forms { get; set; }
 
+        /*
         [JsonPropertyName("default_form_id")]
         public int? DefaultFormId { get; set; }
 
         [JsonPropertyName("default_form")]
         public string DefaultForm { get; set; }
+        */
 
         [JsonPropertyName("evolutions")]
         public List<PokedexPokemonEvolution> Evolutions { get; set; }
 
         [JsonPropertyName("form")]
         public ushort? Form { get; set; }
+
+        [JsonPropertyName("gender_requirement")]
+        public PokemonGender GenderRequirement { get; set; }
 
         [JsonPropertyName("types")]
         public List<PokemonType> Types { get; set; }
@@ -79,6 +86,18 @@
         [JsonPropertyName("gym_defender_eligible")]
         public bool GymDeployable { get; set; }
 
+        [JsonPropertyName("gen_id")]
+        public uint GenerationId { get; set; }
+
+        [JsonPropertyName("generation")]
+        public string Generation { get; set; }
+
+        [JsonPropertyName("temp_evolutions")]
+        public Dictionary<uint, PokedexPokemon> TempEvolutions { get; set; }
+
+        [JsonPropertyName("little")]
+        public bool Little { get; set; }
+
         public PokedexPokemon()
         {
             Forms = new Dictionary<uint, PokedexPokemon>();
@@ -87,14 +106,5 @@
             ChargedMoves = new List<string>();
             Types = new List<PokemonType>();
         }
-    }
-
-    public class PokedexPokemonEvolution
-    {
-        [JsonPropertyName("pokemon")]
-        public uint PokemonId { get; set; }
-
-        [JsonPropertyName("form")]
-        public uint FormId { get; set; }
     }
 }

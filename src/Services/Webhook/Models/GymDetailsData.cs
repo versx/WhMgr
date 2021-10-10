@@ -15,6 +15,7 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Geofence.Geocoding;
+    using WhMgr.Services.Icons;
     using WhMgr.Utilities;
 
     [Table("gym")]
@@ -66,6 +67,12 @@
         public ushort SlotsAvailable { get; set; }
 
         [
+            JsonPropertyName("ex_raid_eligible"),
+            Column("ex_raid_eligible"),
+        ]
+        public bool IsExEligible { get; set; }
+
+        [
             JsonPropertyName("sponsor_id"),
             Column("sponsor_id"),
         ]
@@ -76,6 +83,12 @@
             Column("in_battle"),
         ]
         public bool InBattle { get; set; }
+
+        [
+            JsonPropertyName("ar_scan_eligible"),
+            Column("ar_scan_eligible"),
+        ]
+        public bool IsArScanEligible { get; set; }
 
         #endregion
 
@@ -134,28 +147,28 @@
         {
             // Get old gym from cache
             var oldGym = await properties.MapDataCache.GetGym(GymId).ConfigureAwait(false);
-            var exEmojiId = MasterFile.Instance.Emojis["ex"];
-            var exEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis["ex"]) ? exEmojiId > 0
+            var exEmojiId = GameMaster.Instance.Emojis["ex"];
+            var exEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis["ex"]) ? exEmojiId > 0
                 ? string.Format(Strings.EmojiSchema, "ex", exEmojiId) : "EX"
-                : MasterFile.Instance.CustomEmojis["ex"];
-            var teamEmojiId = MasterFile.Instance.Emojis[Team.ToString().ToLower()];
-            var teamEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[Team.ToString().ToLower()])
+                : GameMaster.Instance.CustomEmojis["ex"];
+            var teamEmojiId = GameMaster.Instance.Emojis[Team.ToString().ToLower()];
+            var teamEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[Team.ToString().ToLower()])
                 ? teamEmojiId > 0
                     ? string.Format(Strings.EmojiSchema, Team.ToString().ToLower(), teamEmojiId)
                     : Team.ToString()
-                : MasterFile.Instance.CustomEmojis[Team.ToString().ToLower()];
-            var oldTeamEmojiId = MasterFile.Instance.Emojis[oldGym?.Team.ToString().ToLower()];
-            var oldTeamEmoji = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[oldGym?.Team.ToString().ToLower()])
+                : GameMaster.Instance.CustomEmojis[Team.ToString().ToLower()];
+            var oldTeamEmojiId = GameMaster.Instance.Emojis[oldGym?.Team.ToString().ToLower()];
+            var oldTeamEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[oldGym?.Team.ToString().ToLower()])
                 ? oldTeamEmojiId > 0
                     ? string.Format(Strings.EmojiSchema, oldGym?.Team.ToString().ToLower(), oldTeamEmojiId)
                     : oldGym?.Team.ToString()
-                : MasterFile.Instance.CustomEmojis[oldGym.Team.ToString().ToLower()];
+                : GameMaster.Instance.CustomEmojis[oldGym.Team.ToString().ToLower()];
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
-            var gymImageUrl = IconFetcher.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);// $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
+            var gymImageUrl = UIconService.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);// $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
 
             var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Gyms];
             var staticMap = new StaticMapGenerator(new StaticMapOptions
@@ -176,10 +189,11 @@
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
-            var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
+            var shortUrlApiUrl = properties.Config.Instance.ShortUrlApiUrl;
+            var gmapsLocationLink = UrlShortener.Create(shortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, scannerMapsLink);
             var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
@@ -199,13 +213,16 @@
                 team_changed = oldGym?.Team != Team,
                 in_battle = InBattle,
                 under_attack = InBattle,
-                is_ex = Convert.ToString(SponsorId),
+                is_ex = IsExEligible,
+                sponsor_id = Convert.ToString(SponsorId),
                 ex_emoji = exEmoji,
                 slots_available = SlotsAvailable == 0
-                                        ? "Full"
-                                        : SlotsAvailable == 6
-                                            ? "Empty"
-                                            : SlotsAvailable.ToString("N0"),
+                    // TODO: Localize
+                    ? "Full"
+                    : SlotsAvailable == 6
+                        ? "Empty"
+                        : SlotsAvailable.ToString("N0"),
+                is_ar = IsArScanEligible,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
