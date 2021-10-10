@@ -11,8 +11,8 @@
     using WhMgr.Data.Contexts;
     using WhMgr.Extensions;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Icons;
     using WhMgr.Services.Webhook.Models;
-    using WhMgr.Utilities;
 
     public class MapDataCache : IMapDataCache
     {
@@ -188,8 +188,8 @@
                 lure_id = Convert.ToInt32(x.LureType),
                 lure = x.LureType,
                 marker = x.HasInvasion
-                    ? IconFetcher.Instance.GetInvasionIcon("Default", x.GruntType)
-                    : IconFetcher.Instance.GetLureIcon("Default", x.LureType), // TODO: Get icon style
+                    ? UIconService.Instance.GetInvasionIcon("Default", x.GruntType)
+                    : UIconService.Instance.GetPokestopIcon("Default", x.LureType), // TODO: Get icon style
             }).ToList<dynamic>();
             return nearby;
         }
@@ -215,7 +215,7 @@
                 lon = x.Longitude,
                 team_id = Convert.ToInt32(x.Team),
                 team = x.Team,
-                marker = IconFetcher.Instance.GetGymIcon("Default", x.Team), // TODO: Get icon style
+                marker = UIconService.Instance.GetGymIcon("Default", x.Team), // TODO: Get icon style
             }).ToList<dynamic>();
             return nearby;
         }

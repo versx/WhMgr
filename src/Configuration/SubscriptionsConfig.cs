@@ -28,8 +28,11 @@
         [JsonPropertyName("maxGymSubscriptions")]
         public int MaxGymSubscriptions { get; set; }
 
+        /// <summary>
+        /// Gets or sets the maximum amount of notifications a user can receive per minute per server before being rate limited
+        /// </summary>
         [JsonPropertyName("maxNotificationsPerMinute")]
-        public int MaxNotificationsPerMinute { get; set; }
+        public ushort MaxNotificationsPerMinute { get; set; }
 
         [JsonPropertyName("url")]
         public string Url { get; set; }
@@ -44,7 +47,7 @@
             MaxInvasionSubscriptions = 0;
             MaxLureSubscriptions = 0;
             MaxGymSubscriptions = 0;
-            MaxNotificationsPerMinute = 15;
+            MaxNotificationsPerMinute = 10;
         }
     }
 }

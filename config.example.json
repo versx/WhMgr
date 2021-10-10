@@ -2,9 +2,9 @@
   "host": "*",
   "port": 8008,
   "locale": "en",
-  "shortUrlApiUrl": null,
+  "shortUrlApiUrl": "",
   "stripeApiKey": "",
-  "maxPokemonId": 721,
+  "maxPokemonId": 898,
   "servers": {
     "000000000000000001": "discord1.example.json",
     "000000000000000002": "discord2.example.json"
@@ -38,8 +38,59 @@
     "scannerMap": "http://map.example.com/@/{0}/{1}/15"
   },
   "iconStyles": {
-    "Default": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/",
-    "Shuffle": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
+    "Default": {
+      "Base": {
+        "name": "Default",
+        "path": "https://raw.githubusercontent.com/WatWowMap/wwm-uicons/main/"
+      },
+      "Pokemon": {
+        "name": "Default_Pokemon",
+        "path": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/UICONS/pokemon/"
+      }
+      /*
+      "Raid",
+      "Egg",
+      "Gym",
+      "Pokestop",
+      "Reward",
+      "Invasion",
+      "Type",
+      "Nest",
+      "Team",
+      "Weather",
+      "Misc",
+      */
+    },
+    "Home": {
+      "Base": {
+        "name": "Home",
+        "path": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/UICONS_OS/"
+      }
+    },
+    "Shuffle": {
+      "Base": {
+        "name": "Shuffle",
+        "path": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
+      }
+    },
+    "Pokemon Go": {
+      "Base": {
+        "name": "Pokemon Go",
+        "path": "https://raw.githubusercontent.com/whitewillem/PogoAssets/resized/icons_large-uicons"
+      }
+    },
+    "PokeDave Shuffle": {
+      "Base": {
+        "name": "PokeDave Shuffle",
+        "path": "https://raw.githubusercontent.com/jepke/pokedave_shuffle_icons_-PMSF-/master/UICONS/"
+      }
+    },
+    "PMSF": {
+      "Base": {
+        "name": "PMSF",
+        "path": "https://raw.githubusercontent.com/pmsf/PMSF/develop/static/sprites/"
+      }
+    }
   },
   "staticMaps": {
     "pokemon": {

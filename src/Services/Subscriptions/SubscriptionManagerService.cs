@@ -232,10 +232,10 @@
             // Only reload based on last_changed timestamp in metadata table
             var lastModifiedTimestamp = GetLastModifiedTimestamp();
             var utcNow = DateTime.UtcNow.GetUnixTimestamp();
-            var fiveMinutes = reloadM * 60 * 60;
+            var fiveMinutesMs = reloadM * 60 * 60;
             var delta = utcNow - lastModifiedTimestamp;
             // Check if last_modified was set within the last 5 minutes
-            if (!skipCheck && delta > fiveMinutes)
+            if (!skipCheck && delta > fiveMinutesMs)
                 return;
 
             // Updated, reload subscriptions

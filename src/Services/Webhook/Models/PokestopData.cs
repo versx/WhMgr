@@ -7,6 +7,7 @@
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
+    using DSharpPlus.Entities;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Common;
@@ -18,8 +19,8 @@
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Icons;
     using WhMgr.Utilities;
-    using DSharpPlus.Entities;
 
     /// <summary>
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
@@ -113,6 +114,12 @@
             NotMapped,
         ]
         public ulong Updated { get; set; }
+
+        [
+            JsonPropertyName("ar_scan_eligible"),
+            Column("ar_scan_eligible"),
+        ]
+        public bool IsArScanEligible { get; set; }
 
         [
             JsonIgnore,
@@ -214,8 +221,9 @@
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
-            var lureImageUrl = IconFetcher.Instance.GetLureIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, LureType);
-            var invasionImageUrl = IconFetcher.Instance.GetInvasionIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, GruntType);
+            var server = properties.Config.Instance.Servers[properties.GuildId];
+            var lureImageUrl = UIconService.Instance.GetPokestopIcon(server.IconStyle, LureType);
+            var invasionImageUrl = UIconService.Instance.GetInvasionIcon(server.IconStyle, GruntType);
             var imageUrl = HasInvasion
                 ? invasionImageUrl
                 : HasLure
@@ -249,14 +257,17 @@
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
-            var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
+            var shortUrlApiUrl = properties.Config.Instance.ShortUrlApiUrl;
+            var gmapsLocationLink = UrlShortener.Create(shortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, scannerMapsLink);
             var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
             var invasion = GameMaster.Instance.GruntTypes.ContainsKey(GruntType) ? GameMaster.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.GetGruntType(GruntType);
-            var pokemonType = GameMaster.Instance.GruntTypes.ContainsKey(GruntType) ? GetPokemonTypeFromString(invasion?.Type) : PokemonType.None;
+            var pokemonType = GameMaster.Instance.GruntTypes.ContainsKey(GruntType)
+                ? GetPokemonTypeFromString(invasion?.Type)
+                : PokemonType.None;
             var invasionTypeEmoji = pokemonType == PokemonType.None
                 ? leaderString
                 : pokemonType.GetTypeEmojiIcons();
@@ -284,6 +295,7 @@
                 invasion_expire_time_24h = InvasionExpireTime.ToString("HH:mm:ss"),
                 invasion_expire_time_left = invasionExpireTimeLeft,
                 invasion_encounters = invasionEncounters,
+                is_ar = IsArScanEligible,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,

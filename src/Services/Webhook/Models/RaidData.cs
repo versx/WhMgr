@@ -16,6 +16,7 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Geofence.Geocoding;
+    using WhMgr.Services.Icons;
     using WhMgr.Utilities;
 
     public sealed class RaidData : IWebhookData
@@ -68,7 +69,7 @@
         public bool IsExclusive { get; set; }
 
         [JsonPropertyName("sponsor_id")]
-        public uint SponsorId { get; set; }
+        public uint? SponsorId { get; set; }
 
         [JsonPropertyName("form")]
         public uint Form { get; set; }
@@ -81,6 +82,9 @@
 
         [JsonPropertyName("gender")]
         public Gender Gender { get; set; }
+
+        [JsonPropertyName("ar_scan_eligible")]
+        public bool IsArScanEligible { get; set; }
 
         [JsonIgnore]
         public DateTime StartTime { get; private set; }
@@ -157,8 +161,8 @@
                 ?? server.DmEmbeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
             var raidImageUrl = IsEgg
-                ? IconFetcher.Instance.GetRaidEggIcon(server.IconStyle, Convert.ToInt32(Level), false, IsExEligible)
-                : IconFetcher.Instance.GetPokemonIcon(server.IconStyle, PokemonId, Form, Evolution, Gender, Costume, false);
+                ? UIconService.Instance.GetEggIcon(server.IconStyle, Level, false, IsExEligible)
+                : UIconService.Instance.GetPokemonIcon(server.IconStyle, PokemonId, Form, Evolution, Gender, Costume, false);
             settings.ImageUrl = raidImageUrl;
             var properties = await GetPropertiesAsync(settings);
             var eb = new DiscordEmbedMessage
@@ -212,10 +216,10 @@
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
             var weaknessesEmoji = types?.GetWeaknessEmojiIcons();
-            var perfectRange = PokemonId.MaxCpAtLevel(20);
-            var boostedRange = PokemonId.MaxCpAtLevel(25);
-            var worstRange = PokemonId.MinCpAtLevel(20);
-            var worstBoosted = PokemonId.MinCpAtLevel(25);
+            var perfectRange = PokemonId.GetCpAtLevel(20, 15);
+            var boostedRange = PokemonId.GetCpAtLevel(25, 15);
+            var worstRange = PokemonId.GetCpAtLevel(20, 10);
+            var worstBoosted = PokemonId.GetCpAtLevel(25, 10);
             var exEmojiId = GameMaster.Instance.Emojis["ex"];
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
             var teamEmojiId = GameMaster.Instance.Emojis[Team.ToString().ToLower()];
@@ -245,10 +249,11 @@
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
-            var gmapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = UrlShortener.CreateShortUrl(properties.Config.Instance.ShortUrlApiUrl, scannerMapsLink);
+            var shortUrlApiUrl = properties.Config.Instance.ShortUrlApiUrl;
+            var gmapsLocationLink = UrlShortener.Create(shortUrlApiUrl, gmapsLink);
+            var appleMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, appleMapsLink);
+            var wazeMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, wazeMapsLink);
+            var scannerMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, scannerMapsLink);
             var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
 
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
@@ -298,6 +303,7 @@
                 perfect_cp_boosted = boostedRange.ToString(),
                 worst_cp = worstRange.ToString(),
                 worst_cp_boosted = worstBoosted.ToString(),
+                is_ar = IsArScanEligible,
 
                 // Time properties
                 start_time = StartTime.ToLongTimeString(),

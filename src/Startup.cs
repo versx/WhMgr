@@ -23,9 +23,9 @@ namespace WhMgr
     using WhMgr.Services.Cache;
     using WhMgr.Services.Discord;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Icons;
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook;
-    using WhMgr.Utilities;
 
     // TODO: Reload alarms/filters/geofences on change
     // TODO: Twilio notifications
@@ -59,7 +59,7 @@ namespace WhMgr
             Localization.Translator.Instance.CreateLocaleFiles();
             Localization.Translator.Instance.SetLocale(_config.Instance.Locale);
 
-            IconFetcher.Instance.SetIconStyles(_config.Instance.IconStyles);
+            // TODO: IconFetcher.Instance.SetIconStyles(_config.Instance.IconStyles);
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -77,6 +77,7 @@ namespace WhMgr
             services.AddSingleton<IMapDataCache, MapDataCache>();
             services.AddSingleton<IStaticsticsService, StatisticsService>();
             services.AddSingleton<IDiscordClientService, DiscordClientService>();
+            services.AddSingleton<IUIconService, UIconService>();
 
             services.AddHostedService<SubscriptionProcessorService>();
             // Subscription processor queue
