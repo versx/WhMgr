@@ -47,7 +47,7 @@
         public string DmEmbedsFile { get; set; } = "default.json";
 
         /// <summary>
-        /// Gets or sets the direct message alerts class to use for subscriptions
+        /// Gets or sets the direct message embeds class to use for subscriptions
         /// </summary>
         [JsonIgnore]
         public EmbedMessage DmEmbeds { get; set; }

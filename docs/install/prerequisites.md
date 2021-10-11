@@ -1,15 +1,33 @@
 # Prerequisites  
+- Git  
 - .NET 5 SDK  
 
-**.NET 5 SDK**  
 
-Run the following to install .NET Core runtime, clone respository, and copy example Alerts, Filters, Geofences, config and alarm files.  
+#### __Git__  
+Install [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)  
 
-**Linux/macOS**  
+#### __.NET 5 SDK__  
 ```
-wget https://raw.githubusercontent.com/versx/WhMgr/master/install.sh && chmod +x install.sh && ./install.sh && rm install.sh  
+# Download install script
+wget https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.sh
+
+# Make installer executable
+chmod +x dotnet-install.sh
+
+# Install .NET 5.0 SDK
+./dotnet-install.sh --version 5.0.202
 ```
-**Windows**  
+
+<hr>
+
+### __Automated Install Scripts__  
+Run the following to install .NET 5 software development kit (SDK), clone respository, and copy default example embeds, filters, geofences, config and alarm files.  
+
+__Linux/macOS__  
 ```
-bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/master/install.bat install.bat | start install.bat  
+wget https://raw.githubusercontent.com/versx/WhMgr/master/scripts/install.sh && chmod +x install.sh && ./install.sh && rm install.sh  
+```
+__Windows__  
+```
+bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/master/scripts/install.bat install.bat | start install.bat  
 ```

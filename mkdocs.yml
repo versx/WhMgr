@@ -1,6 +1,6 @@
 site_name: Webhook Manager
 site_url: https://github.com/versx/WhMgr
-site_description: Webhook manager
+site_description: Webhook Manager
 site_author: versx
 
 repo_url: https://github.com/versx/whmgr/
@@ -9,18 +9,20 @@ edit_uri: ""
 theme:
     name: readthedocs #mkdocs, bootstrap4, cinder, cosmo, cyborg, flatly, ivory, material, readthedocs, slate, yeti
 
-extends: mkdocs
-hljs_style: docco
+plugins:
+    - search:
+        separator: '[\s\-\.]+'
+        lang: en
 
 nav:
-    - Home: index.md
     - General:
+        - Home: index.md
         - Screenshots: screenshots.md
         - Terminology: terminology.md
-        - Updating: updating.md
     - Installation:
         - Prerequisites: install/prerequisites.md
         - Getting Started: install/getting-started.md
+        - Updating: updating.md
     - Configuration:
         - Config: config/config.md
         - Discord: config/discords.md
@@ -28,19 +30,20 @@ nav:
         - Alarms: config/alarms.md
         - Filters: config/filters.md
         - Embeds: config/embeds.md
-        - DTS:
-            - Pokemon: config/dts/pokemon.md
-            - Raids & Eggs: config/dts/raids.md
-            - Quests: config/dts/quests.md
-            - Pokestops: config/dts/pokestops.md
-            - Gyms: config/dts/gyms.md
-            - Weather: config/dts/weather.md
-            - Nests: config/dts/nests.md
+    - DTS:
+        - Pokemon: dts/pokemon.md
+        - Raids & Eggs: dts/raids.md
+        - Quests: dts/quests.md
+        - Pokestops: dts/pokestops.md
+        - Gyms: dts/gyms.md
+        - Weather: dts/weather.md
+        - Nests: dts/nests.md
     - Commands:
         - Subscriptions: commands/subscriptions.md
         - Owner: commands/owner.md
     - Other:
         - Command Line: other/commandline.md
+        - Geocoding: other/geocoding.md
         - PM2: other/pm2.md
 #    - About:
 #        - Release Notes: about/release-notes.md
@@ -50,10 +53,7 @@ markdown_extensions:
     - toc:
         permalink: 
 
-copyright: Copyright &copy; 2019 <a href="https://github.com/versx">versx</a>, Maintained by <a href="/about/release-notes.md#maintenance-team">versx</a>.
-
-plugins:
-    - search
+copyright: Copyright &copy; 2021, Maintained by <a href="https://github.com/versx">versx</a>.
 
 extra_css:
     - css/base.css

@@ -3,9 +3,11 @@
 [![GitHub Release](https://img.shields.io/github/release/versx/WhMgr.svg)](https://github.com/versx/WhMgr/releases/)
 [![GitHub Contributors](https://img.shields.io/github/contributors/versx/WhMgr.svg)](https://github.com/versx/WhMgr/graphs/contributors/)
 [![Discord](https://img.shields.io/discord/552003258000998401.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/zZ9h9Xa)  
+
 # Webhook Manager  
 
-### PokeAlarm, PoracleJS, WDR, Novabot, etc alternative.  
+**PokeAlarm, PoracleJS, WDR, Novabot, etc alternative.**  
+
 Works with the following backends:  
 - [RealDeviceMap](https://github.com/123FLO321/RealDeviceMap)  
 - [Chuck](https://github.com/WatWowMap/Chuck)  
@@ -13,32 +15,33 @@ Works with the following backends:
 
 
 ## Description  
-Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, raid, quest, Team Rocket invasion, and Pokestop lure notifications via direct messages.
+Developed in C#, runs on .NET 5.0 CLR. Cross platform compatibility, can run on Windows, macOS, and Linux operating systems.  
 
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, Pokestop lures, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, PvP, raid, quest, Team Rocket invasion, and Pokestop lure notifications via direct messages.
 
 ## Features  
 - Supports multiple Discord servers.  
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
-- Per user custom Discord notifications for Pokemon, raids, quests, invasions, and lures.  
-- User interface to configure Discord notifications with ease (as well as Discord commands). [WhMgr-UI](https://github.com/versx/WhMgr-UI)  
-- Subscription notifications based on pre-defined distance.  
-- Customizable alert messages with dynamic text replacement.  
+- Per user custom Discord notifications for Pokemon, raids, quests, invasions, lures, and gyms.  
+- User interface to configure custom Discord subscription notifications with ease. [WhMgr-UI](https://github.com/versx/WhMgr-UI)  
+- Subscription notifications based on pre-defined distance and geofence areas.  
+- Customizable alert messages with dynamic text replacement/substitution.  
 - Support for multiple cities/areas using geofences per server.  
-- Daily shiny stats reporting.  
+- Daily shiny and IV stats reporting.  
 - Automatic quest message purge at midnight.  
-- Support for Donors/Supporters only notifications.  
-- Direct messages of Pokemon notifications based on city roles assigned.  
-- Pokemon and Raid subscription notifications based on specific forms.  
-- Custom prefix support as well as mentionable user support for commands.  
+- Support for Donors/Supporters only custom notifications.  
+- Pokemon, PvP, and Raid subscription notifications based on specific forms or costumes.  
+- Custom prefix support as well as mentionable bot user string for commands.  
 - Raid subscription notifications for specific gyms.  
 - Twilio text message alerts for ultra rare Pokemon.  
 - Custom image support for Discord alarm reports.  
 - Custom icon style selection for Discord user notifications.  
 - External emoji server support.  
-- Custom static map format support.  
-- Support for language translation.  
+- Custom static map format support, including pokestop and gym marker placements.  
+- Support for language translation per instance (per server planned).  
 - Multi threaded, low processing consumption.  
-- [I.C.O.N.S.](https://github.com/Mygod/pokemon-icon-postprocessor) standard image support.
+- Rate limit backlog queue.
+- [UIcons](https://github.com/uicons/uicons) standard image support.
 - Lots more...  
 
 
@@ -49,40 +52,41 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 
 ## Previews  
 *All examples are completely customizable using Dynamic Text Replacement/Substitution*  
-Discord Pokemon Notifications:  
+
+__Pokemon Notifications__  
 ![Pokemon Notifications](images/pkmn.png "Pokemon Notifications")  
 
-Discord Pokemon PVP Notifications:  
+__Pokemon PVP Notifications__  
 ![Pokemon Notifications](images/pvp.png "Pokemon PVP Notifications")  
 
-Discord Raid Notifications:  
-![Raid Notifications](images/raids.png "Raid Notifications")  
+__Raid Boss Notifications__  
+![Raid Boss Notifications](images/raids.png "Raid Boss Notifications")  
 
-Discord Raid Egg Notifications:  
+__Raid Egg Notifications__  
 ![Egg Notifications](images/eggs.png "Egg Notifications")  
 
-Discord Quest Notifications:  
+__Quest Notifications__  
 ![Quest Notifications](images/quests.png "Quest Notifications")  
 
-Discord Lure Notifications:  
+__Lure Notifications__  
 ![Lure Notifications](images/lure.png "Lure Notifications")  
 
-Discord Lure (Glacial) Notifications:  
+__Lure (Glacial) Notifications__  
 ![Lure (Glacial) Notifications](images/lure_glacial.png "Lure (Glacial) Notifications")  
 
-Discord Lure (Mossy) Notifications:  
+__Lure (Mossy) Notifications__  
 ![Lure (Mossy) Notifications](images/lure_mossy.png "Lure (Mossy) Notifications")  
 
-Discord Lure (Magnetic) Notifications:  
+__Lure (Magnetic) Notifications__  
 ![Lure (Magnetic) Notifications](images/lure_magnetic.png "Lure (Magnetic) Notifications")  
 
-Discord Gym Team Takeover Notifications:  
+__Gym Team Takeover Notifications__  
 ![Gym Team Takeover Notifications](images/gyms.png "Gym Team Takeover Notifications")  
 
-Discord Team Rocket Invasion Notifications:  
+__Team Rocket Invasion Notifications__  
 ![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
 
-Discord Weather Notifications:  
+__Weather Notifications__  
 ![Weather Notifications](images/weather.png "Weather Notifications")  
 
 
@@ -90,3 +94,4 @@ Discord Weather Notifications:
 [versx](https://github.com/versx) - Developer  
 [PokeAlarm](https://github.com/PokeAlarm/PokeAlarm) - Dynamic Text Substitution idea  
 [WDR](https://github.com/PartTimeJS/WDR) - masterfile.json file  
+[Contributors](https://github.com/versx/WhMgr/contributors)  

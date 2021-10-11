@@ -58,7 +58,7 @@
         }
 
         /// <summary>
-        /// Load alerts from the `/Alerts` folder
+        /// Load embeds from the `/embeds` folder
         /// </summary>
         /// <returns>Returns parsed alert message</returns>
         public EmbedMessage LoadEmbeds()

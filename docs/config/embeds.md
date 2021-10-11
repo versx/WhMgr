@@ -1,5 +1,5 @@
-# Alerts
-Alerts depict how Discord embed messages are formatted. Customization is endless.  
+# Embeds
+Embeds depict how Discord embed messages are formatted. Customization is endless.  
 
 `<name>` - Replacement placeholders.  
 `<#condition></condition>` - Conditional replacements.  
@@ -17,7 +17,7 @@ Enable the ability to only show something if the conditional value evaluates to 
 `{{pokestop_url}}` - Replaced by the image url of the nearby Pokestop.  
 `{{br}}` - Replaced with a new line break to preserve readability and formatting.  
 
-For a list of available dynamic text substitution/replacement options check out the [DTS](config/dts/) pages.  
+For a list of available dynamic text substitution/replacement options check out the [DTS](../dts/index.md) pages.  
 
 <hr>
 

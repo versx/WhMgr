@@ -13,7 +13,7 @@ dotnet build
 
 :: Copy example config
 ::echo "Copying example files..."
-::xcopy /s /e %prjDir%\examples\alerts\* %binDir%\alerts\
+::xcopy /s /e %prjDir%\examples\embeds\* %binDir%\embeds\
 ::xcopy /s /e %prjDir%\examples\filters\* %binDir%\filters\
 
 echo "Copying latest master file..."

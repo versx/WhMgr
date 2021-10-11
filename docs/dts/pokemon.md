@@ -1,6 +1,6 @@
 # Dynamic Text Replacement  
 
-Use any of the following in your alerts file to structure how notifications will look for Pokemon.  
+Use any of the following in your embeds file to structure how notifications will look for Pokemon.  
 
 ### Pokemon  
 
