@@ -3,15 +3,14 @@
 Convert latitude and longitude coordinates to street addresses.  
 
 Supported Providers:  
+
 - Google Maps  
 - OpenStreetMaps Nominatim  
 
 ## Google Maps Geocoding  
 ### __Setup__  
-Getting started:  
-https://console.cloud.google.com/google/maps-apis/start  
-Create an API key:  
-https://developers.google.com/maps/documentation/geocoding/get-api-key  
+- [Getting started](https://console.cloud.google.com/google/maps-apis/start)  
+- [Create an API key](https://developers.google.com/maps/documentation/geocoding/get-api-key)  
 
 ### __Available DTS Options__  
 ```json
@@ -125,10 +124,8 @@ https://developers.google.com/maps/documentation/geocoding/get-api-key
 
 ## OpenStreetMaps Nominatim  
 ### __Setup__  
-Self Hosting:  
-https://nominatim.org/release-docs/latest/admin/Installation/  
-Testing Endpoint (never use in production):  
-https://nominatim.openstreetmap.org
+- [Self Hosting](https://nominatim.org/release-docs/latest/admin/Installation/)  
+- [Testing Endpoint](https://nominatim.openstreetmap.org) (never use in production)  
 
 ### __Available DTS Options__  
 ```json

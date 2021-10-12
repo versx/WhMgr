@@ -22,7 +22,7 @@ nav:
     - Installation:
         - Prerequisites: install/prerequisites.md
         - Getting Started: install/getting-started.md
-        - Updating: updating.md
+        - Updating: install/updating.md
     - Configuration:
         - Config: config/config.md
         - Discord: config/discords.md
