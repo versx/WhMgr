@@ -34,6 +34,8 @@
         [Column("updated")]
         public ulong LastUpdated { get; set; }
 
-        // TODO: LastUpdatedTime (check if updated within the last 2 weeks before posting?)
+        // TODO: Check if updated within the last 2 weeks before posting?
+        [NotMapped]
+        public bool IsExpired { get; set; }
     }
 }

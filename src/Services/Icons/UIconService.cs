@@ -254,18 +254,14 @@
 
             bool appendExt;
             var sb = new StringBuilder();
-            sb.Append("reward/");
+            //sb.Append("reward/");
             switch (reward.Type)
             {
                 case QuestRewardType.Candy:
                 case QuestRewardType.Item:
-                    sb.Append((int)reward.Type);
-                    sb.Append("_i");
-                    sb.Append((int)reward.Info.Item);
-                    sb.Append("_a");
-                    sb.Append(reward?.Info?.Amount ?? 1);
-                    appendExt = true;
-                    break;
+                    return GetRewardIcon(style, reward.Type, (uint)reward.Info.Item, (uint)(reward?.Info?.Amount ?? 0));
+                case QuestRewardType.MegaResource:
+                    return GetRewardIcon(style, reward.Type, reward.Info.PokemonId, (uint)(reward?.Info?.Amount ?? 0));
                 case QuestRewardType.PokemonEncounter:
                     return GetPokemonIcon
                     (
@@ -278,14 +274,16 @@
                         reward?.Info.Shiny ?? false
                     );
                 case QuestRewardType.Stardust:
-                    sb.Append((int)reward.Type);
-                    sb.Append("_a");
                     sb.Append(reward.Info.Amount);
                     appendExt = true;
                     break;
+                case QuestRewardType.LevelCap:
+                case QuestRewardType.Incident:
+                case QuestRewardType.XlCandy:
                 case QuestRewardType.AvatarClothing:
                 case QuestRewardType.Experience:
                 case QuestRewardType.Quest:
+                case QuestRewardType.Sticker:
                     sb.Append((int)reward.Type);
                     appendExt = true;
                     break;
@@ -295,6 +293,7 @@
             }
             if (appendExt)
             {
+                sb.Append(".");
                 sb.Append(DefaultIconFormat);
             }
             var result = sb.ToString();

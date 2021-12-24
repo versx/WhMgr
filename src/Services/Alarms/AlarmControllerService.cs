@@ -412,7 +412,7 @@
                             _logger.Error($"Failed to queue Quest alarm: {alarm.Name} for Quest {quest.PokestopId} ({quest.PokestopName}) from geofence {geofence.Name}");
                             continue;
                         }
-                        _logger.Information($"Raid Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, PokestopId: {quest.PokestopId}, Name: {quest.PokestopName}, Template: {quest.Template}]");
+                        _logger.Information($"Quest Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, PokestopId: {quest.PokestopId}, Name: {quest.PokestopName}, Template: {quest.Template}]");
                     }
                 }
             }

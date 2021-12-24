@@ -17,20 +17,19 @@ namespace WhMgr
     using WhMgr.Extensions;
     using WhMgr.HostedServices;
     using WhMgr.HostedServices.TaskQueue;
+    using WhMgr.Localization;
     using WhMgr.Services;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Models;
     using WhMgr.Services.Cache;
     using WhMgr.Services.Discord;
     using WhMgr.Services.Geofence;
-    using WhMgr.Services.Icons;
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook;
 
     using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
 
     // TODO: Reload alarms/filters/geofences on change
-    // TODO: Twilio notifications
     // TODO: Simplify alarm and subscription filter checks
     // TODO: Allow pokemon names and ids for pokemon/raid alarm filters
 
@@ -50,18 +49,16 @@ namespace WhMgr
             _config = new ConfigHolder(Config);
             _config.Reloaded += () =>
             {
+                Console.WriteLine($"Config file reloaded!");
                 _config.Instance.LoadDiscordServers();
                 // TODO: _alarms = ChannelAlarmsManifest.LoadAlarms(config.Servers);
                 // TODO: filters and embeds
-                // TODO: Use FileWatcher
             };
             _alarms = ChannelAlarmsManifest.LoadAlarms(Config.Servers);
 
             // Create locale translation files
-            Localization.Translator.Instance.CreateLocaleFiles();
-            Localization.Translator.Instance.SetLocale(_config.Instance.Locale);
-
-            // TODO: IconFetcher.Instance.SetIconStyles(_config.Instance.IconStyles);
+            Translator.Instance.CreateLocaleFiles();
+            Translator.Instance.SetLocale(_config.Instance.Locale);
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
