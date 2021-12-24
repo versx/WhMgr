@@ -39,8 +39,8 @@
         /// <summary>
         /// Gets or sets the short url API url (yourls.org)
         /// </summary>
-        [JsonPropertyName("shortUrlApiUrl")]
-        public string ShortUrlApiUrl { get; set; }
+        [JsonPropertyName("shortUrlApi")]
+        public UrlShortenerConfig ShortUrlApi { get; set; }
 
         /// <summary>
         /// Gets or sets the Stripe API key

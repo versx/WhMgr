@@ -2,7 +2,13 @@
   "host": "*",
   "port": 8008,
   "locale": "en",
-  "shortUrlApiUrl": "",
+  "shortUrlApi": {
+    "enabled": false,
+    "apiUrl": "http://127.0.0.1/u/api.php",
+    "signature": "",
+    "action": "shorturl",
+    "format": "json"
+  },
   "stripeApiKey": "",
   "maxPokemonId": 898,
   "servers": {

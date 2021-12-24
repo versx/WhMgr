@@ -189,11 +189,11 @@
                     : new List<dynamic>(),
             });
             var staticMapLink = staticMap.GenerateLink();
-            var shortUrlApiUrl = properties.Config.Instance.ShortUrlApiUrl;
-            var gmapsLocationLink = UrlShortener.Create(shortUrlApiUrl, gmapsLink);
-            var appleMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, appleMapsLink);
-            var wazeMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, wazeMapsLink);
-            var scannerMapsLocationLink = UrlShortener.Create(shortUrlApiUrl, scannerMapsLink);
+            var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
+            var gmapsLocationLink = urlShortener.Create(gmapsLink);
+            var appleMapsLocationLink = urlShortener.Create( appleMapsLink);
+            var wazeMapsLocationLink = urlShortener.Create( wazeMapsLink);
+            var scannerMapsLocationLink = urlShortener.Create( scannerMapsLink);
             var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 

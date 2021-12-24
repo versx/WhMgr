@@ -293,7 +293,7 @@
             }
             if (appendExt)
             {
-                sb.Append(".");
+                sb.Append('.');
                 sb.Append(DefaultIconFormat);
             }
             var result = sb.ToString();
