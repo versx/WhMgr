@@ -17,9 +17,9 @@
             // GetPokemonName helper
             _context.RegisterHelper("getPokemonName", new HandlebarsHelper((writer, ctx, args) =>
             {
-                if (!uint.TryParse(args[0]?.ToString(), out var pokeId))
+                if (!uint.TryParse(args[0].ToString(), out var pokeId))
                     return;
-                var pkmnName = GameMaster.GetPokemon(pokeId).Name;
+                var pkmnName = Translator.Instance.GetPokemonName(pokeId);
                 writer.Write(pkmnName);
             }));
             // GetFormName helper

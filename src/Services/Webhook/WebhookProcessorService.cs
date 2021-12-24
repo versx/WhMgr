@@ -27,7 +27,7 @@
         private readonly Microsoft.Extensions.Logging.ILogger<WebhookProcessorService> _logger;
         private readonly ConfigHolder _config;
         private readonly IAlarmControllerService _alarmsService;
-        private readonly ISubscriptionProcessorService _subscriptionService;
+        private readonly ISubscriptionProcessorService _subscriptionsService;
         private readonly IMapDataCache _mapDataCache;
 
         private readonly Dictionary<string, ScannedPokemon> _processedPokemon;
@@ -54,13 +54,13 @@
             Microsoft.Extensions.Logging.ILogger<WebhookProcessorService> logger,
             ConfigHolder config,
             IAlarmControllerService alarmsService,
-            ISubscriptionProcessorService subscriptionService,
+            ISubscriptionProcessorService subscriptionsService,
             IMapDataCache mapDataCache)
         {
             _logger = logger;
             _config = config;
             _alarmsService = alarmsService;
-            _subscriptionService = subscriptionService;
+            _subscriptionsService = subscriptionsService;
             _mapDataCache = mapDataCache;
 
             _processedPokemon = new();
@@ -195,8 +195,8 @@
 
             // Process pokemon alarms
             _alarmsService.ProcessPokemonAlarms(pokemon);
-            await _subscriptionService.ProcessPokemonSubscriptionAsync(pokemon).ConfigureAwait(false);
-            await _subscriptionService.ProcessPvpSubscriptionAsync(pokemon).ConfigureAwait(false);
+            await _subscriptionsService.ProcessPokemonSubscriptionAsync(pokemon).ConfigureAwait(false);
+            await _subscriptionsService.ProcessPvpSubscriptionAsync(pokemon).ConfigureAwait(false);
         }
 
         private async Task ProcessRaidAsync(dynamic message)
@@ -240,7 +240,7 @@
 
             // Process raid alarms
             _alarmsService.ProcessRaidAlarms(raid);
-            await _subscriptionService.ProcessRaidSubscriptionAsync(raid).ConfigureAwait(false);
+            await _subscriptionsService.ProcessRaidSubscriptionAsync(raid).ConfigureAwait(false);
         }
 
         private async Task ProcessQuestAsync(dynamic message)
@@ -278,7 +278,7 @@
 
             // Process quest alarms
             _alarmsService.ProcessQuestAlarms(quest);
-            await _subscriptionService.ProcessQuestSubscriptionAsync(quest).ConfigureAwait(false);
+            await _subscriptionsService.ProcessQuestSubscriptionAsync(quest).ConfigureAwait(false);
         }
 
         private async Task ProcessPokestopAsync(dynamic message)
@@ -326,13 +326,13 @@
             // Process invasion subscriptions
             if (pokestop.HasInvasion)
             {
-                await _subscriptionService.ProcessInvasionSubscriptionAsync(pokestop).ConfigureAwait(false);
+                await _subscriptionsService.ProcessInvasionSubscriptionAsync(pokestop).ConfigureAwait(false);
             }
 
             // Process lure subscriptions
             if (pokestop.HasLure)
             {
-                await _subscriptionService.ProcessLureSubscriptionAsync(pokestop).ConfigureAwait(false);
+                await _subscriptionsService.ProcessLureSubscriptionAsync(pokestop).ConfigureAwait(false);
             }
         }
 

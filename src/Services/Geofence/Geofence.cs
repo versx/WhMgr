@@ -8,8 +8,7 @@
 
     using NetTopologySuite.Features;
     using NetTopologySuite.Geometries;
-
-    using WhMgr.Extensions;
+    using NetTopologySuite.IO;
 
     public class Geofence
     {
@@ -107,7 +106,8 @@
             FeatureCollection featureCollection;
             // Read the JSON from the file and deserialize it into a GeoJSON FeatureCollection
             var jsonText = File.ReadAllText(filePath);
-            featureCollection = jsonText.FromJson<FeatureCollection>();
+            var reader = new GeoJsonReader();
+            featureCollection = reader.Read<FeatureCollection>(jsonText);
 
             if (featureCollection == null)
                 throw new JsonException($"Geofence file \"{filePath}\" contained invalid JSON or the JSON did not represent a FeatureCollection");

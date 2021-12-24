@@ -6,7 +6,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 
-    using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook;
 
     [ApiController]
