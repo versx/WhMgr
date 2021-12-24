@@ -19,17 +19,18 @@
 
         private static OsmFeatureCollection LoadNests()
         {
-            if (!File.Exists(Strings.OsmNestFilePath))
+            var path = Path.Combine(Strings.BasePath, Strings.OsmNestFilePath);
+            if (!File.Exists(path))
             {
-                Console.WriteLine($"{Strings.OsmNestFilePath} does not exist, failed to load nests.");
+                Console.WriteLine($"{path} does not exist, failed to load nests.");
                 return null;
             }
 
-            var data = File.ReadAllText(Strings.OsmNestFilePath);
+            var data = File.ReadAllText(path);
             var obj = data.FromJson<OsmFeatureCollection>();
             if (obj == null)
             {
-                Console.WriteLine($"Failed to deserialize file data from {Strings.OsmNestFilePath} for nests collection.");
+                Console.WriteLine($"Failed to deserialize file data from {path} for nests collection.");
                 return null;
             }
             return obj;
