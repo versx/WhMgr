@@ -21,7 +21,7 @@
     using WhMgr.Services.Discord;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Webhook.Models;
-    using WhMgr.Utilities;
+    using WhMgr.Services.Webhook.Queue;
 
     public class AlarmControllerService : BackgroundService, IAlarmControllerService
     {
@@ -32,6 +32,7 @@
         private readonly IMapDataCache _mapDataCache;
         private readonly IStaticsticsService _statsService;
         private readonly IBackgroundTaskQueue _taskQueue;
+        private readonly IWebhookQueueManager _webhookQueueManager;
 
         public AlarmControllerService(
             Microsoft.Extensions.Logging.ILogger<AlarmControllerService> logger,
@@ -40,7 +41,8 @@
             ConfigHolder config,
             IMapDataCache mapDataCache,
             IStaticsticsService statsService,
-            IBackgroundTaskQueue taskQueue)
+            IBackgroundTaskQueue taskQueue,
+            IWebhookQueueManager webhookQueueManager)
         {
             _logger = logger;
             _alarms = alarms;
@@ -49,6 +51,7 @@
             _mapDataCache = mapDataCache;
             _statsService = statsService;
             _taskQueue = (DefaultBackgroundTaskQueue)taskQueue;
+            _webhookQueueManager = webhookQueueManager;
             _logger.Information($"Alarms {_alarms?.Keys?.Count():N0}");
         }
 
@@ -729,7 +732,8 @@
                     _logger.Error($"Failed to convert embed notification to JSON string, skipping");
                     return stoppingToken;
                 }
-                NetUtils.SendWebhook(taskItem.Alarm.Webhook, json);
+                //await NetUtils.SendWebhook(taskItem.Alarm.Webhook, json);
+                await _webhookQueueManager.SendWebhook(taskItem.Alarm.Webhook, json).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

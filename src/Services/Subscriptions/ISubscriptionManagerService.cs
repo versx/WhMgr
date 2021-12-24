@@ -14,6 +14,8 @@
 
         Task SetSubscriptionStatusAsync(Subscription subscription, NotificationStatusType status);
 
+        Task<List<Subscription>> GetUserSubscriptionsAsync();
+
         Subscription GetUserSubscriptions(ulong guildId, ulong userId);
 
         List<Subscription> GetSubscriptionsByPokemonId(uint pokemonId);

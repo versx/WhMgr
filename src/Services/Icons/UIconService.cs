@@ -498,6 +498,7 @@
                 { QuestRewardType.LevelCap, "level_cap" },
                 { QuestRewardType.Sticker, "sticker" },
                 { QuestRewardType.MegaResource, "mega_resource" },
+                { QuestRewardType.Incident, "incident" },
             };
         }
 

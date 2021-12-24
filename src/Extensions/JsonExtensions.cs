@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Extensions
 {
     using System.Text.Json;
+    using System.Text.Json.Serialization;
 
     public static class JsonExtensions
     {
@@ -10,6 +11,9 @@
             AllowTrailingCommas = true,
             WriteIndented = true,
             ReadCommentHandling = JsonCommentHandling.Skip,
+            //ReferenceHandler = ReferenceHandler.Preserve,
+            //IgnoreReadOnlyProperties = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
         public static T FromJson<T>(this string json) =>

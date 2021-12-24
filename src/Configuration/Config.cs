@@ -37,13 +37,13 @@
         public string Locale { get; set; }
 
         /// <summary>
-        /// Gets or sets the short url API url (yourls.org)
+        /// Gets or sets the short url API config (yourls.org)
         /// </summary>
         [JsonPropertyName("shortUrlApi")]
         public UrlShortenerConfig ShortUrlApi { get; set; }
 
         /// <summary>
-        /// Gets or sets the Stripe API key
+        /// Gets or sets the Stripe API config
         /// </summary>
         [JsonPropertyName("stripeApi")]
         public StripeConfig StripeApi { get; set; }
@@ -89,7 +89,6 @@
         /// Gets or sets the icon styles
         /// </summary>
         [JsonPropertyName("iconStyles")]
-        //public Dictionary<string, string> IconStyles { get; set; } = new();
         public IconStyleCollection IconStyles { get; set; } = new();
 
         /// <summary>
@@ -132,7 +131,7 @@
         /// Gets or sets a value determining the maximum Pokemon ID to support
         /// </summary>
         [JsonPropertyName("maxPokemonId")]
-        public uint MaxPokemonId { get; set; }
+        public uint MaxPokemonId { get; set; } = (uint)Data.GameMaster.Instance.Pokedex.Count;
 
         /// <summary>
         /// Gets or sets the event logging level to set
@@ -163,7 +162,7 @@
             ListeningHost = "127.0.0.1";
             WebhookPort = 8008;
             Locale = "en";
-            MaxPokemonId = 800;
+            MaxPokemonId = 898;
             LogLevel = LogLevel.Trace;
             EventMinimumIV = 90;
             DespawnTimeMinimumMinutes = 5;

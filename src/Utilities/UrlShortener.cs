@@ -109,7 +109,7 @@
         public string Title { get; set; }
 
         [JsonPropertyName("date")]
-        public string Date { get; set; }
+        public DateTime Date { get; set; }
 
         [JsonPropertyName("ip")]
         public string IpAddress { get; set; }

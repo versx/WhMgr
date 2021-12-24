@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Web;
 
     using POGOProtos.Rpc;
     using AlignmentId = POGOProtos.Rpc.PokemonDisplayProto.Types.Alignment;
@@ -123,20 +124,17 @@
 
         public static string GetReward(this QuestData quest)
         {
-            return GetReward(quest.Rewards?.FirstOrDefault());
+            var encoded = GetReward(quest.Rewards?.FirstOrDefault());
+            var decoded = HttpUtility.HtmlDecode(encoded);
+            return decoded;
         }
 
         public static string GetReward(this QuestRewardMessage reward)
         {
-            return GetReward(reward.Type, reward.Info);
+            var encoded = GetReward(reward.Type, reward.Info);
+            var decoded = HttpUtility.HtmlDecode(encoded);
+            return decoded;
         }
-
-        /*
-        public static string GetReward(this Pokestop pokestop)
-        {
-            return pokestop.QuestRewards?.FirstOrDefault()?.GetReward();
-        }
-        */
 
         public static string GetReward(this QuestRewardType type, QuestReward info)
         {

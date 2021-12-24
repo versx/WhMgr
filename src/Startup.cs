@@ -2,6 +2,7 @@ namespace WhMgr
 {
     using System;
     using System.Collections.Generic;
+    using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
     using Microsoft.AspNetCore.Builder;
@@ -26,8 +27,7 @@ namespace WhMgr
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook;
-
-    using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
+    using WhMgr.Services.Webhook.Queue;
 
     // TODO: Reload alarms/filters/geofences on change
     // TODO: Simplify alarm and subscription filter checks
@@ -70,6 +70,7 @@ namespace WhMgr
             services.AddSingleton<ISubscriptionProcessorService, SubscriptionProcessorService>();
             services.AddSingleton<ISubscriptionManagerService, SubscriptionManagerService>();
             services.AddSingleton<IWebhookProcessorService, WebhookProcessorService>();
+            services.AddSingleton<IWebhookQueueManager, WebhookQueueManager>();
             services.AddSingleton<ChannelAlarmsManifest, ChannelAlarmsManifest>();
             services.AddSingleton(_config);
             services.AddSingleton<IReadOnlyDictionary<ulong, ChannelAlarmsManifest>>(_alarms);
@@ -101,7 +102,10 @@ namespace WhMgr
 
             services.AddHealthChecks();
 
-            services.AddControllers();
+            services.AddControllers()
+                .AddJsonOptions(options =>
+                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve
+                );
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WhMgr", Version = "v1" });
