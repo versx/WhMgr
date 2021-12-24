@@ -200,7 +200,9 @@
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
             var pkmnInfo = GameMaster.GetPokemon(PokemonId, Form);
-            var name = IsEgg ? Translator.Instance.Translate("EGG") : Translator.Instance.GetPokemonName(PokemonId);
+            var name = IsEgg
+                ? Translator.Instance.Translate("EGG")
+                : Translator.Instance.GetPokemonName(PokemonId);
             var form = Translator.Instance.GetFormName(Form);
             var costume = Translator.Instance.GetCostumeName(Costume);
             var evo = Translator.Instance.GetEvolutionName(Evolution);
@@ -212,17 +214,25 @@
             var type1 = types?[0];
             var type2 = types?.Count > 1 ? types?[1] : PokemonType.None;
             var type1Emoji = types?[0].GetTypeEmojiIcons();
-            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? types?[1].GetTypeEmojiIcons() : string.Empty;
+            var type2Emoji = pkmnInfo?.Types?.Count > 1
+                ? types?[1].GetTypeEmojiIcons()
+                : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
-            var weaknesses = Weaknesses == null ? string.Empty : string.Join(", ", Weaknesses);
+            var weaknesses = Weaknesses == null
+                ? string.Empty
+                : string.Join(", ", Weaknesses);
             var weaknessesEmoji = types?.GetWeaknessEmojiIcons();
             var perfectRange = PokemonId.GetCpAtLevel(20, 15);
             var boostedRange = PokemonId.GetCpAtLevel(25, 15);
             var worstRange = PokemonId.GetCpAtLevel(20, 10);
             var worstBoosted = PokemonId.GetCpAtLevel(25, 10);
-            var exEmojiId = GameMaster.Instance.Emojis["ex"];
+            var exEmojiId = GameMaster.Instance.Emojis.ContainsKey("ex")
+                ? GameMaster.Instance.Emojis["ex"]
+                : 0;
             var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = GameMaster.Instance.Emojis[Team.ToString().ToLower()];
+            var teamEmojiId = GameMaster.Instance.Emojis.ContainsKey(Team.ToString().ToLower())
+                ? GameMaster.Instance.Emojis[Team.ToString().ToLower()]
+                : 0;
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
 
             var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);

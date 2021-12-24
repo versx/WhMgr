@@ -2,6 +2,7 @@ namespace WhMgr
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
@@ -18,6 +19,7 @@ namespace WhMgr
     using WhMgr.Extensions;
     using WhMgr.HostedServices;
     using WhMgr.HostedServices.TaskQueue;
+    using WhMgr.IO;
     using WhMgr.Localization;
     using WhMgr.Services;
     using WhMgr.Services.Alarms;
@@ -49,11 +51,14 @@ namespace WhMgr
             _config = new ConfigHolder(Config);
             _config.Reloaded += () =>
             {
-                Console.WriteLine($"Config file reloaded!");
+                Console.WriteLine($"Config file '{Config.FileName}' reloaded!");
                 _config.Instance.LoadDiscordServers();
-                // TODO: _alarms = ChannelAlarmsManifest.LoadAlarms(config.Servers);
                 // TODO: filters and embeds
             };
+            var configWatcher = new FileWatcher(_config.Instance.FileName);
+            configWatcher.Changed += (sender, e) => _config.Instance = Config.Load(e.FullPath);
+            configWatcher.Start();
+
             _alarms = ChannelAlarmsManifest.LoadAlarms(Config.Servers);
 
             // Create locale translation files

@@ -147,11 +147,15 @@
         {
             // Get old gym from cache
             var oldGym = await properties.MapDataCache.GetGym(GymId).ConfigureAwait(false);
-            var exEmojiId = GameMaster.Instance.Emojis["ex"];
+            var exEmojiId = GameMaster.Instance.Emojis.ContainsKey("ex")
+                ? GameMaster.Instance.Emojis["ex"]
+                : 0;
             var exEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis["ex"]) ? exEmojiId > 0
                 ? string.Format(Strings.EmojiSchema, "ex", exEmojiId) : "EX"
                 : GameMaster.Instance.CustomEmojis["ex"];
-            var teamEmojiId = GameMaster.Instance.Emojis[Team.ToString().ToLower()];
+            var teamEmojiId = GameMaster.Instance.Emojis.ContainsKey(Team.ToString().ToLower())
+                ? GameMaster.Instance.Emojis[Team.ToString().ToLower()]
+                : 0;
             var teamEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[Team.ToString().ToLower()])
                 ? teamEmojiId > 0
                     ? string.Format(Strings.EmojiSchema, Team.ToString().ToLower(), teamEmojiId)

@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.IO
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
@@ -42,6 +43,30 @@
                 Filter = File.Exists(FilePath) ? Path.GetFileName(FilePath) : null
             };
             _fsw.Changed += OnFileSystemChanged;
+        }
+
+        /// <summary>
+        /// Instantiate a new <see cref="FileWatcher"/> class
+        /// </summary>
+        /// <param name="filePaths">File paths to watch for changes</param>
+        public FileWatcher(List<string> filePaths)
+        {
+            foreach (var filePath in filePaths)
+            {
+                //FilePath = filePath;
+
+                _fsw = new FileSystemWatcher
+                {
+                    Path = Directory.Exists(FilePath)
+                        ? FilePath
+                        : Path.GetDirectoryName(FilePath),
+                    // Reload on last modified time or size change
+                    NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                    // Filter change based on file path or file name
+                    Filter = File.Exists(FilePath) ? Path.GetFileName(FilePath) : null
+                };
+                _fsw.Changed += OnFileSystemChanged;
+            }
         }
 
         private async void OnFileSystemChanged(object sender, FileSystemEventArgs e)

@@ -8,7 +8,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 
-    using WhMgr.Extensions;
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Subscriptions.Models;
 
@@ -27,16 +26,23 @@
             _subscriptionManager = subscriptionManager;
         }
 
-        [HttpGet("subscriptions")]
-        public async Task<string> GetSubscriptions()
+        [
+            HttpGet("subscriptions"),
+            Produces("application/json"),
+        ]
+        public async Task<List<Subscription>> GetSubscriptions()
         {
             var subscriptions = await _subscriptionManager.GetUserSubscriptionsAsync();
+            /*
             var response = new SubscriptionsResponse
             {
                 Status = "OK",
-                Subscriptions = subscriptions,
+                Subscriptions = subscriptions.ToList(),
             };
-            return response.ToJson();
+            var json = response.ToJson();
+            return json;
+            */
+            return subscriptions;
         }
     }
 

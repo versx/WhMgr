@@ -11,9 +11,8 @@
             AllowTrailingCommas = true,
             WriteIndented = true,
             ReadCommentHandling = JsonCommentHandling.Skip,
-            //ReferenceHandler = ReferenceHandler.Preserve,
             //IgnoreReadOnlyProperties = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            //DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
         public static T FromJson<T>(this string json) =>
