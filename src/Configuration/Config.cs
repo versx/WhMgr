@@ -45,8 +45,8 @@
         /// <summary>
         /// Gets or sets the Stripe API key
         /// </summary>
-        [JsonPropertyName("stripeApiKey")]
-        public string StripeApiKey { get; set; }
+        [JsonPropertyName("stripeApi")]
+        public StripeConfig StripeApi { get; set; }
 
         /// <summary>
         /// Gets or sets the Discord servers configuration

@@ -9,7 +9,9 @@
     "action": "shorturl",
     "format": "json"
   },
-  "stripeApiKey": "",
+  "stripeApi": {
+    "apiKey": ""
+  },
   "maxPokemonId": 898,
   "servers": {
     "000000000000000001": "discord1.example.json",
