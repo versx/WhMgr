@@ -32,10 +32,7 @@
             _dbFactory = dbFactory;
 
             _timer = new Timer(60 * 1000); // every minute TODO: Use config value
-            _timer.Elapsed += async (sender, e) =>
-            {
-                await ReloadSubscriptionsAsync();
-            };
+            _timer.Elapsed += async (sender, e) => await ReloadSubscriptionsAsync();
             _timer.Start();
 
             Task.Run(async () => await ReloadSubscriptionsAsync(true));
@@ -251,7 +248,8 @@
             using (var ctx = _dbFactory.CreateDbContext())
             {
                 var lastModified = ctx.Metadata.Find("LAST_MODIFIED");
-                return !ulong.TryParse(lastModified?.Value, out var value) ? 0 : value;
+                var result = Convert.ToUInt64(Math.Round(double.TryParse(lastModified?.Value, out var value) ? value : 0));
+                return result;
             }
         }
     }

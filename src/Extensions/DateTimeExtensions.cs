@@ -45,7 +45,7 @@
         /// <returns>Returns Unix timestamp</returns>
         public static double GetUnixTimestamp(this DateTime now)
         {
-            return now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            return Math.Round(now.Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
         }
 
         public static DateTime FromUnix(this long unixSeconds)

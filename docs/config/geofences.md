@@ -79,7 +79,7 @@ Geofences define area borders and perimeters for a city or multiple cities. Each
                 "stroke-opacity": 1.0,
                 "fill": "#0651FF",
                 "fill-opacity": 0.5,
-                "priority": 2,
+                "priority": 2
             }
         }
     ]
