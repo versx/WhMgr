@@ -649,6 +649,45 @@
             }
         }
 
+        public void ProcessAccountAlarms(AccountData account)
+        {
+            if (account == null)
+                return;
+
+            //_statsService.TotalAccountsReceived++;
+            /*
+            foreach (var (guildId, alarms) in _alarms)//.Where(x => x.Value?.EnableAccounts ?? false))
+            {
+                var accountAlarms = alarms?.Alarms?.FindAll(x => x.Filters?.Weather != null && x.Filters.Accounts.Enabled);
+                if (accountAlarms == null)
+                    continue;
+
+                for (var i = 0; i < accountAlarms.Count; i++)
+                {
+                    var alarm = accountAlarms[i];
+                    if (!alarm.Filters.Account.WeatherTypes.Contains(account.Username))
+                    {
+                        // Weather is not in list of accepted ones to send alarms for
+                        continue;
+                    }
+
+                    var taskItem = new AlarmTaskItem
+                    {
+                        GuildId = guildId,
+                        Alarm = alarm,
+                        Data = account,
+                    };
+                    if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
+                    {
+                        _logger.Error($"Failed to queue Account alarm: {alarm.Name} for Account {account.Username}");
+                        continue;
+                    }
+                    _logger.Information($"Account Found [Alarm: {alarm.Name}, Username: {account.Username}, Warning: {account.IsWarned}, Banned: {account.IsBanned}");
+                }
+            }
+            */
+        }
+
         #region Background Service
 
         public override async Task StopAsync(CancellationToken stoppingToken)

@@ -95,7 +95,9 @@
                 //if (!MasterFile.Instance.Emojis.ContainsKey(emojiKey))
                 //    continue;
 
-                var emojiId = GameMaster.Instance.Emojis[emojiKey];
+                var emojiId = GameMaster.Instance.Emojis.ContainsKey(emojiKey)
+                    ? GameMaster.Instance.Emojis[emojiKey]
+                    : 0;
                 var emojiName = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[emojiKey])
                     ? emojiId > 0
                         ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId)
@@ -117,7 +119,9 @@
                 key += type.ToString().ToLower();
             else
                 key += Convert.ToInt32(type);
-            var emojiId = GameMaster.Instance.Emojis[key];
+            var emojiId = GameMaster.Instance.Emojis.ContainsKey(key)
+                ? GameMaster.Instance.Emojis[key]
+                : 0;
             var emojiName = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[key])
                 ? emojiId > 0
                     ? string.Format(emojiSchema, key, emojiId)
@@ -138,7 +142,9 @@
                 foreach (var weakness in weaknesses)
                 {
                     var typeKey = $"types_{weakness.ToString().ToLower()}";
-                    var emojiId = GameMaster.Instance.Emojis[typeKey];
+                    var emojiId = GameMaster.Instance.Emojis.ContainsKey(typeKey)
+                        ? GameMaster.Instance.Emojis[typeKey]
+                        : 0;
                     var emojiName = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[typeKey])
                         ? emojiId > 0
                             ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId)

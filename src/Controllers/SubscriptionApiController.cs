@@ -13,7 +13,7 @@
 
     [ApiController]
     [Route("/api/v1/")]
-    public class SubscriptionApiController
+    public class SubscriptionApiController : ControllerBase
     {
         private readonly ILogger<SubscriptionApiController> _logger;
         private readonly ISubscriptionManagerService _subscriptionManager;
@@ -30,28 +30,39 @@
             HttpGet("subscriptions"),
             Produces("application/json"),
         ]
-        public async Task<List<Subscription>> GetSubscriptions()
+        public async Task<IActionResult> GetSubscriptions()
         {
-            var subscriptions = await _subscriptionManager.GetUserSubscriptionsAsync();
-            /*
-            var response = new SubscriptionsResponse
+            var subscriptions = await _subscriptionManager.GetUserSubscriptionsAsync().ConfigureAwait(false);
+            var response = new SubscriptionsResponse<List<Subscription>>
             {
                 Status = "OK",
-                Subscriptions = subscriptions.ToList(),
+                Data = subscriptions,
             };
-            var json = response.ToJson();
-            return json;
-            */
-            return subscriptions;
+            return new JsonResult(response);
+        }
+
+        [
+            HttpGet("subscription/{guildId}/{userId}"),
+            Produces("application/json"),
+        ]
+        public IActionResult GetSubscription(ulong guildId, ulong userId)
+        {
+            var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
+            var response = new SubscriptionsResponse<Subscription>
+            {
+                Status = "OK",
+                Data = subscription,
+            };
+            return new JsonResult(response);
         }
     }
 
-    public class SubscriptionsResponse
+    public class SubscriptionsResponse<T>
     {
         [JsonPropertyName("status")]
         public string Status { get; set; }
 
-        [JsonPropertyName("subscriptions")]
-        public List<Subscription> Subscriptions { get; set; }
+        [JsonPropertyName("data")]
+        public T Data { get; set; }
     }
 }

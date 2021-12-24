@@ -21,6 +21,7 @@
         ]
         public int SubscriptionId { get; set; }
 
+        [JsonIgnore]
         public Subscription Subscription { get; set; }
 
         [

@@ -10,5 +10,6 @@
         public const string Gym = "gym";
         public const string GymDetails = "gym_details";
         public const string Weather = "weather";
+        public const string Account = "account";
     }
 }

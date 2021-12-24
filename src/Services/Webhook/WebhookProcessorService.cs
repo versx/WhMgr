@@ -146,8 +146,11 @@
                     case WebhookTypes.Weather:
                         ProcessWeather(payload.Message);
                         break;
+                    case WebhookTypes.Account:
+                        ProcessAccount(payload.Message);
+                        break;
                     default:
-                        _logger.Warning($"Unhandled webhook type: {payload.Type}");
+                        _logger.Warning($"Unhandled webhook type: {payload.Type}: {payload.Message}");
                         break;
                 }
             }
@@ -407,6 +410,24 @@
 
             // Process weather alarms
             _alarmsService.ProcessWeatherAlarms(weather);
+        }
+
+        private void ProcessAccount(dynamic message)
+        {
+            string json = Convert.ToString(message);
+            var account = json.FromJson<AccountData>();
+            if (account == null)
+            {
+                _logger.Warning($"Failed to deserialize account {message}, skipping...");
+            }
+            account.SetTimes();
+
+            if (CheckForDuplicates)
+            {
+            }
+
+            // Process account alarms
+            _alarmsService.ProcessAccountAlarms(account);
         }
 
         #endregion

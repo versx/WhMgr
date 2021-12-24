@@ -15,5 +15,7 @@
         void ProcessGymAlarms(GymDetailsData gym);
 
         void ProcessWeatherAlarms(WeatherData weather);
+
+        void ProcessAccountAlarms(AccountData account);
     }
 }

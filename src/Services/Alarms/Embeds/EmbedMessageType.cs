@@ -58,6 +58,11 @@
         /// <summary>
         /// Weather cell alert
         /// </summary>
-        Weather
+        Weather,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        Account,
     }
 }

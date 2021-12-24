@@ -107,10 +107,7 @@ namespace WhMgr
 
             services.AddHealthChecks();
 
-            services.AddControllers()
-                .AddJsonOptions(options =>
-                    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve
-                );
+            services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WhMgr", Version = "v1" });
