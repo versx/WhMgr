@@ -62,6 +62,11 @@
         /// <param name="iconFormat"></param>
         public UIconService(IconStyleCollection icons, Dictionary<QuestRewardType, string> questRewardTypes, string iconFormat = DefaultIconFormat)
         {
+            if (icons == null)
+            {
+                throw new ArgumentNullException(nameof(icons), "Icons collection cannot be null");
+            }
+
             _iconStyles = new IconStyleCollection();
             _questRewardTypes = questRewardTypes;
 
@@ -111,7 +116,8 @@
                                 var result = $"{pokemonId}{evolutionSuffix}{formSuffix}{costumeSuffix}{genderSuffix}{shinySuffix}.{IconFormat}";
                                 if (iconStyle.IndexList.Contains(result))
                                 {
-                                    return $"{baseUrl}/{result}";
+                                    var subFolder = GetSubFolder(IconType.Pokemon);
+                                    return $"{baseUrl}/{subFolder}/{result}";
                                 }
                             }
                         }
@@ -633,7 +639,8 @@
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to parse {IndexJson} for style {styleName}: {formsListJson}\nError: {ex}");
+                    //Console.WriteLine($"Failed to parse {IndexJson} for style {styleName}: {formsListJson}\nError: {ex}");
+                    Console.WriteLine($"Failed to parse {IndexJson} for style {styleName}\nError: {ex}");
                 }
             }
         }

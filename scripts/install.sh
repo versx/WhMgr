@@ -1,5 +1,5 @@
 # Download .NET 5.0 installer
-wget https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.sh
+curl https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.sh > dotnet-install.sh
 echo "Downloading .NET 5.0 installer..."
 
 # Make installer executable

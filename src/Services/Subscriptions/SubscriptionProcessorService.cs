@@ -77,7 +77,7 @@
             }
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByPokemonId(pokemon.Id);
-            if (subscriptions?.Count == 0)
+            if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
@@ -247,7 +247,7 @@
             // PvP subscriptions support for evolutions not just base evo
             // Get evolution ids from masterfile for incoming pokemon, check if subscriptions for evo/base
             var subscriptions = _subscriptionManager.GetSubscriptionsByPvpPokemonId(evolutionIds);
-            if (subscriptions?.Count == 0)
+            if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
@@ -350,6 +350,7 @@
                             Config = _config,
                             Alarm = null,
                             City = geofence.Name,
+                            MapDataCache = _mapDataCache,
                         }).ConfigureAwait(false);
                         //var end = DateTime.Now.Subtract(start);
                         //_logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
@@ -401,7 +402,7 @@
             }
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByRaidPokemonId(raid.PokemonId);
-            if (subscriptions?.Count == 0)
+            if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
@@ -491,7 +492,8 @@
                         Client = client,
                         Config = _config,
                         Alarm = null,
-                        City = geofence.Name
+                        City = geofence.Name,
+                        MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
@@ -541,7 +543,7 @@
             }
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByQuest(quest.PokestopName, rewardKeyword);
-            if (subscriptions?.Count == 0)
+            if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
@@ -620,6 +622,7 @@
                         Config = _config,
                         Alarm = null,
                         City = geofence.Name,
+                        MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process quest subscription for user {user.UserId}");
@@ -673,7 +676,7 @@
                 return;
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByInvasion(pokestop?.Name, pokestop?.GruntType ?? InvasionCharacter.CharacterUnset, encounters);
-            if (subscriptions?.Count == 0)
+            if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
@@ -756,6 +759,7 @@
                         Config = _config,
                         Alarm = null,
                         City = geofence?.Name,
+                        MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.LogDebug($"Took {end} to process invasion subscription for user {user.UserId}");
@@ -801,7 +805,7 @@
             }
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByLure(pokestop.Name, pokestop.LureType);
-            if (subscriptions?.Count == 0)
+            if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
@@ -878,6 +882,7 @@
                         Config = _config,
                         Alarm = null,
                         City = geofence.Name,
+                        MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
                     //var end = DateTime.Now.Subtract(start);
                     //_logger.Debug($"Took {end} to process lure subscription for user {user.UserId}");
@@ -923,7 +928,7 @@
             }
 
             var subscriptions = _subscriptionManager.GetSubscriptionsByGymName(raid.GymName);
-            if (subscriptions?.Count == 0)
+            if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
@@ -1007,6 +1012,7 @@
                         Config = _config,
                         Alarm = null,
                         City = geofence.Name,
+                        MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
                     //var end = DateTime.Now;
                     //_logger.Debug($"Took {end} to process gym raid subscription for user {user.UserId}");

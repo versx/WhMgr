@@ -27,6 +27,8 @@ namespace WhMgr
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook;
 
+    using QuestRewardType = POGOProtos.Rpc.QuestRewardProto.Types.Type;
+
     // TODO: Reload alarms/filters/geofences on change
     // TODO: Twilio notifications
     // TODO: Simplify alarm and subscription filter checks
@@ -77,7 +79,9 @@ namespace WhMgr
             services.AddSingleton<IMapDataCache, MapDataCache>();
             services.AddSingleton<IStaticsticsService, StatisticsService>();
             services.AddSingleton<IDiscordClientService, DiscordClientService>();
-            services.AddSingleton<IUIconService, UIconService>();
+            //services.AddSingleton<IconStyleCollection>();
+            //services.AddSingleton<Dictionary<QuestRewardType, string>>();
+            //services.AddSingleton<IUIconService, UIconService>();
 
             services.AddHostedService<SubscriptionProcessorService>();
             // Subscription processor queue

@@ -63,12 +63,12 @@
             _subscriptionService = subscriptionService;
             _mapDataCache = mapDataCache;
 
-            _processedPokemon = new Dictionary<string, ScannedPokemon>();
-            _processedRaids = new Dictionary<string, ScannedRaid>();
-            _processedQuests = new Dictionary<string, ScannedQuest>();
-            _processedPokestops = new Dictionary<string, ScannedPokestop>();
-            _processedGyms = new Dictionary<string, ScannedGym>();
-            _processedWeather = new Dictionary<long, ScannedWeather>();
+            _processedPokemon = new();
+            _processedRaids = new();
+            _processedQuests = new();
+            _processedPokestops = new();
+            _processedGyms = new();
+            _processedWeather = new();
 
             _clearCache = new System.Timers.Timer
             {
@@ -352,9 +352,9 @@
                 {
                     if (_processedGyms.ContainsKey(gym.GymId))
                     {
-                        if (gym.Team == gym.Team
-                            && gym.SlotsAvailable == gym.SlotsAvailable
-                            && gym.InBattle == gym.InBattle)
+                        if (_processedGyms[gym.GymId].Team == gym.Team
+                            && _processedGyms[gym.GymId].SlotsAvailable == gym.SlotsAvailable
+                            && _processedGyms[gym.GymId].InBattle == gym.InBattle)
                         {
                             // Gym already processed
                             return;

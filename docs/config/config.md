@@ -76,7 +76,8 @@ At a minimum you'll want to make sure your have your webhook listening port set 
   "maxPokemonId": 898,
   // List of Discord servers to connect and post webhook messages to.
   "servers": {
-    // Discord server #1 guild ID (replace `000000000000000001` with guild id of server)
+    // Discord server #1 guild ID (replace `000000000000000123` with
+    // actual guild id of server)
     "000000000000000123": "discord1.example.json",
     // 2nd Discord server section (if applicable)
     "000000000000000456": "discord2.example.json"
@@ -125,9 +126,11 @@ At a minimum you'll want to make sure your have your webhook listening port set 
   "eventPokemonIds": [],
   // Minimum IV value for an event Pokemon to have to meet in order to post via Discord channel alarm or direct message subscription.
   "eventMinimumIV": 90,
-  // Image URL config
+  // URL config
   "urls": {
-    // Scanner map url DTS option for embeds as `scanmaps_url`  
+    // Scanner map url DTS option for embeds as `scanmaps_url`.  
+    // {0} and {1} are placeholders to construct the url with latitude
+    // and longitude coordinates
     "scannerMap": "http://map.example.com/@/{0}/{1}/15"
   },
   // Available icon styles

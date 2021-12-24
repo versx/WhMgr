@@ -19,15 +19,18 @@
     public class Translator : Language<string, string, Dictionary<string, string>>
     {
         private const string SourceLocaleUrl = "https://raw.githubusercontent.com/WatWowMap/pogo-translations/master/static/locales/";
-        private readonly string _appLocalesFolder = Directory.GetCurrentDirectory() + "/../static/locales";
-        private readonly string _binLocalesFolder = Directory.GetCurrentDirectory() + $"/{Strings.BasePath}/static/locales";
+        private static readonly string _appLocalesFolder = Directory.GetCurrentDirectory() + $"/../{Strings.LocaleFolder}";
+        private static readonly string _binLocalesFolder = Directory.GetCurrentDirectory() + $"/{Strings.BasePath}/{Strings.LocaleFolder}";
 
         #region Singleton
 
         private static Translator _instance;
 
         public static Translator Instance =>
-            _instance ??= new Translator();
+            _instance ??= new Translator {
+                LocaleDirectory = _binLocalesFolder,
+                //CurrentCulture = 
+            };
 
         #endregion
 

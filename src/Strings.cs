@@ -27,7 +27,7 @@
         public const string TemplatesFolder = BasePath + "templates";
         public const string MigrationsFolder = "migrations";
         public static readonly string AppFolder = StaticFolder + Path.DirectorySeparatorChar + "app";
-        public static readonly string DataFolder = StaticFolder + Path.DirectorySeparatorChar + "data";
+        public static readonly string DataFolder = BasePath + StaticFolder + Path.DirectorySeparatorChar + "data";
         public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locales";
         public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
         public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
@@ -128,7 +128,7 @@
             // Gender emojis
             "gender_male",
             "gender_female",
-            "gender_less"
+            "gender_less",
         };
 
         // Pokemon weather boosts based on Pokemon types

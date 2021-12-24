@@ -88,7 +88,7 @@
             JsonPropertyName("ar_scan_eligible"),
             Column("ar_scan_eligible"),
         ]
-        public bool IsArScanEligible { get; set; }
+        public bool? IsArScanEligible { get; set; }
 
         #endregion
 

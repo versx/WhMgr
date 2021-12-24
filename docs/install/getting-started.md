@@ -2,15 +2,16 @@
 
 ### __Installation__  
 - [Prerequisites](./prerequisites.md)  
+- [Install via Docker](./docker.md)  
 
 ### __Configuration__  
-1.) Edit `config.json` either open in Notepad/++ or `vi config.json`. [Config Instructions](../config/config.md)  
+1.) Edit `bin/config.json` either open in Notepad/++ or `vi bin/config.json`. [Config Instructions](../config/config.md)  
 
   - [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
   - Input your bot token and config options.  
   - Fill out the rest of the config options.
 
-2.) Edit `alarms/alarms.json` either open in Notepad/++ or `vi alarms/alarms.json`.  
+2.) Edit `bin/alarms/alarms.json` either open in Notepad/++ or `vi bin/alarms/alarms.json`.  
 
 3.) Fill out the alarms file. [Alarm Instructions](../config/alarms.md)  
 
@@ -26,11 +27,15 @@ export PATH=~/.dotnet/:$PATH
 ### __Running__  
 To run via command line arguments [click here](../other/commandline.md).  
 
-1.) Build executable:
+1.) Build executable:  
 ```
-dotnet build ../../..
+From bin folder
+dotnet build ..
+
+From root folder  
+dotnet build
 ```
-2.) Start WhMgr:
+2.) Start Webhook Manager:  
 ```
 dotnet WhMgr.dll
 ```

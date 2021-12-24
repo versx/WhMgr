@@ -3,14 +3,13 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 WORKDIR /app
 EXPOSE 80
-EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["src/WhMgr.csproj", "src/"]
-RUN dotnet restore "src/WhMgr.csproj"
+COPY ["WhMgr/WhMgr.csproj", "WhMgr/"]
+RUN dotnet restore "WhMgr/WhMgr.csproj"
 COPY . .
-WORKDIR "/src/src"
+WORKDIR "/src/WhMgr"
 RUN dotnet build "WhMgr.csproj" -c Release -o /app/build
 
 FROM build AS publish

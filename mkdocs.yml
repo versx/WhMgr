@@ -45,6 +45,7 @@ nav:
         - Command Line: other/commandline.md
         - Geocoding: other/geocoding.md
         - PM2: other/pm2.md
+        - Static Maps: other/staticmaps.md
 #    - About:
 #        - Release Notes: about/release-notes.md
 #        - Contributing: about/contributing.md
