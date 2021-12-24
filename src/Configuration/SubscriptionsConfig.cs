@@ -3,6 +3,7 @@
     using System.IO;
     using System.Text.Json.Serialization;
 
+    using WhMgr.Extensions;
     using WhMgr.Services.Alarms.Embeds;
 
     public class SubscriptionsConfig
@@ -74,7 +75,7 @@
             {
                 throw new FileNotFoundException($"File not found at location {path}", path);
             }
-            DmEmbeds = Config.LoadInit<EmbedMessage>(path);
+            DmEmbeds = path.LoadFromFile<EmbedMessage>();
         }
     }
 }

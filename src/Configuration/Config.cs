@@ -256,26 +256,9 @@
             {
                 throw new FileNotFoundException("Config not loaded because file not found.", filePath);
             }
-            var config = LoadInit<Config>(filePath);
+            var config = filePath.LoadFromFile<Config>();
             config.LoadDiscordServers();
             return config;
-        }
-
-        public static T LoadInit<T>(string filePath)
-        {
-            if (!File.Exists(filePath))
-            {
-                throw new FileNotFoundException($"{filePath} file not found.", filePath);
-            }
-
-            var data = File.ReadAllText(filePath);
-            if (string.IsNullOrEmpty(data))
-            {
-                Console.WriteLine($"{filePath} masterfile is empty.");
-                return default;
-            }
-
-            return data.FromJson<T>();
         }
     }
 }
