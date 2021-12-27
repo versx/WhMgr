@@ -25,12 +25,12 @@
         {{#each filters}}
             <tr scope="row">
                 <td>{{@key}}</td>
-                <td>{{#if pokemon.enabled}}Enabled{{else}}Disabled{{/if}}</td>
-                <td>{{#if raids.enabled}}Enabled{{else}}Disabled{{/if}}</td>
-                <td>{{#if gyms.enabled}}Enabled{{else}}Disabled{{/if}}</td>
-                <td>{{#if quests.enabled}}Enabled{{else}}Disabled{{/if}}</td>
-                <td>{{#if pokestops.enabled}}Enabled{{else}}Disabled{{/if}}</td>
-                <td>{{#if weather.enabled}}Enabled{{else}}Disabled{{/if}}</td>
+                <td>{{formatBool pokemon.enabled}}</td>
+                <td>{{formatBool raids.enabled}}</td>
+                <td>{{formatBool gyms.enabled}}</td>
+                <td>{{formatBool quests.enabled}}</td>
+                <td>{{formatBool pokestops.enabled}}</td>
+                <td>{{formatBool weather.enabled}}</td>
                 <td>
                     <a type="button" class="btn btn-primary btn-sm" href="/dashboard/filters/edit/{{@key}}">
                         <i class="fas fa-edit"></i>

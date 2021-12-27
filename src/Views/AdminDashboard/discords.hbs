@@ -26,7 +26,7 @@
                 <td>{{@key}}</td>
                 <td>{{alarmsFile}}</td>
                 <td>{{geofences.Count}}</td>
-                <td>{{#if subscriptions.enabled}}Enabled{{else}}Disabled{{/if}}</td>
+                <td>{{formatBool subscriptions.enabled}}</td>
                 <td>{{iconStyle}}</td>
                 <td>{{dmEmbedsFile}}</td>
                 <td>

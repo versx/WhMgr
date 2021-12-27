@@ -74,6 +74,16 @@
                         writer.Write(0);
                     }
                 }),
+                // 
+                ["formatBool"] = new HandlebarsHelper((writer, ctx, args) =>
+                {
+                    if (!bool.TryParse(args[0].ToString(), out var result))
+                    {
+                        writer.Write("No");
+                        return;
+                    }
+                    writer.Write(result ? "Yes" : "No");
+                }),
             };
             return dict;
         }

@@ -28,12 +28,12 @@
         {{#each alarms}}
             <tr scope="row">
                 <td>{{@key}}</td>
-                <td>{{enablePokemon}}</td>
-                <td>{{enableRaids}}</td>
-                <td>{{enableGyms}}</td>
-                <td>{{enableQuests}}</td>
-                <td>{{enablePokestops}}</td>
-                <td>{{enableWeather}}</td>
+                <td>{{formatBool enablePokemon}}</td>
+                <td>{{formatBool enableRaids}}</td>
+                <td>{{formatBool enableGyms}}</td>
+                <td>{{formatBool enableQuests}}</td>
+                <td>{{formatBool enablePokestops}}</td>
+                <td>{{formatBool enableWeather}}</td>
                 <td>{{alarms.Count}}</td>
                 <td>
                     <a type="button" class="btn btn-primary btn-sm" href="/dashboard/alarms/edit/{{@key}}">
