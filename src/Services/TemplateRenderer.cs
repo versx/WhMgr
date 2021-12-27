@@ -74,7 +74,7 @@
                         writer.Write(0);
                     }
                 }),
-                // 
+                // Format boolean value helper
                 ["formatBool"] = new HandlebarsHelper((writer, ctx, args) =>
                 {
                     if (!bool.TryParse(args[0].ToString(), out var result))

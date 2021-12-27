@@ -28,6 +28,7 @@
         }
 
         //[Route("/")]
+        [HttpGet]
         public IActionResult Index()
         {
             var obj = new
@@ -58,6 +59,7 @@
 
         #region Configs
 
+        [HttpGet]
         [Route("configs")]
         public IActionResult Configs()
         {
@@ -88,6 +90,8 @@
             return View("configs", obj);
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("configs/new")]
         public IActionResult NewConfig()
         {
@@ -107,6 +111,8 @@
             return Unauthorized();
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("configs/edit/{fileName}")]
         public IActionResult EditConfig(string fileName)
         {
@@ -152,6 +158,7 @@
 
         #region Discord Servers
 
+        [HttpGet]
         [Route("discords")]
         public IActionResult Discords()
         {
@@ -181,6 +188,8 @@
             return View("discords", obj);
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("discords/new")]
         public IActionResult NewDiscord()
         {
@@ -200,6 +209,8 @@
             return Unauthorized();
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("discords/edit/{fileName}")]
         public IActionResult EditDiscord(string fileName)
         {
@@ -255,6 +266,7 @@
 
         #region Alarms
 
+        [HttpGet]
         [Route("alarms")]
         public IActionResult Alarms()
         {
@@ -284,6 +296,8 @@
             return View("alarms", obj);
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("alarms/new")]
         public IActionResult NewAlarm()
         {
@@ -303,6 +317,8 @@
             return Unauthorized();
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("alarms/edit/{fileName}")]
         public IActionResult EditAlarm(string fileName)
         {
@@ -348,6 +364,7 @@
 
         #region Filters
 
+        [HttpGet]
         [Route("filters")]
         public IActionResult Filters()
         {
@@ -376,6 +393,8 @@
             return View("filters", obj);
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("filters/new")]
         public IActionResult NewFilter()
         {
@@ -395,6 +414,8 @@
             return Unauthorized();
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("filters/edit/{fileName}")]
         public IActionResult EditFilter(string fileName)
         {
@@ -440,6 +461,7 @@
 
         #region Embeds
 
+        [HttpGet]
         [Route("embeds")]
         public IActionResult Embeds()
         {
@@ -468,6 +490,8 @@
             return View("embeds", obj);
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("embeds/new")]
         public IActionResult NewEmbed()
         {
@@ -487,6 +511,8 @@
             return Unauthorized();
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("embeds/edit/{fileName}")]
         public IActionResult EditEmbed(string fileName)
         {
@@ -532,6 +558,7 @@
 
         #region Geofences
 
+        [HttpGet]
         [Route("geofences")]
         public IActionResult Geofences()
         {
@@ -546,6 +573,8 @@
             return View("geofences", obj);
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("geofences/new")]
         public IActionResult NewGeofence()
         {
@@ -565,6 +594,8 @@
             return Unauthorized();
         }
 
+        [HttpGet]
+        [HttpPost]
         [Route("geofences/edit/{fileName}")]
         public IActionResult EditGeofence(string fileName)
         {
@@ -608,6 +639,9 @@
 
         #endregion
 
+        #region Discord Roles
+
+        [HttpGet]
         [Route("roles")]
         public IActionResult DiscordRoles()
         {
@@ -620,18 +654,11 @@
             return View("roles", obj);
         }
 
-        [Route("templates")]
-        public IActionResult Templates()
-        {
-            var obj = new
-            {
-                template = "templates",
-                title = "Templates",
-                favicon = "dotnet.png",
-            };
-            return View("templates", obj);
-        }
+        #endregion
 
+        #region Users
+
+        [HttpGet]
         [Route("users")]
         public IActionResult Users()
         {
@@ -644,6 +671,11 @@
             return View("users", obj);
         }
 
+        #endregion
+
+        #region Settings
+
+        [HttpGet]
         [Route("settings")]
         public IActionResult Settings()
         {
@@ -656,7 +688,10 @@
             return View("settings", obj);
         }
 
-        // Utilities
+        #endregion
+
+        #region Helpers
+
         private static T LoadFromFile<T>(string filePath)
         {
             var json = System.IO.File.ReadAllText(filePath);
@@ -669,5 +704,7 @@
             var data = System.IO.File.ReadAllText(filePath);
             return data;
         }
+
+        #endregion
     }
 }

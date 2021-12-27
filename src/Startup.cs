@@ -86,9 +86,6 @@ namespace WhMgr
             services.AddSingleton<IMapDataCache, MapDataCache>();
             services.AddSingleton<IStaticsticsService, StatisticsService>();
             services.AddSingleton<IDiscordClientService, DiscordClientService>();
-            //services.AddSingleton<IconStyleCollection>();
-            //services.AddSingleton<Dictionary<QuestRewardType, string>>();
-            //services.AddSingleton<IUIconService, UIconService>();
 
             services.AddHostedService<SubscriptionProcessorService>();
             // Subscription processor queue
@@ -111,7 +108,7 @@ namespace WhMgr
 
             services.AddHealthChecks();
 
-            // csrf
+            // Add csrf middleware
             services.AddAntiforgery(options =>
             {
                 // Set Cookie properties using CookieBuilder properties.
