@@ -216,6 +216,7 @@
         {
             if (Request.Method == "GET")
             {
+                var config = LoadFromFile<DiscordServerConfig>(Path.Combine(Strings.DiscordsFolder, fileName + ".json"));
                 var alarmFiles = Directory.GetFiles(Strings.AlarmsFolder);
                 var geofenceFiles = Directory.GetFiles(Strings.GeofencesFolder);
                 var embedFiles = Directory.GetFiles(Strings.EmbedsFolder);
@@ -226,7 +227,7 @@
                     title = $"Edit Discord Server \"{fileName}\"",
                     favicon = "dotnet.png",
                     name = fileName,
-                    config = LoadFromFile<DiscordServerConfig>(Path.Combine(Strings.DiscordsFolder, fileName + ".json")),
+                    config,
                     alarms = alarmFiles.Select(file => Path.GetFileName(file)),
                     geofences = geofenceFiles.Select(file => Path.GetFileName(file)),
                     embeds = embedFiles.Select(file => Path.GetFileName(file)),

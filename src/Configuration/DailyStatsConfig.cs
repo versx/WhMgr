@@ -5,9 +5,9 @@
     public class DailyStatsConfig
     {
         [JsonPropertyName("shiny")]
-        public ShinyStatsConfig ShinyStats { get; set; }
+        public StatsConfig ShinyStats { get; set; }
 
         [JsonPropertyName("iv")]
-        public IVStatsConfig IVStats { get; set; }
+        public StatsConfig IVStats { get; set; }
     }
 }

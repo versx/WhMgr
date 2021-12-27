@@ -2,7 +2,7 @@
 {
     using System.Text.Json.Serialization;
 
-    public class IVStatsConfig
+    public class StatsConfig
     {
         [JsonPropertyName("enabled")]
         public bool Enabled { get; set; }
