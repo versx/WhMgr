@@ -73,17 +73,15 @@
         public UrlConfig Urls { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets the event Pokemon IDs list
+        /// Gets or sets the Twilio configuration
         /// </summary>
-        [JsonPropertyName("eventPokemonIds")]
-        public List<int> EventPokemonIds { get; set; } = new();
+        public TwilioConfig Twilio { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets the minimum IV value for an event Pokemon to be to process
-        /// for channel alarms or direct message subscriptions
+        /// Gets or sets the event specified Pokemon and filtering
         /// </summary>
-        [JsonPropertyName("eventMinimumIV")]
-        public int EventMinimumIV { get; set; }
+        [JsonPropertyName("eventPokemon")]
+        public EventPokemonConfig EventPokemon { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the icon styles
@@ -164,7 +162,6 @@
             Locale = "en";
             MaxPokemonId = 898;
             LogLevel = LogLevel.Trace;
-            EventMinimumIV = 90;
             DespawnTimeMinimumMinutes = 5;
             CheckForDuplicates = true;
         }
@@ -203,8 +200,10 @@
 
         private static void LoadGeofences(Dictionary<ulong, DiscordServerConfig> servers)
         {
-            foreach (var (serverId, serverConfig) in servers)
+            foreach (var (_, serverConfig) in servers)
             {
+                serverConfig.LoadGeofences();
+                /*
                 serverConfig.Geofences.Clear();
 
                 var geofenceFiles = serverConfig.GeofenceFiles;
@@ -231,6 +230,7 @@
                 }
 
                 serverConfig.Geofences.AddRange(geofences);
+                */
             }
         }
 

@@ -1,0 +1,50 @@
+{{!< default}}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{title}}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a type="button" class="btn btn-sm btn-success" href="/dashboard/alarms/new">
+            New Channel Alarm
+        </a>
+    </div>
+</div>
+
+<div class="responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col" class="col-1">Enable Pokemon</th>
+                <th scope="col" class="col-1">Enable Raids</th>
+                <th scope="col" class="col-1">Enable Gyms</th>
+                <th scope="col" class="col-1">Enable Quests</th>
+                <th scope="col" class="col-1">Enable Pokestops</th>
+                <th scope="col" class="col-1">Enable Weather</th>
+                <th scope="col" class="col-1">Count</th>
+                <th scope="col" class="col-1"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {{#each alarms}}
+            <tr scope="row">
+                <td>{{@key}}</td>
+                <td>{{enablePokemon}}</td>
+                <td>{{enableRaids}}</td>
+                <td>{{enableGyms}}</td>
+                <td>{{enableQuests}}</td>
+                <td>{{enablePokestops}}</td>
+                <td>{{enableWeather}}</td>
+                <td>{{alarms.Count}}</td>
+                <td>
+                    <a type="button" class="btn btn-primary btn-sm" href="/dashboard/alarms/edit/{{@key}}">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/alarms/delete/{{@key}}" onclick="confirm('Are you sure you want to delete alarm {{@key}}?');">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</div>

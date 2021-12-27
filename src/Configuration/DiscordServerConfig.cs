@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text.Json.Serialization;
 
-    using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Geofence;
 
     /// <summary>
@@ -18,12 +18,6 @@
         /// </summary>
         [JsonPropertyName("bot")]
         public BotConfig Bot { get; set; }
-
-        /// <summary>
-        /// Gets or sets the owner id
-        /// </summary>
-        [JsonPropertyName("ownerId")]
-        public ulong OwnerId { get; set; }
 
         //[JsonProperty("locale")]
         //public string Locale { get; set; }
@@ -101,13 +95,10 @@
         public string IconStyle { get; set; } = "Default";
 
         /// <summary>
-        /// Gets or sets the bot channel ID(s)
+        /// 
         /// </summary>
-        [
-            Obsolete("Not used"),
-            JsonPropertyName("botChannelIds"),
-        ]
-        public List<ulong> BotChannelIds { get; set; } = new();
+        [JsonPropertyName("dmEmbedsFile")]
+        public string DmEmbedsFile { get; set; }
 
         /// <summary>
         /// Instantiate a new <see cref="DiscordServerConfig"/> class
@@ -115,6 +106,36 @@
         public DiscordServerConfig()
         {
             //Locale = "en";
+        }
+
+        public void LoadGeofences()
+        {
+            Geofences.Clear();
+
+            var geofenceFiles = GeofenceFiles;
+            var geofences = new List<Geofence>();
+
+            if (geofenceFiles != null && geofenceFiles.Any())
+            {
+                foreach (var file in geofenceFiles)
+                {
+                    var filePath = Path.Combine(Strings.GeofencesFolder, file);
+
+                    try
+                    {
+                        var fileGeofences = Geofence.FromFile(filePath);
+                        geofences.AddRange(fileGeofences);
+                        Console.WriteLine($"Successfully loaded {fileGeofences.Count} geofences from {file}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Could not load Geofence file {file}");// (for server {serverId}):");
+                        Console.WriteLine(ex);
+                    }
+                }
+            }
+
+            Geofences.AddRange(geofences);
         }
     }
 }

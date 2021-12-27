@@ -1,0 +1,248 @@
+<br>
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="/dashboard/discords">Discords</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Discord {{name}}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{title}}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <span data-feather="calendar"></span>
+            This week
+        </button>
+    </div>
+</div>
+
+<form method="POST" action="">
+    <div class="accordion" id="accordionPanelsStayOpenExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headerGeneral">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseGeneral" aria-expanded="true" aria-controls="panelsStayOpen-collapseGeneral">
+                General Settings
+              </button>
+            </h2>
+            <div id="panelsStayOpen-collapseGeneral" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headerGeneral">
+                <div class="accordion-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" value="{{name}}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="alarms" class="form-label">Donor Roles</label>
+                        <select class="form-control" id="donorRoles">
+                            {{#each donorRoles}}
+                            <option>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="alarms" class="form-label">Moderator Roles</label>
+                        <select class="form-control" id="moderatorRoles">
+                            {{#each moderatorRoles}}
+                            <option>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="freeRoleName" class="form-label">Free Role Name</label>
+                        <input type="text" class="form-control" id="freeRoleName" name="freeRoleName" placeholder="Example input placeholder" value="{{config.freeRoleName}}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="alarms" class="form-label">Alarms</label>
+                        <select class="form-control" id="alarms">
+                            {{#each alarms}}
+                            <option>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="alarms" class="form-label">Geofences</label>
+                        <select class="form-control" id="alarms" multiple>
+                            {{#each geofences}}
+                            <option>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="iconStyle" class="form-label">Icon Style</label>
+                        <select class="form-control" id="iconStyle">
+                            <option>Icon Style 1</option>
+                            <option>Icon Style 2</option>
+                            <option>Icon Style 3</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="embed" class="form-label">DM Embed File</label>
+                        <select class="form-control" id="embed">
+                            {{#each embeds}}
+                            <option>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headerBot">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseBot" aria-expanded="false" aria-controls="panelsStayOpen-collapseBot">
+                Bot Settings
+              </button>
+            </h2>
+            <div id="panelsStayOpen-collapseBot" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headerBot">
+                <div class="accordion-body">
+                    <div class="mb-3">
+                        <label for="commandPrefix" class="form-label">Command Prefix</label>
+                        <input type="text" class="form-control" id="commandPrefix" name="commandPrefix" placeholder="Example input placeholder" value="{{config.bot.commandPrefix}}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="emojiGuildId" class="form-label">Emoji Guild Id</label>
+                        <input type="text" class="form-control" id="emojiGuildId" name="emojiGuildId" placeholder="Example input placeholder" value="{{config.bot.emojiGuildId}}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="token" class="form-label">Token</label>
+                        <input type="text" class="form-control" id="token" name="token" placeholder="Example input placeholder" value="{{config.bot.token}}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="channelIds" class="form-label">Channel IDs</label>
+                        <input type="text" class="form-control" id="channelIds" name="token" placeholder="Example input placeholder" value="{{config.bot.channelIds}}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <input type="text" class="form-control" id="status" name="status" placeholder="Example input placeholder" value="{{config.bot.status}}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="ownerId" class="form-label">Owner ID</label>
+                        <input type="text" class="form-control" id="ownerId" name="ownerId" placeholder="Example input placeholder" value="{{config.ownerId}}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headerSubscriptions">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseSubscriptions" aria-expanded="false" aria-controls="panelsStayOpen-collapseSubscriptions">
+                Subscription Settings
+              </button>
+            </h2>
+            <div id="panelsStayOpen-collapseSubscriptions" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headerSubscriptions">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="subscriptionsEnabled" {{#if config.subscriptions.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="subscriptionsEnabled">Enabled</label>
+                    </div>
+                    <label for="maxPokemonSubscriptions" class="form-label">Max Pokemon Subscriptions</label>
+                    <input type="number" class="form-control" id="maxPokemonSubscriptions" name="maxPokemonSubscriptions" value="{{config.subscriptions.maxPokemonSubscriptions}}">
+                    <label for="maxPvpSubscriptions" class="form-label">Max PvP Subscriptions</label>
+                    <input type="number" class="form-control" id="maxPvpSubscriptions" name="maxPvpSubscriptions" value="{{config.subscriptions.maxPvPSubscriptions}}">
+                    <label for="maxRaidSubscriptions" class="form-label">Max Raid Subscriptions</label>
+                    <input type="number" class="form-control" id="maxRaidSubscriptions" name="maxRaidSubscriptions" value="{{config.subscriptions.maxRaidSubscriptions}}">
+                    <label for="maxQuestSubscriptions" class="form-label">Max Quest Subscriptions</label>
+                    <input type="number" class="form-control" id="maxQuestSubscriptions" name="maxQuestSubscriptions" value="{{config.subscriptions.maxQuestSubscriptions}}">
+                    <label for="maxLureSubscriptions" class="form-label">Max Lure Subscriptions</label>
+                    <input type="number" class="form-control" id="maxLureSubscriptions" name="maxLureSubscriptions" value="{{config.subscriptions.maxLureSubscriptions}}">
+                    <label for="maxInvasionSubscriptions" class="form-label">Max Invasion Subscriptions</label>
+                    <input type="number" class="form-control" id="maxInvasionSubscriptions" name="maxInvasionSubscriptions" value="{{config.subscriptions.maxInvasionSubscriptions}}">
+                    <label for="maxGymSubscriptions" class="form-label">Max Gym Subscriptions</label>
+                    <input type="number" class="form-control" id="maxGymSubscriptions" name="maxGymSubscriptions" value="{{config.subscriptions.maxGymSubscriptions}}">
+                    <label for="maxNotificationsPerMinute" class="form-label">Max Notifications Per Minute</label>
+                    <input type="number" class="form-control" id="maxNotificationsPerMinute" name="maxNotificationsPerMinute" value="{{config.subscriptions.maxNotificationsPerMinute}}">
+                    <label for="subscriptionsUiUrl" class="form-label">Subscriptions UI Url</label>
+                    <input type="text" class="form-control" id="subscriptionsUiUrl" name="subscriptionsUiUrl" value="{{config.subscriptions.url}}">
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headerGeofenceRoles">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseGeofenceRoles" aria-expanded="false" aria-controls="panelsStayOpen-collapseGeofenceRoles">
+                Geofence Roles Settings
+              </button>
+            </h2>
+            <div id="panelsStayOpen-collapseGeofenceRoles" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headerGeofenceRoles">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="geofenceRolesEnabled" {{#if config.geofenceRoles.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="geofenceRolesEnabled">Enabled</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="autoRemove" {{#if config.geofenceRoles.autoRemove}}checked{{/if}}>
+                        <label class="form-check-label" for="autoRemove">Automatically Remove</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="requiresDonorRole" {{#if config.geofenceRoles.requiresDonorRole}}checked{{/if}}>
+                        <label class="form-check-label" for="requiresDonorRole">Requires Donor Role</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headerQuestPurge">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseQuestPurge" aria-expanded="false" aria-controls="panelsStayOpen-collapseQuestPurge">
+                Quest Purge Settings
+              </button>
+            </h2>
+            <div id="panelsStayOpen-collapseQuestPurge" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headerQuestPurge">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="questPurgeEnabled" {{#if config.questPurge.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="questPurgeEnabled">Enabled</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headerNests">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseNests" aria-expanded="false" aria-controls="panelsStayOpen-collapseNests">
+                Nest Settings
+              </button>
+            </h2>
+            <div id="panelsStayOpen-collapseNests" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headerNests">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="nestsEnabled" {{#if config.nests.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="nestsEnabled">Enabled</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="nestsChannelId">Channel ID</label>
+                        <input class="form-control" type="number" id="nestsChannelId" name="nestsChannelId" value="{{config.nests.channelId}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="requiresDonorRole">Minimum Nests Per Hour</label>
+                        <input class="form-control" type="number" id="nestsMinimumPerHour" name="nestsMinimumPerHour" value="{{config.nests.minimumPerHour}}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headerDailyStats">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseDailyStats" aria-expanded="false" aria-controls="panelsStayOpen-collapseDailyStats">
+                Daily Statistics Settings
+              </button>
+            </h2>
+            <div id="panelsStayOpen-collapseDailyStats" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headerDailyStats">
+                <div class="accordion-body">
+                    IV<br>
+                    Shiny<br>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="dailyStatsEnabled" {{#if config.dailyStats.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="dailyStatsEnabled">Enabled</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>

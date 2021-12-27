@@ -38,5 +38,11 @@
         /// </summary>
         [JsonPropertyName("status")]
         public string Status { get; set; }
+
+        /// <summary>
+        /// Gets or sets the owner id
+        /// </summary>
+        [JsonPropertyName("ownerId")]
+        public ulong OwnerId { get; set; }
     }
 }

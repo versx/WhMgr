@@ -1,0 +1,559 @@
+<br>
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="/dashboard/embeds">Embeds</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Embeds {{name}}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{title}}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <span data-feather="calendar"></span>
+            This week
+        </button>
+    </div>
+</div>
+
+<form method="POST" action="">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" value="{{name}}">
+    </div>
+    <div class="accordion" id="accordionPanelsStayOpenExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingPokemon">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapsePokemon" aria-expanded="true" aria-controls="panelsStayOpen-collapsePokemon">
+                    Pokemon
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapsePokemon" class="accordion-collapse collapse show" aria-labelledby="panelsStayOpen-headingPokemon">
+                <div class="accordion-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="pokemonAvatarUrl" name="pokemonAvatarUrl" value="{{embed.pokemon.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonContent">Content</label>
+                        <textarea class="form-control" type="text" id="pokemonContent" name="pokemonContent" rows=20>{{embed.pokemon.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="pokemonIconUrl" name="pokemonIconUrl" value="{{embed.pokemon.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonUrl">Url</label>
+                        <input class="form-control" type="text" id="pokemonUrl" name="pokemonUrl" value="{{embed.pokemon.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonUsername">Username</label>
+                        <input class="form-control" type="text" id="pokemonUsername" name="pokemonUsername" value="{{embed.pokemon.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="pokemonImageUrl" name="pokemonImageUrl" value="{{embed.pokemon.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="pokemonFooterText">Text</label>
+                                <input class="form-control" type="text" id="pokemonFooterText" name="pokemonFooterText" value="{{embed.pokemon.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="pokemonFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="pokemonFooterIconUrl" name="pokemonFooterIconUrl" value="{{embed.pokemon.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingPokemonMissingStats">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapsePokemonMissingStats" aria-expanded="false" aria-controls="panelsStayOpen-collapsePokemonMissingStats">
+                    Pokemon Missing IV Stats
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapsePokemonMissingStats" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingPokemonMissingStats">
+                <div class="accordion-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="pokemonAvatarUrl" name="pokemonAvatarUrl" value="{{embed.pokemonMissingStats.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonContent">Content</label>
+                        <textarea class="form-control" type="text" id="pokemonContent" name="pokemonContent" rows=20>{{embed.pokemonMissingStats.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="pokemonIconUrl" name="pokemonIconUrl" value="{{embed.pokemonMissingStats.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonUrl">Url</label>
+                        <input class="form-control" type="text" id="pokemonUrl" name="pokemonUrl" value="{{embed.pokemonMissingStats.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonUsername">Username</label>
+                        <input class="form-control" type="text" id="pokemonUsername" name="pokemonUsername" value="{{embed.pokemonMissingStats.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="pokemonImageUrl" name="pokemonImageUrl" value="{{embed.pokemonMissingStats.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="pokemonFooterText">Text</label>
+                                <input class="form-control" type="text" id="pokemonFooterText" name="pokemonFooterText" value="{{embed.pokemonMissingStats.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="pokemonFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="pokemonFooterIconUrl" name="pokemonFooterIconUrl" value="{{embed.pokemonMissingStats.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingRaids">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseRaids" aria-expanded="false" aria-controls="panelsStayOpen-collapseRaids">
+                    Raids
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseRaids" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingRaids">
+                <div class="accordion-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="raidAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="raidAvatarUrl" name="raidAvatarUrl" value="{{embed.raids.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="raidContent">Content</label>
+                        <textarea class="form-control" type="text" id="raidContent" name="raidContent" rows=20>{{embed.raids.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="raidIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="raidIconUrl" name="raidIconUrl" value="{{embed.pokemon.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="raidUrl">Url</label>
+                        <input class="form-control" type="text" id="raidUrl" name="raidUrl" value="{{embed.pokemon.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="raidUsername">Username</label>
+                        <input class="form-control" type="text" id="raidUsername" name="raidUsername" value="{{embed.pokemon.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="raidImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="raidImageUrl" name="raidImageUrl" value="{{embed.pokemon.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="raidFooterText">Text</label>
+                                <input class="form-control" type="text" id="raidFooterText" name="raidFooterText" value="{{embed.pokemon.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="raidFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="raidFooterIconUrl" name="raidFooterIconUrl" value="{{embed.pokemon.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingEggs">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseEggs" aria-expanded="true" aria-controls="panelsStayOpen-collapseEggs">
+                    Eggs
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseEggs" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingEggs">
+                <div class="accordion-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="eggAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="eggAvatarUrl" name="eggAvatarUrl" value="{{embed.eggs.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="eggContent">Content</label>
+                        <textarea class="form-control" type="text" id="eggContent" name="eggContent" rows=20>{{embed.eggs.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="eggIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="eggIconUrl" name="eggIconUrl" value="{{embed.eggs.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="eggUrl">Url</label>
+                        <input class="form-control" type="text" id="eggUrl" name="eggUrl" value="{{embed.eggs.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="eggUsername">Username</label>
+                        <input class="form-control" type="text" id="eggUsername" name="eggUsername" value="{{embed.eggs.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="eggImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="eggImageUrl" name="eggImageUrl" value="{{embed.eggs.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="eggFooterText">Text</label>
+                                <input class="form-control" type="text" id="eggFooterText" name="eggFooterText" value="{{embed.eggs.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="eggFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="eggFooterIconUrl" name="eggFooterIconUrl" value="{{embed.eggs.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingGyms">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseGyms" aria-expanded="false" aria-controls="panelsStayOpen-collapseGyms">
+                    Gyms
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseGyms" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingGyms">
+                <div class="accordion-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="gymAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="gymAvatarUrl" name="gymAvatarUrl" value="{{embed.gyms.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="gymContent">Content</label>
+                        <textarea class="form-control" type="text" id="gymContent" name="gymContent" rows=20>{{embed.gyms.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="gymIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="gymIconUrl" name="gymIconUrl" value="{{embed.gyms.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="gymUrl">Url</label>
+                        <input class="form-control" type="text" id="gymUrl" name="gymUrl" value="{{embed.gyms.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="gymUsername">Username</label>
+                        <input class="form-control" type="text" id="gymUsername" name="gymUsername" value="{{embed.gyms.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="gymImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="gymImageUrl" name="gymImageUrl" value="{{embed.gyms.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="gymFooterText">Text</label>
+                                <input class="form-control" type="text" id="gymFooterText" name="gymFooterText" value="{{embed.gyms.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="gymFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="gymFooterIconUrl" name="gymFooterIconUrl" value="{{embed.gyms.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingPokestops">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapsePokestops" aria-expanded="false" aria-controls="panelsStayOpen-collapsePokestops">
+                    Pokestops
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapsePokestops" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingPokestops">
+                <div class="accordion-body">
+                   <div class="mb-3">
+                        <label class="form-label" for="pokestopAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="pokestopAvatarUrl" name="pokestopAvatarUrl" value="{{embed.pokestops.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokestopContent">Content</label>
+                        <textarea class="form-control" type="text" id="pokestopContent" name="pokestopContent" rows=20>{{embed.pokestops.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokestopIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="pokestopIconUrl" name="pokestopIconUrl" value="{{embed.pokestops.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokestopUrl">Url</label>
+                        <input class="form-control" type="text" id="pokestopUrl" name="pokestopUrl" value="{{embed.pokestops.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokestopUsername">Username</label>
+                        <input class="form-control" type="text" id="pokestopUsername" name="pokestopUsername" value="{{embed.pokestops.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokestopImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="pokestopImageUrl" name="pokestopImageUrl" value="{{embed.pokestops.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="pokestopFooterText">Text</label>
+                                <input class="form-control" type="text" id="pokestopFooterText" name="pokestopFooterText" value="{{embed.pokestops.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="pokestopFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="pokestopFooterIconUrl" name="pokestopFooterIconUrl" value="{{embed.pokestops.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingQuests">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseQuests" aria-expanded="false" aria-controls="panelsStayOpen-collapseQuests">
+                    Quests
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseQuests" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingQuests">
+                <div class="accordion-body">
+                   <div class="mb-3">
+                        <label class="form-label" for="questAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="questAvatarUrl" name="questAvatarUrl" value="{{embed.quests.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="questContent">Content</label>
+                        <textarea class="form-control" type="text" id="questContent" name="questContent" rows=20>{{embed.quests.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="questIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="questIconUrl" name="questIconUrl" value="{{embed.quests.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="questUrl">Url</label>
+                        <input class="form-control" type="text" id="questUrl" name="questUrl" value="{{embed.quests.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="questUsername">Username</label>
+                        <input class="form-control" type="text" id="questUsername" name="questUsername" value="{{embed.quests.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="questImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="questImageUrl" name="questImageUrl" value="{{embed.quests.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="questFooterText">Text</label>
+                                <input class="form-control" type="text" id="questFooterText" name="questFooterText" value="{{embed.quests.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="questFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="questFooterIconUrl" name="questFooterIconUrl" value="{{embed.quests.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingLures">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseLures" aria-expanded="false" aria-controls="panelsStayOpen-collapseLures">
+                    Lures
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseLures" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingLures">
+                <div class="accordion-body">
+                   <div class="mb-3">
+                        <label class="form-label" for="lureAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="lureAvatarUrl" name="lureAvatarUrl" value="{{embed.lures.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="lureContent">Content</label>
+                        <textarea class="form-control" type="text" id="lureContent" name="lureContent" rows=20>{{embed.lures.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="lureIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="lureIconUrl" name="lureIconUrl" value="{{embed.lures.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="lureUrl">Url</label>
+                        <input class="form-control" type="text" id="lureUrl" name="lureUrl" value="{{embed.lures.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="lureUsername">Username</label>
+                        <input class="form-control" type="text" id="lureUsername" name="lureUsername" value="{{embed.lures.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="lureImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="lureImageUrl" name="lureImageUrl" value="{{embed.lures.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="lureFooterText">Text</label>
+                                <input class="form-control" type="text" id="lureFooterText" name="lureFooterText" value="{{embed.lures.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="lureFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="lureFooterIconUrl" name="lureFooterIconUrl" value="{{embed.lures.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingInvasions">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseInvasions" aria-expanded="false" aria-controls="panelsStayOpen-collapseInvasions">
+                    Invasions
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseInvasions" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingInvasions">
+                <div class="accordion-body">
+                   <div class="mb-3">
+                        <label class="form-label" for="invasionAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="invasionAvatarUrl" name="invasionAvatarUrl" value="{{embed.invasions.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="invasionContent">Content</label>
+                        <textarea class="form-control" type="text" id="invasionContent" name="invasionContent" rows=20>{{embed.invasions.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="invasionIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="invasionIconUrl" name="invasionIconUrl" value="{{embed.invasions.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="invasionUrl">Url</label>
+                        <input class="form-control" type="text" id="invasionUrl" name="invasionUrl" value="{{embed.invasions.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="invasionUsername">Username</label>
+                        <input class="form-control" type="text" id="invasionUsername" name="invasionUsername" value="{{embed.invasions.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="invasionImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="invasionImageUrl" name="invasionImageUrl" value="{{embed.invasions.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="invasionFooterText">Text</label>
+                                <input class="form-control" type="text" id="invasionFooterText" name="invasionFooterText" value="{{embed.invasions.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="invasionFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="invasionFooterIconUrl" name="invasionFooterIconUrl" value="{{embed.invasions.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingNests">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseNests" aria-expanded="false" aria-controls="panelsStayOpen-collapseNests">
+                    Nests
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseNests" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingNests">
+                <div class="accordion-body">
+                   <div class="mb-3">
+                        <label class="form-label" for="nestAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="nestAvatarUrl" name="nestAvatarUrl" value="{{embed.nests.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="nestContent">Content</label>
+                        <textarea class="form-control" type="text" id="nestContent" name="nestContent" rows=20>{{embed.nests.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="nestIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="nestIconUrl" name="nestIconUrl" value="{{embed.nests.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="nestUrl">Url</label>
+                        <input class="form-control" type="text" id="nestUrl" name="nestUrl" value="{{embed.nests.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="nestUsername">Username</label>
+                        <input class="form-control" type="text" id="nestUsername" name="nestUsername" value="{{embed.nests.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="nestImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="nestImageUrl" name="nestImageUrl" value="{{embed.nests.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="nestFooterText">Text</label>
+                                <input class="form-control" type="text" id="nestFooterText" name="nestFooterText" value="{{embed.nests.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="nestFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="nestFooterIconUrl" name="nestFooterIconUrl" value="{{embed.nests.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingWeather">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseWeather" aria-expanded="false" aria-controls="panelsStayOpen-collapseWeather">
+                    Weather
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseWeather" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingWeather">
+                <div class="accordion-body">
+                   <div class="mb-3">
+                        <label class="form-label" for="weatherAvatarUrl">Avatar Url</label>
+                        <input class="form-control" type="text" id="weatherAvatarUrl" name="weatherAvatarUrl" value="{{embed.weather.avatarUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="weatherContent">Content</label>
+                        <textarea class="form-control" type="text" id="weatherContent" name="weatherContent" rows=20>{{embed.weather.content}}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="weatherIconUrl">Icon Url</label>
+                        <input class="form-control" type="text" id="weatherIconUrl" name="weatherIconUrl" value="{{embed.weather.iconUrl}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="weatherUrl">Url</label>
+                        <input class="form-control" type="text" id="weatherUrl" name="weatherUrl" value="{{embed.weather.url}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="weatherUsername">Username</label>
+                        <input class="form-control" type="text" id="weatherUsername" name="weatherUsername" value="{{embed.weather.username}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="weatherImageUrl">Image Url</label>
+                        <input class="form-control" type="text" id="weatherImageUrl" name="weatherImageUrl" value="{{embed.weather.imageUrl}}">
+                    </div>
+                    <div class="card">
+                        <div class="card-header">Footer</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="weatherFooterText">Text</label>
+                                <input class="form-control" type="text" id="weatherFooterText" name="weatherFooterText" value="{{embed.weather.footer.text}}">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="weatherFooterIconUrl">Icon Url</label>
+                                <input class="form-control" type="text" id="weatherFooterIconUrl" name="weatherFooterIconUrl" value="{{embed.weather.footer.iconUrl}}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

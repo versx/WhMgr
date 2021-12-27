@@ -1,0 +1,46 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{title}}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a type="button" class="btn btn-sm btn-success" href="/dashboard/filters/new">
+            New Filter
+        </a>
+    </div>
+</div>
+
+<div class="responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col" class="col-1">Pokemon</th>
+                <th scope="col" class="col-1">Raids</th>
+                <th scope="col" class="col-1">Gyms</th>
+                <th scope="col" class="col-1">Quests</th>
+                <th scope="col" class="col-1">Pokestops</th>
+                <th scope="col" class="col-1">Weather</th>
+                <th scope="col" class="col-1"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {{#each filters}}
+            <tr scope="row">
+                <td>{{@key}}</td>
+                <td>{{#if pokemon.enabled}}Enabled{{else}}Disabled{{/if}}</td>
+                <td>{{#if raids.enabled}}Enabled{{else}}Disabled{{/if}}</td>
+                <td>{{#if gyms.enabled}}Enabled{{else}}Disabled{{/if}}</td>
+                <td>{{#if quests.enabled}}Enabled{{else}}Disabled{{/if}}</td>
+                <td>{{#if pokestops.enabled}}Enabled{{else}}Disabled{{/if}}</td>
+                <td>{{#if weather.enabled}}Enabled{{else}}Disabled{{/if}}</td>
+                <td>
+                    <a type="button" class="btn btn-primary btn-sm" href="/dashboard/filters/edit/{{@key}}">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/filters/delete/{{@key}}" onclick="confirm('Are you sure you want to delete filter {{@key}}?');">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</div>

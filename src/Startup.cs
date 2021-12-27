@@ -2,14 +2,17 @@ namespace WhMgr
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text.Json.Serialization;
+    using System.IO;
     using System.Threading.Tasks;
 
+    using HandlebarsDotNet.ViewEngine;
+    using Microsoft.AspNetCore.Antiforgery;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.FileProviders;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.OpenApi.Models;
@@ -30,6 +33,7 @@ namespace WhMgr
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook;
     using WhMgr.Services.Webhook.Queue;
+    using WhMgr.Web.Extensions;
 
     // TODO: Reload alarms/filters/geofences on change
     // TODO: Simplify alarm and subscription filter checks
@@ -107,7 +111,25 @@ namespace WhMgr
 
             services.AddHealthChecks();
 
+            // csrf
+            services.AddAntiforgery(options =>
+            {
+                // Set Cookie properties using CookieBuilder properties.
+                options.FormFieldName = "csrf-token";
+                options.HeaderName = "X-CSRF-TOKEN-HEADERNAME";
+                options.SuppressXFrameOptionsHeader = false;
+            });
+
+            services.AddMvc()
+                    .AddHandlebars(options =>
+                    {
+                        // Views/Shared/layout.hbs
+                        options.DefaultLayout = "Views/Layout/default.hbs";
+                        options.RegisterHelpers = TemplateRenderer.GetHelpers();
+                    });
             services.AddControllers();
+            services.AddControllersWithViews();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WhMgr", Version = "v1" });
@@ -131,8 +153,37 @@ namespace WhMgr
             // Initialize and start Discord clients
             Task.Run(async () => await discordClientService.Start());
 
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(env.WebRootPath, "static")),
+                //RequestPath = ""
+            });
+
             app.UseRouting();
             app.UseAuthorization();
+            
+            /*
+            // Anti forgery middleware using csrf tokens
+            var antiforgery = app.ApplicationServices.GetRequiredService<IAntiforgery>();
+            app.Use((context, next) =>
+            {
+                var requestPath = context.Request.Path.Value;
+                if (string.Equals(requestPath, "/dashboard", StringComparison.OrdinalIgnoreCase))
+                {
+                    var tokenSet = antiforgery.GetAndStoreTokens(context);
+                    context.Response.Cookies.Append(
+                        "XSRF-TOKEN",
+                        tokenSet.RequestToken!,
+                        new CookieOptions { HttpOnly = false }
+                    );
+                }
+                return next(); // context);
+            });
+            */
+
+            //app.UseCsrfTokens();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

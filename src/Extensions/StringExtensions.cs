@@ -35,5 +35,12 @@
                         .Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries)
                         .ToList();
         }
+
+        public static string ToCamelCase(this string value)
+        {
+            var first = value[0].ToString().ToLower();
+            var last = string.Concat(value.Skip(1));
+            return first + last;
+        }
     }
 }

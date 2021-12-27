@@ -59,4 +59,10 @@
   <ItemGroup>
     <None Remove="Common\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Handlebars.Net.ViewEngine">
+      <HintPath>..\..\..\..\Downloads\AspNetCore-Handlebars\src\Handlebars.Net.ViewEngine\bin\Debug\net5.0\Handlebars.Net.ViewEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

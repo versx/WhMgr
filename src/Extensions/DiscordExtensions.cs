@@ -220,7 +220,7 @@
 
                 var server = config.Servers[guildId];
 
-                var isAdmin = userId == server.OwnerId;
+                var isAdmin = userId == server.Bot.OwnerId;
                 if (isAdmin)
                     return true;
 
@@ -269,7 +269,7 @@
 
             var server = config.Servers[guildId];
 
-            var isAdmin = IsAdmin(userId, server.OwnerId);
+            var isAdmin = IsAdmin(userId, server.Bot.OwnerId);
             if (isAdmin)
                 return true;
 

@@ -1,0 +1,292 @@
+<br>
+<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="/dashboard/filters">Filters</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Filter {{name}}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{{title}}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <span data-feather="calendar"></span>
+            This week
+        </button>
+    </div>
+</div>
+
+TODO: Raid and Egg filters
+<form method="POST" action="">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" value="{{name}}">
+    </div>
+    <div class="accordion" id="accordionPanelsStayOpenExample">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingPokemon">
+                <button class="accordion-button {{#unless filter.pokemon.enabled}}collapsed{{/unless}}" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapsePokemon" aria-expanded="true" aria-controls="panelsStayOpen-collapsePokemon">
+                    Pokemon Filters
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapsePokemon" class="accordion-collapse collapse {{#if filter.pokemon.enabled}}show{{/if}}" aria-labelledby="panelsStayOpen-headingPokemon">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="pokemonEnabled" {{#if filter.pokemon.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="pokemonEnabled">Enabled</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonPokemonList">Pokemon</label>
+                        <input class="form-control" type="text" id="pokemonPokemonList" name="pokemonPokemonList" value="{{filter.pokemon.pokemon}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonFormsList">Forms</label>
+                        <input class="form-control" type="text" id="pokemonFormsList" name="pokemonFormsList" value="{{filter.pokemon.forms}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonCostumesList">Costume</label>
+                        <input class="form-control" type="text" id="pokemonCostumesList" name="pokemonCostumesList" value="{{filter.pokemon.costumes}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonMinIV">Minimum IV</label>
+                        <input class="form-control" type="text" id="pokemonMinIV" name="pokemonMinIV" value="{{filter.pokemon.minimumIV}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonMaxIV">Maximum IV</label>
+                        <input class="form-control" type="text" id="pokemonMaxIV" name="pokemonMaxIV" value="{{filter.pokemon.maximumIV}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonMinCP">Minimum CP</label>
+                        <input class="form-control" type="text" id="pokemonMinCP" name="pokemonMinCP" value="{{filter.pokemon.minimumCP}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonMaxCP">Maximum CP</label>
+                        <input class="form-control" type="text" id="pokemonMaxCP" name="pokemonMaxCP" value="{{filter.pokemon.maximumCP}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonMinLevel">Minimum Level</label>
+                        <input class="form-control" type="text" id="pokemonMinLevel" name="pokemonMinLevel" value="{{filter.pokemon.minimumLevel}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonMaxLevel">Maximum Level</label>
+                        <input class="form-control" type="text" id="pokemonMaxLevel" name="pokemonMaxLevel" value="{{filter.pokemon.maximumLevel}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonGender">Gender</label>
+                        <select class="form-control" id="pokemonGender" name="pokemonGender">
+                            <option value="*">All</option>
+                            <option value="m">Male</option>
+                            <option value="m">Female</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonSize">Size</label>
+                        <select class="form-control" id="pokemonSize" name="pokemonSize">
+                            <option value="0">All</option>
+                            <option value="1">Tiny</option>
+                            <option value="2">Small</option>
+                            <option value="3">Normal</option>
+                            <option value="4">Large</option>
+                            <option value="5">Big</option>
+                        </select>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="greatLeague" name="greatLeague" {{#if filter.pokemon.IsPvpGreatLeague}}checked{{/if}}>
+                        <label class="form-check-label" for="greatLeague">Is Great League</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="ultraLeague" name="ultraLeague" {{#if filter.pokemon.IsPvpUltraLeague}}checked{{/if}}>
+                        <label class="form-check-label" for="ultraLeague">Is Ultra League</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonMinRank">Minimum Rank</label>
+                        <input class="form-control" type="number" id="pokemonMinRank" name="pokemonMinRank" value="{{filter.pokemon.minimumRank}}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonMaxRank">Maximum Rank</label>
+                        <input class="form-control" type="number" id="pokemonMaxRank" name="pokemonMaxRank" value="{{filter.pokemon.maximumRank}}">
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="isEvent" name="isEvent" {{#if filter.pokemon.isEvent}}checked{{/if}}>
+                        <label class="form-check-label" for="isEvent">Is Event Pokemon</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="pokemonType">Filter Type</label>
+                        <select class="form-control" id="pokemonType" name="pokemonType">
+                            <option value="Include">Include</option>
+                            <option value="Exclude">Exclude</option>
+                        </select>
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="ignoreMissing" name="ignoreMissing" {{#if filter.pokemon.ignoreMissing}}checked{{/if}}>
+                        <label class="form-check-label" for="ignoreMissing">Ignore Missing</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingPokemonMissing">
+                <button class="accordion-button {{#unless filter.pokemonMissingStats.enabled}}collapsed{{/unless}}" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseMissing" aria-expanded="false" aria-controls="panelsStayOpen-collapseMissing">
+                    Pokemon w/o Stats Filters
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseMissing" class="accordion-collapse collapse {{#if filter.raids.enabled}}show{{/if}}" aria-labelledby="panelsStayOpen-headingPokemonMissing">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="raidsEnabled" {{#if filter.raids.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="raidsEnabled">Enabled</label>
+                    </div>
+                    <ul>
+                        <li>Pokemon list</li>
+                        <li>Forms list</li>
+                        <li>Costums list</li>
+                        <li>Min Level</li>
+                        <li>Max Level</li>
+                        <li>Only EX</li>
+                        <li>Team</li>
+                        <li>Type (Include/Exclude)</li>
+                        <li>IgnoreMissing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingRaids">
+                <button class="accordion-button {{#unless filter.raids.enabled}}collapsed{{/unless}}" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseRaids" aria-expanded="false" aria-controls="panelsStayOpen-collapseRaids">
+                    Raid Filters
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseRaids" class="accordion-collapse collapse {{#if filter.raids.enabled}}show{{/if}}" aria-labelledby="panelsStayOpen-headingRaids">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="raidsEnabled" {{#if filter.raids.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="raidsEnabled">Enabled</label>
+                    </div>
+                    <ul>
+                        <li>Pokemon list</li>
+                        <li>Forms list</li>
+                        <li>Costums list</li>
+                        <li>Min Level</li>
+                        <li>Max Level</li>
+                        <li>Only EX</li>
+                        <li>Team</li>
+                        <li>Type (Include/Exclude)</li>
+                        <li>IgnoreMissing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingEggs">
+                <button class="accordion-button {{#unless filter.eggs.enabled}}collapsed{{/unless}}" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseEggs" aria-expanded="false" aria-controls="panelsStayOpen-collapseEggs">
+                    Egg Filters
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseEggs" class="accordion-collapse collapse {{#if filter.raids.enabled}}show{{/if}}" aria-labelledby="panelsStayOpen-headingEggs">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="raidsEnabled" {{#if filter.raids.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="raidsEnabled">Enabled</label>
+                    </div>
+                    <ul>
+                        <li>Pokemon list</li>
+                        <li>Forms list</li>
+                        <li>Costums list</li>
+                        <li>Min Level</li>
+                        <li>Max Level</li>
+                        <li>Only EX</li>
+                        <li>Team</li>
+                        <li>Type (Include/Exclude)</li>
+                        <li>IgnoreMissing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingQuests">
+                <button class="accordion-button {{#unless filter.quests.enabled}}collapsed{{/unless}}" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseQuests" aria-expanded="false" aria-controls="panelsStayOpen-collapseQuests">
+                    Quest Filters
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseQuests" class="accordion-collapse collapse {{#if filter.quests.enabled}}show{{/if}}" aria-labelledby="panelsStayOpen-headingQuests">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="questsEnabled" {{#if filter.quests.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="questsEnabled">Enabled</label>
+                    </div>
+                    <ul>
+                        <li>Rewards list</li>
+                        <li>Is Shiny</li>
+                        <li>Type (Include/Exclude)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingPokestops">
+                <button class="accordion-button {{#unless filter.pokestops.enabled}}collapsed{{/unless}}" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapsePokestops" aria-expanded="false" aria-controls="panelsStayOpen-collapsePokestops">
+                    Pokestop Filters
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapsePokestops" class="accordion-collapse collapse {{#if filter.pokestops.enabled}}show{{/if}}" aria-labelledby="panelsStayOpen-headingPokestops">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="pokestopsEnabled" {{#if filter.pokestops.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="pokestopsEnabled">Enabled</label>
+                    </div>
+                    <ul>
+                        <li>Lured</li>
+                        <li>Lure Types</li>
+                        <li>Invasions</li>
+                        <li>Invasion Types</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingGyms">
+                <button class="accordion-button {{#unless filter.gyms.enabled}}collapsed{{/unless}}" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseGyms" aria-expanded="false" aria-controls="panelsStayOpen-collapseGyms">
+                    Gym Filters
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseGyms" class="accordion-collapse collapse {{#if filter.gyms.enabled}}show{{/if}}" aria-labelledby="panelsStayOpen-headingGyms">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="gymsEnabled" {{#if filter.gyms.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="gymsEnabled">Enabled</label>
+                    </div>
+                    <ul>
+                        <li>Under Attack</li>
+                        <li>Team</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="panelsStayOpen-headingWeather">
+                <button class="accordion-button {{#unless filter.weather.enabled}}collapsed{{/unless}}" type="button" data-bs-toggle="collapse" data-bs-target="#panelsStayOpen-collapseWeather" aria-expanded="false" aria-controls="panelsStayOpen-collapseWeather">
+                    Weather Filters
+                </button>
+            </h2>
+            <div id="panelsStayOpen-collapseWeather" class="accordion-collapse collapse {{#if filter.weather.enabled}}show{{/if}}" aria-labelledby="panelsStayOpen-headingWeather">
+                <div class="accordion-body">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="weatherEnabled" {{#if filter.weather.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="weatherEnabled">Enabled</label>
+                    </div>
+                    <ul>
+                        <li>Weather Types</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <br>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>

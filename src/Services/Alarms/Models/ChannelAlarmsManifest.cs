@@ -103,7 +103,7 @@
                             else
                             {
                                 // Try and load from a file instead
-                                var filePath = Path.Combine(Strings.GeofenceFolder, geofenceName);
+                                var filePath = Path.Combine(Strings.GeofencesFolder, geofenceName);
 
                                 if (!File.Exists(filePath))
                                 {

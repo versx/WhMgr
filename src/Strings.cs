@@ -17,7 +17,10 @@
         public const string WazeMaps = "https://waze.com/ul?ll={0},{1}&navigate=yes";
 
         public const string BasePath = "../bin/";
-        public const string GeofenceFolder = BasePath + "geofences";
+        public const string ViewsFolder = "Views";
+        public const string TemplateExt = ".hbs";
+        public const string ConfigsFolder = BasePath + "configs";
+        public const string GeofencesFolder = BasePath + "geofences";
         public const string AlarmsFolder = BasePath + "alarms";
         public const string EmbedsFolder = BasePath + "embeds";
         public const string DiscordsFolder = BasePath + "discords";
