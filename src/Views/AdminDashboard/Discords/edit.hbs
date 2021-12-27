@@ -79,9 +79,9 @@
                     <div class="mb-3">
                         <label for="iconStyle" class="form-label">Icon Style</label>
                         <select class="form-control" id="iconStyle">
-                            <option>Icon Style 1</option>
-                            <option>Icon Style 2</option>
-                            <option>Icon Style 3</option>
+                            {{#each iconStyles}}
+                            <option>{{@key}}</option>
+                            {{/each}}
                         </select>
                     </div>
 
@@ -126,7 +126,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="ownerId" class="form-label">Owner ID</label>
-                        <input type="text" class="form-control" id="ownerId" name="ownerId" placeholder="Example input placeholder" value="{{config.ownerId}}">
+                        <input type="text" class="form-control" id="ownerId" name="ownerId" placeholder="Example input placeholder" value="{{config.bot.ownerId}}">
                     </div>
                 </div>
             </div>
@@ -196,8 +196,12 @@
             <div id="panelsStayOpen-collapseQuestPurge" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headerQuestPurge">
                 <div class="accordion-body">
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="questPurgeEnabled" {{#if config.questPurge.enabled}}checked{{/if}}>
-                        <label class="form-check-label" for="questPurgeEnabled">Enabled</label>
+                        <input class="form-check-input" type="checkbox" id="questsPurgeEnabled" name="questsPurgeEnabled" {{#if config.questsPurge.enabled}}checked{{/if}}>
+                        <label class="form-check-label" for="questsPurgeEnabled">Enabled</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="questsPurgeChannels">Channel IDs</label>
+                        <input class="form-control" type="text" id="questsPurgeChannels" name="questsPurgeChannels" value="{{config.questsPurge.channels}}">
                     </div>
                 </div>
             </div>

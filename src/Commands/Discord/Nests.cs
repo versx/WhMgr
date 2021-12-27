@@ -58,7 +58,10 @@
             var server = _config.Instance.Servers[guildId];
             // Check if nest posting is enabled
             if (!server.Nests.Enabled)
+            {
+                Console.WriteLine($"Nest reporting disabled...");
                 return;
+            }
 
             var channelId = server.Nests.ChannelId;
             var channel = await ctx.Client.GetChannelAsync(channelId);

@@ -208,6 +208,7 @@
                 var alarmFiles = Directory.GetFiles(Strings.AlarmsFolder);
                 var geofenceFiles = Directory.GetFiles(Strings.GeofencesFolder);
                 var embedFiles = Directory.GetFiles(Strings.EmbedsFolder);
+                var iconStyles = Startup.Config.IconStyles;
                 var obj = new
                 {
                     template = "discords-edit",
@@ -218,6 +219,7 @@
                     alarms = alarmFiles.Select(file => Path.GetFileName(file)),
                     geofences = geofenceFiles.Select(file => Path.GetFileName(file)),
                     embeds = embedFiles.Select(file => Path.GetFileName(file)),
+                    iconStyles,
                 };
                 return View("Discords/edit", obj);
             }

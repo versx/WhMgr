@@ -7,6 +7,7 @@
         /// <summary>
         /// Gets or sets a value determining whether to post nest listings or not
         /// </summary>
+        [JsonPropertyName("enabled")]
         public bool Enabled { get; set; }
 
         /// <summary>
