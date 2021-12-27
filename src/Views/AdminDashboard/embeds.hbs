@@ -45,7 +45,7 @@
                     <a type="button" class="btn btn-primary btn-sm" href="/dashboard/embeds/edit/{{@key}}">
                         <i class="fas fa-edit"></i>
                     </a>
-                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/embeds/delete/{{@key}}" onclick="confirm('Are you sure you want to delete embed {{@key}}?');">
+                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/embeds/delete/{{@key}}" onclick="return confirm('Are you sure you want to delete embed {{@key}}?');">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </td>

@@ -27,7 +27,7 @@
                     <a type="button" class="btn btn-primary btn-sm" href="/dashboard/configs/edit/{{@key}}">
                         <i class="fas fa-edit"></i>
                     </a>
-                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/configs/delete/{{@key}}" onclick="confirm('Are you sure you want to delete config {{@key}}?');">
+                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/configs/delete/{{@key}}" onclick="return confirm('Are you sure you want to delete config {{@key}}?');">
                         <i class="fas fa-trash-alt"></i>
                     </a>
                 </td>

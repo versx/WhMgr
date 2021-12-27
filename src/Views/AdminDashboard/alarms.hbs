@@ -39,7 +39,7 @@
                     <a type="button" class="btn btn-primary btn-sm" href="/dashboard/alarms/edit/{{@key}}">
                         <i class="fas fa-edit"></i>
                     </a>
-                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/alarms/delete/{{@key}}" onclick="confirm('Are you sure you want to delete alarm {{@key}}?');">
+                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/alarms/delete/{{@key}}" onclick="return confirm('Are you sure you want to delete alarm {{@key}}?');">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 </td>
