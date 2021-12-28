@@ -7,50 +7,53 @@
     </div>
 </div>
 
-<div class="responsive">
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col" class="col-1">Pokemon</th>
-                <th scope="col" class="col-1">Pokemon w/o Stats</th>
-                <th scope="col" class="col-1">Raids</th>
-                <th scope="col" class="col-1">Eggs</th>
-                <th scope="col" class="col-1">Gyms</th>
-                <th scope="col" class="col-1">Pokestops</th>
-                <th scope="col" class="col-1">Quests</th>
-                <th scope="col" class="col-1">Lures</th>
-                <th scope="col" class="col-1">Invasions</th>
-                <th scope="col" class="col-1">Nests</th>
-                <th scope="col" class="col-1">Weather</th>
-                <th scope="col" class="col-1"></th>
-            </tr>
-        </thead>
-        <tbody>
-        {{#each embeds}}
-            <tr scope="row">
-                <td>{{@key}}</td>
-                <td>{{#if pokemon}}Set{{else}}Not Set{{/if}}</td>
-                <td>{{#if pokemonMissingStats}}Set{{else}}Not Set{{/if}}</td>
-                <td>{{#if raids}}Set{{else}}Not Set{{/if}}</td>
-                <td>{{#if eggs}}Set{{else}}Not Set{{/if}}</td>
-                <td>{{#if gyms}}Set{{else}}Not Set{{/if}}</td>
-                <td>{{#if pokestops}}Set{{else}}Not Set{{/if}}</td>
-                <td>{{#if quests}}Set{{else}}Not Set{{/if}}</td>
-                <td>{{#if lures}}Set{{else}}Not Set{{/if}}</td>
-                <td>{{#if invasions}}Set{{else}}Not Set{{/if}}</td>
-                <td>{{#if nests}}Set{{else}}Not Set{{/if}}</td>
-                <td>{{#if weather}}Set{{else}}Not Set{{/if}}</td>
-                <td>
-                    <a type="button" class="btn btn-primary btn-sm" href="/dashboard/embeds/edit/{{@key}}">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/embeds/delete/{{@key}}" onclick="return confirm('Are you sure you want to delete embed {{@key}}?');">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </td>
-            </tr>
-        {{/each}}
-        </tbody>
-    </table>
-</div>
+<table
+    id="table"
+    data-toggle="table"
+    data-search="true"
+    data-page-size="25"
+    data-pagination="true">
+    <thead class="bg-dark text-light">
+        <tr>
+            <th scope="col" data-sortable="true">Name</th>
+            <th scope="col" class="col-1" data-sortable="true">Pokemon</th>
+            <th scope="col" class="col-1" data-sortable="true">Pokemon w/o Stats</th>
+            <th scope="col" class="col-1" data-sortable="true">Raids</th>
+            <th scope="col" class="col-1" data-sortable="true">Eggs</th>
+            <th scope="col" class="col-1" data-sortable="true">Gyms</th>
+            <th scope="col" class="col-1" data-sortable="true">Pokestops</th>
+            <th scope="col" class="col-1" data-sortable="true">Quests</th>
+            <th scope="col" class="col-1" data-sortable="true">Lures</th>
+            <th scope="col" class="col-1" data-sortable="true">Invasions</th>
+            <th scope="col" class="col-1" data-sortable="true">Nests</th>
+            <th scope="col" class="col-1" data-sortable="true">Weather</th>
+            <th scope="col" class="col-1"></th>
+        </tr>
+    </thead>
+    <tbody>
+    {{#each embeds}}
+        <tr scope="row">
+            <td>{{@key}}</td>
+            <td>{{#if pokemon}}Set{{else}}Not Set{{/if}}</td>
+            <td>{{#if pokemonMissingStats}}Set{{else}}Not Set{{/if}}</td>
+            <td>{{#if raids}}Set{{else}}Not Set{{/if}}</td>
+            <td>{{#if eggs}}Set{{else}}Not Set{{/if}}</td>
+            <td>{{#if gyms}}Set{{else}}Not Set{{/if}}</td>
+            <td>{{#if pokestops}}Set{{else}}Not Set{{/if}}</td>
+            <td>{{#if quests}}Set{{else}}Not Set{{/if}}</td>
+            <td>{{#if lures}}Set{{else}}Not Set{{/if}}</td>
+            <td>{{#if invasions}}Set{{else}}Not Set{{/if}}</td>
+            <td>{{#if nests}}Set{{else}}Not Set{{/if}}</td>
+            <td>{{#if weather}}Set{{else}}Not Set{{/if}}</td>
+            <td>
+                <a type="button" class="btn btn-primary btn-sm" href="/dashboard/embeds/edit/{{@key}}">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a type="button" class="btn btn-danger btn-sm" href="/dashboard/embeds/delete/{{@key}}" onclick="return confirm('Are you sure you want to delete embed {{@key}}?');">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>

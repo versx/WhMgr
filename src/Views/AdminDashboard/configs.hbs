@@ -7,32 +7,35 @@
     </div>
 </div>
 
-<div class="responsive">
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Endpoint</th>
-                <th scope="col">No. Servers</th>
-                <th scope="col" class="col-1"></th>
-            </tr>
-        </thead>
-        <tbody>
-        {{#each configs}}
-            <tr scope="row">
-                <td>{{@key}}</td>
-                <td>{{listeningHost}}:{{webhookPort}}</td>
-                <td>{{len servers}}</td>
-                <td>
-                    <a type="button" class="btn btn-primary btn-sm" href="/dashboard/configs/edit/{{@key}}">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/configs/delete/{{@key}}" onclick="return confirm('Are you sure you want to delete config {{@key}}?');">
-                        <i class="fas fa-trash-alt"></i>
-                    </a>
-                </td>
-            </tr>
-        {{/each}}
-        </tbody>
-    </table>
-</div>
+<table
+    id="table"
+    data-toggle="table"
+    data-search="true"
+    data-page-size="25"
+    data-pagination="true">
+    <thead class="bg-dark text-light">
+        <tr>
+            <th scope="col" data-sortable="true">Name</th>
+            <th scope="col" data-sortable="true">Endpoint</th>
+            <th scope="col" class="col-1" data-sortable="true">No. Servers</th>
+            <th scope="col" class="col-1"></th>
+        </tr>
+    </thead>
+    <tbody>
+    {{#each configs}}
+        <tr scope="row">
+            <td>{{@key}}</td>
+            <td>{{listeningHost}}:{{webhookPort}}</td>
+            <td>{{len servers}}</td>
+            <td>
+                <a type="button" class="btn btn-primary btn-sm" href="/dashboard/configs/edit/{{@key}}">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a type="button" class="btn btn-danger btn-sm" href="/dashboard/configs/delete/{{@key}}" onclick="return confirm('Are you sure you want to delete config {{@key}}?');">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>

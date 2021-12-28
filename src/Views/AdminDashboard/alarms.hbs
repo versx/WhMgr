@@ -9,42 +9,45 @@
     </div>
 </div>
 
-<div class="responsive">
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col" class="col-1">Enable Pokemon</th>
-                <th scope="col" class="col-1">Enable Raids</th>
-                <th scope="col" class="col-1">Enable Gyms</th>
-                <th scope="col" class="col-1">Enable Quests</th>
-                <th scope="col" class="col-1">Enable Pokestops</th>
-                <th scope="col" class="col-1">Enable Weather</th>
-                <th scope="col" class="col-1">Count</th>
-                <th scope="col" class="col-1"></th>
-            </tr>
-        </thead>
-        <tbody>
-        {{#each alarms}}
-            <tr scope="row">
-                <td>{{@key}}</td>
-                <td>{{formatBool enablePokemon}}</td>
-                <td>{{formatBool enableRaids}}</td>
-                <td>{{formatBool enableGyms}}</td>
-                <td>{{formatBool enableQuests}}</td>
-                <td>{{formatBool enablePokestops}}</td>
-                <td>{{formatBool enableWeather}}</td>
-                <td>{{alarms.Count}}</td>
-                <td>
-                    <a type="button" class="btn btn-primary btn-sm" href="/dashboard/alarms/edit/{{@key}}">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <a type="button" class="btn btn-danger btn-sm" href="/dashboard/alarms/delete/{{@key}}" onclick="return confirm('Are you sure you want to delete alarm {{@key}}?');">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </td>
-            </tr>
-        {{/each}}
-        </tbody>
-    </table>
-</div>
+<table
+    id="table"
+    data-toggle="table"
+    data-search="true"
+    data-page-size="25"
+    data-pagination="true">
+    <thead class="bg-dark text-light">
+        <tr>
+            <th scope="col" data-sortable="true">Name</th>
+            <th scope="col" class="col-1" data-sortable="true">Enable Pokemon</th>
+            <th scope="col" class="col-1" data-sortable="true">Enable Raids</th>
+            <th scope="col" class="col-1" data-sortable="true">Enable Gyms</th>
+            <th scope="col" class="col-1" data-sortable="true">Enable Quests</th>
+            <th scope="col" class="col-1" data-sortable="true">Enable Pokestops</th>
+            <th scope="col" class="col-1" data-sortable="true">Enable Weather</th>
+            <th scope="col" class="col-1" data-sortable="true">Count</th>
+            <th scope="col" class="col-1"></th>
+        </tr>
+    </thead>
+    <tbody>
+    {{#each alarms}}
+        <tr scope="row">
+            <td>{{@key}}</td>
+            <td>{{formatBool enablePokemon}}</td>
+            <td>{{formatBool enableRaids}}</td>
+            <td>{{formatBool enableGyms}}</td>
+            <td>{{formatBool enableQuests}}</td>
+            <td>{{formatBool enablePokestops}}</td>
+            <td>{{formatBool enableWeather}}</td>
+            <td>{{alarms.Count}}</td>
+            <td>
+                <a type="button" class="btn btn-primary btn-sm" href="/dashboard/alarms/edit/{{@key}}">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a type="button" class="btn btn-danger btn-sm" href="/dashboard/alarms/delete/{{@key}}" onclick="return confirm('Are you sure you want to delete alarm {{@key}}?');">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </td>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>
