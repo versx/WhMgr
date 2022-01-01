@@ -1,0 +1,1286 @@
+{
+    "pokemon": [
+        {
+            "placeholder": "pkmn_id",
+            "description": "Pokemon pokedex ID",
+            "example": "3"
+        },
+        {
+            "placeholder": "pkmn_id_3",
+            "description": "Pokemon pokedex ID (always 3 digits)",
+            "example": "003"
+        },
+        {
+            "placeholder": "pkmn_name",
+            "description": "Pokemon name",
+            "example": "Venusaur"
+        },
+        {
+            "placeholder": "pkmn_img_url",
+            "description": "Pokemon Icon Image Url",
+            "example": "https://icons.com/i/pokemon/3.png"
+        },
+        {
+            "placeholder": "form",
+            "description": "Pokemon Form Name",
+            "example": "Alola"
+        },
+        {
+            "placeholder": "form_id",
+            "description": "Pokemon Form ID",
+            "example": "83"
+        },
+        {
+            "placeholder": "form_id_3",
+            "description": "Pokemon Form ID (always 3 digits)",
+            "example": "083"
+        },
+        {
+            "placeholder": "costume",
+            "description": "Pokemon Costume Name",
+            "example": "Holiday"
+        },
+        {
+            "placeholder": "costume_id",
+            "description": "Pokemon Costume ID",
+            "example": "588"
+        },
+        {
+            "placeholder": "costume_id_3",
+            "description": "Pokemon Costume ID (always 3 digits)",
+            "example": "588"
+        },
+        {
+            "placeholder": "cp",
+            "description": "Pokemon Combat Power",
+            "example": "1289"
+        },
+        {
+            "placeholder": "lvl",
+            "description": "Pokemon Level",
+            "example": "32"
+        },
+        {
+            "placeholder": "gender",
+            "description": "Pokemon Gender",
+            "example": ""
+        },
+        {
+            "placeholder": "gender_emoji",
+            "description": "Pokemon Gender Emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "size",
+            "description": "Pokemon Size",
+            "example": "Large"
+        },
+        {
+            "placeholder": "move_1",
+            "description": "Pokemon Fast Move",
+            "example": "Quick Attack"
+        },
+        {
+            "placeholder": "move_2",
+            "description": "Pokemon Charge Move",
+            "example": "Thunder"
+        },
+        {
+            "placeholder": "moveset",
+            "description": "Pokemon Moveset",
+            "example": "Quick Attack/Thunder"
+        },
+        {
+            "placeholder": "type_1",
+            "description": "Pokemon Type 1",
+            "example": ""
+        },
+        {
+            "placeholder": "type_2",
+            "description": "Pokemon Type 2",
+            "example": ""
+        },
+        {
+            "placeholder": "type_1_emoji",
+            "description": "Pokemon Type 1 Emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "type_2_emoji",
+            "description": "Pokemon Type 2 Emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "types",
+            "description": "Pokemon Types",
+            "example": ""
+        },
+        {
+            "placeholder": "types_emoji",
+            "description": "Pokemon Types Emoji(s)",
+            "example": ""
+        },
+        {
+            "placeholder": "atk_iv",
+            "description": "Pokemon Attack IV Stat",
+            "example": "11"
+        },
+        {
+            "placeholder": "def_iv",
+            "description": "Pokemon Defense IV Stat",
+            "example": "12"
+        },
+        {
+            "placeholder": "sta_iv",
+            "description": "Pokemon Stamina IV Stat",
+            "example": "13"
+        },
+        {
+            "placeholder": "iv",
+            "description": "Pokemon IVs",
+            "example": "95.6%"
+        },
+        {
+            "placeholder": "iv_rnd",
+            "description": "Pokemon IV Rounded",
+            "example": "96%"
+        },
+        {
+            "placeholder": "is_great",
+            "description": "Has Great League Rankings",
+            "example": true
+        },
+        {
+            "placeholder": "is_ultra",
+            "description": "Has Ultra League Rankings",
+            "example": false
+        },
+        {
+            "placeholder": "is_pvp",
+            "description": "Has Great or Ultra League Rankings",
+            "example": true
+        },
+        {
+            "placeholder": "great_league_emoji",
+            "description": "Great League Emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "ultra_league_emoji",
+            "description": "Ultra League Emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "pvp_stats",
+            "description": "PvP Rankings (formatted already)",
+            "example": ""
+        },
+        {
+            "placeholder": "height",
+            "description": "Pokemon Height",
+            "example": ""
+        },
+        {
+            "placeholder": "weight",
+            "description": "Pokemon Weight",
+            "example": ""
+        },
+        {
+            "placeholder": "is_ditto",
+            "description": "Is Pokemon Ditto",
+            "example": false
+        },
+        {
+            "placeholder": "original_pkmn_id",
+            "description": "",
+            "example": ""
+        },
+        {
+            "placeholder": "original_pkmn_id_3",
+            "description": "",
+            "example": ""
+        },        
+        {
+            "placeholder": "original_pkmn_name",
+            "description": "",
+            "example": ""
+        },
+        {
+            "placeholder": "is_weather_boosted",
+            "description": "Is Pokemon Weather Boosted",
+            "example": false
+        },
+        {
+            "placeholder": "has_weather",
+            "description": "Pokemon has weather set",
+            "example": true
+        },
+        {
+            "placeholder": "weather",
+            "description": "",
+            "example": "Sunny"
+        },
+        {
+            "placeholder": "weather_emoji",
+            "description": "Weather in-game emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "username",
+            "description": "Account username of account that found Pokemon",
+            "example": "Ted123"
+        },
+        {
+            "placeholder": "spawnpoint_id",
+            "description": "Spawnpoint ID Pokemon near",
+            "example": ""
+        },
+        {
+            "placeholder": "encounter_id",
+            "description": "Encounter ID of Pokemon",
+            "example": ""
+        },
+        {
+            "placeholder": "despawn_time",
+            "description": "Pokemon despawn time",
+            "example": "12:14:11 AM"
+        },
+        {
+            "placeholder": "despawn_time_24h",
+            "description": "Pokemon despawn time (24-hour format)",
+            "example": "15:48:02"
+        },
+        {
+            "placeholder": "despawn_time_verified",
+            "description": "Indicates if time is confirmed or not",
+            "example": "~"
+        },
+        {
+            "placeholder": "is_despawn_time_verified",
+            "description": "Returns if despawn time is verified",
+            "example": false
+        },
+        {
+            "placeholder": "time_left",
+            "description": "Minutes and seconds of time left until despawn",
+            "example": "28m, 15s left"
+        },
+        {
+            "placeholder": "geofence",
+            "description": "Geofence name Pokemon is in",
+            "example": "Area #1"
+        },
+        {
+            "placeholder": "address",
+            "description": "Google Maps or OSM Nominatim address of geocoordinates",
+            "example": "123 Fake Street, City1, County1"
+        },
+        {
+            "placeholder": "lat",
+            "description": "Latitude coordinate of Pokemon location",
+            "example": "3.141234567"
+        },
+        {
+            "placeholder": "lng",
+            "description": "Longitude coordinate of Pokemon location",
+            "example": "-6.139103388"
+        },
+        {
+            "placeholder": "lat_5",
+            "description": "Latitude coordinate shortend to 5th precision",
+            "example": "3.14123"
+        },
+        {
+            "placeholder": "lng_5",
+            "description": "Longitude coordinate shortend to 5th precision",
+            "example": "-6.13910"
+        },
+        {
+            "placeholder": "tilemaps_url",
+            "description": "Static tile map url",
+            "example": ""
+        },
+        {
+            "placeholder": "gmaps_url",
+            "description": "Google maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "applemaps_url",
+            "description": "Apple maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "wazemaps_url",
+            "description": "Waze maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "near_pokestop",
+            "description": "Returns if Pokemon is near a Pokestop",
+            "example": ""
+        },
+        {
+            "placeholder": "pokestop_id",
+            "description": "Nearby Pokestop ID",
+            "example": ""
+        },
+        {
+            "placeholder": "pokestop_name",
+            "description": "Name of nearby Pokestop",
+            "example": ""
+        },
+        {
+            "placeholder": "pokestop_url",
+            "description": "Image url of nearby Pokestop",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_name",
+            "description": "Name of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_img_url",
+            "description": "Icon image url of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "date_time",
+            "description": "Current date and time",
+            "example": "12/12/2021 12:12:12 PM"
+        },
+        {
+            "placeholder": "br",
+            "description": "Newline break",
+            "example": "\r\n"
+        }
+    ],
+    "raids": [
+        {
+            "placeholder": "pkmn_id",
+            "description": "Raid boss pokedex ID",
+            "example": "1"
+        },
+        {
+            "placeholder": "pkmn_id_3",
+            "description": "Raid boss pokedex ID (always 3 digits)",
+            "example": "001"
+        },
+        {
+            "placeholder": "pkmn_name",
+            "description": "Raid boss pokemon name",
+            "example": "Bulbasaur"
+        },
+        {
+            "placeholder": "pkmn_img_url",
+            "description": "Raid boss pokemon image url",
+            "example": "http://example.com/your-specified-pokemon-url"
+        },
+        {
+            "placeholder": "form",
+            "description": "Pokemon form name",
+            "example": "Alola"
+        },
+        {
+            "placeholder": "form_id",
+            "description": "Form ID",
+            "example": "65"
+        },
+        {
+            "placeholder": "form_id_3",
+            "description": "Form ID (always 3 digits)",
+            "example": "065"
+        },
+        {
+            "placeholder": "costume",
+            "description": "Pokemon costume name",
+            "example": "Holiday"
+        },
+        {
+            "placeholder": "costume_id",
+            "description": "Costume ID",
+            "example": "10"
+        },
+        {
+            "placeholder": "costume_id_3",
+            "description": "Costume ID (always 3 digits)",
+            "example": "010"
+        },
+        {
+            "placeholder": "is_egg",
+            "description": "Returns if raid is egg and not hatched",
+            "example": false
+        },
+        {
+            "placeholder": "is_ex",
+            "description": "Returns if raid is ex pass eligible",
+            "example": true
+        },
+        {
+            "placeholder": "ex_emoji",
+            "description": "Ex emoji icon",
+            "example": "Ex"
+        },
+        {
+            "placeholder": "team",
+            "description": "Team name that has gym control",
+            "example": "Valor"
+        },
+        {
+            "placeholder": "team_emoji",
+            "description": "Emoji of team that has gym control",
+            "example": ""
+        },
+        {
+            "placeholder": "cp",
+            "description": "Raid boss combat power value",
+            "example": "36150"
+        },
+        {
+            "placeholder": "lvl",
+            "description": "Raid boss level",
+            "example": "5"
+        },
+        {
+            "placeholder": "gender",
+            "description": "Pokemon gender",
+            "example": "Gender icon"
+        },
+        {
+            "placeholder": "move_1",
+            "description": "Fast move name",
+            "example": "Quick Attack"
+        },
+        {
+            "placeholder": "move_2",
+            "description": "Charge move name",
+            "example": "Thunder"
+        },
+        {
+            "placeholder": "moveset",
+            "description": "Fast & Charge move names",
+            "example": "Quick Attack/Thunder"
+        },
+        {
+            "placeholder": "type_1",
+            "description": "Pokemon type",
+            "example": "Dark"
+        },
+        {
+            "placeholder": "type_2",
+            "description": "Pokemon type",
+            "example": "Water"
+        },
+        {
+            "placeholder": "type_1_emoji",
+            "description": "Pokemon type emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "type_2_emoji",
+            "description": "Pokemon type emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "types",
+            "description": "Both types (if 2nd exists)",
+            "example": "Dark/Fire"
+        },
+        {
+            "placeholder": "types_emoji",
+            "description": "Type Discord emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "weaknesses",
+            "description": "Raid boss weaknesses",
+            "example": "Rock, Ground, Dark"
+        },
+        {
+            "placeholder": "weaknesses_emoji",
+            "description": "Emoji(s) of raid boss weaknesses",
+            "example": "Rock Ground Dark"
+        },
+        {
+            "placeholder": "perfect_cp",
+            "description": "Perfect IV CP",
+            "example": "1831"
+        },
+        {
+            "placeholder": "perfect_cp_boosted",
+            "description": "Perfect IV CP if Weather boosted",
+            "example": "2351"
+        },
+        {
+            "placeholder": "worst_cp",
+            "description": "Worst IV CP",
+            "example": "1530"
+        },
+        {
+            "placeholder": "worst_cp_boosted ",
+            "description": "Worst IV CP if Weather boosted",
+            "example": "1339"
+        },
+        {
+            "placeholder": "start_time",
+            "description": "Raid start time",
+            "example": "08:32:00 AM"
+        },
+        {
+            "placeholder": "start_time_24h",
+            "description": "Raid start time (24-hour format)",
+            "example": "19:32:09"
+        },
+        {
+            "placeholder": "start_time_left",
+            "description": "Time left until raid starts",
+            "example": "43m, 33s"
+        },
+        {
+            "placeholder": "end_time",
+            "description": "Raid end time",
+            "example": "09:15:10 AM"
+        },
+        {
+            "placeholder": "end_time_24h",
+            "description": "Raid end time (24-hour format)",
+            "example": "13:15:10"
+        },
+        {
+            "placeholder": "end_time_left",
+            "description": "Time left until raid ends",
+            "example": "45m, 11s"
+        },
+        {
+            "placeholder": "time_left",
+            "description": "Minutes and seconds of time left until despawn",
+            "example": "29m, 30s"
+        },
+        {
+            "placeholder": "geofence",
+            "description": "Geofence name Gym is in",
+            "example": "Area #1"
+        },
+        {
+            "placeholder": "address",
+            "description": "Google Maps or OSM Nominatim address of geocoordinates",
+            "example": "123 Fake Street, City1, County1"
+        },
+        {
+            "placeholder": "lat",
+            "description": "Latitude coordinate of Gym location",
+            "example": "3.141234567"
+        },
+        {
+            "placeholder": "lng",
+            "description": "Longitude coordinate of Gym location",
+            "example": "-6.139103388"
+        },
+        {
+            "placeholder": "lat_5",
+            "description": "Latitude coordinate shortend to 5th precision",
+            "example": "3.14123"
+        },
+        {
+            "placeholder": "lng_5",
+            "description": "Longitude coordinate shortend to 5th precision",
+            "example": "-6.13910"
+        },
+        {
+            "placeholder": "tilemaps_url",
+            "description": "Static tile map url",
+            "example": ""
+        },
+        {
+            "placeholder": "gmaps_url",
+            "description": "Google maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "applemaps_url",
+            "description": "Apple maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "wazemaps_url",
+            "description": "Waze maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_name",
+            "description": "Name of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_img_url",
+            "description": "Icon image url of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "date_time",
+            "description": "Current date and time",
+            "example": "12/12/2021 12:12:12 PM"
+        },
+        {
+            "placeholder": "br",
+            "description": "Newline break",
+            "example": "\r\n"
+        }
+    ],
+    "gyms": [
+        {
+            "placeholder": "gym_id",
+            "description": "Gym ID",
+            "example": ""
+        },
+        {
+            "placeholder": "gym_name",
+            "description": "Name of Gym",
+            "example": "The Amazing Gym"
+        },
+        {
+            "placeholder": "gym_url",
+            "description": "Image url of Gym",
+            "example": ""
+        },
+        {
+            "placeholder": "gym_team",
+            "description": "Current team that has gym control",
+            "example": "Valor"
+        },
+        {
+            "placeholder": "gym_team_emoji",
+            "description": "Emoji icon of current team that has gym control",
+            "example": ""
+        },
+        {
+            "placeholder": "old_gym_team",
+            "description": "Previous gym team that had gym control",
+            "example": ""
+        },
+        {
+            "placeholder": "old_gym_team_emoji",
+            "description": "Emoji icon of previous gym team that has gym control",
+            "example": ""
+        },
+        {
+            "placeholder": "team_changed",
+            "description": "Returns if team's gym control changed",
+            "example": false
+        },
+        {
+            "placeholder": "in_battle",
+            "description": "Returns if there's a current battle at the gym taking place",
+            "example": false
+        },
+        {
+            "placeholder": "under_attack",
+            "description": "Returns if there's a current battle at the gym taking place",
+            "example": false
+        },
+        {
+            "placeholder": "is_ex",
+            "description": "Returns if the gym is an ex raid eligible location",
+            "example": true
+        },
+        {
+            "placeholder": "ex_emoji",
+            "description": "Ex emoji icon",
+            "example": ""
+        },
+        {
+            "placeholder": "slots_available",
+            "description": "Number of available gym slots",
+            "example": ""
+        },
+        {
+            "placeholder": "geofence",
+            "description": "Geofence name Gym is in",
+            "example": "Area #1"
+        },
+        {
+            "placeholder": "address",
+            "description": "Google Maps or OSM Nominatim address of geocoordinates",
+            "example": "123 Fake Street, City1, County1"
+        },
+        {
+            "placeholder": "lat",
+            "description": "Latitude coordinate of Gym location",
+            "example": "3.141234567"
+        },
+        {
+            "placeholder": "lng",
+            "description": "Longitude coordinate of Gym location",
+            "example": "-6.139103388"
+        },
+        {
+            "placeholder": "lat_5",
+            "description": "Latitude coordinate shortend to 5th precision",
+            "example": "3.14123"
+        },
+        {
+            "placeholder": "lng_5",
+            "description": "Longitude coordinate shortend to 5th precision",
+            "example": "-6.13910"
+        },
+        {
+            "placeholder": "tilemaps_url",
+            "description": "Static tile map url",
+            "example": ""
+        },
+        {
+            "placeholder": "gmaps_url",
+            "description": "Google maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "applemaps_url",
+            "description": "Apple maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "wazemaps_url",
+            "description": "Waze maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_name",
+            "description": "Name of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_img_url",
+            "description": "Icon image url of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "date_time",
+            "description": "Current date and time",
+            "example": "12/12/2021 12:12:12 PM"
+        },
+        {
+            "placeholder": "br",
+            "description": "Newline break",
+            "example": "\r\n"
+        }
+    ],
+    "pokestops": [
+        {
+            "placeholder": "has_lure",
+            "description": "Returns if Pokestop has active lure module deployed",
+            "example": true
+        },
+        {
+            "placeholder": "lure_type",
+            "description": "Pokestop lure module type",
+            "example": "Glacial"
+        },
+        {
+            "placeholder": "lure_expire_time",
+            "description": "Time lure module will expire",
+            "example": "07:33:19 PM"
+        },
+        {
+            "placeholder": "lure_expire_time_24h",
+            "description": "Time lure module will expire (24-hour format)",
+            "example": "19:33:19"
+        },
+        {
+            "placeholder": "lure_expire_time_left",
+            "description": "Time left until lure module expires",
+            "example": "13m, 2s left"
+        },
+        {
+            "placeholder": "has_invasion",
+            "description": "Returns if Pokestop has active Team Rocket invasion",
+            "example": false
+        },
+        {
+            "placeholder": "grunt_type",
+            "description": "Grunt type",
+            "example": "Water"
+        },
+        {
+            "placeholder": "grunt_type_emoji",
+            "description": "Emoji icon of grunt type",
+            "example": ""
+        },
+        {
+            "placeholder": "grunt_gender",
+            "description": "Grunt gender",
+            "example": "Male"
+        },
+        {
+            "placeholder": "invasion_expire_time",
+            "description": "Time the invasion expires",
+            "example": "02:17:11 PM"
+        },
+        {
+            "placeholder": "invasion_expire_time_24h",
+            "description": "Time the invasion expires (24-hour format)",
+            "example": "14:17:11"
+        },
+        {
+            "placeholder": "invasion_expire_time_left",
+            "description": "Time left until invasion expires",
+            "example": "12m, 56s left"
+        },
+        {
+            "placeholder": "invasion_encounters",
+            "description": "Possible invasions reward encounters",
+            "example": "80% Bulbasaur"
+        },
+        {
+            "placeholder": "geofence",
+            "description": "Geofence name Gym is in",
+            "example": "Area #1"
+        },
+        {
+            "placeholder": "address",
+            "description": "Google Maps or OSM Nominatim address of geocoordinates",
+            "example": "123 Fake Street, City1, County1"
+        },
+        {
+            "placeholder": "lat",
+            "description": "Latitude coordinate of Gym location",
+            "example": "3.141234567"
+        },
+        {
+            "placeholder": "lng",
+            "description": "Longitude coordinate of Gym location",
+            "example": "-6.139103388"
+        },
+        {
+            "placeholder": "lat_5",
+            "description": "Latitude coordinate shortend to 5th precision",
+            "example": "3.14123"
+        },
+        {
+            "placeholder": "lng_5",
+            "description": "Longitude coordinate shortend to 5th precision",
+            "example": "-6.13910"
+        },
+        {
+            "placeholder": "tilemaps_url",
+            "description": "Static tile map url",
+            "example": ""
+        },
+        {
+            "placeholder": "gmaps_url",
+            "description": "Google maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "applemaps_url",
+            "description": "Apple maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "wazemaps_url",
+            "description": "Waze maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_name",
+            "description": "Name of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_img_url",
+            "description": "Icon image url of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "date_time",
+            "description": "Current date and time",
+            "example": "12/12/2021 12:12:12 PM"
+        },
+        {
+            "placeholder": "br",
+            "description": "Newline break",
+            "example": "\r\n"
+        }
+    ],
+    "quests": [
+        {
+            "placeholder": "quest_task",
+            "description": "Quest task message",
+            "example": "Catch 5 Pokemon"
+        },
+        {
+            "placeholder": "quest_conditions",
+            "description": "Quest task conditions",
+            "example": "Dark"
+        },
+        {
+            "placeholder": "quest_reward",
+            "description": "Quest task reward",
+            "example": "Chansey"
+        },
+        {
+            "placeholder": "quest_reward_img_url",
+            "description": "Quest reward image url",
+            "example": "http://map.example.com/images/quest.png"
+        },
+        {
+            "placeholder": "has_quest_conditions",
+            "description": "Returns if the quest has conditions",
+            "example": true
+        },
+        {
+            "placeholder": "is_ditto",
+            "description": "Checks if Ditto",
+            "example": true
+        },
+        {
+            "placeholder": "is_shiny",
+            "description": "Checks if reward is shiny",
+            "example": false
+        },
+        {
+            "placeholder": "geofence",
+            "description": "Geofence name Pokemon is in",
+            "example": "Area #1"
+        },
+        {
+            "placeholder": "address",
+            "description": "Google Maps or OSM Nominatim address of geocoordinates",
+            "example": "123 Fake Street, City1, County1"
+        },
+        {
+            "placeholder": "lat",
+            "description": "Latitude coordinate of Pokemon location",
+            "example": "3.141234567"
+        },
+        {
+            "placeholder": "lng",
+            "description": "Longitude coordinate of Pokemon location",
+            "example": "-6.139103388"
+        },
+        {
+            "placeholder": "lat_5",
+            "description": "Latitude coordinate shortend to 5th precision",
+            "example": "3.14123"
+        },
+        {
+            "placeholder": "lng_5",
+            "description": "Longitude coordinate shortend to 5th precision",
+            "example": "-6.13910"
+        },
+        {
+            "placeholder": "tilemaps_url",
+            "description": "Static tile map url",
+            "example": ""
+        },
+        {
+            "placeholder": "gmaps_url",
+            "description": "Google maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "applemaps_url",
+            "description": "Apple maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "wazemaps_url",
+            "description": "Waze maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_name",
+            "description": "Name of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_img_url",
+            "description": "Icon image url of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "date_time",
+            "description": "Current date and time",
+            "example": "12/12/2021 12:12:12 PM"
+        },
+        {
+            "placeholder": "br",
+            "description": "Newline break",
+            "example": "\r\n"
+        }
+    ],
+    "nests": [
+        {
+            "placeholder": "pkmn_id",
+            "description": "Pokedex ID",
+            "example": ""
+        },
+        {
+            "placeholder": "pkmn_id_3",
+            "description": "Pokedex ID (always 3 digits)",
+            "example": "004"
+        },
+        {
+            "placeholder": "pkmn_name",
+            "description": "Pokemon name",
+            "example": "Charmander"
+        },
+        {
+            "placeholder": "pkmn_img_url",
+            "description": "Pokemon image url",
+            "example": ""
+        },
+        {
+            "placeholder": "avg_spawns",
+            "description": "Average amount of spawns in the nest per hour",
+            "example": 4
+        },
+        {
+            "placeholder": "nest_name",
+            "description": "Nest/Park name",
+            "example": "Best Park Ever"
+        },
+        {
+            "placeholder": "type_1",
+            "description": "Pokemon type",
+            "example": "Dark"
+        },
+        {
+            "placeholder": "type_2",
+            "description": "Pokemon type",
+            "example": "Water"
+        },
+        {
+            "placeholder": "type_1_emoji",
+            "description": "Pokemon type emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "type_2_emoji",
+            "description": "Pokemon type emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "types",
+            "description": "Both types (if 2nd exists)",
+            "example": "Dark/Fire"
+        },
+        {
+            "placeholder": "types_emoji",
+            "description": "Type Discord emoji",
+            "example": ""
+        },
+        {
+            "placeholder": "geofence",
+            "description": "Geofence name Pokemon is in",
+            "example": "Area #1"
+        },
+        {
+            "placeholder": "address",
+            "description": "Google Maps or OSM Nominatim address of geocoordinates",
+            "example": "123 Fake Street, City1, County1"
+        },
+        {
+            "placeholder": "lat",
+            "description": "Latitude coordinate of Pokemon location",
+            "example": "3.141234567"
+        },
+        {
+            "placeholder": "lng",
+            "description": "Longitude coordinate of Pokemon location",
+            "example": "-6.139103388"
+        },
+        {
+            "placeholder": "lat_5",
+            "description": "Latitude coordinate shortend to 5th precision",
+            "example": "3.14123"
+        },
+        {
+            "placeholder": "lng_5",
+            "description": "Longitude coordinate shortend to 5th precision",
+            "example": "-6.13910"
+        },
+        {
+            "placeholder": "tilemaps_url",
+            "description": "Static tile map url",
+            "example": ""
+        },
+        {
+            "placeholder": "gmaps_url",
+            "description": "Google maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "applemaps_url",
+            "description": "Apple maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "wazemaps_url",
+            "description": "Waze maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_name",
+            "description": "Name of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_img_url",
+            "description": "Icon image url of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "date_time",
+            "description": "Current date and time",
+            "example": "12/12/2021 12:12:12 PM"
+        },
+        {
+            "placeholder": "br",
+            "description": "Newline break",
+            "example": "\r\n"
+        }
+    ],
+    "weather": [
+        {
+            "placeholder": "id",
+            "description": "S2Cell weather id",
+            "example": "-9938028402"
+        },
+        {
+            "placeholder": "weather_condition",
+            "description": "In-game gameplay condition",
+            "example": "Cloudy"
+        },
+        {
+            "placeholder": "has_weather",
+            "description": "Returns if there is weather set",
+            "example": true
+        },
+        {
+            "placeholder": "weather",
+            "description": "In-game gameplay condition",
+            "example": "Cloudy"
+        },
+        {
+            "placeholder": "weather_img_url",
+            "description": "Weather type image url",
+            "example": "http://google.com/imgs/weather_1.png"
+        },
+        {
+            "placeholder": "wind_direction",
+            "description": "Wind blowing direction",
+            "example": true
+        },
+        {
+            "placeholder": "wind_level",
+            "description": "Wind level",
+            "example": "285"
+        },
+        {
+            "placeholder": "rain_level",
+            "description": "Raid level",
+            "example": "285"
+        },
+        {
+            "placeholder": "cloud_level",
+            "description": "Cloud level",
+            "example": "285"
+        },
+        {
+            "placeholder": "fog_level",
+            "description": "Fog level",
+            "example": "285"
+        },
+        {
+            "placeholder": "snow_level",
+            "description": "Snow level",
+            "example": "285"
+        },
+        {
+            "placeholder": "warn_weather",
+            "description": "Warning weather",
+            "example": true
+        },
+        {
+            "placeholder": "special_effect_level",
+            "description": "Special effect level",
+            "example": "2"
+        },
+        {
+            "placeholder": "severity",
+            "description": "Weather severity",
+            "example": "None/Moderate/Extreme"
+        },
+        {
+            "placeholder": "geofence",
+            "description": "Geofence name Pokemon is in",
+            "example": "Area #1"
+        },
+        {
+            "placeholder": "address",
+            "description": "Google Maps or OSM Nominatim address of geocoordinates",
+            "example": "123 Fake Street, City1, County1"
+        },
+        {
+            "placeholder": "lat",
+            "description": "Latitude coordinate of Pokemon location",
+            "example": "3.141234567"
+        },
+        {
+            "placeholder": "lng",
+            "description": "Longitude coordinate of Pokemon location",
+            "example": "-6.139103388"
+        },
+        {
+            "placeholder": "lat_5",
+            "description": "Latitude coordinate shortend to 5th precision",
+            "example": "3.14123"
+        },
+        {
+            "placeholder": "lng_5",
+            "description": "Longitude coordinate shortend to 5th precision",
+            "example": "-6.13910"
+        },
+        {
+            "placeholder": "tilemaps_url",
+            "description": "Static tile map url",
+            "example": ""
+        },
+        {
+            "placeholder": "gmaps_url",
+            "description": "Google maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "applemaps_url",
+            "description": "Apple maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "wazemaps_url",
+            "description": "Waze maps location url",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_name",
+            "description": "Name of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "guild_img_url",
+            "description": "Icon image url of Guild",
+            "example": ""
+        },
+        {
+            "placeholder": "date_time",
+            "description": "Current date and time",
+            "example": "12/12/2021 12:12:12 PM"
+        },
+        {
+            "placeholder": "br",
+            "description": "Newline break",
+            "example": "\r\n"
+        }
+    ]
+}

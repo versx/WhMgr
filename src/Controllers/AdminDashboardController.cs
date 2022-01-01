@@ -4,7 +4,11 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text;
+    using System.Text.Json.Serialization;
+    using System.Threading.Tasks;
 
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 
@@ -145,7 +149,7 @@
             try
             {
                 System.IO.File.Delete(path);
-                return Redirect("configs");
+                return Redirect("/dashboard/configs");
             }
             catch (Exception ex)
             {
@@ -228,9 +232,33 @@
                     favicon = "dotnet.png",
                     name = fileName,
                     config,
-                    alarms = alarmFiles.Select(file => Path.GetFileName(file)),
-                    geofences = geofenceFiles.Select(file => Path.GetFileName(file)),
-                    embeds = embedFiles.Select(file => Path.GetFileName(file)),
+                    alarms = alarmFiles.Select(file =>
+                    {
+                        var name = Path.GetFileName(file);
+                        return new
+                        {
+                            file = name,
+                            selected = string.Equals(name, config.AlarmsFile, StringComparison.InvariantCultureIgnoreCase),
+                        };
+                    }),
+                    geofences = geofenceFiles.Select(file =>
+                    {
+                        var name = Path.GetFileName(file);
+                        return new
+                        {
+                            file = name,
+                            selected = config.GeofenceFiles.Contains(name),
+                        };
+                    }),
+                    embeds = embedFiles.Select(file =>
+                    {
+                        var name = Path.GetFileName(file);
+                        return new
+                        {
+                            file = name,
+                            selected = string.Equals(name, config.DmEmbedsFile, StringComparison.InvariantCultureIgnoreCase),
+                        };
+                    }),
                     iconStyles,
                 };
                 return View("Discords/edit", obj);
@@ -254,7 +282,7 @@
             try
             {
                 System.IO.File.Delete(path);
-                return Redirect("discords");
+                return Redirect("/dashboard/discords");
             }
             catch (Exception ex)
             {
@@ -352,7 +380,7 @@
             try
             {
                 System.IO.File.Delete(path);
-                return Redirect("alarms");
+                return Redirect("/dashboard/alarms");
             }
             catch (Exception ex)
             {
@@ -418,26 +446,35 @@
         [HttpGet]
         [HttpPost]
         [Route("filters/edit/{fileName}")]
-        public IActionResult EditFilter(string fileName)
+        public async Task<IActionResult> EditFilter(string fileName)
         {
             if (Request.Method == "GET")
             {
+                var filePath = Path.Combine(Strings.FiltersFolder, fileName + ".json");
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return BadRequest($"Filter '{fileName}' does not exist");
+                }
                 var obj = new
                 {
                     template = "filters-edit",
                     title = $"Edit Webhook Filter \"{fileName}\"",
                     favicon = "dotnet.png",
                     name = fileName,
-                    filter = LoadFromFile<WebhookFilter>(Path.Combine(Strings.FiltersFolder, fileName + ".json")),
+                    filter = LoadFromFile<WebhookFilter>(filePath),
                 };
                 return View("Filters/edit", obj);
             }
             else if (Request.Method == "POST")
             {
-                var obj = new
-                {
-                };
-                return View("Filters/edit", obj);
+                // TODO: Check if exists
+                var filePath = Path.Combine(Strings.FiltersFolder, fileName + ".json");
+                var filter = LoadFromFile<WebhookFilter>(filePath);
+                var filterForm = FilterFromForm(filter, Request.Form);
+                var json = filterForm.ToJson();
+                // Save json
+                await WriteDataAsync(filePath, json);
+                return Redirect("/dashboard/filters");
             }
             return Unauthorized();
         }
@@ -449,7 +486,7 @@
             try
             {
                 System.IO.File.Delete(path);
-                return Redirect("filters");
+                return Redirect("/dashboard/filters");
             }
             catch (Exception ex)
             {
@@ -494,7 +531,7 @@
         [HttpGet]
         [HttpPost]
         [Route("embeds/new")]
-        public IActionResult NewEmbed()
+        public async Task<IActionResult> NewEmbed()
         {
             if (Request.Method == "GET")
             {
@@ -503,11 +540,22 @@
                     template = "embeds-mew",
                     title = $"New Message Embed",
                     favicon = "dotnet.png",
+                    embed = EmbedMessage.Defaults,
+                    placeholders = GetDtsPlaceholders(),
                 };
                 return View("Embeds/new", obj);
             }
             else if (Request.Method == "POST")
             {
+                var fileName = Request.Form["name"].ToString();
+                // TODO: Check if exists or not
+                var embed = EmbedMessage.Defaults;
+                var embedForm = EmbedFromForm(embed, Request.Form);
+                var json = embedForm.ToJson();
+                // Save json
+                var filePath = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
+                await WriteDataAsync(filePath, json);
+                return Redirect("/dashboard/embeds");
             }
             return Unauthorized();
         }
@@ -515,26 +563,36 @@
         [HttpGet]
         [HttpPost]
         [Route("embeds/edit/{fileName}")]
-        public IActionResult EditEmbed(string fileName)
+        public async Task<IActionResult> EditEmbed(string fileName)
         {
             if (Request.Method == "GET")
             {
+                var filePath = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return BadRequest($"Embed '{fileName}' does not exist");
+                }
                 var obj = new
                 {
                     template = "embeds-edit",
                     title = $"Edit Message Embed \"{fileName}\"",
                     favicon = "dotnet.png",
                     name = fileName,
-                    embed = LoadFromFile<EmbedMessage>(Path.Combine(Strings.EmbedsFolder, fileName + ".json")),
+                    embed = LoadFromFile<EmbedMessage>(filePath),
+                    placeholders = GetDtsPlaceholders(),
                 };
                 return View("Embeds/edit", obj);
             }
             else if (Request.Method == "POST")
             {
-                var obj = new
-                {
-                };
-                return View("Embeds/edit", obj);
+                // TODO: Check if exists or not
+                var filePath = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
+                var embed = LoadFromFile<EmbedMessage>(filePath);
+                var embedForm = EmbedFromForm(embed, Request.Form);
+                var json = embedForm.ToJson();
+                // Save json
+                await WriteDataAsync(filePath, json);
+                return Redirect("/dashboard/embeds");
             }
             return Unauthorized();
         }
@@ -546,7 +604,7 @@
             try
             {
                 System.IO.File.Delete(path);
-                return Redirect("embeds");
+                return Redirect("/dashboard/embeds");
             }
             catch (Exception ex)
             {
@@ -629,7 +687,7 @@
             try
             {
                 System.IO.File.Delete(path);
-                return Redirect("geofences");
+                return Redirect("/dashboard/geofences");
             }
             catch (Exception ex)
             {
@@ -706,6 +764,187 @@
             return data;
         }
 
+        private static Dictionary<string, List<DtsPlaceholder>> GetDtsPlaceholders()
+        {
+            var path = "wwwroot/static/data/dts_placeholders.json";
+            var placeholders = LoadFromFile<Dictionary<string, List<DtsPlaceholder>>>(path);
+            return placeholders;
+        }
+
+        private static async Task WriteDataAsync(string path, string data)
+        {
+            await System.IO.File.WriteAllTextAsync(path, data, Encoding.UTF8);
+        }
+
+        private static DiscordServerConfig DiscordServerFromForm(DiscordServerConfig config, IFormCollection form)
+        {
+            return config;
+        }
+
+        private static EmbedMessage EmbedFromForm(EmbedMessage embed, IFormCollection form)
+        {
+            embed[EmbedMessageType.Pokemon].AvatarUrl = form["pokemonAvatarUrl"].ToString();
+            embed[EmbedMessageType.Pokemon].ContentList = form["pokemonContent"].ToString()
+                                                                                .Split('\n')
+                                                                                .ToList();
+            embed[EmbedMessageType.Pokemon].IconUrl = form["pokemonIconUrl"].ToString();
+            embed[EmbedMessageType.Pokemon].ImageUrl = form["pokemonImageUrl"].ToString();
+            embed[EmbedMessageType.Pokemon].Title = form["pokemonTitle"].ToString();
+            embed[EmbedMessageType.Pokemon].Url = form["pokemonUrl"].ToString();
+            embed[EmbedMessageType.Pokemon].Username = form["pokemonUsername"].ToString();
+            embed[EmbedMessageType.Pokemon].Footer = new EmbedMessageFooter
+            {
+                Text = form["pokemonFooterText"].ToString(),
+                IconUrl = form["pokemonFooterIconUrl"].ToString(),
+            };
+            // TODO: Raids, Gyms, Pokestops, etc
+            return embed;
+        }
+
+        private static WebhookFilter FilterFromForm(WebhookFilter filter, IFormCollection form)
+        {
+            if (form.ContainsKey("pokemonEnabled"))
+            {
+                if (filter.Pokemon == null)
+                {
+                    filter.Pokemon = new WebhookFilterPokemon();
+                }
+                filter.Pokemon.Enabled = form["pokemonEnabled"].ToString() == "on";
+                var pokemonList = form["pokemonPokemonList"].ToString();
+                if (!string.IsNullOrEmpty(pokemonList))
+                {
+                    filter.Pokemon.Pokemon = pokemonList.Split(',')?.Select(uint.Parse).ToList() ?? new List<uint>();
+                }
+                var formsList = form["pokemonFormsList"].ToString();
+                if (!string.IsNullOrEmpty(formsList))
+                {
+                    filter.Pokemon.Forms = formsList.Split(',').ToList();
+                }
+                var costumesList = form["pokemonCostumesList"].ToString();
+                if (!string.IsNullOrEmpty(costumesList))
+                {
+                    filter.Pokemon.Costumes = costumesList.Split(',').ToList();
+                }
+                filter.Pokemon.MinimumCP = uint.Parse(form["pokemonMinCP"].ToString());
+                filter.Pokemon.MaximumCP = uint.Parse(form["pokemonMaxCP"].ToString());
+                filter.Pokemon.MinimumIV = uint.Parse(form["pokemonMinIV"].ToString());
+                filter.Pokemon.MaximumIV = uint.Parse(form["pokemonMaxIV"].ToString());
+                filter.Pokemon.MinimumLevel = uint.Parse(form["pokemonMinLevel"].ToString());
+                filter.Pokemon.MaximumLevel = uint.Parse(form["pokemonMaxLevel"].ToString());
+                filter.Pokemon.Gender = form["pokemonGender"].ToString().FirstOrDefault();
+                // TODO: Convert size filter.Pokemon.Size = form["pokemonSize"].ToString();
+                filter.Pokemon.IsPvpGreatLeague = form["pokemonGreatLeague"].ToString() == "on";
+                filter.Pokemon.IsPvpUltraLeague = form["pokemonUltraLeague"].ToString() == "on";
+                filter.Pokemon.MinimumRank = uint.Parse(form["pokemonMinRank"].ToString());
+                filter.Pokemon.MaximumRank = uint.Parse(form["pokemonMaxRank"].ToString());
+                filter.Pokemon.IsEvent = form["pokemonIsEvent"].ToString() == "on";
+                filter.Pokemon.FilterType = form["pokemonFilterType"].ToString() == "Include"
+                    ? Services.Alarms.Filters.FilterType.Include
+                    : Services.Alarms.Filters.FilterType.Exclude;
+                filter.Pokemon.IgnoreMissing = form["pokemonIgnoreMissing"].ToString() == "on";
+            }
+            if (form.ContainsKey("raidsEnabled"))
+            {
+                if (filter.Raids == null)
+                {
+                    filter.Raids = new WebhookFilterRaid();
+                }
+                filter.Raids.Enabled = form["raidsEnabled"].ToString() == "on";
+                var pokemonList = form["raidsPokemonList"].ToString();
+                if (!string.IsNullOrEmpty(pokemonList))
+                {
+                    filter.Raids.Pokemon = pokemonList.Split(',')?.Select(uint.Parse).ToList() ?? new List<uint>();
+                }
+                var formsList = form["raidsFormsList"].ToString();
+                if (!string.IsNullOrEmpty(formsList))
+                {
+                    filter.Raids.Forms = formsList.Split(',').ToList();
+                }
+                var costumesList = form["raidsCostumesList"].ToString();
+                if (!string.IsNullOrEmpty(costumesList))
+                {
+                    filter.Raids.Costumes = costumesList.Split(',').ToList();
+                }
+                filter.Raids.MinimumLevel = uint.Parse(form["raidsMinLevel"].ToString());
+                filter.Raids.MaximumLevel = uint.Parse(form["raidsMaxLevel"].ToString());
+                filter.Raids.OnlyEx = form["raidsOnlyEx"].ToString() == "on";
+                // TODO: Convert team filter.Raids.Team = form["raidsTeam"].ToString();
+                filter.Raids.FilterType = form["raidsFilterType"].ToString() == "Include"
+                    ? Services.Alarms.Filters.FilterType.Include
+                    : Services.Alarms.Filters.FilterType.Exclude;
+                filter.Raids.IgnoreMissing = form["raidsIgnoreMissing"].ToString() == "on";
+            }
+            if (form.ContainsKey("eggsEnabled"))
+            {
+                if (filter.Eggs == null)
+                {
+                    filter.Eggs = new WebhookFilterEgg();
+                }
+                filter.Eggs.Enabled = form["eggsEnabled"].ToString() == "on";
+                filter.Eggs.MinimumLevel = uint.Parse(form["eggsMinLevel"].ToString());
+                filter.Eggs.MaximumLevel = uint.Parse(form["eggsMaxLevel"].ToString());
+                filter.Eggs.OnlyEx = form["eggsOnlyEx"].ToString() == "on";
+                // TODO: Convert team filter.Eggs.Team = form["eggsTeam"].ToString();
+            }
+            if (form.ContainsKey("questsEnabled"))
+            {
+                if (filter.Quests == null)
+                {
+                    filter.Quests = new WebhookFilterQuest();
+                }
+                filter.Quests.Enabled = form["questsEnabled"].ToString() == "on";
+                filter.Quests.RewardKeywords = form["questsRewards"].ToString().Split(',').ToList();
+                filter.Quests.IsShiny = form["questsIsShiny"].ToString() == "on";
+                filter.Quests.FilterType = form["questsFilterType"].ToString() == "Include"
+                    ? Services.Alarms.Filters.FilterType.Include
+                    : Services.Alarms.Filters.FilterType.Exclude;
+            }
+            if (form.ContainsKey("pokestopsEnabled"))
+            {
+                if (filter.Pokestops == null)
+                {
+                    filter.Pokestops = new WebhookFilterPokestop();
+                }
+                filter.Pokestops.Enabled = form["pokestopsEnabled"].ToString() == "on";
+                filter.Pokestops.Lured = form["pokestopsLured"].ToString() == "on";
+                // TODO: Convert lure types filter.Pokestops.LureTypes = form["pokestopsLureTypes"].ToString();
+                filter.Pokestops.Invasions = form["pokestopsInvasions"].ToString() == "on";
+                // TODO: Convert invasion types filter.Pokestops.InvasionTypes = form["pokestopsInvasionTypes"].ToString() == "on";
+            }
+            if (form.ContainsKey("gymsEnabled"))
+            {
+                if (filter.Gyms == null)
+                {
+                    filter.Gyms = new WebhookFilterGym();
+                }
+                filter.Gyms.Enabled = form["gymsEnabled"] == "on";
+                filter.Gyms.UnderAttack = form["gymsUnderAttack"].ToString() == "on";
+                // TODO: Convert team filter.Gyms.Team = form["gymsTeam"].ToString();
+            }
+            if (form.ContainsKey("weatherEnabled"))
+            {
+                if (filter.Weather == null)
+                {
+                    filter.Weather = new WebhookFilterWeather();
+                }
+                filter.Weather.Enabled = form["weatherEnabled"] == "on";
+                // TODO: Convert weather types filter.Weather.WeatherTypes = form["weatherTypes"].ToString();
+            }
+            return filter;
+        }
+
         #endregion
+    }
+
+    public class DtsPlaceholder
+    {
+        [JsonPropertyName("placeholder")]
+        public string Placeholder { get; set; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+
+        [JsonPropertyName("example")]
+        public object Example { get; set; }
     }
 }

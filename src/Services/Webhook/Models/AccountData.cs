@@ -37,7 +37,7 @@
         public bool SuspendedMessageAcknowledged { get; set; }
 
         [JsonPropertyName("was_suspended")]
-        public bool WasSuspended { get; set; }
+        public bool? WasSuspended { get; set; }
 
         [JsonPropertyName("warn_expire_timestamp")]
         public ulong WarningExpireTimestamp { get; set; }

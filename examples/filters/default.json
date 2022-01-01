@@ -1,5 +1,5 @@
 {
-  "pokemon":
+    "pokemon":
     {
         "enabled": true, // Filter is enabled
         "pokemon": [280,337,374], // List of Pokemon for the filter or empty for all
@@ -9,8 +9,8 @@
         "max_iv": 100, // Maximum IV of Pokemon to send
         "min_cp": 0, // Minimum CP of Pokemon
         "max_cp": 999999, // Maximum CP of Pokemon
-		"min_lvl": 0, // Minimum level of Pokemon
-		"max_lvl": 35, // Maximum level of Pokemon
+        "min_lvl": 0, // Minimum level of Pokemon
+        "max_lvl": 35, // Maximum level of Pokemon
         "gender": "m", // Only send male (m,f,*)
         "size": "Big", // Tiny, Small, Normal, Large, Big
         "great_league": true, // Great League
@@ -55,8 +55,8 @@
         "lured": false, // Only send lured pokestops
         "lure_types": ["Normal", "Glacial", "Mossy", "Magnetic"], // All lure types
         "invasions": false, // Only send Team Rocket invasion pokestops
-		// Determines which invasion types to send
-		"invasionTypes": {
+        // Determines which invasion types to send
+        "invasionTypes": {
             "CharacterUnset": false,
             "CharacterBlanche": true,
             "CharacterCandela": true,
@@ -148,7 +148,7 @@
             "CharacterGhostBalloonGruntMale": true,
             "CharacterElectricBalloonGruntFemale": true,
             "CharacterElectricBalloonGruntMale": true
-		}
+        }
     },
     "gyms":
     {

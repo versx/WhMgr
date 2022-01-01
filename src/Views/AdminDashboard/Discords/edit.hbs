@@ -62,7 +62,7 @@
                         <label for="alarms" class="form-label">Alarms</label>
                         <select class="form-control" id="alarms">
                             {{#each alarms}}
-                            <option>{{this}}</option>
+                            <option value="{{file}}" {{#if selected}}selected{{/if}}>{{file}}</option>
                             {{/each}}
                         </select>
                     </div>
@@ -71,7 +71,7 @@
                         <label for="alarms" class="form-label">Geofences</label>
                         <select class="form-control" id="alarms" multiple>
                             {{#each geofences}}
-                            <option>{{this}}</option>
+                            <option value="{{file}}" {{#if selected}}selected{{/if}}>{{file}}</option>
                             {{/each}}
                         </select>
                     </div>
@@ -89,7 +89,7 @@
                         <label for="embed" class="form-label">DM Embed File</label>
                         <select class="form-control" id="embed">
                             {{#each embeds}}
-                            <option>{{this}}</option>
+                            <option value="{{file}}" {{#if selected}}selected{{/if}}>{{file}}</option>
                             {{/each}}
                         </select>
                     </div>
@@ -144,23 +144,23 @@
                         <label class="form-check-label" for="subscriptionsEnabled">Enabled</label>
                     </div>
                     <label for="maxPokemonSubscriptions" class="form-label">Max Pokemon Subscriptions</label>
-                    <input type="number" class="form-control" id="maxPokemonSubscriptions" name="maxPokemonSubscriptions" value="{{config.subscriptions.maxPokemonSubscriptions}}">
+                    <input type="number" class="form-control" id="maxPokemonSubscriptions" name="maxPokemonSubscriptions" value="{{config.subscriptions.maxPokemonSubscriptions}}" {{#unless config.subscriptions.enabled}}disabled{{/unless}}>
                     <label for="maxPvpSubscriptions" class="form-label">Max PvP Subscriptions</label>
-                    <input type="number" class="form-control" id="maxPvpSubscriptions" name="maxPvpSubscriptions" value="{{config.subscriptions.maxPvPSubscriptions}}">
+                    <input type="number" class="form-control" id="maxPvpSubscriptions" name="maxPvpSubscriptions" value="{{config.subscriptions.maxPvPSubscriptions}}" {{#unless config.subscriptions.enabled}}disabled{{/unless}}>
                     <label for="maxRaidSubscriptions" class="form-label">Max Raid Subscriptions</label>
-                    <input type="number" class="form-control" id="maxRaidSubscriptions" name="maxRaidSubscriptions" value="{{config.subscriptions.maxRaidSubscriptions}}">
+                    <input type="number" class="form-control" id="maxRaidSubscriptions" name="maxRaidSubscriptions" value="{{config.subscriptions.maxRaidSubscriptions}}" {{#unless config.subscriptions.enabled}}disabled{{/unless}}>
                     <label for="maxQuestSubscriptions" class="form-label">Max Quest Subscriptions</label>
-                    <input type="number" class="form-control" id="maxQuestSubscriptions" name="maxQuestSubscriptions" value="{{config.subscriptions.maxQuestSubscriptions}}">
+                    <input type="number" class="form-control" id="maxQuestSubscriptions" name="maxQuestSubscriptions" value="{{config.subscriptions.maxQuestSubscriptions}}" {{#unless config.subscriptions.enabled}}disabled{{/unless}}>
                     <label for="maxLureSubscriptions" class="form-label">Max Lure Subscriptions</label>
-                    <input type="number" class="form-control" id="maxLureSubscriptions" name="maxLureSubscriptions" value="{{config.subscriptions.maxLureSubscriptions}}">
+                    <input type="number" class="form-control" id="maxLureSubscriptions" name="maxLureSubscriptions" value="{{config.subscriptions.maxLureSubscriptions}}" {{#unless config.subscriptions.enabled}}disabled{{/unless}}>
                     <label for="maxInvasionSubscriptions" class="form-label">Max Invasion Subscriptions</label>
-                    <input type="number" class="form-control" id="maxInvasionSubscriptions" name="maxInvasionSubscriptions" value="{{config.subscriptions.maxInvasionSubscriptions}}">
+                    <input type="number" class="form-control" id="maxInvasionSubscriptions" name="maxInvasionSubscriptions" value="{{config.subscriptions.maxInvasionSubscriptions}}" {{#unless config.subscriptions.enabled}}disabled{{/unless}}>
                     <label for="maxGymSubscriptions" class="form-label">Max Gym Subscriptions</label>
-                    <input type="number" class="form-control" id="maxGymSubscriptions" name="maxGymSubscriptions" value="{{config.subscriptions.maxGymSubscriptions}}">
+                    <input type="number" class="form-control" id="maxGymSubscriptions" name="maxGymSubscriptions" value="{{config.subscriptions.maxGymSubscriptions}}" {{#unless config.subscriptions.enabled}}disabled{{/unless}}>
                     <label for="maxNotificationsPerMinute" class="form-label">Max Notifications Per Minute</label>
-                    <input type="number" class="form-control" id="maxNotificationsPerMinute" name="maxNotificationsPerMinute" value="{{config.subscriptions.maxNotificationsPerMinute}}">
+                    <input type="number" class="form-control" id="maxNotificationsPerMinute" name="maxNotificationsPerMinute" value="{{config.subscriptions.maxNotificationsPerMinute}}" {{#unless config.subscriptions.enabled}}disabled{{/unless}}>
                     <label for="subscriptionsUiUrl" class="form-label">Subscriptions UI Url</label>
-                    <input type="text" class="form-control" id="subscriptionsUiUrl" name="subscriptionsUiUrl" value="{{config.subscriptions.url}}">
+                    <input type="text" class="form-control" id="subscriptionsUiUrl" name="subscriptionsUiUrl" value="{{config.subscriptions.url}}" {{#unless config.subscriptions.enabled}}disabled{{/unless}}>
                 </div>
             </div>
         </div>
@@ -223,7 +223,7 @@
                         <input class="form-control" type="number" id="nestsChannelId" name="nestsChannelId" value="{{config.nests.channelId}}">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="requiresDonorRole">Minimum Nests Per Hour</label>
+                        <label class="form-label" for="nestsMinimumPerHour">Minimum Nests Per Hour</label>
                         <input class="form-control" type="number" id="nestsMinimumPerHour" name="nestsMinimumPerHour" value="{{config.nests.minimumPerHour}}">
                     </div>
                 </div>
@@ -283,6 +283,40 @@
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
 
-<script>
-console.log('test:', JSON.parse('{{test.enabled}}'));
+<script type="text/javascript">
+    const subscriptionProperties = [
+        '#maxPokemonSubscriptions',
+        '#maxPvpSubscriptions',
+        '#maxRaidSubscriptions',
+        '#maxQuestSubscriptions',
+        '#maxLureSubscriptions',
+        '#maxInvasionSubscriptions',
+        '#maxGymSubscriptions',
+        '#maxNotificationsPerMinute',
+        '#subscriptionsUiUrl',
+    ];
+    const geofenceRoleProperties = [
+        '#autoRemove',
+        '#requiresDonorRole',
+    ];
+    const questPurgeProperties = [
+        '#questsPurgeChannels',
+    ];
+    const nestProperties = [
+        '#nestsChannelId',
+        '#nestsMinimumPerHour',
+    ];
+
+    $('#subscriptionsEnabled').on('click', () => disableElements('#subscriptionsEnabled', subscriptionProperties));
+    $('#geofenceRolesEnabled').on('click', () => disableElements('#geofenceRolesEnabled', geofenceRoleProperties));
+    $('#questsPurgeEnabled').on('click', () => disableElements('#questsPurgeEnabled', questPurgeProperties));
+    $('#nestsEnabled').on('click', () => disableElements('#nestsEnabled', nestProperties));
+
+    function disableElements(selector, properties) {
+        const element = $(selector);
+        const value = element.is(':checked');
+        for (const property of properties) {
+            $(property).prop('disabled', !value);
+        }
+    }
 </script>

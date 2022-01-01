@@ -2,10 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     using HandlebarsDotNet;
     using HandlebarsDotNet.Helpers;
 
+    using WhMgr.Common;
     using WhMgr.Configuration;
     using WhMgr.Localization;
 
@@ -84,7 +86,36 @@
                     }
                     writer.Write(result ? "Yes" : "No");
                 }),
+                ["isSelected"] = new HandlebarsHelper((writer, ctx, args) =>
+                {
+                    if (args[0] is System.Collections.IEnumerable array)
+                    {
+                        var item = args[1].ToString();
+                        bool result;
+                        if (array is List<WeatherCondition> weatherList)
+                        {
+                            result = weatherList.Select(x => x.ToString())
+                                                .Contains(item);
+                        }
+                        else
+                        {
+                            result = array.Cast<string>().Contains(item);
+                        }
+                        writer.Write(result ? "selected" : "");
+                    }
+                    else if (args[0] is object obj)
+                    {
+                        var item = args[1];
+                        var result = string.Equals(obj.ToString(), item.ToString());
+                        writer.Write(result ? "selected" : "");
+                    }
+                    else
+                    {
+                        writer.Write("");
+                    }
+                }),
             };
+            // TODO: Load helpers via file
             return dict;
         }
     }

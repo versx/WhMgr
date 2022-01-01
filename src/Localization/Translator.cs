@@ -47,6 +47,11 @@
                 var localeFile = locale;
 
                 var json = NetUtils.Get(SourceLocaleUrl + locale);
+                if (json == null)
+                {
+                    Console.WriteLine($"Failed to fetch locales from {SourceLocaleUrl + locale}, skipping...");
+                    return;
+                }
                 var remote = json.FromJson<Dictionary<string, string>>();
 
                 Console.WriteLine($"Creating locale {locale}");
