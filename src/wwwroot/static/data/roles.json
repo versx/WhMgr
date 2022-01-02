@@ -1,22 +1,50 @@
-{
-    "00000000000000001": {
-        "name": "Test",
-        "permissions": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
-        "moderator": false
-    },
-    "0000000000000002": {
-        "name": "Test2",
-        "permissions": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
-        "moderator": false
-    },
-    "0000000000000003": {
-        "name": "ModTest2",
-        "permissions": ["pokemon", "pvp", "raids"],
-        "moderator": true
-    },
-    "560541321568190494": {
-        "name": "versx Mod",
-        "permissions": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
-        "moderator": true
-    }
+﻿{
+  "1": {
+    "name": "Test",
+    "moderator": false,
+    "permissions": [
+      "Pokemon",
+      "PvP",
+      "Raids",
+      "Quests",
+      "Invasions",
+      "Lures",
+      "Gyms"
+    ]
+  },
+  "2": {
+    "name": "Test2",
+    "moderator": false,
+    "permissions": [
+      "Pokemon",
+      "PvP",
+      "Raids",
+      "Quests",
+      "Invasions",
+      "Lures",
+      "Gyms"
+    ]
+  },
+  "3": {
+    "name": "ModTest2",
+    "moderator": true,
+    "permissions": [
+      "Pokemon",
+      "PvP",
+      "Raids"
+    ]
+  },
+  "560541321568190494": {
+    "name": "versx Mod",
+    "moderator": true,
+    "permissions": [
+      "Pokemon",
+      "PvP",
+      "Raids",
+      "Quests",
+      "Invasions",
+      "Lures",
+      "Gyms"
+    ]
+  }
 }

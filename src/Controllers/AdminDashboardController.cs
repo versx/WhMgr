@@ -830,7 +830,7 @@
                 // Save json
                 var filePath = "wwwroot/static/data/roles.json";
                 await WriteDataAsync(filePath, json);
-                return Redirect("/dashboard/embeds");
+                return Redirect("/dashboard/roles");
             }
             return Unauthorized();
         }
@@ -850,6 +850,20 @@
                 favicon = "dotnet.png",
             };
             return View("users", obj);
+        }
+
+        [HttpGet]
+        [HttpPost]
+        [Route("users/edit/{id}")]
+        public IActionResult EditUser(uint id)
+        {
+            var obj = new
+            {
+                template = "users-edit",
+                title = "Edit User " + id,
+                favicon = "dotnet.png",
+            };
+            return View("Users/edit", obj);
         }
 
         #endregion
