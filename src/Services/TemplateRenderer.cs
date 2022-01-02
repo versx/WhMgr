@@ -101,6 +101,11 @@
                         {
                             result = dict.Values.Contains(item);
                         }
+                        else if (array is List<SubscriptionAccessType> accessList)
+                        {
+                            result = accessList.Select(access => access.ToString().ToLower())
+                                               .Contains(item.ToLower());
+                        }
                         else
                         {
                             if (array is string str)

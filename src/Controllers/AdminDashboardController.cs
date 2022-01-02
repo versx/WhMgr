@@ -777,6 +777,40 @@
             return View("roles", obj);
         }
 
+        [HttpGet]
+        [HttpPost]
+        [Route("roles/edit/{name}")]
+        public async Task<IActionResult> EditDiscordRole(string name)
+        {
+            if (Request.Method == "GET")
+            {
+                var roles = GetRoles();
+                var role = roles.FirstOrDefault(role => string.Equals(role.Value.Name, name, StringComparison.InvariantCultureIgnoreCase));
+                var obj = new
+                {
+                    template = "roles-edit",
+                    title = $"Edit Discord Role \"{name}\"",
+                    favicon = "dotnet.png",
+                    name,
+                    roleId = role.Key,
+                    role = role.Value,
+                };
+                return View("Roles/edit", obj);
+            }
+            else if (Request.Method == "POST")
+            {
+                // TODO: Check if exists or not
+                var roles = GetRoles();
+                var rolesForm = RolesFromForm(roles, Request.Form);
+                var json = rolesForm.ToJson();
+                // Save json
+                var filePath = "wwwroot/static/data/roles.json";
+                await WriteDataAsync(filePath, json);
+                return Redirect("/dashboard/embeds");
+            }
+            return Unauthorized();
+        }
+
         #endregion
 
         #region Users
@@ -1041,6 +1075,7 @@
 
         private static ChannelAlarmsManifest AlarmsFromForm(ChannelAlarmsManifest alarms, IFormCollection form)
         {
+            // TODO: Set alarms
             return alarms;
         }
 
@@ -1194,6 +1229,11 @@
                 // TODO: Convert weather types filter.Weather.WeatherTypes = form["weatherTypes"].ToString();
             }
             return filter;
+        }
+
+        private static Dictionary<ulong, RoleConfig> RolesFromForm(Dictionary<ulong, RoleConfig> roles, IFormCollection form)
+        {
+            return roles;
         }
 
         #endregion
