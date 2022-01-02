@@ -27,18 +27,22 @@
                     </div>
                     <div class="mb-3">
                         <label for="alarms" class="form-label">Donor Roles</label>
-                        <select class="form-control" id="donorRoles">
-                            {{#each donorRoles}}
-                            <option>{{this}}</option>
+                        <select class="form-control" id="donorRoleIds" name="donorRoleIds" multiple>
+                            {{#each roles}}
+                                {{#unless isModerator}}
+                                <option value="{{@key}}">{{name}} - {{permissions}}</option>
+                                {{/unless}}
                             {{/each}}
                         </select>
                     </div>
                     
                     <div class="mb-3">
                         <label for="alarms" class="form-label">Moderator Roles</label>
-                        <select class="form-control" id="moderatorRoles">
-                            {{#each moderatorRoles}}
-                            <option>{{this}}</option>
+                        <select class="form-control" id="moderatorRoleIds" name="moderatorRoleIds" multiple>
+                            {{#each roles}}
+                                {{#if isModerator}}
+                                <option value="{{@key}}">{{name}}</option>
+                                {{/if}}
                             {{/each}}
                         </select>
                     </div>

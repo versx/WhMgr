@@ -9,5 +9,11 @@
 
         [JsonPropertyName("iv")]
         public StatsConfig IVStats { get; set; }
+
+        public DailyStatsConfig()
+        {
+            ShinyStats = new StatsConfig();
+            IVStats = new StatsConfig();
+        }
     }
 }

@@ -222,7 +222,7 @@
         [HttpGet]
         [HttpPost]
         [Route("discords/edit/{fileName}")]
-        public IActionResult EditDiscord(string fileName)
+        public async Task<IActionResult> EditDiscord(string fileName)
         {
             if (Request.Method == "GET")
             {
@@ -231,6 +231,7 @@
                 var geofenceFiles = Directory.GetFiles(Strings.GeofencesFolder);
                 var embedFiles = Directory.GetFiles(Strings.EmbedsFolder);
                 var iconStyles = Startup.Config.IconStyles;
+                var roles = GetRoles();
                 var obj = new
                 {
                     template = "discords-edit",
@@ -266,17 +267,20 @@
                         };
                     }),
                     iconStyles,
+                    roles,
                 };
                 return View("Discords/edit", obj);
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Read discord file, deserialize, edit properties, save
-                var obj = new
-                {
-                };
                 // TODO: If error show Discords/edit view, otherwise redirect from succussful edit
-                return View("Discords/edit", obj);
+                var filePath = Path.Combine(Strings.DiscordsFolder, fileName + ".json");
+                var discord = LoadFromFile<DiscordServerConfig>(filePath);
+                var discordForm = DiscordFromForm(discord, Request.Form);
+                var json = discordForm.ToJson();
+                // Save json
+                await WriteDataAsync(filePath, json);
+                return Redirect("/dashboard/discords");
             }
             return Unauthorized();
         }
@@ -796,6 +800,13 @@
             return placeholders;
         }
 
+        private static Dictionary<ulong, RoleConfig> GetRoles()
+        {
+            var path = "wwwroot/static/data/roles.json";
+            var roles = LoadFromFile<Dictionary<ulong, RoleConfig>>(path);
+            return roles;
+        }
+
         private static async Task WriteDataAsync(string path, string data)
         {
             await System.IO.File.WriteAllTextAsync(path, data, Encoding.UTF8);
@@ -913,9 +924,82 @@
             return config;
         }
 
-        private static DiscordServerConfig DiscordServerFromForm(DiscordServerConfig config, IFormCollection form)
+        private static DiscordServerConfig DiscordFromForm(DiscordServerConfig discord, IFormCollection form)
         {
-            return config;
+            var donorRoleIds = form["donorRoleIds"].ToString();
+            if (!string.IsNullOrEmpty(donorRoleIds))
+            {
+                var availableRoles = GetRoles().Where(x => !x.Value.IsModerator);
+                var roleIds = donorRoleIds.Split(',')
+                                          .Select(ulong.Parse)
+                                          .ToList();
+                var donorRoles = availableRoles.ToDictionary(key => key.Key, value => value.Value.Permissions);
+                discord.DonorRoleIds = donorRoles;
+            }
+            var moderatorRoleIds = form["moderatorRoleIds"].ToString();
+            if (!string.IsNullOrEmpty(moderatorRoleIds))
+            {
+                discord.ModeratorRoleIds = moderatorRoleIds.Split(',')
+                                                           .Select(ulong.Parse)
+                                                           .ToList();
+            }
+            discord.FreeRoleName = form["freeRoleName"].ToString();
+            discord.AlarmsFile = form["alarms"].ToString();
+            discord.GeofenceFiles = form["geofences"].ToString().Split(',');
+            discord.IconStyle = form["iconStyle"].ToString();
+            discord.DmEmbedsFile = form["embed"].ToString();
+            if (discord.Bot == null)
+            {
+                discord.Bot = new BotConfig();
+            }
+            discord.Bot.CommandPrefix = form["commandPrefix"].ToString();
+            discord.Bot.GuildId = ulong.Parse(form["guildId"].ToString());
+            discord.Bot.EmojiGuildId = ulong.Parse(form["emojiGuildId"].ToString());
+            discord.Bot.Token = form["token"].ToString();
+            //discord.Bot.ChannelIds = form["channelIds"].ToString();
+            discord.Bot.Status = form["status"].ToString();
+            discord.Bot.OwnerId = ulong.Parse(form["ownerId"].ToString());
+            if (discord.Subscriptions == null)
+            {
+                discord.Subscriptions = new SubscriptionsConfig();
+            }
+            discord.Subscriptions.Enabled = form["subscriptionsEnabled"].ToString() == "on";
+            discord.Subscriptions.MaxPokemonSubscriptions = int.Parse(form["maxPokemonSubscriptions"].ToString());
+            discord.Subscriptions.MaxPvPSubscriptions = int.Parse(form["maxPvPSubscriptions"].ToString());
+            discord.Subscriptions.MaxRaidSubscriptions = int.Parse(form["maxRaidSubscriptions"].ToString());
+            discord.Subscriptions.MaxQuestSubscriptions = int.Parse(form["maxQuestSubscriptions"].ToString());
+            discord.Subscriptions.MaxLureSubscriptions = int.Parse(form["maxLureSubscriptions"].ToString());
+            discord.Subscriptions.MaxInvasionSubscriptions = int.Parse(form["maxInvasionSubscriptions"].ToString());
+            discord.Subscriptions.MaxGymSubscriptions = int.Parse(form["maxGymSubscriptions"].ToString());
+            discord.Subscriptions.MaxNotificationsPerMinute = ushort.Parse(form["maxNotificationsPerMinute"].ToString());
+            discord.Subscriptions.Url = form["subscriptionsUiUrl"].ToString();
+            if (discord.GeofenceRoles == null)
+            {
+                discord.GeofenceRoles = new GeofenceRolesConfig();
+            }
+            discord.GeofenceRoles.Enabled = form["geofenceRolesEnabled"].ToString() == "on";
+            discord.GeofenceRoles.AutoRemove = form["geofenceRolesAutoRemove"].ToString() == "on";
+            discord.GeofenceRoles.RequiresDonorRole = form["geofenceRolesRequiresDonorRole"].ToString() == "on";
+            if (discord.QuestsPurge == null)
+            {
+                discord.QuestsPurge = new QuestsPurgeConfig();
+            }
+            discord.QuestsPurge.Enabled = form["questsPurgeEnabled"].ToString() == "on";
+            // questsPurgeChannels = timezone: channelIds[]
+            // TODO: discord.QuestsPurge.ChannelIds = form["questsPurgeChannels"].ToString();
+            if (discord.Nests == null)
+            {
+                discord.Nests = new NestsConfig();
+            }
+            discord.Nests.Enabled = form["nestsEnabled"].ToString() == "on";
+            discord.Nests.ChannelId = ulong.Parse(form["nestsChannelId"].ToString());
+            discord.Nests.MinimumPerHour = int.Parse(form["nestsMinimumPerHour"].ToString());
+            if (discord.DailyStats == null)
+            {
+                discord.DailyStats = new DailyStatsConfig();
+            }
+            // TODO: discord.dailyStats.iv and discord.dailyStats.shiny
+            return discord;
         }
 
         private static EmbedMessage EmbedFromForm(EmbedMessage embed, IFormCollection form)
@@ -1083,5 +1167,17 @@
 
         [JsonPropertyName("example")]
         public object Example { get; set; }
+    }
+
+    public class RoleConfig
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("moderator")]
+        public bool IsModerator { get; set; }
+
+        [JsonPropertyName("permissions")]
+        public List<SubscriptionAccessType> Permissions { get; set; }
     }
 }

@@ -1,0 +1,22 @@
+{
+    "00000000000000001": {
+        "name": "Test",
+        "permissions": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
+        "moderator": false
+    },
+    "0000000000000002": {
+        "name": "Test2",
+        "permissions": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
+        "moderator": false
+    },
+    "0000000000000003": {
+        "name": "ModTest2",
+        "permissions": ["pokemon", "pvp", "raids"],
+        "moderator": true
+    },
+    "0000000000000004": {
+        "name": "ModTest",
+        "permissions": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
+        "moderator": true
+    }
+}
