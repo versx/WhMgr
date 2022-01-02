@@ -148,18 +148,21 @@
             return Unauthorized();
         }
 
-        [HttpDelete("configs/delete/{fileName}")]
+        [HttpGet("configs/delete/{fileName}")]
         public IActionResult DeleteConfig(string fileName)
         {
-            var path = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
+            var filePath = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
             try
             {
-                System.IO.File.Delete(path);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
                 return Redirect("/dashboard/configs");
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to delete config: {path}\nError: {ex}");
+                _logger.Error($"Failed to delete config: {filePath}\nError: {ex}");
             }
             return Unauthorized();
         }
@@ -285,18 +288,21 @@
             return Unauthorized();
         }
 
-        [HttpDelete("discords/delete/{fileName}")]
+        [HttpGet("discords/delete/{fileName}")]
         public IActionResult DeleteDiscord(string fileName)
         {
-            var path = Path.Combine(Strings.DiscordsFolder, fileName + ".json");
+            var filePath = Path.Combine(Strings.DiscordsFolder, fileName + ".json");
             try
             {
-                System.IO.File.Delete(path);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
                 return Redirect("/dashboard/discords");
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to delete discord: {path}\nError: {ex}");
+                _logger.Error($"Failed to delete discord: {filePath}\nError: {ex}");
             }
             return Unauthorized();
         }
@@ -402,18 +408,21 @@
             return Unauthorized();
         }
 
-        [HttpDelete("alarms/delete/{fileName}")]
+        [HttpGet("alarms/delete/{fileName}")]
         public IActionResult DeleteAlarm(string fileName)
         {
-            var path = Path.Combine(Strings.AlarmsFolder, fileName + ".json");
+            var filePath = Path.Combine(Strings.AlarmsFolder, fileName + ".json");
             try
             {
-                System.IO.File.Delete(path);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
                 return Redirect("/dashboard/alarms");
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to delete alarm: {path}\nError: {ex}");
+                _logger.Error($"Failed to delete alarm: {filePath}\nError: {ex}");
             }
             return Unauthorized();
         }
@@ -508,18 +517,21 @@
             return Unauthorized();
         }
 
-        [HttpDelete("filters/delete/{fileName}")]
+        [HttpGet("filters/delete/{fileName}")]
         public IActionResult DeleteFilter(string fileName)
         {
-            var path = Path.Combine(Strings.FiltersFolder, fileName + ".json");
+            var filePath = Path.Combine(Strings.FiltersFolder, fileName + ".json");
             try
             {
-                System.IO.File.Delete(path);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
                 return Redirect("/dashboard/filters");
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to delete filter: {path}\nError: {ex}");
+                _logger.Error($"Failed to delete filter: {filePath}\nError: {ex}");
             }
             return Unauthorized();
         }
@@ -626,18 +638,21 @@
             return Unauthorized();
         }
 
-        [HttpDelete("embeds/delete/{fileName}")]
+        [HttpGet("embeds/delete/{fileName}")]
         public IActionResult DeleteEmbed(string fileName)
         {
-            var path = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
+            var filePath = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
             try
             {
-                System.IO.File.Delete(path);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
                 return Redirect("/dashboard/embeds");
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to delete embed: {path}\nError: {ex}");
+                _logger.Error($"Failed to delete embed: {filePath}\nError: {ex}");
             }
             return Unauthorized();
         }
@@ -709,18 +724,21 @@
             return Unauthorized();
         }
 
-        [HttpDelete("geofences/delete/{fileName}")]
+        [HttpGet("geofences/delete/{fileName}")]
         public IActionResult DeleteGeofence(string fileName)
         {
-            var path = Path.Combine(Strings.GeofencesFolder, fileName + ".json");
+            var filePath = Path.Combine(Strings.GeofencesFolder, fileName);
             try
             {
-                System.IO.File.Delete(path);
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
                 return Redirect("/dashboard/geofences");
             }
             catch (Exception ex)
             {
-                _logger.Error($"Failed to delete geofence: {path}\nError: {ex}");
+                _logger.Error($"Failed to delete geofence: {filePath}\nError: {ex}");
             }
             return Unauthorized();
         }
