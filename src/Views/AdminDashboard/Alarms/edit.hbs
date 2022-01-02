@@ -2,23 +2,13 @@
 <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="/dashboard/discords">Discords</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Discord {{name}}</li>
+        <li class="breadcrumb-item"><a href="/dashboard/alarms">Alarms</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Alarm {{name}}</li>
     </ol>
 </nav>
 
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">{{title}}</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-        </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-            <span data-feather="calendar"></span>
-            This week
-        </button>
-    </div>
 </div>
 
 <form method="POST" action="">
@@ -26,5 +16,138 @@
         <label for="name" class="form-label">Name</label>
         <input type="text" class="form-control" id="name" value="{{name}}">
     </div>
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="enablePokemon" {{#if alarm.enablePokemon}}checked{{/if}}>
+            <label class="form-check-label" for="enablePokemon">Enable Pokemon</label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="enableRaids" {{#if alarm.enableRaids}}checked{{/if}}>
+            <label class="form-check-label" for="enableRaids">Enable Raids</label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="enableQuests" {{#if alarm.enableQuests}}checked{{/if}}>
+            <label class="form-check-label" for="enableQuests">Enable Quests</label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="enablePokestops" {{#if alarm.enablePokestops}}checked{{/if}}>
+            <label class="form-check-label" for="enablePokestops">Enable Pokestops</label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="enableGyms" {{#if alarm.enableGyms}}checked{{/if}}>
+            <label class="form-check-label" for="enableGyms">Enable Gyms</label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="enableWeather" {{#if alarm.enableWeather}}checked{{/if}}>
+            <label class="form-check-label" for="enableWeather">Enable Weather</label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="alarms" class="form-label">Alarms</label>
+        <button type="button" class="btn btn-success btn-sm">New Alarm</button> <!-- Open Modal -->
+        <div class="overflow-auto">
+            <ul class="list-group overflow-auto" id="alarms">
+                {{#each alarm.alarms}}
+                <li class="list-group-item m-2 border">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" value="{{name}}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="filter" class="form-label">Filters</label>
+                        <select class="form-control" id="filter" name="filter">
+                            {{#each ../filters}}
+                            <option value="{{this}}" {{isSelected this ../filtersFile}}>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="embed" class="form-label">Embeds</label>
+                        <select class="form-control" id="embed" name="embed">
+                            {{#each ../embeds}}
+                            <!--<option value="{{file}}" {{#if selected}}selected{{/if}}>{{file}}</option>-->
+                            <option value="{{this}}" {{isSelected this ../embedsFile}}>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="geofences" class="form-label">Geofences</label>
+                        <select class="form-control" id="geofences" name="geofences" multiple>
+                            {{#each ../geofences}}
+                            <option value="{{this}}" {{isSelected ../geofences this}}>{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="webhook" class="form-label">Webhook</label>
+                        <input type="text" class="form-control" id="webhook" value="{{webhook}}">
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeAlarm(this, '{{name}}');">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </li>
+                {{/each}}
+            </ul>
+        </div>
+    </div>
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
+
+<script type="text/javascript">
+    function addAlarm() {
+        $('#alarms').append(`
+<li class="list-group-item m-2 border">
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" class="form-control" id="name" value="{{name}}">
+    </div>
+    <div class="mb-3">
+        <label for="filter" class="form-label">Filters</label>
+        <select class="form-control" id="filter" name="filter">
+            {{#each ../filters}}
+            <option value="{{this}}" {{isSelected ../filters this}}>{{this}}</option>
+            {{/each}}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="embed" class="form-label">Embeds</label>
+        <select class="form-control" id="embed" name="embed">
+            {{#each ../embeds}}
+            <option value="{{this}}" {{isSelected ../embeds this}}>{{this}}</option>
+            {{/each}}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="geofences" class="form-label">Geofences</label>
+        <select class="form-control" id="geofences" name="geofences" multiple>
+            {{#each ../geofences}}
+            <option value="{{this}}" {{isSelected ../geofences this}}>{{this}}</option>
+            {{/each}}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="webhook" class="form-label">Webhook</label>
+        <input type="text" class="form-control" id="webhook" value="{{webhook}}">
+    </div>
+</li>
+`);
+    }
+
+    function removeAlarm(e, name) {
+        const result = confirm(`Are you sure you want to remove alarm ${name}?`);
+        if (!result) {
+            return;
+        }
+        $(e).parent().remove();
+    }
+</script>

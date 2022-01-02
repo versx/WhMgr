@@ -118,26 +118,32 @@
         [HttpGet]
         [HttpPost]
         [Route("configs/edit/{fileName}")]
-        public IActionResult EditConfig(string fileName)
+        public async Task<IActionResult> EditConfig(string fileName)
         {
             if (Request.Method == "GET")
             {
+                var config = LoadFromFile<Config>(Path.Combine(Strings.ConfigsFolder, fileName + ".json"));
+                var discordFiles = Directory.GetFiles(Strings.DiscordsFolder, "*.json");
                 var obj = new
                 {
                     template = "configs-edit",
                     title = $"Edit Config \"{fileName}\"",
                     favicon = "dotnet.png",
                     name = fileName,
-                    config = LoadFromFile<Config>(Path.Combine(Strings.ConfigsFolder, fileName + ".json")),
+                    config,
+                    discords = discordFiles.Select(file => Path.GetFileName(file)),
                 };
                 return View("Configs/edit", obj);
             }
             else if (Request.Method == "POST")
             {
-                var obj = new
-                {
-                };
-                return View("Configs/edit", obj);
+                var filePath = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
+                var config = LoadFromFile<Config>(filePath);
+                var configForm = ConfigFromForm(config, Request.Form);
+                var json = configForm.ToJson();
+                // Save json
+                await WriteDataAsync(filePath, json);
+                return Redirect("/dashboard/configs");
             }
             return Unauthorized();
         }
@@ -353,13 +359,32 @@
         {
             if (Request.Method == "GET")
             {
+                var filePath = Path.Combine(Strings.AlarmsFolder, fileName + ".json");
+                var embedFiles = Directory.GetFiles(Strings.EmbedsFolder, "*.json");
+                var filterFiles = Directory.GetFiles(Strings.FiltersFolder, "*.json");
+                var geofenceFiles = Directory.GetFiles(Strings.GeofencesFolder);
+                var alarm = LoadFromFile<ChannelAlarmsManifest>(filePath);
                 var obj = new
                 {
                     template = "alarms-edit",
                     title = $"Edit Channel Alarms \"{fileName}\"",
                     favicon = "dotnet.png",
                     name = fileName,
-                    alarm = LoadFromFile<ChannelAlarmsManifest>(Path.Combine(Strings.AlarmsFolder, fileName + ".json")),
+                    alarm,
+                    /*
+                    embeds = embedFiles.Select(file =>
+                    {
+                        var name = Path.GetFileName(file);
+                        return new
+                        {
+                            file = name,
+                            selected = alarm.Alarms.Exists(x => string.Equals(name, x.EmbedsFile, StringComparison.InvariantCultureIgnoreCase)),
+                        };
+                    }),
+                    */
+                    embeds = embedFiles.Select(file => Path.GetFileName(file)),
+                    filters = filterFiles.Select(file => Path.GetFileName(file)),
+                    geofences = geofenceFiles.Select(file => Path.GetFileName(file)),
                 };
                 return View("Alarms/edit", obj);
             }
@@ -774,6 +799,118 @@
         private static async Task WriteDataAsync(string path, string data)
         {
             await System.IO.File.WriteAllTextAsync(path, data, Encoding.UTF8);
+        }
+
+        private static Config ConfigFromForm(Config config, IFormCollection form)
+        {
+            config.ListeningHost = form["host"].ToString();
+            config.WebhookPort = ushort.Parse(form["port"].ToString());
+            config.Locale = form["locale"].ToString();
+            config.Debug = form["debug"].ToString() == "on";
+            config.ShortUrlApi = new UrlShortenerConfig
+            {
+                ApiUrl = form["shortUrlApiUrl"].ToString(),
+                Signature = form["shortUrlApiSignature"].ToString(),
+            };
+            config.StripeApi = new StripeConfig
+            {
+                ApiKey = form["stripeApiKey"].ToString(),
+            };
+            // TODO: config.Servers = "discordServers";
+            //config.ServerConfigFiles = form["discordServers"].ToString();
+            config.Database = new ConnectionStringsConfig
+            {
+                Main = new DatabaseConfig
+                {
+                    Host = form["dbMainHost"].ToString(),
+                    Port = ushort.Parse(form["dbMainPort"].ToString()),
+                    Username = form["dbMainUsername"].ToString(),
+                    Password = form["dbMainPassword"].ToString(),
+                    Database = form["dbMainDatabase"].ToString(),
+                },
+                Scanner = new DatabaseConfig
+                {
+                    Host = form["dbScannerHost"].ToString(),
+                    Port = ushort.Parse(form["dbScannerPort"].ToString()),
+                    Username = form["dbScannerUsername"].ToString(),
+                    Password = form["dbScannerPassword"].ToString(),
+                    Database = form["dbScannerDatabase"].ToString(),
+                },
+                Nests = new DatabaseConfig
+                {
+                    Host = form["dbNestsHost"].ToString(),
+                    Port = ushort.Parse(form["dbNestsPort"].ToString()),
+                    Username = form["dbNestsUsername"].ToString(),
+                    Password = form["dbNestsPassword"].ToString(),
+                    Database = form["dbNestsDatabase"].ToString(),
+                },
+            };
+            config.Urls = new UrlConfig
+            {
+                ScannerMap = form["scannerMapUrl"].ToString(),
+            };
+            config.EventPokemon = new EventPokemonConfig
+            {
+                PokemonIds = form["eventPokemonIds"].ToString()
+                                                    .Split(',')
+                                                    .Select(int.Parse)
+                                                    .ToList(),
+                MinimumIV = int.Parse(form["eventPokemonMinIV"].ToString()),
+                FilterType = form["eventPokemonFilterType"].ToString() == "Include"
+                    ? Services.Alarms.Filters.FilterType.Include
+                    : Services.Alarms.Filters.FilterType.Exclude,
+            };
+            // TODO: config.IconStyles
+            // TODO: config.StaticMaps
+            var twilioUserIds = form["twilioUserIds"].ToString();
+            var twilioRoleIds = form["twilioRoleIds"].ToString();
+            var twilioPokemonIds = form["twilioPokemonIds"].ToString();
+            config.Twilio = new TwilioConfig
+            {
+                Enabled = form["twilioEnabled"].ToString() == "on",
+                AccountSid = form["twilioAccountSid"].ToString(),
+                AuthToken = form["twilioAuthToken"].ToString(),
+                FromNumber = form["twilioFromNumber"].ToString(),
+                UserIds = string.IsNullOrEmpty(twilioUserIds)
+                    ? new List<ulong>()
+                    : twilioUserIds.Split(',')
+                                   .Select(ulong.Parse)
+                                   .ToList(),
+                RoleIds = string.IsNullOrEmpty(twilioRoleIds)
+                    ? new List<ulong>()
+                    : twilioRoleIds.Split(',')
+                                   .Select(ulong.Parse)
+                                   .ToList(),
+                PokemonIds = string.IsNullOrEmpty(twilioPokemonIds)
+                    ? new List<uint>()
+                    : twilioPokemonIds.Split(',')
+                                      .Select(uint.Parse)
+                                      .ToList(),
+                MinimumIV = int.Parse(form["twilioMinIV"].ToString()),
+            };
+            config.ReverseGeocoding = new ReverseGeocodingConfig
+            {
+                Provider = form["provider"].ToString() == "google"
+                    ? Services.Geofence.Geocoding.ReverseGeocodingProvider.GMaps
+                    : Services.Geofence.Geocoding.ReverseGeocodingProvider.Osm,
+                CacheToDisk = form["cacheToDisk"].ToString() == "on",
+                GoogleMaps = new GoogleMapsConfig
+                {
+                    Key = form["gmapsKey"].ToString(),
+                    Schema = form["gmapsSchema"].ToString(),
+                },
+                Nominatim = new NominatimConfig
+                {
+                    Endpoint = form["nominatimEndpoint"].ToString(),
+                    Schema = form["nominatimSchema"].ToString(),
+                },
+            };
+            config.DespawnTimeMinimumMinutes = ushort.Parse(form["despawnTimeMinimumMinutes"].ToString());
+            config.CheckForDuplicates = form["checkForDuplicates"] == "on";
+            config.Debug = form["debug"] == "on";
+            config.LogLevel = (LogLevel)int.Parse(form["logLevel"].ToString());
+            //config.LogLevel
+            return config;
         }
 
         private static DiscordServerConfig DiscordServerFromForm(DiscordServerConfig config, IFormCollection form)

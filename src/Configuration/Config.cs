@@ -8,6 +8,7 @@
 
     using Microsoft.Extensions.Logging;
 
+    using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Icons;
@@ -129,7 +130,7 @@
         /// Gets or sets a value determining the maximum Pokemon ID to support
         /// </summary>
         [JsonPropertyName("maxPokemonId")]
-        public uint MaxPokemonId { get; set; } = (uint)Data.GameMaster.Instance.Pokedex.Count;
+        public uint MaxPokemonId { get; set; } = (uint)GameMaster.Instance.Pokedex.Count;
 
         /// <summary>
         /// Gets or sets the event logging level to set

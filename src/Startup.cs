@@ -113,7 +113,7 @@ namespace WhMgr
             {
                 // Set Cookie properties using CookieBuilder properties.
                 options.FormFieldName = "csrf-token";
-                options.HeaderName = "X-CSRF-TOKEN-HEADERNAME";
+                options.HeaderName = "X-CSRF-TOKEN-WHMGR";
                 options.SuppressXFrameOptionsHeader = false;
             });
 

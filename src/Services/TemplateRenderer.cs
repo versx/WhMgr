@@ -97,16 +97,39 @@
                             result = weatherList.Select(x => x.ToString())
                                                 .Contains(item);
                         }
+                        else if (array is Dictionary<string, string> dict)
+                        {
+                            result = dict.Values.Contains(item);
+                        }
                         else
                         {
-                            result = array.Cast<string>().Contains(item);
+                            if (array is string str)
+                            {
+                                result = string.Equals(str, item, StringComparison.InvariantCultureIgnoreCase);
+                            }
+                            else
+                            {
+                                result = array.Cast<string>().Contains(item);
+                            }
                         }
+                        writer.Write(result ? "selected" : "");
+                    }
+                    else if (args[0] is Dictionary<string, string> servers)
+                    {
+                        var item = args[1].ToString();
+                        var result = servers.Values.Contains(item);
+                        writer.Write(result ? "selected" : "");
+                    }
+                    else if (args[0] is string str)
+                    {
+                        var item = args[1].ToString();
+                        var result = string.Equals(str, item);
                         writer.Write(result ? "selected" : "");
                     }
                     else if (args[0] is object obj)
                     {
                         var item = args[1];
-                        var result = string.Equals(obj.ToString(), item.ToString());
+                        var result = string.Equals(obj.ToString(), item.ToString(), StringComparison.InvariantCultureIgnoreCase);
                         writer.Write(result ? "selected" : "");
                     }
                     else

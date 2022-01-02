@@ -25,13 +25,15 @@
         /// <summary>
         /// Gets or sets the default response action, only 'shorturl' is currently supported
         /// </summary>
-        [JsonPropertyName("action")]
+        //[JsonPropertyName("action")]
+        [JsonIgnore]
         public string Action { get; set; } = "shorturl";
 
         /// <summary>
         /// Gets or sets the default response format, only 'json' is currently supported
         /// </summary>
-        [JsonPropertyName("format")]
+        //[JsonPropertyName("format")]
+        [JsonIgnore]
         public string Format { get; set; } = "json";
     }
 }
