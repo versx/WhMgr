@@ -26,7 +26,7 @@
         /// Gets or sets the donor role ID(s)
         /// </summary>
         [JsonPropertyName("donorRoleIds")]
-        public Dictionary<ulong, List<SubscriptionAccessType>> DonorRoleIds { get; set; } = new();
+        public Dictionary<ulong, IReadOnlyList<SubscriptionAccessType>> DonorRoleIds { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the free donor role name to assign by non-donors to get

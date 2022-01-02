@@ -812,6 +812,8 @@
             await System.IO.File.WriteAllTextAsync(path, data, Encoding.UTF8);
         }
 
+        #region Form Helpers
+
         private static Config ConfigFromForm(Config config, IFormCollection form)
         {
             config.ListeningHost = form["host"].ToString();
@@ -1155,6 +1157,8 @@
         }
 
         #endregion
+
+        #endregion
     }
 
     public class DtsPlaceholder
@@ -1178,6 +1182,6 @@
         public bool IsModerator { get; set; }
 
         [JsonPropertyName("permissions")]
-        public List<SubscriptionAccessType> Permissions { get; set; }
+        public IReadOnlyList<SubscriptionAccessType> Permissions { get; set; }
     }
 }

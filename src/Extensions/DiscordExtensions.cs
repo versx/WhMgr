@@ -316,7 +316,7 @@
             */
         }
 
-        public static bool HasRoleAccess(this DiscordMember member, Dictionary<ulong, List<SubscriptionAccessType>> accessConfig, SubscriptionAccessType desiredAccessType)
+        public static bool HasRoleAccess(this DiscordMember member, Dictionary<ulong, IReadOnlyList<SubscriptionAccessType>> accessConfig, SubscriptionAccessType desiredAccessType)
         {
             // Loop all access configs
             // Check if member has role for access type
