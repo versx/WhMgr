@@ -766,11 +766,13 @@
         [Route("roles")]
         public IActionResult DiscordRoles()
         {
+            var roles = GetRoles();
             var obj = new
             {
                 template = "roles",
                 title = "Discord Roles",
                 favicon = "dotnet.png",
+                roles,
             };
             return View("roles", obj);
         }

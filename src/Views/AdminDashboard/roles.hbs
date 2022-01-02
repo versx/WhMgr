@@ -20,20 +20,24 @@
     <thead class="bg-dark text-light">
         <tr>
             <th scope="col">Name</th>
-            <th scope="col">Discord ID</th>
+            <th scope="col" class="col-1">Discord ID</th>
             <th scope="col">Permissions</th>
+            <th scope="col" class="col-1">Is Moderator</th>
             <th scope="col" class="col-1"></th>
         </tr>
     </thead>
     <tbody>
     {{#each roles}}
         <tr scope="row">
-            <td>{{this}}</td>
+            <td>{{name}}</td>
+            <td>{{@key}}</td>
+            <td>{{String.Join permissions ", "}}</td>
+            <td>{{formatBool isModerator}}</td>
             <td>
-                <a type="button" class="btn btn-primary btn-sm" href="/dashboard/roles/edit/{{this}}">
+                <a type="button" class="btn btn-primary btn-sm" href="/dashboard/roles/edit/{{name}}">
                     <i class="fas fa-edit"></i>
                 </a>
-                <a type="button" class="btn btn-danger btn-sm" href="/dashboard/roles/delete/{{this}}" onclick="return confirm('Are you sure you want to delete role {{this}}?');">
+                <a type="button" class="btn btn-danger btn-sm" href="/dashboard/roles/delete/{{name}}" onclick="return confirm('Are you sure you want to delete role {{name}}?');">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </td>
