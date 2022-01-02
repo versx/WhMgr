@@ -14,8 +14,8 @@
         "permissions": ["pokemon", "pvp", "raids"],
         "moderator": true
     },
-    "0000000000000004": {
-        "name": "ModTest",
+    "560541321568190494": {
+        "name": "versx Mod",
         "permissions": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
         "moderator": true
     }

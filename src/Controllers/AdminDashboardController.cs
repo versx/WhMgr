@@ -17,6 +17,7 @@
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Alarms.Filters.Models;
     using WhMgr.Services.Alarms.Models;
+    using WhMgr.Services.Geofence;
 
     [
         Controller,
@@ -718,22 +719,45 @@
         [HttpGet]
         [HttpPost]
         [Route("geofences/edit/{fileName}")]
-        public IActionResult EditGeofence(string fileName)
+        public async Task<IActionResult> EditGeofence(string fileName)
         {
             if (Request.Method == "GET")
             {
+                var filePath = Path.Combine(Strings.GeofencesFolder, fileName);
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return BadRequest($"Geofence '{fileName}' does not exist");
+                }
+                var geofence = LoadFromFile(filePath);
                 var obj = new
                 {
                     template = "geofences-edit",
                     title = $"Edit Geofence \"{fileName}\"",
                     favicon = "dotnet.png",
-                    name = fileName,
-                    geofence = LoadFromFile(Path.Combine(Strings.GeofencesFolder, fileName)),
+                    name = Path.GetFileNameWithoutExtension(fileName),
+                    geofence,
+                    format = Path.GetExtension(fileName),
                 };
                 return View("Geofences/edit", obj);
             }
             else if (Request.Method == "POST")
             {
+                var name = Request.Form["name"].ToString();
+                var geofenceType = Request.Form["geofenceType"].ToString();
+                var geofenceData = Request.Form["geofence"].ToString();
+                // TODO: Check if exists or not
+                var newFileName = $"{name}.{geofenceType}";
+                var newFilePath = Path.Combine(Strings.GeofencesFolder, newFileName);
+                if (!string.Equals(fileName, newFileName))
+                {
+                    // TODO: Move file
+                    System.IO.File.Move(
+                        Path.Combine(Strings.GeofencesFolder, fileName),
+                        newFilePath
+                    );
+                }
+                // Save json
+                await WriteDataAsync(newFilePath, geofenceData);
                 return Redirect("/dashboard/geofences");
             }
             return Unauthorized();
@@ -1233,6 +1257,7 @@
 
         private static Dictionary<ulong, RoleConfig> RolesFromForm(Dictionary<ulong, RoleConfig> roles, IFormCollection form)
         {
+            // TODO: Set roles
             return roles;
         }
 

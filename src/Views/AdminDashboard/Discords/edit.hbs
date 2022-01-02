@@ -41,7 +41,7 @@
                         <select class="form-control" id="moderatorRoleIds" name="moderatorRoleIds" multiple>
                             {{#each roles}}
                                 {{#if isModerator}}
-                                <option value="{{@key}}">{{name}}</option>
+                                <option value="{{@key}}" {{isSelected this @key}}>{{name}}</option>
                                 {{/if}}
                             {{/each}}
                         </select>

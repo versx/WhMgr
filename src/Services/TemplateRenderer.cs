@@ -86,6 +86,19 @@
                     }
                     writer.Write(result ? "Yes" : "No");
                 }),
+                ["isChecked"] = new HandlebarsHelper((writer, ctx, args) =>
+                {
+                    if (args[0] is string value)
+                    {
+                        var item = args[1].ToString();
+                        var result = string.Equals(value, item, StringComparison.InvariantCultureIgnoreCase);
+                        writer.Write(result ? "checked" : "");
+                    }
+                    else
+                    {
+                        writer.Write("");
+                    }
+                }),
                 ["isSelected"] = new HandlebarsHelper((writer, ctx, args) =>
                 {
                     if (args[0] is System.Collections.IEnumerable array)
