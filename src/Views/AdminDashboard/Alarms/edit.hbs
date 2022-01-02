@@ -53,15 +53,19 @@
         </div>
     </div>
     <div class="mb-3">
-        <label for="alarms" class="form-label">Alarms</label>
-        <button type="button" class="btn btn-success btn-sm">New Alarm</button> <!-- Open Modal -->
-        <div class="overflow-auto">
-            <ul class="list-group overflow-auto" id="alarms">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap mb-3">
+            <label for="alarms" class="form-label">Alarms</label>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addAlarmModal">New Alarm</button>
+            </div>
+        </div>
+        <div style="height: 500px; overflow: auto;">
+            <ul class="list-group border border-1 rounded" id="alarms">
                 {{#each alarm.alarms}}
-                <li class="list-group-item m-2 border">
+                <li class="list-group-item m-2 border border-2 rounded">
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" value="{{name}}">
+                        <input type="text" class="form-control" id="name" name="name" value="{{name}}">
                     </div>
                     <div class="mb-3">
                         <label for="filter" class="form-label">Filters</label>
@@ -90,7 +94,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="webhook" class="form-label">Webhook</label>
-                        <input type="text" class="form-control" id="webhook" value="{{webhook}}">
+                        <input type="text" class="form-control" id="webhook" name="webhook" value="{{webhook}}">
                     </div>
                     <button type="button" class="btn btn-danger btn-sm" onclick="removeAlarm(this, '{{name}}');">
                         <i class="fas fa-trash-alt"></i>
@@ -103,44 +107,107 @@
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
 
+<div class="modal fade" id="addAlarmModal" tabindex="-1" aria-labelledby="addAlarmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addAlarmModalLabel">New Channel Alarm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="new_name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="new_name" name="new_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="new_filter" class="form-label">Filters</label>
+                    <select class="form-control" id="new_filter" name="new_filter" required>
+                        {{#each filters}}
+                        <option value="{{this}}"}>{{this}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="new_embed" class="form-label">Embeds</label>
+                    <select class="form-control" id="new_embed" name="new_embed" required>
+                        {{#each embeds}}
+                        <option value="{{this}}">{{this}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="new_geofences" class="form-label">Geofences</label>
+                    <select class="form-control" id="new_geofences" name="new_geofences" multiple required>
+                        {{#each geofences}}
+                        <option value="{{this}}">{{this}}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="new_webhook" class="form-label">Webhook</label>
+                    <input type="text" class="form-control" id="new_webhook" name="new_webhook" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="addAlarm(this);">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
-    function addAlarm() {
+    function addAlarm(e) {
+        const element = $(e);
+        const parent = element.parent().parent();
+        console.log('element:', element, 'parent:', parent);
+        const children = parent.children();
+        const name = $('#new_name').val();
+        const embed = $('#new_embed').val();
+        const filter = $('#new_filter').val();
+        const geofences = $('#new_geofences').val();
+        const webhook = $('#new_webhook').val();
+        console.log('name:', name, 'embed:', embed, 'filter:', filter, 'geofences:', geofences, 'webhook:', webhook);
         $('#alarms').append(`
 <li class="list-group-item m-2 border">
     <div class="mb-3">
         <label for="name" class="form-label">Name</label>
-        <input type="text" class="form-control" id="name" value="{{name}}">
+        <input type="text" class="form-control" id="name" name="name" value="${name}">
     </div>
     <div class="mb-3">
         <label for="filter" class="form-label">Filters</label>
         <select class="form-control" id="filter" name="filter">
-            {{#each ../filters}}
-            <option value="{{this}}" {{isSelected ../filters this}}>{{this}}</option>
+            {{#each filters}}
+            <option value="{{this}}" {{isSelected filters this}}>{{this}}</option>
             {{/each}}
         </select>
     </div>
     <div class="mb-3">
         <label for="embed" class="form-label">Embeds</label>
         <select class="form-control" id="embed" name="embed">
-            {{#each ../embeds}}
-            <option value="{{this}}" {{isSelected ../embeds this}}>{{this}}</option>
+            {{#each embeds}}
+            <option value="{{this}}" {{isSelected embeds this}}>{{this}}</option>
             {{/each}}
         </select>
     </div>
     <div class="mb-3">
         <label for="geofences" class="form-label">Geofences</label>
         <select class="form-control" id="geofences" name="geofences" multiple>
-            {{#each ../geofences}}
-            <option value="{{this}}" {{isSelected ../geofences this}}>{{this}}</option>
+            {{#each geofences}}
+            <option value="{{this}}" {{isSelected geofences this}}>{{this}}</option>
             {{/each}}
         </select>
     </div>
     <div class="mb-3">
         <label for="webhook" class="form-label">Webhook</label>
-        <input type="text" class="form-control" id="webhook" value="{{webhook}}">
+        <input type="text" class="form-control" id="webhook" value="${webhook}">
     </div>
+    <button type="button" class="btn btn-danger btn-sm" onclick="removeAlarm(this, '${name}');">
+        <i class="fas fa-trash-alt"></i>
+    </button>
 </li>
 `);
+        //$('#addAlarmModal').hide();
     }
 
     function removeAlarm(e, name) {

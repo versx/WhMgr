@@ -122,7 +122,12 @@
         {
             if (Request.Method == "GET")
             {
-                var config = LoadFromFile<Config>(Path.Combine(Strings.ConfigsFolder, fileName + ".json"));
+                var filePath = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return BadRequest($"Config '{fileName}' does not exist");
+                }
+                var config = LoadFromFile<Config>(filePath);
                 var discordFiles = Directory.GetFiles(Strings.DiscordsFolder, "*.json");
                 var obj = new
                 {
@@ -229,7 +234,12 @@
         {
             if (Request.Method == "GET")
             {
-                var config = LoadFromFile<DiscordServerConfig>(Path.Combine(Strings.DiscordsFolder, fileName + ".json"));
+                var filePath = Path.Combine(Strings.DiscordsFolder, fileName + ".json");
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return BadRequest($"Discord config '{fileName}' does not exist");
+                }
+                var config = LoadFromFile<DiscordServerConfig>(filePath);
                 var alarmFiles = Directory.GetFiles(Strings.AlarmsFolder);
                 var geofenceFiles = Directory.GetFiles(Strings.GeofencesFolder);
                 var embedFiles = Directory.GetFiles(Strings.EmbedsFolder);
@@ -365,11 +375,15 @@
         [HttpGet]
         [HttpPost]
         [Route("alarms/edit/{fileName}")]
-        public IActionResult EditAlarm(string fileName)
+        public async Task<IActionResult> EditAlarm(string fileName)
         {
             if (Request.Method == "GET")
             {
                 var filePath = Path.Combine(Strings.AlarmsFolder, fileName + ".json");
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return BadRequest($"Alarm '{fileName}' does not exist");
+                }
                 var embedFiles = Directory.GetFiles(Strings.EmbedsFolder, "*.json");
                 var filterFiles = Directory.GetFiles(Strings.FiltersFolder, "*.json");
                 var geofenceFiles = Directory.GetFiles(Strings.GeofencesFolder);
@@ -400,10 +414,14 @@
             }
             else if (Request.Method == "POST")
             {
-                var obj = new
-                {
-                };
-                return View("Alarms/edit", obj);
+                // TODO: Check if exists
+                var filePath = Path.Combine(Strings.AlarmsFolder, fileName + ".json");
+                var alarms = LoadFromFile<ChannelAlarmsManifest>(filePath);
+                var alarmsForm = AlarmsFromForm(alarms, Request.Form);
+                var json = alarmsForm.ToJson();
+                // Save json
+                await WriteDataAsync(filePath, json);
+                return Redirect("/dashboard/alarms");
             }
             return Unauthorized();
         }
@@ -716,10 +734,7 @@
             }
             else if (Request.Method == "POST")
             {
-                var obj = new
-                {
-                };
-                return View("Geofences/edit", obj);
+                return Redirect("/dashboard/geofences");
             }
             return Unauthorized();
         }
@@ -1020,6 +1035,11 @@
             }
             // TODO: discord.dailyStats.iv and discord.dailyStats.shiny
             return discord;
+        }
+
+        private static ChannelAlarmsManifest AlarmsFromForm(ChannelAlarmsManifest alarms, IFormCollection form)
+        {
+            return alarms;
         }
 
         private static EmbedMessage EmbedFromForm(EmbedMessage embed, IFormCollection form)
