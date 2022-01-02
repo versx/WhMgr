@@ -18,6 +18,7 @@
     using WhMgr.Services.Alarms.Filters.Models;
     using WhMgr.Services.Alarms.Models;
     using WhMgr.Services.Geofence;
+    using WhMgr.Utilities;
 
     [
         Controller,
@@ -107,7 +108,7 @@
                     template = "configs-new",
                     title = $"New Config",
                     favicon = "dotnet.png",
-                };
+                 };
                 return View("Configs/new", obj);
             }
             else if (Request.Method == "POST")
@@ -130,11 +131,21 @@
                 }
                 var config = LoadFromFile<Config>(filePath);
                 var discordFiles = Directory.GetFiles(Strings.DiscordsFolder, "*.json");
+                var locales = Directory.GetFiles(
+                    Path.Combine(
+                        Path.Combine(
+                            Strings.BasePath,
+                            Strings.LocaleFolder
+                        )
+                    ),
+                    "*.json"
+                ).Select(file => Path.GetFileNameWithoutExtension(file));
                 var obj = new
                 {
                     template = "configs-edit",
                     title = $"Edit Config \"{fileName}\"",
                     favicon = "dotnet.png",
+                    locales,
                     name = fileName,
                     config,
                     discords = discordFiles.Select(file => Path.GetFileName(file)),
@@ -854,16 +865,43 @@
 
         [HttpGet]
         [HttpPost]
+        [Route("users/new")]
+        public IActionResult NewUser()
+        {
+            if (Request.Method == "GET")
+            {
+                var obj = new
+                {
+                    template = "users-mew",
+                    title = $"New Admin",
+                    favicon = "dotnet.png",
+                };
+                return View("Users/new", obj);
+            }
+            else if (Request.Method == "POST")
+            {
+            }
+            return Unauthorized();
+        }
+
+        [HttpGet]
+        [HttpPost]
         [Route("users/edit/{id}")]
         public IActionResult EditUser(uint id)
         {
             var obj = new
             {
                 template = "users-edit",
-                title = "Edit User " + id,
+                title = "Edit Admin " + id,
                 favicon = "dotnet.png",
             };
             return View("Users/edit", obj);
+        }
+
+        [HttpGet("users/delete/{id}")]
+        public IActionResult DeleteUser(uint id)
+        {
+            return Unauthorized();
         }
 
         #endregion
@@ -936,7 +974,22 @@
             {
                 ApiKey = form["stripeApiKey"].ToString(),
             };
-            // TODO: config.Servers = "discordServers";
+            var discordServerFiles = form["discordServers"].ToString();
+            if (!string.IsNullOrEmpty(discordServerFiles))
+            {
+                var discordFiles = discordServerFiles.Split(',')
+                                                     .ToList();
+                config.ServerConfigFiles.Clear();
+                foreach (var discordServerFile in discordFiles)
+                {
+                    var discordFilePath = Path.Combine(Strings.DiscordsFolder, discordServerFile);
+                    var discordServer = LoadFromFile<DiscordServerConfig>(discordFilePath);
+                    if (!config.ServerConfigFiles.ContainsKey(discordServer.Bot.GuildId.ToString()))
+                    {
+                        config.ServerConfigFiles.Add(discordServer.Bot.GuildId.ToString(), discordServerFile);
+                    }
+                }
+            }
             //config.ServerConfigFiles = form["discordServers"].ToString();
             config.Database = new ConnectionStringsConfig
             {
@@ -981,7 +1034,20 @@
                     : Services.Alarms.Filters.FilterType.Exclude,
             };
             // TODO: config.IconStyles
-            // TODO: config.StaticMaps
+            /*
+            TODO config.StaticMaps = new Dictionary<StaticMapType, StaticMapConfig>
+            {
+                {
+                    StaticMapType.Pokemon, new StaticMapConfig
+                    {
+                        TemplateName = "",
+                        Url = "",
+                        IncludeNearbyGyms = false,
+                        IncludeNearbyPokestops = false,
+                    },
+                },
+            };
+            */
             var twilioUserIds = form["twilioUserIds"].ToString();
             var twilioRoleIds = form["twilioRoleIds"].ToString();
             var twilioPokemonIds = form["twilioPokemonIds"].ToString();
@@ -1043,7 +1109,7 @@
                                           .Select(ulong.Parse)
                                           .ToList();
                 var donorRoles = availableRoles.ToDictionary(key => key.Key, value => value.Value.Permissions);
-                discord.DonorRoleIds = donorRoles;
+                discord.DonorRoleIds = (Dictionary<ulong, IEnumerable<SubscriptionAccessType>>)donorRoles;
             }
             var moderatorRoleIds = form["moderatorRoleIds"].ToString();
             if (!string.IsNullOrEmpty(moderatorRoleIds))
@@ -1271,7 +1337,26 @@
 
         private static Dictionary<ulong, RoleConfig> RolesFromForm(Dictionary<ulong, RoleConfig> roles, IFormCollection form)
         {
-            // TODO: Set roles
+            var id = ulong.Parse(form["id"].ToString());
+            var name = form["name"].ToString();
+            var permissions = form["permissions"].ToString();
+            var isModerator = form["moderator"].ToString() == "on";
+            Console.WriteLine($"Id: {id}, Name: {name}, Permissions: {permissions}, Moderator: {isModerator}");
+            if (roles.ContainsKey(id))
+            {
+                roles[id].Name = name;
+                roles[id].Permissions = (IReadOnlyList<SubscriptionAccessType>)permissions.Split(',').Select(x => x.Cast<SubscriptionAccessType>()).ToList();
+                roles[id].IsModerator = isModerator;
+            }
+            else
+            {
+                roles.Add(id, new RoleConfig
+                {
+                    Name = name,
+                    Permissions = (IReadOnlyList<SubscriptionAccessType>)permissions.Split(',').Select(x => x.Cast<SubscriptionAccessType>()).ToList(),
+                    IsModerator = isModerator,
+                });
+            }
             return roles;
         }
 
@@ -1301,6 +1386,6 @@
         public bool IsModerator { get; set; }
 
         [JsonPropertyName("permissions")]
-        public IReadOnlyList<SubscriptionAccessType> Permissions { get; set; }
+        public IEnumerable<SubscriptionAccessType> Permissions { get; set; }
     }
 }

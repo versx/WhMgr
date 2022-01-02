@@ -316,7 +316,7 @@
             */
         }
 
-        public static bool HasRoleAccess(this DiscordMember member, Dictionary<ulong, IReadOnlyList<SubscriptionAccessType>> accessConfig, SubscriptionAccessType desiredAccessType)
+        public static bool HasRoleAccess(this DiscordMember member, Dictionary<ulong, IEnumerable<SubscriptionAccessType>> accessConfig, SubscriptionAccessType desiredAccessType)
         {
             // Loop all access configs
             // Check if member has role for access type
@@ -328,7 +328,7 @@
 
                 var donorRoleAccess = accessConfig[donorRoleId];
                 // Check if donor role access config contains desired access type or no access type specified so include all
-                if (donorRoleAccess.Contains(desiredAccessType) || donorRoleAccess.Count == 0)
+                if (donorRoleAccess.Contains(desiredAccessType) || !donorRoleAccess.Any())
                 {
                     return true;
                 }

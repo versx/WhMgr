@@ -76,6 +76,7 @@
         /// <summary>
         /// Gets or sets the Twilio configuration
         /// </summary>
+        [JsonPropertyName("twilio")]
         public TwilioConfig Twilio { get; set; } = new();
 
         /// <summary>

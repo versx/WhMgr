@@ -23,23 +23,27 @@
                 <div class="accordion-body">
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" value="{{name}}">
+                        <input type="text" class="form-control" id="name" value="{{name}}" required>
                     </div>
                     <div class="mb-3">
                         <label for="host" class="form-label">Host</label>
-                        <input type="text" class="form-control" id="host" name="host" value="{{config.listeningHost}}">
+                        <input type="text" class="form-control" id="host" name="host" value="{{config.listeningHost}}" required>
                     </div>
                     <div class="mb-3">
                         <label for="port" class="form-label">Port</label>
-                        <input type="number" class="form-control" id="port" name="port" value="{{config.webhookPort}}" min="0" max="65535">
+                        <input type="number" class="form-control" id="port" name="port" value="{{config.webhookPort}}" min="0" max="65535" required>
                     </div>
                     <div class="mb-3">
                         <label for="locale" class="form-label">Locale</label>
-                        <input type="text" class="form-control" id="locale" name="locale" value="{{config.locale}}">
+                        <select class="form-control" id="locale" name="locale" required>
+                            {{#each locales}}
+                            <option value="{{.}}" {{isSelected this ../config.locale}}>{{.}}</option>
+                            {{/each}}
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="maxPokemonId" class="form-label">Max Pokemon ID</label>
-                        <input type="number" class="form-control" id="maxPokemonId" name="maxPokemonId" value="{{config.maxPokemonId}}">
+                        <input type="number" class="form-control" id="maxPokemonId" name="maxPokemonId" value="{{config.maxPokemonId}}" required>
                     </div>
                     <div class="mb-3">
                         <label for="despawnTimeMinimumMinutes" class="form-label">Despawn Time Minimum (Minutes)</label>
@@ -67,12 +71,12 @@
                         <label class="form-check-label" for="shortUrlApiEnabled">Enabled</label>
                     </div>
                     <div class="mb-3">
-                        <label for="shortUrlApiUrl" class="form-label">API Key</label>
-                        <input type="text" class="form-control" id="shortUrlApiUrl" name="shortUrlApiUrl" value="{{config.shortUrlApi.apiUrl}}">
+                        <label for="shortUrlApiUrl" class="form-label">API Url</label>
+                        <input type="text" class="form-control" id="shortUrlApiUrl" name="shortUrlApiUrl" value="{{config.shortUrlApi.apiUrl}}" {{#unless config.shortUrlApi.enabled}}disabled{{/unless}}>
                     </div>
                     <div class="mb-3">
                         <label for="shortUrlApiSignature" class="form-label">Signature</label>
-                        <input type="text" class="form-control" id="shortUrlApiSignature" name="shortUrlApiSignature" value="{{config.shortUrlApi.signature}}">
+                        <input type="text" class="form-control" id="shortUrlApiSignature" name="shortUrlApiSignature" value="{{config.shortUrlApi.signature}}" {{#unless config.shortUrlApi.enabled}}disabled{{/unless}}>
                     </div>
                 </div>
             </div>
@@ -102,7 +106,7 @@
                 <div class="accordion-body">
                     <div class="mb-3">
                     <label for="discordServers" class="form-label">Discord Server Configs</label>
-                        <select class="form-control" id="discordServers" multiple>
+                        <select class="form-control" id="discordServers" name="discordServers" multiple>
                             {{#each discords}}
                             <option value="{{this}}" {{isSelected ../config.serverConfigFiles this}}>{{this}}</option>
                             {{/each}}
@@ -264,16 +268,35 @@
             </h2>
             <div id="panelsStayOpen-collapseStaticMaps" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-headingStaticMaps">
                 <div class="accordion-body">
-                    <div class="">
-                        {{#each config.staticMaps}}
-                        <p>
-                            {{@key}}
-                        </p>
-                            {{#each this}}
-                            <p>{{.}}</p>
-                            {{/each}}
-                        {{/each}}
-                    </div>
+                    {{#each config.staticMaps}}
+                        <div class="card mb-3">
+                            <div class="card-header bg-dark text-light">
+                                {{@key}}
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="staticMap-{{url}}" class="form-label">Url</label>
+                                    <input type="text" class="form-control" id="staticMap-{{@key}}-url" name="staticMap-{{@key}}-url" value="{{url}}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="staticMap-{{templateName}}" class="form-label">Template Name</label>
+                                    <input type="text" class="form-control" id="staticMap-{{@key}}-name" name="staticMap-{{@key}}-name" value="{{templateName}}">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="staticMap-{{@key}}-" name="staticMap-{{@key}}-pokestops" {{#if includeNearbyPokestops}}checked{{/if}}>
+                                        <label class="form-check-label" for="staticMap-{{@key}}-">Include Nearby Pokestops</label>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="staticMap-{{@key}}-" name="staticMap-{{@key}}-gyms" {{#if includeNearbyGyms}}checked{{/if}}>
+                                        <label class="form-check-label" for="staticMap-{{@key}}-">Include Nearby Gyms</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {{/each}}
                 </div>
             </div>
         </div>
@@ -291,31 +314,31 @@
                     </div>
                     <div class="mb-3">
                         <label for="twilioAccountSid" class="form-label">Account SID</label>
-                        <input type="text" class="form-control" id="twilioAccountSid" name="twilioAccountSid" value="{{config.twilio.accountSid}}">
+                        <input type="text" class="form-control" id="twilioAccountSid" name="twilioAccountSid" value="{{config.twilio.accountSid}}" {{#unless config.twilio.enabled}}disabled{{/unless}}>
                     </div>
                     <div class="mb-3">
                         <label for="twilioAuthToken" class="form-label">Auth Token</label>
-                        <input type="text" class="form-control" id="twilioAuthToken" name="twilioAuthToken" value="{{config.twilio.authToken}}">
+                        <input type="text" class="form-control" id="twilioAuthToken" name="twilioAuthToken" value="{{config.twilio.authToken}}" {{#unless config.twilio.enabled}}disabled{{/unless}}>
                     </div>
                     <div class="mb-3">
                         <label for="twilioFromNumber" class="form-label">From Number</label>
-                        <input type="tel" class="form-control" id="twilioFromNumber" name="twilioFromNumber" value="{{config.twilio.fromNumber}}">
+                        <input type="tel" class="form-control" id="twilioFromNumber" name="twilioFromNumber" value="{{config.twilio.fromNumber}}" {{#unless config.twilio.enabled}}disabled{{/unless}}>
                     </div>
                     <div class="mb-3">
                         <label for="twilioUserIds" class="form-label">User IDs</label>
-                        <input type="text" class="form-control" id="twilioUserIds" name="twilioUserIds" value="{{config.twilio.userIds}}">
+                        <input type="text" class="form-control" id="twilioUserIds" name="twilioUserIds" value="{{config.twilio.userIds}}" {{#unless config.twilio.enabled}}disabled{{/unless}}>
                     </div>
                     <div class="mb-3">
                         <label for="twilioRoleIds" class="form-label">Role IDs</label>
-                        <input type="text" class="form-control" id="twilioRoleIds" name="twilioRoleIds" value="{{config.twilio.roleIds}}">
+                        <input type="text" class="form-control" id="twilioRoleIds" name="twilioRoleIds" value="{{config.twilio.roleIds}}" {{#unless config.twilio.enabled}}disabled{{/unless}}>
                     </div>
                     <div class="mb-3">
                         <label for="twilioPokemonIds" class="form-label">Pokemon IDs</label>
-                        <input type="text" class="form-control" id="twilioPokemonIds" name="twilioPokemonIds" value="{{config.twilio.pokemonIds}}">
+                        <input type="text" class="form-control" id="twilioPokemonIds" name="twilioPokemonIds" value="{{config.twilio.pokemonIds}}" {{#unless config.twilio.enabled}}disabled{{/unless}}>
                     </div>
                     <div class="mb-3">
                         <label for="twilioMinIV" class="form-label">Minimum IV</label>
-                        <input type="number" class="form-control" id="twilioMinIV" name="twilioMinIV" value="{{config.twilio.minimumIV}}" min="0" max="100">
+                        <input type="number" class="form-control" id="twilioMinIV" name="twilioMinIV" value="{{config.twilio.minimumIV}}" min="0" max="100" {{#unless config.twilio.enabled}}disabled{{/unless}}>
                     </div>
                 </div>
             </div>
@@ -335,30 +358,44 @@
                             <option value="osm" {{isSelected config.reverseGeocoding.provider "osm"}}>OpenStreetMaps</option>
                         </select>
                     </div>
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="cacheToDisk" name="cacheToDisk" {{#if config.reverseGeocoding.cacheToDisk}}checked{{/if}}>
-                        <label class="form-check-label" for="cacheToDisk">Cache To Disk</label>
-                    </div>
                     <div class="mb-3">
-                        <b>Google Maps</b>
-                        <div class="mb-3">
-                            <label for="gmapsKey" class="form-label">Key</label>
-                            <input type="text" class="form-control" id="gmapsKey" name="gmapsKey" value="{{config.reverseGeocoding.googleMaps.key}}">
-                        </div>
-                        <div class="mb-3">
-                            <label for="gmapsSchema" class="form-label">Schema</label>
-                            <input type="text" class="form-control" id="gmapsSchema" name="gmapsSchema" value="{{config.reverseGeocoding.googleMaps.schema}}">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="cacheToDisk" name="cacheToDisk" {{#if config.reverseGeocoding.cacheToDisk}}checked{{/if}}>
+                            <label class="form-check-label" for="cacheToDisk">Cache To Disk</label>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <b>Nominatim</b>
-                        <div class="mb-3">
-                            <label for="nominatimEndpoint" class="form-label">Endpoint</label>
-                            <input type="text" class="form-control" id="nominatimEndpoint" name="nominatimEndpoint" value="{{config.reverseGeocoding.nominatim.endpoint}}">
+                        <div class="card">
+                            <div class="card-header bg-dark text-light">
+                                Google MAps
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="gmapsKey" class="form-label">Key</label>
+                                    <input type="text" class="form-control" id="gmapsKey" name="gmapsKey" value="{{config.reverseGeocoding.googleMaps.key}}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="gmapsSchema" class="form-label">Schema</label>
+                                    <input type="text" class="form-control" id="gmapsSchema" name="gmapsSchema" value="{{config.reverseGeocoding.googleMaps.schema}}">
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="nominatimSchema" class="form-label">Schema</label>
-                            <input type="text" class="form-control" id="nominatimSchema" name="nominatimSchema" value="{{config.reverseGeocoding.nominatim.schema}}">
+                    </div>
+                    <div class="mb-3">
+                        <div class="card">
+                            <div class="card-header bg-dark text-light">
+                                Nominatim
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="nominatimEndpoint" class="form-label">Endpoint</label>
+                                    <input type="text" class="form-control" id="nominatimEndpoint" name="nominatimEndpoint" value="{{config.reverseGeocoding.nominatim.endpoint}}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="nominatimSchema" class="form-label">Schema</label>
+                                    <input type="text" class="form-control" id="nominatimSchema" name="nominatimSchema" value="{{config.reverseGeocoding.nominatim.schema}}">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -395,3 +432,30 @@
     <br>
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
+
+<script type="text/javascript">
+    const shortUrlProperties = [
+        '#shortUrlApiUrl',
+        '#shortUrlApiSignature',
+    ];
+    const twilioProperties = [
+        '#twilioAccountSid',
+        '#twilioAuthToken',
+        '#twilioFromNumber',
+        '#twilioUserIds',
+        '#twilioRoleIds',
+        '#twilioPokemonIds',
+        '#twilioMinIV',
+    ];
+
+    $('#shortUrlApiEnabled').on('click', () => disableElements('#shortUrlApiEnabled', shortUrlProperties));
+    $('#twilioEnabled').on('click', () => disableElements('#twilioEnabled', twilioProperties));
+
+    function disableElements(selector, properties) {
+        const element = $(selector);
+        const value = element.is(':checked');
+        for (const property of properties) {
+            $(property).prop('disabled', !value);
+        }
+    }
+</script>
