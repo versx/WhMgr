@@ -194,7 +194,7 @@
         <label for="geofences" class="form-label">Geofences</label>
         <select class="form-control" id="geofences" name="geofences" multiple>
             {{#each geofences}}
-            <option value="{{this}}" {{isSelected geofences this}}>{{this}}</option>
+            <option value="{{this}}" {{isSelected ../geofences this}}>{{this}}</option>
             {{/each}}
         </select>
     </div>

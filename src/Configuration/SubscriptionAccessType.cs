@@ -11,6 +11,6 @@
         Quests,
         Invasions,
         Lures,
-        Gyms
+        Gyms,
     }
 }

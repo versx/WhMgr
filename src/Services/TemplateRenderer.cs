@@ -9,6 +9,7 @@
 
     using WhMgr.Common;
     using WhMgr.Configuration;
+    using WhMgr.Extensions;
     using WhMgr.Localization;
 
     public static class TemplateRenderer
@@ -154,6 +155,12 @@
                     {
                         writer.Write("");
                     }
+                }),
+                ["log"] = new HandlebarsHelper((writer, ctx, args) =>
+                {
+                    var json = args[0].ToJson();
+                    Console.WriteLine($"hbs log: {json}");
+                    writer.Write(json);
                 }),
             };
             // TODO: Load helpers via file

@@ -92,13 +92,16 @@ namespace WhMgr.HostedServices
             var tsMidnight = new TimeSpan(ts.Hours, ts.Minutes, ts.Seconds);
 
             // Create the timer
-            _timer = new Timer(tsMidnight.TotalMilliseconds);
+            if (tsMidnight.TotalMilliseconds > 0)
+            {
+                _timer = new Timer(tsMidnight.TotalMilliseconds);
 
-            // Set the event handler
-            _timer.Elapsed += OnTimerElapsed;
+                // Set the event handler
+                _timer.Elapsed += OnTimerElapsed;
 
-            // Start the timer
-            _timer.Start();
+                // Start the timer
+                _timer.Start();
+            }
         }
 
         /// <summary>

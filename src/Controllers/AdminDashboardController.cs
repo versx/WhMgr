@@ -55,8 +55,7 @@
                     filters = Directory.GetFiles(Strings.FiltersFolder, "*.json").Length,
                     embeds = Directory.GetFiles(Strings.EmbedsFolder, "*.json").Length,
                     geofences = Directory.GetFiles(Strings.GeofencesFolder).Length,
-                    roles = 0,
-                    templates = 0,
+                    roles = GetRoles().Count,
                     users = 0,
                 },
             };
@@ -814,6 +813,27 @@
 
         [HttpGet]
         [HttpPost]
+        [Route("roles/new")]
+        public IActionResult NewDiscordRole()
+        {
+            if (Request.Method == "GET")
+            {
+                var obj = new
+                {
+                    template = "roles-mew",
+                    title = $"New Discord Role",
+                    favicon = "dotnet.png",
+                };
+                return View("Roles/new", obj);
+            }
+            else if (Request.Method == "POST")
+            {
+            }
+            return Unauthorized();
+        }
+
+        [HttpGet]
+        [HttpPost]
         [Route("roles/edit/{name}")]
         public async Task<IActionResult> EditDiscordRole(string name)
         {
@@ -1109,7 +1129,7 @@
                                           .Select(ulong.Parse)
                                           .ToList();
                 var donorRoles = availableRoles.ToDictionary(key => key.Key, value => value.Value.Permissions);
-                discord.DonorRoleIds = (Dictionary<ulong, IEnumerable<SubscriptionAccessType>>)donorRoles;
+                discord.DonorRoleIds = donorRoles;//(Dictionary<ulong, IEnumerable<SubscriptionAccessType>>)donorRoles;
             }
             var moderatorRoleIds = form["moderatorRoleIds"].ToString();
             if (!string.IsNullOrEmpty(moderatorRoleIds))
@@ -1341,11 +1361,13 @@
             var name = form["name"].ToString();
             var permissions = form["permissions"].ToString();
             var isModerator = form["moderator"].ToString() == "on";
-            Console.WriteLine($"Id: {id}, Name: {name}, Permissions: {permissions}, Moderator: {isModerator}");
+            var permissionsList = permissions.Split(',')
+                                             .Select(x => x.StringToObject<SubscriptionAccessType>())
+                                             .ToList();
             if (roles.ContainsKey(id))
             {
                 roles[id].Name = name;
-                roles[id].Permissions = (IReadOnlyList<SubscriptionAccessType>)permissions.Split(',').Select(x => x.Cast<SubscriptionAccessType>()).ToList();
+                roles[id].Permissions = permissionsList;
                 roles[id].IsModerator = isModerator;
             }
             else
@@ -1353,7 +1375,7 @@
                 roles.Add(id, new RoleConfig
                 {
                     Name = name,
-                    Permissions = (IReadOnlyList<SubscriptionAccessType>)permissions.Split(',').Select(x => x.Cast<SubscriptionAccessType>()).ToList(),
+                    Permissions = permissionsList,
                     IsModerator = isModerator,
                 });
             }
