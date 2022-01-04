@@ -19,39 +19,30 @@
     </div>
 </div>
 
-TODO: Hide geofence input and sync geofence input with map changes (keep format shown for save type)
-
 <form method="POST" action="">
     <div class="mb-3">
         <label for="name" class="form-label">Name</label>
         <input type="text" class="form-control" id="name" name="name" value="{{name}}">
     </div>
     <div class="mb-3">
-        <label for="" class="form-label">Format</label>
+        <label for="" class="form-label">Save Format</label>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="geofenceType" name="geofenceType" value="txt" {{isChecked format ".txt"}}>
+            <input class="form-check-input" type="radio" id="geofenceType" name="geofenceType" value="txt" {{isChecked format ".txt"}} onclick="onFormatSaved();">
             <label class="form-check-label" for="geofenceType">
                 INI
             </label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="geofenceType" name="geofenceType" value="json" {{isChecked format ".json"}}>
+            <input class="form-check-input" type="radio" id="geofenceType" name="geofenceType" value="json" {{isChecked format ".json"}} onclick="onFormatSaved();">
             <label class="form-check-label" for="geofenceType">
                 GeoJSON
             </label>
         </div>
     </div>
-    <div class="row">
-        <div class="col col-lg">
-            <div class="mb-3">
-                <label for="geofence" class="form-label">Geofence</label>
-                <textarea class="form-control" rows="25" id="geofence" name="geofence" onkeyup="onGeofenceUpdated();">{{geofence}}</textarea>
-            </div>
-        </div>
-        <div class="col col-lg">
-            <div id="map" style="height: 500px"></div>
-        </div>
+    <div class="mb-3">
+        <div id="map" style="height: 500px"></div>
     </div>
+    <textarea type="hidden" rows="25" id="geofence" name="geofence" hidden>{{geofence}}</textarea>
     <button type="submit" class="btn btn-primary">Save</button>
 </form>
 
@@ -132,7 +123,7 @@ TODO: Hide geofence input and sync geofence input with map changes (keep format 
     const map = L.map('map', {
         preferCanvas: true,
         layers: [drawnItems],
-    }).setView([34.01, -118.01], 9);
+    }).setView([34.01, -117.01], 9);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
@@ -196,33 +187,48 @@ TODO: Hide geofence input and sync geofence input with map changes (keep format 
     }).addTo(map);
 
     map.on(L.Draw.Event.CREATED, function(e) {
-        const layer = e.layer;
-        /*
-        const content = getPopupContent(layer);
-        if (content) {
-            layer.bindPopup(content);
-        }
-        */
-        drawnItems.addLayer(layer);
-        const geofenceType = $('#geofenceType').val();
-        const geojson = layer.toGeoJSON();
-        if (geofenceType === 'json') {
-            // TODO: Get geojson geofence
-        } else {
-            // TODO: Get ini geofence
-        }
-        // TODO: Add geofence to input
+        onFormatSaved();
     });
 
-    onGeofenceUpdated();
+    map.on(L.Draw.Event.EDITED, function(e) {
+        onFormatSaved();
+    });
 
-    // TODO: Remove onGeofenceUpdated when geofence and format are hidden
-    function onGeofenceUpdated() {
+    map.on(L.Draw.Event.DELETED, function(e) {
+        console.log('deleted e:', e);
+    });
+
+	drawnItems.on('layeradd', function(e) {
+		const layer = e.layer;
+		layer.bindPopup(function (layer) {
+			const output = `
+<div class="row">
+    <div class="col">
+        <div class="mb-3">
+            <button class="btn btn-primary btn-sm exportLayer" data-layer-container="drawnItems" data-layer-id=${layer._leaflet_id} type="button">
+                Export
+            </button>
+        </div>
+        <div class="mb-3">
+            <button class="btn btn-danger btn-sm deleteLayer" data-layer-container="drawnItems" data-layer-id=${layer._leaflet_id} type="button">
+                Remove
+            </button>
+        </div>
+    </div>
+</div>
+`;
+			return output;
+		});		
+	});
+
+    initialLoad();
+
+    function initialLoad() {
+        const format = '{{format}}';
         const json = $('#geofence').val();
-        const geofenceType = $('#geofenceType').is(':checked')
-            ? 'ini'
-            : 'json';
-        clearGeofences();
+        const geofenceType = format === '.json'
+            ? 'json'
+            : 'ini';
         loadGeofences(json, geofenceType);
     }
 
@@ -348,4 +354,13 @@ TODO: Hide geofence input and sync geofence input with map changes (keep format 
         $('#copyToClipboardBtn').html('Copied!');
     }
 
+    function onFormatSaved() {
+        const geofenceType = $('#geofenceType').is(':checked')
+            ? 'ini'
+            : 'json';
+        const value = geofenceType === 'json'
+            ? exportToGeoJson()
+            : exportToIni();
+        $('#geofence').val(value);
+    }
 </script>

@@ -291,7 +291,17 @@
                         };
                     }),
                     iconStyles,
-                    roles,
+                    roles = roles.Select(role =>
+                    {
+                        return new
+                        {
+                            id = role.Key,
+                            name = role.Value.Name,
+                            permissions = role.Value.Permissions,
+                            isModerator = role.Value.IsModerator,
+                            selected = config.DonorRoleIds.ContainsKey(role.Key) || config.ModeratorRoleIds.Contains(role.Key),
+                        };
+                    }),
                 };
                 return View("Discords/edit", obj);
             }
@@ -708,7 +718,7 @@
         [HttpGet]
         [HttpPost]
         [Route("geofences/new")]
-        public IActionResult NewGeofence()
+        public async Task<IActionResult> NewGeofence()
         {
             if (Request.Method == "GET")
             {
@@ -722,6 +732,11 @@
             }
             else if (Request.Method == "POST")
             {
+                var name = Request.Form["name"].ToString();
+                var geofenceType = Request.Form["geofenceType"].ToString();
+                var geofenceData = Request.Form["geofence"].ToString();
+                await SaveGeofence(name, name, geofenceData, geofenceType);
+                return Redirect("/dashboard/geofences");
             }
             return Unauthorized();
         }
@@ -755,19 +770,7 @@
                 var name = Request.Form["name"].ToString();
                 var geofenceType = Request.Form["geofenceType"].ToString();
                 var geofenceData = Request.Form["geofence"].ToString();
-                // TODO: Check if exists or not
-                var newFileName = $"{name}.{geofenceType}";
-                var newFilePath = Path.Combine(Strings.GeofencesFolder, newFileName);
-                if (!string.Equals(fileName, newFileName))
-                {
-                    // TODO: Move file
-                    System.IO.File.Move(
-                        Path.Combine(Strings.GeofencesFolder, fileName),
-                        newFilePath
-                    );
-                }
-                // Save json
-                await WriteDataAsync(newFilePath, geofenceData);
+                await SaveGeofence(fileName, name, geofenceData, geofenceType);
                 return Redirect("/dashboard/geofences");
             }
             return Unauthorized();
@@ -975,6 +978,23 @@
         private static async Task WriteDataAsync(string path, string data)
         {
             await System.IO.File.WriteAllTextAsync(path, data, Encoding.UTF8);
+        }
+
+        private static async Task SaveGeofence(string fileName, string newName, string geofenceData, string geofenceType)
+        {
+            // TODO: Check if exists or not
+            var newFileName = $"{newName}.{geofenceType}";
+            var newFilePath = Path.Combine(Strings.GeofencesFolder, newFileName);
+            if (!string.Equals(fileName, newFileName))
+            {
+                // Move file to new path
+                System.IO.File.Move(
+                    Path.Combine(Strings.GeofencesFolder, fileName),
+                    newFilePath
+                );
+            }
+            // Save json
+            await WriteDataAsync(newFilePath, geofenceData);
         }
 
         #region Form Helpers

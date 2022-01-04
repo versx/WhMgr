@@ -30,7 +30,7 @@
                         <select class="form-control" id="donorRoleIds" name="donorRoleIds" multiple>
                             {{#each roles}}
                                 {{#unless isModerator}}
-                                <option value="{{@key}}">{{name}} - {{permissions}}</option>
+                                <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} - {{permissions}}</option>
                                 {{/unless}}
                             {{/each}}
                         </select>
@@ -41,7 +41,7 @@
                         <select class="form-control" id="moderatorRoleIds" name="moderatorRoleIds" multiple>
                             {{#each roles}}
                                 {{#if isModerator}}
-                                <option value="{{@key}}" {{isSelected this @key}}>{{name}}</option>
+                                <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>
                                 {{/if}}
                             {{/each}}
                         </select>
@@ -175,11 +175,11 @@
                         <label class="form-check-label" for="geofenceRolesEnabled">Enabled</label>
                     </div>
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="autoRemove" {{#if config.geofenceRoles.autoRemove}}checked{{/if}}>
+                        <input class="form-check-input" type="checkbox" id="autoRemove" {{#if config.geofenceRoles.autoRemove}}checked{{/if}} {{#unless config.geofenceRoles.enabled}}disabled{{/unless}}>
                         <label class="form-check-label" for="autoRemove">Automatically Remove</label>
                     </div>
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="requiresDonorRole" {{#if config.geofenceRoles.requiresDonorRole}}checked{{/if}}>
+                        <input class="form-check-input" type="checkbox" id="requiresDonorRole" {{#if config.geofenceRoles.requiresDonorRole}}checked{{/if}} {{#unless config.geofenceRoles.enabled}}disabled{{/unless}}>
                         <label class="form-check-label" for="requiresDonorRole">Requires Donor Role</label>
                     </div>
                 </div>
@@ -198,8 +198,9 @@
                         <label class="form-check-label" for="questsPurgeEnabled">Enabled</label>
                     </div>
                     <div class="mb-3">
+                        TODO
                         <label class="form-label" for="questsPurgeChannels">Channel IDs</label>
-                        <input class="form-control" type="text" id="questsPurgeChannels" name="questsPurgeChannels" value="{{config.questsPurge.channels}}">
+                        <input class="form-control" type="text" id="questsPurgeChannels" name="questsPurgeChannels" value="{{config.questsPurge.channels}}" {{#unless config.questsPurge.enabled}}disabled{{/unless}}>
                     </div>
                 </div>
             </div>
@@ -218,11 +219,11 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="nestsChannelId">Channel ID</label>
-                        <input class="form-control" type="number" id="nestsChannelId" name="nestsChannelId" value="{{config.nests.channelId}}">
+                        <input class="form-control" type="number" id="nestsChannelId" name="nestsChannelId" value="{{config.nests.channelId}}" {{#unless config.nests.enabled}}disabled{{/unless}}>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="nestsMinimumPerHour">Minimum Nests Per Hour</label>
-                        <input class="form-control" type="number" id="nestsMinimumPerHour" name="nestsMinimumPerHour" value="{{config.nests.minimumPerHour}}">
+                        <input class="form-control" type="number" id="nestsMinimumPerHour" name="nestsMinimumPerHour" value="{{config.nests.minimumPerHour}}" {{#unless config.nests.enabled}}disabled{{/unless}}>
                     </div>
                 </div>
             </div>
@@ -245,12 +246,12 @@
                                 <label class="form-check-label" for="ivStatsEnabled">Enabled</label>
                             </div>
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="ivStatsClearMessages" name="ivStatsClearMessages" {{#if config.dailyStats.ivStats.clearMessages}}checked{{/if}}>
+                                <input class="form-check-input" type="checkbox" id="ivStatsClearMessages" name="ivStatsClearMessages" {{#if config.dailyStats.ivStats.clearMessages}}checked{{/if}} {{#unless config.dailyStats.ivStats.enabled}}disabled{{/unless}}>
                                 <label class="form-check-label" for="ivStatsClearMessages">Clear Messages</label>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label" for="ivStatsChannelId">Channel ID</label>
-                                <input class="form-control" type="number" id="ivStatsChannelId" name="ivStatsChannelId" value="{{config.dailyStats.ivStats.channelId}}">
+                                <input class="form-control" type="number" id="ivStatsChannelId" name="ivStatsChannelId" value="{{config.dailyStats.ivStats.channelId}}" {{#unless config.dailyStats.ivStats.enabled}}disabled{{/unless}}>
                             </div>
                         </div>
                     </div>
@@ -264,12 +265,12 @@
                                 <label class="form-check-label" for="shinyStatsEnabled">Enabled</label>
                             </div>
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="shinyStatsClearMessages" name="shinyStatsClearMessages" {{#if config.dailyStats.shinyStats.clearMessages}}checked{{/if}}>
+                                <input class="form-check-input" type="checkbox" id="shinyStatsClearMessages" name="shinyStatsClearMessages" {{#if config.dailyStats.shinyStats.clearMessages}}checked{{/if}} {{#unless config.dailyStats.shinyStats.enabled}}disabled{{/unless}}>
                                 <label class="form-check-label" for="shinyStatsClearMessages">Clear Messages</label>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label" for="shinyStatsChannelId">Channel ID</label>
-                                <input class="form-control" type="number" id="shinyStatsChannelId" name="shinyStatsChannelId" value="{{config.dailyStats.shinyStats.channelId}}">
+                                <input class="form-control" type="number" id="shinyStatsChannelId" name="shinyStatsChannelId" value="{{config.dailyStats.shinyStats.channelId}}" {{#unless config.dailyStats.shinyStats.enabled}}disabled{{/unless}}>
                             </div>
                         </div>
                     </div>
@@ -304,11 +305,21 @@
         '#nestsChannelId',
         '#nestsMinimumPerHour',
     ];
+    const ivStatProperties = [
+        '#ivStatsClearMessages',
+        '#ivStatsChannelId',
+    ];
+    const shinyStatProperties = [
+        '#shinyStatsClearMessages',
+        '#shinyStatsChannelId',
+    ];
 
     $('#subscriptionsEnabled').on('click', () => disableElements('#subscriptionsEnabled', subscriptionProperties));
     $('#geofenceRolesEnabled').on('click', () => disableElements('#geofenceRolesEnabled', geofenceRoleProperties));
     $('#questsPurgeEnabled').on('click', () => disableElements('#questsPurgeEnabled', questPurgeProperties));
     $('#nestsEnabled').on('click', () => disableElements('#nestsEnabled', nestProperties));
+    $('#ivStatsEnabled').on('click', () => disableElements('#ivStatsEnabled', ivStatProperties));
+    $('#shinyStatsEnabled').on('click', () => disableElements('#shinyStatsEnabled', shinyStatProperties));
 
     function disableElements(selector, properties) {
         const element = $(selector);

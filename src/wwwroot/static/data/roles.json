@@ -1,6 +1,6 @@
 ﻿{
-  "1": {
-    "name": "Test",
+  "617923547536556043": {
+    "name": "Supporter",
     "moderator": false,
     "permissions": [
       "Pokemon",
@@ -13,7 +13,7 @@
     ]
   },
   "2": {
-    "name": "Test2",
+    "name": "Test User Role",
     "moderator": false,
     "permissions": [
       "Pokemon",

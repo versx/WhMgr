@@ -79,7 +79,7 @@
             <li class="nav-item">
                 <a class="nav-link" href="/swagger">
                     <i class="fas fa-map-marked-alt"></i>&nbsp;
-                    Swagger API
+                    Open API
                 </a>
             </li>
             <li class="nav-item">
@@ -100,9 +100,14 @@
 
 <script>
     // Get current URL path and assign 'active' class
-    const pathname = window.location.pathname;
     ///html/body/div/div/nav/div/ul[1]/li[1]/a
-    console.log('pathname:', pathname);
-    $('nav > div > ul > li > a[href="' + pathname + '"]').addClass('active');
-    //$('nav > div > ul > li > a[href*="' + pathname + '"]').addClass('active');
+    const pathname = window.location.pathname;
+    //$('nav > div > ul > li > a[href="' + pathname + '"]').addClass('active');
+    const children = document.querySelectorAll('nav > div > ul > li > a');
+    for (const child of children) {
+        const href = $(child).attr('href');
+        if ((pathname.includes(href) && href !== '/dashboard') || href === pathname) {
+            $(child).addClass('active');
+        }
+    }
 </script>
