@@ -191,10 +191,10 @@
     map.on(L.Draw.Event.EDITED, (e) => onFormatSaved());
     map.on(L.Draw.Event.DELETED, (e) => onFormatSaved());
 
-	drawnItems.on('layeradd', (e) => {
-		const layer = e.layer;
-		layer.bindPopup((layer) => {
-			const output = `
+    drawnItems.on('layeradd', (e) => {
+        const layer = e.layer;
+        layer.bindPopup((layer) => {
+            const output = `
 <div class="row">
     <div class="col">
         <div class="mb-3">
@@ -210,9 +210,9 @@
     </div>
 </div>
 `;
-			return output;
-		});		
-	});
+            return output;
+        });        
+    });
 
     initialLoad();
 
