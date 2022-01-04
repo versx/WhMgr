@@ -40,6 +40,10 @@
         </div>
     </div>
     <div class="mb-3">
+        <label class="form-label" for="geofenceCount">Geofence Count</label>
+        <input type="number" class="form-control" id="geofenceCount" readonly>
+    </div>
+    <div class="mb-3">
         <div id="map" style="height: 500px"></div>
     </div>
     <textarea type="hidden" rows="25" id="geofence" name="geofence" hidden>{{geofence}}</textarea>
@@ -187,9 +191,17 @@
         clearGeofences();
     }).addTo(map);
 
-    map.on(L.Draw.Event.CREATED, (e) => onFormatSaved());
+    map.on(L.Draw.Event.CREATED, (e) => {
+        const layer = e.layer;
+        drawnItems.addLayer(layer);
+        updateGeofenceCount();
+        onFormatSaved();
+    });
     map.on(L.Draw.Event.EDITED, (e) => onFormatSaved());
-    map.on(L.Draw.Event.DELETED, (e) => onFormatSaved());
+    map.on(L.Draw.Event.DELETED, (e) => {
+        updateGeofenceCount();
+        onFormatSaved();
+    });
 
     drawnItems.on('layeradd', (e) => {
         const layer = e.layer;
@@ -246,6 +258,7 @@
         } catch (err) {
             console.error('Failed to load areas.json file\nError:', err);
         }
+        updateGeofenceCount();
     }
 
     function iniToGeoJson(data) {
@@ -355,5 +368,10 @@
             ? exportToGeoJson()
             : exportToIni();
         $('#geofence').val(value);
+    }
+
+    function updateGeofenceCount() {
+        const geofenceCount = drawnItems.getLayers().length
+        $('#geofenceCount').val(geofenceCount);
     }
 </script>
