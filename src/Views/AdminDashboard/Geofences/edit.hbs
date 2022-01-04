@@ -126,109 +126,112 @@
     const tileserver = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
     const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     const drawnItems = new L.FeatureGroup();
-    const map = L.map('map', {
-        preferCanvas: true,
-        layers: [drawnItems],
-    }).setView([34.01, -117.01], 9);
-    L.tileLayer(tileserver, { attribution })
-     .addTo(map);
 
-    const shapeOptions = {
-        stroke: true,
-        color: '#3388ff',
-        weight: 3,
-        opacity: 1,
-        fill: true,
-        fillColor: null, // same as color by default
-        fillOpacity: 0.2,
-    };
-    const drawControl = new L.Control.Draw({
-        position: 'topleft',
-        draw: {
-            polyline: false,
-            polygon: {
-                allowIntersection: true,
-                showArea: true,
-                //showLength: true,
-                metric: 'km',
-                precision: {
-                    km: 2,
+    loadMap();
+
+    function loadMap() {
+        const map = L.map('map', {
+            preferCanvas: true,
+            layers: [drawnItems],
+        }).setView([34.01, -117.01], 9);
+
+        L.tileLayer(tileserver, { attribution })
+        .addTo(map);
+
+        const shapeOptions = {
+            stroke: true,
+            color: '#3388ff',
+            weight: 3,
+            opacity: 1,
+            fill: true,
+            fillColor: null, // same as color by default
+            fillOpacity: 0.2,
+        };
+        const drawControl = new L.Control.Draw({
+            position: 'topleft',
+            draw: {
+                polyline: false,
+                polygon: {
+                    allowIntersection: true,
+                    showArea: true,
+                    //showLength: true,
+                    metric: 'km',
+                    precision: {
+                        km: 2,
+                    },
+                    shapeOptions,
                 },
-                shapeOptions,
+                rectangle: {
+                    showRaidus: true,
+                    metric: true,
+                    shapeOptions,
+                },
+                circle: false,
+                marker: false,
             },
-            rectangle: {
-                showRaidus: true,
-                metric: true,
-                shapeOptions,
-            },
-            circle: false,
-            marker: false,
-        },
-        edit: {
-            featureGroup: drawnItems,
-            remove: true,
             edit: {
-                selectedPathOptions: {
-                    color: 'red',
+                featureGroup: drawnItems,
+                remove: true,
+                edit: {
+                    selectedPathOptions: {
+                        color: 'red',
+                    },
                 },
             },
-        },
-    });
-    map.addControl(drawControl);
+        });
+        map.addControl(drawControl);
 
-    L.easyButton('fas fa-file-import', (btn, map) => {
-        // TODO: Show modal
-        //$('#importModal').modal({ show: true, focus: true });
-        var myModal = new bootstrap.Modal(document.getElementById('importModal'), { });
-        myModal.show();
+        L.easyButton('fas fa-file-import', (btn, map) => {
+            // TODO: Show modal
+            //$('#importModal').modal({ show: true, focus: true });
+            var myModal = new bootstrap.Modal(document.getElementById('importModal'), { });
+            myModal.show();
 
-    }).addTo(map);
-    L.easyButton('fas fa-trash', (btn, map) => {
-        const result = confirm('Are you sure you want to delete all shapes?');
-        if (!result) {
-            return;
-        }
-        clearGeofences();
-    }).addTo(map);
+        }, 'Import ini or geojson format geofence').addTo(map);
+        L.easyButton('fas fa-trash', (btn, map) => {
+            const result = confirm('Are you sure you want to delete all shapes?');
+            if (!result) {
+                return;
+            }
+            clearGeofences();
+        }, 'Delete all layers').addTo(map);
 
-    map.on(L.Draw.Event.CREATED, (e) => {
-        const layer = e.layer;
-        drawnItems.addLayer(layer);
-        updateGeofenceCount();
-        onFormatSaved();
-    });
-    map.on(L.Draw.Event.EDITED, (e) => onFormatSaved());
-    map.on(L.Draw.Event.DELETED, (e) => {
-        updateGeofenceCount();
-        onFormatSaved();
-    });
+        map.on(L.Draw.Event.CREATED, (e) => {
+            const layer = e.layer;
+            drawnItems.addLayer(layer);
+            updateGeofenceCount();
+            onFormatSaved();
+        });
+        map.on(L.Draw.Event.EDITED, (e) => onFormatSaved());
+        map.on(L.Draw.Event.DELETED, (e) => {
+            updateGeofenceCount();
+            onFormatSaved();
+        });
 
-    drawnItems.on('layeradd', (e) => {
-        const layer = e.layer;
-        layer.bindPopup((layer) => {
-            const output = `
-<div class="row">
-    <div class="col">
-        <div class="mb-3">
-            <button class="btn btn-primary btn-sm exportLayer" data-layer-container="drawnItems" data-layer-id=${layer._leaflet_id} type="button">
-                Export
-            </button>
-        </div>
-        <div class="mb-3">
-            <button class="btn btn-danger btn-sm deleteLayer" data-layer-container="drawnItems" data-layer-id=${layer._leaflet_id} type="button">
-                Remove
-            </button>
+        drawnItems.on('layeradd', (e) => {
+            const layer = e.layer;
+            layer.bindPopup((layer) => {
+                const output = `
+    <div class="row">
+        <div class="col">
+            <div class="mb-3">
+                <button class="btn btn-primary btn-sm exportLayer" data-layer-container="drawnItems" data-layer-id=${layer._leaflet_id} type="button">
+                    Export
+                </button>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-danger btn-sm deleteLayer" data-layer-container="drawnItems" data-layer-id=${layer._leaflet_id} type="button">
+                    Remove
+                </button>
+            </div>
         </div>
     </div>
-</div>
-`;
-            return output;
-        });        
-    });
+    `;
+                return output;
+            });        
+        });
 
-    initialLoad();
-
-    function initialLoad() {
+        // Load geofences
         const format = '{{format}}';
         const json = $('#geofence').val();
         const geofenceType = format === '.json'
@@ -304,6 +307,7 @@
 
     function clearGeofences() {
         drawnItems.clearLayers();
+        updateGeofenceCount();
     }
 
     function importGeofence() {
