@@ -1417,6 +1417,10 @@
 
         [JsonPropertyName("example")]
         public object Example { get; set; }
+
+        // examples: String, Char, Boolean, Number, Array
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
     }
 
     public class RoleConfig
