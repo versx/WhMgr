@@ -14,16 +14,16 @@
         <ul id="searchDropdown" class="list-group dropdown-content w-100">
         </ul>
     </div>
-    {{#if user}}
+    {{#if passport}}
     <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownProfile" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="https://cdn.discordapp.com/avatars/{{user.userId}}/{{user.avatarId}}" alt="" width="32" height="32" class="rounded-circle me-2">
-            <strong>{{user.username}}</strong>
+            <img src="https://cdn.discordapp.com/avatars/{{passport.userId}}/{{passport.avatarId}}" alt="" width="32" height="32" class="rounded-circle me-2">
+            <strong>{{passport.username}}</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-right text-small shadow" aria-labelledby="dropdownProfile">
             <li><a class="dropdown-item" href="/dashboard/profile">Profile</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="/logout">Sign out</a></li>
+            <li><a class="dropdown-item" href="/dashboard/logout">Sign out</a></li>
         </ul>
     </div>
     {{else}}

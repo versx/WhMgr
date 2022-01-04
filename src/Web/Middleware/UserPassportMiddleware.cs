@@ -21,7 +21,7 @@
         public async Task Invoke(HttpContext httpContext)
         {
             var session = httpContext.Session;
-            session.SetValue("user", new UserPassport
+            session.SetValue("passport", new UserPassport
             {
                 IsValid = session.GetValue<bool>("is_valid"),
                 UserId = session.GetValue<string>("user_id"),
