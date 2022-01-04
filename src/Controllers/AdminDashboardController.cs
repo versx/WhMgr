@@ -989,6 +989,20 @@
 
         #endregion
 
+        [HttpGet]
+        [Route("profile")]
+        public IActionResult Profile()
+        {
+            var obj = new
+            {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
+                template = "profile",
+                title = "Profile",
+                favicon = "dotnet.png",
+            };
+            return View("profile", obj);
+        }
+
         #region Helpers
 
         private static T LoadFromFile<T>(string filePath)
