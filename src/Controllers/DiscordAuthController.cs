@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
-    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Text;
@@ -22,7 +21,6 @@
     {
         private readonly ILogger<DiscordAuthController> _logger;
 
-        private readonly bool _enabled;
         private readonly ulong _ownerId;
         private readonly ulong _clientId;
         private readonly string _clientSecret;
@@ -41,7 +39,6 @@
 
             // Load settings from Discord auth config
             var discordAuthConfig = Strings.DiscordAuthFilePath.LoadFromFile<DiscordAuthConfig>();
-            _enabled = discordAuthConfig.Enabled;
             _ownerId = discordAuthConfig.OwnerId;
             _clientId = discordAuthConfig?.ClientId ?? 0;
             _clientSecret = discordAuthConfig?.ClientSecret;

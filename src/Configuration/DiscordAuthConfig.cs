@@ -6,10 +6,6 @@
 
     public class DiscordAuthConfig
     {
-        [JsonPropertyName("enabled")]
-        public bool Enabled { get; set; }
-
-        // Skips login process
         [JsonPropertyName("ownerId")]
         public ulong OwnerId { get; set; }
 

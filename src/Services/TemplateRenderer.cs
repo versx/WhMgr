@@ -162,6 +162,19 @@
                     Console.WriteLine($"hbs log: {json}");
                     writer.Write(json);
                 }),
+                ["getDiscordAvatarUrl"] = new HandlebarsHelper((writer, ctx, args) =>
+                {
+                    if (args.Length >= 2)
+                    {
+                        var avatarUrl = string.Format(Strings.DiscordAvatarUrlFormat, args[0], args[1]);
+                        writer.Write(avatarUrl);
+                    }
+                    else
+                    {
+                        // TODO: Write default image placeholder
+                        writer.Write(string.Empty);
+                    }
+                }),
             };
             // TODO: Load helpers via file
             return dict;

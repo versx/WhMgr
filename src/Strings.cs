@@ -35,6 +35,7 @@
         public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
         public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
         public const string DiscordAuthFilePath = BasePath + "discord_auth.json";
+        public const string DiscordAvatarUrlFormat = "https://cdn.discordapp.com/avatars/{0}/{1}.png";
 
         public const string ConfigFileName = "config.json";
         public const string OsmNestFileName = "nest.json";
