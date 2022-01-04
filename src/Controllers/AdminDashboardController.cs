@@ -17,8 +17,6 @@
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Alarms.Filters.Models;
     using WhMgr.Services.Alarms.Models;
-    using WhMgr.Services.Geofence;
-    using WhMgr.Utilities;
     using WhMgr.Web.Middleware;
 
     [
@@ -62,22 +60,6 @@
                 },
             };
             return View("index", obj);
-        }
-
-        [HttpGet]
-        [Route("login")]
-        public IActionResult Login()
-        {
-            // TODO: Check if already logged in
-            return Redirect("/auth/discord/login");
-        }
-
-        [HttpGet]
-        [Route("logout")]
-        public IActionResult Logout()
-        {
-            // TODO: Check if already logged out
-            return Redirect("/auth/discord/logout");
         }
 
         #region Configs
@@ -989,6 +971,24 @@
 
         #endregion
 
+        #region User Dropdown
+
+        [HttpGet]
+        [Route("login")]
+        public IActionResult Login()
+        {
+            // TODO: Check if already logged in
+            return Redirect("/auth/discord/login");
+        }
+
+        [HttpGet]
+        [Route("logout")]
+        public IActionResult Logout()
+        {
+            // TODO: Check if already logged out
+            return Redirect("/auth/discord/logout");
+        }
+
         [HttpGet]
         [Route("profile")]
         public IActionResult Profile()
@@ -1003,6 +1003,8 @@
             };
             return View("profile", obj);
         }
+
+        #endregion
 
         #region Helpers
 
