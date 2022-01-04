@@ -17,7 +17,7 @@
     using WhMgr.Extensions;
 
     [ApiController]
-    [Route("/auth/discord")]
+    [Route("/auth/discord/")]
     public class DiscordAuthController : ControllerBase
     {
         private readonly ILogger<DiscordAuthController> _logger;
@@ -72,7 +72,7 @@
             HttpContext.Session.Clear();
             HttpContext.Session = null;
             // TODO: Fix destroying sessions
-            return Redirect("/discord/login");
+            return Redirect("/auth/discord/login");
         }
 
         [HttpGet("callback")]

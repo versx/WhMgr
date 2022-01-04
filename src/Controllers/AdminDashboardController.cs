@@ -38,11 +38,9 @@
         [HttpGet]
         public IActionResult Index()
         {
-            var session = HttpContext.Session;
-            var passport = session.GetValue<UserPassport>("user");
             var obj = new
             {
-                user = passport,
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "dashboard",
                 title = "Dashboard",
                 favicon = "dotnet.png",
@@ -107,6 +105,7 @@
             }
             var obj = new
             {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "configs",
                 title = "Configs",
                 favicon = "dotnet.png",
@@ -124,6 +123,7 @@
             {
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "configs-new",
                     title = $"New Config",
                     favicon = "dotnet.png",
@@ -161,6 +161,7 @@
                 ).Select(file => Path.GetFileNameWithoutExtension(file));
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "configs-edit",
                     title = $"Edit Config \"{fileName}\"",
                     favicon = "dotnet.png",
@@ -229,6 +230,7 @@
             }
             var obj = new
             {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "discords",
                 title = "Discord Servers",
                 favicon = "dotnet.png",
@@ -246,6 +248,7 @@
             {
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "discords-mew",
                     title = $"New Discord Server",
                     favicon = "dotnet.png",
@@ -278,6 +281,7 @@
                 var roles = GetRoles();
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "discords-edit",
                     title = $"Edit Discord Server \"{fileName}\"",
                     favicon = "dotnet.png",
@@ -384,6 +388,7 @@
 
             var obj = new
             {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "alarms",
                 title = "Channel Alarms",
                 favicon = "dotnet.png",
@@ -401,6 +406,7 @@
             {
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "alarms-mew",
                     title = $"New Channel Alarms",
                     favicon = "dotnet.png",
@@ -431,6 +437,7 @@
                 var alarm = LoadFromFile<ChannelAlarmsManifest>(filePath);
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "alarms-edit",
                     title = $"Edit Channel Alarms \"{fileName}\"",
                     favicon = "dotnet.png",
@@ -511,6 +518,7 @@
             }
             var obj = new
             {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "filters",
                 title = "Alarm Filters",
                 favicon = "dotnet.png",
@@ -528,6 +536,7 @@
             {
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "filters-mew",
                     title = $"New Webhook Filter",
                     favicon = "dotnet.png",
@@ -554,6 +563,7 @@
                 }
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "filters-edit",
                     title = $"Edit Webhook Filter \"{fileName}\"",
                     favicon = "dotnet.png",
@@ -620,6 +630,7 @@
             }
             var obj = new
             {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "embeds",
                 title = "Embeds",
                 favicon = "dotnet.png",
@@ -637,6 +648,7 @@
             {
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "embeds-mew",
                     title = $"New Message Embed",
                     favicon = "dotnet.png",
@@ -674,6 +686,7 @@
                 }
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "embeds-edit",
                     title = $"Edit Message Embed \"{fileName}\"",
                     favicon = "dotnet.png",
@@ -727,6 +740,7 @@
             var files = Directory.GetFiles(Strings.GeofencesFolder);
             var obj = new
             {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "geofences",
                 title = "Geofences",
                 favicon = "dotnet.png",
@@ -744,6 +758,7 @@
             {
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "geofences-mew",
                     title = $"New Geofence",
                     favicon = "dotnet.png",
@@ -776,6 +791,7 @@
                 var geofence = LoadFromFile(filePath);
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "geofences-edit",
                     title = $"Edit Geofence \"{fileName}\"",
                     favicon = "dotnet.png",
@@ -826,6 +842,7 @@
             var roles = GetRoles();
             var obj = new
             {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "roles",
                 title = "Discord Roles",
                 favicon = "dotnet.png",
@@ -843,6 +860,7 @@
             {
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "roles-mew",
                     title = $"New Discord Role",
                     favicon = "dotnet.png",
@@ -866,6 +884,7 @@
                 var role = roles.FirstOrDefault(role => string.Equals(role.Value.Name, name, StringComparison.InvariantCultureIgnoreCase));
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "roles-edit",
                     title = $"Edit Discord Role \"{name}\"",
                     favicon = "dotnet.png",
@@ -899,6 +918,7 @@
         {
             var obj = new
             {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "users",
                 title = "Users",
                 favicon = "dotnet.png",
@@ -915,6 +935,7 @@
             {
                 var obj = new
                 {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                     template = "users-mew",
                     title = $"New Admin",
                     favicon = "dotnet.png",
@@ -934,6 +955,7 @@
         {
             var obj = new
             {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "users-edit",
                 title = "Edit Admin " + id,
                 favicon = "dotnet.png",
@@ -957,6 +979,7 @@
         {
             var obj = new
             {
+                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
                 template = "settings",
                 title = "Settings",
                 favicon = "dotnet.png",
