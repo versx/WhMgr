@@ -1,5 +1,3 @@
-{{!< default}}
-
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">{{title}}</h1>
 </div>
@@ -8,16 +6,29 @@
     Account profile settings
 </p>
 
-<div class="mb-3">
-    <img src="https://cdn.discordapp.com/avatars/{{passport.userId}}/{{passport.avatarId}}.png" height="128" width="auto" class="rounded-circle me-2"><br>
+<div class="row">
+    <div class="col col-2">
+        <div class="mb-3">
+            <img src="https://cdn.discordapp.com/avatars/{{passport.userId}}/{{passport.avatarId}}.png" height="128" width="auto" class="rounded-circle me-2"><br>
+        </div>
+    </div>
+    <div class="col">
+        <b>Username:</b> {{passport.username}}<br>
+        <b>User ID:</b> {{passport.userId}}<br>
+        <b>Email:</b> {{passport.email}}<br>
+    </div>
 </div>
-<b>User ID:</b> {{passport.userId}}<br>
-<b>Email:</b> {{passport.email}}<br>
-<b>Permissions:</b><br>
-TODO: Permissions for user<br>
-<b>Guilds:</b>
-<ul class="list-group">
-{{#each passport.guildIds}}
-    <li class="list-group-item">{{this}}</li>
-{{/each}}
-</ul>
+<div class="row">
+    <div class="col">
+        <b>Permissions:</b><br>
+        TODO: Permissions for user in database from discord_id<br>
+        <!--
+        <b>Guilds:</b>
+        <ul class="list-group">
+        {{#each passport.guildIds}}
+            <li class="list-group-item">{{this}}</li>
+        {{/each}}
+        </ul>
+        -->
+    </div>
+</div>

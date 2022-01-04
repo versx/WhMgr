@@ -993,11 +993,12 @@
         [Route("profile")]
         public IActionResult Profile()
         {
+            var passport = HttpContext.Session.GetValue<UserPassport>("passport");
             var obj = new
             {
-                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
+                passport,
                 template = "profile",
-                title = "Profile",
+                title = "Account Profile " + passport.Username,
                 favicon = "dotnet.png",
             };
             return View("profile", obj);

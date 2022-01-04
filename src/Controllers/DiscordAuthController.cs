@@ -54,10 +54,6 @@
         [HttpGet("login")]
         public IActionResult LoginAsync()
         {
-            if (!IsEnabled())
-            {
-                return Redirect("/dashboard");
-            }
             var url = $"{AuthorizationEndpoint}?client_id={_clientId}&scope={DefaultScope}&response_type=code&redirect_uri={_redirectUri}";
             return Redirect(url);
         }
@@ -65,10 +61,6 @@
         [HttpGet("logout")]
         public IActionResult LogoutAsync()
         {
-            if (!IsEnabled())
-            {
-                return Redirect("/dashboard");
-            }
             HttpContext.Session.Clear();
             HttpContext.Session = null;
             // TODO: Fix destroying sessions
@@ -79,10 +71,6 @@
         public IActionResult CallbackAsync()
         {
             var code = Request.Query["code"].ToString();
-            if (!IsEnabled())
-            {
-                return Redirect("/dashboard");
-            }
             if (string.IsNullOrEmpty(code))
             {
                 // Error
@@ -209,14 +197,5 @@
         }
 
         #endregion
-
-        private bool IsEnabled()
-        {
-            return _enabled;/* &&
-                _clientId > 0 &&
-                !string.IsNullOrEmpty(_clientSecret) &&
-                !string.IsNullOrEmpty(_redirectUri);
-            */
-        }
     }
 }
