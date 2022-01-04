@@ -1,0 +1,8 @@
+{
+    "enabled": false,
+    "ownerId": 0,
+    "clientId": 0,
+    "clientSecret": "",
+    "redirectUri": "http://127.0.0.1:8008/auth/discord/callback",
+    "userIds": []
+}

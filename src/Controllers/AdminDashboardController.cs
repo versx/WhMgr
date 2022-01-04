@@ -19,6 +19,7 @@
     using WhMgr.Services.Alarms.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Utilities;
+    using WhMgr.Web.Middleware;
 
     [
         Controller,
@@ -37,8 +38,11 @@
         [HttpGet]
         public IActionResult Index()
         {
+            var session = HttpContext.Session;
+            var passport = session.GetValue<UserPassport>("user");
             var obj = new
             {
+                user = passport,
                 template = "dashboard",
                 title = "Dashboard",
                 favicon = "dotnet.png",
@@ -60,6 +64,22 @@
                 },
             };
             return View("index", obj);
+        }
+
+        [HttpGet]
+        [Route("login")]
+        public IActionResult Login()
+        {
+            // TODO: Check if already logged in
+            return Redirect("/auth/discord/login");
+        }
+
+        [HttpGet]
+        [Route("logout")]
+        public IActionResult Logout()
+        {
+            // TODO: Check if already logged out
+            return Redirect("/auth/discord/logout");
         }
 
         #region Configs

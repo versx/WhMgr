@@ -34,6 +34,7 @@ namespace WhMgr
     using WhMgr.Services.Webhook;
     using WhMgr.Services.Webhook.Queue;
     using WhMgr.Web.Extensions;
+    using WhMgr.Web.Middleware;
 
     // TODO: Reload alarms/filters/geofences on change
     // TODO: Simplify alarm and subscription filter checks
@@ -108,6 +109,14 @@ namespace WhMgr
 
             services.AddHealthChecks();
 
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(60);
+                options.Cookie.Name = "whmgr.session";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
             // Add csrf middleware
             services.AddAntiforgery(options =>
             {
@@ -140,6 +149,8 @@ namespace WhMgr
             IDiscordClientService discordClientService,
             IWebhookProcessorService webhookProcessorService)
         {
+            app.UseMiddleware<RequestsMiddleware>();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -159,7 +170,13 @@ namespace WhMgr
 
             app.UseRouting();
             app.UseAuthorization();
-            
+
+            app.UseSession();
+
+            // TODO: if (config.Discord.Enabled)
+            app.UseMiddleware<DiscordAuthMiddleware>();
+            app.UseMiddleware<UserPassportMiddleware>();
+
             /*
             // Anti forgery middleware using csrf tokens
             var antiforgery = app.ApplicationServices.GetRequiredService<IAntiforgery>();

@@ -34,6 +34,7 @@
         public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locales";
         public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
         public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
+        public const string DiscordAuthFilePath = BasePath + "discord_auth.json";
 
         public const string ConfigFileName = "config.json";
         public const string OsmNestFileName = "nest.json";
