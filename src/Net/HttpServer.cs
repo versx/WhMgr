@@ -140,7 +140,7 @@
             _clearCacheTimer = new System.Timers.Timer { Interval = 60000 * 15 };
             _clearCacheTimer.Elapsed += (sender, e) => OnClearCache();
             _checkForDuplicates = httpConfig.CheckForDuplicates;
-            
+
             Initialize();
         }
 
@@ -226,49 +226,54 @@
         {
             while (_server.IsListening)
             {
-                var context = _server.GetContext();
-                var response = context.Response;
-
-                if (context.Request?.InputStream == null)
-                    continue;
-
-                // Read from the POST data input stream of the request
-                using (var sr = new StreamReader(context.Request.InputStream))
+                var contextAsyncResult = _server.BeginGetContext((IAsyncResult ar) =>
                 {
+                    var context = _server.EndGetContext(ar);
+
+                    // Read from the POST data input stream of the request
+                    using (var sr = new StreamReader(context.Request.InputStream))
+                    {
+                        try
+                        {
+                            // Read to the end of the stream as a string
+                            var data = sr.ReadToEnd();
+                            ParseData(data);
+                        }
+                        catch (HttpListenerException hle)
+                        {
+                            _logger.Error(hle);
+
+                            //Disconnected, reconnect.
+                            HandleDisconnect();
+                            return;
+                        }
+                    }
+
                     try
                     {
-                        // Read to the end of the stream as a string
-                        var data = sr.ReadToEnd();
-                        ParseData(data);
+                        var response = context?.Response;
+                        if (response != null)
+                        {
+                            // Convert the default response message to UTF8 encoded bytes
+                            var buffer = Encoding.UTF8.GetBytes(Strings.DefaultResponseMessage);
+                            response.ContentLength64 = buffer.Length;
+
+                            var output = response.OutputStream;
+                            output.Write(buffer, 0, buffer.Length);
+                            output.Close();
+                        }
                     }
-                    catch (HttpListenerException hle)
+                    catch (Exception ex)
                     {
-                        _logger.Error(hle);
-
-                        //Disconnected, reconnect.
-                        HandleDisconnect();
+                        _logger.Error(ex);
                     }
-                }
 
-                try
-                {
-                    // Convert the default response message to UTF8 encoded bytes
-                    var buffer = Encoding.UTF8.GetBytes(Strings.DefaultResponseMessage);
-                    response.ContentLength64 = buffer.Length;
-                    if (response?.OutputStream != null)
-                    {
-                        // Write the response buffer to the output stream
-                        response.OutputStream.Write(buffer, 0, buffer.Length);
-                    }
-                    // Close the response
-                    context.Response.Close();
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex);
-                }
+                }, null);
 
-                Thread.Sleep(10);
+                WaitHandle.WaitAny(new WaitHandle[]
+                {
+                    contextAsyncResult.AsyncWaitHandle,
+                });
             }
         }
 
@@ -304,7 +309,7 @@
                             ParseGym(message.Message);
                             break;
                         case GymDetailsData.WebhookHeader:
-                             ParseGymDetails(message.Message);
+                            ParseGymDetails(message.Message);
                             break;
                         case RaidData.WebHookHeader:
                             ParseRaid(message.Message);
