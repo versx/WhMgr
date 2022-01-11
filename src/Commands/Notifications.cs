@@ -3537,7 +3537,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
                 return false;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x.Key)).Key;
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds?.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x.Key)).Key ?? 0;
             if (guildId == 0 || !_dep.WhConfig.Servers.ContainsKey(guildId))
                 return false;
 

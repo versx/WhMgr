@@ -112,11 +112,14 @@
             foreach (var type in pokemonTypes)
             {
                 var emojiKey = $"types_{type.ToString().ToLower()}";
-                //if (!MasterFile.Instance.Emojis.ContainsKey(emojiKey))
-                //    continue;
+                if (!MasterFile.Instance.Emojis.ContainsKey(emojiKey))
+                {
+                    Console.WriteLine($"[ERROR] Emoji {emojiKey} does not exist");
+                    continue;
+                }
 
                 var emojiId = MasterFile.Instance.Emojis[emojiKey];
-                var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[emojiKey])
+                var emojiName = !MasterFile.Instance.CustomEmojis.ContainsKey(emojiKey) || string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[emojiKey])
                     ? emojiId > 0
                         ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId)
                         : type.ToString()
@@ -138,7 +141,7 @@
             else
                 key += Convert.ToInt32(type);
             var emojiId = MasterFile.Instance.Emojis.ContainsKey(key) ? MasterFile.Instance.Emojis[key] : 0;
-            var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
+            var emojiName = !MasterFile.Instance.CustomEmojis.ContainsKey(key) || string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[key])
                 ? emojiId > 0
                     ? string.Format(emojiSchema, key, emojiId)
                     : type.ToString()
@@ -204,8 +207,8 @@
                 foreach (var weakness in weaknesses)
                 {
                     var typeKey = $"types_{weakness.ToString().ToLower()}";
-                    var emojiId = MasterFile.Instance.Emojis[typeKey];
-                    var emojiName = string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[typeKey])
+                    var emojiId = MasterFile.Instance.Emojis.ContainsKey(typeKey) ? MasterFile.Instance.Emojis[typeKey] : 0;
+                    var emojiName = !MasterFile.Instance.CustomEmojis.ContainsKey(typeKey) || string.IsNullOrEmpty(MasterFile.Instance.CustomEmojis[typeKey])
                         ? emojiId > 0
                             ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId)
                             : weakness.ToString()
