@@ -312,24 +312,21 @@
         private async Task Client_GuildAvailable(GuildCreateEventArgs e)
         {
             // If guild is in configured servers list then attempt to create emojis needed
-            if (_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
+            if (!_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
+                return;            
+
+            // Create default emojis
+            await CreateEmojis(e.Guild.Id);
+
+            if (!(e.Client is DiscordClient client))
             {
-                // Create default emojis
-                await CreateEmojis(e.Guild.Id);
-
-                if (!(e.Client is DiscordClient client))
-                {
-                    _logger.Error($"DiscordClient is null, Unable to update status.");
-                    return;
-                }
-
-                // Set custom bot status if guild is in config server list
-                if (_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
-                {
-                    var status = _whConfig.Instance.Servers[e.Guild.Id].Status;
-                    await client.UpdateStatusAsync(new DiscordGame(status ?? $"v{Strings.Version}"), UserStatus.Online);
-                }
+                _logger.Error($"DiscordClient is null, Unable to update status.");
+                return;
             }
+
+            // Set custom bot status if guild is in config server list
+            var status = _whConfig.Instance.Servers[e.Guild.Id].Status;
+            await client.UpdateStatusAsync(new DiscordGame(status ?? $"v{Strings.Version}"), UserStatus.Online);
         }
 
         private async Task Client_GuildMemberUpdated(GuildMemberUpdateEventArgs e)
