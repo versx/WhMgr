@@ -224,8 +224,13 @@
 
         private void RequestHandler()
         {
-            while (_server.IsListening)
+            while (true)
             {
+                if (_server == null)
+                {
+                    Thread.Sleep(10);
+                    continue;
+                }
                 var contextAsyncResult = _server.BeginGetContext((IAsyncResult ar) =>
                 {
                     var context = _server.EndGetContext(ar);
