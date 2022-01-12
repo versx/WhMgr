@@ -24,10 +24,10 @@
         public long? PremiumSinceTimestamp { get; set; }
 
         [JsonPropertyName("deaf")]
-        public bool Deaf { get; set; }
+        public bool IsDeaf { get; set; }
 
         [JsonPropertyName("mute")]
-        public bool Mute { get; set; }
+        public bool IsMute { get; set; }
 
         [JsonPropertyName("pending")]
         public bool? IsPending { get; set; }
