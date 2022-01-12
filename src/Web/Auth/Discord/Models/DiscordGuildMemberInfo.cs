@@ -5,7 +5,9 @@
 
     public class DiscordGuildMemberInfo
     {
-        // user object
+        [JsonPropertyName("user")]
+        public DiscordGuildUserInfo User { get; set; }
+
         [JsonPropertyName("nick")]
         public string Nickname { get; set; }
 
