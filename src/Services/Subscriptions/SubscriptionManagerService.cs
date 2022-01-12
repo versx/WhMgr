@@ -193,19 +193,26 @@
 
         #endregion
 
-        #region Pokemon Subscriptions
+        #region General Subscription Management
 
-        public async Task<bool> CreatePokemonSubscription(PokemonSubscription subscription)
+        public async Task<bool> CreateSubscriptionAsync<TEntity>(TEntity subscription) where TEntity : BaseSubscription
         {
             using (var ctx = _dbFactory.CreateDbContext())
             {
-                ctx.Pokemon.Add(subscription);
+                ctx.Add(subscription);
                 var result = await ctx.SaveChangesAsync();
                 return result == 1;
             }
         }
 
-        public TEntity FindById<TEntity>(int id) where TEntity: BaseSubscription
+        public async Task<bool> UpdateSubscriptionAsync<TEntity>(int id, TEntity subscription) where TEntity : BaseSubscription
+        {
+            // TODO: UpdateSubscriptionAsync
+            await Task.CompletedTask;
+            return true;
+        }
+
+        public TEntity FindById<TEntity>(int id) where TEntity : BaseSubscription
         {
             using (var ctx = _dbFactory.CreateDbContext())
             {
@@ -220,6 +227,26 @@
             {
                 var result = await ctx.FindAsync<TEntity>(id);
                 return result;
+            }
+        }
+
+        public bool DeleteById<TEntity>(int id) where TEntity : BaseSubscription
+        {
+            using (var ctx = _dbFactory.CreateDbContext())
+            {
+                ctx.Remove(id);
+                var result = ctx.SaveChanges();
+                return result == 1;
+            }
+        }
+
+        public async Task<bool> DeleteByIdAsync<TEntity>(int id) where TEntity : BaseSubscription
+        {
+            using (var ctx = _dbFactory.CreateDbContext())
+            {
+                ctx.Remove(id);
+                var result = await ctx.SaveChangesAsync();
+                return result == 1;
             }
         }
 
