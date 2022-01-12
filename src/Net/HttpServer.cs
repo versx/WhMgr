@@ -234,6 +234,18 @@
                 var contextAsyncResult = _server.BeginGetContext((IAsyncResult ar) =>
                 {
                     var context = _server.EndGetContext(ar);
+                    var request = context.Request;
+                    if (request == null)
+                    {
+                        _logger.Error($"HTTP server request is null");
+                        return;
+                    }
+
+                    if (request.InputStream == null)
+                    {
+                        _logger.Error($"InputStream for request is null");
+                        return;
+                    }
 
                     // Read from the POST data input stream of the request
                     using (var sr = new StreamReader(context.Request.InputStream))
