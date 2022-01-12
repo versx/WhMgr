@@ -11,9 +11,9 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 
-    using WhMgr.Auth.Models.Discord;
     using WhMgr.Configuration;
     using WhMgr.Extensions;
+    using WhMgr.Web.Auth.Discord.Models;
 
     [ApiController]
     [Route("/auth/discord/")]
@@ -27,10 +27,12 @@
         private readonly string _redirectUri;
         private readonly IEnumerable<ulong> _userIds;
 
-        private const string AuthorizationEndpoint = "https://discordapp.com/api/oauth2/authorize";
-        private const string TokenEndpoint = "https://discordapp.com/api/oauth2/token";
-        private const string UserInformationEndpoint = "https://discordapp.com/api/users/@me";
-        private const string UserGuildsInformationEndpoint = "https://discordapp.com/api/users/@me/guilds";
+        private const string BaseEndpoint = "https://discordapp.com/api";
+        private const string AuthorizationEndpoint = BaseEndpoint + "/oauth2/authorize";
+        private const string TokenEndpoint = BaseEndpoint + "/oauth2/token";
+        private const string UserInformationEndpoint = BaseEndpoint + "/users/@me";
+        private const string UserGuildsInformationEndpoint = BaseEndpoint + "/users/@me/guilds";
+        private const string UserGuildMemberInformationEndpoint = BaseEndpoint + "/guilds/{0}/members/{1}";
         private const string DefaultScope = "guilds%20identify%20email";
 
         public DiscordAuthController(ILogger<DiscordAuthController> logger)
@@ -97,6 +99,11 @@
                 // Failed to get user guilds
                 _logger.LogError($"Failed to get guilds for user {user.Username} ({user.Id})");
                 return null;
+            }
+            foreach (var guild in guilds)
+            {
+                // TODO: var guildMember = GetGuildMember(response.TokenType, response.AccessToken, guild.Id, user.Id);
+                //Console.WriteLine($"Guild member: {guildMember}");
             }
             // TODO: Check users table for permissions
             // Validate user is in guild or user id matches
@@ -180,7 +187,21 @@
                 return null;
             }
             var guilds = response.FromJson<List<DiscordGuildInfo>>();
+            // TODO: Loop guilds, call GetGuildMember, return roles list
             return guilds;
+        }
+
+        private DiscordGuildMemberInfo GetGuildMember(string tokenType, string token, string guildId, string userId)
+        {
+            var url = string.Format(UserGuildMemberInformationEndpoint, guildId, userId);
+            var response = SendRequest(url, tokenType, token);
+            if (string.IsNullOrEmpty(response))
+            {
+                _logger.Error($"Failed to get Discord member response");
+                return null;
+            }
+            var member = response.FromJson<DiscordGuildMemberInfo>();
+            return member;
         }
 
         private static string SendRequest(string url, string tokenType, string token)

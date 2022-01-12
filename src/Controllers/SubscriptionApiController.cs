@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
@@ -10,6 +11,7 @@
 
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Subscriptions.Models;
+    using WhMgr.Web.Api.Requests.Pokemon;
 
     [ApiController]
     [Route("/api/v1/")]
@@ -26,10 +28,10 @@
             _subscriptionManager = subscriptionManager;
         }
 
-        [
-            HttpGet("subscriptions"),
-            Produces("application/json"),
-        ]
+        #region User Subscriptions
+
+        [HttpGet("subscriptions")]
+        [Produces("application/json")]
         public async Task<IActionResult> GetSubscriptions()
         {
             var subscriptions = await _subscriptionManager.GetUserSubscriptionsAsync().ConfigureAwait(false);
@@ -41,10 +43,8 @@
             return new JsonResult(response);
         }
 
-        [
-            HttpGet("subscription/{guildId}/{userId}"),
-            Produces("application/json"),
-        ]
+        [HttpGet("subscription/{guildId}/{userId}")]
+        [Produces("application/json")]
         public IActionResult GetSubscription(ulong guildId, ulong userId)
         {
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
@@ -52,6 +52,253 @@
             {
                 Status = "OK",
                 Data = subscription,
+            };
+            return new JsonResult(response);
+        }
+
+        #endregion
+
+        #region Pokemon Subscriptions
+
+        [HttpGet("subscription/pokemon/{guildId}/{userId}")]
+        [Produces("application/json")]
+        public IActionResult GetPokemonSubscriptions(ulong guildId, ulong userId)
+        {
+            var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
+            var response = new SubscriptionsResponse<List<PokemonSubscription>>
+            {
+                Status = "OK",
+                Data = subscription.Pokemon.ToList(),
+            };
+            return new JsonResult(response);
+        }
+
+        [HttpGet("subscription/pokemon/{id}")]
+        [Produces("application/json")]
+        public IActionResult GetPokemonSubscription(int id)
+        {
+            var subscription = _subscriptionManager.FindById<PokemonSubscription>(id);
+            var response = new SubscriptionsResponse<PokemonSubscription>
+            {
+                Status = "OK",
+                Data = subscription,
+            };
+            return new JsonResult(response);
+        }
+
+        [HttpPost("pokemon/create")]
+        [Produces("application/json")]
+        public IActionResult PokemonCreate(PokemonSubscription pokemonSubscription)
+        {
+            if (pokemonSubscription == null)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Failed to create Pokemon subscription, data was null.",
+                });
+            }
+
+            //  Check if guild_id and user_id not equal to 0
+            if (pokemonSubscription.GuildId == 0 || pokemonSubscription.UserId == 0)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Both GuildId and UserId are required",
+                });
+            }
+
+            var subscription = _subscriptionManager.GetUserSubscriptions(pokemonSubscription.GuildId, pokemonSubscription.UserId);
+            if (subscription == null)
+            {
+                // Subscription does not exist, create new
+                subscription = new Subscription
+                {
+                    GuildId = pokemonSubscription.GuildId,
+                    UserId = pokemonSubscription.UserId,
+                };
+            }
+            subscription.Pokemon.Add(pokemonSubscription);
+
+            dynamic response;
+            var result = _subscriptionManager.Save(subscription);
+            if (result)
+            {
+                response = new
+                {
+                    status = "OK",
+                    message = "Successfully created Pokemon subscription.",
+                    data = pokemonSubscription,
+                };
+            }
+            else
+            {
+                response = new
+                {
+                    status = "Error",
+                    message = "Failed to create Pokemon subscription.",
+                };
+            }
+            return new JsonResult(response);
+        }
+
+        [HttpPut("pokemon/update/{id}")]
+        [Produces("application/json")]
+        public IActionResult PokemonUpdate(uint id, UpdatePokemonSubscriptionRequest subscription)
+        {
+            // TODO: _subscriptionManager.UpdatePokemonSubscription(id, subscription);
+            var response = new
+            {
+                status = "OK",
+                message = $"Successfully updated Pokemon subscription {id}.",
+            };
+            return new JsonResult(response);
+        }
+
+        [HttpDelete("pokemon/delete/{id}")]
+        [Produces("application/json")]
+        public IActionResult PokemonDelete(uint id)
+        {
+            // TODO: _subscriptionManager.DeletePokemonSubscription(id);
+            var response = new
+            {
+                status = "OK",
+                message = $"Successfully deleted Pokemon subscription {id}.",
+            };
+            return new JsonResult(response);
+        }
+
+        #endregion
+
+        #region PvP Subscriptions
+
+        [HttpGet("subscription/pvp/{guildId}/{userId}")]
+        [Produces("application/json")]
+        public IActionResult GetPvpSubscriptions(ulong guildId, ulong userId)
+        {
+            var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
+            var response = new SubscriptionsResponse<List<PvpSubscription>>
+            {
+                Status = "OK",
+                Data = subscription.PvP.ToList(),
+            };
+            return new JsonResult(response);
+        }
+
+        #endregion
+
+        #region Raid Subscriptions
+
+        [HttpGet("subscription/raids/{guildId}/{userId}")]
+        [Produces("application/json")]
+        public IActionResult GetRaidSubscriptions(ulong guildId, ulong userId)
+        {
+            var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
+            var response = new SubscriptionsResponse<List<RaidSubscription>>
+            {
+                Status = "OK",
+                Data = subscription.Raids.ToList(),
+            };
+            return new JsonResult(response);
+        }
+
+        #endregion
+
+        #region Quest Subscriptions
+
+        [HttpGet("subscription/quests/{guildId}/{userId}")]
+        [Produces("application/json")]
+        public IActionResult GetQuestSubscriptions(ulong guildId, ulong userId)
+        {
+            var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
+            var response = new SubscriptionsResponse<List<QuestSubscription>>
+            {
+                Status = "OK",
+                Data = subscription.Quests.ToList(),
+            };
+            return new JsonResult(response);
+        }
+
+        #endregion
+
+        #region Invasion Subscriptions
+
+        [HttpGet("subscription/invasions/{guildId}/{userId}")]
+        [Produces("application/json")]
+        public IActionResult GetInvasionSubscriptions(ulong guildId, ulong userId)
+        {
+            var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
+            var response = new SubscriptionsResponse<List<InvasionSubscription>>
+            {
+                Status = "OK",
+                Data = subscription.Invasions.ToList(),
+            };
+            return new JsonResult(response);
+        }
+
+        #endregion
+
+        #region Lure Subscriptions
+
+        [HttpGet("subscription/lures/{guildId}/{userId}")]
+        [Produces("application/json")]
+        public IActionResult GetLureSubscriptions(ulong guildId, ulong userId)
+        {
+            var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
+            var response = new SubscriptionsResponse<List<LureSubscription>>
+            {
+                Status = "OK",
+                Data = subscription.Lures.ToList(),
+            };
+            return new JsonResult(response);
+        }
+
+        #endregion
+
+        #region Gym Subscriptions
+
+        [HttpGet("subscription/gyms/{guildId}/{userId}")]
+        [Produces("application/json")]
+        public IActionResult GetGymSubscriptions(ulong guildId, ulong userId)
+        {
+            var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
+            var response = new SubscriptionsResponse<List<GymSubscription>>
+            {
+                Status = "OK",
+                Data = subscription.Gyms.ToList(),
+            };
+            return new JsonResult(response);
+        }
+
+        #endregion
+
+        #region Location Subscriptions
+
+        [HttpGet("subscription/locations/{guildId}/{userId}")]
+        [Produces("application/json")]
+        public IActionResult GetLocationSubscriptions(ulong guildId, ulong userId)
+        {
+            var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
+            var response = new SubscriptionsResponse<List<LocationSubscription>>
+            {
+                Status = "OK",
+                Data = subscription.Locations.ToList(),
+            };
+            return new JsonResult(response);
+        }
+
+        #endregion
+
+        [HttpPost("test")]
+        [Produces("application/json")]
+        public IActionResult Test(dynamic json)
+        {
+            Console.WriteLine($"Json: {json}");
+            var response = new
+            {
+                status = "OK",
+                message = "Data Fetched",
             };
             return new JsonResult(response);
         }

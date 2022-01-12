@@ -120,6 +120,11 @@
                                                                                                         .ToList());
             // Loop all available subscriptions
             var subscriptions = _subscriptionManager.Subscriptions;
+            if (subscriptions == null)
+            {
+                return;
+            }
+
             foreach (var subscription in subscriptions)
             {
                 if (!_discordClients.Any(x => x.Value.Guilds.ContainsKey(subscription.GuildId)))

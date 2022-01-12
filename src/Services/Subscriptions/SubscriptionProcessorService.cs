@@ -136,12 +136,8 @@
                         continue;
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = user.Pokemon.Where(x =>
-                        x.PokemonId.Contains(pokemon.Id)
-                        && (
-                            string.IsNullOrWhiteSpace(x.FormsString) ||
-                            (x.Forms?.Contains(form) ?? true)
-                           )
+                    var pokemonSubscriptions = user.Pokemon.Where(x => x.PokemonId.Contains(pokemon.Id)
+                        && (x.Forms?.Contains(form) ?? true || x.Forms.Count == 0)
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
@@ -152,8 +148,8 @@
                         matchesIVList = pkmnSub.IVList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
 
                         if (!(
-                            (!pkmnSub.HasStats && matchesIV && matchesLvl && matchesGender) ||
-                            (pkmnSub.HasStats && matchesIVList)
+                            (!pkmnSub.HasIVStats && matchesIV && matchesLvl && matchesGender) ||
+                            (pkmnSub.HasIVStats && matchesIVList)
                             ))
                             continue;
 
@@ -304,12 +300,8 @@
                         continue;
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = user.PvP.Where(x =>
-                        x.PokemonId.Contains(pokemon.Id)
-                        && (
-                            string.IsNullOrWhiteSpace(x.FormsString) ||
-                            (x.Forms?.Contains(form) ?? true)
-                           )
+                    var pokemonSubscriptions = user.PvP.Where(x => x.PokemonId.Contains(pokemon.Id)
+                        && (x.Forms?.Contains(form) ?? true || x.Forms.Count == 0)
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
@@ -449,12 +441,8 @@
                         continue;
 
                     var form = Translator.Instance.GetFormName(raid.Form);
-                    var subPkmn = user.Raids.FirstOrDefault(x =>
-                        x.PokemonId.Contains(raid.PokemonId)
-                        && (
-                            string.IsNullOrWhiteSpace(x.FormsString) ||
-                            (x.Forms?.Contains(form) ?? true)
-                           )
+                    var subPkmn = user.Raids.FirstOrDefault(x => x.PokemonId.Contains(raid.PokemonId)
+                        && (x.Forms?.Contains(form) ?? true || x.Forms.Count == 0)
                     );
                     // Not subscribed to Pokemon
                     if (subPkmn == null)

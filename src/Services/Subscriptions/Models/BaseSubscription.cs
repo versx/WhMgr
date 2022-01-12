@@ -13,7 +13,7 @@
         /// Gets or sets the unique primary key Id for the subscription item
         /// </summary>
         [
-            JsonIgnore, //JsonProperty("id"),
+            JsonPropertyName("id"),
             Column("id"),
             Key,
         ]

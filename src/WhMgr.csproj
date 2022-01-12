@@ -66,4 +66,8 @@
       <HintPath>..\..\..\..\Downloads\AspNetCore-Handlebars\src\Handlebars.Net.ViewEngine\bin\Debug\net5.0\Handlebars.Net.ViewEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Web\Api\Responses\" />
+  </ItemGroup>
 </Project>

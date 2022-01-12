@@ -41,8 +41,8 @@ namespace WhMgr.Services.Subscriptions.Models
         public List<uint> RewardPokemonId { get; set; } = new();
 
         [
-            JsonPropertyName("city"),
-            Column("city"),
+            JsonPropertyName("areas"),
+            Column("areas"),
         ]
         public List<string> Areas { get; set; } = new();
 

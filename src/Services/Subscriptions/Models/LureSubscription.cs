@@ -36,8 +36,8 @@
         public List<PokestopLureType> LureType { get; set; } = new();
 
         [
-            JsonPropertyName("city"),
-            Column("city"),
+            JsonPropertyName("areas"),
+            Column("areas"),
         ]
         public List<string> Areas { get; set; } = new();
 

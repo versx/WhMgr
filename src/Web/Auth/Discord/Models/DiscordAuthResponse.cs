@@ -1,4 +1,4 @@
-﻿namespace WhMgr.Auth.Models.Discord
+﻿namespace WhMgr.Web.Auth.Discord.Models
 {
     using System.Text.Json.Serialization;
 

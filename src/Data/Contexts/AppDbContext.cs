@@ -50,6 +50,18 @@
                             DbContextFactory.CreateJsonValueConverter<List<uint>>(),
                             DbContextFactory.CreateValueComparer<uint>());
             modelBuilder.Entity<PokemonSubscription>()
+                        .Property(p => p.Forms)
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
+            /*
+            modelBuilder.Entity<PokemonSubscription>()
+                        .Property(p => p.Costumes)
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
+            */
+            modelBuilder.Entity<PokemonSubscription>()
                         .Property(p => p.IVList)
                         .HasConversion(
                             DbContextFactory.CreateJsonValueConverter<List<string>>(),
@@ -66,6 +78,11 @@
                             DbContextFactory.CreateJsonValueConverter<List<uint>>(),
                             DbContextFactory.CreateValueComparer<uint>());
             modelBuilder.Entity<PvpSubscription>()
+                        .Property(p => p.Forms)
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
+            modelBuilder.Entity<PvpSubscription>()
                         .Property(p => p.League)
                         .HasConversion(x => x.ObjectToString(), x => x.StringToObject<PvpLeague>());
             modelBuilder.Entity<PvpSubscription>()
@@ -79,6 +96,11 @@
                         .HasConversion(
                             DbContextFactory.CreateJsonValueConverter<List<uint>>(),
                             DbContextFactory.CreateValueComparer<uint>());
+            modelBuilder.Entity<RaidSubscription>()
+                        .Property(p => p.Forms)
+                        .HasConversion(
+                            DbContextFactory.CreateJsonValueConverter<List<string>>(),
+                            DbContextFactory.CreateValueComparer<string>());
             modelBuilder.Entity<RaidSubscription>()
                         .Property(p => p.Areas)
                         .HasConversion(

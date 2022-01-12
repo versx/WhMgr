@@ -26,6 +26,7 @@
                 "/dashboard/logout",
                 "/auth/discord/login",
                 "/auth/discord/callback",
+                "/api/v1", // TODO: Fix
             };
             if (!httpContext.Session.GetValue<bool>("is_valid")
                 && !ignorePaths.Contains(httpContext.Request.Path))

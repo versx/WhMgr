@@ -193,6 +193,38 @@
 
         #endregion
 
+        #region Pokemon Subscriptions
+
+        public async Task<bool> CreatePokemonSubscription(PokemonSubscription subscription)
+        {
+            using (var ctx = _dbFactory.CreateDbContext())
+            {
+                ctx.Pokemon.Add(subscription);
+                var result = await ctx.SaveChangesAsync();
+                return result == 1;
+            }
+        }
+
+        public TEntity FindById<TEntity>(int id) where TEntity: BaseSubscription
+        {
+            using (var ctx = _dbFactory.CreateDbContext())
+            {
+                var result = ctx.Find<TEntity>(id);
+                return result;
+            }
+        }
+
+        public async Task<TEntity> FindByIdAsync<TEntity>(int id) where TEntity : BaseSubscription
+        {
+            using (var ctx = _dbFactory.CreateDbContext())
+            {
+                var result = await ctx.FindAsync<TEntity>(id);
+                return result;
+            }
+        }
+
+        #endregion
+
         public async Task SetSubscriptionStatusAsync(Subscription subscription, NotificationStatusType status)
         {
             using (var ctx = _dbFactory.CreateDbContext())

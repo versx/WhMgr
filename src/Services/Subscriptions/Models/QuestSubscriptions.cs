@@ -33,8 +33,8 @@
         public string RewardKeyword { get; set; }
 
         [
-            JsonPropertyName("city"),
-            Column("city"),
+            JsonPropertyName("areas"),
+            Column("areas"),
         ]
         public List<string> Areas { get; set; } = new();
 

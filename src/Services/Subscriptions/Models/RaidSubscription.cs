@@ -27,8 +27,9 @@
             Column("pokemon_id"),
             Required,
         ]
-        public List<uint> PokemonId { get; set; }
+        public List<uint> PokemonId { get; set; } = new();
 
+        /*
         [
             JsonIgnore,
             NotMapped,
@@ -40,6 +41,13 @@
             Column("form"),
         ]
         public string FormsString { get; set; }
+        */
+
+        [
+            JsonPropertyName("forms"),
+            Column("forms"),
+        ]
+        public List<string> Forms { get; set; } = new();
 
         [
             JsonPropertyName("ex_eligible"),
@@ -49,8 +57,8 @@
         public bool IsExEligible { get; set; }
 
         [
-            JsonPropertyName("city"),
-            Column("city"),
+            JsonPropertyName("areas"),
+            Column("areas"),
         ]
         public List<string> Areas { get; set; } = new();
 

@@ -126,6 +126,17 @@ namespace WhMgr
                 options.SuppressXFrameOptionsHeader = false;
             });
 
+            // Cross origin resource sharing configuration
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyOrigin()
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                });
+            });
+
             services.AddMvc()
                     .AddHandlebars(options =>
                     {
@@ -168,13 +179,15 @@ namespace WhMgr
                 //RequestPath = ""
             });
 
+            app.UseCors();
+
             app.UseRouting();
             app.UseAuthorization();
 
             app.UseSession();
 
             // TODO: if (config.Discord.Enabled)
-            app.UseMiddleware<DiscordAuthMiddleware>();
+            //app.UseMiddleware<DiscordAuthMiddleware>();
             app.UseMiddleware<UserPassportMiddleware>();
 
             /*

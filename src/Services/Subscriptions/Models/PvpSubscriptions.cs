@@ -29,8 +29,9 @@
             Column("pokemon_id"),
             Required,
         ]
-        public List<uint> PokemonId { get; set; }
+        public List<uint> PokemonId { get; set; } = new();
 
+        /*
         [
             JsonIgnore,
             NotMapped,
@@ -42,6 +43,15 @@
             Column("form"),
         ]
         public string FormsString { get; set; }
+        */
+        [
+            JsonPropertyName("forms"),
+            Column("forms"),
+        ]
+        public List<string> Forms { get; set; } = new();
+
+        // TODO: Costume
+        // TODO: Gender
 
         [
             JsonPropertyName("league"),
@@ -65,8 +75,8 @@
         public double MinimumPercent { get; set; }
 
         [
-            JsonPropertyName("city"),
-            Column("city"),
+            JsonPropertyName("areas"),
+            Column("areas"),
         ]
         public List<string> Areas { get; set; } = new();
 
@@ -78,7 +88,7 @@
 
         public PvpSubscription()
         {
-            FormsString = null;
+            //FormsString = null;
             League = PvpLeague.Great;
             MinimumRank = 25;
             MinimumPercent = 95;

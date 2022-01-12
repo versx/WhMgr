@@ -8,6 +8,8 @@
     using System.Linq;
     using System.Text.Json.Serialization;
 
+    // TODO: Use interface/abstract class for pokemon_id, forms, costumes between subscription objects for easiler filter checks
+
     [Table("pokemon")]
     public class PokemonSubscription : BaseSubscription
     {
@@ -29,8 +31,9 @@
             Column("pokemon_id"),
             Required,
         ]
-        public List<uint> PokemonId { get; set; }
+        public List<uint> PokemonId { get; set; } = new();
 
+        /*
         [
             JsonIgnore,
             NotMapped,
@@ -42,6 +45,21 @@
             Column("form"),
         ]
         public string FormsString { get; set; }
+        */
+
+        [
+            JsonPropertyName("forms"),
+            Column("forms"),
+        ]
+        public List<string> Forms { get; set; } = new();
+
+        /*
+        [
+            JsonPropertyName("costumes"),
+            Column("costumes"),
+        ]
+        public List<string> Costumes { get; set; }
+        */
 
         [
             JsonPropertyName("min_cp"),
@@ -49,11 +67,15 @@
         ]
         public int MinimumCP { get; set; }
 
+        // TODO: Maximum CP
+
         [
             JsonPropertyName("min_iv"),
             Column("min_iv"),
         ]
         public int MinimumIV { get; set; }
+
+        // TODO: Maximum IV (maybe)
 
         [
             JsonPropertyName("iv_list"),
@@ -73,12 +95,15 @@
         ]
         public int MaximumLevel { get; set; }
 
+        // TODO: Moves
+
         [
             JsonPropertyName("gender"),
             Column("gender"),
         ]
         public string Gender { get; set; }
 
+        /*
         [
             JsonIgnore,
             NotMapped,
@@ -91,10 +116,18 @@
             DefaultValue((uint)PokemonSize.All),
         ]
         public uint _Size { get; set; }
+        */
 
         [
-            JsonPropertyName("city"),
-            Column("city"),
+            JsonPropertyName("size"),
+            Column("size"),
+            DefaultValue((uint)PokemonSize.All),
+        ]
+        public PokemonSize Size { get; set; }
+
+        [
+            JsonPropertyName("areas"),
+            Column("areas"),
         ]
         public List<string> Areas { get; set; } = new();
 
@@ -108,7 +141,7 @@
             JsonIgnore,
             NotMapped
         ]
-        public bool HasStats => IVList?.Any() ?? false;
+        public bool HasIVStats => IVList?.Any() ?? false;
 
         #endregion
 
@@ -121,8 +154,10 @@
             MinimumLevel = 0;
             MaximumLevel = 35;
             Gender = "*";
-            _Size = (uint)PokemonSize.All;
-            FormsString = null;
+            Size = (uint)PokemonSize.All;
+            PokemonId = new List<uint>();
+            Forms = new List<string>();
+            //Costumes = new List<string>();
         }
 
         #endregion

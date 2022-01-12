@@ -7,6 +7,7 @@
 
     using WhMgr.Common;
     using WhMgr.Services.Subscriptions.Models;
+    using WhMgr.Web.Api.Requests.Pokemon;
 
     public interface ISubscriptionManagerService
     {
@@ -18,7 +19,19 @@
 
         Subscription GetUserSubscriptions(ulong guildId, ulong userId);
 
+        #region Pokemon Subscriptions
+
         List<Subscription> GetSubscriptionsByPokemonId(uint pokemonId);
+
+        Task<bool> CreatePokemonSubscription(PokemonSubscription subscription);
+
+        #endregion
+
+
+        TEntity FindById<TEntity>(int id) where TEntity : BaseSubscription;
+
+        Task<TEntity> FindByIdAsync<TEntity>(int id) where TEntity : BaseSubscription;
+
 
         List<Subscription> GetSubscriptionsByPvpPokemonId(uint pokemonId);
 
