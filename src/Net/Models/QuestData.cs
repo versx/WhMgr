@@ -102,7 +102,10 @@
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                },
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Quests),
                 Footer = new DiscordEmbedBuilder.EmbedFooter

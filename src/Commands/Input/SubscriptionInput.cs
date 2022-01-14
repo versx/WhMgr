@@ -58,8 +58,8 @@
         /// <returns>Returns a list of valid areas specified</returns>
         public async Task<List<string>> GetAreasResult(ulong guildId)
         {
-            var deps = _context.Dependencies.GetDependency<Dependencies>();
-            var server = deps.WhConfig.Servers[guildId];
+            var config = (WhConfigHolder)_context.Services.GetService(typeof(WhConfigHolder));
+            var server = config.Instance.Servers[guildId];
             var validAreas = server.Geofences.Select(g => g.Name).ToList();
             var message = (await _context.RespondEmbed($"Enter the areas to get notifications from separated by a comma (i.e. `city1,city2`):\n**Available Areas:**\n{string.Join("\n- ", validAreas)}\n- All", DiscordColor.Blurple)).FirstOrDefault();
             var cities = await _context.WaitForUserChoice(true);

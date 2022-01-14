@@ -27,6 +27,8 @@
     using DSharpPlus.EventArgs;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Interactivity;
+    using DSharpPlus.Interactivity.Extensions;
+    using Microsoft.Extensions.DependencyInjection;
 
     // TODO: List all subscriptions with info command
     // TODO: IV wildcards
@@ -96,38 +98,31 @@
                 serverConfig.LoadDmAlerts();
                 var client = new DiscordClient(new DiscordConfiguration
                 {
-                    AutomaticGuildSync = true,
                     AutoReconnect = true,
-                    EnableCompression = true,
+                    AlwaysCacheMembers = true,
+                    GatewayCompressionLevel = GatewayCompressionLevel.Payload,
                     Token = serverConfig.Token,
                     TokenType = TokenType.Bot,
-                    UseInternalLogHandler = true
+                    MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Error,
+                    Intents = DiscordIntents.DirectMessages
+                        | DiscordIntents.DirectMessageReactions
+                        | DiscordIntents.DirectMessageTyping
+                        | DiscordIntents.GuildEmojis
+                        | DiscordIntents.GuildMembers
+                        | DiscordIntents.GuildMessages
+                        | DiscordIntents.GuildMessageReactions
+                        | DiscordIntents.GuildMessageTyping
+                        | DiscordIntents.GuildPresences
+                        | DiscordIntents.Guilds
+                        | DiscordIntents.GuildWebhooks,
+                    ReconnectIndefinitely = true,
                 });
-
-                // If you are on Windows 7 and using .NETFX, install 
-                // DSharpPlus.WebSocket.WebSocket4Net from NuGet,
-                // add appropriate usings, and uncomment the following
-                // line
-                //client.SetWebSocketClient<WebSocket4NetClient>();
-
-                // If you are on Windows 7 and using .NET Core, install 
-                // DSharpPlus.WebSocket.WebSocket4NetCore from NuGet,
-                // add appropriate usings, and uncomment the following
-                // line
-                //client.SetWebSocketClient<WebSocket4NetCoreClient>();
-
-                // If you are using Mono, install 
-                // DSharpPlus.WebSocket.WebSocketSharp from NuGet,
-                // add appropriate usings, and uncomment the following
-                // line
-                //client.SetWebSocketClient<WebSocketSharpClient>();
 
                 client.Ready += Client_Ready;
                 client.GuildAvailable += Client_GuildAvailable;
                 client.GuildMemberUpdated += Client_GuildMemberUpdated;
                 //_client.MessageCreated += Client_MessageCreated;
                 client.ClientErrored += Client_ClientErrored;
-                client.DebugLogger.LogMessageReceived += DebugLogger_LogMessageReceived;
 
                 // Configure Discord interactivity module
                 var interactivity = client.UseInteractivity
@@ -135,10 +130,10 @@
                     new InteractivityConfiguration
                     {
                         // default pagination behaviour to just ignore the reactions
-                        PaginationBehaviour = TimeoutBehaviour.Ignore,
+                        //PaginationBehaviour = TimeoutBehaviour.Ignore,
 
-                        // default pagination timeout to 5 minutes
-                        PaginationTimeout = TimeSpan.FromMinutes(5),
+                        PollBehaviour = DSharpPlus.Interactivity.Enums.PollBehaviour.KeepEmojis,
+                        PaginationBehaviour = DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround,
 
                         // default timeout for other actions to 2 minutes
                         Timeout = TimeSpan.FromMinutes(2)
@@ -146,19 +141,24 @@
                 );
 
                 // Build the dependency collection which will contain our objects that can be globally used within each command module
-                DependencyCollection dep;
-                using (var d = new DependencyCollectionBuilder())
+                var servicesCollection = new ServiceCollection()
+                    .AddSingleton<InteractivityExtension>(interactivity)
+                    .AddSingleton<WhConfigHolder>(_whConfig)
+                    .AddSingleton<StripeService>(new StripeService(_whConfig.Instance.StripeApiKey))
+                    .AddSingleton<Osm.OsmManager>(new Osm.OsmManager())
+                    .AddSingleton<WebhookController>(_whm);
+                if (_subProcessor != null)
                 {
-                    d.AddInstance(new Dependencies(interactivity, _whm, _subProcessor, _whConfig, new StripeService(_whConfig.Instance.StripeApiKey)));
-                    dep = d.Build();
+                    servicesCollection.AddSingleton<SubscriptionProcessor>(_subProcessor ?? new SubscriptionProcessor(_servers, _whConfig, _whm));
                 }
+                var services = servicesCollection.BuildServiceProvider();
 
                 // Discord commands configuration
                 var commands = client.UseCommandsNext
                 (
                     new CommandsNextConfiguration
                     {
-                        StringPrefix = serverConfig.CommandPrefix?.ToString(),
+                        StringPrefixes = new[] { serverConfig.CommandPrefix?.ToString() },
                         EnableDms = true,
                         // If command prefix is null, allow for mention prefix
                         EnableMentionPrefix = string.IsNullOrEmpty(serverConfig.CommandPrefix),
@@ -166,7 +166,7 @@
                         EnableDefaultHelp = true,
                         CaseSensitive = false,
                         IgnoreExtraArguments = true,
-                        Dependencies = dep
+                        Services = services,
                     }
                 );
                 commands.CommandExecuted += Commands_CommandExecuted;
@@ -292,47 +292,39 @@
 
         #region Discord Events
 
-        private Task Client_Ready(ReadyEventArgs e)
+        private Task Client_Ready(DiscordClient client, ReadyEventArgs e)
         {
             _logger.Info($"------------------------------------------");
             _logger.Info($"[DISCORD] Connected.");
             _logger.Info($"[DISCORD] ----- Current Application");
-            _logger.Info($"[DISCORD] Name: {e.Client.CurrentApplication.Name}");
-            _logger.Info($"[DISCORD] Description: {e.Client.CurrentApplication.Description}");
-            _logger.Info($"[DISCORD] Owner: {e.Client.CurrentApplication.Owner.Username}#{e.Client.CurrentApplication.Owner.Discriminator}");
+            _logger.Info($"[DISCORD] Name: {client.CurrentApplication.Name}");
+            _logger.Info($"[DISCORD] Description: {client.CurrentApplication.Description}");
+            var owners = string.Join("\n", client.CurrentApplication.Owners.Select(x => $"{x.Username}#{x.Discriminator}"));
+            _logger.Info($"[DISCORD] Owner: {owners}");
             _logger.Info($"[DISCORD] ----- Current User");
-            _logger.Info($"[DISCORD] Id: {e.Client.CurrentUser.Id}");
-            _logger.Info($"[DISCORD] Name: {e.Client.CurrentUser.Username}#{e.Client.CurrentUser.Discriminator}");
-            _logger.Info($"[DISCORD] Email: {e.Client.CurrentUser.Email}");
+            _logger.Info($"[DISCORD] Id: {client.CurrentUser.Id}");
+            _logger.Info($"[DISCORD] Name: {client.CurrentUser.Username}#{client.CurrentUser.Discriminator}");
+            _logger.Info($"[DISCORD] Email: {client.CurrentUser.Email}");
             _logger.Info($"------------------------------------------");
 
             return Task.CompletedTask;
         }
 
-        private async Task Client_GuildAvailable(GuildCreateEventArgs e)
+        private async Task Client_GuildAvailable(DiscordClient client, GuildCreateEventArgs e)
         {
             // If guild is in configured servers list then attempt to create emojis needed
-            if (_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
-            {
-                // Create default emojis
-                await CreateEmojis(e.Guild.Id);
+            if (!_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
+                return;            
 
-                if (e.Client is not DiscordClient client)
-                {
-                    _logger.Error($"DiscordClient is null, Unable to update status.");
-                    return;
-                }
+            // Create default emojis
+            await CreateEmojis(e.Guild.Id);
 
-                // Set custom bot status if guild is in config server list
-                if (_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
-                {
-                    var status = _whConfig.Instance.Servers[e.Guild.Id].Status;
-                    await client.UpdateStatusAsync(new DiscordGame(status ?? $"v{Strings.Version}"), UserStatus.Online);
-                }
-            }
+            // Set custom bot status if guild is in config server list
+            var status = _whConfig.Instance.Servers[e.Guild.Id].Status;
+            await client.UpdateStatusAsync(new DiscordActivity(status ?? $"v{Strings.Version}"), UserStatus.Online);
         }
 
-        private async Task Client_GuildMemberUpdated(GuildMemberUpdateEventArgs e)
+        private async Task Client_GuildMemberUpdated(DiscordClient client, GuildMemberUpdateEventArgs e)
         {
             if (!_whConfig.Instance.Servers.ContainsKey(e.Guild.Id))
                 return;
@@ -400,17 +392,17 @@
         //    await _commands.HandleCommandsAsync(e);
         //}
 
-        private async Task Client_ClientErrored(ClientErrorEventArgs e)
+        private async Task Client_ClientErrored(DiscordClient client, ClientErrorEventArgs e)
         {
             _logger.Error(e.Exception);
 
             await Task.CompletedTask;
         }
 
-        private async Task Commands_CommandExecuted(CommandExecutionEventArgs e)
+        private async Task Commands_CommandExecuted(CommandsNextExtension commands, CommandExecutionEventArgs e)
         {
             // let's log the name of the command and user
-            e.Context.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Info, Strings.BotName, $"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
+            //e.Context.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Info, Strings.BotName, $"{e.Context.User.Username} successfully executed '{e.Command.QualifiedName}'", DateTime.Now);
 
             // since this method is not async, let's return
             // a completed task, so that no additional work
@@ -418,9 +410,9 @@
             await Task.CompletedTask;
         }
 
-        private async Task Commands_CommandErrored(CommandErrorEventArgs e)
+        private async Task Commands_CommandErrored(CommandsNextExtension commands, CommandErrorEventArgs e)
         {
-            e.Context.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Error, Strings.BotName, $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? e.Context.Message.Content}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
+            //e.Context.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Error, Strings.BotName, $"{e.Context.User.Username} tried executing '{e.Command?.QualifiedName ?? e.Context.Message.Content}' but it errored: {e.Exception.GetType()}: {e.Exception.Message ?? "<no message>"}", DateTime.Now);
 
             // let's check if the error is a result of lack of required permissions
             if (e.Exception is DSharpPlus.CommandsNext.Exceptions.ChecksFailedException)
@@ -444,13 +436,13 @@
 
                 var guildId = e.Context.Guild?.Id ?? e.Context.Client.Guilds.FirstOrDefault(x => _whConfig.Instance.Servers.ContainsKey(x.Key)).Key;
                 var prefix = _whConfig.Instance.Servers.ContainsKey(guildId) ? _whConfig.Instance.Servers[guildId].CommandPrefix : "!";
-                var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", e.Command.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
+                //var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", e.Command.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
 
                 // let's wrap the response into an embed
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = $"{emoji} Invalid Argument(s)",
-                    Description = $"{string.Join(Environment.NewLine, e.Command.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type.ToHumanReadableString()}.**"))}.\r\n\r\n{example}",
+                    //Description = $"{string.Join(Environment.NewLine, e.Command.Overloads.Select(x => x.Arguments).Select(x => $"Parameter **{x.Name}** expects type **{x.Type.ToHumanReadableString()}.**"))}.\r\n\r\n{example}",
                     Color = new DiscordColor(0xFF0000) // red
                 };
                 await e.Context.RespondAsync(embed: embed);
@@ -463,52 +455,6 @@
             {
                 _logger.Error($"User {e.Context.User.Username} tried executing command {e.Command?.Name} and unknown error occurred.\r\n: {e.Exception}");
             }
-        }
-
-        private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
-        {
-            var color = e.Level switch
-            {
-                DSharpPlus.LogLevel.Error => ConsoleColor.DarkRed,
-                DSharpPlus.LogLevel.Warning => ConsoleColor.Yellow,
-                DSharpPlus.LogLevel.Info => ConsoleColor.White,
-                DSharpPlus.LogLevel.Critical => ConsoleColor.Red,
-                _ => ConsoleColor.DarkGray,
-            };
-
-            //Source
-            var sourceName = e.Application;
-
-            //Text
-            var text = e.Message;
-
-            //Build message
-            var builder = new System.Text.StringBuilder(text.Length + (sourceName?.Length ?? 0) + 5);
-            if (sourceName != null)
-            {
-                builder.Append('[');
-                builder.Append(sourceName);
-                builder.Append("] ");
-            }
-
-            for (var i = 0; i < text.Length; i++)
-            {
-                //Strip control chars
-                var c = text[i];
-                if (!char.IsControl(c))
-                    builder.Append(c);
-            }
-
-            if (text != null)
-            {
-                builder.Append(": ");
-                builder.Append(text);
-            }
-
-            text = builder.ToString();
-            Console.ForegroundColor = color;
-            Console.WriteLine(text);
-            Console.ResetColor();
         }
 
         #endregion
@@ -1073,7 +1019,7 @@
                         id = pokemon,
                         shiny = pkmnStats.Shiny.ToString("N0"),
                         total = pkmnStats.Total.ToString("N0"),
-                        chance = chance,
+                        chance,
                     }));
 
                 Thread.Sleep(500);
@@ -1185,14 +1131,14 @@
                 var client = _servers[guildId];
                 if (client != null)
                 {
-                    var owner = await client.GetUserAsync(serverConfig.OwnerId);
+                    var owner = await client.GetMemberById(guildId, serverConfig.OwnerId);
                     if (owner == null)
                     {
                         _logger.Warn($"Unable to get owner from id {serverConfig.OwnerId}.");
                         return;
                     }
 
-                    await client.SendDirectMessage(owner, Translator.Instance.Translate("BOT_CRASH_MESSAGE"), null);
+                    await owner.SendDirectMessage(Translator.Instance.Translate("BOT_CRASH_MESSAGE"), null);
                 }
             }
         }

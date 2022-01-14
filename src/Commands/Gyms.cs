@@ -9,9 +9,9 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-
     using ServiceStack.OrmLite;
 
+    using WhMgr.Configuration;
     using WhMgr.Extensions;
     using WhMgr.Localization;
 
@@ -22,14 +22,14 @@
         Hidden,
         RequirePermissions(Permissions.KickMembers)
     ]
-    public class Gyms
+    public class Gyms : BaseCommandModule
     {
         //private static readonly IEventLogger _logger = EventLogger.GetLogger("GYMS", Program.LogLevel);
-        private readonly Dependencies _dep;
+        private readonly WhConfigHolder _config;
 
-        public Gyms(Dependencies dep)
+        public Gyms(WhConfigHolder config)
         {
-            _dep = dep;
+            _config = config;
         }
 
         [
@@ -39,7 +39,7 @@
         public async Task ConvertedPokestopsToGymsAsync(CommandContext ctx,
             [Description("Real or dry run check (y/n)")] string yesNo = "y")
         {
-            using (var db = Data.DataAccessLayer.CreateFactory(_dep.WhConfig.Database.Scanner.ToString()).Open())
+            using (var db = Data.DataAccessLayer.CreateFactory(_config.Instance.Database.Scanner.ToString()).Open())
             {
                 //Select query where ids match for pokestops and gyms
                 var convertedGyms = db.Select<Data.Models.Pokestop>(Strings.SQL_SELECT_CONVERTED_POKESTOPS);
@@ -68,7 +68,7 @@
                     var imageUrl = string.IsNullOrEmpty(gym.Url) ? Translator.Instance.Translate("GYM_UNKNOWN_IMAGE") : gym.Url;
                     var locationUrl = string.Format(Strings.GoogleMaps, gym.Latitude, gym.Longitude);
                     //eb.AddField($"{name} ({gym.Latitude},{gym.Longitude})", url);
-                    sb.AppendLine(Translator.Instance.Translate("GYM_NAME").FormatText(new { name = name }));
+                    sb.AppendLine(Translator.Instance.Translate("GYM_NAME").FormatText(new { name }));
                     sb.AppendLine(Translator.Instance.Translate("GYM_DIRECTIONS_IMAGE_LINK").FormatText(new
                     {
                         location_url = locationUrl,
