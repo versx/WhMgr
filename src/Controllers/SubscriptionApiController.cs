@@ -79,18 +79,11 @@
         [Produces("application/json")]
         public async Task<IActionResult> GetPokemonSubscription(int id)
         {
-            var subscription = await _subscriptionManager.FindByIdAsync<PokemonSubscription>(id);
-            var response = new SubscriptionsResponse<PokemonSubscription>
-            {
-                Status = subscription != null
-                    ? "OK"
-                    : "Error",
-                Data = subscription,
-            };
+            var response = await GetSubscription<PokemonSubscription>(id);
             return new JsonResult(response);
         }
 
-        [HttpPost("pokemon/create")]
+        [HttpPost("subscription/pokemon/create")]
         [Produces("application/json")]
         public async Task<IActionResult> PokemonCreate(PokemonSubscription pokemonSubscription)
         {
@@ -140,71 +133,19 @@
             return new JsonResult(response);
         }
 
-        [HttpPut("pokemon/update/{id}")]
+        [HttpPut("subscription/pokemon/update/{id}")]
         [Produces("application/json")]
         public async Task<IActionResult> PokemonUpdate(int id, PokemonSubscription pokemonSubscription)
         {
-            if (pokemonSubscription == null)
-            {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    message = "Failed to create Pokemon subscription, data was null.",
-                });
-            }
-
-            //  Check if guild_id and user_id not equal to 0
-            if (pokemonSubscription.GuildId == 0 || pokemonSubscription.UserId == 0)
-            {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    message = "Both GuildId and UserId are required.",
-                });
-            }
-
-            var subscription = await _subscriptionManager.FindByIdAsync<PokemonSubscription>(id);
-            if (subscription == null)
-            {
-                // Subscription does not exist, create new
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    message = $"Pokemon subscription with id {id} does not exist.",
-                });
-            }
-
-            var result = await _subscriptionManager.UpdateSubscriptionAsync(id, pokemonSubscription);
-            var response = result
-                ? new
-                {
-                    status = "OK",
-                    message = $"Successfully updated Pokemon subscription {id}.",
-                }
-                : new
-                {
-                    status = "Error",
-                    message = $"Failed to update Pokemon subscription {id}.",
-                };
+            var response = await UpdateSubscription<PokemonSubscription>(id, pokemonSubscription);
             return new JsonResult(response);
         }
 
-        [HttpDelete("pokemon/delete/{id}")]
+        [HttpDelete("subscription/pokemon/delete/{id}")]
         [Produces("application/json")]
         public async Task<IActionResult> PokemonDelete(int id)
         {
-            var result = await _subscriptionManager.DeleteByIdAsync<PokemonSubscription>(id);
-            var response = result
-                ? new
-                {
-                    status = "OK",
-                    message = $"Successfully deleted Pokemon subscription {id}.",
-                }
-                : new
-                {
-                    status = "Error",
-                    message = $"Failed to delete Pokemon subscription {id}.",
-                };
+            var response = await DeleteSubscription<PokemonSubscription>(id);
             return new JsonResult(response);
         }
 
@@ -219,9 +160,126 @@
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
             var response = new SubscriptionsResponse<List<PvpSubscription>>
             {
-                Status = "OK",
+                Status = subscription != null
+                    ? "OK"
+                    : "Error",
                 Data = subscription.PvP.ToList(),
             };
+            return new JsonResult(response);
+        }
+
+        [HttpGet("subscription/pvp/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GetPvpSubscription(int id)
+        {
+            var response = await GetSubscription<PvpSubscription>(id);
+            return new JsonResult(response);
+        }
+
+        [HttpPost("subscription/subscription/pvp/create")]
+        [Produces("application/json")]
+        public async Task<IActionResult> PvpCreate(PvpSubscription pvpSubscription)
+        {
+            if (pvpSubscription == null)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Failed to create PvP subscription, data was null.",
+                });
+            }
+
+            //  Check if guild_id and user_id not equal to 0
+            if (pvpSubscription.GuildId == 0 || pvpSubscription.UserId == 0)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Both GuildId and UserId are required.",
+                });
+            }
+
+            var subscription = _subscriptionManager.GetUserSubscriptions(pvpSubscription.GuildId, pvpSubscription.UserId);
+            if (subscription == null)
+            {
+                // Subscription does not exist, create new
+                subscription = new Subscription
+                {
+                    GuildId = pvpSubscription.GuildId,
+                    UserId = pvpSubscription.UserId,
+                };
+            }
+            subscription.PvP.Add(pvpSubscription);
+            var result = await _subscriptionManager.CreateSubscriptionAsync(subscription).ConfigureAwait(false);
+            dynamic response = result
+                ? new
+                {
+                    status = "OK",
+                    message = "Successfully created PvP subscription.",
+                    data = pvpSubscription,
+                }
+                : new
+                {
+                    status = "Error",
+                    message = "Failed to create PvP subscription.",
+                };
+            return new JsonResult(response);
+        }
+
+        [HttpPut("subscription/pvp/update/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> PvpUpdate(int id, PvpSubscription pvpSubscription)
+        {
+            if (pvpSubscription == null)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Failed to create Pokemon subscription, data was null.",
+                });
+            }
+
+            //  Check if guild_id and user_id not equal to 0
+            if (pvpSubscription.GuildId == 0 || pvpSubscription.UserId == 0)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Both GuildId and UserId are required.",
+                });
+            }
+
+            var subscription = await _subscriptionManager.FindByIdAsync<PvpSubscription>(id);
+            if (subscription == null)
+            {
+                // Subscription does not exist, create new
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = $"PvP subscription with id {id} does not exist.",
+                });
+            }
+
+            var result = await _subscriptionManager.UpdateSubscriptionAsync(id, pvpSubscription);
+            var response = result
+                ? new
+                {
+                    status = "OK",
+                    message = $"Successfully updated PvP subscription {id}.",
+                }
+                : new
+                {
+                    status = "Error",
+                    message = $"Failed to update PvP subscription {id}.",
+                };
+            return new JsonResult(response);
+        }
+
+        [HttpDelete("subscription/pvp/delete/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> PvpDelete(int id)
+        {
+            var response = await DeleteSubscription<PvpSubscription>(id);
             return new JsonResult(response);
         }
 
@@ -341,6 +399,87 @@
             };
             return new JsonResult(response);
         }
+
+        #region Generic Helpers
+
+        private async Task<dynamic> GetSubscription<T>(int id) where T : BaseSubscription
+        {
+            var subscription = await _subscriptionManager.FindByIdAsync<T>(id);
+            var response = new SubscriptionsResponse<T>
+            {
+                Status = subscription != null
+                    ? "OK"
+                    : "Error",
+                Data = subscription,
+            };
+            return response;
+        }
+
+        private async Task<dynamic> UpdateSubscription<T>(int id, T updatedSubscription) where T : BaseSubscription
+        {
+            if (updatedSubscription == null)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = $"Failed to create {nameof(updatedSubscription)} subscription, data was null.",
+                });
+            }
+
+            //  Check if guild_id and user_id not equal to 0
+            if (updatedSubscription.GuildId == 0 || updatedSubscription.UserId == 0)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Both GuildId and UserId are required.",
+                });
+            }
+
+            var existingSubscription = await _subscriptionManager.FindByIdAsync<T>(id);
+            if (existingSubscription == null)
+            {
+                // Subscription does not exist
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = $"{nameof(updatedSubscription)} subscription with id {id} does not exist.",
+                });
+            }
+
+            var result = await _subscriptionManager.UpdateSubscriptionAsync(id, updatedSubscription);
+            var response = result
+                ? new
+                {
+                    status = "OK",
+                    message = $"Successfully updated {nameof(updatedSubscription)} subscription {id}.",
+                }
+                : new
+                {
+                    status = "Error",
+                    message = $"Failed to update {nameof(updatedSubscription)} subscription {id}.",
+                };
+            return response;
+        }
+
+        private async Task<dynamic> DeleteSubscription<T>(int id) where T : BaseSubscription
+        {
+            var result = await _subscriptionManager.DeleteByIdAsync<T>(id);
+            var response = result
+                ? new
+                {
+                    status = "OK",
+                    message = $"Successfully deleted {nameof(T)} subscription {id}.",
+                }
+                : new
+                {
+                    status = "Error",
+                    message = $"Failed to delete {nameof(T)} subscription {id}.",
+                };
+            return response;
+        }
+
+        #endregion
     }
 
     public class SubscriptionsResponse<T>
