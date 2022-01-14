@@ -6,11 +6,11 @@ Run the following to install .NET Core runtime, clone respository, and copy exam
 
 **Linux/macOS**  
 ```
-wget https://raw.githubusercontent.com/versx/WhMgr/master/install.sh && chmod +x install.sh && ./install.sh && rm install.sh  
+wget https://raw.githubusercontent.com/versx/WhMgr/master/scripts/install.sh && chmod +x install.sh && ./install.sh && rm install.sh  
 ```
 **Windows**  
 ```
-bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/master/install.bat install.bat | start install.bat  
+bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/master/scripts/install.bat install.bat | start install.bat  
 ```
 
 ## Configuration  
