@@ -99,7 +99,7 @@
         [HttpGet]
         [HttpPost]
         [Route("configs/new")]
-        public IActionResult NewConfig()
+        public async Task<IActionResult> NewConfig()
         {
             if (Request.Method == "GET")
             {
@@ -114,7 +114,14 @@
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Create new config file
+                // TODO: Check if already exists
+                var name = Request.Form["name"].ToString();
+                var filePath = Path.Combine(Strings.ConfigsFolder, name + ".json");
+                var config = new Config();
+                var configForm = ConfigFromForm(config, Request.Form);
+                var json = configForm.ToJson();
+                // Save json
+                await WriteDataAsync(filePath, json);
             }
             return Unauthorized();
         }
