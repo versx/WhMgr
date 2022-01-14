@@ -114,6 +114,7 @@
             }
             else if (Request.Method == "POST")
             {
+                // TODO: Create new config file
             }
             return Unauthorized();
         }
@@ -239,6 +240,7 @@
             }
             else if (Request.Method == "POST")
             {
+                // TODO: Create new discord server config
             }
             return Unauthorized();
         }
@@ -397,6 +399,7 @@
             }
             else if (Request.Method == "POST")
             {
+                // TODO: Create new alarms file
             }
             return Unauthorized();
         }
@@ -527,6 +530,7 @@
             }
             else if (Request.Method == "POST")
             {
+                // TODO: Create new webhook filter
             }
             return Unauthorized();
         }
@@ -851,6 +855,7 @@
             }
             else if (Request.Method == "POST")
             {
+                // TODO: Create new discord role
             }
             return Unauthorized();
         }
@@ -959,14 +964,23 @@
         [Route("settings")]
         public IActionResult Settings()
         {
-            var obj = new
+            if (Request.Method == "GET")
             {
-                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
-                template = "settings",
-                title = "Settings",
-                favicon = "dotnet.png",
-            };
-            return View("settings", obj);
+                var obj = new
+                {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
+                    template = "settings",
+                    title = "Settings",
+                    favicon = "dotnet.png",
+                };
+                return View("settings", obj);
+            }
+            else if (Request.Method == "POST")
+            {
+                // TODO: Update settings
+                return Redirect("/settings");
+            }
+            return Unauthorized();
         }
 
         #endregion

@@ -30,9 +30,9 @@
         private const string BaseEndpoint = "https://discordapp.com/api";
         private const string AuthorizationEndpoint = BaseEndpoint + "/oauth2/authorize";
         private const string TokenEndpoint = BaseEndpoint + "/oauth2/token";
-        private const string UserInformationEndpoint = BaseEndpoint + "/users/@me";
-        private const string UserGuildsInformationEndpoint = BaseEndpoint + "/users/@me/guilds";
-        private const string UserGuildMemberInformationEndpoint = BaseEndpoint + "/guilds/{0}/members/{1}";
+        private const string UserEndpoint = BaseEndpoint + "/users/@me";
+        private const string UserGuildsEndpoint = BaseEndpoint + "/users/@me/guilds";
+        private const string UserGuildMemberEndpoint = BaseEndpoint + "/guilds/{0}/members/{1}";
         private const string DefaultScope = "guilds%20identify%20email";
 
         public DiscordAuthController(ILogger<DiscordAuthController> logger)
@@ -166,7 +166,7 @@
 
         private DiscordUserInfo GetUser(string tokenType, string token)
         {
-            var response = SendRequest(UserInformationEndpoint, tokenType, token);
+            var response = SendRequest(UserEndpoint, tokenType, token);
             if (string.IsNullOrEmpty(response))
             {
                 _logger.Error($"Failed to get Discord user response");
@@ -178,7 +178,7 @@
 
         private List<DiscordGuildInfo> GetUserGuilds(string tokenType, string token)
         {
-            var response = SendRequest(UserGuildsInformationEndpoint, tokenType, token);
+            var response = SendRequest(UserGuildsEndpoint, tokenType, token);
             if (string.IsNullOrEmpty(response))
             {
                 _logger.Error($"Failed to get Discord user guilds response");
@@ -191,7 +191,7 @@
 
         private DiscordGuildMemberInfo GetGuildMember(string tokenType, string token, string guildId, string userId)
         {
-            var url = string.Format(UserGuildMemberInformationEndpoint, guildId, userId);
+            var url = string.Format(UserGuildMemberEndpoint, guildId, userId);
             var response = SendRequest(url, tokenType, token);
             if (string.IsNullOrEmpty(response))
             {
