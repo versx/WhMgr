@@ -443,9 +443,86 @@
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
             var response = new SubscriptionsResponse<List<InvasionSubscription>>
             {
-                Status = "OK",
+                Status = subscription != null
+                    ? "OK"
+                    : "Error",
                 Data = subscription.Invasions.ToList(),
             };
+            return new JsonResult(response);
+        }
+
+        [HttpGet("subscription/invasion/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GetInvasionSubscription(int id)
+        {
+            var response = await GetSubscription<InvasionSubscription>(id);
+            return new JsonResult(response);
+        }
+
+        [HttpPost("subscription/invasion/create")]
+        [Produces("application/json")]
+        public async Task<IActionResult> QuestCreate(InvasionSubscription invasionSubscription)
+        {
+            if (invasionSubscription == null)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Failed to create Invasion subscription, data was null.",
+                });
+            }
+
+            //  Check if guild_id and user_id not equal to 0
+            if (invasionSubscription.GuildId == 0 || invasionSubscription.UserId == 0)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Both GuildId and UserId are required.",
+                });
+            }
+
+            var subscription = _subscriptionManager.GetUserSubscriptions(invasionSubscription.GuildId, invasionSubscription.UserId);
+            if (subscription == null)
+            {
+                // Subscription does not exist, create new
+                subscription = new Subscription
+                {
+                    GuildId = invasionSubscription.GuildId,
+                    UserId = invasionSubscription.UserId,
+                    Status = NotificationStatusType.All,
+                };
+            }
+            subscription.Invasions.Add(invasionSubscription);
+            var result = await _subscriptionManager.CreateSubscriptionAsync(subscription).ConfigureAwait(false);
+            dynamic response = result
+                ? new
+                {
+                    status = "OK",
+                    message = "Successfully created Invasion subscription.",
+                    data = invasionSubscription,
+                }
+                : new
+                {
+                    status = "Error",
+                    message = "Failed to create Invasion subscription.",
+                };
+            return new JsonResult(response);
+        }
+
+        [HttpPut("subscription/invasion/update/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> InvasionUpdate(int id, InvasionSubscription invasionSubscription)
+        {
+            var response = await UpdateSubscription(id, invasionSubscription);
+            return new JsonResult(response);
+        }
+
+        [HttpDelete("subscription/invasion/delete/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> InvasionDelete(int id)
+        {
+            var response = await DeleteSubscription<InvasionSubscription>(id);
             return new JsonResult(response);
         }
 
@@ -460,9 +537,86 @@
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
             var response = new SubscriptionsResponse<List<LureSubscription>>
             {
-                Status = "OK",
+                Status = subscription != null
+                    ? "OK"
+                    : "Error",
                 Data = subscription.Lures.ToList(),
             };
+            return new JsonResult(response);
+        }
+
+        [HttpGet("subscription/lure/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GetLureSubscription(int id)
+        {
+            var response = await GetSubscription<LureSubscription>(id);
+            return new JsonResult(response);
+        }
+
+        [HttpPost("subscription/lure/create")]
+        [Produces("application/json")]
+        public async Task<IActionResult> LureCreate(LureSubscription lureSubscription)
+        {
+            if (lureSubscription == null)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Failed to create Lure subscription, data was null.",
+                });
+            }
+
+            //  Check if guild_id and user_id not equal to 0
+            if (lureSubscription.GuildId == 0 || lureSubscription.UserId == 0)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Both GuildId and UserId are required.",
+                });
+            }
+
+            var subscription = _subscriptionManager.GetUserSubscriptions(lureSubscription.GuildId, lureSubscription.UserId);
+            if (subscription == null)
+            {
+                // Subscription does not exist, create new
+                subscription = new Subscription
+                {
+                    GuildId = lureSubscription.GuildId,
+                    UserId = lureSubscription.UserId,
+                    Status = NotificationStatusType.All,
+                };
+            }
+            subscription.Lures.Add(lureSubscription);
+            var result = await _subscriptionManager.CreateSubscriptionAsync(subscription).ConfigureAwait(false);
+            dynamic response = result
+                ? new
+                {
+                    status = "OK",
+                    message = "Successfully created Lure subscription.",
+                    data = lureSubscription,
+                }
+                : new
+                {
+                    status = "Error",
+                    message = "Failed to create Lure subscription.",
+                };
+            return new JsonResult(response);
+        }
+
+        [HttpPut("subscription/lure/update/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> LureUpdate(int id, LureSubscription lureSubscription)
+        {
+            var response = await UpdateSubscription(id, lureSubscription);
+            return new JsonResult(response);
+        }
+
+        [HttpDelete("subscription/lure/delete/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> LureDelete(int id)
+        {
+            var response = await DeleteSubscription<LureSubscription>(id);
             return new JsonResult(response);
         }
 
@@ -477,9 +631,86 @@
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
             var response = new SubscriptionsResponse<List<GymSubscription>>
             {
-                Status = "OK",
+                Status = subscription != null
+                    ? "OK"
+                    : "Error",
                 Data = subscription.Gyms.ToList(),
             };
+            return new JsonResult(response);
+        }
+
+        [HttpGet("subscription/gym/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GetGymSubscription(int id)
+        {
+            var response = await GetSubscription<GymSubscription>(id);
+            return new JsonResult(response);
+        }
+
+        [HttpPost("subscription/gym/create")]
+        [Produces("application/json")]
+        public async Task<IActionResult> LureCreate(GymSubscription gymSubscription)
+        {
+            if (gymSubscription == null)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Failed to create Gym subscription, data was null.",
+                });
+            }
+
+            //  Check if guild_id and user_id not equal to 0
+            if (gymSubscription.GuildId == 0 || gymSubscription.UserId == 0)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Both GuildId and UserId are required.",
+                });
+            }
+
+            var subscription = _subscriptionManager.GetUserSubscriptions(gymSubscription.GuildId, gymSubscription.UserId);
+            if (subscription == null)
+            {
+                // Subscription does not exist, create new
+                subscription = new Subscription
+                {
+                    GuildId = gymSubscription.GuildId,
+                    UserId = gymSubscription.UserId,
+                    Status = NotificationStatusType.All,
+                };
+            }
+            subscription.Gyms.Add(gymSubscription);
+            var result = await _subscriptionManager.CreateSubscriptionAsync(subscription).ConfigureAwait(false);
+            dynamic response = result
+                ? new
+                {
+                    status = "OK",
+                    message = "Successfully created Gym subscription.",
+                    data = gymSubscription,
+                }
+                : new
+                {
+                    status = "Error",
+                    message = "Failed to create Gym subscription.",
+                };
+            return new JsonResult(response);
+        }
+
+        [HttpPut("subscription/gym/update/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GymUpdate(int id, GymSubscription gymSubscription)
+        {
+            var response = await UpdateSubscription(id, gymSubscription);
+            return new JsonResult(response);
+        }
+
+        [HttpDelete("subscription/gym/delete/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GymDelete(int id)
+        {
+            var response = await DeleteSubscription<GymSubscription>(id);
             return new JsonResult(response);
         }
 
@@ -494,9 +725,86 @@
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
             var response = new SubscriptionsResponse<List<LocationSubscription>>
             {
-                Status = "OK",
+                Status = subscription != null
+                    ? "OK"
+                    : "Error",
                 Data = subscription.Locations.ToList(),
             };
+            return new JsonResult(response);
+        }
+
+        [HttpGet("subscription/location/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GetLocationSubscription(int id)
+        {
+            var response = await GetSubscription<LocationSubscription>(id);
+            return new JsonResult(response);
+        }
+
+        [HttpPost("subscription/location/create")]
+        [Produces("application/json")]
+        public async Task<IActionResult> LocationCreate(LocationSubscription locationSubscription)
+        {
+            if (locationSubscription == null)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Failed to create Location subscription, data was null.",
+                });
+            }
+
+            //  Check if guild_id and user_id not equal to 0
+            if (locationSubscription.GuildId == 0 || locationSubscription.UserId == 0)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Both GuildId and UserId are required.",
+                });
+            }
+
+            var subscription = _subscriptionManager.GetUserSubscriptions(locationSubscription.GuildId, locationSubscription.UserId);
+            if (subscription == null)
+            {
+                // Subscription does not exist, create new
+                subscription = new Subscription
+                {
+                    GuildId = locationSubscription.GuildId,
+                    UserId = locationSubscription.UserId,
+                    Status = NotificationStatusType.All,
+                };
+            }
+            subscription.Locations.Add(locationSubscription);
+            var result = await _subscriptionManager.CreateSubscriptionAsync(subscription).ConfigureAwait(false);
+            dynamic response = result
+                ? new
+                {
+                    status = "OK",
+                    message = "Successfully created Location subscription.",
+                    data = locationSubscription,
+                }
+                : new
+                {
+                    status = "Error",
+                    message = "Failed to create Location subscription.",
+                };
+            return new JsonResult(response);
+        }
+
+        [HttpPut("subscription/location/update/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> LocationUpdate(int id, LocationSubscription gymSubscription)
+        {
+            var response = await UpdateSubscription(id, gymSubscription);
+            return new JsonResult(response);
+        }
+
+        [HttpDelete("subscription/location/delete/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> LocationDelete(int id)
+        {
+            var response = await DeleteSubscription<LocationSubscription>(id);
             return new JsonResult(response);
         }
 
