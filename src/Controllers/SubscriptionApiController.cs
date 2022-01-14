@@ -349,9 +349,86 @@
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
             var response = new SubscriptionsResponse<List<QuestSubscription>>
             {
-                Status = "OK",
+                Status = subscription != null
+                    ? "OK"
+                    : "Error",
                 Data = subscription.Quests.ToList(),
             };
+            return new JsonResult(response);
+        }
+
+        [HttpGet("subscription/quest/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> GetQuestSubscription(int id)
+        {
+            var response = await GetSubscription<QuestSubscription>(id);
+            return new JsonResult(response);
+        }
+
+        [HttpPost("subscription/quest/create")]
+        [Produces("application/json")]
+        public async Task<IActionResult> QuestCreate(QuestSubscription questSubscription)
+        {
+            if (questSubscription == null)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Failed to create Quest subscription, data was null.",
+                });
+            }
+
+            //  Check if guild_id and user_id not equal to 0
+            if (questSubscription.GuildId == 0 || questSubscription.UserId == 0)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    message = "Both GuildId and UserId are required.",
+                });
+            }
+
+            var subscription = _subscriptionManager.GetUserSubscriptions(questSubscription.GuildId, questSubscription.UserId);
+            if (subscription == null)
+            {
+                // Subscription does not exist, create new
+                subscription = new Subscription
+                {
+                    GuildId = questSubscription.GuildId,
+                    UserId = questSubscription.UserId,
+                    Status = NotificationStatusType.All,
+                };
+            }
+            subscription.Quests.Add(questSubscription);
+            var result = await _subscriptionManager.CreateSubscriptionAsync(subscription).ConfigureAwait(false);
+            dynamic response = result
+                ? new
+                {
+                    status = "OK",
+                    message = "Successfully created Quest subscription.",
+                    data = questSubscription,
+                }
+                : new
+                {
+                    status = "Error",
+                    message = "Failed to create Quest subscription.",
+                };
+            return new JsonResult(response);
+        }
+
+        [HttpPut("subscription/quest/update/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> QuestUpdate(int id, QuestSubscription questSubscription)
+        {
+            var response = await UpdateSubscription(id, questSubscription);
+            return new JsonResult(response);
+        }
+
+        [HttpDelete("subscription/quest/delete/{id}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> QuestDelete(int id)
+        {
+            var response = await DeleteSubscription<QuestSubscription>(id);
             return new JsonResult(response);
         }
 
