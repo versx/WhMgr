@@ -42,29 +42,27 @@
 
         public async Task<List<Subscription>> GetUserSubscriptionsAsync()
         {
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
-                _subscriptions = (await ctx.Subscriptions.Where(s => s.Status != NotificationStatusType.None)
-                                                         // Include Pokemon subscriptions
-                                                         .Include(s => s.Pokemon)
-                                                         // Include PvP subscriptions
-                                                         .Include(s => s.PvP)
-                                                         // Include Raid subscriptions
-                                                         .Include(s => s.Raids)
-                                                         // Include Quest subscriptions
-                                                         .Include(s => s.Quests)
-                                                         // Include Invasion subscriptions
-                                                         .Include(s => s.Invasions)
-                                                         // Include Lure subscriptions
-                                                         .Include(s => s.Lures)
-                                                         // Include Gym subscriptions
-                                                         .Include(s => s.Gyms)
-                                                         // Include Location subscriptions
-                                                         .Include(s => s.Locations)
-                                                         .ToListAsync())
-                                                         .ToList();
-                return _subscriptions;
-            }
+            using var ctx = _dbFactory.CreateDbContext();
+            _subscriptions = (await ctx.Subscriptions.Where(s => s.Status != NotificationStatusType.None)
+                                                     // Include Pokemon subscriptions
+                                                     .Include(s => s.Pokemon)
+                                                     // Include PvP subscriptions
+                                                     .Include(s => s.PvP)
+                                                     // Include Raid subscriptions
+                                                     .Include(s => s.Raids)
+                                                     // Include Quest subscriptions
+                                                     .Include(s => s.Quests)
+                                                     // Include Invasion subscriptions
+                                                     .Include(s => s.Invasions)
+                                                     // Include Lure subscriptions
+                                                     .Include(s => s.Lures)
+                                                     // Include Gym subscriptions
+                                                     .Include(s => s.Gyms)
+                                                     // Include Location subscriptions
+                                                     .Include(s => s.Locations)
+                                                     .ToListAsync())
+                                                     .ToList();
+            return _subscriptions;
         }
 
         public Subscription GetUserSubscriptions(ulong guildId, ulong userId)
@@ -197,12 +195,10 @@
 
         public async Task<bool> CreateSubscriptionAsync<TEntity>(TEntity subscription) where TEntity : BaseSubscription
         {
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
-                ctx.Add(subscription);
-                var result = await ctx.SaveChangesAsync();
-                return result == 1;
-            }
+            using var ctx = _dbFactory.CreateDbContext();
+            ctx.Add(subscription);
+            var result = await ctx.SaveChangesAsync();
+            return result == 1;
         }
 
         public async Task<bool> UpdateSubscriptionAsync<TEntity>(int id, TEntity subscription) where TEntity : BaseSubscription
@@ -214,51 +210,41 @@
 
         public TEntity FindById<TEntity>(int id) where TEntity : BaseSubscription
         {
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
-                var result = ctx.Find<TEntity>(id);
-                return result;
-            }
+            using var ctx = _dbFactory.CreateDbContext();
+            var result = ctx.Find<TEntity>(id);
+            return result;
         }
 
         public async Task<TEntity> FindByIdAsync<TEntity>(int id) where TEntity : BaseSubscription
         {
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
-                var result = await ctx.FindAsync<TEntity>(id);
-                return result;
-            }
+            using var ctx = _dbFactory.CreateDbContext();
+            var result = await ctx.FindAsync<TEntity>(id);
+            return result;
         }
 
         public bool DeleteById<TEntity>(int id) where TEntity : BaseSubscription
         {
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
-                ctx.Remove(id);
-                var result = ctx.SaveChanges();
-                return result == 1;
-            }
+            using var ctx = _dbFactory.CreateDbContext();
+            ctx.Remove(id);
+            var result = ctx.SaveChanges();
+            return result == 1;
         }
 
         public async Task<bool> DeleteByIdAsync<TEntity>(int id) where TEntity : BaseSubscription
         {
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
-                ctx.Remove(id);
-                var result = await ctx.SaveChangesAsync();
-                return result == 1;
-            }
+            using var ctx = _dbFactory.CreateDbContext();
+            ctx.Remove(id);
+            var result = await ctx.SaveChangesAsync();
+            return result == 1;
         }
 
         #endregion
 
         public async Task SetSubscriptionStatusAsync(Subscription subscription, NotificationStatusType status)
         {
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
-                subscription.Status = status;
-                await ctx.SaveChangesAsync(true);
-            }
+            using var ctx = _dbFactory.CreateDbContext();
+            subscription.Status = status;
+            await ctx.SaveChangesAsync(true);
         }
 
         public bool Save(Subscription subscription)
@@ -304,12 +290,10 @@
 
         private ulong GetLastModifiedTimestamp()
         {
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
-                var lastModified = ctx.Metadata.Find("LAST_MODIFIED");
-                var result = Convert.ToUInt64(Math.Round(double.TryParse(lastModified?.Value, out var value) ? value : 0));
-                return result;
-            }
+            using var ctx = _dbFactory.CreateDbContext();
+            var lastModified = ctx.Metadata.Find("LAST_MODIFIED");
+            var result = Convert.ToUInt64(Math.Round(double.TryParse(lastModified?.Value, out var value) ? value : 0));
+            return result;
         }
     }
 }

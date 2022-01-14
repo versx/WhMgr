@@ -141,12 +141,11 @@
 
         private DiscordAuthResponse SendAuthorize(string authorizationCode)
         {
-            using (var wc = new WebClient())
+            using var wc = new WebClient();
+            wc.Headers.Add(HttpRequestHeader.ContentType, "application/x-www-form-urlencoded");
+            try
             {
-                wc.Headers.Add(HttpRequestHeader.ContentType, "application/x-www-form-urlencoded");
-                try
-                {
-                    var result = wc.UploadValues(TokenEndpoint, new NameValueCollection
+                var result = wc.UploadValues(TokenEndpoint, new NameValueCollection
                     {
                         { "client_id", _clientId.ToString() },
                         { "client_secret", _clientSecret },
@@ -155,14 +154,13 @@
                         { "redirect_uri", _redirectUri },
                         { "scope", DefaultScope },
                     });
-                    var responseJson = Encoding.UTF8.GetString(result);
-                    var response = responseJson.FromJson<DiscordAuthResponse>();
-                    return response;
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
+                var responseJson = Encoding.UTF8.GetString(result);
+                var response = responseJson.FromJson<DiscordAuthResponse>();
+                return response;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 
