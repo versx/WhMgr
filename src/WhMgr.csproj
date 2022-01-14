@@ -68,6 +68,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Web\Api\Responses\" />
+    <Folder Include="Web\Api\Requests\" />
   </ItemGroup>
 </Project>
