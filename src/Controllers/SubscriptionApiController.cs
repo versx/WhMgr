@@ -31,7 +31,7 @@
 
         #region User Subscriptions
 
-        [HttpGet("/")]
+        //[HttpGet("/")]
         [Produces("application/json")]
         public async Task<IActionResult> GetUserSubscriptions()
         {
