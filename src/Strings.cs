@@ -5,7 +5,6 @@
     using System.IO;
     using System.Reflection;
 
-    using POGOProtos.Rpc;
     using WhMgr.Data.Models;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 

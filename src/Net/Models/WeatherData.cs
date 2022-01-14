@@ -121,7 +121,10 @@
                 Title = Renderer.Parse(alert.Title, properties),
                 Url = Renderer.Parse(alert.Url, properties),
                 ImageUrl = Renderer.Parse(alert.ImageUrl, properties),
-                ThumbnailUrl = Renderer.Parse(alert.IconUrl, properties),
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = Renderer.Parse(alert.IconUrl, properties),
+                },
                 Description = Renderer.Parse(alert.Content, properties),
                 Color = GameplayCondition.BuildWeatherColor(MasterFile.Instance.DiscordEmbedColors),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
