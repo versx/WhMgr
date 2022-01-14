@@ -11,7 +11,7 @@ powershell -Command "iwr -outf ~/Desktop/dotnet-install.ps1 https://dotnet.micro
 
 :: Install .NET 5.0 SDK
 echo "Launching .NET Core installer..."
-powershell -ExecutionPolicy RemoteSigned -File dotnet-install.ps1 -Version 5.0.202
+powershell -ExecutionPolicy RemoteSigned -File dotnet-install.ps1 -Version 5.0.404
 
 :: Delete .NET 5.0 installer
 echo "Deleting .NET Core installer..."
