@@ -225,7 +225,7 @@
         [HttpGet]
         [HttpPost]
         [Route("discords/new")]
-        public IActionResult NewDiscord()
+        public async Task<IActionResult> NewDiscord()
         {
             if (Request.Method == "GET")
             {
@@ -240,7 +240,14 @@
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Create new discord server config
+                var name = Request.Form["name"].ToString();
+                // TODO: Check if already exists
+                var filePath = Path.Combine(Strings.DiscordsFolder, name + ".json");
+                var discord = new DiscordServerConfig();
+                var discordForm = DiscordFromForm(discord, Request.Form);
+                var json = discordForm.ToJson();
+                // Save json
+                await WriteDataAsync(filePath, json);
             }
             return Unauthorized();
         }
