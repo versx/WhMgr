@@ -8,7 +8,7 @@ chmod +x dotnet-install.sh
 
 # Install .NET 5.0
 echo "Launching .NET installer..."
-./dotnet-install.sh --version 5.0.202
+./dotnet-install.sh --version 5.0.404
 
 # Delete .NET 5.0 installer
 echo "Deleting .NET installer..."
