@@ -1,17 +1,17 @@
-# Download .NET Core 2.1 installer
-echo "Downloading .NET Core 2.1 installer..."
-wget https://dotnetwebsite.azurewebsites.net/download/dotnet-core/scripts/v1/dotnet-install.sh
+# Download .NET 5.0 installer
+echo "Downloading .NET 5.0 installer..."
+curl https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.sh > dotnet-install.sh
 
 # Make installer executable
 echo "Setting executable permissions..."
 chmod +x dotnet-install.sh
 
-# Install .NET Core 2.1.0
-echo "Launching .NET Core installer..."
-./dotnet-install.sh --version 2.1.813
+# Install .NET 5.0
+echo "Launching .NET installer..."
+./dotnet-install.sh --version 5.0.202
 
-# Delete .NET Core 2.1.0 installer
-echo "Deleting .NET Core installer..."
+# Delete .NET 5.0 installer
+echo "Deleting .NET installer..."
 rm dotnet-install.sh
 
 # Clone repository

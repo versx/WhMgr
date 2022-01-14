@@ -1044,7 +1044,7 @@
             Thread.Sleep(10 * 1000);
         }
 
-        private async Task PruneQuestChannels(DiscordClient client, DiscordServerConfig server)
+        private static async Task PruneQuestChannels(DiscordClient client, DiscordServerConfig server)
         {
             try
             {
