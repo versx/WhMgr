@@ -960,6 +960,7 @@
             }
             else if (Request.Method == "POST")
             {
+                // TODO: NewUser
             }
             return Unauthorized();
         }
@@ -969,14 +970,22 @@
         [Route("users/edit/{id}")]
         public IActionResult EditUser(uint id)
         {
-            var obj = new
+            if (Request.Method == "GET")
             {
-                passport = HttpContext.Session.GetValue<UserPassport>("passport"),
-                template = "users-edit",
-                title = "Edit Admin " + id,
-                favicon = "dotnet.png",
-            };
-            return View("Users/edit", obj);
+                var obj = new
+                {
+                    passport = HttpContext.Session.GetValue<UserPassport>("passport"),
+                    template = "users-edit",
+                    title = "Edit Admin " + id,
+                    favicon = "dotnet.png",
+                };
+                return View("Users/edit", obj);
+            }
+            else if (Request.Method == "POST")
+            {
+                // TODO: EditUser
+            }
+            return Unauthorized();
         }
 
         [HttpGet("users/delete/{id}")]
