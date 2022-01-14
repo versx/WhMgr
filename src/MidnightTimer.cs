@@ -72,7 +72,7 @@
         {
             // Subtract the current time, from midnigh (tomorrow).
             // This will return a value, which will be used to set the Timer interval
-            var ts = this.GetMidnight(s_MinutesAfterMidnight).Subtract(DateTime.Now);
+            var ts = GetMidnight(s_MinutesAfterMidnight).Subtract(DateTime.Now);
 
             // We only want the Hours, Minuters and Seconds until midnight
             var tsMidnight = new TimeSpan(ts.Hours, ts.Minutes, ts.Seconds);
@@ -178,7 +178,7 @@
         /// </summary>
         /// <param name="MinutesAfterMidnight">How many minuets after midnight to add?</param>
         /// <returns></returns>
-        private DateTime GetMidnight(int MinutesAfterMidnight)
+        private static DateTime GetMidnight(int MinutesAfterMidnight)
         {
             // Lets work out the next occuring midnight
             // Add 1 day and use hours 0, min 0 and second 0 (remember this is 24 hour time)

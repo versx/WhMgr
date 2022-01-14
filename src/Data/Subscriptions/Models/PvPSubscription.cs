@@ -43,7 +43,7 @@
         }
 
         [
-            JsonProperty("pokemon_id"),
+            JsonPropertyName("pokemon_id"),
             Alias("pokemon_id"),
             Required,
         ]

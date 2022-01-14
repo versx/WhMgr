@@ -109,7 +109,7 @@
         public PokemonSize Size => (PokemonSize)_Size;
 
         [
-            JsonProperty("size"),
+            JsonPropertyName("size"),
             Alias("size"),
             Default((uint)PokemonSize.All),
         ]

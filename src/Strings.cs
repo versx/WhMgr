@@ -62,7 +62,7 @@
         public const string ErrorLogFileName = "error.log";
         public const string StatsFileName = "notifications_{0}.csv";
 
-        public static readonly List<string> ValidGenders = new List<string> { "*", "m", "f" };
+        public static readonly List<string> ValidGenders = new() { "*", "m", "f" };
 
         // Default filter settings for alarms and subscriptions
         public const int MinimumIV = 0;
@@ -101,7 +101,7 @@
         public const string SQL_DELETE_CONVERTED_POKESTOPS = "DELETE FROM pokestop WHERE id IN (SELECT id FROM gym)";
         public const string SQL_DELETE_STALE_POKESTOPS = "DELETE FROM pokestop WHERE updated < UNIX_TIMESTAMP() - 90000;";
 
-        public static readonly Dictionary<int, PokemonGenerationRange> PokemonGenerationRanges = new Dictionary<int, PokemonGenerationRange>
+        public static readonly Dictionary<int, PokemonGenerationRange> PokemonGenerationRanges = new()
         {
             { 1, new PokemonGenerationRange { Generation = 1, Start = 1, End = 151 } },
             { 2, new PokemonGenerationRange { Generation = 2, Start = 152, End = 251 } },
