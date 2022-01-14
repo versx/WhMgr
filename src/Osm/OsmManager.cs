@@ -57,7 +57,7 @@
             for (var i = 0; i < coordinates.Count; i++)
             {
                 var multipolygon = coordinates[i];
-                sb.Append("[");
+                sb.Append('[');
                 for (var j = 0; j < multipolygon.Count; j++)
                 {
                     var polygon = multipolygon[j];
@@ -72,11 +72,11 @@
                         sb.Append($"[{lat},{lng}]");
 
                     if (j != multipolygon.Count - 1)
-                        sb.Append(",");
+                        sb.Append(',');
                 }
-                sb.Append("]");
+                sb.Append(']');
                 if (i != coordinates.Count - 1)
-                    sb.Append(",");
+                    sb.Append(',');
             }
             //sb.Append("]");
             return sb.ToString();

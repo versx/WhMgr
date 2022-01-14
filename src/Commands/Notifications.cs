@@ -11,12 +11,10 @@
     using DSharpPlus.CommandsNext;
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
-    using Newtonsoft.Json;
 
     using WhMgr.Commands.Input;
     using WhMgr.Configuration;
     using WhMgr.Data;
-    using WhMgr.Data.Models;
     using WhMgr.Data.Subscriptions;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
@@ -24,7 +22,6 @@
     using WhMgr.Localization;
     using WhMgr.Net.Models;
     using WhMgr.Services;
-    using WhMgr.Utilities;
 
     public class Notifications : BaseCommandModule
     {
@@ -2285,7 +2282,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             return new KeyValuePair<List<string>, List<string>>(subscribed, alreadySubscribed);
         }
 
-        private async Task<KeyValuePair<List<string>, List<string>>> AddPvPSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, PvPLeague league, int minRank, double minPercent, List<string> areas)
+        private static async Task<KeyValuePair<List<string>, List<string>>> AddPvPSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, PvPLeague league, int minRank, double minPercent, List<string> areas)
         {
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
@@ -2352,7 +2349,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             return new KeyValuePair<List<string>, List<string>>(subscribed, alreadySubscribed);
         }
 
-        private KeyValuePair<List<string>, List<string>> AddRaidSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
+        private static KeyValuePair<List<string>, List<string>> AddRaidSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
         {
             var alreadySubscribed = new List<string>();
             var subscribed = new List<string>();
@@ -2642,7 +2639,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
             _subProcessor.Manager.ReloadSubscriptions();
         }
 
-        private async Task RemovePokemonSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
+        private static async Task RemovePokemonSubscription(CommandContext ctx, SubscriptionObject subscription, PokemonValidation validation, List<string> areas)
         {
             var error = false;
             var valid = string.Join(",", validation.Valid.Keys.ToList());
@@ -2945,7 +2942,7 @@ and only from the following areas: {(areasResult.Count == server.Geofences.Count
                 return;
             }
 
-            var json = JsonConvert.SerializeObject(subscription, Formatting.Indented);
+            var json = subscription.ToJson();
             var tmpFile = Path.Combine(Path.GetTempPath(), $"{ctx.Guild?.Name}_{ctx.User.Username}_subscriptions_{DateTime.Now:yyyy-MM-dd}.json");
             File.WriteAllText(tmpFile, json);
 

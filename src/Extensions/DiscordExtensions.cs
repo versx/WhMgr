@@ -104,7 +104,7 @@
 
         #endregion
 
-        private static readonly Dictionary<(ulong, ulong), Task<DiscordMember>> MemberTasks = new Dictionary<(ulong, ulong), Task<DiscordMember>>();
+        private static readonly Dictionary<(ulong, ulong), Task<DiscordMember>> MemberTasks = new();
 
         public static async Task<DiscordMember> GetMemberById(this DiscordClient client, ulong guildId, ulong id)
         {
@@ -438,7 +438,7 @@
 
         public static DiscordColor BuildPokemonIVColor(this string iv, DiscordEmbedColorConfig config)
         {
-            if (!double.TryParse(iv.Substring(0, iv.Length - 1), out var result))
+            if (!double.TryParse(iv[0..^1], out var result))
             {
                 return DiscordColor.White;
             }
@@ -462,31 +462,17 @@
             {
                 return DiscordColor.White;
             }
-            string color;
-            switch (level)
+
+            string color = level switch
             {
-                case 1:
-                    color = config.Raids.Level1;
-                    break;
-                case 2:
-                    color = config.Raids.Level2;
-                    break;
-                case 3:
-                    color = config.Raids.Level3;
-                    break;
-                case 4:
-                    color = config.Raids.Level4;
-                    break;
-                case 5:
-                    color = config.Raids.Level5;
-                    break;
-                case 6:
-                    color = config.Raids.Level6;
-                    break;
-                default:
-                    color = config.Raids.Ex;
-                    break;
-            }
+                1 => config.Raids.Level1,
+                2 => config.Raids.Level2,
+                3 => config.Raids.Level3,
+                4 => config.Raids.Level4,
+                5 => config.Raids.Level5,
+                6 => config.Raids.Level6,
+                _ => config.Raids.Ex,
+            };
             return new DiscordColor(color);
         }
 

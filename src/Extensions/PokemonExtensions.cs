@@ -72,15 +72,12 @@
 
         public static string GetPokemonGenderIcon(this Gender gender)
         {
-            switch (gender)
+            return gender switch
             {
-                case Gender.Male:
-                    return "♂"; //♂ \u2642
-                case Gender.Female:
-                    return "♀"; //♀ \u2640
-                default:
-                    return "⚲"; //⚲
-            }
+                Gender.Male => "♂",//♂ \u2642
+                Gender.Female => "♀",//♀ \u2640
+                _ => "⚲",//⚲
+            };
         }
 
         public static List<PokemonType> GetStrengths(this PokemonType type)
@@ -334,7 +331,7 @@
                 {
                     var keys = Strings.PokemonGenerationRanges.Keys.ToList();
                     var minValue = keys[0];
-                    var maxValue = keys[keys.Count - 1];
+                    var maxValue = keys[^1];
                     return null;
                 }
 

@@ -26,7 +26,7 @@
         #region Variables
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("HTTP", Program.LogLevel);
-        private static readonly object _lock = new object();
+        private static readonly object _lock = new();
         private readonly Dictionary<string, ScannedPokemon> _processedPokemon;
         private readonly Dictionary<string, ScannedRaid> _processedRaids;
         private readonly Dictionary<string, ScannedGym> _processedGyms;
@@ -670,7 +670,7 @@
             }
         }
 
-        private HttpListener CreateListener()
+        private static HttpListener CreateListener()
         {
             return new HttpListener();
         }
