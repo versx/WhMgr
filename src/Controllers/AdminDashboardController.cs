@@ -515,7 +515,7 @@
         [HttpGet]
         [HttpPost]
         [Route("filters/new")]
-        public IActionResult NewFilter()
+        public async Task<IActionResult> NewFilter()
         {
             if (Request.Method == "GET")
             {
@@ -530,7 +530,15 @@
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Create new webhook filter
+                var fileName = Request.Form["name"].ToString();
+                // TODO: Check if exists or not
+                var filter = new WebhookFilter();
+                var filterForm = FilterFromForm(filter, Request.Form);
+                var json = filterForm.ToJson();
+                // Save json
+                var filePath = Path.Combine(Strings.FiltersFolder, fileName + ".json");
+                await WriteDataAsync(filePath, json);
+                return Redirect("/dashboard/embeds");
             }
             return Unauthorized();
         }
