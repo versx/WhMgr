@@ -398,7 +398,7 @@
         [HttpGet]
         [HttpPost]
         [Route("alarms/new")]
-        public IActionResult NewAlarm()
+        public async Task<IActionResult> NewAlarm()
         {
             if (Request.Method == "GET")
             {
@@ -413,7 +413,14 @@
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Create new alarms file
+                // TODO: Check if exists
+                var name = Request.Form["name"].ToString();
+                var filePath = Path.Combine(Strings.AlarmsFolder, name + ".json");
+                var alarms = new ChannelAlarmsManifest();
+                var alarmsForm = AlarmsFromForm(alarms, Request.Form);
+                var json = alarmsForm.ToJson();
+                // Save json
+                await WriteDataAsync(filePath, json);
             }
             return Unauthorized();
         }
