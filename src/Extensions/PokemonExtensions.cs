@@ -114,7 +114,8 @@
                 var emojiKey = $"types_{type.ToString().ToLower()}";
                 if (!MasterFile.Instance.Emojis.ContainsKey(emojiKey))
                 {
-                    Console.WriteLine($"[ERROR] Emoji {emojiKey} does not exist");
+                    //Console.WriteLine($"[ERROR] Emoji {emojiKey} does not exist");
+                    list.Add(type.ToString());
                     continue;
                 }
 
