@@ -164,9 +164,12 @@
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                },
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
-                Color = (IsExEligible ? 0 /*ex*/ : int.Parse(Level)).BuildRaidColor(server),
+                Color = (IsExEligible ? 0 /*ex*/ : int.Parse(Level)).BuildRaidColor(MasterFile.Instance.DiscordEmbedColors),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text, properties),

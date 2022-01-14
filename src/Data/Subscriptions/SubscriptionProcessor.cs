@@ -290,8 +290,7 @@ namespace WhMgr.Data.Subscriptions
 
                     var form = Translator.Instance.GetFormName(pkmn.FormId);
                     var pokemonSubscriptions = user.PvP.Where(x =>
-                        x.PokemonId == pkmn.Id &&
-                        (string.IsNullOrEmpty(x.Form) || (!string.IsNullOrEmpty(x.Form) && string.Compare(x.Form, form, true) == 0))
+                        x.PokemonId.Contains(pkmn.Id) && (x.Forms?.Contains(form) ?? true)
                     );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
@@ -699,7 +698,7 @@ namespace WhMgr.Data.Subscriptions
                 return geofence;
             }
 
-            var invasion = MasterFile.Instance.GruntTypes.ContainsKey(pokestop.GruntType) ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
+            var invasion = MasterFile.Instance.GruntTypes?.ContainsKey(pokestop.GruntType) ?? false ? MasterFile.Instance.GruntTypes[pokestop.GruntType] : null;
             var encounters = invasion?.GetEncounterRewards();
             if (encounters == null)
                 return;
@@ -752,7 +751,7 @@ namespace WhMgr.Data.Subscriptions
                         continue;
                     }
 
-                    var subInvasion = user.Invasions.FirstOrDefault(x => encounters.Contains(x.RewardPokemonId));
+                    var subInvasion = user.Invasions.FirstOrDefault(x => x.RewardPokemonId.Intersects(encounters));
                     // Not subscribed to invasion
                     if (subInvasion == null)
                     {
@@ -958,7 +957,7 @@ namespace WhMgr.Data.Subscriptions
                                 }
                             };
 
-                            await _servers[item.Subscription.GuildId].SendDirectMessage(item.Member, string.Empty, eb.Build());
+                            await item.Member.SendDirectMessage(string.Empty, eb.Build());
                             item.Subscription.RateLimitNotificationSent = true;
                             item.Subscription.Status = NotificationStatusType.None;
                             if (!item.Subscription.Update())
@@ -1000,7 +999,7 @@ namespace WhMgr.Data.Subscriptions
 
                     // Send direct message notification to user
                     var client = _servers[item.Subscription.GuildId];
-                    await client.SendDirectMessage(item.Member, item.Embed);
+                    await item.Member.SendDirectMessage(item.Embed);
                     _logger.Info($"[WEBHOOK] Notified user {item.Member.Username} of {item.Description}.");
                     Thread.Sleep(10);
                 }
@@ -1010,8 +1009,8 @@ namespace WhMgr.Data.Subscriptions
 
         private bool HasRole(DiscordMember member, List<ulong> roleIds)
         {
-            var memberRoles = member.Roles.Select(x => x.Id);
-            return roleIds.Any(x => memberRoles.Contains(x));
+            var memberRoles = member?.Roles.Select(x => x.Id);
+            return roleIds?.Any(x => memberRoles.Contains(x)) ?? false;
         }
 
         private bool IsUltraRare(TwilioConfig twilo, PokemonData pkmn)

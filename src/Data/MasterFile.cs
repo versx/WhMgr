@@ -9,6 +9,7 @@
     using POGOProtos.Rpc;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
+    using WhMgr.Configuration;
     using WhMgr.Data.Models;
     using WhMgr.Diagnostics;
     using WhMgr.Net.Models;
@@ -19,6 +20,7 @@
         const string CpMultipliersFileName = "cpMultipliers.json";
         const string EmojisFileName = "emojis.json";
         const string RarityFileName = "rarity.json";
+        const string EmbedColorsFileName = "embedColors.json";
 
         private static readonly IEventLogger _logger = EventLogger.GetLogger("MASTER", Program.LogLevel);
 
@@ -45,10 +47,10 @@
         [JsonProperty("items")]
         public IReadOnlyDictionary<int, ItemModel> Items { get; set; }
 
-        [JsonProperty("grunt_types")]
+        [JsonProperty("invasions")]
         public IReadOnlyDictionary<InvasionCharacter, TeamRocketInvasion> GruntTypes { get; set; }
 
-        [JsonProperty("pokemon_types")]
+        [JsonProperty("types")]
         public IReadOnlyDictionary<PokemonType, PokemonTypes> PokemonTypes { get; set; }
 
         [JsonIgnore]
@@ -62,6 +64,12 @@
 
         [JsonIgnore]
         public IReadOnlyDictionary<PokemonRarity, List<uint>> PokemonRarity { get; set; }
+
+        /// <summary>
+        /// Gets or sets the Discord embed colors to use for each message type
+        /// </summary>
+        [JsonIgnore]
+        public DiscordEmbedColorConfig DiscordEmbedColors { get; set; }
 
         #region Singletons
 
@@ -89,6 +97,7 @@
             PokemonRarity = LoadInit<Dictionary<PokemonRarity, List<uint>>>(Path.Combine(Strings.DataFolder, RarityFileName));
             Emojis = new Dictionary<string, ulong>();
             CustomEmojis = LoadInit<Dictionary<string, string>>(Path.Combine(Strings.DataFolder, EmojisFileName));
+            DiscordEmbedColors = LoadInit<DiscordEmbedColorConfig>(Path.Combine(Strings.DataFolder, EmbedColorsFileName));
         }
 
         public static PokedexPokemon GetPokemon(uint pokemonId, int formId)
@@ -97,7 +106,7 @@
                 return null;
 
             var pkmn = Instance.Pokedex[pokemonId];
-            var useForm = !pkmn.Attack.HasValue && formId > 0 && pkmn.Forms.ContainsKey(formId);
+            var useForm = !pkmn.Attack.HasValue && formId > 0 && (pkmn.Forms?.ContainsKey(formId) ?? true);
             var pkmnForm = useForm ? pkmn.Forms[formId] : pkmn;
             pkmnForm.Name = pkmn.Name;
             return pkmnForm;

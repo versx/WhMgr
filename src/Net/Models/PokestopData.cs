@@ -119,12 +119,15 @@
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                },
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
                 Color = useInvasion
-                    ? new DiscordColor(server.DiscordEmbedColors.Pokestops.Invasions)
+                    ? new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Invasions)
                     : useLure
-                        ? LureType.BuildLureColor(server)
+                        ? LureType.BuildLureColor(MasterFile.Instance.DiscordEmbedColors)
                         : DiscordColor.CornflowerBlue,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {

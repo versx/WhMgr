@@ -15,19 +15,20 @@
     using ServiceStack.DataAnnotations;
     using ServiceStack.OrmLite;
 
+    using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Localization;
 
-    public class ShinyStats
+    public class ShinyStats : BaseCommandModule
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("SHINY_STATS", Program.LogLevel);
-        private readonly Dependencies _dep;
+        private readonly WhConfigHolder _config;
 
-        public ShinyStats(Dependencies dep)
+        public ShinyStats(WhConfigHolder config)
         {
-            _dep = dep;
+            _config = config;
         }
 
         [
@@ -36,15 +37,15 @@
         ]
         public async Task GetShinyStatsAsync(CommandContext ctx)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
 
-            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+            if (!_config.Instance.Servers.ContainsKey(guildId))
             {
                 await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 
-            var server = _dep.WhConfig.Servers[guildId];
+            var server = _config.Instance.Servers[guildId];
             if (!server.ShinyStats.Enabled)
                 return;
 
@@ -52,7 +53,7 @@
             if (statsChannel == null)
             {
                 _logger.Warn($"Failed to get channel id {server.ShinyStats.ChannelId} to post shiny stats.");
-                await ctx.RespondEmbed(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(ctx.User.Username), DiscordColor.Yellow);
+                await ctx.RespondEmbed(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(new { author = ctx.User.Username }), DiscordColor.Yellow);
                 return;
             }
 
@@ -61,12 +62,12 @@
                 await ctx.Client.DeleteMessages(server.ShinyStats.ChannelId);
             }
 
-            var stats = await GetShinyStats(_dep.WhConfig.Database.Scanner.ToString());
+            var stats = await GetShinyStats(_config.Instance.Database.Scanner.ToString());
             var sorted = stats.Keys.ToList();
             sorted.Sort();
             if (sorted.Count > 0)
             {
-                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString()));
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(new { date = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString() }));
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
             }
 
@@ -83,11 +84,24 @@
                 var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
                 if (chance == 0)
                 {
-                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0")));
+                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(new
+                    {
+                        pokemon = pkmn.Name,
+                        id = pokemon,
+                        shiny = pkmnStats.Shiny.ToString("N0"),
+                        total = pkmnStats.Total.ToString("N0"),
+                    }));
                 }
                 else
                 {
-                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(pkmn.Name, pokemon, pkmnStats.Shiny.ToString("N0"), pkmnStats.Total.ToString("N0"), chance));
+                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(new
+                    {
+                        pokemon = pkmn.Name,
+                        id = pokemon,
+                        shiny = pkmnStats.Shiny.ToString("N0"),
+                        total = pkmnStats.Total.ToString("N0"),
+                        chance,
+                    }));
                 }
                 Thread.Sleep(500);
             }
@@ -102,7 +116,12 @@
             }
             else
             {
-                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(total.Shiny.ToString("N0"), total.Total.ToString("N0"), totalRatio));
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(new
+                {
+                    shiny = total.Shiny.ToString("N0"),
+                    total = total.Total.ToString("N0"),
+                    chance = totalRatio,
+                }));
             }
         }
 

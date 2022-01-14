@@ -10,7 +10,7 @@
     using DSharpPlus;
     using DSharpPlus.CommandsNext;
     using DSharpPlus.Entities;
-    using DSharpPlus.Interactivity;
+    using DSharpPlus.Interactivity.Extensions;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Configuration;
@@ -74,29 +74,29 @@
             return messagesSent;
         }
 
-        public static async Task<DiscordMessage> SendDirectMessage(this DiscordClient client, DiscordUser user, DiscordEmbed embed)
+        public static async Task<DiscordMessage> SendDirectMessage(this DiscordMember member, DiscordEmbed embed)
         {
             if (embed == null)
                 return null;
 
-            return await client.SendDirectMessage(user, string.Empty, embed);
+            return await member.SendDirectMessage(string.Empty, embed);
         }
 
-        public static async Task<DiscordMessage> SendDirectMessage(this DiscordClient client, DiscordUser user, string message, DiscordEmbed embed)
+        public static async Task<DiscordMessage> SendDirectMessage(this DiscordMember member, string message, DiscordEmbed embed)
         {
             try
             {
-                var dm = await client.CreateDmAsync(user);
+                var dm = await member.CreateDmChannelAsync();
                 if (dm != null)
                 {
-                    var msg = await dm.SendMessageAsync(message, false, embed);
+                    var msg = await dm.SendMessageAsync(message, embed);
                     return msg;
                 }
             }
             catch (Exception)
             {
                 //_logger.Error(ex);
-                _logger.Error($"Failed to send DM to user {user.Username}.");
+                _logger.Error($"Failed to send DM to user {member.Username}.");
             }
 
             return null;
@@ -154,7 +154,7 @@
             DiscordMember member = null;
             try
             {
-                member = members?.FirstOrDefault(x => x.Id == id);
+                member = members?.FirstOrDefault(x => x.Key == id).Value;
             }
             catch { }
             if (member == null)
@@ -179,8 +179,8 @@
                 await ctx.TriggerTypingAsync();
             }
 
-            var message = Translator.Instance.Translate("DONATE_MESSAGE", ctx.User.Username) ??
-                $"{ctx.User.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
+            var message = Translator.Instance.Translate("DONATE_MESSAGE", new { author = ctx.Message.Author.Username }) ??
+                $"{ctx.Message.Author.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
                 $"Donation information can be found by typing the `$donate` command.\r\n\r\n" +
                 $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
             var eb = await ctx.RespondEmbed(message);
@@ -193,7 +193,7 @@
             //if (message?.Channel?.Guild == null)
             if (!exists)
             {
-                await ctx.Message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", ctx.Message.Author.Username), DiscordColor.Yellow);
+                await ctx.Message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", new { author = ctx.Message.Author.Username }), DiscordColor.Yellow);
                 return false;
             }
 
@@ -294,7 +294,7 @@
                 return false;
 
             var guild = client.Guilds[guildId];
-            var member = guild.Members.FirstOrDefault(x => x.Id == userId);
+            var member = guild.Members.FirstOrDefault(x => x.Key == userId).Value;
             if (member == null)
             {
                 _logger.Error($"Failed to get user with id {userId}.");
@@ -357,7 +357,7 @@
 
         public static DiscordRole GetRoleFromName(this DiscordGuild guild, string roleName)
         {
-            return guild?.Roles.FirstOrDefault(x => string.Compare(x.Name, roleName, true) == 0);
+            return guild?.Roles.FirstOrDefault(x => string.Compare(x.Value.Name, roleName, true) == 0).Value;
         }
 
         #endregion
@@ -419,7 +419,7 @@
         public static async Task<bool> Confirm(this CommandContext ctx, string message)
         {
             await ctx.RespondEmbed(message);
-            var interactivity = ctx.Client.GetModule<InteractivityModule>();
+            var interactivity = ctx.Client.GetInteractivity();
             if (interactivity == null)
             {
                 _logger.Error("Interactivity model failed to load!");
@@ -432,33 +432,33 @@
                 && Regex.IsMatch(x.Content, ConfirmRegex), 
                 TimeSpan.FromMinutes(2));
 
-            return Regex.IsMatch(m.Message.Content, YesRegex);
+            return Regex.IsMatch(m.Result.Content, YesRegex);
         }
 
         #region Colors
 
-        public static DiscordColor BuildPokemonIVColor(this string iv, DiscordServerConfig server)
+        public static DiscordColor BuildPokemonIVColor(this string iv, DiscordEmbedColorConfig config)
         {
             if (!double.TryParse(iv.Substring(0, iv.Length - 1), out var result))
             {
                 return DiscordColor.White;
             }
-            var color = server.DiscordEmbedColors.Pokemon.IV.FirstOrDefault(x => result >= x.Minimum && result <= x.Maximum);
+            var color = config.Pokemon.IV.FirstOrDefault(x => result >= x.Minimum && result <= x.Maximum);
             return new DiscordColor(color.Color);
         }
 
-        public static DiscordColor BuildPokemonPvPColor(this int rank, DiscordServerConfig server)
+        public static DiscordColor BuildPokemonPvPColor(this int rank, DiscordEmbedColorConfig config)
         {
             if (rank <= 0)
             {
                 return DiscordColor.White;
             }
-            var color = server.DiscordEmbedColors.Pokemon.PvP.FirstOrDefault(x => rank >= x.Minimum && rank <= x.Maximum);
+            var color = config.Pokemon.PvP.FirstOrDefault(x => rank >= x.Minimum && rank <= x.Maximum);
             return new DiscordColor(color.Color);
         }
 
-        public static DiscordColor BuildRaidColor(this int level, DiscordServerConfig server)
-        {
+        public static DiscordColor BuildRaidColor(this int level, DiscordEmbedColorConfig config)
+{
             if (level == 0)
             {
                 return DiscordColor.White;
@@ -467,49 +467,49 @@
             switch (level)
             {
                 case 1:
-                    color = server.DiscordEmbedColors.Raids.Level1;
+                    color = config.Raids.Level1;
                     break;
                 case 2:
-                    color = server.DiscordEmbedColors.Raids.Level2;
+                    color = config.Raids.Level2;
                     break;
                 case 3:
-                    color = server.DiscordEmbedColors.Raids.Level3;
+                    color = config.Raids.Level3;
                     break;
                 case 4:
-                    color = server.DiscordEmbedColors.Raids.Level4;
+                    color = config.Raids.Level4;
                     break;
                 case 5:
-                    color = server.DiscordEmbedColors.Raids.Level5;
+                    color = config.Raids.Level5;
                     break;
                 case 6:
-                    color = server.DiscordEmbedColors.Raids.Level6;
+                    color = config.Raids.Level6;
                     break;
                 default:
-                    color = server.DiscordEmbedColors.Raids.Ex;
+                    color = config.Raids.Ex;
                     break;
             }
             return new DiscordColor(color);
         }
 
-        public static DiscordColor BuildLureColor(this PokestopLureType lureType, DiscordServerConfig server)
+        public static DiscordColor BuildLureColor(this PokestopLureType lureType, DiscordEmbedColorConfig config)
         {
             string color;
             switch (lureType)
             {
                 case PokestopLureType.Normal:
-                    color = server.DiscordEmbedColors.Pokestops.Lures.Normal;
+                    color = config.Pokestops.Lures.Normal;
                     break;
                 case PokestopLureType.Glacial:
-                    color = server.DiscordEmbedColors.Pokestops.Lures.Glacial;
+                    color = config.Pokestops.Lures.Glacial;
                     break;
                 case PokestopLureType.Mossy:
-                    color = server.DiscordEmbedColors.Pokestops.Lures.Mossy;
+                    color = config.Pokestops.Lures.Mossy;
                     break;
                 case PokestopLureType.Magnetic:
-                    color = server.DiscordEmbedColors.Pokestops.Lures.Magnetic;
+                    color = config.Pokestops.Lures.Magnetic;
                     break;
                 case PokestopLureType.Rainy:
-                    color = server.DiscordEmbedColors.Pokestops.Lures.Rainy;
+                    color = config.Pokestops.Lures.Rainy;
                     break;
                 default:
                     return DiscordColor.White;
@@ -517,31 +517,31 @@
             return new DiscordColor(color);
         }
 
-        public static DiscordColor BuildWeatherColor(this WeatherCondition weather, DiscordServerConfig server)
+        public static DiscordColor BuildWeatherColor(this WeatherCondition weather, DiscordEmbedColorConfig config)
         {
             var color = "#808080";
             switch (weather)
             {
                 case WeatherCondition.Clear:
-                    color = server.DiscordEmbedColors.Weather.Clear;
+                    color = config.Weather.Clear;
                     break;
                 case WeatherCondition.Overcast:
-                    color = server.DiscordEmbedColors.Weather.Cloudy;
+                    color = config.Weather.Cloudy;
                     break;
                 case WeatherCondition.Fog:
-                    color = server.DiscordEmbedColors.Weather.Fog;
+                    color = config.Weather.Fog;
                     break;
                 case WeatherCondition.PartlyCloudy:
-                    color = server.DiscordEmbedColors.Weather.PartlyCloudy;
+                    color = config.Weather.PartlyCloudy;
                     break;
                 case WeatherCondition.Rainy:
-                    color = server.DiscordEmbedColors.Weather.Rain;
+                    color = config.Weather.Rain;
                     break;
                 case WeatherCondition.Snow:
-                    color = server.DiscordEmbedColors.Weather.Snow;
+                    color = config.Weather.Snow;
                     break;
                 case WeatherCondition.Windy:
-                    color = server.DiscordEmbedColors.Weather.Windy;
+                    color = config.Weather.Windy;
                     break;
             }
             return new DiscordColor(color);

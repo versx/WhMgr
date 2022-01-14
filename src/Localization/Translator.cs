@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
 
     using ActivityType = POGOProtos.Rpc.HoloActivityType;
     using AlignmentType = POGOProtos.Rpc.PokemonDisplayProto.Types.Alignment;
@@ -11,15 +13,19 @@
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
 
     public class Translator : Language<string, string, Dictionary<string, string>>
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("LOCALE");
 
+        private readonly string _appLocalesFolder = Directory.GetCurrentDirectory() + "/../static/locales";
+        private readonly string _binLocalesFolder = Directory.GetCurrentDirectory() + $"/../bin/static/locales";
+
         #region Singleton
 
         private static Translator _instance;
-        
+
         public static Translator Instance
         {
             get
@@ -33,6 +39,52 @@
         }
 
         #endregion
+
+        public void CreateLocaleFiles()
+        {
+            var files = Directory.GetFiles(_appLocalesFolder, "*.json")
+                                 .Select(x => Path.GetFileName(x))
+                                 .ToList();
+
+            foreach (var file in files)
+            {
+                // TODO: Filter by `_` prefix
+                var locale = Path.GetFileName(file).Replace("_", null);
+                var localeFile = locale;
+
+                var json = Utilities.NetUtil.Get("https://raw.githubusercontent.com/WatWowMap/pogo-translations/master/static/locales/" + locale);
+                var remote = json.FromJson<Dictionary<string, string>>();
+                
+                Console.WriteLine($"Creating locale {locale}");
+
+                var keys = remote.Keys.ToList();
+                for (var i = 0; i < keys.Count; i++)
+                {
+                    var key = keys[i];
+                    remote[key] = remote[key].Replace("%", "{");
+                    remote[key] = remote[key].Replace("}", "}}");
+                }
+
+                if (locale != "en")
+                {
+                    // Include en as fallback first
+                    var appTransFallback = File.ReadAllText(
+                        Path.Combine(_appLocalesFolder, "_en.json")
+                    );
+                    var fallbackTranslations = appTransFallback.FromJson<Dictionary<string, string>>();
+                    remote = MergeDictionaries(remote, fallbackTranslations);
+                }
+
+                var appTranslations = File.ReadAllText(Path.Combine(_appLocalesFolder, file));
+                remote = MergeDictionaries(remote, appTranslations.FromJson<Dictionary<string, string>>());
+
+                File.WriteAllText(
+                    Path.Combine(_binLocalesFolder, localeFile),
+                    remote.ToJson()
+                );
+                Console.WriteLine($"{localeFile} file saved.");
+            }
+        }
 
         public override string Translate(string value)
         {
@@ -136,6 +188,21 @@
         public string GetEvolutionName(TemporaryEvolutionId evolution)
         {
             return Translate($"evo_{(int)evolution}");
+        }
+
+        private static Dictionary<string, string> MergeDictionaries(Dictionary<string, string> locales1, Dictionary<string, string> locales2)
+        {
+            var result = locales1;
+            foreach (var (key, value) in locales2)
+            {
+                if (result.ContainsKey(key))
+                {
+                    // Key already exists, skip...
+                    continue;
+                }
+                result.Add(key, value);
+            }
+            return result;
         }
     }
 }

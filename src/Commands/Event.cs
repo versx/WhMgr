@@ -11,6 +11,7 @@
     using DSharpPlus.Entities;
     using ServiceStack.OrmLite;
 
+    using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
@@ -23,15 +24,15 @@
         Hidden,
         RequirePermissions(Permissions.KickMembers)
     ]
-    public class Event
+    public class Event : BaseCommandModule
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("COMMUNITYDAY", Program.LogLevel);
 
-        private readonly Dependencies _dep;
+        private readonly WhConfigHolder _config;
 
-        public Event(Dependencies dep)
+        public Event(WhConfigHolder config)
         {
-            _dep = dep;
+            _config = config;
         }
 
         [
@@ -53,9 +54,9 @@
                 }
             };
             var pkmnNames = new List<string>();
-            for (var i = 0; i < _dep.WhConfig.EventPokemon.PokemonIds.Count; i++)
+            for (var i = 0; i < _config.Instance.EventPokemon.PokemonIds.Count; i++)
             {
-                var pkmnId = _dep.WhConfig.EventPokemon.PokemonIds[i];
+                var pkmnId = _config.Instance.EventPokemon.PokemonIds[i];
                 if (MasterFile.Instance.Pokedex.ContainsKey(pkmnId))
                 {
                     pkmnNames.Add(pkmnId + ":" + MasterFile.Instance.Pokedex[pkmnId].Name);
@@ -106,10 +107,10 @@
                 minIV = 90;
             }
 
-            _dep.WhConfig.EventPokemon.Type = ParseFilterType(filterType);
-            _dep.WhConfig.EventPokemon.MinimumIV = minIV;
-            _dep.WhConfig.EventPokemon.PokemonIds = pkmnToAdd;
-            _dep.WhConfig.Save(_dep.WhConfig.FileName);
+            _config.Instance.EventPokemon.Type = ParseFilterType(filterType);
+            _config.Instance.EventPokemon.MinimumIV = minIV;
+            _config.Instance.EventPokemon.PokemonIds = pkmnToAdd;
+            _config.Instance.Save(_config.Instance.FileName);
 
             var pkmnNames = new List<string>();
             for (var i = 0; i < pkmnToAdd.Count; i++)
@@ -121,10 +122,18 @@
                 }
             }
 
-            var message = Translator.Instance.Translate("EVENT_POKEMON_SET").FormatText(ctx.User.Username, string.Join(", ", pkmnNames));
+            var message = Translator.Instance.Translate("EVENT_POKEMON_SET").FormatText(new
+            {
+                author = ctx.User.Username,
+                pokemon = string.Join(", ", pkmnNames),
+            });
             if (pkmnFailed.Count > 0)
             {
-                message += "\r\n" + Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", pkmnFailed));
+                message += "\r\n" + Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", pkmnFailed),
+                });
             }
             await ctx.RespondEmbed(message);
         }
@@ -152,9 +161,8 @@
                 pkmnFailed.Add(eventPokemonId);
             }
 
-
-            _dep.WhConfig.EventPokemon.PokemonIds.AddRange(pkmnToAdd.Distinct());
-            _dep.WhConfig.Save(_dep.WhConfig.FileName);
+            _config.Instance.EventPokemon.PokemonIds.AddRange(pkmnToAdd.Distinct());
+            _config.Instance.Save(_config.Instance.FileName);
 
             var pkmnNames = new List<string>();
             for (var i = 0; i < pkmnToAdd.Count; i++)
@@ -166,10 +174,18 @@
                 }
             }
 
-            var message = Translator.Instance.Translate("EVENT_POKEMON_SET").FormatText(ctx.User.Username, string.Join(", ", pkmnNames));
+            var message = Translator.Instance.Translate("EVENT_POKEMON_ADD").FormatText(new
+            {
+                author = ctx.User.Username,
+                pokemon = string.Join(", ", pkmnNames)
+            });
             if (pkmnFailed.Count > 0)
             {
-                message += "\r\n" + Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", pkmnFailed));
+                message += "\r\n" + Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", pkmnFailed),
+                });
             }
             await ctx.RespondEmbed(message);
         }
@@ -197,8 +213,8 @@
                 pkmnFailed.Add(eventPokemonId);
             }
 
-            pkmnToRemove.ForEach(x => _dep.WhConfig.EventPokemon.PokemonIds.Remove(x));
-            _dep.WhConfig.Save(_dep.WhConfig.FileName);
+            pkmnToRemove.ForEach(x => _config.Instance.EventPokemonIds.Remove(x));
+            _config.Instance.Save(_config.Instance.FileName);
 
             var pkmnNames = new List<string>();
             for (var i = 0; i < pkmnToRemove.Count; i++)
@@ -210,10 +226,18 @@
                 }
             }
 
-            var message = Translator.Instance.Translate("EVENT_POKEMON_REMOVE").FormatText(ctx.User.Username, string.Join(", ", pkmnNames));
+            var message = Translator.Instance.Translate("EVENT_POKEMON_REMOVE").FormatText(new
+            {
+                author = ctx.User.Username,
+                pokemon = string.Join(", ", pkmnNames),
+            });
             if (pkmnFailed.Count > 0)
             {
-                message += "\r\n" + Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(ctx.User.Username, string.Join(", ", pkmnFailed));
+                message += "\r\n" + Translator.Instance.Translate("NOTIFY_INVALID_POKEMON_IDS_OR_NAMES").FormatText(new
+                {
+                    author = ctx.User.Username,
+                    pokemon = string.Join(", ", pkmnFailed),
+                });
             }
             await ctx.RespondEmbed(message);
         }

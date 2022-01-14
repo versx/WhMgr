@@ -5,7 +5,6 @@
     using System.IO;
     using System.Reflection;
 
-    using POGOProtos.Rpc;
     using WhMgr.Data.Models;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
@@ -48,7 +47,7 @@
         public const string MigrationsFolder = "migrations";
         public static readonly string AppFolder = StaticFolder + Path.DirectorySeparatorChar + "app";
         public static readonly string DataFolder = StaticFolder + Path.DirectorySeparatorChar + "data";
-        public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locale";
+        public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locales";
         public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
         public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
         public const string StatsFolder = "stats";

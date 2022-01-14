@@ -15,6 +15,7 @@
     using WhMgr.Alarms.Alerts;
     using WhMgr.Alarms.Models;
     using WhMgr.Configuration;
+    using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Geofence;
     using WhMgr.Services;
@@ -101,9 +102,12 @@
                 Title = DynamicReplacementEngine.ReplaceText(alert.Title, properties),
                 Url = DynamicReplacementEngine.ReplaceText(alert.Url, properties),
                 ImageUrl = DynamicReplacementEngine.ReplaceText(alert.ImageUrl, properties),
-                ThumbnailUrl = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = DynamicReplacementEngine.ReplaceText(alert.IconUrl, properties),
+                },
                 Description = DynamicReplacementEngine.ReplaceText(alert.Content, properties),
-                Color = new DiscordColor(server.DiscordEmbedColors.Pokestops.Quests),
+                Color = new DiscordColor(MasterFile.Instance.DiscordEmbedColors.Pokestops.Quests),
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = DynamicReplacementEngine.ReplaceText(alert.Footer?.Text, properties),

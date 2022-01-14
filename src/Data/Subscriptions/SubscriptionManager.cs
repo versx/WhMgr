@@ -11,6 +11,7 @@
     using WhMgr.Configuration;
     using WhMgr.Data.Subscriptions.Models;
     using WhMgr.Diagnostics;
+    using WhMgr.Extensions;
     using WhMgr.Net.Models;
 
     /// <summary>
@@ -134,7 +135,7 @@
             return _subscriptions?
                 .Where(x => x.IsEnabled(NotificationStatusType.PvP) &&
                             x.PvP != null &&
-                            x.PvP.Exists(y => y.PokemonId == pokeId)
+                            x.PvP.Exists(y => y.PokemonId.Contains(pokeId))
                       )
                 .ToList();
         }
@@ -192,14 +193,16 @@
             return _subscriptions?
                 .Where(x => x.IsEnabled(NotificationStatusType.Invasions) &&
                             x.Invasions != null &&
-                            x.Invasions.Exists(y => 
-                                encounterRewards.Contains(y.RewardPokemonId) ||
+                            x.Invasions.Exists(y =>
+                                (y.RewardPokemonId?.Intersects(encounterRewards) ?? false) ||
                                 gruntType == y.InvasionType ||
-                                (y.PokestopName != null && (pokestopName.Contains(y.PokestopName) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
+                                (!string.IsNullOrEmpty(y.PokestopName) && !string.IsNullOrEmpty(pokestopName) && pokestopName.Contains(y.PokestopName)) || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
                             )
                       )
                 .ToList();
         }
+
+
 
         /// <summary>
         /// Gets user subscriptions from subscribed Pokestop lures

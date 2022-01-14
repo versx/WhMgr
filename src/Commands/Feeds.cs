@@ -11,19 +11,20 @@
     using DSharpPlus.CommandsNext.Attributes;
     using DSharpPlus.Entities;
 
+    using WhMgr.Configuration;
     using WhMgr.Diagnostics;
     using WhMgr.Extensions;
     using WhMgr.Localization;
 
-    public class Feeds
+    public class Feeds : BaseCommandModule
     {
         private static readonly IEventLogger _logger = EventLogger.GetLogger("FEEDS", Program.LogLevel);
 
-        private readonly Dependencies _dep;
+        private readonly WhConfigHolder _config;
 
-        public Feeds(Dependencies dep)
+        public Feeds(WhConfigHolder config)
         {
-            _dep = dep;
+            _config = config;
         }
 
         [
@@ -33,14 +34,14 @@
         ]
         public async Task FeedsAsync(CommandContext ctx)
         {
-            if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
+            if (!await ctx.IsDirectMessageSupported(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 
-            var server = _dep.WhConfig.Servers[guildId];
+            var server = _config.Instance.Servers[guildId];
             var cityRoles = server.Geofences.Select(x => x.Name).ToList();
             cityRoles.Sort();
             var sb = new StringBuilder();
@@ -50,7 +51,7 @@
             sb.AppendLine($"- {Strings.All}");
             sb.AppendLine();
             sb.AppendLine();
-            sb.AppendLine(Translator.Instance.Translate("FEEDS_TYPE_COMMAND_ASSIGN_ROLE").FormatText(server.CommandPrefix));
+            sb.AppendLine(Translator.Instance.Translate("FEEDS_TYPE_COMMAND_ASSIGN_ROLE").FormatText(new { prefix = server.CommandPrefix }));
             var eb = new DiscordEmbedBuilder
             {
                 Color = DiscordColor.Red,
@@ -73,15 +74,15 @@
         public async Task FeedMeAsync(CommandContext ctx,
             [Description("City name to join or all."), RemainingText] string cityName = null)
         {
-            if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
+            if (!await ctx.IsDirectMessageSupported(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 
-            var server = _dep.WhConfig.Servers[guildId];
-            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            var server = _config.Instance.Servers[guildId];
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _config.Instance);
             var isFreeRole = string.IsNullOrEmpty(server.FreeRoleName) ? false : string.Compare(cityName, server.FreeRoleName, true) == 0;
             if (server.CitiesRequireSupporterRole && !isSupporter && !isFreeRole)
             {
@@ -91,7 +92,7 @@
 
             if (string.Compare(cityName, Strings.All, true) == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_PLEASE_WAIT", ctx.User.Username), DiscordColor.Green);
+                await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_PLEASE_WAIT", new { author = ctx.User.Username }), DiscordColor.Green);
                 await AssignAllDefaultFeedRoles(ctx);
                 return;
             }
@@ -107,14 +108,23 @@
                 {
                     if (!isFreeRole && !cityRoles.Contains(city.ToLower()))
                     {
-                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(ctx.User.Username, city, server.CommandPrefix), DiscordColor.Red);
+                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            city,
+                            prefix = server.CommandPrefix,
+                        }), DiscordColor.Red);
                         continue;
                     }
 
                     var cityRole = ctx.Guild.GetRoleFromName(city);
                     if (cityRole == null)
                     {
-                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME").FormatText(ctx.User.Username, city), DiscordColor.Red);
+                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            city,
+                        }), DiscordColor.Red);
                         continue;
                     }
 
@@ -133,17 +143,25 @@
 
                 if (assigned.Count == 0 && alreadyAssigned.Count == 0)
                 {
-                    ctx.Client.DebugLogger.LogMessage(DSharpPlus.LogLevel.Debug, "Feeds", $"No roles assigned or already assigned for user {ctx.User.Username} ({ctx.User.Id}). Value: {string.Join(", ", cityNames)}", DateTime.Now);
+                    _logger.Error($"No roles assigned or already assigned for user {ctx.User.Username} ({ctx.User.Id}). Value: {string.Join(", ", cityNames)}");
                     return;
                 }
 
                 await ctx.RespondEmbed
                 (
                     (assigned.Count > 0
-                        ? Translator.Instance.Translate("FEEDS_ASSIGNED_ROLES").FormatText(ctx.User.Username, string.Join("**, **", assigned))
+                        ? Translator.Instance.Translate("FEEDS_ASSIGNED_ROLES").FormatText(new
+                            {
+                                author = ctx.User.Username,
+                                roles = string.Join("**, **", assigned),
+                            })
                         : string.Empty) +
                     (alreadyAssigned.Count > 0
-                        ? Translator.Instance.Translate("FEEDS_UNASSIGNED_ROLES").FormatText(ctx.User.Username, string.Join("**, **", alreadyAssigned))
+                        ? Translator.Instance.Translate("FEEDS_UNASSIGNED_ROLES").FormatText(new
+                            {
+                                author = ctx.User.Username,
+                                roles = string.Join("**, **", alreadyAssigned),
+                            })
                         : string.Empty)
                 );
             }
@@ -160,15 +178,15 @@
         public async Task FeedMeNotAsync(CommandContext ctx,
             [Description("City name to leave or all."), RemainingText] string cityName)
         {
-            if (!await ctx.IsDirectMessageSupported(_dep.WhConfig))
+            if (!await ctx.IsDirectMessageSupported(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
-            if (!_dep.WhConfig.Servers.ContainsKey(guildId))
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 
-            var server = _dep.WhConfig.Servers[guildId];
-            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _dep.WhConfig);
+            var server = _config.Instance.Servers[guildId];
+            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, _config.Instance);
             var isFreeRole = string.IsNullOrEmpty(server.FreeRoleName) ? false : string.Compare(cityName, server.FreeRoleName, true) == 0;
             if (server.CitiesRequireSupporterRole && !isSupporter && !isFreeRole)
             {
@@ -178,7 +196,7 @@
 
             if (string.Compare(cityName, Strings.All, true) == 0)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_PLEASE_WAIT", ctx.User.Username), DiscordColor.Green);
+                await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_PLEASE_WAIT", new { author = ctx.User.Username }), DiscordColor.Green);
                 await RemoveAllDefaultFeedRoles(ctx);
                 return;
             }
@@ -194,14 +212,23 @@
                 {
                     if (!isFreeRole && !areas.Exists(x => string.Compare(city, x, true) == 0))
                     {
-                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(ctx.User.Username, city, server.CommandPrefix), DiscordColor.Red);
+                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            city,
+                            server.CommandPrefix,
+                        }), DiscordColor.Red);
                         continue;
                     }
 
                     var cityRole = ctx.Guild.GetRoleFromName(city);
                     if (cityRole == null)
                     {
-                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME").FormatText(ctx.User.Username, city), DiscordColor.Red);
+                        await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            city,
+                        }), DiscordColor.Red);
                         continue;
                     }
 
@@ -220,10 +247,18 @@
                 await ctx.RespondEmbed
                 (
                     (unassigned.Count > 0
-                        ? Translator.Instance.Translate("FEEDS_UNASSIGNED_ROLES").FormatText(ctx.User.Username, string.Join("**, **", unassigned))
+                        ? Translator.Instance.Translate("FEEDS_UNASSIGNED_ROLES").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            roles = string.Join("**, **", unassigned),
+                        })
                         : string.Empty) +
                     (alreadyUnassigned.Count > 0
-                        ? Translator.Instance.Translate("FEEDS_UNASSIGNED_ROLES_ALREADY").FormatText(ctx.User.Username, string.Join("**, **", alreadyUnassigned))
+                        ? Translator.Instance.Translate("FEEDS_UNASSIGNED_ROLES_ALREADY").FormatText(new
+                        {
+                            author = ctx.User.Username,
+                            roles = string.Join("**, **", alreadyUnassigned),
+                        })
                         : string.Empty)
                 );
             }
@@ -235,9 +270,9 @@
 
         private async Task AssignAllDefaultFeedRoles(CommandContext ctx)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
 
-            if (_dep.WhConfig.Servers[guildId].Geofences == null)
+            if (_config.Instance.Servers[guildId].Geofences == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
@@ -245,7 +280,7 @@
 
             try
             {
-                var server = _dep.WhConfig.Servers[guildId];
+                var server = _config.Instance.Servers[guildId];
                 var areas = server.Geofences.Select(x => x.Name).ToList();
                 for (var i = 0; i < areas.Count; i++)
                 {
@@ -273,14 +308,14 @@
                 return;
             }
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_ASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));
+            await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_ASSIGNED_ALL_ROLES").FormatText(new { author = ctx.User.Username }));
         }
 
         private async Task RemoveAllDefaultFeedRoles(CommandContext ctx)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _dep.WhConfig.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
 
-            if (_dep.WhConfig.Servers[guildId].Geofences == null)
+            if (_config.Instance.Servers[guildId].Geofences == null)
             {
                 _logger.Warn($"City roles empty.");
                 return;
@@ -288,7 +323,7 @@
 
             try
             {
-                var server = _dep.WhConfig.Servers[guildId];
+                var server = _config.Instance.Servers[guildId];
                 var areas = server.Geofences.Select(x => x.Name).ToList();
                 for (var i = 0; i < areas.Count; i++)
                 {
@@ -316,7 +351,7 @@
                 return;
             }
 
-            await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_UNASSIGNED_ALL_ROLES").FormatText(ctx.User.Username));
+            await ctx.RespondEmbed(Translator.Instance.Translate("FEEDS_UNASSIGNED_ALL_ROLES").FormatText(new { author = ctx.User.Username }));
         }
 
         private async Task<bool> AddFeedRole(DiscordMember member, DiscordRole city)
