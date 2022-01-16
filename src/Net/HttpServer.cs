@@ -163,7 +163,7 @@
 
             if (_server.IsListening)
             {
-                _logger.Debug($"Already listening, failed to start...");
+                _logger.Debug($"Unable to start, already listening...");
                 return;
             }
 
@@ -230,6 +230,10 @@
                 {
                     Thread.Sleep(10);
                     continue;
+                }
+                if (!_server.IsListening)
+                {
+                    _server.Start();
                 }
                 var contextAsyncResult = _server.BeginGetContext((IAsyncResult ar) =>
                 {
