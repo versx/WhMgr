@@ -59,7 +59,7 @@
 
             if (server.DailyStats.ShinyStats.ClearMessages)
             {
-                await ctx.Client.DeleteMessages(server.DailyStats.ShinyStats.ChannelId);
+                await ctx.Client.DeleteMessagesAsync(server.DailyStats.ShinyStats.ChannelId);
             }
 
             var stats = await GetShinyStats(_config.Instance.Database.Scanner.ToString());
@@ -153,7 +153,7 @@
 
             if (server.DailyStats.IVStats.ClearMessages)
             {
-                await ctx.Client.DeleteMessages(server.DailyStats.IVStats.ChannelId);
+                await ctx.Client.DeleteMessagesAsync(server.DailyStats.IVStats.ChannelId);
             }
 
             var stats = GetIvStats(_config.Instance.Database.Scanner.ToString());

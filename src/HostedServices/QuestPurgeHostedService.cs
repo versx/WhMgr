@@ -133,7 +133,7 @@
 
                     // Delete all Discord channel messages
                     _logger.Information($"Deleting messages for channel: {channelId} (GuildId: {serverId})");
-                    await serverClient.DeleteMessages(channelId).ConfigureAwait(false);
+                    await serverClient.DeleteMessagesAsync(channelId).ConfigureAwait(false);
                 }
             }
             _logger.Information($"Completed deleting messages for channel(s) {string.Join(", ", channelIds)}");
