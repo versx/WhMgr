@@ -110,7 +110,7 @@
 
                     try
                     {
-                        member = await client.GetMemberById(user.GuildId, user.UserId);
+                        member = await client.GetMemberByIdAsync(user.GuildId, user.UserId);
                     }
                     catch (Exception ex)
                     {
@@ -274,7 +274,7 @@
 
                     try
                     {
-                        member = await client.GetMemberById(user.GuildId, user.UserId);
+                        member = await client.GetMemberByIdAsync(user.GuildId, user.UserId);
                     }
                     catch (Exception ex)
                     {
@@ -420,7 +420,7 @@
 
                     var client = _discordService.DiscordClients[user.GuildId];
 
-                    var member = await client.GetMemberById(user.GuildId, user.UserId);
+                    var member = await client.GetMemberByIdAsync(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warning($"Failed to find member with id {user.UserId}.");
@@ -557,7 +557,7 @@
 
                     var client = _discordService.DiscordClients[user.GuildId];
 
-                    var member = await client.GetMemberById(user.GuildId, user.UserId);
+                    var member = await client.GetMemberByIdAsync(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warning($"Failed to find member with id {user.UserId}.");
@@ -695,7 +695,7 @@
 
                     var client = _discordService.DiscordClients[user.GuildId];
 
-                    var member = await client.GetMemberById(user.GuildId, user.UserId);
+                    var member = await client.GetMemberByIdAsync(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warning($"Failed to find member with id {user.UserId}.");
@@ -818,7 +818,7 @@
 
                     var client = _discordService.DiscordClients[user.GuildId];
 
-                    var member = await client.GetMemberById(user.GuildId, user.UserId);
+                    var member = await client.GetMemberByIdAsync(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warning($"Failed to find member with id {user.UserId}.");
@@ -942,7 +942,7 @@
 
                     var client = _discordService.DiscordClients[user.GuildId];
 
-                    var member = await client.GetMemberById(user.GuildId, user.UserId);
+                    var member = await client.GetMemberByIdAsync(user.GuildId, user.UserId);
                     if (member == null)
                     {
                         _logger.Warning($"Failed to find member with id {user.UserId}.");
@@ -1165,7 +1165,7 @@
             */
 
             // Send direct message notification to user
-            await embed.Member.SendDirectMessage(string.Empty, embed.Embed);
+            await embed.Member.SendDirectMessageAsync(string.Empty, embed.Embed);
             _logger.Information($"[WEBHOOK] Notified user {embed.Member.Username} of {embed.Description}.");
             Thread.Sleep(1);
 
@@ -1199,7 +1199,7 @@
                     }
                 };
 
-                await embed.Member.SendDirectMessage(eb.Build());
+                await embed.Member.SendDirectMessageAsync(eb.Build());
                 embed.Subscription.RateLimitNotificationSent = true;
                 embed.Subscription.Status = NotificationStatusType.None;
                 if (!_subscriptionManager.Save(embed.Subscription))

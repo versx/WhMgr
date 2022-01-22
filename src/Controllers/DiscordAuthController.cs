@@ -5,7 +5,9 @@
     using System.Collections.Specialized;
     using System.Linq;
     using System.Net;
+    using System.Net.Http;
     using System.Text;
+    using System.Threading.Tasks;
 
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -67,7 +69,7 @@
         }
 
         [HttpGet("callback")]
-        public IActionResult CallbackAsync()
+        public async Task<IActionResult> CallbackAsync()
         {
             var code = Request.Query["code"].ToString();
             if (string.IsNullOrEmpty(code))
@@ -77,7 +79,7 @@
                 return null;
             }
 
-            var response = SendAuthorize(code);
+            var response = await SendAuthorize(code);
             if (response == null)
             {
                 // Error authorizing
@@ -86,14 +88,14 @@
             }
 
             // Successful
-            var user = GetUser(response.TokenType, response.AccessToken);
+            var user = await GetUser(response.TokenType, response.AccessToken);
             if (user == null)
             {
                 // Failed to get user
                 _logger.LogError($"Failed to get user information");
                 return null;
             }
-            var guilds = GetUserGuilds(response.TokenType, response.AccessToken);
+            var guilds = await GetUserGuilds(response.TokenType, response.AccessToken);
             if (guilds == null)
             {
                 // Failed to get user guilds
@@ -139,24 +141,25 @@
 
         #region OAuth
 
-        private DiscordAuthResponse SendAuthorize(string authorizationCode)
+        private async Task<DiscordAuthResponse> SendAuthorize(string authorizationCode)
         {
-            using var wc = new WebClient();
-            wc.Headers.Add(HttpRequestHeader.ContentType, "application/x-www-form-urlencoded");
             try
             {
-                var result = wc.UploadValues(TokenEndpoint, new NameValueCollection
-                    {
-                        { "client_id", _clientId.ToString() },
-                        { "client_secret", _clientSecret },
-                        { "grant_type", "authorization_code" },
-                        { "code", authorizationCode },
-                        { "redirect_uri", _redirectUri },
-                        { "scope", DefaultScope },
-                    });
-                var responseJson = Encoding.UTF8.GetString(result);
-                var response = responseJson.FromJson<DiscordAuthResponse>();
-                return response;
+                using var client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Content-Type", "application/x-www-form-urlencoded");
+                var payload = new
+                {
+                    client_id = _clientId.ToString(),
+                    client_secret = _clientSecret,
+                    grant_type = "authorization_code",
+                    code = authorizationCode,
+                    redirect_uri = _redirectUri,
+                    scope = DefaultScope,
+                };
+                var json = payload.ToJson();
+                var response = await client.PostAsync(TokenEndpoint, new StringContent(json));
+                var responseString = await response.Content.ReadAsStringAsync();
+                return responseString.FromJson<DiscordAuthResponse>();
             }
             catch (Exception)
             {
@@ -164,9 +167,9 @@
             }
         }
 
-        private DiscordUserInfo GetUser(string tokenType, string token)
+        private async Task<DiscordUserInfo> GetUser(string tokenType, string token)
         {
-            var response = SendRequest(UserEndpoint, tokenType, token);
+            var response = await SendRequest(UserEndpoint, tokenType, token);
             if (string.IsNullOrEmpty(response))
             {
                 _logger.Error($"Failed to get Discord user response");
@@ -176,9 +179,9 @@
             return user;
         }
 
-        private List<DiscordGuildInfo> GetUserGuilds(string tokenType, string token)
+        private async Task<List<DiscordGuildInfo>> GetUserGuilds(string tokenType, string token)
         {
-            var response = SendRequest(UserGuildsEndpoint, tokenType, token);
+            var response = await SendRequest(UserGuildsEndpoint, tokenType, token);
             if (string.IsNullOrEmpty(response))
             {
                 _logger.Error($"Failed to get Discord user guilds response");
@@ -189,10 +192,10 @@
             return guilds;
         }
 
-        private DiscordGuildMemberInfo GetGuildMember(string tokenType, string token, string guildId, string userId)
+        private async Task<DiscordGuildMemberInfo> GetGuildMember(string tokenType, string token, string guildId, string userId)
         {
             var url = string.Format(UserGuildMemberEndpoint, guildId, userId);
-            var response = SendRequest(url, tokenType, token);
+            var response = await SendRequest(url, tokenType, token);
             if (string.IsNullOrEmpty(response))
             {
                 _logger.Error($"Failed to get Discord member response");
@@ -202,14 +205,22 @@
             return member;
         }
 
-        private static string SendRequest(string url, string tokenType, string token)
+        private static async Task<string> SendRequest(string url, string tokenType, string token)
         {
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Conent-Type", "application/json");
+            client.DefaultRequestHeaders.Add("Authorization", $"{tokenType} {token}");
+            var response = await client.GetStringAsync(url);
+            return response;
+
             // TODO: Retry request x amount of times before failing
+            /*
             using var wc = new WebClient();
             wc.Proxy = null;
             wc.Headers[HttpRequestHeader.ContentType] = "application/json";
             wc.Headers[HttpRequestHeader.Authorization] = $"{tokenType} {token} ";
             return wc.DownloadString(url);
+            */
         }
 
         #endregion

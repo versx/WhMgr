@@ -25,12 +25,12 @@
 
         #region Messages
 
-        public static async Task<List<DiscordMessage>> RespondEmbed(this DiscordMessage msg, string message)
+        public static async Task<List<DiscordMessage>> RespondEmbedAsync(this DiscordMessage msg, string message)
         {
-            return await msg.RespondEmbed(message, DiscordColor.Green);
+            return await msg.RespondEmbedAsync(message, DiscordColor.Green);
         }
 
-        public static async Task<List<DiscordMessage>> RespondEmbed(this DiscordMessage discordMessage, string message, DiscordColor color)
+        public static async Task<List<DiscordMessage>> RespondEmbedAsync(this DiscordMessage discordMessage, string message, DiscordColor color)
         {
             var messagesSent = new List<DiscordMessage>();
             var messages = message.SplitInParts(2048);
@@ -48,12 +48,12 @@
             return messagesSent;
         }
 
-        public static async Task<List<DiscordMessage>> RespondEmbed(this CommandContext ctx, string message)
+        public static async Task<List<DiscordMessage>> RespondEmbedAsync(this CommandContext ctx, string message)
         {
-            return await RespondEmbed(ctx, message, DiscordColor.Green);
+            return await RespondEmbedAsync(ctx, message, DiscordColor.Green);
         }
 
-        public static async Task<List<DiscordMessage>> RespondEmbed(this CommandContext ctx, string message, DiscordColor color)
+        public static async Task<List<DiscordMessage>> RespondEmbedAsync(this CommandContext ctx, string message, DiscordColor color)
         {
             var messagesSent = new List<DiscordMessage>();
             var messages = message.SplitInParts(2048);
@@ -71,15 +71,15 @@
             return messagesSent;
         }
 
-        public static async Task<DiscordMessage> SendDirectMessage(this DiscordMember member, DiscordEmbed embed)
+        public static async Task<DiscordMessage> SendDirectMessageAsync(this DiscordMember member, DiscordEmbed embed)
         {
             if (embed == null)
                 return null;
 
-            return await member.SendDirectMessage(string.Empty, embed);
+            return await member.SendDirectMessageAsync(string.Empty, embed);
         }
 
-        public static async Task<DiscordMessage> SendDirectMessage(this DiscordMember member, string message, DiscordEmbed embed)
+        public static async Task<DiscordMessage> SendDirectMessageAsync(this DiscordMember member, string message, DiscordEmbed embed)
         {
             try
             {
@@ -103,7 +103,7 @@
 
         private static readonly Dictionary<(ulong, ulong), Task<DiscordMember>> MemberTasks = new();
 
-        public static async Task<DiscordMember> GetMemberById(this DiscordClient client, ulong guildId, ulong id)
+        public static async Task<DiscordMember> GetMemberByIdAsync(this DiscordClient client, ulong guildId, ulong id)
         {
             Task<DiscordMember> taskToAwait;
             var added = false;
@@ -116,7 +116,7 @@
                 }
                 else
                 {
-                    taskToAwait = DoGetMemberById(client, guildId, id);
+                    taskToAwait = DoGetMemberByIdAsync(client, guildId, id);
                     MemberTasks.Add((guildId, id), taskToAwait);
                     added = true;
                 }
@@ -135,7 +135,7 @@
             return result;
         }
 
-        private static async Task<DiscordMember> DoGetMemberById(DiscordClient client, ulong guildId, ulong id)
+        private static async Task<DiscordMember> DoGetMemberByIdAsync(DiscordClient client, ulong guildId, ulong id)
         {
             if (!client.Guilds.ContainsKey(guildId))
                 return null;
@@ -169,7 +169,7 @@
             return member;
         }
 
-        public static async Task<DiscordMessage> DonateUnlockFeaturesMessage(this CommandContext ctx, bool triggerTyping = true)
+        public static async Task<DiscordMessage> DonateUnlockFeaturesMessageAsync(this CommandContext ctx, bool triggerTyping = true)
         {
             if (triggerTyping)
             {
@@ -180,17 +180,17 @@
                 $"{ctx.User.Username} This feature is only available to supporters, please $donate to unlock this feature and more.\r\n\r\n" +
                 $"Donation information can be found by typing the `$donate` command.\r\n\r\n" +
                 $"*If you have already donated and are still receiving this message, please tag an Administrator or Moderator for help.*";
-            var eb = await ctx.RespondEmbed(message);
+            var eb = await ctx.RespondEmbedAsync(message);
             return eb.FirstOrDefault();
         }
 
-        internal static async Task<bool> IsDirectMessageSupported(this CommandContext ctx, Config config)
+        internal static async Task<bool> IsDirectMessageSupportedAsync(this CommandContext ctx, Config config)
         {
             var exists = ctx.Client.Guilds.Keys.FirstOrDefault(x => config.Servers.ContainsKey(x)) > 0;
             //if (message?.Channel?.Guild == null)
             if (!exists)
             {
-                await ctx.Message.RespondEmbed(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", new { author = ctx.Message.Author.Username }), DiscordColor.Yellow);
+                await ctx.Message.RespondEmbedAsync(Translator.Instance.Translate("DIRECT_MESSAGE_NOT_SUPPORTED", new { author = ctx.Message.Author.Username }), DiscordColor.Yellow);
                 return false;
             }
 
@@ -211,7 +211,7 @@
 
         #region Roles
 
-        public static async Task<bool> IsSupporterOrHigher(this DiscordClient client, ulong userId, ulong guildId, Config config)
+        public static async Task<bool> IsSupporterOrHigherAsync(this DiscordClient client, ulong userId, ulong guildId, Config config)
         {
             try
             {
@@ -224,7 +224,7 @@
                 if (isAdmin)
                     return true;
 
-                var isModerator = await IsModerator(client, userId, guildId, config);
+                var isModerator = await IsModeratorAsync(client, userId, guildId, config);
                 if (isModerator)
                     return true;
 
@@ -240,14 +240,14 @@
             return false;
         }
 
-        public static async Task<bool> IsModerator(this DiscordClient client, ulong userId, ulong guildId, Config config)
+        public static async Task<bool> IsModeratorAsync(this DiscordClient client, ulong userId, ulong guildId, Config config)
         {
             if (!config.Servers.ContainsKey(guildId))
                 return false;
 
             var server = config.Servers[guildId];
             var moderatorRoleIds = server.ModeratorRoleIds;
-            var member = await client.GetMemberById(guildId, userId);
+            var member = await client.GetMemberByIdAsync(guildId, userId);
             if (member == null)
                 return false;
 
@@ -262,7 +262,7 @@
             return false;
         }
 
-        public static async Task<bool> IsModeratorOrHigher(this DiscordClient client, ulong userId, ulong guildId, Config config)
+        public static async Task<bool> IsModeratorOrHigherAsync(this DiscordClient client, ulong userId, ulong guildId, Config config)
         {
             if (!config.Servers.ContainsKey(guildId))
                 return false;
@@ -273,7 +273,7 @@
             if (isAdmin)
                 return true;
 
-            var isModerator = await IsModerator(client, userId, guildId, config);
+            var isModerator = await IsModeratorAsync(client, userId, guildId, config);
             if (isModerator)
                 return true;
 
@@ -336,9 +336,9 @@
             return false;
         }
 
-        public static async Task<bool> HasModeratorRole(this DiscordClient client, ulong guildId, ulong userId, ulong moderatorRoleId)
+        public static async Task<bool> HasModeratorRoleAsync(this DiscordClient client, ulong guildId, ulong userId, ulong moderatorRoleId)
         {
-            var member = await client.GetMemberById(guildId, userId);
+            var member = await client.GetMemberByIdAsync(guildId, userId);
             if (member == null)
             {
                 Console.WriteLine($"Failed to get moderator user with id {userId}.");
@@ -381,7 +381,7 @@
 
         #endregion
 
-        public static async Task<Tuple<DiscordChannel, long>> DeleteMessages(this DiscordClient client, ulong channelId)
+        public static async Task<Tuple<DiscordChannel, long>> DeleteMessagesAsync(this DiscordClient client, ulong channelId)
         {
             var deleted = 0L;
             DiscordChannel channel;
@@ -435,9 +435,9 @@
             return Tuple.Create(channel, deleted);
         }
 
-        public static async Task<bool> Confirm(this CommandContext ctx, string message)
+        public static async Task<bool> ConfirmAsync(this CommandContext ctx, string message)
         {
-            await ctx.RespondEmbed(message);
+            await ctx.RespondEmbedAsync(message);
             var interactivity = ctx.Client.GetExtension<InteractivityExtension>();
             if (interactivity == null)
             {
@@ -553,9 +553,9 @@
 
         #endregion
 
-        public static async Task<bool> CanExecuteCommand(this CommandContext ctx, Config config)
+        public static async Task<bool> CanExecuteCommandAsync(this CommandContext ctx, Config config)
         {
-            if (!await ctx.IsDirectMessageSupported(config))
+            if (!await ctx.IsDirectMessageSupportedAsync(config))
                 return false;
 
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.FirstOrDefault(x => config.Servers.ContainsKey(x.Key)).Key;
@@ -564,14 +564,14 @@
 
             if (!config.Servers[guildId].Subscriptions.Enabled)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
+                await ctx.RespondEmbedAsync(Translator.Instance.Translate("MSG_SUBSCRIPTIONS_NOT_ENABLED").FormatText(new { author = ctx.User.Username }), DiscordColor.Red);
                 return false;
             }
 
-            var isSupporter = await ctx.Client.IsSupporterOrHigher(ctx.User.Id, guildId, config);
+            var isSupporter = await ctx.Client.IsSupporterOrHigherAsync(ctx.User.Id, guildId, config);
             if (!isSupporter)
             {
-                await ctx.DonateUnlockFeaturesMessage();
+                await ctx.DonateUnlockFeaturesMessageAsync();
                 return false;
             }
 

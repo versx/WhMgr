@@ -67,7 +67,7 @@ namespace WhMgr
             _alarms = ChannelAlarmsManifest.LoadAlarms(Config.Servers);
 
             // Create locale translation files
-            Translator.Instance.CreateLocaleFiles();
+            Translator.Instance.CreateLocaleFiles().ConfigureAwait(false).GetAwaiter().GetResult();
             Translator.Instance.SetLocale(_config.Instance.Locale);
         }
 

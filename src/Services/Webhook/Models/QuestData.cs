@@ -155,19 +155,19 @@
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
                     ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
-                    : new List<dynamic>(),
+                    : new(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby gyms from MapDataCache
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
-                    : new List<dynamic>(),
+                    : new(),
             });
             var staticMapLink = staticMap.GenerateLink();
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
-            var gmapsLocationLink = urlShortener.Create(gmapsLink);
-            var appleMapsLocationLink = urlShortener.Create(appleMapsLink);
-            var wazeMapsLocationLink = urlShortener.Create(wazeMapsLink);
-            var scannerMapsLocationLink = urlShortener.Create(scannerMapsLink);
-            var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
+            var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
+            var appleMapsLocationLink = await urlShortener.CreateAsync(appleMapsLink);
+            var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
+            var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
+            var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";

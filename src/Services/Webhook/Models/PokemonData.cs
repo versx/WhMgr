@@ -492,19 +492,19 @@
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
                     ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
-                    : new List<dynamic>(),
+                    : new(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby pokestops from MapDataCache
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
-                    : new List<dynamic>(),
+                    : new(),
             });
             var staticMapLink = staticMap.GenerateLink();
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
-            var gmapsLocationLink = urlShortener.Create(gmapsLink);
-            var appleMapsLocationLink = urlShortener.Create(appleMapsLink);
-            var wazeMapsLocationLink = urlShortener.Create(wazeMapsLink);
-            var scannerMapsLocationLink = urlShortener.Create(scannerMapsLink);
-            var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
+            var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
+            var appleMapsLocationLink = await urlShortener.CreateAsync(appleMapsLink);
+            var wazeMapsLocationLink = await urlShortener .CreateAsync(wazeMapsLink);
+            var scannerMapsLocationLink = await urlShortener .CreateAsync(scannerMapsLink);
+            var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
             var pokestop = properties.MapDataCache.GetPokestop(PokestopId).ConfigureAwait(false)
                                                   .GetAwaiter()
                                                   .GetResult();
@@ -641,7 +641,7 @@
         private List<PvpRankData> GetLeagueRanks(PvpLeague league)
         {
             var list = new List<PvpRankData>();
-            if (UltraLeague == null)
+            if (GreatLeague == null && UltraLeague == null)
             {
                 return list;
             }
@@ -669,7 +669,7 @@
                     var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
                     var form = Translator.Instance.GetFormName(pvp.FormId);
                     var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})";
-                    pvp.Percentage = Math.Round(pvp.Percentage.Value * 100, 2);
+                    pvp.Percentage = Math.Round(pvp.Percentage.Value, 2);
                     pvp.PokemonName = pkmnName;
                     list.Add(pvp);
                     //sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");

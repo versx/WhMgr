@@ -17,7 +17,7 @@
     using WhMgr.Osm;
     using WhMgr.Services.Subscriptions;
 
-    // TODO: HostedService
+    // TODO: Convert to HostedService
     public class DiscordClientService : IDiscordClientService
     {
         public const uint DiscordAccessValidationInterval = 5 * 60000; // Every 5 minutes
@@ -189,7 +189,7 @@
             if (_config.Instance.Servers.ContainsKey(e.Guild.Id))
             {
                 // Create default emojis
-                await CreateEmojis(e.Guild.Id);
+                await CreateEmojisAsync(e.Guild.Id);
 
                 // Set custom bot status if guild is in config server list
                 var status = _config.Instance.Servers[e.Guild.Id].Bot?.Status ?? $"v{Strings.BotVersion}";
@@ -278,7 +278,8 @@
 
         #region Discord Emojis
 
-        private async Task CreateEmojis(ulong guildId)
+        // TODO: Fix race condition
+        private async Task CreateEmojisAsync(ulong guildId)
         {
             if (!_discordClients.ContainsKey(guildId))
             {
@@ -301,22 +302,22 @@
                 {
                     var emojis = await guild.GetEmojisAsync();
                     var emojiExists = emojis.FirstOrDefault(x => string.Compare(x.Name, emoji, true) == 0);
-                    if (emojiExists == null)
+                    if (emojiExists != null)
+                        continue;
+
+                    _logger.LogDebug($"Emoji {emoji} doesn't exist, creating...");
+
+                    var emojiPath = Path.Combine(Strings.EmojisFolder, emoji + ".png");
+                    if (!File.Exists(emojiPath))
                     {
-                        _logger.LogDebug($"Emoji {emoji} doesn't exist, creating...");
-
-                        var emojiPath = Path.Combine(Strings.EmojisFolder, emoji + ".png");
-                        if (!File.Exists(emojiPath))
-                        {
-                            _logger.LogWarning($"Unable to find emoji file at {emojiPath}, skipping...");
-                            continue;
-                        }
-
-                        var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
-                        await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
-
-                        _logger.LogInformation($"Emoji {emoji} created successfully.");
+                        _logger.LogWarning($"Unable to find emoji file at {emojiPath}, skipping...");
+                        continue;
                     }
+
+                    var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
+                    await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
+
+                    _logger.LogInformation($"Emoji {emoji} created successfully.");
                 }
                 catch (Exception ex)
                 {
@@ -324,10 +325,10 @@
                 }
             }
 
-            await CacheGuildEmojisList();
+            await CacheGuildEmojisListAsync();
         }
 
-        private async Task CacheGuildEmojisList()
+        private async Task CacheGuildEmojisListAsync()
         {
             foreach (var (guildId, serverConfig) in _config.Instance.Servers)
             {

@@ -161,7 +161,9 @@
                     ? string.Format(Strings.EmojiSchema, Team.ToString().ToLower(), teamEmojiId)
                     : Team.ToString()
                 : GameMaster.Instance.CustomEmojis[Team.ToString().ToLower()];
-            var oldTeamEmojiId = GameMaster.Instance.Emojis[oldGym?.Team.ToString().ToLower()];
+            var oldTeamEmojiId = GameMaster.Instance.Emojis.ContainsKey(oldGym.Team.ToString().ToLower())
+                ? GameMaster.Instance.Emojis[oldGym?.Team.ToString().ToLower()]
+                : 0;
             var oldTeamEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[oldGym?.Team.ToString().ToLower()])
                 ? oldTeamEmojiId > 0
                     ? string.Format(Strings.EmojiSchema, oldGym?.Team.ToString().ToLower(), oldTeamEmojiId)
@@ -186,19 +188,19 @@
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
                     ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
-                    : new List<dynamic>(),
+                    : new(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby pokestops from MapDataCache
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
-                    : new List<dynamic>(),
+                    : new(),
             });
             var staticMapLink = staticMap.GenerateLink();
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
-            var gmapsLocationLink = urlShortener.Create(gmapsLink);
-            var appleMapsLocationLink = urlShortener.Create( appleMapsLink);
-            var wazeMapsLocationLink = urlShortener.Create( wazeMapsLink);
-            var scannerMapsLocationLink = urlShortener.Create( scannerMapsLink);
-            var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
+            var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
+            var appleMapsLocationLink = await urlShortener.CreateAsync( appleMapsLink);
+            var wazeMapsLocationLink = await urlShortener.CreateAsync( wazeMapsLink);
+            var scannerMapsLocationLink = await urlShortener.CreateAsync( scannerMapsLink);
+            var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
@@ -221,9 +223,10 @@
                 sponsor_id = Convert.ToString(SponsorId),
                 ex_emoji = exEmoji,
                 slots_available = SlotsAvailable == 0
-                    // TODO: Localize
+                    // TODO: Localize "Full"
                     ? "Full"
                     : SlotsAvailable == 6
+                        // TODO: Localize "Empty"
                         ? "Empty"
                         : SlotsAvailable.ToString("N0"),
                 is_ar = IsArScanEligible,

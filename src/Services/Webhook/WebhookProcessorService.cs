@@ -105,7 +105,7 @@
             }
         }
 
-        public async Task ParseData(List<WebhookPayload> payloads)
+        public async Task ParseDataAsync(List<WebhookPayload> payloads)
         {
             if (!Enabled) return;
 
@@ -353,6 +353,7 @@
                 // Lock process gyms, check for duplicates of incoming gym
                 lock (_processedGyms)
                 {
+                    // TODO: Check if GymId is null
                     if (_processedGyms.ContainsKey(gym.GymId))
                     {
                         if (_processedGyms[gym.GymId].Team == gym.Team

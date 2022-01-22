@@ -41,7 +41,7 @@
 
             if (!_config.Instance.Servers.ContainsKey(guildId))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
+                await ctx.RespondEmbedAsync(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 
@@ -53,7 +53,7 @@
             if (statsChannel == null)
             {
                 Console.WriteLine($"Failed to get channel id {server.DailyStats.ShinyStats.ChannelId} to post shiny stats.");
-                await ctx.RespondEmbed(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(new { author = ctx.User.Username }), DiscordColor.Yellow);
+                await ctx.RespondEmbedAsync(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(new { author = ctx.User.Username }), DiscordColor.Yellow);
                 return;
             }
 
@@ -135,7 +135,7 @@
 
             if (!_config.Instance.Servers.ContainsKey(guildId))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
+                await ctx.RespondEmbedAsync(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 
@@ -147,7 +147,7 @@
             if (statsChannel == null)
             {
                 Console.WriteLine($"Failed to get channel id {server.DailyStats.IVStats.ChannelId} to post shiny stats.");
-                await ctx.RespondEmbed(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(ctx.User.Username), DiscordColor.Yellow);
+                await ctx.RespondEmbedAsync(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(ctx.User.Username), DiscordColor.Yellow);
                 return;
             }
 

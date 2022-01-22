@@ -5,6 +5,7 @@
     using System.IO;
     using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
 
     using WhMgr.Common;
     using WhMgr.Configuration;
@@ -72,7 +73,7 @@
 
             IconFormat = iconFormat;
 
-            FetchIcons(icons);
+            FetchIcons(icons).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         #endregion
@@ -506,15 +507,15 @@
 
         #region Private Methods
 
-        private void FetchIcons(IconStyleCollection icons)
+        private async Task FetchIcons(IconStyleCollection icons)
         {
             foreach (var (styleName, styleConfig) in icons)
             {
-                BuildIndexManifests(styleName, styleConfig);
+                await BuildIndexManifests(styleName, styleConfig);
             }
         }
 
-        private void BuildIndexManifests(string styleName, Dictionary<IconType, IconStyleConfig> iconStyles)
+        private async Task BuildIndexManifests(string styleName, Dictionary<IconType, IconStyleConfig> iconStyles)
         {
             // Get available forms from remote icons repo to build form list for each icon style
             var keys = iconStyles.Keys.ToList();
@@ -538,7 +539,7 @@
                     iconStyleSubFolder,
                     IndexJson
                 );
-                var formsListJson = NetUtils.Get(indexPath);
+                var formsListJson = await NetUtils.Get(indexPath);
                 if (string.IsNullOrEmpty(formsListJson))
                 {
                     // Failed to get form list, skip...

@@ -32,7 +32,7 @@
             _dbFactory = dbFactory;
 
             _timer = new Timer(60 * 1000); // every minute TODO: Use config value
-            _timer.Elapsed += async (sender, e) => await ReloadSubscriptionsAsync();
+            _timer.Elapsed += async (_, _) => await ReloadSubscriptionsAsync();
             _timer.Start();
 
             Task.Run(async () => await ReloadSubscriptionsAsync(true));

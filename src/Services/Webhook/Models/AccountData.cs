@@ -121,6 +121,8 @@
             var username = TemplateRenderer.Parse(embed.Username, properties);
             var iconUrl = TemplateRenderer.Parse(embed.AvatarUrl, properties);
             var description = TemplateRenderer.Parse(settings.Alarm?.Description, properties);
+
+            await Task.CompletedTask;
             return new DiscordWebhookMessage
             {
                 Username = username,

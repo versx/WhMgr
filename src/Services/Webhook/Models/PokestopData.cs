@@ -258,11 +258,11 @@
             });
             var staticMapLink = staticMap.GenerateLink();
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
-            var gmapsLocationLink = urlShortener.Create(gmapsLink);
-            var appleMapsLocationLink = urlShortener.Create(appleMapsLink);
-            var wazeMapsLocationLink = urlShortener.Create(wazeMapsLink);
-            var scannerMapsLocationLink = urlShortener.Create(scannerMapsLink);
-            var address = ReverseGeocodingLookup.Instance.GetAddress(new Coordinate(Latitude, Longitude));
+            var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
+            var appleMapsLocationLink = await urlShortener.CreateAsync(appleMapsLink);
+            var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
+            var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
+            var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
             var invasion = GameMaster.Instance.GruntTypes.ContainsKey(GruntType) ? GameMaster.Instance.GruntTypes[GruntType] : null;
             var leaderString = Translator.Instance.GetGruntType(GruntType);
             var pokemonType = GameMaster.Instance.GruntTypes.ContainsKey(GruntType)

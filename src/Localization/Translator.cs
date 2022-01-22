@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading.Tasks;
 
     using ActivityType = POGOProtos.Rpc.HoloActivityType;
     using AlignmentType = POGOProtos.Rpc.PokemonDisplayProto.Types.Alignment;
@@ -34,7 +35,7 @@
 
         #endregion
 
-        public void CreateLocaleFiles()
+        public async Task CreateLocaleFiles()
         {
             var files = Directory.GetFiles(_appLocalesFolder, "*.json")
                                  .Select(fileName => Path.GetFileName(fileName))
@@ -46,7 +47,7 @@
                 var locale = Path.GetFileName(file).Replace("_", null);
                 var localeFile = locale;
 
-                var json = NetUtils.Get(SourceLocaleUrl + locale);
+                var json = await NetUtils.Get(SourceLocaleUrl + locale);
                 if (json == null)
                 {
                     Console.WriteLine($"Failed to fetch locales from {SourceLocaleUrl + locale}, skipping...");

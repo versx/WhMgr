@@ -11,6 +11,6 @@
 
         void Stop();
 
-        Task ParseData(List<WebhookPayload> payloads);
+        Task ParseDataAsync(List<WebhookPayload> payloads);
     }
 }

@@ -3,6 +3,7 @@
     using System;
     using System.Text;
     using System.Text.Json.Serialization;
+    using System.Threading.Tasks;
     using System.Web;
 
     using WhMgr.Configuration;
@@ -28,7 +29,7 @@
         /// <param name="action">Action to invoke</param>
         /// <param name="format">Response text format</param>
         /// <returns>Returns the shortened URL address</returns>
-        public string Create(string url)
+        public async Task<string> CreateAsync(string url)
         {
             // Check if service enabled or if base `yourls` url not set, return original url
             if (!Configuration.Enabled || string.IsNullOrEmpty(Configuration.ApiUrl))
@@ -46,7 +47,7 @@
                 sb.Append("&format=");
                 sb.Append(Configuration.Format);
                 var apiUrl = sb.ToString();
-                var json = NetUtils.Get(apiUrl);
+                var json = await NetUtils.Get(apiUrl);
                 if (string.IsNullOrEmpty(json))
                     return url;
 

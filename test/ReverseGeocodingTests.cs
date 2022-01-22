@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Test
 {
     using System;
+    using System.Threading.Tasks;
 
     using NUnit.Framework;
 
@@ -24,12 +25,12 @@
             "{{Results.[0].FormattedAddress}}",
             "13403 Canyon Crest Rd, Yucaipa, CA 92399, USA"
         )]
-        public void TestGoogleReverseGeocoding(double lat, double lon, string schema, string address)
+        public async Task TestGoogleReverseGeocoding(double lat, double lon, string schema, string address)
         {
             var reverseGeocoding = new ReverseGeocodingLookup(
                 GetConfig(ReverseGeocodingProvider.GMaps, schema)
             );
-            var googleAddress = reverseGeocoding.GetAddress(new Coordinate(lat, lon));
+            var googleAddress = await reverseGeocoding.GetAddressAsync(new Coordinate(lat, lon));
             Console.WriteLine($"Address: {googleAddress}");
             Assert.IsNotNull(googleAddress);
             Assert.IsNotEmpty(googleAddress);
@@ -43,12 +44,12 @@
             //"{{DisplayName}}",
             "Canyon Terrace Drive California 92399 United States"
         )]
-        public void TestNominatimReverseGeocoding(double lat, double lon, string schema, string address)
+        public async Task TestNominatimReverseGeocoding(double lat, double lon, string schema, string address)
         {
             var reverseGeocoding = new ReverseGeocodingLookup(
                 GetConfig(ReverseGeocodingProvider.Osm, schema)
             );
-            var nominatimAddress = reverseGeocoding.GetAddress(new Coordinate(lat, lon));
+            var nominatimAddress = await reverseGeocoding.GetAddressAsync(new Coordinate(lat, lon));
             Console.WriteLine($"Address: {nominatimAddress}");
             Assert.IsNotNull(nominatimAddress);
             Assert.IsNotEmpty(nominatimAddress);

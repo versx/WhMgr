@@ -11,11 +11,12 @@
 
         public uint Count => Convert.ToUInt32(_queue?.Reader?.Count ?? 0);
 
-        public DefaultBackgroundTaskQueue(int capacity = 500)
+        public DefaultBackgroundTaskQueue(int capacity = 4096)
         {
             var options = new BoundedChannelOptions(capacity)
             {
                 FullMode = BoundedChannelFullMode.Wait,
+                Capacity = capacity,
             };
             _queue = Channel.CreateBounded<Func<CancellationToken, ValueTask>>(options);
         }

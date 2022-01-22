@@ -23,16 +23,16 @@
         }
 
         [HttpGet("/")]
-        public IActionResult Get()
+        public IActionResult Index()
         {
             _logger.LogDebug($"Endpoint GET / hit");
-            return Content("Webhook Manager v5 is running...");
+            return Content($"{Strings.BotName} {Strings.BotVersion} is running...");
         }
 
         [HttpPost("/")]
         public IActionResult HandleData(List<WebhookPayload> data)
         {
-            ThreadPool.QueueUserWorkItem(async x => await _webhookService.ParseData(data));
+            ThreadPool.QueueUserWorkItem(async x => await _webhookService.ParseDataAsync(data));
             return Ok();
         }
     }

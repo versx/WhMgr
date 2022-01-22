@@ -18,6 +18,10 @@
     {
         public static DiscordClient CreateDiscordClient(DiscordServerConfig config, IServiceProvider services)
         {
+            if (string.IsNullOrEmpty(config?.Bot?.Token))
+            {
+                throw new NullReferenceException("DiscordClient bot token must be set!");
+            }
             config.Subscriptions?.LoadDmEmbeds();
             var client = new DiscordClient(new DiscordConfiguration
             {
@@ -67,6 +71,10 @@
             commands.RegisterCommands<Nests>();
             commands.RegisterCommands<DailyStats>();
             commands.RegisterCommands<Quests>();
+            if (config.Subscriptions?.Enabled ?? false)
+            {
+                commands.RegisterCommands<Notifications>();
+            }
             if (config.GeofenceRoles?.Enabled ?? false)
             {
                 commands.RegisterCommands<Feeds>();
@@ -120,7 +128,7 @@
             else if (e.Exception is ArgumentException)
             {
                 var config = (ConfigHolder)commands.Services.GetService(typeof(ConfigHolder));
-                var arguments = e.Command.Overloads.FirstOrDefault();
+                var arguments = e.Command.Overloads[0];
                 // The user lacks required permissions, 
                 var emoji = DiscordEmoji.FromName(e.Context.Client, ":x:");
 

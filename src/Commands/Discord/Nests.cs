@@ -51,7 +51,7 @@
             var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
             if (!_config.Instance.Servers.ContainsKey(guildId))
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
+                await ctx.RespondEmbedAsync(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
                 return;
             }
 
@@ -67,22 +67,20 @@
             var channel = await ctx.Client.GetChannelAsync(channelId);
             if (channel == null)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_DISABLED").FormatText(ctx.User.Username), DiscordColor.Red);
+                await ctx.RespondEmbedAsync(Translator.Instance.Translate("ERROR_NESTS_DISABLED").FormatText(ctx.User.Username), DiscordColor.Red);
                 return;
             }
 
-            /*
-            var deleted = await ctx.Client.DeleteMessages(channelId);
+            var deleted = await ctx.Client.DeleteMessagesAsync(channelId);
             if (deleted.Item2 == 0)
             {
                 Console.WriteLine($"Failed to delete messages in channel: {channelId}");
             }
-            */
 
             var nests = await GetNests();
             if (nests == null)
             {
-                await ctx.RespondEmbed(Translator.Instance.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username));
+                await ctx.RespondEmbedAsync(Translator.Instance.Translate("ERROR_NESTS_LIST").FormatText(ctx.User.Username));
                 return;
             }
 

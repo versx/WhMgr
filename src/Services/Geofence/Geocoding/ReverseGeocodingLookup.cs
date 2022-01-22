@@ -2,8 +2,9 @@
 {
     using System;
     using System.IO;
-    using System.Net;
+    using System.Net.Http;
     using System.Text;
+    using System.Threading.Tasks;
 
     using WhMgr.Configuration;
     using WhMgr.Extensions;
@@ -34,12 +35,12 @@
 
         #region Public Methods
 
-        public string GetAddress(Coordinate coord)
+        public async Task<string> GetAddressAsync(Coordinate coord)
         {
             return Config.Provider switch
             {
-                ReverseGeocodingProvider.GMaps => GetGoogleAddress(coord),
-                ReverseGeocodingProvider.Osm => GetNominatimAddress(coord),
+                ReverseGeocodingProvider.GMaps => await GetGoogleAddress(coord),
+                ReverseGeocodingProvider.Osm => await GetNominatimAddress(coord),
                 _ => null,
             };
         }
@@ -52,7 +53,7 @@
         /// <param name="coord">Latitude and longitude coordinates</param>
         /// <param name="format"></param>
         /// <returns></returns>
-        private string GetNominatimAddress(Coordinate coord, string format = "jsonv2")
+        private async Task<string> GetNominatimAddress(Coordinate coord, string format = "jsonv2")
         {
             if (string.IsNullOrEmpty(Config.Nominatim?.Endpoint))
             {
@@ -79,7 +80,7 @@
                 var url = $"{baseUrl}/reverse?format={format}&lat={coord.Latitude}&lon={coord.Longitude}";
                 try
                 {
-                    var json = GetData(url);
+                    var json = await GetData(url);
                     var obj = json.FromJson<NominatimReverseLookup>();
                     if (obj == null)
                     {
@@ -119,7 +120,7 @@
         /// <param name="lng">Longitude to lookup</param>
         /// <param name="gmapsKey">Google Maps key</param>
         /// <returns></returns>
-        private string GetGoogleAddress(Coordinate coord)
+        private async Task<string> GetGoogleAddress(Coordinate coord)
         {
             if (string.IsNullOrEmpty(Config.GoogleMaps?.Key))
             {
@@ -146,7 +147,7 @@
                 var url = $"{baseUrl}?latlng={coord.Latitude},{coord.Longitude}&sensor=true&key={Config.GoogleMaps.Key}";
                 try
                 {
-                    var json = GetData(url);
+                    var json = await GetData(url);
                     var obj = json.FromJson<GoogleReverseLookup>();
                     if (string.Compare(obj.Status, "OK", true) != 0)
                         return null;
@@ -182,21 +183,14 @@
         /// </summary>
         /// <param name="url">Url address</param>
         /// <returns>Returns json string of HTTP request</returns>
-        private static string GetData(string url)
+        private static async Task<string> GetData(string url)
         {
             try
             {
-                var request = (HttpWebRequest)WebRequest.Create(url);
-                request.Headers[HttpRequestHeader.UserAgent] = $"{Strings.BotName} v{Strings.BotVersion}";
-                var response = request.GetResponse();
-                using var responseStream = response.GetResponseStream();
-                using var sr = new StreamReader(responseStream, Encoding.UTF8);
-                var json = sr.ReadToEnd();
-                if (string.IsNullOrEmpty(json))
-                {
-                    return null;
-                }
-                return json;
+                using var client = new HttpClient();
+                client.DefaultRequestHeaders.Add("UserAgent", $"{Strings.BotName} v{Strings.BotVersion}");
+                var responseData = await client.GetStringAsync(url);
+                return responseData;
             }
             catch (Exception ex)
             {

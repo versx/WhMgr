@@ -751,7 +751,8 @@
             if (!_config.Instance.Servers.ContainsKey(taskItem.GuildId))
                 return stoppingToken;
 
-            _logger.Information($"[{taskItem.City}] Found {taskItem.Data.GetType().Name} [Alarm={taskItem.Alarm.Name}, GuildId={taskItem.GuildId}]");
+            // Queue embed
+            //_logger.Information($"[{taskItem.City}] Found {taskItem.Data.GetType().Name} [Alarm={taskItem.Alarm.Name}, GuildId={taskItem.GuildId}]");
 
             try
             {
@@ -771,7 +772,7 @@
                     _logger.Error($"Failed to convert embed notification to JSON string, skipping");
                     return stoppingToken;
                 }
-                //await NetUtils.SendWebhook(taskItem.Alarm.Webhook, json);
+                //WhMgr.Utilities.NetUtils.SendWebhook(taskItem.Alarm.Webhook, json);
                 await _webhookQueueManager.SendWebhook(taskItem.Alarm.Webhook, json).ConfigureAwait(false);
             }
             catch (Exception ex)

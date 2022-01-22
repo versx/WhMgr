@@ -4,7 +4,7 @@
     using System.IO;
     using System.Text.Json.Serialization;
 
-    using WhMgr.Extensions;
+    using WhMgr.Data;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Alarms.Filters.Models;
     using WhMgr.Services.Geofence;
@@ -67,7 +67,7 @@
                 return null;
 
             var path = Path.Combine(Strings.EmbedsFolder, EmbedsFile);
-            return Embeds = Data.GameMaster.LoadInit<EmbedMessage>(path);
+            return Embeds = GameMaster.LoadInit<EmbedMessage>(path);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@
                 return null;
 
             var path = Path.Combine(Strings.FiltersFolder, FiltersFile);
-            return Filters = Data.GameMaster.LoadInit<WebhookFilter>(path);
+            return Filters = GameMaster.LoadInit<WebhookFilter>(path);
         }
     }
 }
