@@ -51,7 +51,7 @@
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
     <PackageReference Include="NetTopologySuite.Features" Version="2.1.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
-    <PackageReference Include="POGOProtos.Core" Version="2.55.6" />
+    <PackageReference Include="POGOProtos.Core" Version="2.55.7" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.3" />
     <PackageReference Include="Sentry.AspNetCore" Version="3.13.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
