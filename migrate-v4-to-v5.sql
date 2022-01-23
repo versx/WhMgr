@@ -24,6 +24,14 @@ INSERT INTO `__EFMigrationsHistory` VALUES
 (
     '20210909012222_AddMultiLureSubSupport',
     5.0.8
+),
+(
+    '20220109043031_ModifyFormsToList',
+    5.0.10
+),
+(
+    '20220109043806_RenameCityToAreas',
+    5.0.10
 );
 
 UPDATE raids ADD COLUMN `ex_eligible` tinyint(1) NOT NULL DEFAULT 0;
@@ -46,3 +54,11 @@ UPDATE raids SET `pokemon_id` = CONCAT('[', pokemon_id, ']');
 UPDATE pokemon SET form=NULL WHERE form = '' AND form IS NOT NULL OR form = ',';
 UPDATE pvp SET form=NULL WHERE form = '' AND form IS NOT NULL OR form = ',';
 UPDATE raids SET form=NULL WHERE form = '' AND form IS NOT NULL OR form = ',';
+
+
+UPDATE pokemon MODIFY COLUMN `city` `areas` longtext DEFAULT NULL;
+UPDATE pvp MODIFY COLUMN `city` `areas` longtext DEFAULT NULL;
+UPDATE raids MODIFY COLUMN `city` `areas` longtext DEFAULT NULL;
+UPDATE quests MODIFY COLUMN `city` `areas` longtext DEFAULT NULL;
+UPDATE lures MODIFY COLUMN `city` `areas` longtext DEFAULT NULL;
+UPDATE invasions MODIFY COLUMN `city` `areas` longtext DEFAULT NULL;

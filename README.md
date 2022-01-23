@@ -55,40 +55,40 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 *All examples are completely customizable using Dynamic Text Replacement/Substitution*  
 
 __Pokemon Notifications__  
-![Pokemon Notifications](images/pkmn.png "Pokemon Notifications")  
+![Pokemon Notifications](.github/images/pkmn.png "Pokemon Notifications")  
 
 __Pokemon PVP Notifications__  
-![Pokemon Notifications](images/pvp.png "Pokemon PVP Notifications")  
+![Pokemon Notifications](.github/images/pvp.png "Pokemon PVP Notifications")  
 
 __Raid Boss Notifications__  
-![Raid Boss Notifications](images/raids.png "Raid Boss Notifications")  
+![Raid Boss Notifications](.github/images/raids.png "Raid Boss Notifications")  
 
 __Raid Egg Notifications__  
-![Egg Notifications](images/eggs.png "Egg Notifications")  
+![Egg Notifications](.github/images/eggs.png "Egg Notifications")  
 
 __Quest Notifications__  
-![Quest Notifications](images/quests.png "Quest Notifications")  
+![Quest Notifications](.github/images/quests.png "Quest Notifications")  
 
 __Lure Notifications__  
-![Lure Notifications](images/lure.png "Lure Notifications")  
+![Lure Notifications](.github/images/lure.png "Lure Notifications")  
 
 __Lure (Glacial) Notifications__  
-![Lure (Glacial) Notifications](images/lure_glacial.png "Lure (Glacial) Notifications")  
+![Lure (Glacial) Notifications](.github/images/lure_glacial.png "Lure (Glacial) Notifications")  
 
 __Lure (Mossy) Notifications__  
-![Lure (Mossy) Notifications](images/lure_mossy.png "Lure (Mossy) Notifications")  
+![Lure (Mossy) Notifications](.github/images/lure_mossy.png "Lure (Mossy) Notifications")  
 
 __Lure (Magnetic) Notifications__  
-![Lure (Magnetic) Notifications](images/lure_magnetic.png "Lure (Magnetic) Notifications")  
+![Lure (Magnetic) Notifications](.github/images/lure_magnetic.png "Lure (Magnetic) Notifications")  
 
 __Gym Team Takeover Notifications__  
-![Gym Team Takeover Notifications](images/gyms.png "Gym Team Takeover Notifications")  
+![Gym Team Takeover Notifications](.github/images/gyms.png "Gym Team Takeover Notifications")  
 
 __Team Rocket Invasion Notifications__  
-![Team Rocket Invasion Notifications](images/invasions.png "Team Rocket Invasion Notifications")  
+![Team Rocket Invasion Notifications](.github/images/invasions.png "Team Rocket Invasion Notifications")  
 
 __Weather Notifications__  
-![Weather Notifications](images/weather.png "Weather Notifications")  
+![Weather Notifications](.github/images/weather.png "Weather Notifications")  
 
 
 ## Credits  
