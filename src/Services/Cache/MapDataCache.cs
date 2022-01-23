@@ -171,14 +171,8 @@
                 await LoadMapData().ConfigureAwait(false);
             }
 
-            var nearby = _pokestops.Values.Where(stop =>
-            {
-                var stopCoord = new Coordinate(stop.Latitude, stop.Longitude);
-                var mapCoord = new Coordinate(latitude, longitude);
-                var distance = stopCoord.DistanceTo(mapCoord);
-                var isWithinRadius = distance <= radiusM;
-                return isWithinRadius;
-            }).Select(x => new
+            var nearby = _pokestops.Values.Where(stop => IsWithinRadius(stop.Latitude, stop.Longitude, latitude, longitude, radiusM))
+                                          .Select(x => new
             {
                 id = x.PokestopId,
                 lat = x.Latitude,
@@ -199,14 +193,8 @@
                 await LoadMapData().ConfigureAwait(false);
             }
 
-            var nearby = _gyms.Values.Where(gym =>
-            {
-                var gymCoord = new Coordinate(gym.Latitude, gym.Longitude);
-                var mapCoord = new Coordinate(latitude, longitude);
-                var distance = gymCoord.DistanceTo(mapCoord);
-                var isWithinRadius = distance <= radiusM;
-                return isWithinRadius;
-            }).Select(x => new
+            var nearby = _gyms.Values.Where(gym => IsWithinRadius(gym.Latitude, gym.Longitude, latitude, longitude, radiusM))
+                                     .Select(x => new
             {
                 id = x.GymId,
                 lat = x.Latitude,
@@ -216,6 +204,15 @@
                 marker = UIconService.Instance.GetGymIcon("Default", x.Team), // TODO: Get icon style
             }).ToList<dynamic>();
             return nearby;
+        }
+
+        private static bool IsWithinRadius(double lat, double lon, double mapLat, double mapLon, double radiusM = 100)
+        {
+            var coord = new Coordinate(lat, lon);
+            var mapCoord = new Coordinate(mapLat, mapLon);
+            var distance = coord.DistanceTo(mapCoord);
+            var isWithinRadius = distance <= radiusM;
+            return isWithinRadius;
         }
     }
 }

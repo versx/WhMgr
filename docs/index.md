@@ -1,4 +1,4 @@
-[![Build](https://github.com/versx/WhMgr/workflows/.NET%20Core/badge.svg)](https://github.com/versx/WhMgr/actions)
+[![Build](https://github.com/versx/WhMgr/workflows/.NET/badge.svg)](https://github.com/versx/WhMgr/actions)
 [![Documentation Status](https://readthedocs.org/projects/whmgr/badge/?version=latest)](https://whmgr.rtfd.io)
 [![GitHub Release](https://img.shields.io/github/release/versx/WhMgr.svg)](https://github.com/versx/WhMgr/releases/)
 [![GitHub Contributors](https://img.shields.io/github/contributors/versx/WhMgr.svg)](https://github.com/versx/WhMgr/graphs/contributors/)
@@ -23,14 +23,16 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Supports multiple Discord servers.  
 - Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather changes.  
 - Built-in Admin Dashboard to configure and manage configuration files.  
+- Webhook and subscription queue system, all outgoing messages are queued and fired off in groups for efficiency.  
+- If an outgoing message is rate limited, it is backlogged and awaited the rate limit time then requeued.  
 - Per user custom Discord notifications for Pokemon, raids, quests, invasions, lures, and gyms.  
 - User interface to configure custom Discord subscription notifications with ease. [WhMgr-UI](https://github.com/versx/WhMgr-UI)  
 - Subscription notifications based on pre-defined distance and geofence areas.  
 - Customizable alert messages with dynamic text replacement/substitution.  
 - Support for multiple cities/areas using geofences per server.  
 - Daily shiny and IV stats reporting.  
-- Automatic quest message purge at midnight.  
-- Support for Donors/Supporters only custom notifications.  
+- Automatic quest message purge at midnight based on timezone.  
+- Support for Subscriber only custom notifications.  
 - Pokemon, PvP, and Raid subscription notifications based on specific forms or costumes.  
 - Custom prefix support as well as mentionable bot user string for commands.  
 - Raid subscription notifications for specific gyms.  
@@ -41,7 +43,6 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
 - Custom static map format support, including pokestop and gym marker placements.  
 - Support for language translation per instance (per server planned).  
 - Multi threaded, low processing consumption.  
-- Rate limit backlog queue.
 - [UIcons](https://github.com/uicons/uicons) standard image support.
 - Lots more...  
 
