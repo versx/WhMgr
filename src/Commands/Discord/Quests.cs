@@ -70,7 +70,7 @@
             }
         }
 
-        private async Task DeleteChannelMessages(CommandContext ctx, DiscordChannel channel)
+        private static async Task DeleteChannelMessages(CommandContext ctx, DiscordChannel channel)
         {
             var messages = await channel.GetMessagesAsync();
             while (messages.Count > 0)

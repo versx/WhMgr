@@ -125,15 +125,22 @@
                 // Loop all provided Discord clients
                 foreach (var (serverId, serverClient) in _discordService.DiscordClients)
                 {
-                    // Get Discord channel if available
-                    _logger.Information($"Deleting messages in channel {channelId}");
-                    var channel = await serverClient.GetChannelAsync(channelId).ConfigureAwait(false);
-                    if (channel == null)
-                        continue;
+                    try
+                    {
+                        // Get Discord channel if available
+                        _logger.Information($"Deleting messages in channel {channelId}");
+                        var channel = await serverClient.GetChannelAsync(channelId).ConfigureAwait(false);
+                        if (channel == null)
+                            continue;
 
-                    // Delete all Discord channel messages
-                    _logger.Information($"Deleting messages for channel: {channelId} (GuildId: {serverId})");
-                    await serverClient.DeleteMessagesAsync(channelId).ConfigureAwait(false);
+                        // Delete all Discord channel messages
+                        _logger.Information($"Deleting messages for channel: {channelId} (GuildId: {serverId})");
+                        await serverClient.DeleteMessagesAsync(channelId).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"Failed to delete messages in channel {channelId}: {ex}");
+                    }
                 }
             }
             _logger.Information($"Completed deleting messages for channel(s) {string.Join(", ", channelIds)}");
