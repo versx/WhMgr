@@ -48,7 +48,11 @@
             {
                 await LoadMapData().ConfigureAwait(false);
             }
-            var pokestop = _pokestops?[id];
+            if (!(_pokestops?.ContainsKey(id) ?? false))
+            {
+                return null;
+            }
+            var pokestop = _pokestops[id];
             return pokestop;
         }
 
@@ -86,7 +90,11 @@
             {
                 await LoadMapData().ConfigureAwait(false);
             }
-            var gym = _gyms?[id];
+            if (!(_gyms?.ContainsKey(id) ?? false))
+            {
+                return null;
+            }
+            var gym = _gyms[id];
             return gym;
         }
 
@@ -124,7 +132,11 @@
             {
                 await LoadMapData().ConfigureAwait(false);
             }
-            var weather = _weather?[id];
+            if (!(_weather?.ContainsKey(id) ?? false))
+            {
+                return null;
+            }
+            var weather = _weather[id];
             return weather;
         }
 
