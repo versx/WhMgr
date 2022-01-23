@@ -29,13 +29,14 @@ echo "Building WhMgr..."
 # Copy example config
 echo "Copying example files..."
 cp examples/discord_auth.json bin/discord_auth.json
+cp examples/configs/config.example.json bin/config.json
+cp -R examples/configs bin/configs/
 cp -R examples/alarms bin/alarms/
 cp -R examples/embeds bin/embeds/
 cp -R examples/discords bin/discords/
 cp -R examples/filters bin/filters/
 cp -R examples/geofences bin/geofences/
 cp -R static/ bin/static/
-cp config.example.json bin/config.json
 curl https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json > bin/static/data/masterfile.json
 
 echo "Changing directory to build folder..."

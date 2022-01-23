@@ -32,6 +32,8 @@ dotnet build
 :: Copy example config
 echo "Copying example files..."
 xcopy /s /e %prjDir%\examples\discord_auth.json %binDir%\discord_auth.json
+xcopy /s /e %prjDir%\configs\config.example.json %binDir%\config.json
+xcopy /s /e %prjDir%\examples\configs\* %binDir%\configs\
 xcopy /s /e %prjDir%\examples\alarms\* %binDir%\alarms\
 xcopy /s /e %prjDir%\examples\embeds\* %binDir%\embeds\
 xcopy /s /e %prjDir%\examples\discords\* %binDir%\discords\
@@ -39,7 +41,6 @@ xcopy /s /e %prjDir%\examples\filters\* %binDir%\filters\
 xcopy /s /e %prjDir%\examples\geofences\* %binDir%\geofences\
 xcopy /s /e %prjDir%\static\* %binDir%\static\
 curl https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json > %binDir%\static\data\masterfile.json
-xcopy %prjDir%\config.example.json %binDir%\config.json*
 
 echo "Changing directory to build folder..."
 cd %binDir%
