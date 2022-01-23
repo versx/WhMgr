@@ -49,10 +49,10 @@
         public bool WarningMessageAcknowledged { get; set; }
 
         [JsonPropertyName("warn")]
-        public bool IsWarned { get; set; }
+        public bool? IsWarned { get; set; }
 
         [JsonPropertyName("banned")]
-        public bool IsBanned { get; set; }
+        public bool? IsBanned { get; set; }
 
         [JsonPropertyName("last_encounter_time")]
         public ulong LastEncounterTimestamp { get; set; }

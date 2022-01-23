@@ -49,6 +49,8 @@ namespace WhMgr
                             config.LoadDiscordServers();
                             Startup.Config = config;
 
+                            // TODO: Load default minimums config
+
                             webBuilder.UseStartup<Startup>();
                             webBuilder.UseUrls($"http://*:{config.WebhookPort}");
 

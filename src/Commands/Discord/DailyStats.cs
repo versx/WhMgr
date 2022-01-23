@@ -159,6 +159,7 @@
             var stats = GetIvStats(_config.Instance.Database.Scanner.ToString(), minimumIV);
 
             var date = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString();
+            // TODO: Localize IV stats
             await statsChannel.SendMessageAsync($"[**{minimumIV}% IV Pokemon stats for {date}**]");
             await statsChannel.SendMessageAsync("----------------------------------------------");
 

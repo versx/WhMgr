@@ -158,7 +158,7 @@
                 ? EmbedMessageType.Raids
                 : EmbedMessageType.Eggs;
             var embed = settings.Alarm?.Embeds[embedType]
-                ?? server.Subscriptions?.DmEmbeds?[embedType]
+                ?? server.Subscriptions?.Embeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
             var raidImageUrl = IsEgg
                 ? UIconService.Instance.GetEggIcon(server.IconStyle, Level, false, IsExEligible)
@@ -235,9 +235,9 @@
                 : 0;
             var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
 
-            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
-            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
-            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
+            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
             var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Raids];

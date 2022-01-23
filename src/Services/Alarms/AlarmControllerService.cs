@@ -155,14 +155,14 @@
                     var skipGreatLeague = alarm.Filters.Pokemon.IsPvpGreatLeague &&
                         !(pokemon.MatchesGreatLeague && pokemon.GreatLeague.Exists(x =>
                             Filters.Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP));
+                            && x.CP >= Strings.Defaults.MinimumGreatLeagueCP && x.CP <= Strings.Defaults.MaximumGreatLeagueCP));
                     if (skipGreatLeague)
                         continue;
 
                     var skipUltraLeague = alarm.Filters.Pokemon.IsPvpUltraLeague &&
                         !(pokemon.MatchesUltraLeague && pokemon.UltraLeague.Exists(x =>
                             Filters.Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP));
+                            && x.CP >= Strings.Defaults.MinimumUltraLeagueCP && x.CP <= Strings.Defaults.MaximumUltraLeagueCP));
                     if (skipUltraLeague)
                         continue;
 
@@ -714,7 +714,7 @@
                 {
                     //var workItem = await _taskQueue.DequeueAsync(stoppingToken);
                     //await workItem(stoppingToken);
-                    var workItems = await _taskQueue.DequeueMultipleAsync(Strings.MaxQueueBatchSize, stoppingToken);
+                    var workItems = await _taskQueue.DequeueMultipleAsync(Strings.Defaults.MaximumQueueBatchSize, stoppingToken);
                     foreach (var workItem in workItems)
                     {
                         await workItem(stoppingToken);
@@ -790,7 +790,7 @@
 
         private void CheckQueueLength()
         {
-            if (_taskQueue.Count > Strings.MaxQueueCountWarning)
+            if (_taskQueue.Count > Strings.Defaults.MaximumQueueSizeWarning)
             {
                 _logger.Warning($"Alarm controller queue is {_taskQueue.Count:N0} items long.");
             }

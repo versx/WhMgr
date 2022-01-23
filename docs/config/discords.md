@@ -7,6 +7,8 @@ Copy your Discord specific configs to the `bin/discords` folder and reference th
   "bot": {
     // Bot command prefix, leave blank to use @mention <command>
     "commandPrefix": ".",
+    // Discord guild ID.
+    "guildId": 000000000000000000,
     // Discord Emoji server ID. (Can be same as `guildId`)  
     "emojiGuildId": 000000000000000001,
     // Discord bot token with user.
@@ -15,22 +17,26 @@ Copy your Discord specific configs to the `bin/discords` folder and reference th
     "channelIds": [],
     // Custom Discord status per server, leave blank or null to use current version.  
     "status": null
-  }
+  },
   // Discord server owner ID.
   "ownerId": 000000000000000000,
   // Donor/Supporter role ID(s) config.
   "donorRoleIds": {
     // Discord server role id and subscription permissions
     "000000000000000000": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
+    // User has access to nothing
     "000000000000000001": [],
     // Users with role will only have access to Pokestops and Gyms
     "000000000000000002": ["pokestops", "gyms"],
   },
-  // Discord free role, if set allows non-donors/supporters to use the .feedme commands to assign city roles (optional)
+  // Discord free role name, if set allows non-donors/supporters to use the .feedme commands to assign city roles (optional, good for free promotional periods)
   "freeRoleName": "",
   // Moderator role IDs
-  "moderatorRoleIds": [],
-  // Discord alarms config
+  "moderatorRoleIds": [
+    000000000000000001,
+    000000000000000002
+  ],
+  // Discord alarms config file name to use
   "alarms": "alarms.json",
   // Discord server related geofences
   "geofences": [
@@ -60,7 +66,7 @@ Copy your Discord specific configs to the `bin/discords` folder and reference th
     // Webhook Manager UI home page url
     "url": "http://127.0.0.1:8009",
     // Subscriptions DM embeds file.
-    "dmEmbedsFile": "default.json"
+    "embedsFile": "default.json"
   },
   // Discord geofence roles config
   "geofenceRoles": {

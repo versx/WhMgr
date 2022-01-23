@@ -1,5 +1,6 @@
 ﻿namespace WhMgr.Controllers
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
 
@@ -32,7 +33,10 @@
         [HttpPost("/")]
         public IActionResult HandleData(List<WebhookPayload> data)
         {
-            ThreadPool.QueueUserWorkItem(async x => await _webhookService.ParseDataAsync(data));
+            if (!ThreadPool.QueueUserWorkItem(async x => await _webhookService.ParseDataAsync(data)))
+            {
+                return Unauthorized();
+            }
             return Ok();
         }
     }

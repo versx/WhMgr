@@ -301,7 +301,7 @@
             }
 
             var guild = client.Guilds[server.Bot.EmojiGuildId];
-            foreach (var emoji in Strings.EmojiList)
+            foreach (var emoji in Strings.Defaults.EmojisList)
             {
                 try
                 {
@@ -347,7 +347,7 @@
 
                 var emojiGuild = guild.Guilds[emojiGuildId];
                 var emojis = await emojiGuild.GetEmojisAsync();
-                foreach (var name in Strings.EmojiList)
+                foreach (var name in Strings.Defaults.EmojisList)
                 {
                     var emoji = emojis.FirstOrDefault(x => string.Compare(x.Name, name, true) == 0);
                     if (emoji == null)

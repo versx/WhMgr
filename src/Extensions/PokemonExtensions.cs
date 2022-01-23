@@ -230,7 +230,7 @@
         public static bool IsWeatherBoosted(this PokedexPokemon pkmn, WeatherCondition weather)
         {
             var types = pkmn?.Types;
-            var boosts = Strings.WeatherBoosts[weather];
+            var boosts = Strings.Defaults.WeatherBoosts[weather];
             var isBoosted = types?.Exists(x => boosts.Contains(x)) ?? false;
             return isBoosted;
         }
@@ -255,6 +255,7 @@
 
             pokemonList = pokemonList.Replace(" ", "");
 
+            var generations = Strings.Defaults.PokemonGenerationRanges;
             PokemonValidation validation;
             if (pokemonList.Contains("-") && int.TryParse(pokemonList.Split('-')[0], out var startRange) && int.TryParse(pokemonList.Split('-')[1], out var endRange))
             {
@@ -262,18 +263,18 @@
                 var range = GetListFromRange(startRange, endRange);
                 validation = range.ValidatePokemon();
             }
-            else if (Strings.PokemonGenerationRanges.Select(x => "gen" + x.Key).ToList().Contains(pokemonList))
+            else if (generations.Select(x => "gen" + x.Key).ToList().Contains(pokemonList))
             {
                 // If `poke` is pokemon generation
-                if (!int.TryParse(pokemonList.Replace("gen", ""), out var gen) || !Strings.PokemonGenerationRanges.ContainsKey(gen))
+                if (!int.TryParse(pokemonList.Replace("gen", ""), out var gen) || !generations.ContainsKey(gen))
                 {
-                    var keys = Strings.PokemonGenerationRanges.Keys.ToList();
+                    var keys = generations.Keys.ToList();
                     var minValue = keys[0];
                     var maxValue = keys[^1];
                     return null;
                 }
 
-                var genRange = Strings.PokemonGenerationRanges[gen];
+                var genRange = generations[gen];
                 var range = GetListFromRange(genRange.Start, genRange.End);
                 validation = range.ValidatePokemon();
             }

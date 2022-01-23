@@ -72,4 +72,8 @@
   <ItemGroup>
     <Folder Include="Web\Api\Requests\" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="$(SolutionDir)wwwroot\**" CopyToOutputDirectory="PreserveNewest" LinkBase="wwwroot\" />
+   </ItemGroup>
 </Project>

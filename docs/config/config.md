@@ -221,7 +221,7 @@ At a minimum you'll want to make sure your have your webhook listening port set 
     // Static map template for Pokemon
     "pokemon": {
       // Static map url template for pokemon
-      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
+      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
       // Static map template file name without extension
       "template": "pokemon.example",
       // Include nearby gyms in static map image  
@@ -232,7 +232,7 @@ At a minimum you'll want to make sure your have your webhook listening port set 
     // Static map template for Raids and Eggs
     "raids": {
       // Static map url template for raids
-      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team_id={{team_id}}",
+      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team_id={{team_id}}",
       // Static map template file name without extension
       "template": "raids.example",
       // Include nearby gyms in static map image  
@@ -243,7 +243,7 @@ At a minimum you'll want to make sure your have your webhook listening port set 
     // Static map template for Gym team control changes
     "gyms": {
       // Static map url template for gyms
-      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team_id={{team_id}}",
+      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team_id={{team_id}}",
       // Static map template file name without extension
       "template": "gyms.example",
       // Include nearby gyms in static map image  
@@ -254,7 +254,7 @@ At a minimum you'll want to make sure your have your webhook listening port set 
     // Static map template for field research quests
     "quests": {
       // Static map url template for quests
-      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
+      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
       // Static map template file name without extension
       "template": "quests.example",
       // Include nearby gyms in static map image  
@@ -265,7 +265,7 @@ At a minimum you'll want to make sure your have your webhook listening port set 
     // Static map template for Team Rocket invasions
     "invasions": {
       // Static map url template for invasions
-      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
+      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
       // Static map template file name without extension
       "template": "invasions.example",
       // Include nearby gyms in static map image  
@@ -276,7 +276,7 @@ At a minimum you'll want to make sure your have your webhook listening port set 
     // Static map template for Pokestop lures
     "lures": {
       // Static map url template for lures
-      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
+      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
       // Static map template file name without extension
       "template": "lures.example",
       // Include nearby gyms in static map image  
@@ -287,7 +287,7 @@ At a minimum you'll want to make sure your have your webhook listening port set 
     // Static map template for weather changes
     "weather": {
       // Static map url template for weather
-      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&polygon={{polygon}}",
+      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&polygon={{polygon}}",
       // Static map template file name without extension
       "template": "weather.example",
       // Include nearby gyms in static map image  
@@ -298,7 +298,7 @@ At a minimum you'll want to make sure your have your webhook listening port set 
     // Static map template for nest postings
     "nests": {
       // Static map url template for nests
-      "url": "http://tiles.example.com:8080/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&polygon={{polygon}}",
+      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&polygon={{polygon}}",
       // Static map template file name without extension
       "template": "nests.example",
       // Include nearby gyms in static map image  

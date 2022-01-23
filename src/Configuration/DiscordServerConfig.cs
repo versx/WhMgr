@@ -95,12 +95,6 @@
         public string IconStyle { get; set; } = "Default";
 
         /// <summary>
-        /// 
-        /// </summary>
-        [JsonPropertyName("dmEmbedsFile")]
-        public string DmEmbedsFile { get; set; }
-
-        /// <summary>
         /// Instantiate a new <see cref="DiscordServerConfig"/> class
         /// </summary>
         public DiscordServerConfig()

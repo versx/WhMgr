@@ -101,7 +101,7 @@
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = EmbedMessageType.Gyms;
-            var embed = settings.Alarm?.Embeds[embedType] ?? server.Subscriptions?.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
+            var embed = settings.Alarm?.Embeds[embedType] ?? server.Subscriptions?.Embeds?[embedType] ?? EmbedMessage.Defaults[embedType];
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
             {
@@ -170,9 +170,9 @@
                     : oldGym?.Team.ToString()
                 : GameMaster.Instance.CustomEmojis[oldGym.Team.ToString().ToLower()];
 
-            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
-            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
-            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
+            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
             var gymImageUrl = UIconService.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);// $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
 

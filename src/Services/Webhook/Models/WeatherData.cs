@@ -151,7 +151,7 @@
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = EmbedMessageType.Weather;
             var embed = settings.Alarm?.Embeds[embedType]
-                ?? server.Subscriptions?.DmEmbeds?[embedType]
+                ?? server.Subscriptions?.Embeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
             //var weatherImageUrl = IconFetcher.Instance.GetWeatherIcon(server.IconStyle, GameplayCondition);
             //settings.ImageUrl = weatherImageUrl;
@@ -197,9 +197,9 @@
             var weather = Translator.Instance.GetWeather(GameplayCondition);
             var weatherEmoji = GameplayCondition != WeatherCondition.None ? GameplayCondition.GetEmojiIcon("weather", false) : string.Empty;
             var hasWeather = GameplayCondition != WeatherCondition.None;
-            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
-            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
-            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
+            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
             var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Weather];

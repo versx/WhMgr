@@ -44,14 +44,14 @@
         /// <summary>
         /// Gets or sets the embeds file to use with direct message subscriptions
         /// </summary>
-        [JsonPropertyName("dmEmbedsFile")]
-        public string DmEmbedsFile { get; set; } = "default.json";
+        [JsonPropertyName("embedsFile")]
+        public string EmbedsFile { get; set; } = "default.json";
 
         /// <summary>
         /// Gets or sets the direct message embeds class to use for subscriptions
         /// </summary>
         [JsonIgnore]
-        public EmbedMessage DmEmbeds { get; set; }
+        public EmbedMessage Embeds { get; set; }
 
         public SubscriptionsConfig()
         {
@@ -70,12 +70,8 @@
 
         public void LoadDmEmbeds()
         {
-            var path = Path.Combine(Strings.EmbedsFolder, DmEmbedsFile);
-            if (!File.Exists(path))
-            {
-                throw new FileNotFoundException($"File not found at location {path}", path);
-            }
-            DmEmbeds = path.LoadFromFile<EmbedMessage>();
+            var path = Path.Combine(Strings.EmbedsFolder, EmbedsFile);
+            Embeds = path.LoadFromFile<EmbedMessage>();
         }
     }
 }

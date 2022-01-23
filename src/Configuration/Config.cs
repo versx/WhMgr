@@ -3,14 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Text.Json.Serialization;
 
     using Microsoft.Extensions.Logging;
 
     using WhMgr.Data;
     using WhMgr.Extensions;
-    using WhMgr.Services.Geofence;
     using WhMgr.Services.Icons;
     using WhMgr.Utilities;
 
@@ -128,10 +126,10 @@
         public bool Debug { get; set; }
 
         /// <summary>
-        /// Gets or sets a value determining the maximum Pokemon ID to support
+        /// Gets a value determining the maximum Pokemon ID to support
         /// </summary>
-        [JsonPropertyName("maxPokemonId")]
-        public uint MaxPokemonId { get; set; } = (uint)GameMaster.Instance.Pokedex.Count;
+        [JsonIgnore]
+        public uint MaxPokemonId => (uint)GameMaster.Instance.Pokedex.Count;
 
         /// <summary>
         /// Gets or sets the event logging level to set
@@ -162,7 +160,6 @@
             ListeningHost = "127.0.0.1";
             WebhookPort = 8008;
             Locale = "en";
-            MaxPokemonId = 898;
             LogLevel = LogLevel.Trace;
             DespawnTimeMinimumMinutes = 5;
             CheckForDuplicates = true;

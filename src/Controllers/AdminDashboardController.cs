@@ -309,7 +309,7 @@
                         return new
                         {
                             file = name,
-                            selected = string.Equals(name, config.DmEmbedsFile, StringComparison.InvariantCultureIgnoreCase),
+                            selected = string.Equals(name, config.Subscriptions.EmbedsFile, StringComparison.InvariantCultureIgnoreCase),
                         };
                     }),
                     iconStyles,
@@ -1274,7 +1274,6 @@
             discord.AlarmsFile = form["alarms"].ToString();
             discord.GeofenceFiles = form["geofences"].ToString().Split(',');
             discord.IconStyle = form["iconStyle"].ToString();
-            discord.DmEmbedsFile = form["embed"].ToString();
             if (discord.Bot == null)
             {
                 discord.Bot = new BotConfig();
@@ -1300,6 +1299,7 @@
             discord.Subscriptions.MaxGymSubscriptions = int.Parse(form["maxGymSubscriptions"].ToString());
             discord.Subscriptions.MaxNotificationsPerMinute = ushort.Parse(form["maxNotificationsPerMinute"].ToString());
             discord.Subscriptions.Url = form["subscriptionsUiUrl"].ToString();
+            discord.Subscriptions.EmbedsFile = form["embed"].ToString();
             if (discord.GeofenceRoles == null)
             {
                 discord.GeofenceRoles = new GeofenceRolesConfig();

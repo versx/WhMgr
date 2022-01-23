@@ -98,7 +98,7 @@
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = EmbedMessageType.Quests;
             var embed = settings.Alarm?.Embeds[embedType]
-                ?? server.Subscriptions?.DmEmbeds?[embedType]
+                ?? server.Subscriptions?.Embeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
             settings.ImageUrl = UIconService.Instance.GetRewardIcon(server.IconStyle, this);
             var properties = await GetPropertiesAsync(settings);
@@ -139,9 +139,9 @@
             var questMessage = this.GetQuestMessage();
             var questConditions = this.GetConditions();
             var questReward = this.GetReward();
-            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
-            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
-            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
+            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
             var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Quests];

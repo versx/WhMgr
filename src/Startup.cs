@@ -2,8 +2,6 @@ namespace WhMgr
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Diagnostics.Tracing;
     using System.IO;
     using System.Threading.Tasks;
 
@@ -11,9 +9,6 @@ namespace WhMgr
     using Microsoft.AspNetCore.Antiforgery;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Extensions;
-    using Microsoft.AspNetCore.Mvc.Filters;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.FileProviders;
@@ -38,6 +33,7 @@ namespace WhMgr
     using WhMgr.Services.Webhook;
     using WhMgr.Services.Webhook.Queue;
     using WhMgr.Web.Extensions;
+    using WhMgr.Web.Filters;
     using WhMgr.Web.Middleware;
 
     // TODO: Reload alarms/filters/geofences on change
@@ -235,53 +231,6 @@ namespace WhMgr
                 System.Threading.Thread.Sleep(50);
             }
             webhookProcessorService.Start();
-        }
-    }
-
-    public class LogRequestTimeFilterAttribute : ActionFilterAttribute
-    {
-        private readonly Stopwatch _stopwatch = new();
-
-        public override void OnActionExecuting(ActionExecutingContext context) => _stopwatch.Start();
-
-        public override void OnActionExecuted(ActionExecutedContext context)
-        {
-            _stopwatch.Stop();
-
-            MinimalEventCounterSource.Log.Request(
-                context.HttpContext.Request.GetDisplayUrl(),
-                _stopwatch.ElapsedMilliseconds
-            );
-        }
-    }
-
-    [EventSource(Name = "Sample.EventCounter.Minimal")]
-    public sealed class MinimalEventCounterSource : EventSource
-    {
-        public static readonly MinimalEventCounterSource Log = new();
-
-        private EventCounter _requestCounter;
-
-        private MinimalEventCounterSource() =>
-            _requestCounter = new EventCounter("request-time", this)
-            {
-                DisplayName = "Request Processing Time",
-                DisplayUnits = "ms"
-            };
-
-        public void Request(string url, long elapsedMilliseconds)
-        {
-            WriteEvent(1, url, elapsedMilliseconds);
-            Console.WriteLine($"Request {url} time elapsed: {elapsedMilliseconds} ms");
-            _requestCounter?.WriteMetric(elapsedMilliseconds);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _requestCounter?.Dispose();
-            _requestCounter = null;
-
-            base.Dispose(disposing);
         }
     }
 }

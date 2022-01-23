@@ -306,11 +306,11 @@
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x => pkmnSub.League == PvpLeague.Great &&
-                                                                         (x.CP ?? 0) >= Strings.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.MaximumGreatLeagueCP &&
+                                                                         (x.CP ?? 0) >= Strings.Defaults.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.Defaults.MaximumGreatLeagueCP &&
                                                                          (x.Rank ?? 4096) <= pkmnSub.MinimumRank &&
                                                                          (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent) ?? false);
                         matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x => pkmnSub.League == PvpLeague.Ultra &&
-                                                                         (x.CP ?? 0) >= Strings.MinimumUltraLeagueCP && (x.CP ?? 0) <= Strings.MaximumUltraLeagueCP &&
+                                                                         (x.CP ?? 0) >= Strings.Defaults.MinimumUltraLeagueCP && (x.CP ?? 0) <= Strings.Defaults.MaximumUltraLeagueCP &&
                                                                          (x.Rank ?? 4096) <= pkmnSub.MinimumRank &&
                                                                          (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent) ?? false);
 
@@ -1088,7 +1088,7 @@
                 {
                     //var workItem = await _taskQueue.DequeueAsync(stoppingToken);
                     //await workItem(stoppingToken);
-                    var workItems = await _taskQueue.DequeueMultipleAsync(Strings.MaxQueueBatchSize, stoppingToken);
+                    var workItems = await _taskQueue.DequeueMultipleAsync(Strings.Defaults.MaximumQueueBatchSize, stoppingToken);
                     var tasks = workItems.Select(item => Task.Factory.StartNew(async () => await item(stoppingToken)));
                     Task.WaitAll(tasks.ToArray(), stoppingToken);
                     /*
@@ -1227,7 +1227,7 @@ UPDATE subscriptions SET status = 0 WHERE guild_id = {embed.Subscription.GuildId
 
         private void CheckQueueLength()
         {
-            if (_taskQueue.Count > Strings.MaxQueueCountWarning)
+            if (_taskQueue.Count > Strings.Defaults.MaximumQueueSizeWarning)
             {
                 _logger.Warning($"Subscription queue is {_taskQueue.Count:N0} items long.");
             }

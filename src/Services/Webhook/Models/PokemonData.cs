@@ -284,11 +284,11 @@
         ]
         public bool MatchesGreatLeague => GreatLeague?.Exists(x =>
             // Check if stat rank is less than or equal to the max great league rank stat desired
-            x.Rank <= Strings.MaximumLeagueRank &&
+            x.Rank <= Strings.Defaults.MaximumRank &&
             // Check if stat CP is greater than or equal to min great league CP
-            x.CP >= Strings.MinimumGreatLeagueCP &&
+            x.CP >= Strings.Defaults.MinimumGreatLeagueCP &&
             // Check if stat CP is less than or equal to max great league CP
-            x.CP <= Strings.MaximumGreatLeagueCP
+            x.CP <= Strings.Defaults.MaximumGreatLeagueCP
         ) ?? false;
 
         [
@@ -297,11 +297,11 @@
         ]
         public bool MatchesUltraLeague => UltraLeague?.Exists(x =>
             // Check if stat rank is less than or equal to the max ultra league rank stat desired
-            x.Rank <= Strings.MaximumLeagueRank &&
+            x.Rank <= Strings.Defaults.MaximumRank &&
             // Check if stat CP is greater than or equal to min ultra league CP
-            x.CP >= Strings.MinimumUltraLeagueCP &&
+            x.CP >= Strings.Defaults.MinimumUltraLeagueCP &&
             // Check if stat CP is less than or equal to max ultra league CP
-            x.CP <= Strings.MaximumUltraLeagueCP
+            x.CP <= Strings.Defaults.MaximumUltraLeagueCP
         ) ?? false;
 
 
@@ -411,7 +411,7 @@
             var embedType = IsMissingStats
                 ? EmbedMessageType.PokemonMissingStats
                 : EmbedMessageType.Pokemon;
-            var embed = settings.Alarm?.Embeds[embedType] ?? server.Subscriptions?.DmEmbeds?[embedType] ?? EmbedMessage.Defaults[embedType];
+            var embed = settings.Alarm?.Embeds[embedType] ?? server.Subscriptions?.Embeds?[embedType] ?? EmbedMessage.Defaults[embedType];
             settings.ImageUrl = UIconService.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
@@ -476,9 +476,9 @@
             var height = Height != null ? Math.Round(Height ?? 0).ToString() : "";
             var weight = Weight != null ? Math.Round(Weight ?? 0).ToString() : "";
 
-            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
-            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
-            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
+            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
             var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Pokemon];
@@ -646,13 +646,13 @@
                 return list;
             }
             var pvpRanks = league == PvpLeague.Ultra ? UltraLeague : GreatLeague;
-            var minCp = league == PvpLeague.Ultra ? Strings.MinimumUltraLeagueCP : Strings.MinimumGreatLeagueCP;
-            var maxCp = league == PvpLeague.Ultra ? Strings.MaximumUltraLeagueCP : Strings.MaximumGreatLeagueCP;
+            var minCp = league == PvpLeague.Ultra ? Strings.Defaults.MinimumUltraLeagueCP : Strings.Defaults.MinimumGreatLeagueCP;
+            var maxCp = league == PvpLeague.Ultra ? Strings.Defaults.MaximumUltraLeagueCP : Strings.Defaults.MaximumGreatLeagueCP;
             for (var i = 0; i < pvpRanks.Count; i++)
             {
                 var pvp = pvpRanks[i];
                 var withinCpRange = pvp.CP >= minCp && pvp.CP <= maxCp;
-                var withinRankRange = pvp.Rank <= Strings.MaximumLeagueRank;
+                var withinRankRange = pvp.Rank <= Strings.Defaults.MaximumRank;
                 if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
                     continue;
 
@@ -661,7 +661,7 @@
                     Console.WriteLine($"Pokemon database does not contain pokemon id {pvp.PokemonId}");
                     continue;
                 }
-                if (pvp.Rank.HasValue && pvp.Rank.Value <= Strings.MaximumLeagueRank &&
+                if (pvp.Rank.HasValue && pvp.Rank.Value <= Strings.Defaults.MaximumRank &&
                     pvp.Percentage.HasValue &&
                     pvp.Level.HasValue &&
                     pvp.CP.HasValue && pvp.CP <= maxCp)
@@ -681,14 +681,16 @@
 
         private static DiscordColor GetPvPColor(List<PvpRankData> greatLeague, List<PvpRankData> ultraLeague, DiscordEmbedColorsConfig config)
         {
+            /*
             if (greatLeague != null)
                 greatLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
 
             if (ultraLeague != null)
                 ultraLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
+            */
 
-            var greatRank = greatLeague?.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumGreatLeagueCP && x.CP <= Strings.MaximumGreatLeagueCP);
-            var ultraRank = ultraLeague?.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.MinimumUltraLeagueCP && x.CP <= Strings.MaximumUltraLeagueCP);
+            var greatRank = greatLeague?.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.Defaults.MinimumGreatLeagueCP && x.CP <= Strings.Defaults.MaximumGreatLeagueCP);
+            var ultraRank = ultraLeague?.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.Defaults.MinimumUltraLeagueCP && x.CP <= Strings.Defaults.MaximumUltraLeagueCP);
             var color = config.Pokemon.PvP.FirstOrDefault(x =>
                 ((greatRank?.Rank ?? 0) >= x.Minimum && (greatRank?.Rank ?? 0) <= x.Maximum)
                 || ((ultraRank?.Rank ?? 0) >= x.Minimum && (ultraRank?.Rank ?? 0) <= x.Maximum)

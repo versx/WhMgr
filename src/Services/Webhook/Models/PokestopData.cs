@@ -174,7 +174,7 @@
                     ? EmbedMessageType.Lures
                     : EmbedMessageType.Pokestops;
             var embed = settings.Alarm?.Embeds[embedType]
-                    ?? server.Subscriptions?.DmEmbeds?[embedType]
+                    ?? server.Subscriptions?.Embeds?[embedType]
                     ?? EmbedMessage.Defaults[embedType];
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
@@ -229,9 +229,9 @@
                 : HasLure
                     ? lureImageUrl
                     : Url;
-            var gmapsLink = string.Format(Strings.GoogleMaps, Latitude, Longitude);
-            var appleMapsLink = string.Format(Strings.AppleMaps, Latitude, Longitude);
-            var wazeMapsLink = string.Format(Strings.WazeMaps, Latitude, Longitude);
+            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
+            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
+            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
             var staticMapConfigType = HasInvasion

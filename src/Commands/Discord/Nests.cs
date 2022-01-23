@@ -107,7 +107,7 @@
 
                         var pkmn = GameMaster.GetPokemon(nest.PokemonId);
                         var pkmnName = Translator.Instance.GetPokemonName(pkmn.PokedexId);
-                        var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
+                        var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, nest.Latitude, nest.Longitude);
                         // TODO: Check if possible shiny (emoji)
                         message += $"[**{nest.Name}**]({gmapsLink}): {pkmnName} (#{nest.PokemonId}) {nest.Average:N0} per hour\n";
                         if (message.Length >= Strings.DiscordMaximumMessageLength)
@@ -205,9 +205,9 @@
             var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
             var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
-            var gmapsLink = string.Format(Strings.GoogleMaps, nest.Latitude, nest.Longitude);
-            var appleMapsLink = string.Format(Strings.AppleMaps, nest.Latitude, nest.Longitude);
-            var wazeMapsLink = string.Format(Strings.WazeMaps, nest.Latitude, nest.Longitude);
+            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, nest.Latitude, nest.Longitude);
+            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, nest.Latitude, nest.Longitude);
+            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, nest.Latitude, nest.Longitude);
             var scannerMapsLink = string.Format(_config.Instance.Urls.ScannerMap, nest.Latitude, nest.Longitude);
 
             //pkmnImage,
