@@ -15,13 +15,14 @@ Works with the following backends:
 
 
 ## Description  
-Developed in C#, runs on .NET 5.0 CLR. Cross platform compatibility, can run on Windows, macOS, and Linux operating systems.  
+Developed in C#, runs on .NET 5.0 ASP.NET CoreCLR utilizing EntityFramework Core. Cross platform compatibility, runs on Windows, macOS, and Linux operating systems.  
 
-Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, Pokestop lures, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, PvP, raid, quest, Team Rocket invasion, and Pokestop lure notifications via direct messages.
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, Pokestop lures, gym team changes, and weather changes. It also supports Discord users subscribing to Pokemon, PvP, raid, quest, gym, Team Rocket invasion, and Pokestop lure notifications via direct messages.
 
-## Features  
+### Features  
 - Supports multiple Discord servers.  
-- Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
+- Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather changes.  
+- Built-in Admin Dashboard to configure and manage configuration files.  
 - Per user custom Discord notifications for Pokemon, raids, quests, invasions, lures, and gyms.  
 - User interface to configure custom Discord subscription notifications with ease. [WhMgr-UI](https://github.com/versx/WhMgr-UI)  
 - Subscription notifications based on pre-defined distance and geofence areas.  

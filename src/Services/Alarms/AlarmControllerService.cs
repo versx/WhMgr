@@ -728,6 +728,7 @@
                 {
                     _logger.Error(ex, "Error occurred executing task work item.");
                 }
+                Thread.Sleep(10);
             }
 
             _logger.Error("Exited background processing...");

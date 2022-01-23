@@ -1106,7 +1106,8 @@
                 {
                     _logger.Error(ex, "Error occurred executing task work item.");
                 }
-                await Task.Delay(50, stoppingToken);
+                //await Task.Delay(10, stoppingToken);
+                Thread.Sleep(10);
             }
 
             _logger.Error("Exited background processing...");

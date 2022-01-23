@@ -15,13 +15,14 @@ Works with the following backends:
 
 
 ### Description  
-Developed in C#, runs on .NET 5.0 CLR. Cross platform compatibility, can run on Windows, macOS, and Linux operating systems.  
+Developed in C#, runs on .NET 5.0 ASP.NET CoreCLR utilizing EntityFramework Core. Cross platform compatibility, runs on Windows, macOS, and Linux operating systems.  
 
-Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, Pokestop lures, gym team changes, and weather. Also supports Discord user's subscribing to Pokemon, PvP, raid, quest, Team Rocket invasion, and Pokestop lure notifications via direct messages.
+Sends Discord notifications based on pre-defined filters for Pokemon, raids, raid eggs, field research quests, Team Rocket invasions, Pokestop lures, gym team changes, and weather changes. It also supports Discord users subscribing to Pokemon, PvP, raid, quest, gym, Team Rocket invasion, and Pokestop lure notifications via direct messages.
 
 ### Features  
 - Supports multiple Discord servers.  
-- Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather.  
+- Discord channel alarm reports for Pokemon, raids, eggs, quests, lures, invasions, gym team changes, and weather changes.  
+- Built-in Admin Dashboard to configure and manage configuration files.  
 - Per user custom Discord notifications for Pokemon, raids, quests, invasions, lures, and gyms.  
 - User interface to configure custom Discord subscription notifications with ease. [WhMgr-UI](https://github.com/versx/WhMgr-UI)  
 - Subscription notifications based on pre-defined distance and geofence areas.  
@@ -103,26 +104,28 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
   o City  
 
 ### Frameworks and Libraries
-- .NET v5.0.212  
+- .NET v5.0.404  
+- CommandLineParser v2.8.0  
 - DSharpPlus v4.1.0  
 - DSharpPlus.CommandsNext v4.1.0  
 - DSharpPlus.Interactivity v4.1.0  
 - GeoTimeZone v4.1.0  
-- Handlebars.Net v2.0.9  
+- Handlebars.Net v2.0.10  
 - Handlebars.Net.Helpers v2.2.1  
-- Microsoft.EntityFrameworkCore v5.0.10  
-- Microsoft.EntityFrameworkCore.Design v5.0.10  
-- Microsoft.NET.Test.Sdk v16.11.0  
-- Microsoft.VisualStudio.Azure.Containers.Tools.Targets v1.11.1  
+- Microsoft.EntityFrameworkCore v5.0.13  
+- Microsoft.EntityFrameworkCore.Design v5.0.13  
+- Microsoft.NET.Test.Sdk v17.0  
+- Microsoft.VisualStudio.Azure.Containers.Tools.Targets v1.14.0  
 - NetTopologySuite v2.4.0  
-- NetTopologySuite.Features v2.4.0  
+- NetTopologySuite.Features v2.1.0  
+- NetTopologySuite.IO.GeoJSON v2.0.4
 - NUnit v3.13.2  
-- NUnit3TestAdapter v4.0.0  
-- POGOProtos.Core v2.55.0.1  
-- Pomelo.EntityFrameworkCore.MySql v5.0.2  
-- Swashbuckle.AspNetCore v6.2.2  
-- System.Runtime.Caching v5.0.0  
-- TimeZoneConverter v3.5.0  
+- NUnit3TestAdapter v4.2.1  
+- POGOProtos.Core v2.55.7  
+- Pomelo.EntityFrameworkCore.MySql v5.0.3  
+- Swashbuckle.AspNetCore v6.2.3  
+- System.Runtime.Caching v6.0  
+- TimeZoneConverter v5.0  
 
 
 **[Click here](install/getting-started.md) to get started!**  

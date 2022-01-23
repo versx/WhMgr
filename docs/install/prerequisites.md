@@ -15,7 +15,7 @@ wget https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.sh
 chmod +x dotnet-install.sh
 
 # Install .NET 5.0 SDK
-./dotnet-install.sh --version 5.0.202
+./dotnet-install.sh --version 5.0.404
 ```
 
 <hr>
@@ -25,9 +25,9 @@ Run the following to install .NET 5 software development kit (SDK), clone respos
 
 __Linux/macOS__  
 ```
-wget https://raw.githubusercontent.com/versx/WhMgr/master/scripts/install.sh && chmod +x install.sh && ./install.sh && rm install.sh  
+wget https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/scripts/install.sh && chmod +x install.sh && ./install.sh && rm install.sh  
 ```
 __Windows__  
 ```
-bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/master/scripts/install.bat install.bat | start install.bat  
+bitsadmin /transfer dotnet-install-job /download /priority FOREGROUND https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/scripts/install.bat install.bat | start install.bat  
 ```
