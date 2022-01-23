@@ -1086,8 +1086,17 @@
             {
                 try
                 {
-                    var workItem = await _taskQueue.DequeueAsync(stoppingToken);
-                    await workItem(stoppingToken);
+                    //var workItem = await _taskQueue.DequeueAsync(stoppingToken);
+                    //await workItem(stoppingToken);
+                    var workItems = await _taskQueue.DequeueMultipleAsync(Strings.MaxQueueBatchSize, stoppingToken);
+                    var tasks = workItems.Select(item => Task.Factory.StartNew(async () => await item(stoppingToken)));
+                    Task.WaitAll(tasks.ToArray(), stoppingToken);
+                    /*
+                    foreach (var workItem in workItems)
+                    {
+                        await workItem(stoppingToken);
+                    }
+                    */
                 }
                 catch (OperationCanceledException)
                 {
@@ -1097,6 +1106,7 @@
                 {
                     _logger.Error(ex, "Error occurred executing task work item.");
                 }
+                await Task.Delay(50, stoppingToken);
             }
 
             _logger.Error("Exited background processing...");
@@ -1104,7 +1114,7 @@
 
         private async Task EnqueueEmbedAsync(NotificationItem embed)
         {
-            CheckQueueLength();
+            //CheckQueueLength();
 
             await _taskQueue.EnqueueAsync(async token =>
                 await ProcessWorkItemAsync(embed, token));
@@ -1114,8 +1124,6 @@
             NotificationItem embed,
             CancellationToken stoppingToken)
         {
-            CheckQueueLength();
-
             if (embed?.Subscription == null || embed?.Member == null || embed?.Embed == null)
                 return stoppingToken;
 
@@ -1131,6 +1139,9 @@
                 // Config does not contain subscription guild for some reason o.O
                 return stoppingToken;
             }
+
+            CheckQueueLength();
+
             var config = _config.Instance.Servers[embed.Subscription.GuildId];
             var maxNotificationsPerMinute = config.Subscriptions.MaxNotificationsPerMinute;
             if (embed.Subscription.Limiter.IsLimited(maxNotificationsPerMinute))

@@ -118,6 +118,7 @@
             if (_backlogQueue.Count == 0)
                 return;
 
+            /*
             var queueChunkSize = 10;
             var items = _backlogQueue.DequeueChunk(queueChunkSize);
             var tasks = items.Select(item => Task.Factory.StartNew(() =>
@@ -130,14 +131,14 @@
                 return SendWebhook(item.Url, item.Json);
             }));
             Task.WaitAll(tasks.ToArray());
-            /*
+            */
+            var item = _backlogQueue.Dequeue();
             if (item.RetryAfter > 0)
             {
                 // Wait rate limit timeout
                 Thread.Sleep(item.RetryAfter);
             }
-            await SendWebhook(item.Url, item.Json);
-            */
+            SendWebhook(item.Url, item.Json).ConfigureAwait(false);
         }
     }
 }

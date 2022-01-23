@@ -9,6 +9,8 @@
     {
         IReadOnlyDictionary<ulong, DiscordClient> DiscordClients { get; }
 
+        bool Initialized { get; }
+
         Task Start();
 
         Task Stop();

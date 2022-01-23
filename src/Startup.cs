@@ -2,6 +2,8 @@ namespace WhMgr
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Diagnostics.Tracing;
     using System.IO;
     using System.Threading.Tasks;
 
@@ -10,6 +12,8 @@ namespace WhMgr
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.Extensions;
+    using Microsoft.AspNetCore.Mvc.Filters;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.FileProviders;
@@ -90,10 +94,11 @@ namespace WhMgr
 
             services.AddHostedService<SubscriptionProcessorService>();
             // Subscription processor queue
+            // TODO: Use scoped background services
             services.AddSingleton<IBackgroundTaskQueue>(_ =>
             {
                 // TODO: Get max subscription queue capacity config value
-                var maxQueueCapacity = 500;
+                var maxQueueCapacity = 2048;
                 return new DefaultBackgroundTaskQueue(maxQueueCapacity);
             });
 
@@ -144,7 +149,8 @@ namespace WhMgr
                         options.DefaultLayout = "Views/Layout/default.hbs";
                         options.RegisterHelpers = TemplateRenderer.GetHelpers();
                     });
-            services.AddControllers();
+            //services.AddControllers();
+            services.AddControllers(options => options.Filters.Add<LogRequestTimeFilterAttribute>());
             services.AddControllersWithViews();
 
             services.AddSwaggerGen(c =>
@@ -168,6 +174,11 @@ namespace WhMgr
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WhMgr v1"));
             }
+            else
+            {
+                app.UseExceptionHandler("/error");
+                app.UseHsts();
+            }
 
             // Initialize and start Discord clients
             Task.Run(async () => await discordClientService.Start());
@@ -182,13 +193,14 @@ namespace WhMgr
             app.UseCors();
 
             app.UseRouting();
+            app.UseSentryTracing();
             app.UseAuthorization();
 
             app.UseSession();
 
             // TODO: if (config.Discord.Enabled)
             //app.UseMiddleware<DiscordAuthMiddleware>();
-            app.UseMiddleware<UserPassportMiddleware>();
+            //app.UseMiddleware<UserPassportMiddleware>();
 
             /*
             // Anti forgery middleware using csrf tokens
@@ -218,7 +230,58 @@ namespace WhMgr
             });
 
             // Initialize webhook processor service
+            while (!discordClientService.Initialized)
+            {
+                System.Threading.Thread.Sleep(50);
+            }
             webhookProcessorService.Start();
+        }
+    }
+
+    public class LogRequestTimeFilterAttribute : ActionFilterAttribute
+    {
+        private readonly Stopwatch _stopwatch = new();
+
+        public override void OnActionExecuting(ActionExecutingContext context) => _stopwatch.Start();
+
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
+            _stopwatch.Stop();
+
+            MinimalEventCounterSource.Log.Request(
+                context.HttpContext.Request.GetDisplayUrl(),
+                _stopwatch.ElapsedMilliseconds
+            );
+        }
+    }
+
+    [EventSource(Name = "Sample.EventCounter.Minimal")]
+    public sealed class MinimalEventCounterSource : EventSource
+    {
+        public static readonly MinimalEventCounterSource Log = new();
+
+        private EventCounter _requestCounter;
+
+        private MinimalEventCounterSource() =>
+            _requestCounter = new EventCounter("request-time", this)
+            {
+                DisplayName = "Request Processing Time",
+                DisplayUnits = "ms"
+            };
+
+        public void Request(string url, long elapsedMilliseconds)
+        {
+            WriteEvent(1, url, elapsedMilliseconds);
+            Console.WriteLine($"Request {url} time elapsed: {elapsedMilliseconds} ms");
+            _requestCounter?.WriteMetric(elapsedMilliseconds);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            _requestCounter?.Dispose();
+            _requestCounter = null;
+
+            base.Dispose(disposing);
         }
     }
 }

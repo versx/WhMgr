@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.HostedServices.TaskQueue
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -25,5 +26,15 @@
         /// <returns></returns>
         ValueTask<Func<CancellationToken, ValueTask>> DequeueAsync(
             CancellationToken cancellationToken);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="maxBatchSize"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<List<Func<CancellationToken, ValueTask>>> DequeueMultipleAsync(
+                    int maxBatchSize,
+                    CancellationToken cancellationToken);
     }
 }

@@ -712,8 +712,13 @@
             {
                 try
                 {
-                    var workItem = await _taskQueue.DequeueAsync(stoppingToken);
-                    await workItem(stoppingToken);
+                    //var workItem = await _taskQueue.DequeueAsync(stoppingToken);
+                    //await workItem(stoppingToken);
+                    var workItems = await _taskQueue.DequeueMultipleAsync(Strings.MaxQueueBatchSize, stoppingToken);
+                    foreach (var workItem in workItems)
+                    {
+                        await workItem(stoppingToken);
+                    }
                 }
                 catch (OperationCanceledException)
                 {
@@ -730,7 +735,7 @@
 
         private async Task EnqueueEmbedAsync(AlarmTaskItem taskItem)
         {
-            CheckQueueLength();
+            //CheckQueueLength();
 
             await _taskQueue.EnqueueAsync(async token =>
                 await ProcessWorkItemAsync(taskItem, token));
@@ -740,8 +745,6 @@
             AlarmTaskItem taskItem,
             CancellationToken stoppingToken)
         {
-            CheckQueueLength();
-
             if (string.IsNullOrEmpty(taskItem.Alarm.Webhook))
                 return stoppingToken;
 
@@ -750,6 +753,8 @@
 
             if (!_config.Instance.Servers.ContainsKey(taskItem.GuildId))
                 return stoppingToken;
+
+            CheckQueueLength();
 
             // Queue embed
             //_logger.Information($"[{taskItem.City}] Found {taskItem.Data.GetType().Name} [Alarm={taskItem.Alarm.Name}, GuildId={taskItem.GuildId}]");

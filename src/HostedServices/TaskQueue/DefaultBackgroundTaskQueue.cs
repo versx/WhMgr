@@ -1,9 +1,12 @@
 ﻿namespace WhMgr.HostedServices.TaskQueue
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Channels;
     using System.Threading.Tasks;
+
+    using WhMgr.Extensions;
 
     public class DefaultBackgroundTaskQueue : IBackgroundTaskQueue
     {
@@ -35,6 +38,14 @@
         {
             var workItem = await _queue.Reader.ReadAsync(cancellationToken);
             return workItem;
+        }
+
+        public async Task<List<Func<CancellationToken, ValueTask>>> DequeueMultipleAsync(
+            int maxBatchSize,
+            CancellationToken cancellationToken)
+        {
+            var workItems = await _queue.Reader.ReadMultipleAsync(maxBatchSize, cancellationToken);
+            return workItems;
         }
     }
 }

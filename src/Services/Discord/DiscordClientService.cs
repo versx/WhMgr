@@ -32,6 +32,8 @@
         public IReadOnlyDictionary<ulong, DiscordClient> DiscordClients =>
             _discordClients;
 
+        public bool Initialized { get; private set; }
+
         public DiscordClientService(
             ILogger<IDiscordClientService> logger,
             ConfigHolder config,
@@ -104,8 +106,11 @@
                 }
 
                 // Wait 3 seconds between initializing each Discord client
-                await Task.Delay(3000);
+                await Task.Delay(3 * 1000);
             }
+
+            _logger.LogInformation($"Discord clients all initialized");
+            Initialized = true;
         }
 
         private async Task ValidateDiscordMemberAccess()
@@ -186,15 +191,15 @@
         private async Task Client_GuildAvailable(DiscordClient client, GuildCreateEventArgs e)
         {
             // If guild is in configured servers list then attempt to create emojis needed
-            if (_config.Instance.Servers.ContainsKey(e.Guild.Id))
-            {
-                // Create default emojis
-                await CreateEmojisAsync(e.Guild.Id);
+            if (!_config.Instance.Servers.ContainsKey(e.Guild.Id))
+                return;
 
-                // Set custom bot status if guild is in config server list
-                var status = _config.Instance.Servers[e.Guild.Id].Bot?.Status ?? $"v{Strings.BotVersion}";
-                await client.UpdateStatusAsync(new DiscordActivity(status, ActivityType.Playing), UserStatus.Online);
-            }
+            // Create default emojis
+            await CreateEmojisAsync(e.Guild.Id);
+
+            // Set custom bot status if guild is in config server list
+            var status = _config.Instance.Servers[e.Guild.Id].Bot?.Status ?? $"v{Strings.BotVersion}";
+            await client.UpdateStatusAsync(new DiscordActivity(status, ActivityType.Playing), UserStatus.Online);
         }
 
         private async Task Client_GuildMemberUpdated(DiscordClient client, GuildMemberUpdateEventArgs e)

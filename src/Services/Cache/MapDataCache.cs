@@ -158,12 +158,10 @@
                 return;
             }
 
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
-                _pokestops = await ctx.Pokestops.ToDictionaryAsync(key => key.PokestopId, value => value);
-                _gyms = await ctx.Gyms.ToDictionaryAsync(key => key.GymId, value => value);
-                _weather = await ctx.Weather.ToDictionaryAsync(key => key.Id, value => value);
-            }
+            using var ctx = _dbFactory.CreateDbContext();
+            _pokestops = await ctx.Pokestops.ToDictionaryAsync(key => key.PokestopId, value => value);
+            _gyms = await ctx.Gyms.ToDictionaryAsync(key => key.GymId, value => value);
+            _weather = await ctx.Weather.ToDictionaryAsync(key => key.Id, value => value);
         }
 
         public async Task<List<dynamic>> GetPokestopsNearby(double latitude, double longitude, double radiusM = 100)

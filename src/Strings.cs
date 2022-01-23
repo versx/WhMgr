@@ -61,9 +61,10 @@
 
         public const int DiscordMaximumMessageLength = 2048;
 
-        public const string All = "All";
+        public const int MaxQueueBatchSize = 10;
+        public const int MaxQueueCountWarning = 50;
 
-        public const int MaxQueueCountWarning = 30;
+        public const string All = "All";
 
         public const string EmojiSchema = "<:{0}:{1}>";
         public const string TypeEmojiSchema = "<:types_{0}:{1}>";
@@ -74,7 +75,7 @@
             { 2, new PokemonGenerationRange { Generation = 2, Start = 152, End = 251 } },
             { 3, new PokemonGenerationRange { Generation = 3, Start = 252, End = 385 } },
             { 4, new PokemonGenerationRange { Generation = 4, Start = 386, End = 493 } },
-            { 5, new PokemonGenerationRange { Generation = 5, Start = 495, End = 649 } },
+            { 5, new PokemonGenerationRange { Generation = 5, Start = 494, End = 649 } },
             { 6, new PokemonGenerationRange { Generation = 6, Start = 650, End = 721 } },
             { 7, new PokemonGenerationRange { Generation = 7, Start = 722, End = 809 } },
             { 8, new PokemonGenerationRange { Generation = 8, Start = 810, End = 890 } },
@@ -148,5 +149,24 @@
             { WeatherCondition.Snow,         new List<PokemonType> { PokemonType.Ice,    PokemonType.Steel } },
             { WeatherCondition.Fog,          new List<PokemonType> { PokemonType.Dark,   PokemonType.Ghost } }
         };
+    }
+
+    public class DefaultMinimums
+    {
+        public sbyte MinimumIV { get; set; }
+
+        public sbyte MaximumIV { get; set; }
+
+        public sbyte MinimumLevel { get; set; }
+
+        public sbyte MaximumLevel { get; set; }
+
+        public uint MinimumCP { get; set; }
+        
+        public uint MaximumCP { get; set; }
+
+        public sbyte MinimumRank { get; set; }
+
+
     }
 }
