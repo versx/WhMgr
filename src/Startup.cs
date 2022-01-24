@@ -70,11 +70,7 @@ namespace WhMgr
             };
             var fullPath = Path.GetFullPath(_config.Instance.FileName);
             var configWatcher = new FileWatcher(fullPath);
-            configWatcher.Changed += (sender, e) =>
-            {
-                Console.WriteLine($"Config file changed: {e.FullPath}");
-                _config.Instance = Config.Load(e.FullPath);
-            };
+            configWatcher.Changed += (sender, e) => _config.Instance = Config.Load(e.FullPath);
             configWatcher.Start();
 
             _alarms = ChannelAlarmsManifest.LoadAlarms(Config.Servers);

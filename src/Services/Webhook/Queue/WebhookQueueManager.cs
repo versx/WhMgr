@@ -64,12 +64,6 @@
                     Content = new StringContent(json, Encoding.UTF8, "application/json"),
                 };
                 var response = client.SendAsync(requestMessage).Result;
-                /*
-                var data = new StringContent(json, Encoding.UTF8, "application/json");
-                //data.Headers.Add("UserAgent", Strings.BotName);
-                client.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue(Strings.BotName));
-                await client.PostAsync(webhookUrl, data);
-                */
                 await Task.CompletedTask;
             }
             catch (WebException ex)
