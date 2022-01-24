@@ -869,7 +869,7 @@
         [HttpGet]
         [HttpPost]
         [Route("roles/new")]
-        public IActionResult NewDiscordRole()
+        public async Task<IActionResult> NewDiscordRole()
         {
             if (Request.Method == "GET")
             {
@@ -884,7 +884,14 @@
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Create new discord role
+                // TODO: Check if exists or not
+                var roles = GetRoles();
+                var rolesForm = RolesFromForm(roles, Request.Form);
+                var json = rolesForm.ToJson();
+                // Save json
+                var filePath = "wwwroot/static/data/roles.json";
+                await WriteDataAsync(filePath, json);
+                return Redirect("/dashboard/roles");
             }
             return Unauthorized();
         }
