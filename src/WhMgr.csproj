@@ -57,6 +57,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
     <PackageReference Include="TimeZoneConverter" Version="5.0.0" />
+    <PackageReference Include="versx.Handlebars.Net.ViewEngine" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -64,16 +65,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Handlebars.Net.ViewEngine">
-      <HintPath>..\..\..\..\Downloads\AspNetCore-Handlebars\src\Handlebars.Net.ViewEngine\bin\Debug\net5.0\Handlebars.Net.ViewEngine.dll</HintPath>
-    </Reference>
+    <Folder Include="Web\Api\Requests\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Web\Api\Requests\" />
+	<Content Update="wwwroot\**\*.*">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
   </ItemGroup>
-  
-  <ItemGroup>
-    <None Include="$(SolutionDir)wwwroot\**" CopyToOutputDirectory="PreserveNewest" LinkBase="wwwroot\" />
-   </ItemGroup>
 </Project>
