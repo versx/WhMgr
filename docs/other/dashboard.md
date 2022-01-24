@@ -48,6 +48,9 @@ __Geofences__
 __Edit Geofence__  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/geofence-edit.png "Edit Geofence")  
 
+__Export Geofence__  
+![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/geofence-export.png "Export Geofence")  
+
 __Discord Roles__  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/roles.png "Discord Roles")  
 
