@@ -1213,14 +1213,8 @@
 
                 await embed.Member.SendDirectMessageAsync(eb.Build());
                 embed.Subscription.RateLimitNotificationSent = true;
-                embed.Subscription.Status = NotificationStatusType.None;
-                if (!_subscriptionManager.Save(embed.Subscription))
-                {
-                    var sql = $@"
-UPDATE subscriptions SET status = 0 WHERE guild_id = {embed.Subscription.GuildId} AND user_id = {embed.Subscription.UserId}
-";
-                    _logger.Error($"Failed to disable GuildId: {embed.Subscription.GuildId} UserId: {embed.Subscription.UserId}'s subscriptions, run this SQL to disable their subscription notifications manually:\n{sql}");
-                }
+
+                await _subscriptionManager.SetSubscriptionStatusAsync(embed.Subscription, NotificationStatusType.None);
             }
         }
 

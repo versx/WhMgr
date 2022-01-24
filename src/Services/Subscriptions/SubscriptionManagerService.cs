@@ -94,6 +94,8 @@
             return _subscriptions?.FirstOrDefault(x => x.GuildId == guildId && x.UserId == userId);
         }
 
+        #region Get By Type
+
         public List<Subscription> GetSubscriptionsByPokemonId(uint pokemonId)
         {
             return _subscriptions?
@@ -188,6 +190,8 @@
                       )
                 .ToList();
         }
+
+        #endregion
 
         #endregion
 
