@@ -43,6 +43,7 @@ nav:
         - Owner: commands/owner.md
     - Other:
         - Dashboard: other/dashboard.md
+        - Defaults: other/defaults.md
         - Command Line: other/commandline.md
         - Geocoding: other/geocoding.md
         - PM2: other/pm2.md
