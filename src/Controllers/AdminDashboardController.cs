@@ -114,9 +114,13 @@
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Check if already exists
                 var name = Request.Form["name"].ToString();
                 var filePath = Path.Combine(Strings.ConfigsFolder, name + ".json");
+                if (System.IO.File.Exists(filePath))
+                {
+                    // Config file with name already exists
+                    return BadRequest($"Config file at location '{filePath}' already exists");
+                }
                 var config = new Config();
                 var configForm = ConfigFromForm(config, Request.Form);
                 var json = configForm.ToJson();
@@ -248,8 +252,12 @@
             else if (Request.Method == "POST")
             {
                 var name = Request.Form["name"].ToString();
-                // TODO: Check if already exists
                 var filePath = Path.Combine(Strings.DiscordsFolder, name + ".json");
+                if (System.IO.File.Exists(filePath))
+                {
+                    // Discord config file with name already exists
+                    return BadRequest($"Discord config file at location '{filePath}' already exists");
+                }
                 var discord = new DiscordServerConfig();
                 var discordForm = DiscordFromForm(discord, Request.Form);
                 var json = discordForm.ToJson();
@@ -413,9 +421,13 @@
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Check if exists
                 var name = Request.Form["name"].ToString();
                 var filePath = Path.Combine(Strings.AlarmsFolder, name + ".json");
+                if (System.IO.File.Exists(filePath))
+                {
+                    // Alarms file with name already exists
+                    return BadRequest($"Alarms file at location '{filePath}' already exists");
+                }
                 var alarms = new ChannelAlarmsManifest();
                 var alarmsForm = AlarmsFromForm(alarms, Request.Form);
                 var json = alarmsForm.ToJson();
@@ -468,8 +480,12 @@
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Check if exists
                 var filePath = Path.Combine(Strings.AlarmsFolder, fileName + ".json");
+                if (!System.IO.File.Exists(filePath))
+                {
+                    // Config file with name already exists
+                    return BadRequest($"Config file at location '{filePath}' does not exist");
+                }
                 var alarms = LoadFromFile<ChannelAlarmsManifest>(filePath);
                 var alarmsForm = AlarmsFromForm(alarms, Request.Form);
                 var json = alarmsForm.ToJson();
@@ -552,12 +568,16 @@
             else if (Request.Method == "POST")
             {
                 var fileName = Request.Form["name"].ToString();
-                // TODO: Check if exists or not
+                var filePath = Path.Combine(Strings.FiltersFolder, fileName + ".json");
+                if (System.IO.File.Exists(filePath))
+                {
+                    // Webhook filter file with name already exists
+                    return BadRequest($"Webhook filter file at location '{filePath}' already exists");
+                }
                 var filter = new WebhookFilter();
                 var filterForm = FilterFromForm(filter, Request.Form);
                 var json = filterForm.ToJson();
                 // Save json
-                var filePath = Path.Combine(Strings.FiltersFolder, fileName + ".json");
                 await WriteDataAsync(filePath, json);
                 return Redirect("/dashboard/embeds");
             }
@@ -589,8 +609,12 @@
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Check if exists
                 var filePath = Path.Combine(Strings.FiltersFolder, fileName + ".json");
+                if (!System.IO.File.Exists(filePath))
+                {
+                    // Webhook filter file with name already exists
+                    return BadRequest($"Webhook filter file at location '{filePath}' already exists");
+                }
                 var filter = LoadFromFile<WebhookFilter>(filePath);
                 var filterForm = FilterFromForm(filter, Request.Form);
                 var json = filterForm.ToJson();
@@ -675,12 +699,16 @@
             else if (Request.Method == "POST")
             {
                 var fileName = Request.Form["name"].ToString();
-                // TODO: Check if exists or not
+                var filePath = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
+                if (System.IO.File.Exists(filePath))
+                {
+                    // Embed message file with name already exists
+                    return BadRequest($"Embed message file at location '{filePath}' already exists");
+                }
                 var embed = EmbedMessage.Defaults;
                 var embedForm = EmbedFromForm(embed, Request.Form);
                 var json = embedForm.ToJson();
                 // Save json
-                var filePath = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
                 await WriteDataAsync(filePath, json);
                 return Redirect("/dashboard/embeds");
             }
@@ -713,8 +741,12 @@
             }
             else if (Request.Method == "POST")
             {
-                // TODO: Check if exists or not
                 var filePath = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
+                if (!System.IO.File.Exists(filePath))
+                {
+                    // Embed message file with name already exists
+                    return BadRequest($"Embed message file at location '{filePath}' already exists");
+                }
                 var embed = LoadFromFile<EmbedMessage>(filePath);
                 var embedForm = EmbedFromForm(embed, Request.Form);
                 var json = embedForm.ToJson();
