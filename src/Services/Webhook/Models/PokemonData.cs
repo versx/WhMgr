@@ -672,7 +672,6 @@
                     pvp.Percentage = Math.Round(pvp.Percentage.Value, 2);
                     pvp.PokemonName = pkmnName;
                     list.Add(pvp);
-                    //sb.AppendLine($"{rankText} #{pvp.Rank.Value} {pkmnName} {pvp.CP.Value}{cpText} @ L{pvp.Level.Value} {Math.Round(pvp.Percentage.Value * 100, 2)}%");
                 }
             }
             list.Sort((a, b) => a.Rank.Value.CompareTo(b.Rank.Value));
@@ -681,14 +680,6 @@
 
         private static DiscordColor GetPvPColor(List<PvpRankData> greatLeague, List<PvpRankData> ultraLeague, DiscordEmbedColorsConfig config)
         {
-            /*
-            if (greatLeague != null)
-                greatLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
-
-            if (ultraLeague != null)
-                ultraLeague.Sort((x, y) => (x.Rank ?? 0).CompareTo(y.Rank ?? 0));
-            */
-
             var greatRank = greatLeague?.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.Defaults.MinimumGreatLeagueCP && x.CP <= Strings.Defaults.MaximumGreatLeagueCP);
             var ultraRank = ultraLeague?.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.Defaults.MinimumUltraLeagueCP && x.CP <= Strings.Defaults.MaximumUltraLeagueCP);
             var color = config.Pokemon.PvP.FirstOrDefault(x =>
