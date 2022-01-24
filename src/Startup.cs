@@ -36,13 +36,13 @@ namespace WhMgr
     using WhMgr.Web.Filters;
     using WhMgr.Web.Middleware;
 
-    // TODO: Reload alarms/filters/geofences on change
+    // TODO: Reload embeds and filters on change
     // TODO: Simplify alarm and subscription filter checks
     // TODO: Allow pokemon names and ids for pokemon/raid alarm filters
 
     public class Startup
     {
-        private readonly Dictionary<ulong, ChannelAlarmsManifest> _alarms;
+        private IReadOnlyDictionary<ulong, ChannelAlarmsManifest> _alarms;
         private readonly ConfigHolder _config;
 
         public IConfiguration Configuration { get; }
@@ -57,11 +57,24 @@ namespace WhMgr
             _config.Reloaded += () =>
             {
                 Console.WriteLine($"Config file '{Config.FileName}' reloaded!");
+                Console.WriteLine($"Reloading Discord servers config...");
                 _config.Instance.LoadDiscordServers();
+                Console.WriteLine($"Reloading Discord server geofences...");
+                foreach (var (discordId, discordConfig) in _config.Instance.Servers)
+                {
+                    discordConfig.LoadGeofences();
+                }
                 // TODO: filters and embeds
+                Console.WriteLine($"Reloading Discord server alarms...");
+                _alarms = ChannelAlarmsManifest.LoadAlarms(Config.Servers);
             };
-            var configWatcher = new FileWatcher(_config.Instance.FileName);
-            configWatcher.Changed += (sender, e) => _config.Instance = Config.Load(e.FullPath);
+            var fullPath = Path.GetFullPath(_config.Instance.FileName);
+            var configWatcher = new FileWatcher(fullPath);
+            configWatcher.Changed += (sender, e) =>
+            {
+                Console.WriteLine($"Config file changed: {e.FullPath}");
+                _config.Instance = Config.Load(e.FullPath);
+            };
             configWatcher.Start();
 
             _alarms = ChannelAlarmsManifest.LoadAlarms(Config.Servers);
