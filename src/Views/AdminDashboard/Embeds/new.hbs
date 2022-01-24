@@ -13,8 +13,11 @@
 
 <form method="POST" action="">
     <p>
-        Explain basic handlebars and provide handlebars.js docs link
-        Each new line in the content property reflects an actual new line in the message embed.
+        Use <code>\{{<code>&lt;placeholder&gt;</code>}}</code> surrounding an available place holder value to replace it with actual data on demand.<br>
+        Use <code>\{{#if &lt;placeholder&gt;}}Show if true!\{{/if}}</code> to handle conditional expressions that return <code>Boolean</code><br>
+        Use <code>\{{#each rankings}}\{{rank}} \{{cp}} \{{pokemon}}\{{/each}}</code> to iterate and handle displaying <code>Array</code> values<br>
+        <a href="https://handlebarsjs.com/guide">Handlebars Documenation</a><br><br>
+        <i>Each new line in the content property reflects an actual new line in the message embed.</i>
     </p>
     <div class="mb-3">
         <label for="name" class="form-label">Name</label>

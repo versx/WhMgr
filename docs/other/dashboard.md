@@ -6,53 +6,53 @@ Access the dashboard by visiting http://127.0.0.1:8008/dashboard
 
 ## Screenshots
 
-__Dashboard__  
+### Dashboard  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/dashboard.png "Dashboard")  
 
-__Configs__  
+### Configs  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/configs.png "Configs")  
 
-__Edit Config__  
+### Edit Config  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/config-edit.png "Edit Config")  
 
-__Discords__  
+### Discords  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/discords.png "Discords")  
 
-__Edit Discord__  
+### Edit Discord  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/discord-edit.png "Edit Discord")  
 
-__Alarms__  
+### Alarms  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/alarms.png "Configs")  
 
-__Edit Alarm__  
+### Edit Alarm  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/alarm-edit.png "Edit Alarm")  
 
-__Filters__  
+### Filters  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/filters.png "Filters")  
 
-__Edit Filter__  
+### Edit Filter  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/filter-edit.png "Edit Filter")  
 
-__Embeds__  
+### Embeds  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/embeds.png "Embeds")  
 
-__New Embed__  
+### New Embed  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/embed-new.png "New Embed")  
 
-__Edit Embed__  
+### Edit Embed  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/embed-edit.png "Edit Embed")  
 
-__Geofences__  
+### Geofences  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/geofences.png "Geofences")  
 
-__Edit Geofence__  
+### Edit Geofence  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/geofence-edit.png "Edit Geofence")  
 
-__Export Geofence__  
+### Export Geofence  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/geofence-export.png "Export Geofence")  
 
-__Discord Roles__  
+### Discord Roles  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/roles.png "Discord Roles")  
 
-__Edit Discord Role__  
+### Edit Discord Role  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/role-edit.png "Edit Discord Role")  
