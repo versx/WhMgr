@@ -34,10 +34,7 @@ namespace WhMgr
                         {
                             var instanceName = options.InstanceName ?? $"{Strings.BotName}_{Guid.NewGuid()}";
                             var configFileName = options.ConfigFileName ?? Strings.ConfigFileName;
-                            var configPath = Path.Combine(
-                                Environment.CurrentDirectory,
-                                Strings.BasePath + configFileName
-                            );
+                            var configPath = Path.Combine(Strings.ConfigsFolder, configFileName);
                             var config = Config.Load(configPath);
                             if (config == null)
                             {
