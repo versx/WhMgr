@@ -1,4 +1,4 @@
-# Dynamic Test Substitution/Replacement Types  
+# Dynamic Text Substitution/Replacement Types  
 - [Pokemon](./pokemon.md)  
 - [Raid & Eggs](./raids.md)  
 - [Quests](./quests.md)  

@@ -1,5 +1,5 @@
 # Screenshots
-*All examples are completely customizable using Dynamic Text Replacement/Substitution*  
+*All examples are completely customizable using [Dynamic Text Replacement/Substitution](dts/index.md)*  
 
 ## Pokemon Notifications  
 ![Pokemon Notifications](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/pkmn.png "Pokemon Notifications")  
