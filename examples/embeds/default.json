@@ -138,7 +138,7 @@
             "**Quest:** {{quest_task}}",
             "{{#if has_quest_conditions}}**Condition(s):** {{quest_conditions}}",
             "{{/if}}**Reward:** {{quest_reward}}",
-            "{{#if is_ar}}**AR Quest Required!**",
+            "{{#if is_ar}}{{ar_emoji}}**AR Quest Required!**",
             "{{/if}}",
             "**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],

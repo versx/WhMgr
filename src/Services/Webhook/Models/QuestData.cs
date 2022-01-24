@@ -161,6 +161,10 @@
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
                     : new(),
             });
+            var arEmojiId = GameMaster.Instance.Emojis.ContainsKey("ar")
+                ? GameMaster.Instance.Emojis["ar"]
+                : 0;
+            var arEmoji = arEmojiId > 0 ? $"<:ar:{arEmojiId}>" : "AR Quest";
             var staticMapLink = staticMap.GenerateLink();
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
             var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
@@ -182,6 +186,7 @@
                 is_ditto = IsDitto,
                 is_shiny = IsShiny,
                 is_ar = IsArScanEligible,
+                ar_emoji = arEmoji,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
