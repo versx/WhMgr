@@ -10,7 +10,7 @@
                                                .LoadFromFile<Defaults>() ?? new();
 
         public const string BotName = "Webhook Manager";
-        public const string BotVersion = "5.0.1-b4";
+        public const string BotVersion = "5.0.2";
         public const string Creator = "versx";
 
         public const string BasePath = "../bin/";
