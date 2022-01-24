@@ -103,6 +103,6 @@
 
         "gender_male",
         "gender_female",
-        "gender_less",
-    },
+        "gender_less"
+    }
 }
