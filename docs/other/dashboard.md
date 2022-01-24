@@ -5,7 +5,6 @@ Used to configure and manage all configuration files needed to run Webhook Manag
 Access the dashboard by visiting http://127.0.0.1:8008/dashboard  
 
 ## Screenshots
-*All examples are completely customizable using Dynamic Text Replacement/Substitution*  
 
 __Dashboard__  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/dashboard.png "Dashboard")  
@@ -36,6 +35,9 @@ __Edit Filter__
 
 __Embeds__  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/embeds.png "Embeds")  
+
+__New Embed__  
+![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/embed-new.png "New Embed")  
 
 __Edit Embed__  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/embed-edit.png "Edit Embed")  
