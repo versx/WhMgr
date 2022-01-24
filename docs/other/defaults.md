@@ -17,14 +17,20 @@ Located at `bin/static/data/defaults.json`, it provides default values throughou
     "max_great_league_cp": 1500,
     "min_ultra_league_cp": 2400,
     "max_ultra_league_cp": 2500,
+
     // Queue options
+    // Maximum queue batch size when sending outgoing messages
     "max_queue_batch_size": 10,
-    "max_queue_count_warning": 50,
+    // Maximum queue size before warning
+    "max_queue_size_warning": 50,
+
     // 
     "all": "All",
+
     // Emoji schemas
     "emoji_schema": "<:{0}:{1}>",
     "type_emoji_schema": "<:types_{0}:{1}>",
+
     // Pokemon generation ranges
     "pokemon_generation_ranges": {
         "1": {
@@ -68,6 +74,8 @@ Located at `bin/static/data/defaults.json`, it provides default values throughou
             "end": 890
         }
     },
+
+    // Default emojis list
     "emoji_list": [
         // Teams
         "neutral",
@@ -122,6 +130,7 @@ Located at `bin/static/data/defaults.json`, it provides default values throughou
         "gender_female",
         "gender_less"
     ],
+
     // Weather boost dictionary
     "weather_boosts": {
         // None  

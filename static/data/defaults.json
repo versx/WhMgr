@@ -11,9 +11,8 @@
     "max_great_league_cp": 1500,
     "min_ultra_league_cp": 2400,
     "max_ultra_league_cp": 2500,
-    "discord_max_message_length": 2048,
     "max_queue_batch_size": 10,
-    "max_queue_count_warning": 50,
+    "max_queue_size_warning": 50,
     "all": "All",
     "emoji_schema": "<:{0}:{1}>",
     "type_emoji_schema": "<:types_{0}:{1}>",
@@ -77,6 +76,7 @@
         "weather_6", // Snow
         "weather_7", // Fog
 
+        "ar",
         "ex",
 
         "types_fire",
