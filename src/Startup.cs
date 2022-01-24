@@ -198,7 +198,10 @@ namespace WhMgr
             app.UseCors();
 
             app.UseRouting();
-            app.UseSentryTracing();
+            if (Config.EnableSentry)
+            {
+                app.UseSentryTracing();
+            }
             app.UseAuthorization();
 
             app.UseSession();

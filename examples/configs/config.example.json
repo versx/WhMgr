@@ -2,6 +2,7 @@
   "host": "*",
   "port": 8008,
   "locale": "en",
+  "sentry": true,
   "shortUrlApi": {
     "enabled": false,
     "apiUrl": "http://127.0.0.1/u/api.php",

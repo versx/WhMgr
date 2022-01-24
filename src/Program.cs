@@ -52,20 +52,23 @@ namespace WhMgr
                             webBuilder.UseUrls($"http://*:{config.WebhookPort}");
 
                             webBuilder.UseShutdownTimeout(TimeSpan.FromSeconds(10));
-                            webBuilder.UseSentry(options =>
+                            if (config.EnableSentry)
                             {
-                                options.Dsn = "https://cece44d9799f4009b67ed0702208c0c9@o1113124.ingest.sentry.io/6143193";
+                                webBuilder.UseSentry(options =>
+                                {
+                                    options.Dsn = "https://cece44d9799f4009b67ed0702208c0c9@o1113124.ingest.sentry.io/6143193";
                                 //options.ServerName = Strings.BotName;
                                 options.Release = Strings.BotVersion;
-                                options.AutoSessionTracking = true;
-                                options.MaxBreadcrumbs = 200;
-                                options.TracesSampleRate = 1.0;
-                                options.HttpProxy = null;
-                                options.DecompressionMethods = System.Net.DecompressionMethods.None;
-                                options.MaxQueueItems = 100;
-                                options.ShutdownTimeout = TimeSpan.FromSeconds(5);
-                                options.ConfigureScope(scope => scope.SetTag("Started", DateTime.Now.ToString()));
-                            });
+                                    options.AutoSessionTracking = true;
+                                    options.MaxBreadcrumbs = 200;
+                                    options.TracesSampleRate = 1.0;
+                                    options.HttpProxy = null;
+                                    options.DecompressionMethods = System.Net.DecompressionMethods.None;
+                                    options.MaxQueueItems = 100;
+                                    options.ShutdownTimeout = TimeSpan.FromSeconds(5);
+                                    options.ConfigureScope(scope => scope.SetTag("Started", DateTime.Now.ToString()));
+                                });
+                            }
                         });
                 });
     }

@@ -147,6 +147,12 @@
          */
 
         /// <summary>
+        /// Gets or sets a value determining whether to enable Sentry tracking or not
+        /// </summary>
+        [JsonPropertyName("sentry")]
+        public bool EnableSentry { get; set; }
+
+        /// <summary>
         /// Gets or sets the configuration file path
         /// </summary>
         [JsonIgnore]
