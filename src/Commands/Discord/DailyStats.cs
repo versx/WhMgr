@@ -229,7 +229,6 @@
             return list;
         }
 
-        // TODO: Configurable IV value?
         internal static Dictionary<uint, int> GetIvStats(string scannerConnectionString, double minIV)
         {
             try
