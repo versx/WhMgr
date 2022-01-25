@@ -33,7 +33,7 @@
         [HttpPost("/")]
         public IActionResult HandleData(List<WebhookPayload> data)
         {
-            if (!ThreadPool.QueueUserWorkItem(async x => await _webhookService.ParseDataAsync(data)))
+            if (!ThreadPool.QueueUserWorkItem(async _ => await _webhookService.ParseDataAsync(data)))
             {
                 return Unauthorized();
             }

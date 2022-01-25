@@ -46,8 +46,6 @@ namespace WhMgr
                             config.LoadDiscordServers();
                             Startup.Config = config;
 
-                            // TODO: Load default minimums config
-
                             webBuilder.UseStartup<Startup>();
                             webBuilder.UseUrls($"http://*:{config.WebhookPort}");
 
@@ -57,8 +55,8 @@ namespace WhMgr
                                 webBuilder.UseSentry(options =>
                                 {
                                     options.Dsn = "https://cece44d9799f4009b67ed0702208c0c9@o1113124.ingest.sentry.io/6143193";
-                                //options.ServerName = Strings.BotName;
-                                options.Release = Strings.BotVersion;
+                                    //options.ServerName = Strings.BotName;
+                                    options.Release = Strings.BotVersion;
                                     options.AutoSessionTracking = true;
                                     options.MaxBreadcrumbs = 200;
                                     options.TracesSampleRate = 1.0;

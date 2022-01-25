@@ -5,7 +5,7 @@
 - [Install via Docker](./docker.md)  
 
 ### __Configuration__  
-1. Edit `bin/config.json` either open in Notepad/++ or `vi bin/config.json`. [Config Instructions](../config/config.md)  
+1. Edit `bin/configs/config.json` either open in Notepad/++ or `vi bin/configs/config.json`. [Config Instructions](../config/config.md)  
 
   - [Create bot token](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)  
   - Input your bot token and config options.  
