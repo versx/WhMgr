@@ -49,6 +49,8 @@ UPDATE gyms MODIFY COLUMN `location` longtext DEFAULT NULL;
 UPDATE gyms ADD COLUMN `ex_eligible` tinyint(1) NOT NULL DEFAULT 0;
 
 
+ALTER TABLE raids DROP INDEX `ix_pokemon_id`;
+ALTER TABLE raids DROP INDEX `ix_form`;
 UPDATE raids MODIFY COLUMN `pokemon_id` longtext DEFAULT NULL;
 UPDATE raids MODIFY COLUMN `form` `forms` longtext DEFAULT NULL;
 UPDATE raids MODIFY COLUMN `location` longtext DEFAULT NULL;
@@ -58,6 +60,7 @@ UPDATE raids SET `pokemon_id` = CONCAT('[', pokemon_id, ']');
 UPDATE raids SET forms=NULL WHERE forms = '' AND forms IS NOT NULL OR forms = ',';
 
 
+ALTER TABLE invasions DROP INDEX `ix_reward_pokemon_id`;
 UPDATE invasions MODIFY COLUMN `reward_pokemon_id` longtext DEFAULT NULL;
 UPDATE invasions MODIFY COLUMN `grunt_type` longtext DEFAULT NULL;
 UPDATE invasions MODIFY COLUMN `pokestop_name` longtext DEFAULT NULL;
@@ -74,6 +77,7 @@ UPDATE lures MODIFY COLUMN `city` `areas` longtext DEFAULT NULL;
 UPDATE lures SET `lure_type` = CONCAT('[', lure_type, ']') WHERE lure_type IS NOT NULL;
 
 
+ALTER TABLE pokemon DROP INDEX `ix_form`;
 UPDATE pokemon MODIFY COLUMN `pokemon_id` longtext NOT NULL;
 UPDATE pokemon MODIFY COLUMN `form` `forms` longtext DEFAULT NULL;
 UPDATE pokemon MODIFY COLUMN `min_cp` int(11) NOT NULL;
@@ -89,6 +93,7 @@ UPDATE pokemon SET `pokemon_id` = CONCAT('[', pokemon_id, ']');
 UPDATE pokemon SET forms=NULL WHERE forms = '' AND forms IS NOT NULL OR forms = ',';
 
 
+ALTER TABLE pvp DROP INDEX `ix_form`;
 UPDATE pvp MODIFY COLUMN `pokemon_id` longtext NOT NULL;
 UPDATE pvp MODIFY COLUMN `form` `forms` longtext DEFAULT NULL;
 UPDATE pvp MODIFY COLUMN `league` longtext NOT NULL;
@@ -100,6 +105,7 @@ UPDATE pvp SET `pokemon_id` = CONCAT('[', pokemon_id, ']');
 UPDATE pvp SET forms=NULL WHERE forms = '' AND forms IS NOT NULL OR forms = ',';
 
 
+ALTER TABLE quests DROP INDEX `ix_reward`;
 UPDATE quests MODIFY COLUMN `pokestop_name` longtext DEFAULT NULL;
 UPDATE quests MODIFY COLUMN `reward` longtext DEFAULT NULL;
 UPDATE quests MODIFY COLUMN `location` longtext DEFAULT NULL;
