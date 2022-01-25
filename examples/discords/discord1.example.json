@@ -10,7 +10,7 @@
   "donorRoleIds": {
     "000000000000000000": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
     "000000000000000001": [],
-    "000000000000000002": ["pokestops", "gyms"],
+    "000000000000000002": ["quests", "gyms"],
   },
   "freeRoleName": "",
   "moderatorRoleIds": [],
