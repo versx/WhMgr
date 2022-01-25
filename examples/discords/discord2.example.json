@@ -6,7 +6,7 @@
     "channelIds": [],
     "status": "Test #2",
     "ownerId": 000000000000000000
-  }
+  },
   "donorRoleIds": {
     "000000000000000000": ["pokemon", "pvp", "raids", "quests", "invasions", "lures", "gyms"],
     "000000000000000001": [],
