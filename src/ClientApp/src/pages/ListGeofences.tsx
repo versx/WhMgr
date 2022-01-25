@@ -105,7 +105,7 @@ function ListGeofences() {
                 </Link>
             </div>
             <p>
-                Geofences define a scan area's borders.
+                Geofences define a scan areas borders.
             </p>
             <DataGrid className={classes.table}
                 rows={geofences}

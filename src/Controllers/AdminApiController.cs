@@ -28,6 +28,23 @@
             _logger = logger;
         }
 
+        [HttpGet("dashboard")]
+        [Produces("application/json")]
+        public IActionResult GetDashboard()
+        {
+            return new JsonResult(new List<dynamic>
+            {
+                new { name = "Configs", count = 0 },
+                new { name = "Discords", count = 0 },
+                new { name = "Alarms", count = 0 },
+                new { name = "Filters", count = 0 },
+                new { name = "Embeds", count = 0 },
+                new { name = "Geofences", count = 0 },
+                new { name = "Roles", count = 0 },
+                new { name = "Users", count = 0 },
+            });
+        }
+
         #region Config API
 
         [HttpGet("configs")]

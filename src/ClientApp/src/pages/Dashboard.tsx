@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import {
+    Box,
     Button,
     ButtonGroup,
-    IconButton,
+    Card,
+    CardContent,
     Typography,
 } from '@mui/material';
+import {
+    PlayArrow as PlayArrowIcon,
+} from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 
 import config from '../config.json';
@@ -40,7 +45,7 @@ function Dashboard() {
         refreshList();
     }, []);
     const refreshList = () => {
-        fetch(config.apiUrl + 'subscriptions', {
+        fetch(config.apiUrl + 'admin/dashboard', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -50,9 +55,7 @@ function Dashboard() {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            console.log('data:', data);
-            const dashboardData = data.data[0].dashboard;
-            setData(dashboardData);
+            setData(data);
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -65,6 +68,22 @@ function Dashboard() {
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Dashboard</Typography>
             </div>
+            <Card sx={{ display: 'flex' }}>
+            {data.map((item: any) => {
+                return (
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1 }}>
+                        <PlayArrowIcon />
+                      </Box>
+                      <CardContent sx={{ flex: '1 0 auto' }}>
+                        <Typography component="div" variant="h5">
+                          {item.name} {item.count}
+                        </Typography>
+                      </CardContent>
+                    </Box>
+                );
+            })}
+            </Card>
         </div>
     );
 }
