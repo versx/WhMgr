@@ -30,7 +30,7 @@
     "maxLureSubscriptions": 0,
     "maxGymSubscriptions": 0,
     "url": "http://127.0.0.1:8009",
-    "dmEmbedsFile": "default.json"
+    "embedsFile": "default.json"
   },
   "geofenceRoles": {
     "enabled": false,
