@@ -58,7 +58,7 @@
             "end": 890
         }
     },
-    "emoji_list": {
+    "emoji_list": [
         "neutral",
         "valor",
         "mystic",
@@ -103,6 +103,6 @@
 
         "gender_male",
         "gender_female",
-        "gender_less",
-    },
+        "gender_less"
+    ]
 }
