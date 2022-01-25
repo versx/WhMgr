@@ -4,22 +4,22 @@ SET prjDir=%CD%\WhMgr
 SET binDir=%prjDir%\bin
 
 :: Download .NET 5.0 installer
-echo "Downloading .NET Core 2.1 installer..."
+echo "Downloading .NET 5.0 installer..."
 powershell -Command "iwr -outf ~/Desktop/dotnet-install.ps1 https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1"
 
 :: Make installer executable
 
 :: Install .NET 5.0 SDK
-echo "Launching .NET Core installer..."
+echo "Launching .NET installer..."
 powershell -ExecutionPolicy RemoteSigned -File dotnet-install.ps1 -Version 5.0.404
 
 :: Delete .NET 5.0 installer
-echo "Deleting .NET Core installer..."
+echo "Deleting .NET installer..."
 del dotnet-install.ps1
 
 :: Clone repository
 echo "Cloning repository..."
-git clone https://github.com/versx/WhMgr
+git clone https://github.com/versx/WhMgr -b v5-rewrite
 
 :: Change directory into cloned repository
 echo "Changing directory..."
