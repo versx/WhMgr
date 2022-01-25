@@ -7,16 +7,16 @@ echo "Setting executable permissions..."
 chmod +x dotnet-install.sh
 
 # Install .NET 5.0 SDK
-echo "Launching .NET Core installer..."
+echo "Launching .NET installer..."
 ./dotnet-install.sh --version 5.0.404
 
 # Delete .NET Core 5.0 installer
-echo "Deleting .NET Core installer..."
+echo "Deleting .NET installer..."
 rm dotnet-install.sh
 
 # Clone repository
 echo "Cloning repository..."
-git clone https://github.com/versx/WhMgr
+git clone https://github.com/versx/WhMgr -b v5-rewrite
 
 # Change directory into cloned repository
 echo "Changing directory..."
