@@ -34,6 +34,15 @@ INSERT INTO `__EFMigrationsHistory` VALUES
     '5.0.13'
 );
 
+DROP TABLE IF EXISTS `metadata`;
+CREATE TABLE `metadata` (
+    `key` varchar(255) NOT NULL,
+    `value` longtext DEFAULT NULL,
+    PRIMARY KEY (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT IGNORE INTO `metadata` (`key`, `value`) VALUES
+('LAST_MODIFIED', '1643133618.555');
+
 
 ALTER TABLE subscriptions MODIFY COLUMN `status` tinyint(3) unsigned NOT NULL;
 ALTER TABLE subscriptions MODIFY COLUMN `icon_style` longtext DEFAULT NULL;
