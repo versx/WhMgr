@@ -27,7 +27,7 @@ Copy your Discord specific configs to the `bin/discords` folder and reference th
     // User has access to nothing
     "000000000000000001": [],
     // Users with role will only have access to Pokestops and Gyms
-    "000000000000000002": ["pokestops", "gyms"],
+    "000000000000000002": ["quests", "gyms"]
   },
   // Discord free role name, if set allows non-donors/supporters to use the .feedme commands to assign city roles (optional, good for free promotional periods)
   "freeRoleName": "",
