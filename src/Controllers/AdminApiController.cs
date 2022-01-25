@@ -4,7 +4,9 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-
+    using System.Text;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 
@@ -25,6 +27,8 @@
         {
             _logger = logger;
         }
+
+        #region Config API
 
         [HttpGet("configs")]
         [Produces("application/json")]
@@ -56,6 +60,32 @@
             return new JsonResult(configs);
         }
 
+        [HttpPost("config/edit/:fileName")]
+        public async Task<IActionResult> UpdateConfig(string fileName)
+        {
+                var name = Request.Form["name"].ToString();
+                var filePath = Path.Combine(Strings.ConfigsFolder, name + ".json");
+                if (System.IO.File.Exists(filePath))
+                {
+                    // Config file with name already exists
+                    return BadRequest($"Config file at location '{filePath}' already exists");
+                }
+                var config = new Config();
+                var configForm = ConfigFromForm(config, Request.Form);
+                var json = configForm.ToJson();
+                // Save json
+                await WriteDataAsync(filePath, json);
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Config file {fileName} succuessfully updated.",
+            });
+        }
+
+        #endregion
+
+        #region Discord Servers API
+
         [HttpGet("discords")]
         [Produces("application/json")]
         public IActionResult GetDiscords()
@@ -85,6 +115,10 @@
             }
             return new JsonResult(discords);
         }
+
+        #endregion
+
+        #region Alarms API
 
         [HttpGet("alarms")]
         [Produces("application/json")]
@@ -118,6 +152,10 @@
             return new JsonResult(alarms);
         }
 
+        #endregion
+
+        #region Filters API
+
         [HttpGet("filters")]
         [Produces("application/json")]
         public IActionResult GetFilters()
@@ -148,6 +186,10 @@
             }
             return new JsonResult(filters);
         }
+
+        #endregion
+
+        #region Embeds API
 
         [HttpGet("embeds")]
         [Produces("application/json")]
@@ -185,6 +227,10 @@
             return new JsonResult(embeds);
         }
 
+        #endregion
+
+        #region Geofences API
+
         [HttpGet("geofences")]
         [Produces("application/json")]
         public IActionResult GetGeofences()
@@ -195,6 +241,10 @@
             });
             return new JsonResult(configs);
         }
+
+        #endregion
+
+        #region Discord Roles API
 
         [HttpGet("roles")]
         [Produces("application/json")]
@@ -215,6 +265,10 @@
             return new JsonResult(result);
         }
 
+        #endregion
+
+        #region Users API
+
         [HttpGet("users")]
         [Produces("application/json")]
         public IActionResult GetUsers()
@@ -222,12 +276,18 @@
             return new JsonResult(new { });
         }
 
+        #endregion
+
+        #region Settings API
+
         [HttpGet("settings")]
         [Produces("application/json")]
         public IActionResult GetSettings()
         {
             return new JsonResult(new { });
         }
+
+        #endregion
 
         #region Helpers
 
@@ -251,6 +311,434 @@
             return roles;
         }
 
+        private static async Task WriteDataAsync(string path, string data)
+        {
+            await System.IO.File.WriteAllTextAsync(path, data, Encoding.UTF8);
+        }
+
+        private static async Task SaveGeofence(string fileName, string newName, string geofenceData, string geofenceType)
+        {
+            // TODO: Check if exists or not
+            var newFileName = $"{newName}.{geofenceType}";
+            var newFilePath = Path.Combine(Strings.GeofencesFolder, newFileName);
+            if (!string.Equals(fileName, newFileName))
+            {
+                // Move file to new path
+                System.IO.File.Move(
+                    Path.Combine(Strings.GeofencesFolder, fileName),
+                    newFilePath
+                );
+            }
+            // Save json
+            await WriteDataAsync(newFilePath, geofenceData);
+        }
+
+        #region Form Helpers
+
+        private static Config ConfigFromForm(Config config, IFormCollection form)
+        {
+            config.ListeningHost = form["host"].ToString();
+            config.WebhookPort = ushort.Parse(form["port"].ToString());
+            config.Locale = form["locale"].ToString();
+            config.Debug = form["debug"].ToString() == "on";
+            config.ShortUrlApi = new UrlShortenerConfig
+            {
+                ApiUrl = form["shortUrlApiUrl"].ToString(),
+                Signature = form["shortUrlApiSignature"].ToString(),
+            };
+            config.StripeApi = new StripeConfig
+            {
+                ApiKey = form["stripeApiKey"].ToString(),
+            };
+            var discordServerFiles = form["discordServers"].ToString();
+            if (!string.IsNullOrEmpty(discordServerFiles))
+            {
+                var discordFiles = discordServerFiles.Split(',')
+                                                     .ToList();
+                config.ServerConfigFiles.Clear();
+                foreach (var discordServerFile in discordFiles)
+                {
+                    var discordFilePath = Path.Combine(Strings.DiscordsFolder, discordServerFile);
+                    var discordServer = LoadFromFile<DiscordServerConfig>(discordFilePath);
+                    if (!config.ServerConfigFiles.ContainsKey(discordServer.Bot.GuildId.ToString()))
+                    {
+                        config.ServerConfigFiles.Add(discordServer.Bot.GuildId.ToString(), discordServerFile);
+                    }
+                }
+            }
+            //config.ServerConfigFiles = form["discordServers"].ToString();
+            config.Database = new ConnectionStringsConfig
+            {
+                Main = new DatabaseConfig
+                {
+                    Host = form["dbMainHost"].ToString(),
+                    Port = ushort.Parse(form["dbMainPort"].ToString()),
+                    Username = form["dbMainUsername"].ToString(),
+                    Password = form["dbMainPassword"].ToString(),
+                    Database = form["dbMainDatabase"].ToString(),
+                },
+                Scanner = new DatabaseConfig
+                {
+                    Host = form["dbScannerHost"].ToString(),
+                    Port = ushort.Parse(form["dbScannerPort"].ToString()),
+                    Username = form["dbScannerUsername"].ToString(),
+                    Password = form["dbScannerPassword"].ToString(),
+                    Database = form["dbScannerDatabase"].ToString(),
+                },
+                Nests = new DatabaseConfig
+                {
+                    Host = form["dbNestsHost"].ToString(),
+                    Port = ushort.Parse(form["dbNestsPort"].ToString()),
+                    Username = form["dbNestsUsername"].ToString(),
+                    Password = form["dbNestsPassword"].ToString(),
+                    Database = form["dbNestsDatabase"].ToString(),
+                },
+            };
+            config.Urls = new UrlConfig
+            {
+                ScannerMap = form["scannerMapUrl"].ToString(),
+            };
+            config.EventPokemon = new EventPokemonConfig
+            {
+                PokemonIds = form["eventPokemonIds"].ToString()
+                                                    .Split(',')
+                                                    .Select(int.Parse)
+                                                    .ToList(),
+                MinimumIV = int.Parse(form["eventPokemonMinIV"].ToString()),
+                FilterType = form["eventPokemonFilterType"].ToString() == "Include"
+                    ? Services.Alarms.Filters.FilterType.Include
+                    : Services.Alarms.Filters.FilterType.Exclude,
+            };
+            // TODO: config.IconStyles
+            /*
+            TODO config.StaticMaps = new Dictionary<StaticMapType, StaticMapConfig>
+            {
+                {
+                    StaticMapType.Pokemon, new StaticMapConfig
+                    {
+                        TemplateName = "",
+                        Url = "",
+                        IncludeNearbyGyms = false,
+                        IncludeNearbyPokestops = false,
+                    },
+                },
+            };
+            */
+            var twilioUserIds = form["twilioUserIds"].ToString();
+            var twilioRoleIds = form["twilioRoleIds"].ToString();
+            var twilioPokemonIds = form["twilioPokemonIds"].ToString();
+            config.Twilio = new TwilioConfig
+            {
+                Enabled = form["twilioEnabled"].ToString() == "on",
+                AccountSid = form["twilioAccountSid"].ToString(),
+                AuthToken = form["twilioAuthToken"].ToString(),
+                FromNumber = form["twilioFromNumber"].ToString(),
+                UserIds = string.IsNullOrEmpty(twilioUserIds)
+                    ? new List<ulong>()
+                    : twilioUserIds.Split(',')
+                                   .Select(ulong.Parse)
+                                   .ToList(),
+                RoleIds = string.IsNullOrEmpty(twilioRoleIds)
+                    ? new List<ulong>()
+                    : twilioRoleIds.Split(',')
+                                   .Select(ulong.Parse)
+                                   .ToList(),
+                PokemonIds = string.IsNullOrEmpty(twilioPokemonIds)
+                    ? new List<uint>()
+                    : twilioPokemonIds.Split(',')
+                                      .Select(uint.Parse)
+                                      .ToList(),
+                MinimumIV = int.Parse(form["twilioMinIV"].ToString()),
+            };
+            config.ReverseGeocoding = new ReverseGeocodingConfig
+            {
+                Provider = form["provider"].ToString() == "google"
+                    ? Services.Geofence.Geocoding.ReverseGeocodingProvider.GMaps
+                    : Services.Geofence.Geocoding.ReverseGeocodingProvider.Osm,
+                CacheToDisk = form["cacheToDisk"].ToString() == "on",
+                GoogleMaps = new GoogleMapsConfig
+                {
+                    Key = form["gmapsKey"].ToString(),
+                    Schema = form["gmapsSchema"].ToString(),
+                },
+                Nominatim = new NominatimConfig
+                {
+                    Endpoint = form["nominatimEndpoint"].ToString(),
+                    Schema = form["nominatimSchema"].ToString(),
+                },
+            };
+            config.DespawnTimeMinimumMinutes = ushort.Parse(form["despawnTimeMinimumMinutes"].ToString());
+            config.CheckForDuplicates = form["checkForDuplicates"] == "on";
+            config.Debug = form["debug"] == "on";
+            config.LogLevel = (LogLevel)int.Parse(form["logLevel"].ToString());
+            //config.LogLevel
+            return config;
+        }
+
+        private static DiscordServerConfig DiscordFromForm(DiscordServerConfig discord, IFormCollection form)
+        {
+            var donorRoleIds = form["donorRoleIds"].ToString();
+            if (!string.IsNullOrEmpty(donorRoleIds))
+            {
+                var availableRoles = GetRoles().Where(x => !x.Value.IsModerator);
+                var roleIds = donorRoleIds.Split(',')
+                                          .Select(ulong.Parse)
+                                          .ToList();
+                var donorRoles = availableRoles.ToDictionary(key => key.Key, value => value.Value.Permissions);
+                discord.DonorRoleIds = donorRoles;//(Dictionary<ulong, IEnumerable<SubscriptionAccessType>>)donorRoles;
+            }
+            var moderatorRoleIds = form["moderatorRoleIds"].ToString();
+            if (!string.IsNullOrEmpty(moderatorRoleIds))
+            {
+                discord.ModeratorRoleIds = moderatorRoleIds.Split(',')
+                                                           .Select(ulong.Parse)
+                                                           .ToList();
+            }
+            discord.FreeRoleName = form["freeRoleName"].ToString();
+            discord.AlarmsFile = form["alarms"].ToString();
+            discord.GeofenceFiles = form["geofences"].ToString().Split(',');
+            discord.IconStyle = form["iconStyle"].ToString();
+            if (discord.Bot == null)
+            {
+                discord.Bot = new BotConfig();
+            }
+            discord.Bot.CommandPrefix = form["commandPrefix"].ToString();
+            discord.Bot.GuildId = ulong.Parse(form["guildId"].ToString());
+            discord.Bot.EmojiGuildId = ulong.Parse(form["emojiGuildId"].ToString());
+            discord.Bot.Token = form["token"].ToString();
+            //discord.Bot.ChannelIds = form["channelIds"].ToString();
+            discord.Bot.Status = form["status"].ToString();
+            discord.Bot.OwnerId = ulong.Parse(form["ownerId"].ToString());
+            if (discord.Subscriptions == null)
+            {
+                discord.Subscriptions = new SubscriptionsConfig();
+            }
+            discord.Subscriptions.Enabled = form["subscriptionsEnabled"].ToString() == "on";
+            discord.Subscriptions.MaxPokemonSubscriptions = int.Parse(form["maxPokemonSubscriptions"].ToString());
+            discord.Subscriptions.MaxPvPSubscriptions = int.Parse(form["maxPvPSubscriptions"].ToString());
+            discord.Subscriptions.MaxRaidSubscriptions = int.Parse(form["maxRaidSubscriptions"].ToString());
+            discord.Subscriptions.MaxQuestSubscriptions = int.Parse(form["maxQuestSubscriptions"].ToString());
+            discord.Subscriptions.MaxLureSubscriptions = int.Parse(form["maxLureSubscriptions"].ToString());
+            discord.Subscriptions.MaxInvasionSubscriptions = int.Parse(form["maxInvasionSubscriptions"].ToString());
+            discord.Subscriptions.MaxGymSubscriptions = int.Parse(form["maxGymSubscriptions"].ToString());
+            discord.Subscriptions.MaxNotificationsPerMinute = ushort.Parse(form["maxNotificationsPerMinute"].ToString());
+            discord.Subscriptions.Url = form["subscriptionsUiUrl"].ToString();
+            discord.Subscriptions.EmbedsFile = form["embed"].ToString();
+            if (discord.GeofenceRoles == null)
+            {
+                discord.GeofenceRoles = new GeofenceRolesConfig();
+            }
+            discord.GeofenceRoles.Enabled = form["geofenceRolesEnabled"].ToString() == "on";
+            discord.GeofenceRoles.AutoRemove = form["geofenceRolesAutoRemove"].ToString() == "on";
+            discord.GeofenceRoles.RequiresDonorRole = form["geofenceRolesRequiresDonorRole"].ToString() == "on";
+            if (discord.QuestsPurge == null)
+            {
+                discord.QuestsPurge = new QuestsPurgeConfig();
+            }
+            discord.QuestsPurge.Enabled = form["questsPurgeEnabled"].ToString() == "on";
+            // questsPurgeChannels = timezone: channelIds[]
+            // TODO: discord.QuestsPurge.ChannelIds = form["questsPurgeChannels"].ToString();
+            if (discord.Nests == null)
+            {
+                discord.Nests = new NestsConfig();
+            }
+            discord.Nests.Enabled = form["nestsEnabled"].ToString() == "on";
+            discord.Nests.ChannelId = ulong.Parse(form["nestsChannelId"].ToString());
+            discord.Nests.MinimumPerHour = int.Parse(form["nestsMinimumPerHour"].ToString());
+            if (discord.DailyStats == null)
+            {
+                discord.DailyStats = new DailyStatsConfig();
+            }
+            // TODO: discord.dailyStats.iv and discord.dailyStats.shiny
+            return discord;
+        }
+
+        private static ChannelAlarmsManifest AlarmsFromForm(ChannelAlarmsManifest alarms, IFormCollection form)
+        {
+            // TODO: Set alarms
+            return alarms;
+        }
+
+        private static EmbedMessage EmbedFromForm(EmbedMessage embed, IFormCollection form)
+        {
+            embed[EmbedMessageType.Pokemon].AvatarUrl = form["pokemonAvatarUrl"].ToString();
+            embed[EmbedMessageType.Pokemon].ContentList = form["pokemonContent"].ToString()
+                                                                                .Split('\n')
+                                                                                .ToList();
+            embed[EmbedMessageType.Pokemon].IconUrl = form["pokemonIconUrl"].ToString();
+            embed[EmbedMessageType.Pokemon].ImageUrl = form["pokemonImageUrl"].ToString();
+            embed[EmbedMessageType.Pokemon].Title = form["pokemonTitle"].ToString();
+            embed[EmbedMessageType.Pokemon].Url = form["pokemonUrl"].ToString();
+            embed[EmbedMessageType.Pokemon].Username = form["pokemonUsername"].ToString();
+            embed[EmbedMessageType.Pokemon].Footer = new EmbedMessageFooter
+            {
+                Text = form["pokemonFooterText"].ToString(),
+                IconUrl = form["pokemonFooterIconUrl"].ToString(),
+            };
+            // TODO: Raids, Gyms, Pokestops, etc
+            return embed;
+        }
+
+        private static WebhookFilter FilterFromForm(WebhookFilter filter, IFormCollection form)
+        {
+            if (form.ContainsKey("pokemonEnabled"))
+            {
+                if (filter.Pokemon == null)
+                {
+                    filter.Pokemon = new WebhookFilterPokemon();
+                }
+                filter.Pokemon.Enabled = form["pokemonEnabled"].ToString() == "on";
+                var pokemonList = form["pokemonPokemonList"].ToString();
+                if (!string.IsNullOrEmpty(pokemonList))
+                {
+                    filter.Pokemon.Pokemon = pokemonList.Split(',')?.Select(uint.Parse).ToList() ?? new List<uint>();
+                }
+                var formsList = form["pokemonFormsList"].ToString();
+                if (!string.IsNullOrEmpty(formsList))
+                {
+                    filter.Pokemon.Forms = formsList.Split(',').ToList();
+                }
+                var costumesList = form["pokemonCostumesList"].ToString();
+                if (!string.IsNullOrEmpty(costumesList))
+                {
+                    filter.Pokemon.Costumes = costumesList.Split(',').ToList();
+                }
+                filter.Pokemon.MinimumCP = uint.Parse(form["pokemonMinCP"].ToString());
+                filter.Pokemon.MaximumCP = uint.Parse(form["pokemonMaxCP"].ToString());
+                filter.Pokemon.MinimumIV = uint.Parse(form["pokemonMinIV"].ToString());
+                filter.Pokemon.MaximumIV = uint.Parse(form["pokemonMaxIV"].ToString());
+                filter.Pokemon.MinimumLevel = uint.Parse(form["pokemonMinLevel"].ToString());
+                filter.Pokemon.MaximumLevel = uint.Parse(form["pokemonMaxLevel"].ToString());
+                filter.Pokemon.Gender = form["pokemonGender"].ToString().FirstOrDefault();
+                // TODO: Convert size filter.Pokemon.Size = form["pokemonSize"].ToString();
+                filter.Pokemon.IsPvpGreatLeague = form["pokemonGreatLeague"].ToString() == "on";
+                filter.Pokemon.IsPvpUltraLeague = form["pokemonUltraLeague"].ToString() == "on";
+                filter.Pokemon.MinimumRank = uint.Parse(form["pokemonMinRank"].ToString());
+                filter.Pokemon.MaximumRank = uint.Parse(form["pokemonMaxRank"].ToString());
+                filter.Pokemon.IsEvent = form["pokemonIsEvent"].ToString() == "on";
+                filter.Pokemon.FilterType = form["pokemonFilterType"].ToString() == "Include"
+                    ? Services.Alarms.Filters.FilterType.Include
+                    : Services.Alarms.Filters.FilterType.Exclude;
+                filter.Pokemon.IgnoreMissing = form["pokemonIgnoreMissing"].ToString() == "on";
+            }
+            if (form.ContainsKey("raidsEnabled"))
+            {
+                if (filter.Raids == null)
+                {
+                    filter.Raids = new WebhookFilterRaid();
+                }
+                filter.Raids.Enabled = form["raidsEnabled"].ToString() == "on";
+                var pokemonList = form["raidsPokemonList"].ToString();
+                if (!string.IsNullOrEmpty(pokemonList))
+                {
+                    filter.Raids.Pokemon = pokemonList.Split(',')?.Select(uint.Parse).ToList() ?? new List<uint>();
+                }
+                var formsList = form["raidsFormsList"].ToString();
+                if (!string.IsNullOrEmpty(formsList))
+                {
+                    filter.Raids.Forms = formsList.Split(',').ToList();
+                }
+                var costumesList = form["raidsCostumesList"].ToString();
+                if (!string.IsNullOrEmpty(costumesList))
+                {
+                    filter.Raids.Costumes = costumesList.Split(',').ToList();
+                }
+                filter.Raids.MinimumLevel = uint.Parse(form["raidsMinLevel"].ToString());
+                filter.Raids.MaximumLevel = uint.Parse(form["raidsMaxLevel"].ToString());
+                filter.Raids.OnlyEx = form["raidsOnlyEx"].ToString() == "on";
+                // TODO: Convert team filter.Raids.Team = form["raidsTeam"].ToString();
+                filter.Raids.FilterType = form["raidsFilterType"].ToString() == "Include"
+                    ? Services.Alarms.Filters.FilterType.Include
+                    : Services.Alarms.Filters.FilterType.Exclude;
+                filter.Raids.IgnoreMissing = form["raidsIgnoreMissing"].ToString() == "on";
+            }
+            if (form.ContainsKey("eggsEnabled"))
+            {
+                if (filter.Eggs == null)
+                {
+                    filter.Eggs = new WebhookFilterEgg();
+                }
+                filter.Eggs.Enabled = form["eggsEnabled"].ToString() == "on";
+                filter.Eggs.MinimumLevel = uint.Parse(form["eggsMinLevel"].ToString());
+                filter.Eggs.MaximumLevel = uint.Parse(form["eggsMaxLevel"].ToString());
+                filter.Eggs.OnlyEx = form["eggsOnlyEx"].ToString() == "on";
+                // TODO: Convert team filter.Eggs.Team = form["eggsTeam"].ToString();
+            }
+            if (form.ContainsKey("questsEnabled"))
+            {
+                if (filter.Quests == null)
+                {
+                    filter.Quests = new WebhookFilterQuest();
+                }
+                filter.Quests.Enabled = form["questsEnabled"].ToString() == "on";
+                filter.Quests.RewardKeywords = form["questsRewards"].ToString().Split(',').ToList();
+                filter.Quests.IsShiny = form["questsIsShiny"].ToString() == "on";
+                filter.Quests.FilterType = form["questsFilterType"].ToString() == "Include"
+                    ? Services.Alarms.Filters.FilterType.Include
+                    : Services.Alarms.Filters.FilterType.Exclude;
+            }
+            if (form.ContainsKey("pokestopsEnabled"))
+            {
+                if (filter.Pokestops == null)
+                {
+                    filter.Pokestops = new WebhookFilterPokestop();
+                }
+                filter.Pokestops.Enabled = form["pokestopsEnabled"].ToString() == "on";
+                filter.Pokestops.Lured = form["pokestopsLured"].ToString() == "on";
+                // TODO: Convert lure types filter.Pokestops.LureTypes = form["pokestopsLureTypes"].ToString();
+                filter.Pokestops.Invasions = form["pokestopsInvasions"].ToString() == "on";
+                // TODO: Convert invasion types filter.Pokestops.InvasionTypes = form["pokestopsInvasionTypes"].ToString() == "on";
+            }
+            if (form.ContainsKey("gymsEnabled"))
+            {
+                if (filter.Gyms == null)
+                {
+                    filter.Gyms = new WebhookFilterGym();
+                }
+                filter.Gyms.Enabled = form["gymsEnabled"] == "on";
+                filter.Gyms.UnderAttack = form["gymsUnderAttack"].ToString() == "on";
+                // TODO: Convert team filter.Gyms.Team = form["gymsTeam"].ToString();
+            }
+            if (form.ContainsKey("weatherEnabled"))
+            {
+                if (filter.Weather == null)
+                {
+                    filter.Weather = new WebhookFilterWeather();
+                }
+                filter.Weather.Enabled = form["weatherEnabled"] == "on";
+                // TODO: Convert weather types filter.Weather.WeatherTypes = form["weatherTypes"].ToString();
+            }
+            return filter;
+        }
+
+        private static Dictionary<ulong, RoleConfig> RolesFromForm(Dictionary<ulong, RoleConfig> roles, IFormCollection form)
+        {
+            var id = ulong.Parse(form["id"].ToString());
+            var name = form["name"].ToString();
+            var permissions = form["permissions"].ToString();
+            var isModerator = form["moderator"].ToString() == "on";
+            var permissionsList = permissions.Split(',')
+                                             .Select(x => x.StringToObject<SubscriptionAccessType>())
+                                             .ToList();
+            if (roles.ContainsKey(id))
+            {
+                roles[id].Name = name;
+                roles[id].Permissions = permissionsList;
+                roles[id].IsModerator = isModerator;
+            }
+            else
+            {
+                roles.Add(id, new RoleConfig
+                {
+                    Name = name,
+                    Permissions = permissionsList,
+                    IsModerator = isModerator,
+                });
+            }
+            return roles;
+        }
+
+        #endregion
 
         #endregion
     }
