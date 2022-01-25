@@ -9,12 +9,15 @@ namespace WhMgr
     using Microsoft.AspNetCore.Antiforgery;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.FileProviders;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.OpenApi.Models;
+    using Microsoft.AspNetCore.SpaServices;
 
     using WhMgr.Configuration;
     using WhMgr.Data.Contexts;
@@ -147,6 +150,11 @@ namespace WhMgr
                 });
             });
 
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = Strings.ClientBuildFolder;
+            });
+
             services.AddMvc()
                     .AddHandlebars(options =>
                     {
@@ -197,6 +205,29 @@ namespace WhMgr
 
             app.UseCors();
 
+            // Initialize Spa for React app
+            app.UseSpaStaticFiles();
+            if (env.IsDevelopment())
+            {
+                app.MapWhen(y => y.Request.Path.StartsWithSegments(Strings.AdminDashboardEndpoint), client =>
+                {
+                    client.UseSpa(spa =>
+                    {
+                        spa.Options.SourcePath = Strings.ClientBuildFolder;
+                        spa.UseReactDevelopmentServer(npmScript: "start");
+                    });
+                });
+            }
+            else
+            {
+                app.Map(new PathString(Strings.AdminDashboardEndpoint), client =>
+                {
+                    client.UseSpaStaticFiles();
+                    client.UseSpa(spa => { });
+                });
+            }
+
+            app.UseStaticFiles();
             app.UseRouting();
             if (Config.EnableSentry)
             {

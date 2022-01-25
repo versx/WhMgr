@@ -13,6 +13,9 @@
         public const string BotVersion = "5.0.2";
         public const string Creator = "versx";
 
+        public const string ClientBuildFolder = "ClientApp/build";
+        public const string AdminDashboardEndpoint = "/myapp";
+
         public const string BasePath = "../bin/";
         public const string ViewsFolder = "Views";
         public const string TemplateExt = ".hbs";

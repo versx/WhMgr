@@ -62,16 +62,27 @@
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
     <PackageReference Include="TimeZoneConverter" Version="5.0.0" />
     <PackageReference Include="versx.Handlebars.Net.ViewEngine" Version="1.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.22" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.13" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Common\" />
+    <None Remove="Microsoft.AspNetCore.SpaServices" />
+    <None Remove="Microsoft.AspNetCore.SpaServices.Extensions" />
+    <None Remove="ClientApp\public\favicon.ico" />
+    <None Remove="ClientApp\public\index.html" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Web\Api\Requests\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Remove="ClientApp\package.json" />
+    <Content Remove="ClientApp\package-lock.json" />
+    <Content Remove="ClientApp\public\manifest.json" />
+  </ItemGroup>
   <ItemGroup>
 	<Content Update="wwwroot\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -82,5 +93,9 @@
 	<Content Include="Views\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClientApp\package.json" />
+    <None Include="ClientApp\public\manifest.json" />
   </ItemGroup>
 </Project>
