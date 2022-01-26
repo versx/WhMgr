@@ -23,6 +23,7 @@ nav:
         - Prerequisites: install/prerequisites.md
         - Getting Started: install/getting-started.md
         - Updating: install/updating.md
+        - Migrate v4: install/migrate-v4-to-v5.md
     - Configuration:
         - Config: config/config.md
         - Discord: config/discords.md

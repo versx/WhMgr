@@ -27,12 +27,8 @@ export PATH=~/.dotnet/:$PATH
 ### __Running__  
 To run via command line arguments [click here](../other/commandline.md).  
 
-1. Build executable:  
+1. Build executable from root folder:  
 ```
-From bin folder
-dotnet build ..
-
-From root folder  
 dotnet build
 ```
 2. Start Webhook Manager:  
