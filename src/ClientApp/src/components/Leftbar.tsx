@@ -14,6 +14,7 @@ import {
     AccountTree as AccountTreeIcon,
     Navigation as NavigationIcon,
     Layers as LayersIcon,
+    Subscriptions as SubscriptionsIcon,
     People as PeopleIcon,
 } from '@mui/icons-material';
 import { Container, Typography } from '@mui/material';
@@ -83,61 +84,67 @@ function Leftbar() {
                 </div>
             </Link>
             <Link to="/myapp/configs" className={classes.link}>
-            <div className={isActive('configs')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                <div className={isActive('configs')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <MiscellaneousServicesIcon className={classes.icon} />
                     <Typography className={classes.text}>Configs</Typography>
                 </div>
             </Link>
             <Link to="/myapp/discords" className={classes.link}>
-            <div className={isActive('discords')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                <div className={isActive('discords')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <StorageIcon className={classes.icon} />
                     <Typography className={classes.text}>Discords</Typography>
                 </div>
             </Link>
             <Link to="/myapp/alarms" className={classes.link}>
-            <div className={isActive('alarms')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                <div className={isActive('alarms')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <NotificationsIcon className={classes.icon} />
                     <Typography className={classes.text}>Alarms</Typography>
                 </div>
             </Link>
             <Link to="/myapp/filters" className={classes.link}>
-            <div className={isActive('filters')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                <div className={isActive('filters')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <FilterListIcon className={classes.icon} />
                     <Typography className={classes.text}>Filters</Typography>
                 </div>
             </Link>
             <Link to="/myapp/embeds" className={classes.link}>
-            <div className={isActive('embeds')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                <div className={isActive('embeds')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <AccountTreeIcon className={classes.icon} />
                     <Typography className={classes.text}>Embeds</Typography>
                 </div>
             </Link>
             <Link to="/myapp/geofences" className={classes.link}>
-            <div className={isActive('geofences')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                <div className={isActive('geofences')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <NavigationIcon className={classes.icon} />
                     <Typography className={classes.text}>Geofences</Typography>
                 </div>
             </Link>
             <Link to="/myapp/roles" className={classes.link}>
-            <div className={isActive('roles')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                <div className={isActive('roles')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <LayersIcon className={classes.icon} />
                     <Typography className={classes.text}>Discord Roles</Typography>
                 </div>
             </Link>
+            <Link to="/myapp/subscriptions" className={classes.link}>
+                <div className={isActive('subscriptions')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                    <SubscriptionsIcon className={classes.icon} />
+                    <Typography className={classes.text}>Subscriptions</Typography>
+                </div>
+            </Link>
             <Link to="/myapp/users" className={classes.link}>
-            <div className={isActive('users')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                <div className={isActive('users')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <PeopleIcon className={classes.icon} />
                     <Typography className={classes.text}>Users</Typography>
                 </div>
             </Link>
             <Link to="/myapp/settings" className={classes.link}>
-            <div className={isActive('settings')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
-                <SettingsIcon className={classes.icon} />
-                <Typography className={classes.text}>Settings</Typography>
-            </div>
+                <div className={isActive('settings')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                    <SettingsIcon className={classes.icon} />
+                    <Typography className={classes.text}>Settings</Typography>
+                </div>
             </Link>
             <Link to="/myapp/logout" className={classes.link}>
-            <div className={isActive('logout')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
+                <div className={isActive('logout')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <ExitToAppIcon className={classes.icon} />
                     <Typography className={classes.text}>Logout</Typography>
                 </div>

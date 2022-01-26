@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import {
-    Box,
     Button,
     ButtonGroup,
-    Card,
-    CardContent,
     Typography,
 } from '@mui/material';
-import {
-    PlayArrow as PlayArrowIcon,
-} from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 
 import config from '../config.json';
@@ -39,13 +33,13 @@ const useStyles = makeStyles((theme: any) => ({
     },
 }));
 
-function Dashboard() {
-    const [data, setData] = useState([]);
+function EditConfig() {
+    const [alarms, setAlarms] = useState([]);
     useEffect(() => {
         refreshList();
     }, []);
     const refreshList = () => {
-        fetch(config.apiUrl + 'admin/dashboard', {
+        fetch(config.apiUrl + 'admin/alarms', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -55,7 +49,7 @@ function Dashboard() {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            setData(data);
+            setAlarms(data);
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -66,26 +60,14 @@ function Dashboard() {
     return (
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
-                <Typography variant="h4" component="h1" className={classes.title}>Dashboard</Typography>
+                <Typography variant="h4" component="h1" className={classes.title}>Channel Alarms</Typography>
             </div>
-            <Card sx={{ display: 'flex' }}>
-            {data.map((item: any) => {
-                return (
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1, flex: 1 }}>
-                        <PlayArrowIcon />
-                      </Box>
-                      <CardContent sx={{ flex: '1 0 auto' }}>
-                        <Typography component="div" variant="h5">
-                          {item.name} {item.count}
-                        </Typography>
-                      </CardContent>
-                    </Box>
-                );
-            })}
-            </Card>
+            <p>
+                Channel alarms are pre-defined configs that specify what data to report to a Discord server's channel via webhooks.
+            </p>
+
         </div>
     );
 }
 
-export default Dashboard;
+export default EditConfig;

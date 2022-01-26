@@ -11,6 +11,7 @@ import Rightbar from './components/Rightbar';
 
 import Dashboard from './pages/Dashboard';
 import ListConfigs from './pages/ListConfigs';
+import EditConfig from './pages/EditConfig';
 import ListDiscords from './pages/ListDiscords';
 import ListAlarms from './pages/ListAlarms';
 import ListFilters from './pages/ListFilters';
@@ -46,13 +47,14 @@ function App() {
                 <Route path={basePath} element={<Dashboard />} />
                 <Route path={basePath + "configs"} element={<ListConfigs />} />
                 <Route path={basePath + "config/new"} element={<ListConfigs />} />
-                <Route path={basePath + "config/:id"} element={<ListConfigs />} />
+                <Route path={basePath + "config/:id"} element={<EditConfig />} />
                 <Route path={basePath + "discords"} element={<ListDiscords />} />
                 <Route path={basePath + "alarms"} element={<ListAlarms />} />
                 <Route path={basePath + "filters"} element={<ListFilters />} />
                 <Route path={basePath + "embeds"} element={<ListEmbeds />} />
                 <Route path={basePath + "geofences"} element={<ListGeofences />} />
                 <Route path={basePath + "roles"} element={<ListRoles />} />
+                <Route path={basePath + "subscriptions"} element={<ListConfigs />} />
                 <Route path={basePath + "users"} element={<ListUsers />} />
                 <Route path={basePath + "settings"} element={<Settings />} />
               </Routes>
