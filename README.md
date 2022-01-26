@@ -82,6 +82,9 @@ __Lure (Mossy) Notifications__
 __Lure (Magnetic) Notifications__  
 ![Lure (Magnetic) Notifications](.github/images/lure_magnetic.png "Lure (Magnetic) Notifications")  
 
+__Lure (Rainy) Notifications__  
+![Lure (Rainy) Notifications](.github/images/lure_rainy.png "Lure (Rainy) Notifications")  
+
 __Gym Team Takeover Notifications__  
 ![Gym Team Takeover Notifications](.github/images/gyms.png "Gym Team Takeover Notifications")  
 
