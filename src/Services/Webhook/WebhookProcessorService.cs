@@ -353,7 +353,10 @@
                 // Lock process gyms, check for duplicates of incoming gym
                 lock (_processedGyms)
                 {
-                    // TODO: Check if GymId is null
+                    if (string.IsNullOrEmpty(gym?.GymId)) {
+                        // Skip gyms with no ID set
+                        return;
+                    }
                     if (_processedGyms.ContainsKey(gym.GymId))
                     {
                         if (_processedGyms[gym.GymId].Team == gym.Team
