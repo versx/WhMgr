@@ -47,7 +47,7 @@ function App() {
                 <Route path={basePath} element={<Dashboard />} />
                 <Route path={basePath + "configs"} element={<ListConfigs />} />
                 <Route path={basePath + "config/new"} element={<ListConfigs />} />
-                <Route path={basePath + "config/:id"} element={<EditConfig />} />
+                <Route path={basePath + "config/:id"} element={<EditConfig props={{}} />} />
                 <Route path={basePath + "discords"} element={<ListDiscords />} />
                 <Route path={basePath + "alarms"} element={<ListAlarms />} />
                 <Route path={basePath + "filters"} element={<ListFilters />} />

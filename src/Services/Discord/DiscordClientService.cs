@@ -119,17 +119,17 @@
             if (_discordClients.Count == 0)
                 return;
 
+            // Build list of role ids from dictionary of guilds
             var validRoleIdsPerGuild = _config.Instance.Servers.Values
                                                                .ToList()
                                                                .Aggregate(new List<ulong>(), (x, y) => x.Concat(y.DonorRoleIds.Keys.ToList())
                                                                                                         .ToList());
-            // Loop all available subscriptions
+            // Check if subscriptions fetched yet from database
             var subscriptions = _subscriptionManager.Subscriptions;
             if (subscriptions == null)
-            {
                 return;
-            }
 
+            // Loop all available subscriptions
             foreach (var subscription in subscriptions)
             {
                 if (!_discordClients.Any(x => x.Value.Guilds.ContainsKey(subscription.GuildId)))
@@ -294,6 +294,7 @@
 
             var server = _config.Instance.Servers[guildId];
             var client = _discordClients[guildId];
+            // Check if bot guilds contains emoji guild id
             if (!(client.Guilds?.ContainsKey(server.Bot.EmojiGuildId) ?? false))
             {
                 _logger.LogWarning($"Bot not in emoji server {server.Bot.EmojiGuildId}");
@@ -305,13 +306,19 @@
             {
                 try
                 {
+                    // Fetch all guild emojis
                     var emojis = await guild.GetEmojisAsync();
+
+                    // Get emoji from available guild emojis by name
                     var emojiExists = emojis.FirstOrDefault(x => string.Compare(x.Name, emoji, true) == 0);
+
+                    // Check if emoji exists, if so skip
                     if (emojiExists != null)
                         continue;
 
                     _logger.LogDebug($"Emoji {emoji} doesn't exist, creating...");
 
+                    // Check if emoji exists at path to upload to Discord
                     var emojiPath = Path.Combine(Strings.EmojisFolder, emoji + ".png");
                     if (!File.Exists(emojiPath))
                     {
@@ -319,7 +326,10 @@
                         continue;
                     }
 
+                    // Create steam of emoji file data
                     var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
+
+                    // Create emoji for Discord guild
                     await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");
 
                     _logger.LogInformation($"Emoji {emoji} created successfully.");

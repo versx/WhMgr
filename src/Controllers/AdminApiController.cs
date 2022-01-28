@@ -78,21 +78,59 @@
             return new JsonResult(configs);
         }
 
+        [HttpGet("config")]
+        [Produces("application/json")]
+        public IActionResult GetConfig(string id)
+        {
+            var filePath = Path.Combine(Strings.ConfigsFolder, id + ".json");
+            if (!System.IO.File.Exists(filePath))
+            {
+                //return BadRequest($"Config '{id}' does not exist");
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    error = $"Config '{id}' does not exist",
+                });
+            }
+            var config = LoadFromFile<Config>(filePath);
+            var discordFiles = Directory.GetFiles(Strings.DiscordsFolder, "*.json");
+            var locales = Directory.GetFiles(
+                Path.Combine(
+                    Path.Combine(
+                        Strings.BasePath,
+                        Strings.LocaleFolder
+                    )
+                ),
+                "*.json"
+            ).Select(file => Path.GetFileNameWithoutExtension(file));
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                data = new
+                {
+                    config,
+                    discords = discordFiles.Select(file => Path.GetFileName(file)),
+                    locales,
+                },
+            });
+        }
+
         [HttpPost("config/edit/:fileName")]
         public async Task<IActionResult> UpdateConfig(string fileName)
         {
-                var name = Request.Form["name"].ToString();
-                var filePath = Path.Combine(Strings.ConfigsFolder, name + ".json");
-                if (System.IO.File.Exists(filePath))
-                {
-                    // Config file with name already exists
-                    return BadRequest($"Config file at location '{filePath}' already exists");
-                }
-                var config = new Config();
-                var configForm = ConfigFromForm(config, Request.Form);
-                var json = configForm.ToJson();
-                // Save json
-                await WriteDataAsync(filePath, json);
+            var name = Request.Form["name"].ToString();
+            var filePath = Path.Combine(Strings.ConfigsFolder, name + ".json");
+            if (System.IO.File.Exists(filePath))
+            {
+                // Config file with name already exists
+                return BadRequest($"Config file at location '{filePath}' already exists");
+            }
+            var config = new Config();
+            var configForm = ConfigFromForm(config, Request.Form);
+            var json = configForm.ToJson();
+            // Save json
+            await WriteDataAsync(filePath, json);
             return new JsonResult(new
             {
                 status = "OK",
