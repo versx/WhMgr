@@ -145,6 +145,10 @@
                 if (guild == null)
                     continue;
 
+                // Check if guild contains subscription user id
+                if (!guild.Members.ContainsKey(subscription.UserId))
+                    continue;
+
                 // Get member for subscriptions
                 var member = await guild.GetMemberAsync(subscription.UserId);
                 if (member == null)

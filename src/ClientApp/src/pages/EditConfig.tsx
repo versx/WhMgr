@@ -104,7 +104,6 @@ class EditConfig extends React.Component<IGlobalProps> {
                 paddingTop: '20px',
             },
         });
-        //const classes = useStyles();
 
         return (
             <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
