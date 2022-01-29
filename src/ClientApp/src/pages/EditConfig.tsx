@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
     Box,
     Button,
+    Card,
+    CardContent,
+    CardHeader,
     Container,
     FormControl,
     FormControlLabel,
@@ -17,6 +23,7 @@ import {
 import { makeStyles } from '@mui/styles';
 
 import config from '../config.json';
+import { MultiSelect } from '../components/MultiSelect';
 import withRouter from '../hooks/WithRouter';
 import { IGlobalProps } from '../interfaces/IGlobalProps';
 
@@ -28,12 +35,19 @@ class EditConfig extends React.Component<IGlobalProps> {
         console.log('props:', props);
         this.state = {
             // TODO: Set default state values
-            name: '',
+            name: props.params!.id,
             host: '*',
             port: 8008,
+            locale: 'en',
+            value: 0,
+            despawnTimeMinimumMinutes: 5,
+            checkForDuplicates: false,
+            discord: '',
+            discords: [],
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handlePanelExpanded = this.handlePanelExpanded.bind(this);
     }
 
     componentDidMount() {
@@ -53,11 +67,13 @@ class EditConfig extends React.Component<IGlobalProps> {
         .then(async (response) => await response.json())
         .then(data => {
             console.log('config data:', data);
-            this.setState(data.data);
-            const keys: string[] = Object.keys(data);
+            this.setState(data.data.config);
+            const keys: string[] = Object.keys(data.data.config);
             for (const key of keys) {
-                this.setState({ [key]: data.data[key] });
+                console.log('key:', key, 'data:', data.data.config[key]);
+                this.setState({ [key]: data.data.config[key] });
             }
+            this.setState({ ['discords']: Object.values(data.data.discords) });
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -65,7 +81,12 @@ class EditConfig extends React.Component<IGlobalProps> {
     }
 
     handleChange(event: any) {
+        //console.log('event:', event.target);
         this.setState({ [event.target.name]: event.target.value });
+    }
+
+    handlePanelExpanded = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+        this.setState({ ['expanded']: isExpanded ? panel : false });
     }
 
     handleValidation() {
@@ -115,73 +136,107 @@ class EditConfig extends React.Component<IGlobalProps> {
                         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                             Config description goes here
                         </Typography>
-                        <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
-                            <Grid item xs={12} sm={12}>
-                                <TextField
-                                    id="name"
-                                    name="name"
-                                    variant="outlined"
-                                    label="Name"
-                                    value={this.state.name}
-                                    fullWidth
-                                    onChange={ (e) => this.handleChange(e) }
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={6}>
-                                <TextField
-                                    id="host"
-                                    name="host"
-                                    variant="outlined"
-                                    label="Host"
-                                    value={this.state.host}
-                                    fullWidth
-                                    onChange={ (e) => this.handleChange(e) }
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={6}>
-                                <TextField
-                                    id="port"
-                                    name="port"
-                                    type="number"
-                                    variant="outlined"
-                                    label="Port"
-                                    value={this.state.port}
-                                    fullWidth
-                                    onChange={ (e) => this.handleChange(e) }
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={6}>
-                                <FormControl fullWidth>
-                                    <InputLabel id="locale-label">Locale</InputLabel>
-                                    <Select
-                                        labelId="locale-label"
-                                        id="locale"
-                                        value={this.state.locale}
-                                        label="Locale"
-                                        onChange={ (e: SelectChangeEvent) => this.handleChange(e) }
-                                    >
-                                        <MenuItem value="en">English</MenuItem>
-                                        <MenuItem value="es">Spanish</MenuItem>
-                                        <MenuItem value="de">German</MenuItem>
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid item xs={6} sm={6}>
-                                <TextField
-                                    id="despawnTimeMinimumMinutes"
-                                    name="despawnTimeMinimumMinutes"
-                                    type="number"
-                                    variant="outlined"
-                                    label="Despawn Time Minimum (minutes)"
-                                    value={this.state.despawnTimeMinimumMinutes}
-                                    fullWidth
-                                    onChange={ (e) => this.handleChange(e) }
-                                />
-                            </Grid>
-                            <Grid item xs={6} sm={6}>
-                                <FormControlLabel control={<Switch defaultChecked />} label="Check For Duplicates" />
-                            </Grid>
-                        </Grid>
+                        <div style={{paddingBottom: '20px'}}>
+                            <Accordion expanded={this.state.expanded === 'panel1'} onChange={this.handlePanelExpanded('panel1')}>
+                                <AccordionSummary>
+                                    <Typography>General</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                        <Grid item xs={12} sm={12}>
+                                            <TextField
+                                                id="name"
+                                                name="name"
+                                                variant="outlined"
+                                                label="Name"
+                                                value={this.state.name}
+                                                fullWidth
+                                                onChange={this.handleChange}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6} sm={6}>
+                                            <TextField
+                                                id="host"
+                                                name="host"
+                                                variant="outlined"
+                                                label="Host"
+                                                value={this.state.host}
+                                                fullWidth
+                                                onChange={this.handleChange}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6} sm={6}>
+                                            <TextField
+                                                id="port"
+                                                name="port"
+                                                type="number"
+                                                variant="outlined"
+                                                label="Port"
+                                                value={this.state.port}
+                                                fullWidth
+                                                onChange={this.handleChange}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6} sm={6}>
+                                            <FormControl fullWidth>
+                                                <InputLabel id="locale-label">Locale</InputLabel>
+                                                <Select
+                                                    labelId="locale-label"
+                                                    id="locale"
+                                                    value={this.state.locale}
+                                                    label="Locale"
+                                                    onChange={ (e: SelectChangeEvent) => this.handleChange(e) }
+                                                >
+                                                    <MenuItem value="en">English</MenuItem>
+                                                    <MenuItem value="es">Spanish</MenuItem>
+                                                    <MenuItem value="de">German</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+                                        <Grid item xs={6} sm={6}>
+                                            <TextField
+                                                id="despawnTimeMinimumMinutes"
+                                                name="despawnTimeMinimumMinutes"
+                                                type="number"
+                                                variant="outlined"
+                                                label="Despawn Time Minimum (minutes)"
+                                                value={this.state.despawnTimeMinimumMinutes}
+                                                fullWidth
+                                                onChange={this.handleChange}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6} sm={6}>
+                                            <FormControlLabel control={<Switch defaultChecked />} label="Check For Duplicates" />
+                                        </Grid>
+                                        <Grid item xs={12} sm={12}>
+                                            <MultiSelect
+                                                id="discords"
+                                                title="Discord Servers"
+                                                allItems={this.state.discords}
+                                                selectedItems={Object.values(this.state.servers ?? {})}
+                                            />
+                                        </Grid>
+                                    </Grid>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion expanded={this.state.expanded === 'panel2'} onChange={this.handlePanelExpanded('panel2')}>
+                                <AccordionSummary>
+                                    <Typography>Databases</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                        <Grid item xs={12} sm={12}>
+                                            <Card>
+                                                <CardHeader title="Main" subheader="Main database for saving subscriptions" />
+                                                <CardContent>
+                                                    Test
+                                                </CardContent>
+                                            </Card>
+                                        </Grid>
+                                    </Grid>
+                                </AccordionDetails>
+                            </Accordion>
+                        </div>
                         <div className={classes.buttonContainer}>
                             <Button
                                 variant="contained"

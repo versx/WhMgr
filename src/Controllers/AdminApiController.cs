@@ -78,18 +78,18 @@
             return new JsonResult(configs);
         }
 
-        [HttpGet("config")]
+        [HttpGet("config/{fileName}")]
         [Produces("application/json")]
-        public IActionResult GetConfig(string id)
+        public IActionResult GetConfig(string fileName)
         {
-            var filePath = Path.Combine(Strings.ConfigsFolder, id + ".json");
+            var filePath = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
             if (!System.IO.File.Exists(filePath))
             {
                 //return BadRequest($"Config '{id}' does not exist");
                 return new JsonResult(new
                 {
                     status = "Error",
-                    error = $"Config '{id}' does not exist",
+                    error = $"Config '{fileName}' does not exist",
                 });
             }
             var config = LoadFromFile<Config>(filePath);
@@ -116,7 +116,7 @@
             });
         }
 
-        [HttpPost("config/edit/:fileName")]
+        [HttpPost("config/edit/{fileName}")]
         public async Task<IActionResult> UpdateConfig(string fileName)
         {
             var name = Request.Form["name"].ToString();
