@@ -229,7 +229,7 @@
                         // TODO: Localize "Empty"
                         ? "Empty"
                         : SlotsAvailable.ToString("N0"),
-                is_ar = IsArScanEligible,
+                is_ar = IsArScanEligible ?? false,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
