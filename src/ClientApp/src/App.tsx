@@ -1,24 +1,22 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
 import { Grid } from '@mui/material';
 
 import './App.css';
 
-import Navbar from './components/Navbar';
-import Leftbar from './components/Leftbar';
-import Rightbar from './components/Rightbar';
+import {
+  Navbar,
+  Leftbar,
+  Rightbar,
+} from './components/Nav';
 
 import Dashboard from './pages/Dashboard';
-import ListConfigs from './pages/Configs/ListConfigs';
-import EditConfig from './pages/Configs/EditConfig';
-import ListDiscords from './pages/Discords/ListDiscords';
-import EditDiscord from './pages/Discords/EditDiscord';
+import { ListConfigs, EditConfig } from './pages/Configs';
+import { ListDiscords, EditDiscord } from './pages/Discords';
 import ListAlarms from './pages/Alarms/ListAlarms';
-import ListFilters from './pages/Filters/ListFilters';
-import EditFilter from './pages/Filters/EditFilter';
-import ListEmbeds from './pages/Embeds/ListEmbeds';
-import EditEmbed from './pages/Embeds/EditEmbed';
+import { ListFilters, EditFilter } from './pages/Filters';
+import { ListEmbeds, EditEmbed } from './pages/Embeds';
 import ListGeofences from './pages/Geofences/ListGeofences';
 import ListRoles from './pages/Roles/ListRoles';
 import ListUsers from './pages/ListUsers';
