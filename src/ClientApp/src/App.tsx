@@ -14,7 +14,7 @@ import {
 import Dashboard from './pages/Dashboard';
 import { ListConfigs, EditConfig } from './pages/Configs';
 import { ListDiscords, EditDiscord } from './pages/Discords';
-import ListAlarms from './pages/Alarms/ListAlarms';
+import { ListAlarms, EditAlarm } from './pages/Alarms';
 import { ListFilters, EditFilter } from './pages/Filters';
 import { ListEmbeds, EditEmbed } from './pages/Embeds';
 import ListGeofences from './pages/Geofences/ListGeofences';
@@ -52,6 +52,7 @@ function App() {
                 <Route path={basePath + "discords"} element={<ListDiscords />} />
                 <Route path={basePath + "discord/:id"} element={<EditDiscord props={{}} />} />
                 <Route path={basePath + "alarms"} element={<ListAlarms />} />
+                <Route path={basePath + "alarm/:id"} element={<EditAlarm props={{}} />} />
                 <Route path={basePath + "filters"} element={<ListFilters />} />
                 <Route path={basePath + "filter/:id"} element={<EditFilter props={{}} />} />
                 <Route path={basePath + "embeds"} element={<ListEmbeds />} />

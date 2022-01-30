@@ -46,4 +46,4 @@ export function MultiSelect(props: MultiSelectProps) {
             </FormControl>
         </div>
     )
-}
+};

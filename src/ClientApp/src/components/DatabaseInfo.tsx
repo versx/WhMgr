@@ -86,4 +86,4 @@ export function DatabaseInfo(props: DatabaseProps) {
             </Grid>
         </div>
     );
-}
+};
