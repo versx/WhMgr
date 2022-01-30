@@ -119,7 +119,7 @@
             JsonPropertyName("ar_scan_eligible"),
             Column("ar_scan_eligible"),
         ]
-        public bool IsArScanEligible { get; set; }
+        public bool? IsArScanEligible { get; set; }
 
         [
             JsonIgnore,
@@ -295,7 +295,7 @@
                 invasion_expire_time_24h = InvasionExpireTime.ToString("HH:mm:ss"),
                 invasion_expire_time_left = invasionExpireTimeLeft,
                 invasion_encounters = invasionEncounters,
-                is_ar = IsArScanEligible,
+                is_ar = IsArScanEligible ?? false,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
