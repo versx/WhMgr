@@ -249,6 +249,32 @@
             return new JsonResult(alarms);
         }
 
+        [HttpGet("alarm/{fileName}")]
+        [Produces("application/json")]
+        public IActionResult GetAlarm(string fileName)
+        {
+            var filePath = Path.Combine(Strings.AlarmsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(filePath))
+            {
+                return BadRequest($"Alarm '{fileName}' does not exist");
+            }
+            var alarm = LoadFromFile<ChannelAlarmsManifest>(filePath);
+            var embedFiles = Directory.GetFiles(Strings.EmbedsFolder, "*.json");
+            var filterFiles = Directory.GetFiles(Strings.FiltersFolder, "*.json");
+            var geofenceFiles = Directory.GetFiles(Strings.GeofencesFolder);
+            return new JsonResult(new
+            {
+                status = "OK",
+                data = new
+                {
+                    alarm,
+                    embeds = embedFiles.Select(file => Path.GetFileName(file)),
+                    filters = filterFiles.Select(file => Path.GetFileName(file)),
+                    geofences = geofenceFiles.Select(file => Path.GetFileName(file)),
+                },
+            });
+        }
+
         #endregion
 
         #region Filters API
