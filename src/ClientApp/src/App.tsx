@@ -15,7 +15,8 @@ import EditConfig from './pages/Configs/EditConfig';
 import ListDiscords from './pages/Discords/ListDiscords';
 import EditDiscord from './pages/Discords/EditDiscord';
 import ListAlarms from './pages/ListAlarms';
-import ListFilters from './pages/ListFilters';
+import ListFilters from './pages/Filters/ListFilters';
+import EditFilter from './pages/Filters/EditFilter';
 import ListEmbeds from './pages/ListEmbeds';
 import ListGeofences from './pages/ListGeofences';
 import ListRoles from './pages/ListRoles';
@@ -53,6 +54,7 @@ function App() {
                 <Route path={basePath + "discord/:id"} element={<EditDiscord props={{}} />} />
                 <Route path={basePath + "alarms"} element={<ListAlarms />} />
                 <Route path={basePath + "filters"} element={<ListFilters />} />
+                <Route path={basePath + "filter/:id"} element={<EditFilter props={{}} />} />
                 <Route path={basePath + "embeds"} element={<ListEmbeds />} />
                 <Route path={basePath + "geofences"} element={<ListGeofences />} />
                 <Route path={basePath + "roles"} element={<ListRoles />} />

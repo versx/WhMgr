@@ -13,7 +13,7 @@ import {
     Edit as EditIcon,
 } from '@mui/icons-material';
 
-import config from '../config.json';
+import config from '../../config.json';
 
 
 const useStyles = makeStyles((theme: any) => ({
