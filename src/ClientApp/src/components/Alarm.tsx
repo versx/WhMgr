@@ -25,7 +25,7 @@ export interface AlarmProps {
 }
 
 export function Alarm(props: AlarmProps) {
-    console.log('alarm props:', props);
+    //console.log('alarm props:', props);
     const [name, setName] = useState(props.name);
     const [geofences, setGeofences] = useState(props.geofences);
     const [embeds, setEmbeds] = useState(props.embeds);
@@ -46,6 +46,16 @@ export function Alarm(props: AlarmProps) {
                     />
                 </Grid>
                 <Grid item xs={12} sm={12}>
+                    <TextField
+                        id="description"
+                        name="description"
+                        variant="outlined"
+                        label="Description"
+                        value={props.description}
+                        fullWidth
+                    />
+                </Grid>
+                <Grid item xs={12} sm={6}>
                     <FormControl fullWidth>
                         <InputLabel id="filters-label">Filters</InputLabel>
                         <Select
@@ -64,7 +74,7 @@ export function Alarm(props: AlarmProps) {
                         </Select>
                     </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={12}>
+                <Grid item xs={12} sm={6}>
                     <FormControl fullWidth>
                         <InputLabel id="embeds-label">Embeds</InputLabel>
                         <Select
@@ -102,16 +112,6 @@ export function Alarm(props: AlarmProps) {
                             })}
                         </Select>
                     </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={12}>
-                    <TextField
-                        id="description"
-                        name="description"
-                        variant="outlined"
-                        label="Description"
-                        value={props.description}
-                        fullWidth
-                    />
                 </Grid>
                 <Grid item xs={12} sm={12}>
                     <TextField

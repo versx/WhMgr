@@ -1,8 +1,5 @@
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
     Box,
     Button,
     Card,
@@ -12,14 +9,10 @@ import {
     FormControl,
     FormControlLabel,
     Grid,
-    InputLabel,
     List,
-    ListItem,
-    MenuItem,
     Select,
     SelectChangeEvent,
     Switch,
-    TextareaAutosize,
     TextField,
     Typography,
 } from '@mui/material';
@@ -29,6 +22,7 @@ import { Path, set, lensPath } from 'ramda';
 
 import config from '../../config.json';
 import { Alarm, AlarmProps } from '../../components/Alarm';
+import AddAlarmModal from '../../components/AddAlarmModal';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
@@ -51,6 +45,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
             alarms: [],
             alarm: {
             },
+            open: false,
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -137,6 +132,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
 
     render() {
         const handleCancel = () => window.location.href = '/configs';
+        const handleOpen = () => this.setState({ ['open']: true });
 
         const classes: any = makeStyles({
             container: {
@@ -176,7 +172,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
             selected: false,
         }, {
             text: 'Edit Alarm ' + this.props.params!.id,
-            color: 'text.primary',
+            color: 'primary',
             href: '',
             selected: true,
         }];
@@ -234,7 +230,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
                             <Card>
                                 <CardHeader title="Channel Alarms" />
                                 <CardContent>
-                                    <Button variant="contained" color="success">Add Alarm</Button>
+                                    <Button variant="contained" color="success" onClick={handleOpen}>Add Alarm</Button>
                                     <List style={{paddingTop: '20px'}}>
                                         {this.state.alarms.map((alarm: any) => {
                                             const props: AlarmProps = {
@@ -286,7 +282,12 @@ class EditAlarm extends React.Component<IGlobalProps> {
                         </div>
                     </Box>
                 </Container>
-
+                <AddAlarmModal key="addAlarmModal" {...{
+                    geofences: this.state.allGeofences,
+                    embeds: this.state.allEmbeds,
+                    filters: this.state.allFilters,
+                    open: this.state.open,
+                }} />
             </div>
         );
     }
