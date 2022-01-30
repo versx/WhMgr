@@ -13,7 +13,7 @@ import {
     Edit as EditIcon,
 } from '@mui/icons-material';
 
-import config from '../config.json';
+import config from '../../config.json';
 
 
 const useStyles = makeStyles((theme: any) => ({
@@ -40,17 +40,19 @@ const useStyles = makeStyles((theme: any) => ({
     },
 }));
 
-function ListConfigs() {
+function ListDiscords() {
     const columns: GridColDef[] = [
         { field: 'id', headerName: 'Name', flex: 1 },
+        { field: 'alarms', headerName: 'Alarms', flex: 1 },
+        { field: 'geofences', headerName: 'No. Geofences', flex: 1 },
         {
-            field: 'endpoint',
-            headerName: 'Endpoint',
-            width: 130,
+            field: 'subscriptions_enabled',
+            headerName: 'Subscriptions Enabled',
             flex: 1,
-            renderCell: (params) => params.row.host + ':' + params.row.port,
+            renderCell: (params) => params.row.subscriptions_enabled ? 'Yes' : 'No',
         },
-        { field: 'count', headerName: 'No. Servers', flex: 1 },
+        { field: 'embeds', headerName: 'Embeds', flex: 1 },
+        { field: 'icon_style', headerName: 'Icon Style', flex: 1 },
         {
             field: 'action',
             headerName: 'Action',
@@ -59,7 +61,7 @@ function ListConfigs() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/config/edit/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/discord/edit/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
@@ -71,12 +73,12 @@ function ListConfigs() {
         },
     ];
 
-    const [configs, setConfigs] = useState([]);
+    const [discords, setDiscords] = useState([]);
     useEffect(() => {
         refreshList();
     }, []);
     const refreshList = () => {
-        fetch(config.apiUrl + 'admin/configs', {
+        fetch(config.apiUrl + 'admin/discords', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -86,7 +88,7 @@ function ListConfigs() {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            setConfigs(data);
+            setDiscords(data);
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -94,29 +96,29 @@ function ListConfigs() {
     };
 
     const confirmDelete = (id: number): void => {
-        const result = window.confirm(`Are you sure you want to delete config ${id}?`);
+        const result = window.confirm(`Are you sure you want to delete discord ${id}?`);
         if (!result) {
             return;
         }
         // TODO: Send delete request
-        console.log('delete:', configs);
-        setConfigs(configs.filter((item: any) => item.id !== id));
+        console.log('delete:', discords);
+        setDiscords(discords.filter((item: any) => item.id !== id));
     };
 
     const classes = useStyles();
     return (
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
-                <Typography variant="h4" component="h1" className={classes.title}>Configs</Typography>
-                <Link to="/dashboard/config/new" className="link">
-                    <Button variant="contained" color="primary">New Config</Button>
+                <Typography variant="h4" component="h1" className={classes.title}>Discord Servers</Typography>
+                <Link to="/dashboard/discord/new" className="link">
+                    <Button variant="contained" color="primary">New Discord</Button>
                 </Link>
             </div>
             <p>
-                Configs are the heart of the program and only one is used per instance at a time.
+                Discord server configs are used by <a href="/dashboard/configs" >Configs</a> to determine what Discord server to report and respond to.
             </p>
             <DataGrid className={classes.table}
-                rows={configs}
+                rows={discords}
                 disableSelectionOnClick
                 columns={columns}
                 pageSize={10}
@@ -126,4 +128,4 @@ function ListConfigs() {
     );
 }
 
-export default ListConfigs;
+export default ListDiscords;

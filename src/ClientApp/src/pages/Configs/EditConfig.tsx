@@ -27,11 +27,11 @@ import { makeStyles } from '@mui/styles';
 
 import { Path, set, lensPath } from 'ramda';
 
-import config from '../config.json';
-import { DatabaseInfo } from '../components/DatabaseInfo';
-import { MultiSelect } from '../components/MultiSelect';
-import withRouter from '../hooks/WithRouter';
-import { IGlobalProps } from '../interfaces/IGlobalProps';
+import config from '../../config.json';
+import { DatabaseInfo } from '../../components/DatabaseInfo';
+import { MultiSelect } from '../../components/MultiSelect';
+import withRouter from '../../hooks/WithRouter';
+import { IGlobalProps } from '../../interfaces/IGlobalProps';
 
 /**
  * Flatten a multidimensional object
@@ -783,5 +783,4 @@ class EditConfig extends React.Component<IGlobalProps> {
     }
 }
 
-//export default EditConfig;
 export default withRouter(EditConfig);

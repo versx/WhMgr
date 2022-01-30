@@ -10,9 +10,10 @@ import Leftbar from './components/Leftbar';
 import Rightbar from './components/Rightbar';
 
 import Dashboard from './pages/Dashboard';
-import ListConfigs from './pages/ListConfigs';
-import EditConfig from './pages/EditConfig';
-import ListDiscords from './pages/ListDiscords';
+import ListConfigs from './pages/Configs/ListConfigs';
+import EditConfig from './pages/Configs/EditConfig';
+import ListDiscords from './pages/Discords/ListDiscords';
+import EditDiscord from './pages/Discords/EditDiscord';
 import ListAlarms from './pages/ListAlarms';
 import ListFilters from './pages/ListFilters';
 import ListEmbeds from './pages/ListEmbeds';
@@ -49,6 +50,7 @@ function App() {
                 <Route path={basePath + "config/new"} element={<ListConfigs />} />
                 <Route path={basePath + "config/:id"} element={<EditConfig props={{}} />} />
                 <Route path={basePath + "discords"} element={<ListDiscords />} />
+                <Route path={basePath + "discord/:id"} element={<EditDiscord props={{}} />} />
                 <Route path={basePath + "alarms"} element={<ListAlarms />} />
                 <Route path={basePath + "filters"} element={<ListFilters />} />
                 <Route path={basePath + "embeds"} element={<ListEmbeds />} />
