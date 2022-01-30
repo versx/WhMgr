@@ -59,7 +59,7 @@ function ListConfigs() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/config/edit/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/config/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>

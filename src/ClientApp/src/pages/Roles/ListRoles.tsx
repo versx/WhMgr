@@ -13,7 +13,7 @@ import {
     Edit as EditIcon,
 } from '@mui/icons-material';
 
-import config from '../config.json';
+import config from '../../config.json';
 
 
 const useStyles = makeStyles((theme: any) => ({
@@ -67,7 +67,7 @@ function ListRoles() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/role/edit/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/role/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>

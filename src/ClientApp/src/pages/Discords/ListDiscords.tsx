@@ -61,7 +61,7 @@ function ListDiscords() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/discord/edit/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/discord/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>

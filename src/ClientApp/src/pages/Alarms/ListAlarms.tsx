@@ -13,7 +13,7 @@ import {
     Edit as EditIcon,
 } from '@mui/icons-material';
 
-import config from '../config.json';
+import config from '../../config.json';
 
 
 const useStyles = makeStyles((theme: any) => ({
@@ -40,9 +40,46 @@ const useStyles = makeStyles((theme: any) => ({
     },
 }));
 
-function ListGeofences() {
+function ListAlarms() {
     const columns: GridColDef[] = [
         { field: 'id', headerName: 'Name', flex: 1 },
+        {
+            field: 'enable_pokemon',
+            headerName: 'Enable Pokemon',
+            flex: 1,
+            renderCell: (params) => params.row.enable_pokemon ? 'Yes' : 'No',
+        },
+        {
+            field: 'enable_raids',
+            headerName: 'Enable Raids',
+            flex: 1,
+            renderCell: (params) => params.row.enable_raids ? 'Yes' : 'No',
+        },
+        {
+            field: 'enable_gyms',
+            headerName: 'Enable Gyms',
+            flex: 1,
+            renderCell: (params) => params.row.enable_gyms ? 'Yes' : 'No',
+        },
+        {
+            field: 'enable_quests',
+            headerName: 'Enable Quests',
+            flex: 1,
+            renderCell: (params) => params.row.enable_quests ? 'Yes' : 'No',
+        },
+        {
+            field: 'enable_pokestops',
+            headerName: 'Enable Pokestops',
+            flex: 1,
+            renderCell: (params) => params.row.enable_pokestops ? 'Yes' : 'No',
+        },
+        {
+            field: 'enable_weather',
+            headerName: 'Enable Weather',
+            flex: 1,
+            renderCell: (params) => params.row.enable_weather ? 'Yes' : 'No',
+        },
+        { field: 'count', headerName: 'Count', flex: 1 },
         {
             field: 'action',
             headerName: 'Action',
@@ -51,7 +88,7 @@ function ListGeofences() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/geofence/edit/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/alarm/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
@@ -63,12 +100,12 @@ function ListGeofences() {
         },
     ];
 
-    const [geofences, setGeofences] = useState([]);
+    const [alarms, setAlarms] = useState([]);
     useEffect(() => {
         refreshList();
     }, []);
     const refreshList = () => {
-        fetch(config.apiUrl + 'admin/geofences', {
+        fetch(config.apiUrl + 'admin/alarms', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -78,7 +115,7 @@ function ListGeofences() {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            setGeofences(data);
+            setAlarms(data);
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -86,36 +123,36 @@ function ListGeofences() {
     };
 
     const confirmDelete = (id: number): void => {
-        const result = window.confirm(`Are you sure you want to delete geofence ${id}?`);
+        const result = window.confirm(`Are you sure you want to delete alarm ${id}?`);
         if (!result) {
             return;
         }
         // TODO: Send delete request
-        console.log('delete:', geofences);
-        setGeofences(geofences.filter((item: any) => item.id !== id));
+        console.log('delete:', alarms);
+        setAlarms(alarms.filter((item: any) => item.id !== id));
     };
 
     const classes = useStyles();
     return (
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
-                <Typography variant="h4" component="h1" className={classes.title}>Geofences</Typography>
-                <Link to="/dashboard/geofence/new" className="link">
-                    <Button variant="contained" color="primary">New Geofence</Button>
+                <Typography variant="h4" component="h1" className={classes.title}>Channel Alarms</Typography>
+                <Link to="/dashboard/alarm/new" className="link">
+                    <Button variant="contained" color="primary">New Alarm</Button>
                 </Link>
             </div>
             <p>
-                Geofences define a scan areas borders.
+                Channel alarms are pre-defined configs that specify what data to report to a Discord server's channel via webhooks.
             </p>
             <DataGrid className={classes.table}
-                rows={geofences}
+                rows={alarms}
                 disableSelectionOnClick
                 columns={columns}
-                pageSize={25}
+                pageSize={10}
                 checkboxSelection
             />
         </div>
     );
 }
 
-export default ListGeofences;
+export default ListAlarms;

@@ -14,13 +14,13 @@ import ListConfigs from './pages/Configs/ListConfigs';
 import EditConfig from './pages/Configs/EditConfig';
 import ListDiscords from './pages/Discords/ListDiscords';
 import EditDiscord from './pages/Discords/EditDiscord';
-import ListAlarms from './pages/ListAlarms';
+import ListAlarms from './pages/Alarms/ListAlarms';
 import ListFilters from './pages/Filters/ListFilters';
 import EditFilter from './pages/Filters/EditFilter';
 import ListEmbeds from './pages/Embeds/ListEmbeds';
 import EditEmbed from './pages/Embeds/EditEmbed';
-import ListGeofences from './pages/ListGeofences';
-import ListRoles from './pages/ListRoles';
+import ListGeofences from './pages/Geofences/ListGeofences';
+import ListRoles from './pages/Roles/ListRoles';
 import ListUsers from './pages/ListUsers';
 import Settings from './pages/Settings';
 

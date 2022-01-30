@@ -111,7 +111,7 @@ function ListEmbeds() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/embed/edit/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/embed/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
