@@ -31,28 +31,6 @@ import config from '../../config.json';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 
-/**
- * Flatten a multidimensional object
- *
- * For example:
- *   flattenObject{ a: 1, b: { c: 2 } }
- * Returns:
- *   { a: 1, c: 2}
- */
-export const flattenObject = (obj: any, parent?: string) => {
-    const flattened: any = {}
-    Object.keys(obj).forEach((key) => {
-        const value = obj[key];
-        const keyed = parent ? parent + '.' + key : key;
-        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-            Object.assign(flattened, flattenObject(value, keyed));
-        } else {
-            flattened[keyed] = value;
-        }
-    });  
-    return flattened
-}
-
 class EditDiscord extends React.Component<IGlobalProps> {
     public state: any;
 
@@ -62,11 +40,14 @@ class EditDiscord extends React.Component<IGlobalProps> {
         this.state = {
             // TODO: Set default state values
             name: props.params!.id,
-            geofences: ['en'],
-            donorRoles: ['en'],
-            moderatorRoles: ['en'],
+            geofences: [],
+            donorRoles: [],
+            moderatorRoles: [],
             freeRoleName: '',
-            alarms: 'en',
+            alarms: '',
+            allAlarms: [],
+            allGeofences: [],
+            allIconStyles: [],
             iconStyle: '',
             bot: {
                 commandPrefix: '.',
@@ -138,16 +119,15 @@ class EditDiscord extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            //console.log('config data:', data);
-            //this.setState(data.data.config);
-            const flat = flattenObject(data.data.config);
-            console.log('flat config:', flat);
-            const keys: string[] = Object.keys(data.data.config);
+            console.log('discord data:', data);
+            //this.setState(data.data.discord);
+            const keys: string[] = Object.keys(data.data.discord);
             for (const key of keys) {
-                //console.log('key:', key, 'data:', data.data.config[key]);
-                this.setState({ [key]: data.data.config[key] });
+                //console.log('key:', key, 'data:', data.data.discord[key]);
+                this.setState({ [key]: data.data.discord[key] });
             }
-            this.setState({ ['discords']: Object.values(data.data.discords) });
+            this.setState({ ['allAlarms']: data.data.allAlarms });
+            this.setState({ ['allGeofences']: data.data.allGeofences });
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -311,9 +291,11 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                     label="Alarms"
                                                     onChange={ (e: SelectChangeEvent) => this.handleChange(e) }
                                                 >
-                                                    <MenuItem value="en">English</MenuItem>
-                                                    <MenuItem value="es">Spanish</MenuItem>
-                                                    <MenuItem value="de">German</MenuItem>
+                                                    {this.state.allAlarms.map((alarm: string) => {
+                                                        return (
+                                                            <MenuItem value={alarm}>{alarm}</MenuItem>
+                                                        );
+                                                    })}
                                                 </Select>
                                             </FormControl>
                                         </Grid>
@@ -329,15 +311,17 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                     label="Geofences"
                                                     onChange={ (e: SelectChangeEvent) => this.handleChange(e) }
                                                 >
-                                                    <MenuItem value="en">English</MenuItem>
-                                                    <MenuItem value="es">Spanish</MenuItem>
-                                                    <MenuItem value="de">German</MenuItem>
+                                                    {this.state.allGeofences.map((geofence: string) => {
+                                                        return (
+                                                            <MenuItem value={geofence}>{geofence}</MenuItem>
+                                                        );
+                                                    })}
                                                 </Select>
                                             </FormControl>
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
-                                                <InputLabel id="geofences-label">Icon Style</InputLabel>
+                                                <InputLabel id="iconStyle-label">Icon Style</InputLabel>
                                                 <Select
                                                     labelId="iconStyle-label"
                                                     id="iconStyle"
@@ -346,7 +330,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                     label="Icon Style"
                                                     onChange={ (e: SelectChangeEvent) => this.handleChange(e) }
                                                 >
-                                                    <MenuItem value="en">English</MenuItem>
+                                                    <MenuItem value="Default">Default</MenuItem>
                                                     <MenuItem value="es">Spanish</MenuItem>
                                                     <MenuItem value="de">German</MenuItem>
                                                 </Select>
