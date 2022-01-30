@@ -17,22 +17,22 @@ interface BreadCrumbItem {
 }
 
 export function BreadCrumbs(props: BreadCrumbProps) {
-    console.log('crumbs:', props);
     return (
         <div role="presentation" style={{paddingTop: '10px', paddingBottom: '30px'}}>
             <Breadcrumbs aria-label="breadcrumb">
                 {props.crumbs.map((crumb: BreadCrumbItem) => {
-                        return (
-                            crumb.selected
-                            ? <Typography>{crumb.text}</Typography>
-                            : <Link
-                                underline="hover"
-                                color={crumb.color}
-                                href={crumb.href}
-                            >
-                                {crumb.text}
-                            </Link>
-                        )
+                    return (
+                        crumb.selected
+                        ? <Typography key={crumb.text}>{crumb.text}</Typography>
+                        : <Link
+                            key={crumb.text}
+                            underline="hover"
+                            color={crumb.color}
+                            href={crumb.href}
+                        >
+                            {crumb.text}
+                        </Link>
+                    );
                 })}
             </Breadcrumbs>
         </div>
