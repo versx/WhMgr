@@ -85,7 +85,6 @@
             var filePath = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
             if (!System.IO.File.Exists(filePath))
             {
-                //return BadRequest($"Config '{id}' does not exist");
                 return new JsonResult(new
                 {
                     status = "Error",
@@ -116,15 +115,21 @@
             });
         }
 
-        [HttpPost("config/edit/{fileName}")]
-        public async Task<IActionResult> UpdateConfig(string fileName)
+        [HttpPost("config/{fileName}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> UpdateConfig(string fileName)//, Config data)
         {
-            var name = Request.Form["name"].ToString();
-            var filePath = Path.Combine(Strings.ConfigsFolder, name + ".json");
-            if (System.IO.File.Exists(filePath))
+            var data = await Request.GetRawBodyStringAsync();
+            Console.WriteLine($"data: {data}");
+            var jsonStr = data.FromJson<dynamic>();
+            Console.WriteLine($"json: {jsonStr}");
+            // TODO: Construct config and save
+
+            var filePath = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(filePath))
             {
                 // Config file with name already exists
-                return BadRequest($"Config file at location '{filePath}' already exists");
+                return BadRequest($"Config file at location '{filePath}' does not exist");
             }
             var config = new Config();
             var configForm = ConfigFromForm(config, Request.Form);
@@ -170,6 +175,42 @@
                 }
             }
             return new JsonResult(discords);
+        }
+
+        [HttpGet("discord/{fileName}")]
+        [Produces("application/json")]
+        public IActionResult GetDiscord(string fileName)
+        {
+            var filePath = Path.Combine(Strings.DiscordsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(filePath))
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    error = $"Discord '{fileName}' does not exist",
+                });
+            }
+            var discord = LoadFromFile<DiscordServerConfig>(filePath);
+
+            var geofenceFiles = Directory.GetFiles(Strings.GeofencesFolder);
+            var validGeofences = new[] { ".json", ".txt" };
+            var geofences = geofenceFiles.Where(f => validGeofences.Contains(Path.GetExtension(f)))
+                                         .Select(f => Path.GetFileName(f));
+
+            var alarms = Directory.GetFiles(Strings.AlarmsFolder, "*.json").Select(f => Path.GetFileName(f));
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                data = new
+                {
+                    discord,
+                    allGeofences = geofences,
+                    allAlarms = alarms
+                    // TODO: Include roles.json
+                    // TODO: Include icon styles
+                },
+            });
         }
 
         #endregion
@@ -241,6 +282,31 @@
                 }
             }
             return new JsonResult(filters);
+        }
+
+        [HttpGet("filter/{fileName}")]
+        [Produces("application/json")]
+        public IActionResult GetFilter(string fileName)
+        {
+            var filePath = Path.Combine(Strings.FiltersFolder, fileName + ".json");
+            if (!System.IO.File.Exists(filePath))
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    error = $"Filter '{fileName}' does not exist",
+                });
+            }
+            var filter = LoadFromFile<WebhookFilter>(filePath);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                data = new
+                {
+                    filter,
+                },
+            });
         }
 
         #endregion
