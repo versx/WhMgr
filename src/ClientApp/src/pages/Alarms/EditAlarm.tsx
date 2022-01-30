@@ -28,6 +28,7 @@ import { makeStyles } from '@mui/styles';
 import { Path, set, lensPath } from 'ramda';
 
 import config from '../../config.json';
+import { Alarm, AlarmProps } from '../../components/Alarm';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
@@ -41,7 +42,15 @@ class EditAlarm extends React.Component<IGlobalProps> {
         this.state = {
             // TODO: Set default state values
             name: props.params!.id,
+            enablePokemon: false,
+            enableRaids: false,
+            enableQuests: false,
+            enablePokestops: false,
+            enableGyms: false,
+            enableWeather: false,
             alarms: [],
+            alarm: {
+            },
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -69,11 +78,15 @@ class EditAlarm extends React.Component<IGlobalProps> {
             //this.setState(data.data.alarm);
             const keys: string[] = Object.keys(data.data.alarm);
             for (const key of keys) {
-                //console.log('key:', key, 'data:', data.data.alarm[key]);
+                console.log('key:', key, 'data:', data.data.alarm[key]);
                 if (data.data.alarm[key]) {
                     this.setState({ [key]: data.data.alarm[key] });
                 }
             }
+            this.setState({ ['allEmbeds']: data.data.embeds });
+            this.setState({ ['allFilters']: data.data.filters });
+            this.setState({ ['allGeofences']: data.data.geofences });
+            console.log('state:', this.state);
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -181,9 +194,20 @@ class EditAlarm extends React.Component<IGlobalProps> {
                         </Typography>
                         <div style={{paddingBottom: '10px', paddingTop: '20px'}}>
                             <Card>
-                                <CardHeader title="Global Management" />
+                                <CardHeader title="General" />
                                 <CardContent>
                                     <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={12}>
+                                            <TextField
+                                                id="name"
+                                                name="name"
+                                                variant="outlined"
+                                                label="Name"
+                                                value={this.state.name}
+                                                fullWidth
+                                                onChange={this.handleChange}
+                                            />
+                                        </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <FormControlLabel id="enablePokemon" name="enablePokemon" control={<Switch checked={this.state.enablePokemon} />} label="Enable Pokemon" />
                                         </Grid>
@@ -210,8 +234,35 @@ class EditAlarm extends React.Component<IGlobalProps> {
                             <Card>
                                 <CardHeader title="Channel Alarms" />
                                 <CardContent>
-                                    <List>
-                                        <ListItem>Test</ListItem>
+                                    <Button variant="contained" color="success">Add Alarm</Button>
+                                    <List style={{paddingTop: '20px'}}>
+                                        {this.state.alarms.map((alarm: any) => {
+                                            const props: AlarmProps = {
+                                                ...alarm,
+                                                allGeofences: this.state.allGeofences,
+                                                allFilters: this.state.allFilters,
+                                                allEmbeds: this.state.allEmbeds,
+                                            };
+                                            const handleDelete = (name: string) => {
+                                                const alarms = this.state.alarms;
+                                                console.log('delete alarm:', name, 'alarms:', alarms);
+                                                const newAlarms = alarms.filter((item: any) => item.name !== name);
+                                                console.log('alarms:', alarms.length, 'newList:', newAlarms.length);
+                                                this.setState({ ['alarms']: newAlarms })
+                                            };
+                                            return (
+                                                <div style={{paddingBottom: '20px'}}>
+                                                    <Alarm {...props} />
+                                                    <Button
+                                                        variant="contained"
+                                                        color="error"
+                                                        onClick={() => handleDelete(props.name)}
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                </div>
+                                            );
+                                        })}
                                     </List>
                                 </CardContent>
                             </Card>
