@@ -194,6 +194,10 @@ class EditAlarm extends React.Component<IGlobalProps> {
             this.setState({ ['alarms']: alarms });
         };
 
+        const handleCheckbox = (event: any) => {
+            this.setState({ [event.target.name]: event.target.checked });
+        };
+
         return (
             <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
                 <Container>
@@ -222,22 +226,51 @@ class EditAlarm extends React.Component<IGlobalProps> {
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
-                                            <FormControlLabel id="enablePokemon" name="enablePokemon" control={<Switch checked={this.state.enablePokemon} />} label="Enable Pokemon" />
+                                            <FormControlLabel
+                                                id="enablePokemon"
+                                                name="enablePokemon"
+                                                control={<Switch checked={this.state.enablePokemon} onChange={handleCheckbox} />}
+                                                label="Enable Pokemon"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
-                                            <FormControlLabel id="enableRaids" name="enableRaids" control={<Switch checked={this.state.enableRaids} />} label="Enable Raids" />
+                                            <FormControlLabel
+                                                id="enableRaids"
+                                                name="enableRaids"
+                                                control={<Switch checked={this.state.enableRaids} onChange={handleCheckbox} />}
+                                                label="Enable Raids"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
-                                            <FormControlLabel id="enableQuests" name="enableQuests" control={<Switch checked={this.state.enableQuests} />} label="Enable Quests" />
+                                            <FormControlLabel
+                                                id="enableQuests"
+                                                name="enableQuests"
+                                                control={<Switch checked={this.state.enableQuests} onChange={handleCheckbox} />}
+                                                label="Enable Quests" />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
-                                            <FormControlLabel id="enablePokestops" name="enablePokestops" control={<Switch checked={this.state.enablePokestops} />} label="Enable Pokestops" />
+                                            <FormControlLabel
+                                                id="enablePokestops"
+                                                name="enablePokestops"
+                                                control={<Switch checked={this.state.enablePokestops} onChange={handleCheckbox} />}
+                                                label="Enable Pokestops"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
-                                            <FormControlLabel id="enableGyms" name="enableGyms" control={<Switch checked={this.state.enableGyms} />} label="Enable Gyms" />
+                                            <FormControlLabel
+                                                id="enableGyms"
+                                                name="enableGyms"
+                                                control={<Switch checked={this.state.enableGyms} onChange={handleCheckbox} />}
+                                                label="Enable Gyms"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
-                                            <FormControlLabel id="enableWeather" name="enableWeather" control={<Switch checked={this.state.enableWeather} />} label="Enable Weather" />
+                                            <FormControlLabel
+                                                id="enableWeather"
+                                                name="enableWeather"
+                                                control={<Switch checked={this.state.enableWeather} onChange={handleCheckbox} />}
+                                                label="Enable Weather"
+                                            />
                                         </Grid>
                                     </Grid>
                                 </CardContent>
@@ -303,7 +336,6 @@ class EditAlarm extends React.Component<IGlobalProps> {
                     filters: this.state.allFilters,
                     open: this.state.open,
                     toggle: toggleModal,
-                    onChange: this.handleChange,
                     onSubmit: onModalSubmit,
                 }} />
             </div>

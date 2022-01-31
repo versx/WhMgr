@@ -18,8 +18,7 @@ interface AddAlarmProps {
     geofences: string[];
     open: boolean;
     toggle: React.MouseEventHandler<HTMLButtonElement> | undefined;
-    onChange: any; //React.ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement> | undefined;
-    onSubmit: any;
+    onSubmit: any; //React.ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement> | undefined;
 }
 
 export function AddAlarmModal(props: AddAlarmProps) {
