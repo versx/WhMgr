@@ -43,8 +43,6 @@ class EditAlarm extends React.Component<IGlobalProps> {
             enableGyms: false,
             enableWeather: false,
             alarms: [],
-            alarm: {
-            },
             allEmbeds: [],
             allFilters: [],
             allGeofences: [],
@@ -120,10 +118,11 @@ class EditAlarm extends React.Component<IGlobalProps> {
         }).then(async (response) => await response.json())
           .then((data: any) => {
             console.log('response:', data);
-
+            // TODO: Show success/error notification
         }).catch((err) => {
             console.error('error:', err);
             event.preventDefault();
+            // TODO: Show error notification
         });
     }
 

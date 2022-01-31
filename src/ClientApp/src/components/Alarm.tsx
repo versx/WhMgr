@@ -23,14 +23,18 @@ export interface AlarmProps {
 
 export function Alarm(props: AlarmProps) {
     //console.log('alarm props:', props);
-    const [name, setName] = useState(props.name ?? '');
-    const [description, setDescription] = useState(props.description ?? '');
-    const [geofences, setGeofences] = useState(props.geofences ?? []);
-    const realEmbed = props.allEmbeds.filter(e => e === props.embeds);
-    const [embeds, setEmbeds] = useState(realEmbed[0] ?? '');
-    const realFilter = props.allFilters.filter(f => f === props.filters);
-    const [filters, setFilters] = useState(realFilter[0] ?? '');
-    const [webhook, setWebhook] = useState(props.webhook ?? '');
+    const [state, setState] = useState({
+        name: props.name ?? '',
+        description: props.description ?? '',
+        geofences: props.geofences ?? [],
+        embeds: props.allEmbeds.filter(e => e === props.embeds)[0] ?? '',
+        filters: props.allFilters.filter(f => f === props.filters)[0] ?? '',
+        webhook: props.webhook ?? '',
+    });
+
+    const onInputChange = (e: any) => {
+        setState({ ...state, [e.target.name]: e.target.value });
+    };
 
     return (
         <div>
@@ -41,9 +45,9 @@ export function Alarm(props: AlarmProps) {
                         name="name"
                         variant="outlined"
                         label="Name"
-                        value={name}
+                        value={state.name}
                         fullWidth
-                        onChange={() => setName(name)}
+                        onChange={onInputChange}
                     />
                 </Grid>
                 <Grid item xs={12} sm={12}>
@@ -52,9 +56,9 @@ export function Alarm(props: AlarmProps) {
                         name="description"
                         variant="outlined"
                         label="Description"
-                        value={description}
+                        value={state.description}
                         fullWidth
-                        onChange={() => setDescription(description)}
+                        onChange={onInputChange}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -64,9 +68,9 @@ export function Alarm(props: AlarmProps) {
                             labelId="filters-label"
                             id="filters"
                             name="filters"
-                            value={filters}
+                            value={state.filters}
                             label="Filters"
-                            onChange={() => setFilters(filters)}
+                            onChange={onInputChange}
                         >
                             {props.allFilters && props.allFilters.map((filter: string) => {
                                 return (
@@ -83,10 +87,9 @@ export function Alarm(props: AlarmProps) {
                             labelId="embeds-label"
                             id="embeds"
                             name="embeds"
-                            value={embeds}
-                            defaultValue="default.json"
+                            value={state.embeds}
                             label="Embeds"
-                            onChange={() => setEmbeds(embeds)}
+                            onChange={onInputChange}
                         >
                             {props.allEmbeds && props.allEmbeds.map((embed: string) => {
                                 return (
@@ -103,11 +106,10 @@ export function Alarm(props: AlarmProps) {
                             labelId="geofences-label"
                             id="geofences"
                             name="geofences"
-                            value={geofences}
-                            defaultValue={[]}
+                            value={state.geofences}
                             multiple
                             label="Geofences"
-                            onChange={() => setGeofences(geofences)}
+                            onChange={onInputChange}
                         >
                             {props.allGeofences && props.allGeofences.map((geofence: string) => {
                                 return (
@@ -123,9 +125,9 @@ export function Alarm(props: AlarmProps) {
                         name="webhook"
                         variant="outlined"
                         label="Discord Webhook"
-                        value={webhook}
+                        value={state.webhook}
                         fullWidth
-                        onChange={() => setWebhook(webhook)}
+                        onChange={onInputChange}
                     />
                 </Grid>
             </Grid>
