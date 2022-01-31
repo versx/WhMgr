@@ -70,7 +70,7 @@
             JsonPropertyName("ex_raid_eligible"),
             Column("ex_raid_eligible"),
         ]
-        public bool? IsExEligible { get; set; }
+        public bool IsExEligible { get; set; }
 
         [
             JsonPropertyName("sponsor_id"),
@@ -219,7 +219,7 @@
                 team_changed = oldGym?.Team != Team,
                 in_battle = InBattle,
                 under_attack = InBattle,
-                is_ex = IsExEligible ?? false,
+                is_ex = IsExEligible,
                 sponsor_id = Convert.ToString(SponsorId),
                 ex_emoji = exEmoji,
                 slots_available = SlotsAvailable == 0

@@ -34,6 +34,20 @@
         }
 
         [Test]
+        [TestCase("Visit <#1234567890> for more info")]
+        [TestCase("This Pokemon was IV scanned. For access to IV channels, please consider taking a look at <#286309264446849025> for more information!")]
+        public void Test_TemplateHtmlChars_ReturnsTrue(string text)
+        {
+            var templateModel = new
+            {
+                test = "John",
+            };
+            var result = TemplateRenderer.Parse(text, templateModel);
+            Assert.IsNotEmpty(result);
+            Assert.AreEqual(text, result);
+        }
+
+        [Test]
         public void Test_TemplateForEach_ReturnsIsEqual()
         {
             var template = "{{#each products}}<b>{{name}}</b> {{type}}<br>{{/each}}";

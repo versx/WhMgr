@@ -26,10 +26,12 @@ export interface AlarmProps {
 
 export function Alarm(props: AlarmProps) {
     //console.log('alarm props:', props);
-    const [name, setName] = useState(props.name);
-    const [geofences, setGeofences] = useState(props.geofences);
-    const [embeds, setEmbeds] = useState(props.embeds);
-    const [filters, setFilters] = useState(props.filters);
+    const [name, setName] = useState(props.name ?? '');
+    const [description, setDescription] = useState(props.description ?? '');
+    const [geofences, setGeofences] = useState(props.geofences ?? []);
+    const [embeds, setEmbeds] = useState(props.embeds ?? '');
+    const [filters, setFilters] = useState(props.filters ?? '');
+    const [webhook, setWebhook] = useState(props.webhook ?? '');
 
     return (
         <div key={props.name}>
@@ -51,8 +53,9 @@ export function Alarm(props: AlarmProps) {
                         name="description"
                         variant="outlined"
                         label="Description"
-                        value={props.description}
+                        value={description}
                         fullWidth
+                        onChange={() => setDescription(description)}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -119,8 +122,9 @@ export function Alarm(props: AlarmProps) {
                         name="webhook"
                         variant="outlined"
                         label="Discord Webhook"
-                        value={props.webhook}
+                        value={webhook}
                         fullWidth
+                        onChange={() => setWebhook(webhook)}
                     />
                 </Grid>
             </Grid>

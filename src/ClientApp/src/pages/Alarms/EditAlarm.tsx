@@ -45,6 +45,9 @@ class EditAlarm extends React.Component<IGlobalProps> {
             alarms: [],
             alarm: {
             },
+            allEmbeds: [],
+            allFilters: [],
+            allGeofences: [],
             open: false,
         };
         this.handleChange = this.handleChange.bind(this);
@@ -73,7 +76,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
             //this.setState(data.data.alarm);
             const keys: string[] = Object.keys(data.data.alarm);
             for (const key of keys) {
-                console.log('key:', key, 'data:', data.data.alarm[key]);
+                //console.log('key:', key, 'data:', data.data.alarm[key]);
                 if (data.data.alarm[key]) {
                     this.setState({ [key]: data.data.alarm[key] });
                 }
@@ -81,7 +84,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
             this.setState({ ['allEmbeds']: data.data.embeds });
             this.setState({ ['allFilters']: data.data.filters });
             this.setState({ ['allGeofences']: data.data.geofences });
-            console.log('state:', this.state);
+            //console.log('state:', this.state);
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -247,12 +250,12 @@ class EditAlarm extends React.Component<IGlobalProps> {
                                                 this.setState({ ['alarms']: newAlarms })
                                             };
                                             return (
-                                                <div style={{paddingBottom: '20px'}}>
+                                                <div key={alarm.name} style={{paddingBottom: '20px'}}>
                                                     <Alarm {...props} />
                                                     <Button
                                                         variant="contained"
                                                         color="error"
-                                                        onClick={() => handleDelete(props.name)}
+                                                        onClick={() => handleDelete(alarm.name)}
                                                     >
                                                         Remove
                                                     </Button>

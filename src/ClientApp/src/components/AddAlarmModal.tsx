@@ -13,7 +13,7 @@ interface AddAlarmProps {
 }
 
 export default function AddAlarmModal(props: AddAlarmProps) {
-    console.log('add alarm props:', props);
+    console.log('add alarm modal props:', props);
     const [open, setOpen] = useState(props.open);
     //const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
