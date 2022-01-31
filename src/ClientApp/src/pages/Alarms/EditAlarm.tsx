@@ -280,7 +280,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
                                 <CardHeader title="Channel Alarms" />
                                 <CardContent>
                                     <Button variant="contained" color="success" onClick={toggleModal}>Add Alarm</Button>
-                                    <List style={{paddingTop: '20px'}}>
+                                    <List style={{paddingTop: '20px', maxHeight: 800, overflow: 'auto'}}>
                                         {this.state.alarms.map((alarm: any) => {
                                             const props: AlarmProps = {
                                                 ...alarm,
