@@ -22,7 +22,7 @@ import { Path, set, lensPath } from 'ramda';
 
 import config from '../../config.json';
 import { Alarm, AlarmProps } from '../../components/Alarm';
-import AddAlarmModal from '../../components/AddAlarmModal';
+import { AddAlarmModal } from '../../components/AddAlarmModal';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
@@ -93,7 +93,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
 
     handleChange(event: any) {
         const { name, value } = event.target;
-        console.log('event:', event);
+        //console.log('event:', event);
         //this.setState({ [name]: value });
         this.setState(state => ({ ...state, [name]: value }));
         //this.setObjectByPath([name], value);
@@ -135,7 +135,6 @@ class EditAlarm extends React.Component<IGlobalProps> {
 
     render() {
         const handleCancel = () => window.location.href = '/configs';
-        const handleOpen = () => this.setState({ ['open']: true });
 
         const classes: any = makeStyles({
             container: {
@@ -180,10 +179,25 @@ class EditAlarm extends React.Component<IGlobalProps> {
             selected: true,
         }];
 
+        const toggleModal = () => {
+            this.setState({ ['open']: !this.state.open });
+            if (!this.state.open) {
+                console.log('this.state:', this.state);
+            }
+        };
+
+        const onModalSubmit = (data: any) => {
+            //console.log('modal submit data:', data);
+            // Add alarm to list/update state
+            const alarms = this.state.alarms;
+            alarms.push(data);
+            this.setState({ ['alarms']: alarms });
+        };
+
         return (
             <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
                 <Container>
-                    <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
+                    <Box component="form" method="POST" action="" onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
                         <BreadCrumbs crumbs={breadcrumbs} />
                         <Typography variant="h5" component="h2" >
                             Edit Alarm {this.props.params!.id}
@@ -233,7 +247,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
                             <Card>
                                 <CardHeader title="Channel Alarms" />
                                 <CardContent>
-                                    <Button variant="contained" color="success" onClick={handleOpen}>Add Alarm</Button>
+                                    <Button variant="contained" color="success" onClick={toggleModal}>Add Alarm</Button>
                                     <List style={{paddingTop: '20px'}}>
                                         {this.state.alarms.map((alarm: any) => {
                                             const props: AlarmProps = {
@@ -244,9 +258,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
                                             };
                                             const handleDelete = (name: string) => {
                                                 const alarms = this.state.alarms;
-                                                console.log('delete alarm:', name, 'alarms:', alarms);
                                                 const newAlarms = alarms.filter((item: any) => item.name !== name);
-                                                console.log('alarms:', alarms.length, 'newList:', newAlarms.length);
                                                 this.setState({ ['alarms']: newAlarms })
                                             };
                                             return (
@@ -290,6 +302,9 @@ class EditAlarm extends React.Component<IGlobalProps> {
                     embeds: this.state.allEmbeds,
                     filters: this.state.allFilters,
                     open: this.state.open,
+                    toggle: toggleModal,
+                    onChange: this.handleChange,
+                    onSubmit: onModalSubmit,
                 }} />
             </div>
         );

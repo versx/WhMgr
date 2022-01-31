@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import {
-    Button,
     FormControl,
     Grid,
     InputLabel,
     MenuItem,
     Select,
-    SelectChangeEvent,
     TextField,
-    Typography,
 } from '@mui/material';
 
 export interface AlarmProps {
@@ -29,12 +26,14 @@ export function Alarm(props: AlarmProps) {
     const [name, setName] = useState(props.name ?? '');
     const [description, setDescription] = useState(props.description ?? '');
     const [geofences, setGeofences] = useState(props.geofences ?? []);
-    const [embeds, setEmbeds] = useState(props.embeds ?? '');
-    const [filters, setFilters] = useState(props.filters ?? '');
+    const realEmbed = props.allEmbeds.filter(e => e === props.embeds);
+    const [embeds, setEmbeds] = useState(realEmbed[0] ?? '');
+    const realFilter = props.allFilters.filter(f => f === props.filters);
+    const [filters, setFilters] = useState(realFilter[0] ?? '');
     const [webhook, setWebhook] = useState(props.webhook ?? '');
 
     return (
-        <div key={props.name}>
+        <div>
             <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '10px'}}>
                 <Grid item xs={12} sm={12}>
                     <TextField
@@ -85,6 +84,7 @@ export function Alarm(props: AlarmProps) {
                             id="embeds"
                             name="embeds"
                             value={embeds}
+                            defaultValue="default.json"
                             label="Embeds"
                             onChange={() => setEmbeds(embeds)}
                         >
@@ -104,6 +104,7 @@ export function Alarm(props: AlarmProps) {
                             id="geofences"
                             name="geofences"
                             value={geofences}
+                            defaultValue={[]}
                             multiple
                             label="Geofences"
                             onChange={() => setGeofences(geofences)}
