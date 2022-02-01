@@ -37,7 +37,9 @@ class EditRole extends React.Component<IGlobalProps> {
         this.state = {
             // TODO: Set default state values
             name: props.params!.id,
-            geofences: [],
+            moderator: false,
+            permissions: [],
+            roleId: '',
         };
         this.onInputChange = this.onInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -66,6 +68,7 @@ class EditRole extends React.Component<IGlobalProps> {
             for (const key of keys) {
                 this.setState({ [key]: data.data.role[key] });
             }
+            this.setState({ ['roleId']: data.data.roleId });
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -161,7 +164,62 @@ class EditRole extends React.Component<IGlobalProps> {
                             Discord role description goes here
                         </Typography>
                         <div style={{paddingBottom: '20px', paddingTop: '20px'}}>
-
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        id="name"
+                                        name="name"
+                                        variant="outlined"
+                                        label="Name"
+                                        type="text"
+                                        value={this.state.name}
+                                        fullWidth
+                                        onChange={this.onInputChange}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        id="roleId"
+                                        name="roleId"
+                                        variant="outlined"
+                                        label="Discord ID"
+                                        type="number"
+                                        value={this.state.roleId}
+                                        fullWidth
+                                        onChange={this.onInputChange}
+                                    />
+                                </Grid>
+                                <Grid item xs={12} sm={12}>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="permissions-label">Permissions</InputLabel>
+                                        <Select
+                                            labelId="permissions-label"
+                                            id="permissions"
+                                            name="permissions"
+                                            value={this.state.permissions}
+                                            multiple
+                                            label="Permissions"
+                                            onChange={this.onInputChange}
+                                        >
+                                            <MenuItem value="Pokemon">Pokemon</MenuItem>
+                                            <MenuItem value="PvP">PvP</MenuItem>
+                                            <MenuItem value="Raids">Raids</MenuItem>
+                                            <MenuItem value="Quests">Quests</MenuItem>
+                                            <MenuItem value="Invasions">Invasions</MenuItem>
+                                            <MenuItem value="Lures">Lures</MenuItem>
+                                            <MenuItem value="Gyms">Gyms</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={12} sm={12}>
+                                    <FormControlLabel
+                                        id="moderator"
+                                        name="moderator"
+                                        control={<Switch checked={this.state.moderator} onChange={this.onInputChange} />}
+                                        label="Is Moderator"
+                                    />
+                                </Grid>
+                            </Grid>
                         </div>
                         <div className={classes.buttonContainer}>
                             <Button
