@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
     Accordion,
     AccordionDetails,
@@ -25,8 +25,6 @@ import {
 } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 
-import { Path, set, lensPath } from 'ramda';
-
 import config from '../../config.json';
 import { DatabaseInfo } from '../../components/DatabaseInfo';
 import { MultiSelect } from '../../components/MultiSelect';
@@ -39,7 +37,7 @@ import { IGlobalProps } from '../../interfaces/IGlobalProps';
  * For example:
  *   flattenObject{ a: 1, b: { c: 2 } }
  * Returns:
- *   { a: 1, c: 2}
+ *   { a: 1, 'b.c': 2}
  */
 export const flattenObject = (obj: any, parent?: string) => {
     const flattened: any = {}
@@ -140,10 +138,9 @@ class EditConfig extends React.Component<IGlobalProps> {
                 },
             },
         };
-        this.handleChange = this.handleChange.bind(this);
+        this.onInputChange = this.onInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handlePanelExpanded = this.handlePanelExpanded.bind(this);
-        this.setObjectByPath = this.setObjectByPath.bind(this);
     }
 
     componentDidMount() {
@@ -163,9 +160,9 @@ class EditConfig extends React.Component<IGlobalProps> {
         .then(async (response) => await response.json())
         .then(data => {
             //console.log('config data:', data);
-            //this.setState(data.data.config);
-            const flat = flattenObject(data.data.config);
-            console.log('flat config:', flat);
+            //const flat = flattenObject(data.data.config);
+            //console.log('flat config:', flat);
+            //this.setState(flat);
             const keys: string[] = Object.keys(data.data.config);
             for (const key of keys) {
                 //console.log('key:', key, 'data:', data.data.config[key]);
@@ -178,26 +175,22 @@ class EditConfig extends React.Component<IGlobalProps> {
         });
     }
 
-    handleChange(event: any) {
-        /*
-        const { name, value } = event.target;
-        console.log('event:', event);
-        //this.setState({ [name]: value });
-        this.setState(state => ({ ...state, [name]: value }));
-        //this.setObjectByPath([name], value);
-        console.log('state:', this.state);
-        */
-
-        const names = event.target.name.split('.');
-        console.log('names:', names);
-        const value = event.target.type === 'checkbox'
-            ? event.target.checked
-            : event.target.value;
-        this.setState((state: any) => {
-          state[names[0]][names[1]] = value;
-          return {[names[0]]: state[names[0]]};
+    onInputChange(event: any) {
+        const { name, type, value, checked } = event.target;
+        const path = name.split('.');
+        const finalProp = path.pop();
+        const newState = { ...this.state };
+        let pointer = newState;
+        path.forEach((el: any) => {
+          pointer[el] = { ...pointer[el] };
+          pointer = pointer[el];
         });
-    }
+        pointer[finalProp] = type === 'checkbox'
+            ? checked
+            : value;
+        console.log('newState:', newState);
+        this.setState(newState);
+      }
 
     handlePanelExpanded = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
         this.setState({ ['expanded']: isExpanded ? panel : false });
@@ -223,12 +216,6 @@ class EditConfig extends React.Component<IGlobalProps> {
         }).catch((err) => {
             console.error('error:', err);
             event.preventDefault();
-        });
-    }
-
-    setObjectByPath(fieldPath: Path, value: any) {
-        this.setState({
-          config: set(lensPath(fieldPath), value, this.state.config),
         });
     }
 
@@ -286,7 +273,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 label="Name"
                                                 value={this.state.name}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={6} sm={6}>
@@ -297,7 +284,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 label="Host"
                                                 value={this.state.host}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={6} sm={6}>
@@ -309,7 +296,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 label="Port"
                                                 value={this.state.port}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={6} sm={6}>
@@ -321,7 +308,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                     name="locale"
                                                     value={this.state.locale}
                                                     label="Locale"
-                                                    onChange={ (e: SelectChangeEvent) => this.handleChange(e) }
+                                                    onChange={ (e: SelectChangeEvent) => this.onInputChange(e) }
                                                 >
                                                     <MenuItem value="en">English</MenuItem>
                                                     <MenuItem value="es">Spanish</MenuItem>
@@ -338,7 +325,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 label="Despawn Time Minimum (minutes)"
                                                 value={this.state.despawnTimeMinimumMinutes}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={6} sm={6}>
@@ -399,7 +386,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                 <AccordionDetails>
                                     <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="enabled" name="enabled" control={<Switch checked={this.state.shortUrlApi.enabled} />} label="Enabled" />
+                                            <FormControlLabel id="shortUrlApi.enabled" name="shortUrlApi.enabled" control={<Switch checked={this.state.shortUrlApi.enabled} onChange={this.onInputChange} />} label="Enabled" />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
@@ -410,7 +397,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 label="API Url"
                                                 value={this.state.shortUrlApi.apiUrl}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
@@ -422,7 +409,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 label="Signature"
                                                 value={this.state.shortUrlApi.signature}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                     </Grid>
@@ -436,14 +423,14 @@ class EditConfig extends React.Component<IGlobalProps> {
                                     <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="apiKey"
-                                                name="apiKey"
+                                                id="stripeApi.apiKey"
+                                                name="stripeApi.apiKey"
                                                 type="text"
                                                 variant="outlined"
                                                 label="API Key"
                                                 value={this.state.stripeApi.apiKey}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                     </Grid>
@@ -457,13 +444,13 @@ class EditConfig extends React.Component<IGlobalProps> {
                                     <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="scannerMap"
-                                                name="scannerMap"
+                                                id="urls.scannerMap"
+                                                name="urls.scannerMap"
                                                 variant="outlined"
                                                 label="Scanner Map"
                                                 value={this.state.urls.scannerMap}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                     </Grid>
@@ -477,25 +464,25 @@ class EditConfig extends React.Component<IGlobalProps> {
                                     <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="pokemonIds"
-                                                name="pokemonIds"
+                                                id="eventPokemon.pokemonIds"
+                                                name="eventPokemon.pokemonIds"
                                                 variant="outlined"
                                                 label="Pokemon IDs"
                                                 value={this.state.eventPokemon.pokemonIds}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="minimumIV"
-                                                name="minimumIV"
+                                                id="eventPokemon.minimumIV"
+                                                name="eventPokemon.minimumIV"
                                                 type="number"
                                                 variant="outlined"
                                                 label="Minimum IV"
                                                 value={this.state.eventPokemon.minimumIV}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
@@ -503,11 +490,11 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 <InputLabel id="type-label">Filter Type</InputLabel>
                                                 <Select
                                                     labelId="type-label"
-                                                    id="type"
-                                                    name="type"
+                                                    id="eventPokemon.type"
+                                                    name="eventPokemon.type"
                                                     value={this.state.eventPokemon.type}
                                                     label="Filter Type"
-                                                    onChange={this.handleChange}
+                                                    onChange={this.onInputChange}
                                                 >
                                                     <MenuItem value="Include">Include</MenuItem>
                                                     <MenuItem value="Exclude">Exclude</MenuItem>
@@ -548,19 +535,29 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                                 label="Url"
                                                                 value={this.state.staticMaps[key].url}
                                                                 fullWidth
-                                                                onChange={this.handleChange}
+                                                                onChange={this.onInputChange}
                                                             />
                                                             <TextField
-                                                                id="template"
-                                                                name="template"
+                                                                id={"staticMaps." + key + ".template"}
+                                                                name={"staticMaps." + key + ".template"}
                                                                 variant="outlined"
                                                                 label="Template"
                                                                 value={this.state.staticMaps[key].template}
                                                                 fullWidth
-                                                                onChange={this.handleChange}
+                                                                onChange={this.onInputChange}
                                                             />
-                                                            <FormControlLabel id="includePokestops" name="includePokestops" control={<Switch checked={this.state.staticMaps[key].includePokestops} />} label="Include Pokestops" />
-                                                            <FormControlLabel id="includeGyms" name="includeGyms" control={<Switch checked={this.state.staticMaps[key].includeGyms} />} label="Include Gyms" />
+                                                            <FormControlLabel
+                                                                id={"staticMaps." + key + ".includePokestops"}
+                                                                name={"staticMaps." + key + ".includePokestops"}
+                                                                control={<Switch checked={this.state.staticMaps[key].includePokestops} onChange={this.onInputChange} />}
+                                                                label="Include Pokestops"
+                                                            />
+                                                            <FormControlLabel
+                                                                id={"staticMaps." + key + ".includeGyms"}
+                                                                name={"staticMaps." + key + ".includeGyms"}
+                                                                control={<Switch checked={this.state.staticMaps[key].includeGyms} onChange={this.onInputChange} />}
+                                                                label="Include Gyms"
+                                                            />
                                                         </CardContent>
                                                     </Card>
                                                 </Grid>
@@ -576,83 +573,83 @@ class EditConfig extends React.Component<IGlobalProps> {
                                 <AccordionDetails>
                                     <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="enabled" name="enabled" control={<Switch checked={this.state.twilio.enabled} />} label="Enabled" />
+                                            <FormControlLabel id="twilio.enabled" name="twilio.enabled" control={<Switch checked={this.state.twilio.enabled} onChange={this.onInputChange} />} label="Enabled" />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="accountSid"
-                                                name="accountSid"
+                                                id="twilio.accountSid"
+                                                name="twilio.accountSid"
                                                 variant="outlined"
                                                 label="Account SID"
                                                 value={this.state.twilio.accountSid}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="authToken"
-                                                name="authToken"
+                                                id="twilio.authToken"
+                                                name="twilio.authToken"
                                                 variant="outlined"
                                                 label="Auth Token"
                                                 value={this.state.twilio.authToken}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="from"
-                                                name="from"
+                                                id="twilio.from"
+                                                name="twilio.from"
                                                 variant="outlined"
                                                 label="From Number"
                                                 value={this.state.twilio.from}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="userIds"
-                                                name="userIds"
+                                                id="twilio.userIds"
+                                                name="twilio.userIds"
                                                 variant="outlined"
                                                 label="User Ids"
                                                 value={this.state.twilio.userIds}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="roleIds"
-                                                name="roleIds"
+                                                id="twilio.roleIds"
+                                                name="twilio.roleIds"
                                                 variant="outlined"
                                                 label="Role Ids"
                                                 value={this.state.twilio.roleIds}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="pokemonIds"
-                                                name="pokemonIds"
+                                                id="twilio.pokemonIds"
+                                                name="twilio.pokemonIds"
                                                 variant="outlined"
                                                 label="Pokemon Ids"
                                                 value={this.state.twilio.pokemonIds}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="minIV"
-                                                name="minIV"
+                                                id="twilio.minIV"
+                                                name="twilio.minIV"
                                                 variant="outlined"
                                                 label="Minimum IV"
                                                 value={this.state.twilio.minIV}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                     </Grid>
@@ -669,11 +666,11 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 <InputLabel id="provider-label">Provider</InputLabel>
                                                 <Select
                                                     labelId="provider-label"
-                                                    id="provider"
-                                                    name="provider"
+                                                    id="reverseGeocoding.provider"
+                                                    name="reverseGeocoding.provider"
                                                     value={this.state.reverseGeocoding.provider}
                                                     label="Provider"
-                                                    onChange={ (e: SelectChangeEvent) => this.handleChange(e) }
+                                                    onChange={ (e: SelectChangeEvent) => this.onInputChange(e) }
                                                 >
                                                     <MenuItem value="Osm">Osm</MenuItem>
                                                     <MenuItem value="GMaps">GMaps</MenuItem>
@@ -681,29 +678,34 @@ class EditConfig extends React.Component<IGlobalProps> {
                                             </FormControl>
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel control={<Switch checked={this.state.reverseGeocoding.cacheToDisk} />} label="Cache To Disk" />
+                                            <FormControlLabel
+                                                id="reverseGeocoding.cacheToDisk"
+                                                name="reverseGeocoding.cacheToDisk"
+                                                control={<Switch checked={this.state.reverseGeocoding.cacheToDisk} onChange={this.onInputChange} />}
+                                                label="Cache To Disk"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <Card>
                                                 <CardHeader title="Google Maps" subheader="" />
                                                 <CardContent>
                                                     <TextField
-                                                        id="key"
-                                                        name="key"
+                                                        id="reverseGeocoding.gmaps.key"
+                                                        name="reverseGeocoding.gmaps.key"
                                                         variant="outlined"
                                                         label="Key"
                                                         value={this.state.reverseGeocoding.gmaps.key}
                                                         fullWidth
-                                                        onChange={this.handleChange}
+                                                        onChange={this.onInputChange}
                                                     />
                                                     <TextField
-                                                        id="schema"
-                                                        name="schema"
+                                                        id="reverseGeocoding.nominatim.schema"
+                                                        name="reverseGeocoding.nominatim.schema"
                                                         variant="outlined"
                                                         label="Schema"
                                                         value={this.state.reverseGeocoding.gmaps.schema}
                                                         fullWidth
-                                                        onChange={this.handleChange}
+                                                        onChange={this.onInputChange}
                                                     />
                                                 </CardContent>
                                             </Card>
@@ -713,22 +715,22 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 <CardHeader title="Nominatim" subheader="" />
                                                 <CardContent>
                                                     <TextField
-                                                        id="url"
-                                                        name="url"
+                                                        id="reverseGeocoding.nominatim.url"
+                                                        name="reverseGeocoding.nominatim.url"
                                                         variant="outlined"
                                                         label="Url"
                                                         value={this.state.reverseGeocoding.nominatim.url}
                                                         fullWidth
-                                                        onChange={this.handleChange}
+                                                        onChange={this.onInputChange}
                                                     />
                                                     <TextField
-                                                        id="schema"
-                                                        name="schema"
+                                                        id="reverseGeocoding.nominatim.schema"
+                                                        name="reverseGeocoding.nominatim.schema"
                                                         variant="outlined"
                                                         label="Schema"
                                                         value={this.state.reverseGeocoding.nominatim.schema}
                                                         fullWidth
-                                                        onChange={this.handleChange}
+                                                        onChange={this.onInputChange}
                                                     />
                                                 </CardContent>
                                             </Card>
@@ -743,7 +745,12 @@ class EditConfig extends React.Component<IGlobalProps> {
                                 <AccordionDetails>
                                     <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel control={<Switch checked={this.state.debug} />} label="Enable Webhook Debug" />
+                                            <FormControlLabel
+                                                id="debug"
+                                                name="debug"
+                                                control={<Switch checked={this.state.debug} onChange={this.onInputChange} />}
+                                                label="Enable Webhook Debug"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
@@ -754,7 +761,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                     name="logLevel"
                                                     value={this.state.logLevel}
                                                     label="Log Level"
-                                                    onChange={ (e: SelectChangeEvent) => this.handleChange(e) }
+                                                    onChange={ (e: SelectChangeEvent) => this.onInputChange(e) }
                                                 >
                                                     <MenuItem value={0}>Trace</MenuItem>
                                                     <MenuItem value={1}>Debug</MenuItem>

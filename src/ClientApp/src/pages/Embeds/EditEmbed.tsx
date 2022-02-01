@@ -26,8 +26,6 @@ import {
 } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';
 
-import { Path, set, lensPath } from 'ramda';
-
 import config from '../../config.json';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
@@ -107,7 +105,6 @@ class EditEmbed extends React.Component<IGlobalProps> {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handlePanelExpanded = this.handlePanelExpanded.bind(this);
-        this.setObjectByPath = this.setObjectByPath.bind(this);
     }
 
     componentDidMount() {
@@ -174,12 +171,6 @@ class EditEmbed extends React.Component<IGlobalProps> {
         }).catch((err) => {
             console.error('error:', err);
             event.preventDefault();
-        });
-    }
-
-    setObjectByPath(fieldPath: Path, value: any) {
-        this.setState({
-          config: set(lensPath(fieldPath), value, this.state.config),
         });
     }
 

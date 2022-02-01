@@ -19,6 +19,7 @@ export function DatabaseInfo(props: DatabaseProps) {
     const [user, setUser] = useState(props.username ?? '');
     const [pass, setPass] = useState(props.password ?? '');
     const [database, setDatabase] = useState(props.database ?? '');
+    
 
     return (
         <div>

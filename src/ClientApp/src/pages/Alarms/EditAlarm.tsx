@@ -18,8 +18,6 @@ import {
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 
-import { Path, set, lensPath } from 'ramda';
-
 import config from '../../config.json';
 import { Alarm, AlarmProps } from '../../components/Alarm';
 import { AddAlarmModal } from '../../components/AddAlarmModal';
@@ -51,7 +49,6 @@ class EditAlarm extends React.Component<IGlobalProps> {
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handlePanelExpanded = this.handlePanelExpanded.bind(this);
-        this.setObjectByPath = this.setObjectByPath.bind(this);
     }
 
     componentDidMount() {
@@ -123,12 +120,6 @@ class EditAlarm extends React.Component<IGlobalProps> {
             console.error('error:', err);
             event.preventDefault();
             // TODO: Show error notification
-        });
-    }
-
-    setObjectByPath(fieldPath: Path, value: any) {
-        this.setState({
-          config: set(lensPath(fieldPath), value, this.state.config),
         });
     }
 
