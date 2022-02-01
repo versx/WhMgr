@@ -45,57 +45,57 @@ class EditFilter extends React.Component<IGlobalProps> {
                 pokemon: [],
                 forms: [],
                 costumes: [],
-                minIV: 0,
-                maxIV: 100,
-                minCP: 0,
-                maxCP: 999999,
-                minLevel: 0,
-                maxLevel: 35,
+                min_iv: 0,
+                max_iv: 100,
+                min_cp: 0,
+                max_cp: 999999,
+                min_lvl: 0,
+                max_lvl: 35,
                 gender: '*',
                 size: 'All',
-                isGreatLeague: false,
-                isUltraLeague: false,
-                minRank: 0,
-                maxRank: 100,
-                isEvent: false,
+                great_league: false,
+                ultra_league: false,
+                min_rank: 0,
+                max_rank: 100,
+                is_event: false,
                 type: 'Include',
-                ignoreMissing: false,
+                ignore_missing: false,
             },
             raids: {
                 enabled: false,
                 pokemon: [],
                 forms: [],
                 costumes: [],
-                minLevel: 1,
-                maxLevel: 6,
+                min_lvl: 1,
+                max_lvl: 6,
                 team: 'All',
                 type: 'Include',
-                onlyEx: false,
-                ignoreMissing: false,
+                only_ex: false,
+                ignore_missing: false,
             },
             eggs: {
                 enabled: false,
-                minLevel: 1,
-                maxLevel: 6,
+                min_lvl: 1,
+                max_lvl: 6,
                 team: 'All',
-                onlyEx: false,
+                only_ex: false,
             },
             quests: {
                 enabled: false,
-                rewardKeyword: '',
-                isShiny: false,
+                rewards: '',
+                is_shiny: false,
                 type: 'Include',
             },
             pokestops: {
                 enabled: false,
                 lured: false,
-                lureTypes: [],
+                lure_types: [],
                 invasions: false,
-                invasionTypes: [],
+                invasion_types: [],
             },
             gyms: {
                 enabled: false,
-                isUnderAttack: false,
+                under_attack: false,
                 team: 'All',
             },
             weather: {
@@ -103,7 +103,7 @@ class EditFilter extends React.Component<IGlobalProps> {
                 types: [],
             },
         };
-        this.handleChange = this.handleChange.bind(this);
+        this.onInputChange = this.onInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handlePanelExpanded = this.handlePanelExpanded.bind(this);
     }
@@ -139,13 +139,22 @@ class EditFilter extends React.Component<IGlobalProps> {
         });
     }
 
-    handleChange(event: any) {
-        const { name, value } = event.target;
-        console.log('event:', event);
-        //this.setState({ [name]: value });
-        this.setState(state => ({ ...state, [name]: value }));
-        //this.setObjectByPath([name], value);
-        console.log('state:', this.state);
+    onInputChange(event: any) {
+        const { name, type, value, checked } = event.target;
+        const path = name.split('.');
+        console.log('state path:', path, value);
+        const finalProp = path.pop();
+        const newState = { ...this.state };
+        let pointer = newState;
+        path.forEach((el: any) => {
+          pointer[el] = { ...pointer[el] };
+          pointer = pointer[el];
+        });
+        pointer[finalProp] = type === 'checkbox'
+            ? checked
+            : value;
+        console.log('newState:', newState);
+        this.setState(newState);
     }
 
     handlePanelExpanded = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -164,6 +173,7 @@ class EditFilter extends React.Component<IGlobalProps> {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                // TODO: Csrf token or auth token
             },
         }).then(async (response) => await response.json())
           .then((data: any) => {
@@ -240,162 +250,182 @@ class EditFilter extends React.Component<IGlobalProps> {
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="enabled" name="enabled" control={<Switch checked={this.state.pokemon.enabled} />} label="Enabled" />
+                                            <FormControlLabel
+                                                id="pokemon.enabled"
+                                                name="pokemon.enabled"
+                                                control={<Switch checked={this.state.pokemon.enabled} onChange={this.onInputChange} />}
+                                                label="Enabled"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="pokemonIds"
-                                                name="pokemonIds"
+                                                id="pokemon.pokemon"
+                                                name="pokemon.pokemon"
                                                 variant="outlined"
                                                 label="Pokemon IDs"
                                                 type="text"
                                                 value={this.state.pokemon.pokemon}
                                                 fullWidth
                                                 multiline
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="forms"
-                                                name="forms"
+                                                id="pokemon.forms"
+                                                name="pokemon.forms"
                                                 variant="outlined"
                                                 label="Forms"
                                                 type="text"
                                                 value={this.state.pokemon.forms}
                                                 fullWidth
                                                 multiline
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="costumes"
-                                                name="costumes"
+                                                id="pokemon.costumes"
+                                                name="pokemon.costumes"
                                                 variant="outlined"
                                                 label="Costumes"
                                                 type="text"
                                                 value={this.state.pokemon.costumes}
                                                 fullWidth
                                                 multiline
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="minIV"
-                                                name="minIV"
+                                                id="pokemon.min_iv"
+                                                name="pokemon.min_iv"
                                                 variant="outlined"
                                                 label="Minimum IV"
                                                 type="number"
-                                                value={this.state.pokemon.minIV}
+                                                value={this.state.pokemon.min_iv}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="maxIV"
-                                                name="maxIV"
+                                                id="pokemon.max_iv"
+                                                name="pokemon.max_iv"
                                                 variant="outlined"
                                                 label="Maximum IV"
                                                 type="number"
-                                                value={this.state.pokemon.maxIV}
+                                                value={this.state.pokemon.max_iv}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="minCP"
-                                                name="minCP"
+                                                id="pokemon.min_cp"
+                                                name="pokemon.min_cp"
                                                 variant="outlined"
                                                 label="Minimum CP"
                                                 type="number"
-                                                value={this.state.pokemon.minCP}
+                                                value={this.state.pokemon.min_cp}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="maxCP"
-                                                name="maxCP"
+                                                id="pokemon.max_cp"
+                                                name="pokemon.max_cp"
                                                 variant="outlined"
                                                 label="Maximum CP"
                                                 type="number"
-                                                value={this.state.pokemon.maxCP}
+                                                value={this.state.pokemon.max_cp}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="minLevel"
-                                                name="minLevel"
+                                                id="pokemon.min_lvl"
+                                                name="pokemon.min_lvl"
                                                 variant="outlined"
                                                 label="Minimum Level"
                                                 type="number"
-                                                value={this.state.pokemon.minLevel}
+                                                value={this.state.pokemon.min_lvl}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="maxLevel"
-                                                name="maxLevel"
+                                                id="pokemon.max_lvl"
+                                                name="pokemon.max_lvl"
                                                 variant="outlined"
                                                 label="Maximum Level"
                                                 type="number"
                                                 value={this.state.pokemon.maxLevel}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
-                                            <FormControlLabel id="isGreatLeague" name="isGreatLeague" control={<Switch checked={this.state.pokemon.isGreatLeague} />} label="Is Great League" />
+                                            <FormControlLabel
+                                                id="pokemon.great_league"
+                                                name="pokemon.great_league"
+                                                control={<Switch checked={this.state.pokemon.great_league} onChange={this.onInputChange} />}
+                                                label="Is Great League"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
-                                            <FormControlLabel id="isUltraLeague" name="isUltraLeague" control={<Switch checked={this.state.pokemon.isUltraLeague} />} label="Is Ultra League" />
+                                            <FormControlLabel
+                                                id="pokemon.ultra_league"
+                                                name="pokemon.ultra_league"
+                                                control={<Switch checked={this.state.pokemon.ultra_league} onChange={this.onInputChange} />}
+                                                label="Is Ultra League"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="minRank"
-                                                name="minRank"
+                                                id="pokemon.min_rank"
+                                                name="pokemon.min_rank"
                                                 variant="outlined"
                                                 label="Minimum Rank"
                                                 type="number"
-                                                value={this.state.pokemon.minRank}
+                                                value={this.state.pokemon.min_rank}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="maxRank"
-                                                name="maxRank"
+                                                id="pokemon.max_rank"
+                                                name="pokemon.max_rank"
                                                 variant="outlined"
                                                 label="Maximum Rank"
                                                 type="number"
-                                                value={this.state.pokemon.maxRank}
+                                                value={this.state.pokemon.max_rank}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="isEvent" name="isEvent" control={<Switch checked={this.state.pokemon.isEvent} />} label="Is Event Pokemon" />
+                                            <FormControlLabel
+                                                id="pokemon.is_event"
+                                                name="pokemon.is_event"
+                                                control={<Switch checked={this.state.pokemon.is_event} onChange={this.onInputChange} />}
+                                                label="Is Event Pokemon"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
                                                 <InputLabel id="type-label">Filter Type</InputLabel>
                                                 <Select
                                                     labelId="type-label"
-                                                    id="type"
-                                                    name="type"
+                                                    id="pokemon.type"
+                                                    name="pokemon.type"
                                                     value={this.state.pokemon.type}
                                                     label="Filter Type"
-                                                    onChange={this.handleChange}
+                                                    onChange={this.onInputChange}
                                                 >
                                                     <MenuItem value="Include">Include</MenuItem>
                                                     <MenuItem value="Exclude">Exclude</MenuItem>
@@ -403,7 +433,12 @@ class EditFilter extends React.Component<IGlobalProps> {
                                             </FormControl>
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="ignoreMissing" name="ignoreMissing" control={<Switch checked={this.state.pokemon.ignoreMissing} />} label="Ignore Pokemon Missing Stats" />
+                                            <FormControlLabel
+                                                id="pokemon.ignore_missing"
+                                                name="pokemon.ignore_missing"
+                                                control={<Switch checked={this.state.pokemon.ignore_missing} onChange={this.onInputChange} />}
+                                                label="Ignore Pokemon Missing Stats"
+                                            />
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
@@ -415,69 +450,74 @@ class EditFilter extends React.Component<IGlobalProps> {
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="enabled" name="enabled" control={<Switch checked={this.state.raids.enabled} />} label="Enabled" />
+                                            <FormControlLabel
+                                                id="raids.enabled"
+                                                name="raids.enabled"
+                                                control={<Switch checked={this.state.raids.enabled} onChange={this.onInputChange} />}
+                                                label="Enabled"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="pokemonIds"
-                                                name="pokemonIds"
+                                                id="raids.pokemon"
+                                                name="raids.pokemon"
                                                 variant="outlined"
                                                 label="Pokemon IDs"
                                                 type="text"
                                                 value={this.state.raids.pokemon}
                                                 fullWidth
                                                 multiline
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="forms"
-                                                name="forms"
+                                                id="raids.forms"
+                                                name="raids.forms"
                                                 variant="outlined"
                                                 label="Forms"
                                                 type="text"
                                                 value={this.state.raids.forms}
                                                 fullWidth
                                                 multiline
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
-                                                id="costumes"
-                                                name="costumes"
+                                                id="raids.costumes"
+                                                name="raids.costumes"
                                                 variant="outlined"
                                                 label="Costumes"
                                                 type="text"
                                                 value={this.state.raids.costumes}
                                                 fullWidth
                                                 multiline
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="minLevel"
-                                                name="minLevel"
+                                                id="raids.min_lvl"
+                                                name="raids.min_lvl"
                                                 variant="outlined"
                                                 label="Minimum Level"
                                                 type="number"
-                                                value={this.state.raids.minLevel}
+                                                value={this.state.raids.min_lvl}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="maxLevel"
-                                                name="maxLevel"
+                                                id="raids.max_lvl"
+                                                name="raids.max_lvl"
                                                 variant="outlined"
                                                 label="Maximum Level"
                                                 type="number"
-                                                value={this.state.raids.maxLevel}
+                                                value={this.state.raids.max_lvl}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
@@ -485,11 +525,11 @@ class EditFilter extends React.Component<IGlobalProps> {
                                                 <InputLabel id="team-label">Team</InputLabel>
                                                 <Select
                                                     labelId="team-label"
-                                                    id="team"
-                                                    name="team"
+                                                    id="raids.team"
+                                                    name="raids.team"
                                                     value={this.state.raids.team}
                                                     label="Team"
-                                                    onChange={this.handleChange}
+                                                    onChange={this.onInputChange}
                                                 >
                                                     <MenuItem value="All">All</MenuItem>
                                                     <MenuItem value="Neutral">Neutral</MenuItem>
@@ -500,18 +540,23 @@ class EditFilter extends React.Component<IGlobalProps> {
                                             </FormControl>
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="onlyEx" name="onlyEx" control={<Switch checked={this.state.eggs.onlyEx} />} label="Only EX-Eligible Gyms" />
+                                            <FormControlLabel
+                                                id="raids.only_ex"
+                                                name="raids.only_ex"
+                                                control={<Switch checked={this.state.raids.only_ex} onChange={this.onInputChange} />}
+                                                label="Only EX-Eligible Gyms"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
                                                 <InputLabel id="type-label">Filter Type</InputLabel>
                                                 <Select
                                                     labelId="type-label"
-                                                    id="type"
-                                                    name="type"
+                                                    id="raids.type"
+                                                    name="raids.type"
                                                     value={this.state.raids.type}
                                                     label="Filter Type"
-                                                    onChange={this.handleChange}
+                                                    onChange={this.onInputChange}
                                                 >
                                                     <MenuItem value="Include">Include</MenuItem>
                                                     <MenuItem value="Exclude">Exclude</MenuItem>
@@ -519,7 +564,12 @@ class EditFilter extends React.Component<IGlobalProps> {
                                             </FormControl>
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="ignoreMissing" name="ignoreMissing" control={<Switch checked={this.state.raids.ignoreMissing} />} label="Ignore Pokemon Missing Stats" />
+                                            <FormControlLabel
+                                                id="raids.ignore_missing"
+                                                name="raids.ignore_missing"
+                                                control={<Switch checked={this.state.raids.ignore_missing} onChange={this.onInputChange} />}
+                                                label="Ignore Pokemon Missing Stats"
+                                            />
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
@@ -531,30 +581,35 @@ class EditFilter extends React.Component<IGlobalProps> {
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="enabled" name="enabled" control={<Switch checked={this.state.eggs.enabled} />} label="Enabled" />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                id="minLevel"
-                                                name="minLevel"
-                                                variant="outlined"
-                                                label="Minimum Level"
-                                                type="number"
-                                                value={this.state.eggs.minLevel}
-                                                fullWidth
-                                                onChange={this.handleChange}
+                                            <FormControlLabel
+                                                id="eggs.enabled"
+                                                name="eggs.enabled"
+                                                control={<Switch checked={this.state.eggs.enabled} onChange={this.onInputChange} />}
+                                                label="Enabled"
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="maxLevel"
-                                                name="maxLevel"
+                                                id="eggs.min_lvl"
+                                                name="eggs.min_lvl"
+                                                variant="outlined"
+                                                label="Minimum Level"
+                                                type="number"
+                                                value={this.state.eggs.min_lvl}
+                                                fullWidth
+                                                onChange={this.onInputChange}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <TextField
+                                                id="eggs.max_lvl"
+                                                name="eggs.max_lvl"
                                                 variant="outlined"
                                                 label="Maximum Level"
                                                 type="number"
-                                                value={this.state.eggs.maxLevel}
+                                                value={this.state.eggs.max_lvl}
                                                 fullWidth
-                                                onChange={this.handleChange}
+                                                onChange={this.onInputChange}
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
@@ -562,11 +617,11 @@ class EditFilter extends React.Component<IGlobalProps> {
                                                 <InputLabel id="team-label">Team</InputLabel>
                                                 <Select
                                                     labelId="team-label"
-                                                    id="team"
-                                                    name="team"
+                                                    id="eggs.team"
+                                                    name="eggs.team"
                                                     value={this.state.eggs.team}
                                                     label="Team"
-                                                    onChange={this.handleChange}
+                                                    onChange={this.onInputChange}
                                                 >
                                                     <MenuItem value="All">All</MenuItem>
                                                     <MenuItem value="Neutral">Neutral</MenuItem>
@@ -577,7 +632,12 @@ class EditFilter extends React.Component<IGlobalProps> {
                                             </FormControl>
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="onlyEx" name="onlyEx" control={<Switch checked={this.state.eggs.onlyEx} />} label="Only EX-Eligible Gyms" />
+                                            <FormControlLabel
+                                                id="eggs.only_ex"
+                                                name="eggs.only_ex"
+                                                control={<Switch checked={this.state.eggs.only_ex} onChange={this.onInputChange} />}
+                                                label="Only EX-Eligible Gyms"
+                                            />
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
@@ -589,34 +649,44 @@ class EditFilter extends React.Component<IGlobalProps> {
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="enabled" name="enabled" control={<Switch checked={this.state.quests.enabled} />} label="Enabled" />
-                                        </Grid>
-                                        <Grid item xs={12} sm={12}>
-                                            <TextField
-                                                id="rewardKeywords"
-                                                name="rewardKeywords"
-                                                variant="outlined"
-                                                label="Reward Keywords"
-                                                type="text"
-                                                value={this.state.quests.rewardKeywords}
-                                                multiline
-                                                fullWidth
-                                                onChange={this.handleChange}
+                                            <FormControlLabel
+                                                id="quests.enabled"
+                                                name="quests.enabled"
+                                                control={<Switch checked={this.state.quests.enabled} onChange={this.onInputChange} />}
+                                                label="Enabled"
                                             />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="isShiny" name="isShiny" control={<Switch checked={this.state.quests.isShiny} />} label="Is Shiny Pokemon" />
+                                            <TextField
+                                                id="quests.rewards"
+                                                name="quests.rewards"
+                                                variant="outlined"
+                                                label="Reward Keywords"
+                                                type="text"
+                                                value={this.state.quests.rewards}
+                                                multiline
+                                                fullWidth
+                                                onChange={this.onInputChange}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={12}>
+                                            <FormControlLabel
+                                                id="quests.is_shiny"
+                                                name="quests.is_shiny"
+                                                control={<Switch checked={this.state.quests.is_shiny} onChange={this.onInputChange} />}
+                                                label="Is Shiny Pokemon"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
                                                 <InputLabel id="type-label">Filter Type</InputLabel>
                                                 <Select
                                                     labelId="type-label"
-                                                    id="type"
-                                                    name="type"
+                                                    id="quests.type"
+                                                    name="quests.type"
                                                     value={this.state.quests.type}
                                                     label="Filter Type"
-                                                    onChange={this.handleChange}
+                                                    onChange={this.onInputChange}
                                                 >
                                                     <MenuItem value="Include">Include</MenuItem>
                                                     <MenuItem value="Exclude">Exclude</MenuItem>
@@ -633,22 +703,32 @@ class EditFilter extends React.Component<IGlobalProps> {
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="enabled" name="enabled" control={<Switch checked={this.state.pokestops.enabled} />} label="Enabled" />
+                                            <FormControlLabel
+                                                id="pokestops.enabled"
+                                                name="pokestops.enabled"
+                                                control={<Switch checked={this.state.pokestops.enabled} onChange={this.onInputChange} />}
+                                                label="Enabled"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="isLured" name="isLured" control={<Switch checked={this.state.pokestops.lured} />} label="Is Lured Pokestop" />
+                                            <FormControlLabel
+                                                id="pokestops.lured"
+                                                name="pokestops.lured"
+                                                control={<Switch checked={this.state.pokestops.lured}  onChange={this.onInputChange} />}
+                                                label="Is Lured Pokestop"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
                                                 <InputLabel id="type-label">Lure Types</InputLabel>
                                                 <Select
                                                     labelId="lure-type-label"
-                                                    id="lureType"
-                                                    name="lureType"
-                                                    value={[this.state.pokestops.lureTypes]}
+                                                    id="pokestops.lure_types"
+                                                    name="pokestops.lure_types"
+                                                    value={this.state.pokestops.lure_types}
                                                     multiple
                                                     label="Lure Types"
-                                                    onChange={this.handleChange}
+                                                    onChange={this.onInputChange}
                                                 >
                                                     <MenuItem value="Normal">Normal</MenuItem>
                                                     <MenuItem value="Glacial">Glacial</MenuItem>
@@ -659,19 +739,24 @@ class EditFilter extends React.Component<IGlobalProps> {
                                             </FormControl>
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="isInvasion" name="isInvasion" control={<Switch checked={this.state.pokestops.invasions} />} label="Is Invasion Pokestop" />
+                                            <FormControlLabel
+                                                id="pokestops.invasions"
+                                                name="pokestops.invasions"
+                                                control={<Switch checked={this.state.pokestops.invasions} onChange={this.onInputChange} />}
+                                                label="Is Invasion Pokestop"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
-                                                <InputLabel id="gruntType-label">Invasion Types</InputLabel>
+                                                <InputLabel id="invasionTypes-label">Invasion Types</InputLabel>
                                                 <Select
-                                                    labelId="gruntType-label"
-                                                    id="gruntType"
-                                                    name="gruntType"
-                                                    //value={this.state.pokestops.gruntTypes}
+                                                    labelId="invasionTypes-label"
+                                                    id="pokestops.invasion_types"
+                                                    name="pokestops.invasion_types"
+                                                    value={this.state.pokestops.invasion_types}
                                                     //multiple
                                                     label="Invasion Types"
-                                                    onChange={this.handleChange}
+                                                    onChange={this.onInputChange}
                                                 >
                                                     <MenuItem value="">All</MenuItem>
                                                 </Select>
@@ -687,21 +772,31 @@ class EditFilter extends React.Component<IGlobalProps> {
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="enabled" name="enabled" control={<Switch checked={this.state.gyms.enabled} />} label="Enabled" />
+                                            <FormControlLabel
+                                                id="gyms.enabled"
+                                                name="gyms.enabled"
+                                                control={<Switch checked={this.state.gyms.enabled} onChange={this.onInputChange} />}
+                                                label="Enabled"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="isUnderAttack" name="isUnderAttack" control={<Switch checked={this.state.gyms.isUnderAttack} />} label="Is Under Attack" />
+                                            <FormControlLabel
+                                                id="gyms.under_attack"
+                                                name="gyms.under_attack"
+                                                control={<Switch checked={this.state.gyms.under_attack} onChange={this.onInputChange} />}
+                                                label="Is Under Attack"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
                                                 <InputLabel id="team-label">Team</InputLabel>
                                                 <Select
                                                     labelId="team-label"
-                                                    id="team"
-                                                    name="team"
+                                                    id="gyms.team"
+                                                    name="gyms.team"
                                                     value={this.state.gyms.team}
                                                     label="Team"
-                                                    onChange={this.handleChange}
+                                                    onChange={this.onInputChange}
                                                 >
                                                     <MenuItem value="All">All</MenuItem>
                                                     <MenuItem value="Neutral">Neutral</MenuItem>
@@ -721,19 +816,24 @@ class EditFilter extends React.Component<IGlobalProps> {
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControlLabel id="enabled" name="enabled" control={<Switch checked={this.state.weather.enabled} />} label="Enabled" />
+                                            <FormControlLabel
+                                                id="weather.enabled"
+                                                name="weather.enabled"
+                                                control={<Switch checked={this.state.weather.enabled} onChange={this.onInputChange} />}
+                                                label="Enabled"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
                                                 <InputLabel id="weatherTypes-label">Weather Types</InputLabel>
                                                 <Select
                                                     labelId="weatherTypes-label"
-                                                    id="weatherTypes"
-                                                    name="weatherTypes"
+                                                    id="weather.types"
+                                                    name="weather.types"
                                                     value={this.state.weather.types}
                                                     label="Weather Types"
                                                     multiple
-                                                    onChange={this.handleChange}
+                                                    onChange={this.onInputChange}
                                                 >
                                                     <MenuItem value="Clear">Clear</MenuItem>
                                                     <MenuItem value="Rainy">Rainy</MenuItem>
