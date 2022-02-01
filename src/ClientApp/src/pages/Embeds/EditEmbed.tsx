@@ -28,6 +28,8 @@ import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 import { onNestedStateChange } from '../../utils/nestedStateHelper';
 
+// TODO: Reusable embed components (pass onInputChange via props)
+
 class EditEmbed extends React.Component<IGlobalProps> {
     public state: any;
 
@@ -203,7 +205,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            console.log('embed data:', data);
+            //console.log('embed data:', data);
             //this.setState(data.data.embed);
             const keys: string[] = Object.keys(data.data.embed);
             for (const key of keys) {
@@ -213,7 +215,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
                 }
             }
             this.setState({ ['placeholders']: data.data.placeholders });
-            console.log('state:', this.state);
+            //console.log('state:', this.state);
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -252,7 +254,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
     }
 
     render() {
-        const handleCancel = () => window.location.href = '/configs';
+        const handleCancel = () => window.location.href = '/dashboard/embeds';
 
         const classes: any = makeStyles({
             container: {

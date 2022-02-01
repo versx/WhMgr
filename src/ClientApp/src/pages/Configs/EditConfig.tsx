@@ -209,7 +209,7 @@ class EditConfig extends React.Component<IGlobalProps> {
     }
 
     render() {
-        const handleCancel = () => window.location.href = '/configs';
+        const handleCancel = () => window.location.href = '/dashboard/configs';
 
         const classes: any = makeStyles({
             container: {

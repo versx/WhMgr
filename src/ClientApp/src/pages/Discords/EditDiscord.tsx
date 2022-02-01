@@ -170,7 +170,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
     }
 
     render() {
-        const handleCancel = () => window.location.href = '/configs';
+        const handleCancel = () => window.location.href = '/dashboard/discords';
 
         const classes: any = makeStyles({
             container: {

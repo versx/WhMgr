@@ -173,7 +173,7 @@ class EditFilter extends React.Component<IGlobalProps> {
     }
 
     render() {
-        const handleCancel = () => window.location.href = '/configs';
+        const handleCancel = () => window.location.href = '/dashboard/filters';
 
         const classes: any = makeStyles({
             container: {

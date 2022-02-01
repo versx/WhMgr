@@ -1,0 +1,218 @@
+import React, { ReactNode, useEffect, useState } from 'react'
+import {
+    Box,
+    Button,
+    Container,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    Grid,
+    Radio,
+    RadioGroup,
+    TextField,
+    Typography,
+} from '@mui/material';
+import { makeStyles } from '@mui/styles';
+
+import config from '../../config.json';
+import { BreadCrumbs } from '../../components/BreadCrumbs';
+import withRouter from '../../hooks/WithRouter';
+import { IGlobalProps } from '../../interfaces/IGlobalProps';
+import { onNestedStateChange } from '../../utils/nestedStateHelper';
+
+class EditGeofence extends React.Component<IGlobalProps> {
+    public state: any;
+
+    constructor(props: IGlobalProps) {
+        super(props);
+        console.log('props:', props);
+        this.state = {
+            // TODO: Set default state values
+            name: props.params!.id,
+            format: 'ini',
+            geofence: [],
+        };
+        this.onInputChange = this.onInputChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        console.log('componentDidMount:', this.state, this.props);
+        this.fetchData(this.props.params!.id);
+    }
+
+    fetchData(id: any) {
+        fetch(config.apiUrl + 'admin/geofence/' + id, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        })
+        .then(async (response) => await response.json())
+        .then(data => {
+            console.log('geofence data:', data);
+            //this.setState(data.data.geofence);
+            const keys: string[] = Object.keys(data.data.geofence);
+            for (const key of keys) {
+                //console.log('key:', key, 'data:', data.data.geofence[key]);
+                if (data.data.geofence[key]) {
+                    this.setState({ [key]: data.data.geofence[key] });
+                }
+            }
+        }).catch(err => {
+            console.error('error:', err);
+            // TODO: Show error notification
+        });
+    }
+
+    onInputChange(event: any) {
+        onNestedStateChange(event, this);
+    }
+
+    handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        console.log('handle submit state:', this.state);
+
+        const id = this.props.params!.id;
+        fetch(config.apiUrl + 'admin/geofence/' + id, {
+            method: 'POST',
+            body: JSON.stringify(this.state),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                // TODO: Csrf token or auth token
+            },
+        }).then(async (response) => await response.json())
+          .then((data: any) => {
+            console.log('response:', data);
+
+        }).catch((err) => {
+            console.error('error:', err);
+            event.preventDefault();
+        });
+    }
+
+    render() {
+        const handleCancel = () => window.location.href = '/dashboard/geofences';
+
+        const classes: any = makeStyles({
+            container: {
+                 //paddingTop: theme.spacing(10),
+            },
+            table: {
+            },
+            title: {
+                display: 'flex',
+                fontWeight: 600,
+                marginLeft: '10px',
+                fontSize: '22px',
+            },
+            titleContainer: {
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '20px',
+            },
+            buttonGroup: {
+                display: 'flex',
+            },
+            buttonContainer: {
+                paddingTop: '20px',
+            },
+        });
+
+        const breadcrumbs = [{
+            text: 'Dashboard',
+            color: 'inherit',
+            href: '/dashboard',
+            selected: false,
+        }, {
+            text: 'Geofences',
+            color: 'inherit',
+            href: '/dashboard/geofences',
+            selected: false,
+        }, {
+            text: 'Edit Geofence ' + this.props.params!.id,
+            color: 'primary',
+            href: '',
+            selected: true,
+        }];
+
+        return (
+            <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
+                <Container>
+                    <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
+                        <BreadCrumbs crumbs={breadcrumbs} />
+                        <Typography variant="h5" component="h2" >
+                            Edit Geofence {this.props.params!.id}
+                        </Typography>
+                        <Typography sx={{ mt: 2 }}>
+                            Geofence description goes here
+                        </Typography>
+                        <div style={{paddingBottom: '20px', paddingTop: '20px'}}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        id="name"
+                                        name="name"
+                                        variant="outlined"
+                                        label="Name"
+                                        type="text"
+                                        value={this.state.name}
+                                        fullWidth
+                                        onChange={this.onInputChange}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <FormControl>
+                                        <FormLabel id="format-label">Save Format</FormLabel>
+                                        <RadioGroup
+                                            row
+                                            aria-labelledby="format-label"
+                                            id="format"
+                                            name="format"
+                                        >
+                                            <FormControlLabel
+                                                value="ini"
+                                                control={<Radio checked={this.state.format === 'ini'} onChange={this.onInputChange} />}
+                                                label="INI"
+                                            />
+                                            <FormControlLabel
+                                                value="json"
+                                                control={<Radio checked={this.state.format === 'json'} onChange={this.onInputChange} />}
+                                                label="GeoJSON"
+                                            />
+                                        </RadioGroup>
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+                        </div>
+                        <div className={classes.buttonContainer}>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                style={{marginRight: '20px'}}
+                                type="submit"
+                            >
+                                Save
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={handleCancel}
+                            >
+                                Cancel
+                            </Button>
+                        </div>
+                    </Box>
+                </Container>
+
+            </div>
+        );
+    }
+}
+
+export default withRouter(EditGeofence);
