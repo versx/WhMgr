@@ -178,6 +178,7 @@ class EditConfig extends React.Component<IGlobalProps> {
     onInputChange(event: any) {
         const { name, type, value, checked } = event.target;
         const path = name.split('.');
+        console.log('state path:', path, value);
         const finalProp = path.pop();
         const newState = { ...this.state };
         let pointer = newState;
@@ -190,7 +191,7 @@ class EditConfig extends React.Component<IGlobalProps> {
             : value;
         console.log('newState:', newState);
         this.setState(newState);
-      }
+    }
 
     handlePanelExpanded = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
         this.setState({ ['expanded']: isExpanded ? panel : false });
@@ -356,7 +357,11 @@ class EditConfig extends React.Component<IGlobalProps> {
                                             <Card>
                                                 <CardHeader title="Main" subheader="Main database for saving subscriptions" />
                                                 <CardContent>
-                                                    <DatabaseInfo {...this.state.database.main} />
+                                                    <DatabaseInfo
+                                                        {...this.state.database.main}
+                                                        name="main"
+                                                        onInputChange={this.onInputChange}
+                                                    />
                                                 </CardContent>
                                             </Card>
                                         </Grid>
@@ -364,7 +369,11 @@ class EditConfig extends React.Component<IGlobalProps> {
                                             <Card>
                                                 <CardHeader title="Scanner" subheader="Scanner database for fetching pokestops, gyms, and weather details" />
                                                 <CardContent>
-                                                    <DatabaseInfo {...this.state.database.scanner} />
+                                                    <DatabaseInfo
+                                                        {...this.state.database.scanner}
+                                                        name="scanner"
+                                                        onInputChange={this.onInputChange}
+                                                    />
                                                 </CardContent>
                                             </Card>
                                         </Grid>
@@ -372,7 +381,11 @@ class EditConfig extends React.Component<IGlobalProps> {
                                             <Card>
                                                 <CardHeader title="Nests" subheader="ManualDb database for fetching nests" />
                                                 <CardContent>
-                                                    <DatabaseInfo {...this.state.database.nests} />
+                                                    <DatabaseInfo
+                                                        {...this.state.database.nests}
+                                                        name="nests"
+                                                        onInputChange={this.onInputChange}
+                                                    />
                                                 </CardContent>
                                             </Card>
                                         </Grid>

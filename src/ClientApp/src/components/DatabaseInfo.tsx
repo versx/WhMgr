@@ -1,87 +1,83 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Grid,
     TextField,
 } from '@mui/material';
 
 interface DatabaseProps {
+    name: string;
     host: string;
     port: number;
     username: string;
     password: string;
     database: string;
+    onInputChange: any;
 }
 
 export function DatabaseInfo(props: DatabaseProps) {
     //console.log('database props:', props);
-    const [host, setHost] = useState(props.host ?? '127.0.0.1');
-    const [port, setPort] = useState(props.port ?? 3306);
-    const [user, setUser] = useState(props.username ?? '');
-    const [pass, setPass] = useState(props.password ?? '');
-    const [database, setDatabase] = useState(props.database ?? '');
-    
 
     return (
         <div>
             <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
                 <Grid item xs={12} sm={6}>
                     <TextField
-                        id="host"
-                        name="host"
+                        id={"database." + props.name + ".host"}
+                        name={"database." + props.name + ".host"}
                         variant="outlined"
                         label="Host"
                         type="text"
-                        value={host}
+                        value={props.host}
                         fullWidth
-                        onChange={() => setHost(host)}
+                        onChange={props.onInputChange}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField
-                        id="port"
-                        name="port"
+                        id={"database." + props.name + ".port"}
+                        name={"database." + props.name + ".port"}
                         variant="outlined"
                         label="Port"
                         type="number"
-                        value={port}
+                        value={props.port}
                         fullWidth
-                        onChange={() => setPort(port)}
+                        onChange={props.onInputChange}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField
-                        id="user"
-                        name="user"
+                        id={"database." + props.name + ".username"}
+                        name={"database." + props.name + ".username"}
                         variant="outlined"
                         label="Username"
                         type="text"
-                        value={user}
+                        value={props.username}
                         fullWidth
-                        onChange={() => setUser(user)}
+                        onChange={props.onInputChange}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                     <TextField
-                        id="pass"
-                        name="pass"
+                        id={"database." + props.name + ".password"}
+                        name={"database." + props.name + ".password"}
                         variant="outlined"
                         label="Password"
                         type="text"
-                        value={pass}
+                        value={props.password}
                         fullWidth
-                        onChange={() => setPass(pass)}
+                        onChange={props.onInputChange}
                     />
                 </Grid>
                 <Grid item xs={12} sm={12}>
                     <TextField
-                        id="database"
-                        name="database"
+                        id={"database." + props.name + ".database"}
+                        name={"database." + props.name + ".database"}
                         variant="outlined"
                         label="Database"
                         type="text"
-                        value={database}
+                        value={props.database}
                         fullWidth
-                        onChange={() => setDatabase(database)}
+                        onChange={props.onInputChange}
                     />
                 </Grid>
             </Grid>
