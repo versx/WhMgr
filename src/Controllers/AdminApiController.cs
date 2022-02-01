@@ -35,13 +35,13 @@
         {
             return new JsonResult(new List<dynamic>
             {
-                new { name = "Configs", count = 0 },
-                new { name = "Discords", count = 0 },
-                new { name = "Alarms", count = 0 },
-                new { name = "Filters", count = 0 },
-                new { name = "Embeds", count = 0 },
-                new { name = "Geofences", count = 0 },
-                new { name = "Roles", count = 0 },
+                new { name = "Configs", count = Directory.GetFiles(Strings.ConfigsFolder, "*.json").Length },
+                new { name = "Discords", count = Directory.GetFiles(Strings.DiscordsFolder, "*.json").Length },
+                new { name = "Alarms", count = Directory.GetFiles(Strings.AlarmsFolder, "*.json").Length },
+                new { name = "Filters", count = Directory.GetFiles(Strings.FiltersFolder, "*.json").Length },
+                new { name = "Embeds", count = Directory.GetFiles(Strings.EmbedsFolder, "*.json").Length },
+                new { name = "Geofences", count = Directory.GetFiles(Strings.GeofencesFolder).Length },
+                new { name = "Roles", count = GetRoles().Count },
                 new { name = "Users", count = 0 },
             });
         }
@@ -421,6 +421,27 @@
                 id = Path.GetFileName(file),
             });
             return new JsonResult(configs);
+        }
+
+        [HttpGet("geofence/{fileName}")]
+        [Produces("application/json")]
+        public IActionResult GetGeofence(string fileName)
+        {
+            var filePath = Path.Combine(Strings.GeofencesFolder, fileName);
+            if (!System.IO.File.Exists(filePath))
+            {
+                return BadRequest($"Geofence '{fileName}' does not exist");
+            }
+            var geofence = LoadFromFile(filePath);
+
+            return new JsonResult(new
+            {
+                data = new
+                {
+                    geofence = geofence,
+                    format = Path.GetExtension(fileName)
+                },
+            });
         }
 
         #endregion
