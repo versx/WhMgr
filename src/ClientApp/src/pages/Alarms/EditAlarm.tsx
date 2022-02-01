@@ -19,8 +19,8 @@ import {
 import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
-import { Alarm, AlarmProps } from '../../components/Alarm';
 import { AddAlarmModal } from '../../components/AddAlarmModal';
+import { Alarm, AlarmProps } from '../../components/Alarm';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';

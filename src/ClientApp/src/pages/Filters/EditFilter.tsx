@@ -27,6 +27,7 @@ import {
 import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
+import { BreadCrumbs } from '../../components/BreadCrumbs';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 
@@ -203,10 +204,28 @@ class EditFilter extends React.Component<IGlobalProps> {
             },
         });
 
+        const breadcrumbs = [{
+            text: 'Dashboard',
+            color: 'inherit',
+            href: '/dashboard',
+            selected: false,
+        }, {
+            text: 'Filters',
+            color: 'inherit',
+            href: '/dashboard/filters',
+            selected: false,
+        }, {
+            text: 'Edit Filter ' + this.props.params!.id,
+            color: 'primary',
+            href: '',
+            selected: true,
+        }];
+
         return (
             <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
                 <Container>
                     <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
+                        <BreadCrumbs crumbs={breadcrumbs} />
                         <Typography variant="h5" component="h2" >
                             Edit Webhook Filter {this.props.params!.id}
                         </Typography>

@@ -27,6 +27,7 @@ import {
 import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
+import { BreadCrumbs } from '../../components/BreadCrumbs';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 
@@ -203,10 +204,28 @@ class EditEmbed extends React.Component<IGlobalProps> {
             },
         });
 
+        const breadcrumbs = [{
+            text: 'Dashboard',
+            color: 'inherit',
+            href: '/dashboard',
+            selected: false,
+        }, {
+            text: 'Embeds',
+            color: 'inherit',
+            href: '/dashboard/embeds',
+            selected: false,
+        }, {
+            text: 'Edit Embed ' + this.props.params!.id,
+            color: 'primary',
+            href: '',
+            selected: true,
+        }];
+
         return (
             <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
                 <Container>
                     <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
+                        <BreadCrumbs crumbs={breadcrumbs} />
                         <Typography variant="h5" component="h2" >
                             Edit Embed Message Template {this.props.params!.id}
                         </Typography>

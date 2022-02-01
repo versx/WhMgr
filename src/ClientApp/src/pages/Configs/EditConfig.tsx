@@ -26,6 +26,7 @@ import {
 import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
+import { BreadCrumbs } from '../../components/BreadCrumbs';
 import { DatabaseInfo } from '../../components/DatabaseInfo';
 import { MultiSelect } from '../../components/MultiSelect';
 import withRouter from '../../hooks/WithRouter';
@@ -249,10 +250,28 @@ class EditConfig extends React.Component<IGlobalProps> {
             },
         });
 
+        const breadcrumbs = [{
+            text: 'Dashboard',
+            color: 'inherit',
+            href: '/dashboard',
+            selected: false,
+        }, {
+            text: 'Configs',
+            color: 'inherit',
+            href: '/dashboard/configs',
+            selected: false,
+        }, {
+            text: 'Edit Config ' + this.props.params!.id,
+            color: 'primary',
+            href: '',
+            selected: true,
+        }];
+
         return (
             <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
                 <Container>
                     <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
+                        <BreadCrumbs crumbs={breadcrumbs} />
                         <Typography variant="h5" component="h2" >
                             Edit Config {this.props.params!.id}
                         </Typography>
