@@ -11,6 +11,7 @@
             AllowTrailingCommas = true,
             WriteIndented = true,
             ReadCommentHandling = JsonCommentHandling.Skip,
+            //PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             //IgnoreReadOnlyProperties = true,
             //DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };

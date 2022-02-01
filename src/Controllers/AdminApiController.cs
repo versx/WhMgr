@@ -197,7 +197,10 @@
             var geofences = geofenceFiles.Where(f => validGeofences.Contains(Path.GetExtension(f)))
                                          .Select(f => Path.GetFileName(f));
 
-            var alarms = Directory.GetFiles(Strings.AlarmsFolder, "*.json").Select(f => Path.GetFileName(f));
+            var alarms = Directory.GetFiles(Strings.AlarmsFolder, "*.json")
+                                  .Select(f => Path.GetFileName(f));
+            var embeds = Directory.GetFiles(Strings.EmbedsFolder, "*.json")
+                                  .Select(f => Path.GetFileName(f));
 
             return new JsonResult(new
             {
@@ -206,7 +209,8 @@
                 {
                     discord,
                     allGeofences = geofences,
-                    allAlarms = alarms
+                    allAlarms = alarms,
+                    allEmbeds = embeds,
                     // TODO: Include roles.json
                     // TODO: Include icon styles
                 },
@@ -375,6 +379,35 @@
             return new JsonResult(embeds);
         }
 
+        [HttpGet("embed/{fileName}")]
+        [Produces("application/json")]
+        public IActionResult GetEmbed(string fileName)
+        {
+            var filePath = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(filePath))
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    error = $"Embed '{fileName}' does not exist",
+                });
+            }
+            var embed = LoadFromFile<EmbedMessage>(filePath);
+
+            var embedFiles = Directory.GetFiles(Strings.EmbedsFolder, "*.json")
+                                      .Select(f => Path.GetExtension(f));
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                data = new
+                {
+                    embed,
+                    placeholders = GetDtsPlaceholders(),
+                },
+            });
+        }
+
         #endregion
 
         #region Geofences API
@@ -450,6 +483,13 @@
         {
             var data = System.IO.File.ReadAllText(filePath);
             return data;
+        }
+
+        private static Dictionary<string, List<DtsPlaceholder>> GetDtsPlaceholders()
+        {
+            var path = "wwwroot/static/data/dts_placeholders.json";
+            var placeholders = LoadFromFile<Dictionary<string, List<DtsPlaceholder>>>(path);
+            return placeholders;
         }
 
         private static Dictionary<ulong, RoleConfig> GetRoles()
