@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material';
 import { Container, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
+const { homepage } = require('../../../package.json');
 
 const useStyles = makeStyles((theme: any) => ({
     container: {
@@ -67,83 +68,87 @@ const useStyles = makeStyles((theme: any) => ({
 function Leftbar() {
     const classes = useStyles();
     const location = useLocation();
+    const prefix = homepage;//'/myapp/'; // TODO: Rename to dashboard
     const isActive = (page: string): any => {
         const { pathname } = location;
         const splitLocation = pathname.split('/');
-        if (splitLocation.length >= 2 && (page === splitLocation[2] || page.includes(splitLocation[2]))) {
+        const isDashboard = page === splitLocation[2];
+        const isPage = (splitLocation[2] && page.includes(splitLocation[2])) || (page === splitLocation[2] && !isDashboard);
+        const result = splitLocation.length >= 2 && (isPage || isDashboard);
+        if (result) {
             return classes.active;
         }
         return null;
     };
     return (
         <Container className={classes.container}>
-            <Link to="/myapp/" className={classes.link}>
+            <Link to={prefix} className={classes.link}>
                 <div className={isActive('')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <HomeIcon className={classes.icon} />
                     <Typography className={classes.text}>Dashboard</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/configs" className={classes.link}>
+            <Link to={prefix + "configs"} className={classes.link}>
                 <div className={isActive('configs')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <MiscellaneousServicesIcon className={classes.icon} />
                     <Typography className={classes.text}>Configs</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/discords" className={classes.link}>
+            <Link to={prefix + "discords"} className={classes.link}>
                 <div className={isActive('discords')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <StorageIcon className={classes.icon} />
                     <Typography className={classes.text}>Discords</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/alarms" className={classes.link}>
+            <Link to={prefix + "alarms"} className={classes.link}>
                 <div className={isActive('alarms')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <NotificationsIcon className={classes.icon} />
                     <Typography className={classes.text}>Alarms</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/filters" className={classes.link}>
+            <Link to={prefix + "filters"} className={classes.link}>
                 <div className={isActive('filters')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <FilterListIcon className={classes.icon} />
                     <Typography className={classes.text}>Filters</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/embeds" className={classes.link}>
+            <Link to={prefix + "embeds"} className={classes.link}>
                 <div className={isActive('embeds')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <AccountTreeIcon className={classes.icon} />
                     <Typography className={classes.text}>Embeds</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/geofences" className={classes.link}>
+            <Link to={prefix + "geofences"} className={classes.link}>
                 <div className={isActive('geofences')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <NavigationIcon className={classes.icon} />
                     <Typography className={classes.text}>Geofences</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/roles" className={classes.link}>
+            <Link to={prefix + "roles"} className={classes.link}>
                 <div className={isActive('roles')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <LayersIcon className={classes.icon} />
                     <Typography className={classes.text}>Discord Roles</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/subscriptions" className={classes.link}>
+            <Link to={prefix + "subscriptions"} className={classes.link}>
                 <div className={isActive('subscriptions')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <SubscriptionsIcon className={classes.icon} />
                     <Typography className={classes.text}>Subscriptions</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/users" className={classes.link}>
+            <Link to={prefix + "users"} className={classes.link}>
                 <div className={isActive('users')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <PeopleIcon className={classes.icon} />
                     <Typography className={classes.text}>Users</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/settings" className={classes.link}>
+            <Link to={prefix + "settings"} className={classes.link}>
                 <div className={isActive('settings')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <SettingsIcon className={classes.icon} />
                     <Typography className={classes.text}>Settings</Typography>
                 </div>
             </Link>
-            <Link to="/myapp/logout" className={classes.link}>
+            <Link to={prefix + "logout"} className={classes.link}>
                 <div className={isActive('logout')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <ExitToAppIcon className={classes.icon} />
                     <Typography className={classes.text}>Logout</Typography>

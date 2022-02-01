@@ -1,13 +1,7 @@
 import React, { useState } from 'react'
 import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
     Box,
     Button,
-    Card,
-    CardContent,
-    CardHeader,
     Container,
     FormControl,
     FormControlLabel,
@@ -15,7 +9,6 @@ import {
     InputLabel,
     MenuItem,
     Select,
-    SelectChangeEvent,
     Switch,
     TextField,
     Typography,
