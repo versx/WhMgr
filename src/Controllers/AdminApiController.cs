@@ -438,7 +438,8 @@
             {
                 data = new
                 {
-                    geofence = geofence,
+                    name = Path.GetFileNameWithoutExtension(fileName),
+                    geofence,
                     format = Path.GetExtension(fileName)
                 },
             });

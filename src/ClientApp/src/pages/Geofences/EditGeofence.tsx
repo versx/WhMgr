@@ -36,8 +36,8 @@ class EditGeofence extends React.Component<IGlobalProps> {
         console.log('props:', props);
         this.state = {
             // TODO: Set default state values
-            name: props.params!.id,
-            format: '.json',
+            name: '',
+            format: '',
             geofence: '',
         };
         this.onInputChange = this.onInputChange.bind(this);
@@ -61,7 +61,8 @@ class EditGeofence extends React.Component<IGlobalProps> {
         .then(async (response) => await response.json())
         .then(data => {
             this.setState({
-                ...this.state,
+                //...this.state,
+                name: data.data.name,
                 format: data.data.format,
                 geofence: data.data.geofence,
             });
@@ -73,15 +74,6 @@ class EditGeofence extends React.Component<IGlobalProps> {
 
     onInputChange(event: any) {
         onNestedStateChange(event, this);
-        /*
-        const { name, value, checked, type } = event.target;
-        this.setState({
-            [name]: type === 'checkbox'
-                ? checked
-                : value
-        });
-        console.log('geofence state:', this.state);
-        */
     }
 
     handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -116,7 +108,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
         };
 
         const formatGeofenceToGeoJson = (data: any): any => {
-            console.log('format:', this.state.format, 'data:', data);
+            //console.log('format:', this.state.format, 'data:', data);
             if (data.length === 0) {
                 return null;
             }
