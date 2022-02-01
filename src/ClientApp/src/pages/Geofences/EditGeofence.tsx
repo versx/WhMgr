@@ -176,7 +176,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
             href: '/dashboard/geofences',
             selected: false,
         }, {
-            text: 'Edit Geofence ' + this.props.params!.id,
+            text: 'Edit ' + this.props.params!.id,
             color: 'primary',
             href: '',
             selected: true,

@@ -212,7 +212,7 @@ class EditFilter extends React.Component<IGlobalProps> {
             href: '/dashboard/filters',
             selected: false,
         }, {
-            text: 'Edit Filter ' + this.props.params!.id,
+            text: 'Edit ' + this.props.params!.id,
             color: 'primary',
             href: '',
             selected: true,

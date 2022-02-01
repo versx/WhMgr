@@ -293,7 +293,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
             href: '/dashboard/embeds',
             selected: false,
         }, {
-            text: 'Edit Embed ' + this.props.params!.id,
+            text: 'Edit ' + this.props.params!.id,
             color: 'primary',
             href: '',
             selected: true,

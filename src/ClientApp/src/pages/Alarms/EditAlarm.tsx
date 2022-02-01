@@ -163,7 +163,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
             href: '/dashboard/alarms',
             selected: false,
         }, {
-            text: 'Edit Alarm ' + this.props.params!.id,
+            text: 'Edit ' + this.props.params!.id,
             color: 'primary',
             href: '',
             selected: true,

@@ -209,7 +209,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
             href: '/dashboard/discords',
             selected: false,
         }, {
-            text: 'Edit Discord ' + this.props.params!.id,
+            text: 'Edit ' + this.props.params!.id,
             color: 'primary',
             href: '',
             selected: true,

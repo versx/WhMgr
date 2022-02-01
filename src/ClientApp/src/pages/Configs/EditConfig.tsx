@@ -248,7 +248,7 @@ class EditConfig extends React.Component<IGlobalProps> {
             href: '/dashboard/configs',
             selected: false,
         }, {
-            text: 'Edit Config ' + this.props.params!.id,
+            text: 'Edit ' + this.props.params!.id,
             color: 'primary',
             href: '',
             selected: true,

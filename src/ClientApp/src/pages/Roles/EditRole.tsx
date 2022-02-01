@@ -143,7 +143,7 @@ class EditRole extends React.Component<IGlobalProps> {
             href: '/dashboard/roles',
             selected: false,
         }, {
-            text: 'Edit Discord Role ' + this.props.params!.id,
+            text: 'Edit ' + this.props.params!.id,
             color: 'primary',
             href: '',
             selected: true,
