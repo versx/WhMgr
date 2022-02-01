@@ -1,4 +1,11 @@
-import React, { ReactNode, useEffect, useState } from 'react'
+import React from 'react'
+import {
+    MapContainer,
+    TileLayer,
+    GeoJSON,
+} from 'react-leaflet';
+import { Feature, Geometry } from 'geojson';
+import { LatLngExpression, Layer } from 'leaflet';
 import {
     Box,
     Button,
@@ -18,6 +25,7 @@ import config from '../../config.json';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
+import { iniToGeoJson } from '../../utils/geofenceConverter';
 import { onNestedStateChange } from '../../utils/nestedStateHelper';
 
 class EditGeofence extends React.Component<IGlobalProps> {
@@ -29,8 +37,8 @@ class EditGeofence extends React.Component<IGlobalProps> {
         this.state = {
             // TODO: Set default state values
             name: props.params!.id,
-            format: 'ini',
-            geofence: [],
+            format: '.json',
+            geofence: '',
         };
         this.onInputChange = this.onInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -52,15 +60,11 @@ class EditGeofence extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            console.log('geofence data:', data);
-            //this.setState(data.data.geofence);
-            const keys: string[] = Object.keys(data.data.geofence);
-            for (const key of keys) {
-                //console.log('key:', key, 'data:', data.data.geofence[key]);
-                if (data.data.geofence[key]) {
-                    this.setState({ [key]: data.data.geofence[key] });
-                }
-            }
+            this.setState({
+                ...this.state,
+                format: data.data.format,
+                geofence: data.data.geofence,
+            });
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -69,6 +73,15 @@ class EditGeofence extends React.Component<IGlobalProps> {
 
     onInputChange(event: any) {
         onNestedStateChange(event, this);
+        /*
+        const { name, value, checked, type } = event.target;
+        this.setState({
+            [name]: type === 'checkbox'
+                ? checked
+                : value
+        });
+        console.log('geofence state:', this.state);
+        */
     }
 
     handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -97,6 +110,25 @@ class EditGeofence extends React.Component<IGlobalProps> {
 
     render() {
         const handleCancel = () => window.location.href = '/dashboard/geofences';
+
+        const handleOnEachFeature = (feature: Feature<Geometry, any>, layer: Layer) => {
+            console.log('handleOnEachFeature:', feature, layer);
+        };
+
+        const formatGeofenceToGeoJson = (data: any): any => {
+            console.log('format:', this.state.format, 'data:', data);
+            if (data.length === 0) {
+                return null;
+            }
+            switch (this.state.format) {
+                case '.json':
+                    return JSON.parse(data);
+                case '.txt':
+                    return iniToGeoJson(data);
+                default:
+                    throw Error('Unsupported geofence format');
+            }
+        };
 
         const classes: any = makeStyles({
             container: {
@@ -176,17 +208,38 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                             name="format"
                                         >
                                             <FormControlLabel
-                                                value="ini"
-                                                control={<Radio checked={this.state.format === 'ini'} onChange={this.onInputChange} />}
+                                                id="format"
+                                                name="format"
+                                                value=".txt"
+                                                control={<Radio checked={this.state.format === '.txt'} onChange={this.onInputChange} />}
                                                 label="INI"
                                             />
                                             <FormControlLabel
-                                                value="json"
-                                                control={<Radio checked={this.state.format === 'json'} onChange={this.onInputChange} />}
+                                                id="format"
+                                                name="format"
+                                                value=".json"
+                                                control={<Radio checked={this.state.format === '.json'} onChange={this.onInputChange} />}
                                                 label="GeoJSON"
                                             />
                                         </RadioGroup>
                                     </FormControl>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <MapContainer
+                                        center={config.map.startLocation as LatLngExpression}
+                                        zoom={config.map.startZoom}
+                                        scrollWheelZoom={true}
+                                        style={{height: '600px'}}
+                                    >
+                                        <TileLayer url={config.map.tileserver} />
+                                        {this.state.geofence && (
+                                            <GeoJSON
+                                                key="geofence"
+                                                onEachFeature={handleOnEachFeature}
+                                                data={formatGeofenceToGeoJson(this.state.geofence)}
+                                            />
+                                        )}
+                                    </MapContainer>
                                 </Grid>
                             </Grid>
                         </div>

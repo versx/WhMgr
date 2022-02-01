@@ -71,7 +71,7 @@ function Dashboard() {
             <Card sx={{ display: 'flex' }}>
             {data.map((item: any) => {
                 return (
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Box key={item.name} sx={{ display: 'flex', flexDirection: 'column' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1, flex: 1 }}>
                         <PlayArrowIcon />
                       </Box>
