@@ -468,6 +468,23 @@
             return new JsonResult(result);
         }
 
+        [HttpGet("role/{name}")]
+        [Produces("application/json")]
+        public IActionResult GetDiscordRole(string name)
+        {
+            var roles = GetRoles();
+            var role = roles.FirstOrDefault(role => string.Equals(role.Value.Name, name, StringComparison.InvariantCultureIgnoreCase));
+            return new JsonResult(new
+            {
+                status = "OK",
+                data = new
+                {
+                    roleId = role.Key,
+                    role = role.Value,
+                },
+            });
+        }
+
         #endregion
 
         #region Users API
