@@ -209,7 +209,7 @@ class EditConfig extends React.Component<IGlobalProps> {
     }
 
     render() {
-        const handleCancel = () => window.location.href = '/dashboard/configs';
+        const handleCancel = () => window.location.href = config.homepage + 'configs';
 
         const classes: any = makeStyles({
             container: {
@@ -240,12 +240,12 @@ class EditConfig extends React.Component<IGlobalProps> {
         const breadcrumbs = [{
             text: 'Dashboard',
             color: 'inherit',
-            href: '/dashboard',
+            href: config.homepage,
             selected: false,
         }, {
             text: 'Configs',
             color: 'inherit',
-            href: '/dashboard/configs',
+            href: config.homepage + 'configs',
             selected: false,
         }, {
             text: 'Edit ' + this.props.params!.id,

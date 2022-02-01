@@ -15,7 +15,6 @@ import {
 
 import config from '../../config.json';
 
-
 const useStyles = makeStyles((theme: any) => ({
     container: {
         //padding: theme.spacing(2),
@@ -61,7 +60,7 @@ function ListDiscords() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/discord/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = config.homepage + 'discord/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
@@ -110,12 +109,12 @@ function ListDiscords() {
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Discord Servers</Typography>
-                <Link to="/dashboard/discord/new" className="link">
+                <Link to={config.homepage + "discord/new"} className="link">
                     <Button variant="contained" color="primary">New Discord</Button>
                 </Link>
             </div>
             <p>
-                Discord server configs are used by <a href="/dashboard/configs" >Configs</a> to determine what Discord server to report and respond to.
+                Discord server configs are used by <a href={config.homepage + "configs"} >Configs</a> to determine what Discord server to report and respond to.
             </p>
             <DataGrid className={classes.table}
                 rows={discords}

@@ -15,7 +15,6 @@ import {
 
 import config from '../../config.json';
 
-
 const useStyles = makeStyles((theme: any) => ({
     container: {
         //padding: theme.spacing(2),
@@ -59,7 +58,7 @@ function ListConfigs() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/config/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = config.homepage + 'config/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
@@ -108,7 +107,7 @@ function ListConfigs() {
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Configs</Typography>
-                <Link to="/dashboard/config/new" className="link">
+                <Link to={config.homepage + "config/new"} className="link">
                     <Button variant="contained" color="primary">New Config</Button>
                 </Link>
             </div>

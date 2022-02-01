@@ -68,7 +68,6 @@ const useStyles = makeStyles((theme: any) => ({
 function Leftbar() {
     const classes = useStyles();
     const location = useLocation();
-    const prefix = homepage;//'/myapp/'; // TODO: Rename to dashboard
     const isActive = (page: string): any => {
         const { pathname } = location;
         const splitLocation = pathname.split('/');
@@ -82,73 +81,73 @@ function Leftbar() {
     };
     return (
         <Container className={classes.container}>
-            <Link to={prefix} className={classes.link}>
+            <Link to={homepage} className={classes.link}>
                 <div className={isActive('')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <HomeIcon className={classes.icon} />
                     <Typography className={classes.text}>Dashboard</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "configs"} className={classes.link}>
+            <Link to={homepage + "configs"} className={classes.link}>
                 <div className={isActive('configs')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <MiscellaneousServicesIcon className={classes.icon} />
                     <Typography className={classes.text}>Configs</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "discords"} className={classes.link}>
+            <Link to={homepage + "discords"} className={classes.link}>
                 <div className={isActive('discords')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <StorageIcon className={classes.icon} />
                     <Typography className={classes.text}>Discords</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "alarms"} className={classes.link}>
+            <Link to={homepage + "alarms"} className={classes.link}>
                 <div className={isActive('alarms')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <NotificationsIcon className={classes.icon} />
                     <Typography className={classes.text}>Alarms</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "filters"} className={classes.link}>
+            <Link to={homepage + "filters"} className={classes.link}>
                 <div className={isActive('filters')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <FilterListIcon className={classes.icon} />
                     <Typography className={classes.text}>Filters</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "embeds"} className={classes.link}>
+            <Link to={homepage + "embeds"} className={classes.link}>
                 <div className={isActive('embeds')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <AccountTreeIcon className={classes.icon} />
                     <Typography className={classes.text}>Embeds</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "geofences"} className={classes.link}>
+            <Link to={homepage + "geofences"} className={classes.link}>
                 <div className={isActive('geofences')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <NavigationIcon className={classes.icon} />
                     <Typography className={classes.text}>Geofences</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "roles"} className={classes.link}>
+            <Link to={homepage + "roles"} className={classes.link}>
                 <div className={isActive('roles')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <LayersIcon className={classes.icon} />
                     <Typography className={classes.text}>Discord Roles</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "subscriptions"} className={classes.link}>
+            <Link to={homepage + "subscriptions"} className={classes.link}>
                 <div className={isActive('subscriptions')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <SubscriptionsIcon className={classes.icon} />
                     <Typography className={classes.text}>Subscriptions</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "users"} className={classes.link}>
+            <Link to={homepage + "users"} className={classes.link}>
                 <div className={isActive('users')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <PeopleIcon className={classes.icon} />
                     <Typography className={classes.text}>Users</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "settings"} className={classes.link}>
+            <Link to={homepage + "settings"} className={classes.link}>
                 <div className={isActive('settings')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <SettingsIcon className={classes.icon} />
                     <Typography className={classes.text}>Settings</Typography>
                 </div>
             </Link>
-            <Link to={prefix + "logout"} className={classes.link}>
+            <Link to={homepage + "logout"} className={classes.link}>
                 <div className={isActive('logout')} style={{display: 'flex', alignItems: 'center', marginBottom: '20px'}}>
                     <ExitToAppIcon className={classes.icon} />
                     <Typography className={classes.text}>Logout</Typography>

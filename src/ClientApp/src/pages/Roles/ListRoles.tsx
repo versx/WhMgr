@@ -15,7 +15,6 @@ import {
 
 import config from '../../config.json';
 
-
 const useStyles = makeStyles((theme: any) => ({
     container: {
         //padding: theme.spacing(2),
@@ -67,7 +66,7 @@ function ListRoles() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/role/' + params.row.name}>
+                        <IconButton color="primary" onClick={() => window.location.href = config.homepage + 'role/' + params.row.name}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
@@ -116,7 +115,7 @@ function ListRoles() {
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Discord Roles</Typography>
-                <Link to="/dashboard/role/new" className="link">
+                <Link to={config.homepage + "role/new"} className="link">
                     <Button variant="contained" color="primary">New Discord Role</Button>
                 </Link>
             </div>

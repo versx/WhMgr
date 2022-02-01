@@ -15,7 +15,6 @@ import {
 
 import config from '../config.json';
 
-
 const useStyles = makeStyles((theme: any) => ({
     container: {
         //padding: theme.spacing(2),
@@ -56,7 +55,7 @@ function ListUsers() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/user/edit/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = config.homepage + 'user/edit/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
@@ -105,7 +104,7 @@ function ListUsers() {
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Users</Typography>
-                <Link to="/dashboard/user/new" className="link">
+                <Link to={config.homepage + "user/new"} className="link">
                     <Button variant="contained" color="primary">New User</Button>
                 </Link>
             </div>

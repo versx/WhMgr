@@ -103,7 +103,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
     }
 
     render() {
-        const handleCancel = () => window.location.href = '/dashboard/geofences';
+        const handleCancel = () => window.location.href = config.homepage + 'geofences';
 
         const handleOnEachFeature = (feature: Feature<Geometry, any>, layer: Layer) => {
             console.log('handleOnEachFeature:', feature, layer);
@@ -168,12 +168,12 @@ class EditGeofence extends React.Component<IGlobalProps> {
         const breadcrumbs = [{
             text: 'Dashboard',
             color: 'inherit',
-            href: '/dashboard',
+            href: config.homepage,
             selected: false,
         }, {
             text: 'Geofences',
             color: 'inherit',
-            href: '/dashboard/geofences',
+            href: config.homepage + 'geofences',
             selected: false,
         }, {
             text: 'Edit ' + this.props.params!.id,

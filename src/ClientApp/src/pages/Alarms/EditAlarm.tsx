@@ -155,12 +155,12 @@ class EditAlarm extends React.Component<IGlobalProps> {
         const breadcrumbs = [{
             text: 'Dashboard',
             color: 'inherit',
-            href: '/dashboard',
+            href: config.homepage,
             selected: false,
         }, {
             text: 'Alarms',
             color: 'inherit',
-            href: '/dashboard/alarms',
+            href: config.homepage + 'alarms',
             selected: false,
         }, {
             text: 'Edit ' + this.props.params!.id,

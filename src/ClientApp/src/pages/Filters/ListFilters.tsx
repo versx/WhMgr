@@ -15,7 +15,6 @@ import {
 
 import config from '../../config.json';
 
-
 const useStyles = makeStyles((theme: any) => ({
     container: {
         //padding: theme.spacing(2),
@@ -87,7 +86,7 @@ function ListFilters() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/filter/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = config.homepage + 'filter/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
@@ -136,12 +135,12 @@ function ListFilters() {
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Alarm Filters</Typography>
-                <Link to="/dashboard/filter/new" className="link">
+                <Link to={config.homepage + "filter/new"} className="link">
                     <Button variant="contained" color="primary">New Filter</Button>
                 </Link>
             </div>
             <p>
-                Webhook alarm filters are used by <a href="/dashboard/alarms">Channel Alarms</a> to filter incoming webhook data based on type and other various properties.
+                Webhook alarm filters are used by <a href={config.homepage + "alarms"}>Channel Alarms</a> to filter incoming webhook data based on type and other various properties.
             </p>
             <DataGrid className={classes.table}
                 rows={filters}

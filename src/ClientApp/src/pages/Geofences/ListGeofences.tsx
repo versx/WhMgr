@@ -15,7 +15,6 @@ import {
 
 import config from '../../config.json';
 
-
 const useStyles = makeStyles((theme: any) => ({
     container: {
         //padding: theme.spacing(2),
@@ -51,7 +50,7 @@ function ListGeofences() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/geofence/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = config.homepage + 'geofence/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
@@ -100,7 +99,7 @@ function ListGeofences() {
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Geofences</Typography>
-                <Link to="/dashboard/geofence/new" className="link">
+                <Link to={config.homepage + "geofence/new"} className="link">
                     <Button variant="contained" color="primary">New Geofence</Button>
                 </Link>
             </div>

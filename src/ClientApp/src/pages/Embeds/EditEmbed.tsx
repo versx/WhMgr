@@ -254,7 +254,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
     }
 
     render() {
-        const handleCancel = () => window.location.href = '/dashboard/embeds';
+        const handleCancel = () => window.location.href = config.homepage + 'embeds';
 
         const classes: any = makeStyles({
             container: {
@@ -285,12 +285,12 @@ class EditEmbed extends React.Component<IGlobalProps> {
         const breadcrumbs = [{
             text: 'Dashboard',
             color: 'inherit',
-            href: '/dashboard',
+            href: config.homepage,
             selected: false,
         }, {
             text: 'Embeds',
             color: 'inherit',
-            href: '/dashboard/embeds',
+            href: config.homepage + 'embeds',
             selected: false,
         }, {
             text: 'Edit ' + this.props.params!.id,

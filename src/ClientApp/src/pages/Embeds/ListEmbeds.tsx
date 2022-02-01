@@ -15,7 +15,6 @@ import {
 
 import config from '../../config.json';
 
-
 const useStyles = makeStyles((theme: any) => ({
     container: {
         //padding: theme.spacing(2),
@@ -111,7 +110,7 @@ function ListEmbeds() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/embed/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = config.homepage + 'embed/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
@@ -160,7 +159,7 @@ function ListEmbeds() {
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Embeds</Typography>
-                <Link to="/dashboard/embed/new" className="link">
+                <Link to={config.homepage + "embed/new"} className="link">
                     <Button variant="contained" color="primary">New Embed</Button>
                 </Link>
             </div>

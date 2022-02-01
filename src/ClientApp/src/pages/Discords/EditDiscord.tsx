@@ -170,7 +170,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
     }
 
     render() {
-        const handleCancel = () => window.location.href = '/dashboard/discords';
+        const handleCancel = () => window.location.href = config.homepage + 'discords';
 
         const classes: any = makeStyles({
             container: {
@@ -201,12 +201,12 @@ class EditDiscord extends React.Component<IGlobalProps> {
         const breadcrumbs = [{
             text: 'Dashboard',
             color: 'inherit',
-            href: '/dashboard',
+            href: config.homepage,
             selected: false,
         }, {
             text: 'Discords',
             color: 'inherit',
-            href: '/dashboard/discords',
+            href: config.homepage + 'discords',
             selected: false,
         }, {
             text: 'Edit ' + this.props.params!.id,

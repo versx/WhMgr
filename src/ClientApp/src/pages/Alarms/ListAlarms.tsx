@@ -15,7 +15,6 @@ import {
 
 import config from '../../config.json';
 
-
 const useStyles = makeStyles((theme: any) => ({
     container: {
         //padding: theme.spacing(2),
@@ -88,7 +87,7 @@ function ListAlarms() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/alarm/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = config.homepage + 'alarm/' + params.row.id}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
@@ -137,7 +136,7 @@ function ListAlarms() {
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Channel Alarms</Typography>
-                <Link to="/dashboard/alarm/new" className="link">
+                <Link to={config.homepage + "alarm/new"} className="link">
                     <Button variant="contained" color="primary">New Alarm</Button>
                 </Link>
             </div>
