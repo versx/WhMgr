@@ -28,6 +28,8 @@ import { IGlobalProps } from '../../interfaces/IGlobalProps';
 import { iniToGeoJson } from '../../utils/geofenceConverter';
 import { onNestedStateChange } from '../../utils/nestedStateHelper';
 
+// TODO: Convert geofence upon check changed and save state
+
 class EditGeofence extends React.Component<IGlobalProps> {
     public state: any;
 
@@ -107,6 +109,20 @@ class EditGeofence extends React.Component<IGlobalProps> {
             console.log('handleOnEachFeature:', feature, layer);
         };
 
+        const handleOnFormatChange = (event: any) => {
+            this.onInputChange(event);
+            const newFormat = event.target.value;
+            const isGeoJson = newFormat === '.json';
+            console.log('new format:', newFormat, 'geojson:', isGeoJson);
+            this.setState({
+                ...this.state,
+                geofence: formatGeofenceToGeoJson(this.state.geofence),
+            });
+            // TODO: Check new format
+            // TODO: Convert geofence
+            // TODO: Save state
+        };
+
         const formatGeofenceToGeoJson = (data: any): any => {
             //console.log('format:', this.state.format, 'data:', data);
             if (data.length === 0) {
@@ -116,6 +132,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
                 case '.json':
                     return JSON.parse(data);
                 case '.txt':
+                // case '.ini':
                     return iniToGeoJson(data);
                 default:
                     throw Error('Unsupported geofence format');
@@ -203,14 +220,14 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                                 id="format"
                                                 name="format"
                                                 value=".txt"
-                                                control={<Radio checked={this.state.format === '.txt'} onChange={this.onInputChange} />}
+                                                control={<Radio checked={this.state.format === '.txt'} onChange={handleOnFormatChange} />}
                                                 label="INI"
                                             />
                                             <FormControlLabel
                                                 id="format"
                                                 name="format"
                                                 value=".json"
-                                                control={<Radio checked={this.state.format === '.json'} onChange={this.onInputChange} />}
+                                                control={<Radio checked={this.state.format === '.json'} onChange={handleOnFormatChange} />}
                                                 label="GeoJSON"
                                             />
                                         </RadioGroup>

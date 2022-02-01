@@ -70,7 +70,7 @@ function Leftbar() {
     const isActive = (page: string): any => {
         const { pathname } = location;
         const splitLocation = pathname.split('/');
-        if (splitLocation.length >= 2 && page === splitLocation[2]) {
+        if (splitLocation.length >= 2 && (page === splitLocation[2] || page.includes(splitLocation[2]))) {
             return classes.active;
         }
         return null;

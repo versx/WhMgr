@@ -131,7 +131,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
             this.setState({ ['allAlarms']: data.data.allAlarms });
             this.setState({ ['allEmbeds']: data.data.allEmbeds });
             this.setState({ ['allGeofences']: data.data.allGeofences });
-            console.log('discord state:', this.state);
+            //console.log('discord state:', this.state);
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification

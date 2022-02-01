@@ -6,7 +6,7 @@ export const onNestedStateChange = (event: any, component: Component) => {
     const finalProp = path.pop();
     const newState = { ...component.state };
     let pointer: any = newState;
-    path.forEach((el: any) => {
+    path.forEach((el: string) => {
       pointer[el] = { ...pointer[el] };
       pointer = pointer[el];
     });
