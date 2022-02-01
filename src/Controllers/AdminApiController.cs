@@ -202,6 +202,19 @@
             var embeds = Directory.GetFiles(Strings.EmbedsFolder, "*.json")
                                   .Select(f => Path.GetFileName(f));
 
+            var roles = GetRoles();
+            var result = new List<dynamic>();
+            foreach (var (roleId, role) in roles)
+            {
+                result.Add(new
+                {
+                    id = roleId,
+                    name = role.Name,
+                    permissions = role.Permissions,
+                    is_moderator = role.IsModerator,
+                });
+            }
+
             return new JsonResult(new
             {
                 status = "OK",
@@ -211,7 +224,7 @@
                     allGeofences = geofences,
                     allAlarms = alarms,
                     allEmbeds = embeds,
-                    // TODO: Include roles.json
+                    allRoles = result,
                     // TODO: Include icon styles
                 },
             });

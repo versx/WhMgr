@@ -131,6 +131,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
             this.setState({ ['allAlarms']: data.data.allAlarms });
             this.setState({ ['allEmbeds']: data.data.allEmbeds });
             this.setState({ ['allGeofences']: data.data.allGeofences });
+            this.setState({ ['allRoles']: data.data.allRoles });
             //console.log('discord state:', this.state);
         }).catch(err => {
             console.error('error:', err);
@@ -171,6 +172,16 @@ class EditDiscord extends React.Component<IGlobalProps> {
 
     render() {
         const handleCancel = () => window.location.href = config.homepage + 'discords';
+        const handleDonorRoleChange = (event: any) => {
+            const { name, value } = event.target;
+            console.log('donor role change target:', event.target, this.state, value[0]);
+            this.setState({
+                [name]: {
+                    [value[0] + '']: this.state.permissions,
+                },
+            });
+            console.log('donor role state:', this.state);
+        };
 
         const classes: any = makeStyles({
             container: {
@@ -246,19 +257,23 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                         </Grid>
                                         <Grid item xs={6} sm={6}>
                                             <FormControl fullWidth>
-                                                <InputLabel id="donorRoles-label">Donor Roles</InputLabel>
+                                                <InputLabel id="donorRoleIds-label">Donor Roles</InputLabel>
                                                 <Select
-                                                    labelId="donorRoles-label"
+                                                    labelId="donorRoleIds-label"
                                                     id="donorRoleIds"
                                                     name="donorRoleIds"
-                                                    value={[]/*this.state.donorRoleIds*/}
+                                                    value={Object.keys(this.state.donorRoleIds)}
                                                     multiple
                                                     label="Donor Roles"
-                                                    onChange={this.onInputChange}
+                                                    onChange={handleDonorRoleChange}
                                                 >
-                                                    <MenuItem key="en" value="en">English</MenuItem>
-                                                    <MenuItem key="es" value="es">Spanish</MenuItem>
-                                                    <MenuItem key="de" value="de">German</MenuItem>
+                                                    {this.state.allRoles && this.state.allRoles.map((role: any) => {
+                                                        if (!role.is_moderator) {
+                                                            return (
+                                                                <MenuItem key={role.id} value={role.id}>{role.name} ({role.permissions.join(', ')})</MenuItem>
+                                                            );
+                                                        }
+                                                    })}
                                                 </Select>
                                             </FormControl>
                                         </Grid>
@@ -274,9 +289,13 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                     label="Moderator Roles"
                                                     onChange={this.onInputChange}
                                                 >
-                                                    <MenuItem key="en" value="en">English</MenuItem>
-                                                    <MenuItem key="es" value="es">Spanish</MenuItem>
-                                                    <MenuItem key="de" value="de">German</MenuItem>
+                                                    {this.state.allRoles && this.state.allRoles.map((role: any) => {
+                                                        if (role.is_moderator) {
+                                                            return (
+                                                                <MenuItem key={role.id} value={role.id}>{role.name} ({role.permissions.join(', ')})</MenuItem>
+                                                            );
+                                                        }
+                                                    })}
                                                 </Select>
                                             </FormControl>
                                         </Grid>
