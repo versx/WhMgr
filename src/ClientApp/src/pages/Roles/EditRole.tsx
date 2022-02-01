@@ -62,13 +62,11 @@ class EditRole extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            console.log('role data:', data);
-            //this.setState(data.data.role);
-            const keys: string[] = Object.keys(data.data.role);
-            for (const key of keys) {
-                this.setState({ [key]: data.data.role[key] });
-            }
-            this.setState({ ['roleId']: data.data.roleId });
+            //console.log('role data:', data);
+            this.setState({
+                ...data.data.role,
+                roleId: data.data.roleId,
+            });
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
