@@ -18,7 +18,7 @@ import { ListAlarms, EditAlarm } from './pages/Alarms';
 import { ListFilters, EditFilter } from './pages/Filters';
 import { ListEmbeds, EditEmbed } from './pages/Embeds';
 import { ListGeofences, EditGeofence } from './pages/Geofences';
-import ListRoles from './pages/Roles/ListRoles';
+import { ListRoles, EditRole } from './pages/Roles';
 import ListUsers from './pages/ListUsers';
 import Settings from './pages/Settings';
 
@@ -50,16 +50,23 @@ function App() {
                 <Route path={basePath + "config/new"} element={<ListConfigs />} />
                 <Route path={basePath + "config/:id"} element={<EditConfig props={{}} />} />
                 <Route path={basePath + "discords"} element={<ListDiscords />} />
+                <Route path={basePath + "discord/new"} element={<ListDiscords />} />
                 <Route path={basePath + "discord/:id"} element={<EditDiscord props={{}} />} />
                 <Route path={basePath + "alarms"} element={<ListAlarms />} />
+                <Route path={basePath + "alarm/new"} element={<ListAlarms />} />
                 <Route path={basePath + "alarm/:id"} element={<EditAlarm props={{}} />} />
                 <Route path={basePath + "filters"} element={<ListFilters />} />
+                <Route path={basePath + "filter/new"} element={<ListFilters />} />
                 <Route path={basePath + "filter/:id"} element={<EditFilter props={{}} />} />
                 <Route path={basePath + "embeds"} element={<ListEmbeds />} />
+                <Route path={basePath + "embed/new"} element={<ListEmbeds />} />
                 <Route path={basePath + "embed/:id"} element={<EditEmbed props={{}} />} />
                 <Route path={basePath + "geofences"} element={<ListGeofences />} />
+                <Route path={basePath + "geofence/new"} element={<ListGeofences />} />
                 <Route path={basePath + "geofence/:id"} element={<EditGeofence props={{}} />} />
                 <Route path={basePath + "roles"} element={<ListRoles />} />
+                <Route path={basePath + "role/new"} element={<ListRoles />} />
+                <Route path={basePath + "role/:id"} element={<EditRole props={{}} />} />
                 <Route path={basePath + "subscriptions"} element={<ListConfigs />} />
                 <Route path={basePath + "users"} element={<ListUsers />} />
                 <Route path={basePath + "settings"} element={<Settings />} />

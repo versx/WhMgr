@@ -67,7 +67,7 @@ function ListRoles() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/role/' + params.row.id}>
+                        <IconButton color="primary" onClick={() => window.location.href = '/dashboard/role/' + params.row.name}>
                             <EditIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
