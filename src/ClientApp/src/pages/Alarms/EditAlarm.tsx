@@ -67,7 +67,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            console.log('alarm data:', data);
+            //console.log('alarm data:', data);
             //this.setState(data.data.alarm);
             const keys: string[] = Object.keys(data.data.alarm);
             for (const key of keys) {

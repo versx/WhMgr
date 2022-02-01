@@ -30,6 +30,7 @@ import config from '../../config.json';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
+import { onNestedStateChange } from '../../utils/nestedStateHelper';
 
 class EditFilter extends React.Component<IGlobalProps> {
     public state: any;
@@ -140,21 +141,7 @@ class EditFilter extends React.Component<IGlobalProps> {
     }
 
     onInputChange(event: any) {
-        const { name, type, value, checked } = event.target;
-        const path = name.split('.');
-        console.log('state path:', path, value);
-        const finalProp = path.pop();
-        const newState = { ...this.state };
-        let pointer = newState;
-        path.forEach((el: any) => {
-          pointer[el] = { ...pointer[el] };
-          pointer = pointer[el];
-        });
-        pointer[finalProp] = type === 'checkbox'
-            ? checked
-            : value;
-        console.log('newState:', newState);
-        this.setState(newState);
+        onNestedStateChange(event, this);
     }
 
     handlePanelExpanded = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {

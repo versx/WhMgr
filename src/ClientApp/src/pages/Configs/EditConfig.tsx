@@ -31,6 +31,7 @@ import { DatabaseInfo } from '../../components/DatabaseInfo';
 import { MultiSelect } from '../../components/MultiSelect';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
+import { onNestedStateChange } from '../../utils/nestedStateHelper';
 
 /**
  * Flatten a multidimensional object
@@ -177,21 +178,7 @@ class EditConfig extends React.Component<IGlobalProps> {
     }
 
     onInputChange(event: any) {
-        const { name, type, value, checked } = event.target;
-        const path = name.split('.');
-        console.log('state path:', path, value);
-        const finalProp = path.pop();
-        const newState = { ...this.state };
-        let pointer = newState;
-        path.forEach((el: any) => {
-          pointer[el] = { ...pointer[el] };
-          pointer = pointer[el];
-        });
-        pointer[finalProp] = type === 'checkbox'
-            ? checked
-            : value;
-        console.log('newState:', newState);
-        this.setState(newState);
+        onNestedStateChange(event, this);
     }
 
     handlePanelExpanded = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {

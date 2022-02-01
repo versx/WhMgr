@@ -1,23 +1,19 @@
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
     Accordion,
     AccordionDetails,
     AccordionSummary,
     Box,
     Button,
-    Card,
-    CardContent,
-    CardHeader,
     Container,
-    FormControl,
-    FormControlLabel,
     Grid,
-    InputLabel,
-    MenuItem,
-    Select,
-    SelectChangeEvent,
-    Switch,
-    TextareaAutosize,
+    Paper,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
     TextField,
     Typography,
 } from '@mui/material';
@@ -30,6 +26,7 @@ import config from '../../config.json';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
+import { onNestedStateChange } from '../../utils/nestedStateHelper';
 
 class EditEmbed extends React.Component<IGlobalProps> {
     public state: any;
@@ -40,70 +37,152 @@ class EditEmbed extends React.Component<IGlobalProps> {
         this.state = {
             // TODO: Set default state values
             name: props.params!.id,
-            pokemon: {
-                enabled: false,
-                pokemon: [],
-                forms: [],
-                costumes: [],
-                minIV: 0,
-                maxIV: 100,
-                minCP: 0,
-                maxCP: 999999,
-                minLevel: 0,
-                maxLevel: 35,
-                gender: '*',
-                size: 'All',
-                isGreatLeague: false,
-                isUltraLeague: false,
-                minRank: 0,
-                maxRank: 100,
-                isEvent: false,
-                type: 'Include',
-                ignoreMissing: false,
+            placeholders: {},
+            Pokemon: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
             },
-            raids: {
-                enabled: false,
-                pokemon: [],
-                forms: [],
-                costumes: [],
-                minLevel: 1,
-                maxLevel: 6,
-                team: 'All',
-                type: 'Include',
-                onlyEx: false,
-                ignoreMissing: false,
+            PokemonMissingStats: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
             },
-            eggs: {
-                enabled: false,
-                minLevel: 1,
-                maxLevel: 6,
-                team: 'All',
-                onlyEx: false,
+            Gyms: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
             },
-            quests: {
-                enabled: false,
-                rewardKeyword: '',
-                isShiny: false,
-                type: 'Include',
+            Raids: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
             },
-            pokestops: {
-                enabled: false,
-                lured: false,
-                lureTypes: [],
-                invasions: false,
-                invasionTypes: [],
+            Eggs: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
             },
-            gyms: {
-                enabled: false,
-                isUnderAttack: false,
-                team: 'All',
+            Pokestops: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
             },
-            weather: {
-                enabled: false,
-                types: [],
+            Quests: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
+            },
+            Lures: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
+            },
+            Invasions: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
+            },
+            Nests: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
+            },
+            Weather: {
+                avatarUrl: '',
+                content: [],
+                iconUrl: '',
+                title: '',
+                url: '',
+                username: '',
+                imageUrl: '',
+                footer: {
+                    text: '',
+                    iconUrl: '',
+                },
             },
         };
-        this.handleChange = this.handleChange.bind(this);
+        this.onInputChange = this.onInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handlePanelExpanded = this.handlePanelExpanded.bind(this);
     }
@@ -114,7 +193,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
     }
 
     fetchData(id: any) {
-        fetch(config.apiUrl + 'admin/filter/' + id, {
+        fetch(config.apiUrl + 'admin/embed/' + id, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -124,28 +203,25 @@ class EditEmbed extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            console.log('filter data:', data);
-            //this.setState(data.data.filter);
-            const keys: string[] = Object.keys(data.data.filter);
+            console.log('embed data:', data);
+            //this.setState(data.data.embed);
+            const keys: string[] = Object.keys(data.data.embed);
             for (const key of keys) {
-                //console.log('key:', key, 'data:', data.data.filter[key]);
-                if (data.data.filter[key]) {
-                    this.setState({ [key]: data.data.filter[key] });
+                //console.log('key:', key, 'data:', data.data.embed[key]);
+                if (data.data.embed[key]) {
+                    this.setState({ [key]: data.data.embed[key] });
                 }
             }
+            this.setState({ ['placeholders']: data.data.placeholders });
+            console.log('state:', this.state);
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
         });
     }
 
-    handleChange(event: any) {
-        const { name, value } = event.target;
-        console.log('event:', event);
-        //this.setState({ [name]: value });
-        this.setState(state => ({ ...state, [name]: value }));
-        //this.setObjectByPath([name], value);
-        console.log('state:', this.state);
+    onInputChange(event: any) {
+        onNestedStateChange(event, this);
     }
 
     handlePanelExpanded = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -158,7 +234,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
         console.log('handle submit state:', this.state);
 
         const id = this.props.params!.id;
-        fetch(config.apiUrl + 'admin/filter/' + id, {
+        fetch(config.apiUrl + 'admin/embed/' + id, {
             method: 'POST',
             body: JSON.stringify(this.state),
             headers: {
@@ -243,8 +319,155 @@ class EditEmbed extends React.Component<IGlobalProps> {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Pokemon.avatarUrl"
+                                                        name="Pokemon.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.Pokemon.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokemon.username"
+                                                        name="Pokemon.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.Pokemon.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokemon.iconUrl"
+                                                        name="Pokemon.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.Pokemon.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokemon.title"
+                                                        name="Pokemon.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.Pokemon.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokemon.url"
+                                                        name="Pokemon.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.Pokemon.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Pokemon.content"
+                                                        name="Pokemon.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.Pokemon.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Pokemon.imageUrl"
+                                                        name="Pokemon.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.Pokemon.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokemon.footer.text"
+                                                        name="Pokemon.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.Pokemon.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokemon.footer.iconUrl"
+                                                        name="Pokemon.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.Pokemon.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.pokemon && this.state.placeholders.pokemon.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
@@ -255,8 +478,155 @@ class EditEmbed extends React.Component<IGlobalProps> {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="PokemonMissingStats.avatarUrl"
+                                                        name="PokemonMissingStats.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.PokemonMissingStats.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="PokemonMissingStats.username"
+                                                        name="PokemonMissingStats.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.PokemonMissingStats.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="PokemonMissingStats.iconUrl"
+                                                        name="PokemonMissingStats.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.PokemonMissingStats.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="PokemonMissingStats.title"
+                                                        name="PokemonMissingStats.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.PokemonMissingStats.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="PokemonMissingStats.url"
+                                                        name="PokemonMissingStats.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.PokemonMissingStats.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="PokemonMissingStats.content"
+                                                        name="PokemonMissingStats.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.PokemonMissingStats.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="PokemonMissingStats.imageUrl"
+                                                        name="PokemonMissingStats.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.PokemonMissingStats.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="PokemonMissingStats.footer.text"
+                                                        name="PokemonMissingStats.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.PokemonMissingStats.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="PokemonMissingStats.footer.iconUrl"
+                                                        name="PokemonMissingStats.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.PokemonMissingStats.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.pokemon && this.state.placeholders.pokemon.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
@@ -267,8 +637,155 @@ class EditEmbed extends React.Component<IGlobalProps> {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Raids.avatarUrl"
+                                                        name="Raids.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.Raids.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Raids.username"
+                                                        name="Raids.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.Raids.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Raids.iconUrl"
+                                                        name="Raids.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.Raids.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Raids.title"
+                                                        name="Raids.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.Raids.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Raids.url"
+                                                        name="Raids.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.Raids.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Raids.content"
+                                                        name="Raids.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.Raids.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Raids.imageUrl"
+                                                        name="Raids.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.Raids.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Raids.footer.text"
+                                                        name="Raids.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.Raids.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Raids.footer.iconUrl"
+                                                        name="Raids.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.Raids.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.raids && this.state.placeholders.raids.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
@@ -279,8 +796,155 @@ class EditEmbed extends React.Component<IGlobalProps> {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Eggs.avatarUrl"
+                                                        name="Eggs.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.Eggs.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Eggs.username"
+                                                        name="Eggs.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.Eggs.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Eggs.iconUrl"
+                                                        name="Eggs.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.Eggs.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Eggs.title"
+                                                        name="Eggs.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.Eggs.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Eggs.url"
+                                                        name="Eggs.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.Eggs.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Eggs.content"
+                                                        name="Eggs.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.Eggs.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Eggs.imageUrl"
+                                                        name="Eggs.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.Eggs.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Eggs.footer.text"
+                                                        name="Eggs.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.Eggs.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Eggs.footer.iconUrl"
+                                                        name="Eggs.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.Eggs.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.raids && this.state.placeholders.raids.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
@@ -291,8 +955,155 @@ class EditEmbed extends React.Component<IGlobalProps> {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Gyms.avatarUrl"
+                                                        name="Gyms.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.Gyms.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Gyms.username"
+                                                        name="Gyms.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.Gyms.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Gyms.iconUrl"
+                                                        name="Gyms.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.Gyms.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Gyms.title"
+                                                        name="Gyms.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.Gyms.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Gyms.url"
+                                                        name="Gyms.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.Gyms.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Gyms.content"
+                                                        name="Gyms.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.Gyms.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Gyms.imageUrl"
+                                                        name="Gyms.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.Gyms.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Gyms.footer.text"
+                                                        name="Gyms.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.Gyms.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Gyms.footer.iconUrl"
+                                                        name="Gyms.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.Gyms.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.gyms && this.state.placeholders.gyms.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
@@ -303,8 +1114,155 @@ class EditEmbed extends React.Component<IGlobalProps> {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Pokestops.avatarUrl"
+                                                        name="Pokestops.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.Pokestops.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokestops.username"
+                                                        name="Pokestops.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.Pokestops.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokestops.iconUrl"
+                                                        name="Pokestops.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.Pokestops.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokestops.title"
+                                                        name="Pokestops.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.Pokestops.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokestops.url"
+                                                        name="Pokestops.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.Pokestops.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Pokestops.content"
+                                                        name="Pokestops.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.Pokestops.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Pokestops.imageUrl"
+                                                        name="Pokestops.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.Pokestops.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokestops.footer.text"
+                                                        name="Pokestops.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.Pokestops.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Pokestops.footer.iconUrl"
+                                                        name="Pokestops.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.Pokestops.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.pokestops && this.state.placeholders.pokestops.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
@@ -315,68 +1273,791 @@ class EditEmbed extends React.Component<IGlobalProps> {
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Quests.avatarUrl"
+                                                        name="Quests.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.Quests.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Quests.username"
+                                                        name="Quests.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.Quests.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Quests.iconUrl"
+                                                        name="Quests.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.Quests.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Quests.title"
+                                                        name="Quests.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.Quests.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Quests.url"
+                                                        name="Quests.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.Quests.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Quests.content"
+                                                        name="Quests.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.Quests.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Quests.imageUrl"
+                                                        name="Quests.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.Quests.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Quests.footer.text"
+                                                        name="Quests.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.Quests.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Quests.footer.iconUrl"
+                                                        name="Quests.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.Quests.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.quests && this.state.placeholders.quests.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion expanded={this.state.expanded === 'panel8'} onChange={this.handlePanelExpanded('panel8')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                    <Typography>Pokestops</Typography>
+                                    <Typography>Lures</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Lures.avatarUrl"
+                                                        name="Lures.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.Lures.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Lures.username"
+                                                        name="Lures.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.Lures.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Lures.iconUrl"
+                                                        name="Lures.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.Lures.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Lures.title"
+                                                        name="Lures.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.Lures.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Lures.url"
+                                                        name="Lures.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.Lures.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Lures.content"
+                                                        name="Lures.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.Lures.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Lures.imageUrl"
+                                                        name="Lures.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.Lures.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Lures.footer.text"
+                                                        name="Lures.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.Lures.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Lures.footer.iconUrl"
+                                                        name="Lures.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.Lures.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.pokestops && this.state.placeholders.pokestops.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion expanded={this.state.expanded === 'panel9'} onChange={this.handlePanelExpanded('panel9')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                    <Typography>Lures</Typography>
+                                    <Typography>Invasions</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Invasions.avatarUrl"
+                                                        name="Invasions.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.Invasions.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Invasions.username"
+                                                        name="Invasions.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.Invasions.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Invasions.iconUrl"
+                                                        name="Invasions.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.Invasions.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Invasions.title"
+                                                        name="Invasions.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.Invasions.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Invasions.url"
+                                                        name="Invasions.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.Invasions.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Invasions.content"
+                                                        name="Invasions.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.Invasions.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Invasions.imageUrl"
+                                                        name="Invasions.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.Invasions.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Invasions.footer.text"
+                                                        name="Invasions.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.Invasions.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Invasions.footer.iconUrl"
+                                                        name="Invasions.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.Invasions.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.pokestops && this.state.placeholders.pokestops.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion expanded={this.state.expanded === 'panel10'} onChange={this.handlePanelExpanded('panel10')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                    <Typography>Invasions</Typography>
+                                    <Typography>Nests</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Nests.avatarUrl"
+                                                        name="Nests.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.Nests.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Nests.username"
+                                                        name="Nests.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.Nests.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Nests.iconUrl"
+                                                        name="Nests.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.Nests.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Nests.title"
+                                                        name="Nests.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.Nests.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Nests.url"
+                                                        name="Nests.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.Nests.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Nests.content"
+                                                        name="Nests.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.Nests.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Nests.imageUrl"
+                                                        name="Nests.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.Nests.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Nests.footer.text"
+                                                        name="Nests.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.Nests.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Nests.footer.iconUrl"
+                                                        name="Nests.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.Nests.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.nests && this.state.placeholders.nests.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
                             <Accordion expanded={this.state.expanded === 'panel11'} onChange={this.handlePanelExpanded('panel11')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                    <Typography>Nests</Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
-                                        </Grid>
-                                    </Grid>
-                                </AccordionDetails>
-                            </Accordion>
-                            <Accordion expanded={this.state.expanded === 'panel12'} onChange={this.handlePanelExpanded('panel12')}>
-                                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography>Weather</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            ...
+                                        <Grid item xs={6}>
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Weather.avatarUrl"
+                                                        name="Weather.avatarUrl"
+                                                        variant="outlined"
+                                                        label="Avatar Url"
+                                                        type="text"
+                                                        value={this.state.Weather.avatarUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Weather.username"
+                                                        name="Weather.username"
+                                                        variant="outlined"
+                                                        label="Username"
+                                                        type="text"
+                                                        value={this.state.Weather.username}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Weather.iconUrl"
+                                                        name="Weather.iconUrl"
+                                                        variant="outlined"
+                                                        label="Icon Url"
+                                                        type="text"
+                                                        value={this.state.Weather.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Weather.title"
+                                                        name="Weather.title"
+                                                        variant="outlined"
+                                                        label="Title"
+                                                        type="text"
+                                                        value={this.state.Weather.title}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Weather.url"
+                                                        name="Weather.url"
+                                                        variant="outlined"
+                                                        label="Url"
+                                                        type="text"
+                                                        value={this.state.Weather.url}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Weather.content"
+                                                        name="Weather.content"
+                                                        variant="outlined"
+                                                        label="Content"
+                                                        type="text"
+                                                        value={this.state.Weather.content.join('\n')}
+                                                        multiline
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={12}>
+                                                    <TextField
+                                                        id="Weather.imageUrl"
+                                                        name="Weather.imageUrl"
+                                                        variant="outlined"
+                                                        label="Image Url"
+                                                        type="text"
+                                                        value={this.state.Weather.imageUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Weather.footer.text"
+                                                        name="Weather.footer.text"
+                                                        variant="outlined"
+                                                        label="Footer Text"
+                                                        type="text"
+                                                        value={this.state.Weather.footer.text}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12} sm={6}>
+                                                    <TextField
+                                                        id="Weather.footer.iconUrl"
+                                                        name="Weather.footer.iconUrl"
+                                                        variant="outlined"
+                                                        label="Footer Icon Url"
+                                                        type="text"
+                                                        value={this.state.Weather.footer.iconUrl}
+                                                        fullWidth
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                            </Grid>
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <TableContainer component={Paper}>
+                                                <Table sx={{ minWidth: 650 }} size="small" aria-label="">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>Placeholder</TableCell>
+                                                            <TableCell align="right">Description</TableCell>
+                                                            <TableCell align="right">Example</TableCell>
+                                                            <TableCell align="right">Type</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {this.state.placeholders.weather && this.state.placeholders.weather.map((placeholder: any) => {
+                                                            return (
+                                                                <TableRow
+                                                                    key={placeholder.placeholder}
+                                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                >
+                                                                    <TableCell component="th" scope="row">
+                                                                        <code>{placeholder.placeholder}</code>
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.description}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.example}
+                                                                    </TableCell>
+                                                                    <TableCell align="right">
+                                                                        {placeholder.type}
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
                                         </Grid>
                                     </Grid>
                                 </AccordionDetails>
