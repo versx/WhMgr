@@ -179,12 +179,24 @@ class EditConfig extends React.Component<IGlobalProps> {
     }
 
     handleChange(event: any) {
+        /*
         const { name, value } = event.target;
         console.log('event:', event);
         //this.setState({ [name]: value });
-        //this.setState(state => ({ ...state, [name]: value }));
-        this.setObjectByPath([name], value);
+        this.setState(state => ({ ...state, [name]: value }));
+        //this.setObjectByPath([name], value);
         console.log('state:', this.state);
+        */
+
+        const names = event.target.name.split('.');
+        console.log('names:', names);
+        const value = event.target.type === 'checkbox'
+            ? event.target.checked
+            : event.target.value;
+        this.setState((state: any) => {
+          state[names[0]][names[1]] = value;
+          return {[names[0]]: state[names[0]]};
+        });
     }
 
     handlePanelExpanded = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
