@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Net.Mime;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -30,7 +31,7 @@
         }
 
         [HttpGet("dashboard")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetDashboard()
         {
             return new JsonResult(new List<dynamic>
@@ -49,7 +50,7 @@
         #region Config API
 
         [HttpGet("configs")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetConfigs()
         {
             var files = Directory.GetFiles(Strings.ConfigsFolder, "*.json");
@@ -79,7 +80,7 @@
         }
 
         [HttpGet("config/{fileName}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetConfig(string fileName)
         {
             var filePath = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
@@ -116,7 +117,7 @@
         }
 
         [HttpPost("config/{fileName}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> UpdateConfig(string fileName)//, Config data)
         {
             var data = await Request.GetRawBodyStringAsync();
@@ -148,7 +149,7 @@
         #region Discord Servers API
 
         [HttpGet("discords")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetDiscords()
         {
             var files = Directory.GetFiles(Strings.DiscordsFolder, "*.json");
@@ -178,7 +179,7 @@
         }
 
         [HttpGet("discord/{fileName}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetDiscord(string fileName)
         {
             var filePath = Path.Combine(Strings.DiscordsFolder, fileName + ".json");
@@ -235,7 +236,7 @@
         #region Alarms API
 
         [HttpGet("alarms")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetAlarms()
         {
             var files = Directory.GetFiles(Strings.AlarmsFolder, "*.json");
@@ -267,7 +268,7 @@
         }
 
         [HttpGet("alarm/{fileName}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetAlarm(string fileName)
         {
             var filePath = Path.Combine(Strings.AlarmsFolder, fileName + ".json");
@@ -297,7 +298,7 @@
         #region Filters API
 
         [HttpGet("filters")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetFilters()
         {
             var files = Directory.GetFiles(Strings.FiltersFolder, "*.json");
@@ -328,7 +329,7 @@
         }
 
         [HttpGet("filter/{fileName}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetFilter(string fileName)
         {
             var filePath = Path.Combine(Strings.FiltersFolder, fileName + ".json");
@@ -357,7 +358,7 @@
         #region Embeds API
 
         [HttpGet("embeds")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetEmbeds()
         {
             var files = Directory.GetFiles(Strings.EmbedsFolder, "*.json");
@@ -393,7 +394,7 @@
         }
 
         [HttpGet("embed/{fileName}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetEmbed(string fileName)
         {
             var filePath = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
@@ -426,7 +427,7 @@
         #region Geofences API
 
         [HttpGet("geofences")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetGeofences()
         {
             var files = Directory.GetFiles(Strings.GeofencesFolder);
@@ -437,7 +438,7 @@
         }
 
         [HttpGet("geofence/{fileName}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetGeofence(string fileName)
         {
             var filePath = Path.Combine(Strings.GeofencesFolder, fileName);
@@ -463,7 +464,7 @@
         #region Discord Roles API
 
         [HttpGet("roles")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetDiscordRoles()
         {
             var roles = GetRoles();
@@ -482,7 +483,7 @@
         }
 
         [HttpGet("role/{name}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetDiscordRole(string name)
         {
             var roles = GetRoles();
@@ -503,7 +504,7 @@
         #region Users API
 
         [HttpGet("users")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetUsers()
         {
             return new JsonResult(new { });
@@ -514,7 +515,7 @@
         #region Settings API
 
         [HttpGet("settings")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetSettings()
         {
             return new JsonResult(new { });

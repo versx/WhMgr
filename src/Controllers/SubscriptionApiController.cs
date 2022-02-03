@@ -32,7 +32,7 @@
         #region User Subscriptions
 
         //[HttpGet("/")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GetUserSubscriptions()
         {
             var subscriptions = await _subscriptionManager.GetUserSubscriptionsAsync().ConfigureAwait(false);
@@ -45,7 +45,7 @@
         }
 
         [HttpGet("{guildId}/{userId}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetUserSubscription(ulong guildId, ulong userId)
         {
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
@@ -64,7 +64,7 @@
         #region Pokemon Subscriptions
 
         [HttpGet("pokemon/{guildId}/{userId}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetPokemonSubscriptions(ulong guildId, ulong userId)
         {
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
@@ -79,7 +79,7 @@
         }
 
         [HttpGet("pokemon/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GetPokemonSubscription(int id)
         {
             var response = await GetSubscription<PokemonSubscription>(id);
@@ -87,7 +87,7 @@
         }
 
         [HttpPost("pokemon/create")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> PokemonCreate(PokemonSubscription pokemonSubscription)
         {
             if (pokemonSubscription == null)
@@ -138,7 +138,7 @@
         }
 
         [HttpPut("pokemon/update/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> PokemonUpdate(int id, PokemonSubscription pokemonSubscription)
         {
             var response = await UpdateSubscription(id, pokemonSubscription);
@@ -146,7 +146,7 @@
         }
 
         [HttpDelete("pokemon/delete/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> PokemonDelete(int id)
         {
             var response = await DeleteSubscription<PokemonSubscription>(id);
@@ -158,7 +158,7 @@
         #region PvP Subscriptions
 
         [HttpGet("pvp/{guildId}/{userId}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetPvpSubscriptions(ulong guildId, ulong userId)
         {
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
@@ -173,7 +173,7 @@
         }
 
         [HttpGet("pvp/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GetPvpSubscription(int id)
         {
             var response = await GetSubscription<PvpSubscription>(id);
@@ -181,7 +181,7 @@
         }
 
         [HttpPost("pvp/create")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> PvpCreate(PvpSubscription pvpSubscription)
         {
             if (pvpSubscription == null)
@@ -232,7 +232,7 @@
         }
 
         [HttpPut("pvp/update/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> PvpUpdate(int id, PvpSubscription pvpSubscription)
         {
             var response = await UpdateSubscription(id, pvpSubscription);
@@ -240,7 +240,7 @@
         }
 
         [HttpDelete("pvp/delete/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> PvpDelete(int id)
         {
             var response = await DeleteSubscription<PvpSubscription>(id);
@@ -252,7 +252,7 @@
         #region Raid Subscriptions
 
         [HttpGet("raids/{guildId}/{userId}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetRaidSubscriptions(ulong guildId, ulong userId)
         {
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
@@ -267,7 +267,7 @@
         }
 
         [HttpGet("raid/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GetRaidSubscription(int id)
         {
             var response = await GetSubscription<RaidSubscription>(id);
@@ -275,7 +275,7 @@
         }
 
         [HttpPost("raid/create")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> RaidCreate(RaidSubscription raidSubscription)
         {
             if (raidSubscription == null)
@@ -326,7 +326,7 @@
         }
 
         [HttpPut("raid/update/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> RaidUpdate(int id, RaidSubscription raidSubscription)
         {
             var response = await UpdateSubscription(id, raidSubscription);
@@ -334,7 +334,7 @@
         }
 
         [HttpDelete("raid/delete/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> RaidDelete(int id)
         {
             var response = await DeleteSubscription<RaidSubscription>(id);
@@ -346,7 +346,7 @@
         #region Quest Subscriptions
 
         [HttpGet("quests/{guildId}/{userId}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetQuestSubscriptions(ulong guildId, ulong userId)
         {
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
@@ -361,7 +361,7 @@
         }
 
         [HttpGet("quest/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GetQuestSubscription(int id)
         {
             var response = await GetSubscription<QuestSubscription>(id);
@@ -369,7 +369,7 @@
         }
 
         [HttpPost("quest/create")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> QuestCreate(QuestSubscription questSubscription)
         {
             if (questSubscription == null)
@@ -420,7 +420,7 @@
         }
 
         [HttpPut("quest/update/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> QuestUpdate(int id, QuestSubscription questSubscription)
         {
             var response = await UpdateSubscription(id, questSubscription);
@@ -428,7 +428,7 @@
         }
 
         [HttpDelete("quest/delete/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> QuestDelete(int id)
         {
             var response = await DeleteSubscription<QuestSubscription>(id);
@@ -440,7 +440,7 @@
         #region Invasion Subscriptions
 
         [HttpGet("invasions/{guildId}/{userId}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetInvasionSubscriptions(ulong guildId, ulong userId)
         {
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
@@ -455,7 +455,7 @@
         }
 
         [HttpGet("invasion/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GetInvasionSubscription(int id)
         {
             var response = await GetSubscription<InvasionSubscription>(id);
@@ -463,7 +463,7 @@
         }
 
         [HttpPost("invasion/create")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> InvasionCreate(InvasionSubscription invasionSubscription)
         {
             if (invasionSubscription == null)
@@ -514,7 +514,7 @@
         }
 
         [HttpPut("invasion/update/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> InvasionUpdate(int id, InvasionSubscription invasionSubscription)
         {
             var response = await UpdateSubscription(id, invasionSubscription);
@@ -522,7 +522,7 @@
         }
 
         [HttpDelete("invasion/delete/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> InvasionDelete(int id)
         {
             var response = await DeleteSubscription<InvasionSubscription>(id);
@@ -534,7 +534,7 @@
         #region Lure Subscriptions
 
         [HttpGet("lures/{guildId}/{userId}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetLureSubscriptions(ulong guildId, ulong userId)
         {
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
@@ -549,7 +549,7 @@
         }
 
         [HttpGet("lure/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GetLureSubscription(int id)
         {
             var response = await GetSubscription<LureSubscription>(id);
@@ -557,7 +557,7 @@
         }
 
         [HttpPost("lure/create")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> LureCreate(LureSubscription lureSubscription)
         {
             if (lureSubscription == null)
@@ -608,7 +608,7 @@
         }
 
         [HttpPut("lure/update/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> LureUpdate(int id, LureSubscription lureSubscription)
         {
             var response = await UpdateSubscription(id, lureSubscription);
@@ -616,7 +616,7 @@
         }
 
         [HttpDelete("lure/delete/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> LureDelete(int id)
         {
             var response = await DeleteSubscription<LureSubscription>(id);
@@ -628,7 +628,7 @@
         #region Gym Subscriptions
 
         [HttpGet("gyms/{guildId}/{userId}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetGymSubscriptions(ulong guildId, ulong userId)
         {
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
@@ -643,7 +643,7 @@
         }
 
         [HttpGet("gym/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GetGymSubscription(int id)
         {
             var response = await GetSubscription<GymSubscription>(id);
@@ -651,7 +651,7 @@
         }
 
         [HttpPost("gym/create")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> LureCreate(GymSubscription gymSubscription)
         {
             if (gymSubscription == null)
@@ -702,7 +702,7 @@
         }
 
         [HttpPut("gym/update/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GymUpdate(int id, GymSubscription gymSubscription)
         {
             var response = await UpdateSubscription(id, gymSubscription);
@@ -710,7 +710,7 @@
         }
 
         [HttpDelete("gym/delete/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GymDelete(int id)
         {
             var response = await DeleteSubscription<GymSubscription>(id);
@@ -722,7 +722,7 @@
         #region Location Subscriptions
 
         [HttpGet("locations/{guildId}/{userId}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public IActionResult GetLocationSubscriptions(ulong guildId, ulong userId)
         {
             var subscription = _subscriptionManager.GetUserSubscriptions(guildId, userId);
@@ -737,7 +737,7 @@
         }
 
         [HttpGet("location/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> GetLocationSubscription(int id)
         {
             var response = await GetSubscription<LocationSubscription>(id);
@@ -745,7 +745,7 @@
         }
 
         [HttpPost("location/create")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> LocationCreate(LocationSubscription locationSubscription)
         {
             if (locationSubscription == null)
@@ -796,7 +796,7 @@
         }
 
         [HttpPut("location/update/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> LocationUpdate(int id, LocationSubscription gymSubscription)
         {
             var response = await UpdateSubscription(id, gymSubscription);
@@ -804,7 +804,7 @@
         }
 
         [HttpDelete("location/delete/{id}")]
-        [Produces("application/json")]
+        [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> LocationDelete(int id)
         {
             var response = await DeleteSubscription<LocationSubscription>(id);
