@@ -31,19 +31,6 @@
         ]
         public List<uint> PokemonId { get; set; } = new();
 
-        /*
-        [
-            JsonIgnore,
-            NotMapped,
-        ]
-        public List<string> Forms => FormsString?.Split(',').ToList();
-
-        [
-            JsonPropertyName("form"),
-            Column("form"),
-        ]
-        public string FormsString { get; set; }
-        */
         [
             JsonPropertyName("forms"),
             Column("forms"),
@@ -88,7 +75,6 @@
 
         public PvpSubscription()
         {
-            //FormsString = null;
             League = PvpLeague.Great;
             MinimumRank = 25;
             MinimumPercent = 95;

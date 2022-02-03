@@ -33,20 +33,6 @@
         ]
         public List<uint> PokemonId { get; set; } = new();
 
-        /*
-        [
-            JsonIgnore,
-            NotMapped,
-        ]
-        public List<string> Forms => FormsString?.Split(',').ToList();
-
-        [
-            JsonPropertyName("form"),
-            Column("form"),
-        ]
-        public string FormsString { get; set; }
-        */
-
         [
             JsonPropertyName("forms"),
             Column("forms"),
@@ -58,7 +44,7 @@
             JsonPropertyName("costumes"),
             Column("costumes"),
         ]
-        public List<string> Costumes { get; set; }
+        public List<string> Costumes { get; set; } = new();
         */
 
         [
@@ -103,21 +89,6 @@
         ]
         public string Gender { get; set; }
 
-        /*
-        [
-            JsonIgnore,
-            NotMapped,
-        ]
-        public PokemonSize Size => (PokemonSize)_Size;
-
-        [
-            JsonPropertyName("size"),
-            Column("size"),
-            DefaultValue((uint)PokemonSize.All),
-        ]
-        public uint _Size { get; set; }
-        */
-
         [
             JsonPropertyName("size"),
             Column("size"),
@@ -156,8 +127,6 @@
             Gender = "*";
             Size = (uint)PokemonSize.All;
             PokemonId = new List<uint>();
-            Forms = new List<string>();
-            //Costumes = new List<string>();
         }
 
         #endregion

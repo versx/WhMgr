@@ -5,7 +5,6 @@
     using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Linq;
     using System.Text.Json.Serialization;
 
     [Table("raids")]
@@ -28,20 +27,6 @@
             Required,
         ]
         public List<uint> PokemonId { get; set; } = new();
-
-        /*
-        [
-            JsonIgnore,
-            NotMapped,
-        ]
-        public List<string> Forms => FormsString?.Split(',').ToList();
-
-        [
-            JsonPropertyName("form"),
-            Column("form"),
-        ]
-        public string FormsString { get; set; }
-        */
 
         [
             JsonPropertyName("forms"),
