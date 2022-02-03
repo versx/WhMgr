@@ -50,6 +50,6 @@
 
         Task ReloadSubscriptionsAsync(bool skipCheck = false, ushort reloadM = 5);
 
-        bool Save(Subscription subscription);
+        Task<bool> SaveAsync(Subscription subscription);
     }
 }

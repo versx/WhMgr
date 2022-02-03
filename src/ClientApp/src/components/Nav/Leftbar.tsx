@@ -2,9 +2,6 @@ import React from 'react'
 import { Link, useLocation } from 'react-router-dom';
 import {
     Home as HomeIcon,
-    PhotoCamera as PhotoCameraIcon,
-    Bookmark as BookmarkIcon,
-    Storefront as StorefrontIcon,
     Settings as SettingsIcon,
     ExitToApp as ExitToAppIcon,
     MiscellaneousServices as MiscellaneousServicesIcon,

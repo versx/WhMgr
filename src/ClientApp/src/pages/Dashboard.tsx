@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom';
 import {
     Box,
     Button,
     ButtonGroup,
     Card,
     CardContent,
+    Grid,
+    Paper,
     Typography,
 } from '@mui/material';
 import {
@@ -68,20 +71,28 @@ function Dashboard() {
                 <Typography variant="h4" component="h1" className={classes.title}>Dashboard</Typography>
             </div>
             <Card sx={{ display: 'flex' }}>
-            {data.map((item: any) => {
-                return (
-                    <Box key={item.name} sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1, flex: 1 }}>
-                        <PlayArrowIcon />
-                      </Box>
-                      <CardContent sx={{ flex: '1 0 auto' }}>
-                        <Typography component="div" variant="h5">
-                          {item.name} {item.count}
-                        </Typography>
-                      </CardContent>
-                    </Box>
-                );
-            })}
+                <Grid container spacing={2}>
+                {data.map((item: any) => {
+                    return (
+                        <Grid key={item.name} item xs={12} sm={4}>
+                            <Paper elevation={2} sx={{alignItems: 'center', color: 'secondary', height: '60', lineHeight: '60px'}}>
+                                <Box key={item.name} sx={{ display: 'flex', flexDirection: 'column' }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', pl: 1, pb: 1, flex: 1 }}>
+                                        <PlayArrowIcon />
+                                    </Box>
+                                    <CardContent sx={{ flex: '1 0 auto' }}>
+                                        <Typography component="div" variant="h5">
+                                            <Link to={config.homepage + item.name.toLowerCase()} style={{color: 'inherit', textDecoration: 'none'}}>
+                                                {item.name} {item.count}
+                                            </Link>
+                                        </Typography>
+                                    </CardContent>
+                                </Box>
+                            </Paper>
+                        </Grid>
+                    );
+                })}
+                </Grid>
             </Card>
         </div>
     );

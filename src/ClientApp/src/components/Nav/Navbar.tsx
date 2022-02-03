@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import {
     Camera as CameraIcon,
-    Mail,
     Notifications,
 } from '@mui/icons-material';
 import { makeStyles } from '@mui/styles';

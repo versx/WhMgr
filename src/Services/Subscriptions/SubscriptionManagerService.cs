@@ -43,54 +43,29 @@
         public async Task<List<Subscription>> GetUserSubscriptionsAsync()
         {
             using var ctx = _dbFactory.CreateDbContext();
-            _subscriptions = (await ctx.Subscriptions.Where(s => s.Status != NotificationStatusType.None)
-                                                     // Include Pokemon subscriptions
-                                                     .Include(s => s.Pokemon)
-                                                     // Include PvP subscriptions
-                                                     .Include(s => s.PvP)
-                                                     // Include Raid subscriptions
-                                                     .Include(s => s.Raids)
-                                                     // Include Quest subscriptions
-                                                     .Include(s => s.Quests)
-                                                     // Include Invasion subscriptions
-                                                     .Include(s => s.Invasions)
-                                                     // Include Lure subscriptions
-                                                     .Include(s => s.Lures)
-                                                     // Include Gym subscriptions
-                                                     .Include(s => s.Gyms)
-                                                     // Include Location subscriptions
-                                                     .Include(s => s.Locations)
-                                                     .ToListAsync())
-                                                     .ToList();
+            _subscriptions = await ctx.Subscriptions.Where(s => s.Status != NotificationStatusType.None)
+                                                    // Include Pokemon subscriptions
+                                                    .Include(s => s.Pokemon)
+                                                    // Include PvP subscriptions
+                                                    .Include(s => s.PvP)
+                                                    // Include Raid subscriptions
+                                                    .Include(s => s.Raids)
+                                                    // Include Quest subscriptions
+                                                    .Include(s => s.Quests)
+                                                    // Include Invasion subscriptions
+                                                    .Include(s => s.Invasions)
+                                                    // Include Lure subscriptions
+                                                    .Include(s => s.Lures)
+                                                    // Include Gym subscriptions
+                                                    .Include(s => s.Gyms)
+                                                    // Include Location subscriptions
+                                                    .Include(s => s.Locations)
+                                                    .ToListAsync();
             return _subscriptions;
         }
 
         public Subscription GetUserSubscriptions(ulong guildId, ulong userId)
         {
-            /*
-            using (var ctx = _dbFactory.CreateDbContext())
-            {
-                var subscription = await ctx.Subscriptions.Include(s => s.Pokemon)
-                                                          // Include PvP subscriptions
-                                                          .Include(s => s.PvP)
-                                                          // Include Raid subscriptions
-                                                          .Include(s => s.Raids)
-                                                          // Include Quest subscriptions
-                                                          .Include(s => s.Quests)
-                                                          // Include Invasion subscriptions
-                                                          .Include(s => s.Invasions)
-                                                          // Include Lure subscriptions
-                                                          .Include(s => s.Lures)
-                                                          // Include Gym subscriptions
-                                                          .Include(s => s.Gyms)
-                                                          // Include Location subscriptions
-                                                          .Include(s => s.Locations)
-                                                          .FirstOrDefaultAsync(s => s.Status != NotificationStatusType.None
-                                                                                 && s.GuildId == guildId
-                                                                                 && s.UserId == userId);
-                return subscription;
-            }
-            */
             return _subscriptions?.FirstOrDefault(x => x.GuildId == guildId && x.UserId == userId);
         }
 
@@ -251,7 +226,7 @@
             await ctx.SaveChangesAsync(true);
         }
 
-        public bool Save(Subscription subscription)
+        public async Task<bool> SaveAsync(Subscription subscription)
         {
             // Save subscription changes
             try
@@ -259,7 +234,7 @@
                 using (var ctx = _dbFactory.CreateDbContext())
                 {
                     ctx.Update(subscription);
-                    ctx.SaveChanges();
+                    await ctx.SaveChangesAsync(true);
                 }
                 return true;
             }
@@ -278,10 +253,10 @@
             // Only reload based on last_changed timestamp in metadata table
             var lastModifiedTimestamp = GetLastModifiedTimestamp();
             var utcNow = DateTime.UtcNow.GetUnixTimestamp();
-            var fiveMinutesMs = reloadM * 60 * 60;
+            var reloadMinutesMs = reloadM * 60 * 60;
             var delta = utcNow - lastModifiedTimestamp;
-            // Check if last_modified was set within the last 5 minutes
-            if (!skipCheck && delta > fiveMinutesMs)
+            // Check if last_modified was set within the last x minutes
+            if (!skipCheck && delta > reloadMinutesMs)
                 return;
 
             // Updated, reload subscriptions

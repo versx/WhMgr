@@ -42,7 +42,7 @@ namespace WhMgr
                                 return;
                             }
                             // TODO: >.> Need to implement ConfigHolder in Startup instead of just Config
-                            var holder = new ConfigHolder(config);
+                            //var holder = new ConfigHolder(config);
                             config.FileName = configPath;
                             config.LoadDiscordServers();
                             Startup.Config = config;
