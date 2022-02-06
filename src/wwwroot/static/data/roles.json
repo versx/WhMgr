@@ -12,8 +12,8 @@
       "Gyms"
     ]
   },
-  "2": {
-    "name": "Test User Role",
+  "618612667438858270": {
+    "name": "Supporter6",
     "moderator": false,
     "permissions": [
       "Pokemon",
@@ -25,13 +25,17 @@
       "Gyms"
     ]
   },
-  "3": {
-    "name": "ModTest2",
-    "moderator": true,
+  "618612745377677322": {
+    "name": "Supporter12",
+    "moderator": false,
     "permissions": [
       "Pokemon",
       "PvP",
-      "Raids"
+      "Raids",
+      "Quests",
+      "Invasions",
+      "Lures",
+      "Gyms"
     ]
   },
   "560541321568190494": {

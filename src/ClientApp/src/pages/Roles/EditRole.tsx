@@ -55,7 +55,7 @@ class EditRole extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            //console.log('role data:', data);
+            console.log('role data:', data);
             this.setState({
                 ...data.data.role,
                 roleId: data.data.roleId,
@@ -86,6 +86,7 @@ class EditRole extends React.Component<IGlobalProps> {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
             },
         }).then(async (response) => await response.json())
           .then((data: any) => {
@@ -174,8 +175,11 @@ class EditRole extends React.Component<IGlobalProps> {
                                         name="roleId"
                                         variant="outlined"
                                         label="Discord ID"
-                                        type="number"
+                                        type="text"
                                         value={this.state.roleId}
+                                        InputProps={{
+                                            readOnly: true,
+                                        }}
                                         fullWidth
                                         onChange={this.onInputChange}
                                     />

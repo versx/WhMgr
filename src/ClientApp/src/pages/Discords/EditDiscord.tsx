@@ -27,6 +27,7 @@ import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
+import { MultiSelect } from '../../components/MultiSelect';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 import { onNestedStateChange } from '../../utils/nestedStateHelper';
@@ -42,6 +43,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
             allAlarms: [],
             allGeofences: [],
             allEmbeds: [],
+            allRoles: [],
             allIconStyles: [],
 
             name: props.params!.id,
@@ -63,7 +65,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
             subscriptions: {
                 enabled: false,
                 maxPokemonSubscriptions: 0,
-                maxPvpSubscriptions: 0,
+                maxPvPSubscriptions: 0,
                 maxRaidSubscriptions: 0,
                 maxQuestSubscriptions: 0,
                 maxLureSubscriptions: 0,
@@ -123,15 +125,20 @@ class EditDiscord extends React.Component<IGlobalProps> {
         .then(data => {
             //console.log('discord data:', data);
             //this.setState(data.data.discord);
+
             const keys: string[] = Object.keys(data.data.discord);
             for (const key of keys) {
-                //console.log('key:', key, 'data:', data.data.discord[key]);
+                //console.log('KEY:', key, data.data.discord[key]);
                 this.setState({ [key]: data.data.discord[key] });
             }
-            this.setState({ ['allAlarms']: data.data.allAlarms });
-            this.setState({ ['allEmbeds']: data.data.allEmbeds });
-            this.setState({ ['allGeofences']: data.data.allGeofences });
-            this.setState({ ['allRoles']: data.data.allRoles });
+
+            this.setState({
+                ['allAlarms']: data.data.allAlarms,
+                ['allEmbeds']: data.data.allEmbeds,
+                ['allGeofences']: data.data.allGeofences,
+                ['allRoles']: data.data.allRoles,
+                ['allIconStyles']: data.data.allIconStyles,
+            });
             //console.log('discord state:', this.state);
         }).catch(err => {
             console.error('error:', err);
@@ -163,6 +170,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
         }).then(async (response) => await response.json())
           .then((data: any) => {
             console.log('response:', data);
+            // TODO: Show notification/redirect to /dashboard/discords
 
         }).catch((err) => {
             console.error('error:', err);
@@ -174,10 +182,16 @@ class EditDiscord extends React.Component<IGlobalProps> {
         const handleCancel = () => window.location.href = config.homepage + 'discords';
         const handleDonorRoleChange = (event: any) => {
             const { name, value } = event.target;
-            console.log('donor role change target:', event.target, this.state, value[0]);
+            const roleId = value[0];
+            const role = this.state.allRoles.filter((x: any) => x.id == roleId);
+            if (!role) {
+                console.error('Failed to get role from id:', roleId);
+            }
+            const permissions = role[0].permissions;
+            console.log('donor role change target:', this.state, name, roleId, permissions);
             this.setState({
                 [name]: {
-                    [value[0] + '']: this.state.permissions,
+                    [roleId]: permissions,
                 },
             });
             console.log('donor role state:', this.state);
@@ -268,7 +282,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                     onChange={handleDonorRoleChange}
                                                 >
                                                     {this.state.allRoles && this.state.allRoles.map((role: any) => {
-                                                        if (!role.is_moderator) {
+                                                        if (!role.isModerator) {
                                                             return (
                                                                 <MenuItem key={role.id} value={role.id}>{role.name} ({role.permissions.join(', ')})</MenuItem>
                                                             );
@@ -279,9 +293,9 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                         </Grid>
                                         <Grid item xs={6} sm={6}>
                                             <FormControl fullWidth>
-                                                <InputLabel id="moderatorRoles-label">Moderator Roles</InputLabel>
+                                                <InputLabel id="moderatorRoleIds-label">Moderator Roles</InputLabel>
                                                 <Select
-                                                    labelId="moderatorRoles-label"
+                                                    labelId="moderatorRoleIds-label"
                                                     id="moderatorRoleIds"
                                                     name="moderatorRoleIds"
                                                     value={this.state.moderatorRoleIds}
@@ -290,7 +304,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                     onChange={this.onInputChange}
                                                 >
                                                     {this.state.allRoles && this.state.allRoles.map((role: any) => {
-                                                        if (role.is_moderator) {
+                                                        if (role.isModerator) {
                                                             return (
                                                                 <MenuItem key={role.id} value={role.id}>{role.name} ({role.permissions.join(', ')})</MenuItem>
                                                             );
@@ -330,24 +344,12 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                             </FormControl>
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
-                                            <FormControl fullWidth>
-                                                <InputLabel id="geofences-label">Geofences</InputLabel>
-                                                <Select
-                                                    labelId="geofences-label"
-                                                    id="geofences"
-                                                    name="geofences"
-                                                    value={this.state.geofences}
-                                                    multiple
-                                                    label="Geofences"
-                                                    onChange={this.onInputChange}
-                                                >
-                                                    {this.state.allGeofences.map((geofence: string) => {
-                                                        return (
-                                                            <MenuItem key={geofence} value={geofence}>{geofence}</MenuItem>
-                                                        );
-                                                    })}
-                                                </Select>
-                                            </FormControl>
+                                            <MultiSelect
+                                                id="geofences"
+                                                title="Geofences"
+                                                allItems={this.state.allGeofences}
+                                                selectedItems={this.state.geofences}
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
@@ -360,9 +362,11 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                     label="Icon Style"
                                                     onChange={this.onInputChange}
                                                 >
-                                                    <MenuItem key="Default" value="Default">Default</MenuItem>
-                                                    <MenuItem key="es" value="es">Spanish</MenuItem>
-                                                    <MenuItem key="de" value="de">German</MenuItem>
+                                                    {this.state.allIconStyles.map((style: string) => {
+                                                        return (
+                                                            <MenuItem key={style} value={style}>{style}</MenuItem>
+                                                        );
+                                                    })}
                                                 </Select>
                                             </FormControl>
                                         </Grid>
@@ -490,12 +494,12 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <TextField
-                                                id="subscriptions.maxPvpSubscriptions"
-                                                name="subscriptions.maxPvpSubscriptions"
+                                                id="subscriptions.maxPvPSubscriptions"
+                                                name="subscriptions.maxPvPSubscriptions"
                                                 variant="outlined"
                                                 label="Max PvP Subscriptions"
                                                 type="number"
-                                                value={this.state.subscriptions.maxPvpSubscriptions}
+                                                value={this.state.subscriptions.maxPvPSubscriptions}
                                                 fullWidth
                                                 onChange={this.onInputChange}
                                             />

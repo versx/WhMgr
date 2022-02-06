@@ -1,3 +1,5 @@
+/* global BigInt */
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';

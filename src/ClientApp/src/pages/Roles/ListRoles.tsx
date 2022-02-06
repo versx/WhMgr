@@ -53,10 +53,10 @@ function ListRoles() {
             flex: 1,
         },
         {
-            field: 'is_moderator',
+            field: 'isModerator',
             headerName: 'Is Moderator',
             flex: 1,
-            renderCell: (params) => params.row.is_moderator ? 'Yes' : 'No',
+            renderCell: (params) => params.row.isModerator ? 'Yes' : 'No',
         },
         {
             field: 'action',

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Dynamic;
     using System.IO;
     using System.Linq;
     using System.Net.Mime;
@@ -212,7 +213,7 @@
                     id = roleId,
                     name = role.Name,
                     permissions = role.Permissions,
-                    is_moderator = role.IsModerator,
+                    isModerator = role.IsModerator,
                 });
             }
 
@@ -226,6 +227,11 @@
                     allAlarms = alarms,
                     allEmbeds = embeds,
                     allRoles = result,
+                    allIconStyles = new List<string>
+                    {
+                        "Default",
+                        "Test",
+                    },
                     // TODO: Include icon styles
                 },
             });
@@ -476,7 +482,7 @@
                     id = roleId,
                     name = role.Name,
                     permissions = role.Permissions,
-                    is_moderator = role.IsModerator,
+                    isModerator = role.IsModerator,
                 });
             }
             return new JsonResult(result);
@@ -487,15 +493,92 @@
         public IActionResult GetDiscordRole(string name)
         {
             var roles = GetRoles();
-            var role = roles.FirstOrDefault(role => string.Equals(role.Value.Name, name, StringComparison.InvariantCultureIgnoreCase));
+            var (roleId, role) = roles.FirstOrDefault(role =>
+                string.Equals(role.Value.Name, name, StringComparison.InvariantCultureIgnoreCase));
             return new JsonResult(new
             {
                 status = "OK",
                 data = new
                 {
-                    roleId = role.Key,
-                    role = role.Value,
+                    roleId = roleId.ToString(),
+                    role,
                 },
+            });
+        }
+
+        [HttpPost("role/new")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> CreateDiscordRole()
+        {
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+            var roles = GetRoles();
+
+            var name = Convert.ToString(dict["name"]);
+            var roleId = Convert.ToUInt64(dict["roleId"].ToString());
+            var permissions = dict["permissions"].ToString();
+            var permissionsList = permissions.FromJson<List<SubscriptionAccessType>>();
+            var roleConfig = new RoleConfig
+            {
+                Name = name,
+                IsModerator = Convert.ToBoolean(dict["moderator"].ToString()),
+                Permissions = permissionsList,
+            };
+
+            // TODO: Check if already exists
+
+            if (!roles.ContainsKey(roleId))
+            {
+                roles.Add(roleId, roleConfig);
+            }
+            else
+            {
+                roles[roleId] = roleConfig;
+            }
+
+            var path = Strings.BasePath + "wwwroot/static/data/roles.json";
+            await WriteDataAsync(path, roles);
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Discord role {name} succuessfully created.",
+            });
+        }
+
+        [HttpPost("role/{name}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> UpdateDiscordRole(string name)
+        {
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+            var roles = GetRoles();
+
+            var newName = Convert.ToString(dict["name"]);
+            var roleId = Convert.ToUInt64(dict["roleId"].ToString());
+            var permissions = dict["permissions"].ToString();
+            var permissionsList = permissions.FromJson<List<SubscriptionAccessType>>();
+            var roleConfig = new RoleConfig
+            {
+                Name = newName,
+                IsModerator = Convert.ToBoolean(dict["moderator"].ToString()),
+                Permissions = permissionsList,
+            };
+
+            if (!roles.ContainsKey(roleId))
+            {
+                roles.Add(roleId, roleConfig);
+            }
+            else
+            {
+                roles[roleId] = roleConfig;
+            }
+
+            var path = Strings.BasePath + "wwwroot/static/data/roles.json";
+            await WriteDataAsync(path, roles);
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Discord role {name} succuessfully updated.",
             });
         }
 
@@ -540,16 +623,22 @@
 
         private static Dictionary<string, List<DtsPlaceholder>> GetDtsPlaceholders()
         {
-            var path = "wwwroot/static/data/dts_placeholders.json";
+            var path = Strings.BasePath + "wwwroot/static/data/dts_placeholders.json";
             var placeholders = LoadFromFile<Dictionary<string, List<DtsPlaceholder>>>(path);
             return placeholders;
         }
 
         private static Dictionary<ulong, RoleConfig> GetRoles()
         {
-            var path = "wwwroot/static/data/roles.json";
+            var path = Strings.BasePath + "wwwroot/static/data/roles.json";
             var roles = LoadFromFile<Dictionary<ulong, RoleConfig>>(path);
             return roles;
+        }
+
+        private static async Task WriteDataAsync<T>(string path, T data)
+        {
+            var json = data.ToJson();
+            await WriteDataAsync(path, json);
         }
 
         private static async Task WriteDataAsync(string path, string data)
