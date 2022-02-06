@@ -147,7 +147,7 @@
                         ProcessWeather(payload.Message);
                         break;
                     case WebhookTypes.Account:
-                        ProcessAccount(payload.Message);
+                        // TODO: ProcessAccount(payload.Message);
                         break;
                     default:
                         _logger.Warning($"Unhandled webhook type: {payload.Type}: {payload.Message}");
