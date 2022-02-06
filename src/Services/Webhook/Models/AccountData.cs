@@ -34,7 +34,7 @@
         public DateTime FirstWarningTime { get; set; }
 
         [JsonPropertyName("suspended_message_acknowledged")]
-        public bool SuspendedMessageAcknowledged { get; set; }
+        public bool? SuspendedMessageAcknowledged { get; set; }
 
         [JsonPropertyName("was_suspended")]
         public bool? WasSuspended { get; set; }
