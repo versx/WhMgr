@@ -46,6 +46,7 @@ function ListRoles() {
             field: 'id',
             headerName: 'Discord ID',
             flex: 1,
+            renderCell: (params) => BigInt(params.row.id).toString(),
         },
         {
             field: 'permissions',
@@ -53,10 +54,10 @@ function ListRoles() {
             flex: 1,
         },
         {
-            field: 'isModerator',
+            field: 'moderator',
             headerName: 'Is Moderator',
             flex: 1,
-            renderCell: (params) => params.row.isModerator ? 'Yes' : 'No',
+            renderCell: (params) => params.row.moderator ? 'Yes' : 'No',
         },
         {
             field: 'action',

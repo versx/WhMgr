@@ -482,7 +482,7 @@
                     id = roleId,
                     name = role.Name,
                     permissions = role.Permissions,
-                    isModerator = role.IsModerator,
+                    moderator = role.IsModerator,
                 });
             }
             return new JsonResult(result);

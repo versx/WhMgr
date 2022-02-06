@@ -1,5 +1,3 @@
-/* global BigInt */
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
@@ -21,7 +19,7 @@ import { ListAlarms, EditAlarm } from './pages/Alarms';
 import { ListFilters, EditFilter } from './pages/Filters';
 import { ListEmbeds, EditEmbed } from './pages/Embeds';
 import { ListGeofences, EditGeofence } from './pages/Geofences';
-import { ListRoles, EditRole } from './pages/Roles';
+import { ListRoles, NewRole, EditRole } from './pages/Roles';
 import ListUsers from './pages/ListUsers';
 import Settings from './pages/Settings';
 
@@ -66,7 +64,7 @@ function App() {
                 <Route path={config.homepage + "geofence/new"} element={<ListGeofences />} />
                 <Route path={config.homepage + "geofence/:id"} element={<EditGeofence props={{}} />} />
                 <Route path={config.homepage + "roles"} element={<ListRoles />} />
-                <Route path={config.homepage + "role/new"} element={<ListRoles />} />
+                <Route path={config.homepage + "role/new"} element={<NewRole />} />
                 <Route path={config.homepage + "role/:id"} element={<EditRole props={{}} />} />
                 <Route path={config.homepage + "subscriptions"} element={<ListConfigs />} />
                 <Route path={config.homepage + "users"} element={<ListUsers />} />
