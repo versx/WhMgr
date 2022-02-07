@@ -6,14 +6,14 @@ import {
     Typography,
 } from '@mui/material';
 
-interface ImportGeofenceModalProps {
+interface ExportGeofenceModalProps {
     show: boolean;
     onClose: any;
     title: string;
     body: any;
 }
 
-export function ImportGeofenceModal(props: ImportGeofenceModalProps) {
+export function ExportGeofenceModal(props: ExportGeofenceModalProps) {
     const style = {
         position: 'absolute' as 'absolute',
         top: '50%',

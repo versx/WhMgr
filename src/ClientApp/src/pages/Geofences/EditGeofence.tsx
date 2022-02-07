@@ -33,8 +33,9 @@ import { ImportGeofenceModal } from '../../components/ImportGeofenceModal';
 import MapButton from '../../components/MapButton';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
-import { iniToGeoJson } from '../../utils/geofenceConverter';
+import { geoJsonToIni, iniToGeoJson } from '../../utils/geofenceConverter';
 import { onNestedStateChange } from '../../utils/nestedStateHelper';
+import { ExportGeofenceModal } from '../../components/ExportGeofenceModal';
 
 // TODO: Convert geofence upon check changed and save state
 let set = false;
@@ -73,6 +74,9 @@ class EditGeofence extends React.Component<IGlobalProps> {
             open: false,
             importFormat: '.txt',
             importGeofence: {},
+            exportOpen: false,
+            exportFormat: '.json',
+            exportGeofence: {},
         };
         this.onInputChange = this.onInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -118,6 +122,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
                 name: data.data.name,
                 format: data.data.format,
                 geofence: geofence,
+                exportGeofence: JSON.stringify(geofence, null, 2),
             });
         }).catch(err => {
             console.error('error:', err);
@@ -262,6 +267,10 @@ class EditGeofence extends React.Component<IGlobalProps> {
             // TODO: Save state
         };
 
+        const copyToClipboard = (text: string) => {
+            navigator.clipboard.writeText(text);
+        };
+
         const classes: any = makeStyles({
             container: {
                  //paddingTop: theme.spacing(10),
@@ -331,6 +340,9 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                     variant="contained"
                                     color="primary"
                                     type="button"
+                                    onClick={() => this.setState({
+                                        ['exportOpen']: true,
+                                    })}
                                 >
                                     Export
                                 </Button>
@@ -464,12 +476,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                                             rows="15"
                                                             fullWidth
                                                             multiline
-                                                            onChange={(e) => {
-                                                                const { name, value } = e.target;
-                                                                this.setState({
-                                                                    [name]: value,
-                                                                });
-                                                            }}
+                                                            onChange={this.onInputChange}
                                                         />
                                                     </Grid>
                                                     <Grid item xs={12}>
@@ -543,7 +550,113 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                                 this.setState({
                                                     ['open']: false,
                                                 });
-                                            }}/>
+                                            }}
+                                        />
+                                        <ExportGeofenceModal
+                                            title="Export Geofence"
+                                            body={(
+                                                <Grid container spacing={2}>
+                                                    <Grid item xs={12}>
+                                                        <TextField
+                                                            id="exportGeofence"
+                                                            name="exportGeofence"
+                                                            variant="outlined"
+                                                            label="Geofence"
+                                                            type="text"
+                                                            rows="15"
+                                                            value={this.state.exportGeofence}
+                                                            fullWidth
+                                                            multiline
+                                                            InputProps={{
+                                                                readOnly: true,
+                                                            }}
+                                                            onChange={this.onInputChange}
+                                                        />
+                                                    </Grid>
+                                                    <Grid item xs={12}>
+                                                        <FormControl>
+                                                            <FormLabel id="format-label">Export Format</FormLabel>
+                                                            <RadioGroup
+                                                                row
+                                                                aria-labelledby="format-label"
+                                                                id="format"
+                                                                name="format"
+                                                            >
+                                                                <FormControlLabel
+                                                                    id="format"
+                                                                    name="format"
+                                                                    value=".txt"
+                                                                    control={<Radio checked={this.state.exportFormat === '.txt'} onChange={() => {
+                                                                        // Convert geofence
+                                                                        //const geofence = formatGeofenceToGeoJson('.txt', this.state.geofence);
+                                                                        const iniData: any = [];
+                                                                        this._editableFG.eachLayer((layer: any) => {
+                                                                            const geojson = layer.toGeoJSON();
+                                                                            if (geojson) {
+                                                                                const ini = geoJsonToIni(geojson);
+                                                                                iniData.push(ini)
+                                                                            }
+                                                                        });
+                                                                        this.setState({
+                                                                            ['exportGeofence']: iniData.join(''),
+                                                                            ['exportFormat']: '.txt',
+                                                                        });
+                                                                    }} />}
+                                                                    label="INI"
+                                                                />
+                                                                <FormControlLabel
+                                                                    id="format"
+                                                                    name="format"
+                                                                    value=".json"
+                                                                    control={<Radio checked={this.state.exportFormat === '.json'} onChange={() => {
+                                                                        // Convert geofence
+                                                                        const geofence = iniToGeoJson(this.state.exportGeofence);
+                                                                        const json = JSON.stringify(geofence, null, 2);
+                                                                        this.setState({
+                                                                            ['exportGeofence']: json,
+                                                                            ['exportFormat']: '.json',
+                                                                        });
+                                                                    }} />}
+                                                                    label="GeoJSON"
+                                                                />
+                                                            </RadioGroup>
+                                                        </FormControl>
+                                                    </Grid>
+                                                    <Grid item xs={12}>
+                                                        <div className={classes.buttonContainer}>
+                                                            <Button
+                                                                variant="contained"
+                                                                color="primary"
+                                                                style={{marginRight: '20px'}}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    copyToClipboard(this.state.exportGeofence);
+                                                                }}
+                                                            >
+                                                                Copy to Clipboard
+                                                            </Button>
+                                                            <Button
+                                                                variant="outlined"
+                                                                color="primary"
+                                                                onClick={() => {
+                                                                    this.setState({
+                                                                        ['exportOpen']: false,
+                                                                    })
+                                                                }}
+                                                            >
+                                                                Close
+                                                            </Button>
+                                                        </div>
+                                                    </Grid>
+                                                </Grid>
+                                            )}
+                                            show={this.state.exportOpen}
+                                            onClose={() => {
+                                                this.setState({
+                                                    ['exportOpen']: false,
+                                                });
+                                            }}
+                                        />
                                     </MapContainer>
                                 </Grid>
                             </Grid>
