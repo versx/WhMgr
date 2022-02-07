@@ -3,9 +3,15 @@ import {
     MapContainer,
     TileLayer,
     GeoJSON,
+    FeatureGroup,
+    useMap,
 } from 'react-leaflet';
+import { EditControl } from 'react-leaflet-draw';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css'
+
 import { Feature, Geometry } from 'geojson';
-import { LatLngExpression, Layer } from 'leaflet';
+import L, { LatLngExpression, Layer } from 'leaflet';
 import {
     Box,
     Button,
@@ -29,6 +35,26 @@ import { iniToGeoJson } from '../../utils/geofenceConverter';
 import { onNestedStateChange } from '../../utils/nestedStateHelper';
 
 // TODO: Convert geofence upon check changed and save state
+let set = false;
+let loaded = false;
+const formatGeofenceToGeoJson = (format: string, data: any): any => {
+    //console.log('format:', format, 'data:', data);
+    if (data.length === 0) {
+        return null;
+    }
+    if (typeof data === 'object') {
+        return data;
+    }
+    switch (format) {
+        case '.json':
+            return JSON.parse(data);
+        case '.txt':
+        // case '.ini':
+            return iniToGeoJson(data);
+        default:
+            throw Error('Unsupported geofence format');
+    }
+};
 
 class EditGeofence extends React.Component<IGlobalProps> {
     public state: any;
@@ -40,15 +66,32 @@ class EditGeofence extends React.Component<IGlobalProps> {
             // TODO: Set default state values
             name: '',
             format: '',
+            count: 0,
             geofence: '',
         };
         this.onInputChange = this.onInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this._onCreated = this._onCreated.bind(this);
+        this._onEdited = this._onEdited.bind(this);
+        this._onDeleted = this._onDeleted.bind(this);
+        this._onFormatSaved = this._onFormatSaved.bind(this);
+        //this._onFeatureGroupReady = this._onFeatureGroupReady.bind(this);
     }
 
     componentDidMount() {
         console.log('componentDidMount:', this.state, this.props);
         this.fetchData(this.props.params!.id);
+    }
+
+    componentDidUpdate() {
+        //console.log('geofence:', this.state.geofence);
+        if (!set) {
+            const geofence = formatGeofenceToGeoJson(this.state.format, this.state.geofence);
+            this.setState({
+                ['count']: geofence.features.length,
+            });
+            set = true;
+        }
     }
 
     fetchData(id: any) {
@@ -102,6 +145,73 @@ class EditGeofence extends React.Component<IGlobalProps> {
         });
     }
 
+    _onFormatSaved() {
+        //const geofence = formatGeofenceToGeoJson(this.state.format, this.state.geofence.toString());
+        //console.log('this.state.geofence:', geofence);
+        this.setState({
+            ['geofence']: this.state.geofence,
+            //['count']: geofence.features.length,
+        });
+        console.log('state:', this.state);
+    }
+
+    _onCreated(event: any) {
+        console.log('onCreated:', event);
+        const layer = event.layer;
+        if (this._editableFG) {
+            this._editableFG.addLayer(layer);
+            const json = this._editableFG.toGeoJSON();
+            console.log('json:', json);
+            this.setState({
+                ['geofence']: json,
+                ['count']: json.features.length,
+            });
+            this._onFormatSaved();
+        }
+    }
+
+    _onEdited(event: any) {
+        console.log('onEdited:', event);
+        this._onFormatSaved();
+    }
+
+    _onDeleted(event: any) {
+        console.log('onDeleted:', event);
+        this._onFormatSaved();
+    }
+
+    _onFeatureGroupReady(reactFGref: any) {
+        // Populate the leaflet FeatureGroup with the geoJson layers
+        console.log('onFeatureGroupReady');
+        if (!this.state.format || !this.state.geofence) {
+            return;
+        }
+        const geofence = formatGeofenceToGeoJson(this.state.format, this.state.geofence);
+        let leafletGeoJSON = new L.GeoJSON(geofence);
+        let leafletFG = reactFGref;
+
+        leafletGeoJSON.eachLayer((layer: any) => {
+            if (!loaded && leafletFG) {
+                const html = `
+                <b>Name:</b> ${layer.feature.properties.name}<br>
+                <b>Area:</b> ${0} km2
+`;
+                layer.bindTooltip(html);
+                leafletFG.addLayer(layer);
+            }
+        });
+
+        if (!loaded && leafletFG) {
+            loaded = true;
+            console.log('loaded: true');
+        }
+    
+        // Store the ref for future access to content
+        this._editableFG = reactFGref;
+    };
+
+    _editableFG: any = null;
+
     render() {
         const handleCancel = () => window.location.href = config.homepage + 'geofences';
 
@@ -112,31 +222,15 @@ class EditGeofence extends React.Component<IGlobalProps> {
         const handleOnFormatChange = (event: any) => {
             this.onInputChange(event);
             const newFormat = event.target.value;
-            const isGeoJson = newFormat === '.json';
-            console.log('new format:', newFormat, 'geojson:', isGeoJson);
             this.setState({
                 ...this.state,
-                geofence: formatGeofenceToGeoJson(this.state.geofence),
+                count: this.state.geofence.features.length,
+                format: newFormat,
+                //geofence: formatGeofenceToGeoJson(newFormat, this.state.geofence),
             });
             // TODO: Check new format
             // TODO: Convert geofence
             // TODO: Save state
-        };
-
-        const formatGeofenceToGeoJson = (data: any): any => {
-            //console.log('format:', this.state.format, 'data:', data);
-            if (data.length === 0) {
-                return null;
-            }
-            switch (this.state.format) {
-                case '.json':
-                    return JSON.parse(data);
-                case '.txt':
-                // case '.ini':
-                    return iniToGeoJson(data);
-                default:
-                    throw Error('Unsupported geofence format');
-            }
         };
 
         const classes: any = makeStyles({
@@ -182,6 +276,16 @@ class EditGeofence extends React.Component<IGlobalProps> {
             selected: true,
         }];
 
+        const shapeOptions = {
+            stroke: true,
+            color: '#3388ff',
+            weight: 3,
+            opacity: 1,
+            fill: true,
+            fillColor: null,
+            fillOpacity: 0.2,
+        };
+
         return (
             <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
                 <Container>
@@ -205,6 +309,20 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                         value={this.state.name}
                                         fullWidth
                                         onChange={this.onInputChange}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        id="count"
+                                        name="count"
+                                        variant="outlined"
+                                        label="Geofence Count"
+                                        type="number"
+                                        value={this.state.count}
+                                        InputProps={{
+                                            readOnly: true,
+                                        }}
+                                        fullWidth
                                     />
                                 </Grid>
                                 <Grid item xs={12}>
@@ -241,13 +359,46 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                         style={{height: '600px'}}
                                     >
                                         <TileLayer url={config.map.tileserver} />
-                                        {this.state.geofence && (
+                                        <FeatureGroup
+                                            ref={(reactFGref: any) => {
+                                                console.log('reactFGref:', reactFGref);
+                                                this._onFeatureGroupReady(reactFGref);
+                                            }}
+                                        >
+                                            <EditControl
+                                                position="topleft"
+                                                onEdited={this._onEdited}
+                                                onCreated={this._onCreated}
+                                                onDeleted={this._onDeleted}
+                                                draw={{
+                                                    polyline: false,
+                                                    polygon: {
+                                                        allowIntersection: true,
+                                                        showArea: true,
+                                                        metric: 'km',
+                                                        precision: {
+                                                            km: 2,
+                                                        },
+                                                        shapeOptions,
+                                                    },
+                                                    rectangle: {
+                                                        showRadius: true,
+                                                        metric: true,
+                                                        shapeOptions,
+                                                    },
+                                                    circle: false,
+                                                    marker: false,
+                                                    circlemarker: false,
+                                                }}
+                                            />
+                                        </FeatureGroup>
+                                        {/*this.state.geofence && (
                                             <GeoJSON
                                                 key="geofence"
                                                 onEachFeature={handleOnEachFeature}
-                                                data={formatGeofenceToGeoJson(this.state.geofence)}
+                                                data={formatGeofenceToGeoJson(this.state.format, this.state.geofence)}
                                             />
-                                        )}
+                                        )*/}
                                     </MapContainer>
                                 </Grid>
                             </Grid>
