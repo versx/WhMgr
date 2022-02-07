@@ -4,14 +4,13 @@ import {
     TileLayer,
     GeoJSON,
     FeatureGroup,
-    useMap,
 } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css'
 
 import { Feature, Geometry } from 'geojson';
-import L, { LatLngExpression, Layer } from 'leaflet';
+import L, { LatLngExpression, Layer, map } from 'leaflet';
 import {
     Box,
     Button,
@@ -20,6 +19,7 @@ import {
     FormControlLabel,
     FormLabel,
     Grid,
+    Modal,
     Radio,
     RadioGroup,
     TextField,
@@ -29,6 +29,8 @@ import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
+import { ImportGeofenceModal } from '../../components/ImportGeofenceModal';
+import MapButton from '../../components/MapButton';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 import { iniToGeoJson } from '../../utils/geofenceConverter';
@@ -67,7 +69,10 @@ class EditGeofence extends React.Component<IGlobalProps> {
             name: '',
             format: '',
             count: 0,
-            geofence: '',
+            geofence: null,
+            open: false,
+            importFormat: '.txt',
+            importGeofence: {},
         };
         this.onInputChange = this.onInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -75,6 +80,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
         this._onEdited = this._onEdited.bind(this);
         this._onDeleted = this._onDeleted.bind(this);
         this._onFormatSaved = this._onFormatSaved.bind(this);
+        this.loadGeofence = this.loadGeofence.bind(this);
         //this._onFeatureGroupReady = this._onFeatureGroupReady.bind(this);
     }
 
@@ -105,11 +111,13 @@ class EditGeofence extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
+            console.log('geofence data:', data);
+            const geofence = formatGeofenceToGeoJson(data.data.format, data.data.geofence);
             this.setState({
                 //...this.state,
                 name: data.data.name,
                 format: data.data.format,
-                geofence: data.data.geofence,
+                geofence: geofence,
             });
         }).catch(err => {
             console.error('error:', err);
@@ -182,7 +190,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
 
     _onFeatureGroupReady(reactFGref: any) {
         // Populate the leaflet FeatureGroup with the geoJson layers
-        console.log('onFeatureGroupReady');
+        console.log('onFeatureGroupReady:', this.state.format, this.state.geofence);
         if (!this.state.format || !this.state.geofence) {
             return;
         }
@@ -208,6 +216,28 @@ class EditGeofence extends React.Component<IGlobalProps> {
         // Store the ref for future access to content
         this._editableFG = reactFGref;
     };
+
+    loadGeofence(data: any) {
+        let leafletGeoJSON = new L.GeoJSON(data);
+        leafletGeoJSON.eachLayer((layer: any) => {
+            if (this._editableFG) {
+                const html = `
+                <b>Name:</b> ${layer.feature.properties.name}<br>
+                <b>Area:</b> ${0} km2
+`;
+                layer.bindTooltip(html);
+                this._editableFG.addLayer(layer);
+            }
+        });
+        const json = this._editableFG.toGeoJSON();
+        this.setState({
+            ...this.state,
+            open: false,
+            geofence: json,
+            count: json.features.length,
+        });
+        console.log('geofence:', this.state.geofence);
+    }
 
     _editableFG: any = null;
 
@@ -290,9 +320,22 @@ class EditGeofence extends React.Component<IGlobalProps> {
                 <Container>
                     <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
                         <BreadCrumbs crumbs={breadcrumbs} />
-                        <Typography variant="h5" component="h2" >
-                            Edit Geofence {this.props.params!.id}
-                        </Typography>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                                <Typography variant="h5" component="h2">
+                                    Edit Geofence {this.props.params!.id}
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={12} sm={6} style={{alignItems: 'right'}}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    type="button"
+                                >
+                                    Export
+                                </Button>
+                            </Grid>
+                        </Grid>
                         <Typography sx={{ mt: 2 }}>
                             Geofence description goes here
                         </Typography>
@@ -398,6 +441,109 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                                 data={formatGeofenceToGeoJson(this.state.format, this.state.geofence)}
                                             />
                                         )*/}
+                                        <MapButton
+                                            tooltip="Import geofence"
+                                            icon="<img src='https://cdn-icons-png.flaticon.com/512/151/151901.png' width='16' height='16' />"
+                                            onClick={(btn: any, map: any) => {
+                                                this.setState({
+                                                    ['open']: true,
+                                                });
+                                            }}
+                                        />
+                                        <ImportGeofenceModal
+                                            title="Import Geofence"
+                                            body={(
+                                                <Grid container spacing={2}>
+                                                    <Grid item xs={12}>
+                                                        <TextField
+                                                            id="importGeofence"
+                                                            name="importGeofence"
+                                                            variant="outlined"
+                                                            label="Geofence"
+                                                            type="text"
+                                                            rows="15"
+                                                            fullWidth
+                                                            multiline
+                                                            onChange={(e) => {
+                                                                const { name, value } = e.target;
+                                                                this.setState({
+                                                                    [name]: value,
+                                                                });
+                                                            }}
+                                                        />
+                                                    </Grid>
+                                                    <Grid item xs={12}>
+                                                        <FormControl>
+                                                            <FormLabel id="format-label">Format</FormLabel>
+                                                            <RadioGroup
+                                                                row
+                                                                aria-labelledby="format-label"
+                                                                id="format"
+                                                                name="format"
+                                                            >
+                                                                <FormControlLabel
+                                                                    id="format"
+                                                                    name="format"
+                                                                    value=".txt"
+                                                                    control={<Radio checked={this.state.importFormat === '.txt'} onChange={() => {
+                                                                        this.setState({
+                                                                            ['importFormat']: '.txt',
+                                                                        });
+                                                                    }} />}
+                                                                    label="INI"
+                                                                />
+                                                                <FormControlLabel
+                                                                    id="format"
+                                                                    name="format"
+                                                                    value=".json"
+                                                                    control={<Radio checked={this.state.importFormat === '.json'} onChange={() => {
+                                                                        this.setState({
+                                                                            ['importFormat']: '.json',
+                                                                        });
+                                                                    }} />}
+                                                                    label="GeoJSON"
+                                                                />
+                                                            </RadioGroup>
+                                                        </FormControl>
+                                                    </Grid>
+                                                    <Grid item xs={12}>
+                                                        <div className={classes.buttonContainer}>
+                                                            <Button
+                                                                variant="contained"
+                                                                color="primary"
+                                                                style={{marginRight: '20px'}}
+                                                                type="submit"
+                                                                onClick={() => {
+                                                                    // TODO: Convert based on format and add to map
+                                                                    const format = this.state.importFormat;
+                                                                    const data = this.state.importGeofence;
+                                                                    const geofence = formatGeofenceToGeoJson(format, data);
+                                                                    this.loadGeofence(geofence);
+                                                                }}
+                                                            >
+                                                                Save
+                                                            </Button>
+                                                            <Button
+                                                                variant="outlined"
+                                                                color="primary"
+                                                                onClick={() => {
+                                                                    this.setState({
+                                                                        ['open']: false,
+                                                                    })
+                                                                }}
+                                                            >
+                                                                Close
+                                                            </Button>
+                                                        </div>
+                                                    </Grid>
+                                                </Grid>
+                                            )}
+                                            show={this.state.open}
+                                            onClose={() => {
+                                                this.setState({
+                                                    ['open']: false,
+                                                });
+                                            }}/>
                                     </MapContainer>
                                 </Grid>
                             </Grid>

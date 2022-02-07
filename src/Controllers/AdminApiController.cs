@@ -671,6 +671,7 @@
             // TODO: Check if exists or not
             var newFileName = $"{newName}{geofenceType}";
             var newFilePath = Path.Combine(Strings.GeofencesFolder, newFileName);
+            // TODO: Convert geofence to ini or geojson
             if (!string.Equals(fileName, newFileName))
             {
                 // Move file to new path
