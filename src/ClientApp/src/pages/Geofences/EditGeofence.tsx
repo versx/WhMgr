@@ -128,7 +128,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
 
         const id = this.props.params!.id;
         fetch(config.apiUrl + 'admin/geofence/' + id, {
-            method: 'POST',
+            method: 'PUT',
             body: JSON.stringify(this.state),
             headers: {
                 'Accept': 'application/json',
@@ -203,7 +203,6 @@ class EditGeofence extends React.Component<IGlobalProps> {
 
         if (!loaded && leafletFG) {
             loaded = true;
-            console.log('loaded: true');
         }
     
         // Store the ref for future access to content

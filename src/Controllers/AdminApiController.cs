@@ -456,12 +456,32 @@
 
             return new JsonResult(new
             {
+                status = "OK",
                 data = new
                 {
                     name = Path.GetFileNameWithoutExtension(fileName),
                     geofence,
                     format = Path.GetExtension(fileName)
                 },
+            });
+        }
+
+        [HttpPut("geofence/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> UpdateGeofence(string fileName)
+        {
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+            // TODO: Validate keys exists
+            var name = dict["name"].ToString();
+            var saveFormat = dict["format"].ToString();
+            var geofenceData = dict["geofence"].ToString();
+
+            await SaveGeofence(fileName, name, geofenceData, saveFormat);
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Geofence {name} succuessfully updated.",
             });
         }
 
@@ -545,7 +565,7 @@
             });
         }
 
-        [HttpPost("role/{name}")]
+        [HttpPut("role/{name}")]
         [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> UpdateDiscordRole(string name)
         {
@@ -649,7 +669,7 @@
         private static async Task SaveGeofence(string fileName, string newName, string geofenceData, string geofenceType)
         {
             // TODO: Check if exists or not
-            var newFileName = $"{newName}.{geofenceType}";
+            var newFileName = $"{newName}{geofenceType}";
             var newFilePath = Path.Combine(Strings.GeofencesFolder, newFileName);
             if (!string.Equals(fileName, newFileName))
             {
