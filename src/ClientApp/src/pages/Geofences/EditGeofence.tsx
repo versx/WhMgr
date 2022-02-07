@@ -10,7 +10,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css'
 
 import { Feature, Geometry } from 'geojson';
-import L, { LatLngExpression, Layer, map } from 'leaflet';
+import L, { LatLngExpression, Layer } from 'leaflet';
 import {
     Box,
     Button,
@@ -29,13 +29,12 @@ import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
-import { ImportGeofenceModal } from '../../components/ImportGeofenceModal';
+import { ExportGeofenceModal, ImportGeofenceModal } from '../../components/Modals';
 import MapButton from '../../components/MapButton';
-import withRouter from '../../hooks/WithRouter';
+import { withRouter } from '../../hooks';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 import { geoJsonToIni, iniToGeoJson } from '../../utils/geofenceConverter';
 import { onNestedStateChange } from '../../utils/nestedStateHelper';
-import { ExportGeofenceModal } from '../../components/ExportGeofenceModal';
 
 // TODO: Convert geofence upon check changed and save state
 let set = false;
