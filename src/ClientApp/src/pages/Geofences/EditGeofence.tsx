@@ -115,7 +115,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            console.log('geofence data:', data);
+            //console.log('geofence data:', data);
             const geofence = formatGeofenceToGeoJson(data.data.format, data.data.geofence);
             this.setState({
                 //...this.state,
@@ -174,7 +174,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
         if (this._editableFG) {
             this._editableFG.addLayer(layer);
             const json = this._editableFG.toGeoJSON();
-            console.log('json:', json);
+            //console.log('json:', json);
             this.setState({
                 ['geofence']: json,
                 ['count']: json.features.length,
@@ -195,7 +195,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
 
     _onFeatureGroupReady(reactFGref: any) {
         // Populate the leaflet FeatureGroup with the geoJson layers
-        console.log('onFeatureGroupReady:', this.state.format, this.state.geofence);
+        //console.log('onFeatureGroupReady:', this.state.format, this.state.geofence);
         if (!this.state.format || !this.state.geofence) {
             return;
         }
@@ -241,7 +241,6 @@ class EditGeofence extends React.Component<IGlobalProps> {
             geofence: json,
             count: json.features.length,
         });
-        console.log('geofence:', this.state.geofence);
     }
 
     _editableFG: any = null;
@@ -335,7 +334,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                     Edit Geofence {this.props.params!.id}
                                 </Typography>
                             </Grid>
-                            <Grid item xs={12} sm={6} style={{alignItems: 'right'}}>
+                            <Grid item xs={12} sm={6} style={{display: 'flex', justifyContent: 'flex-end'}}>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -415,7 +414,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                         <TileLayer url={config.map.tileserver} />
                                         <FeatureGroup
                                             ref={(reactFGref: any) => {
-                                                console.log('reactFGref:', reactFGref);
+                                                //console.log('reactFGref:', reactFGref);
                                                 this._onFeatureGroupReady(reactFGref);
                                             }}
                                         >
