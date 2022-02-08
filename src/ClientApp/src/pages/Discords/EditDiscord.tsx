@@ -266,6 +266,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                 label="Name"
                                                 value={this.state.name}
                                                 fullWidth
+                                                required
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
@@ -333,6 +334,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                     name="alarms"
                                                     value={this.state.alarms}
                                                     label="Alarms"
+                                                    required
                                                     onChange={this.onInputChange}
                                                 >
                                                     {this.state.allAlarms.map((alarm: string) => {
@@ -360,6 +362,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                     name="iconStyle"
                                                     value={this.state.iconStyle}
                                                     label="Icon Style"
+                                                    required
                                                     onChange={this.onInputChange}
                                                 >
                                                     {this.state.allIconStyles.map((style: string) => {
@@ -388,6 +391,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                 label="Command Prefix"
                                                 value={this.state.bot.commandPrefix}
                                                 fullWidth
+                                                required
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
@@ -400,6 +404,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                 label="Guild Id"
                                                 value={this.state.bot.guildId}
                                                 fullWidth
+                                                required
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
@@ -412,6 +417,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                 label="Emoji Guild Id"
                                                 value={this.state.bot.emojiGuildId}
                                                 fullWidth
+                                                required
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
@@ -424,6 +430,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                 label="Token"
                                                 value={this.state.bot.token}
                                                 fullWidth
+                                                required
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
@@ -460,6 +467,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                 label="Owner Id"
                                                 value={this.state.bot.ownerId}
                                                 fullWidth
+                                                required
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
