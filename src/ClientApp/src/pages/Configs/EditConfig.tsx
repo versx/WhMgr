@@ -280,6 +280,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 label="Name"
                                                 value={this.state.name}
                                                 fullWidth
+                                                required
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
@@ -291,6 +292,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 label="Host"
                                                 value={this.state.host}
                                                 fullWidth
+                                                required
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
@@ -303,6 +305,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 label="Port"
                                                 value={this.state.port}
                                                 fullWidth
+                                                required
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
@@ -315,6 +318,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                     name="locale"
                                                     value={this.state.locale}
                                                     label="Locale"
+                                                    required
                                                     onChange={ (e: SelectChangeEvent) => this.onInputChange(e) }
                                                 >
                                                     <MenuItem value="en">English</MenuItem>
@@ -332,6 +336,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                 label="Despawn Time Minimum (minutes)"
                                                 value={this.state.despawnTimeMinimumMinutes}
                                                 fullWidth
+                                                required
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
@@ -706,7 +711,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <Card>
-                                                <CardHeader title="Google Maps" subheader="" />
+                                                <CardHeader title="Google Maps" subheader="Reverse location lookup via Google Maps." />
                                                 <CardContent>
                                                     <TextField
                                                         id="reverseGeocoding.gmaps.key"
@@ -716,6 +721,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                         value={this.state.reverseGeocoding.gmaps.key}
                                                         fullWidth
                                                         onChange={this.onInputChange}
+                                                        style={{paddingBottom: '20px'}}
                                                     />
                                                     <TextField
                                                         id="reverseGeocoding.nominatim.schema"
@@ -731,7 +737,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <Card>
-                                                <CardHeader title="Nominatim" subheader="" />
+                                                <CardHeader title="Nominatim" subheader="Reverse location lookup via OpenStreetMaps Nominatim." />
                                                 <CardContent>
                                                     <TextField
                                                         id="reverseGeocoding.nominatim.url"
@@ -741,6 +747,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                                         value={this.state.reverseGeocoding.nominatim.url}
                                                         fullWidth
                                                         onChange={this.onInputChange}
+                                                        style={{paddingBottom: '20px'}}
                                                     />
                                                     <TextField
                                                         id="reverseGeocoding.nominatim.schema"

@@ -118,27 +118,44 @@
         [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> UpdateConfig(string fileName)
         {
-            var data = await Request.GetRawBodyStringAsync();
-            Console.WriteLine($"data: {data}");
-            var jsonStr = data.FromJson<dynamic>();
-            Console.WriteLine($"json: {jsonStr}");
-            // TODO: Construct config and save
-
-            var filePath = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
-            if (!System.IO.File.Exists(filePath))
+            var path = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(path))
             {
-                // Config file with name already exists
-                return BadRequest($"Config file at location '{filePath}' does not exist");
+                return SendErrorResponse($"Failed to update config '{fileName}', config does not exist.");
             }
-            var config = new Config();
-            var configForm = ConfigFromForm(config, Request.Form);
-            var json = configForm.ToJson();
+
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+
+            // Validate keys exist
+            if (!dict.ContainsKey("name"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
+            var newName = dict["name"].ToString();
+            var discord = data.FromJson<Config>();
+
+            // TODO: Check if new alarm already exists or not
+            var newFileName = $"{newName}.json";
+            var newFilePath = Path.Combine(Strings.ConfigsFolder, newFileName);
+            if (!string.Equals(fileName + ".json", newFileName))
+            {
+                // Move file to new path
+                System.IO.File.Move(
+                    Path.Combine(Strings.DiscordsFolder, fileName + ".json"),
+                    newFilePath
+                );
+            }
+
             // Save json
-            await WriteDataAsync(filePath, json);
+            var json = discord.ToJson();
+            await WriteDataAsync(newFilePath, json);
+
             return new JsonResult(new
             {
                 status = "OK",
-                message = $"Config file {fileName} succuessfully updated.",
+                message = $"Config '{fileName}' successfully updated.",
             });
         }
 
@@ -1222,150 +1239,6 @@
             // Save json
             await WriteDataAsync(newFilePath, geofenceData);
         }
-
-        #region Form Helpers
-
-        private static Config ConfigFromForm(Config config, IFormCollection form)
-        {
-            config.ListeningHost = form["host"].ToString();
-            config.WebhookPort = ushort.Parse(form["port"].ToString());
-            config.Locale = form["locale"].ToString();
-            config.Debug = form["debug"].ToString() == "on";
-            config.ShortUrlApi = new UrlShortenerConfig
-            {
-                ApiUrl = form["shortUrlApiUrl"].ToString(),
-                Signature = form["shortUrlApiSignature"].ToString(),
-            };
-            config.StripeApi = new StripeConfig
-            {
-                ApiKey = form["stripeApiKey"].ToString(),
-            };
-            var discordServerFiles = form["discordServers"].ToString();
-            if (!string.IsNullOrEmpty(discordServerFiles))
-            {
-                var discordFiles = discordServerFiles.Split(',')
-                                                     .ToList();
-                config.ServerConfigFiles.Clear();
-                foreach (var discordServerFile in discordFiles)
-                {
-                    var discordFilePath = Path.Combine(Strings.DiscordsFolder, discordServerFile);
-                    var discordServer = LoadFromFile<DiscordServerConfig>(discordFilePath);
-                    if (!config.ServerConfigFiles.ContainsKey(discordServer.Bot.GuildId.ToString()))
-                    {
-                        config.ServerConfigFiles.Add(discordServer.Bot.GuildId.ToString(), discordServerFile);
-                    }
-                }
-            }
-            //config.ServerConfigFiles = form["discordServers"].ToString();
-            config.Database = new ConnectionStringsConfig
-            {
-                Main = new DatabaseConfig
-                {
-                    Host = form["dbMainHost"].ToString(),
-                    Port = ushort.Parse(form["dbMainPort"].ToString()),
-                    Username = form["dbMainUsername"].ToString(),
-                    Password = form["dbMainPassword"].ToString(),
-                    Database = form["dbMainDatabase"].ToString(),
-                },
-                Scanner = new DatabaseConfig
-                {
-                    Host = form["dbScannerHost"].ToString(),
-                    Port = ushort.Parse(form["dbScannerPort"].ToString()),
-                    Username = form["dbScannerUsername"].ToString(),
-                    Password = form["dbScannerPassword"].ToString(),
-                    Database = form["dbScannerDatabase"].ToString(),
-                },
-                Nests = new DatabaseConfig
-                {
-                    Host = form["dbNestsHost"].ToString(),
-                    Port = ushort.Parse(form["dbNestsPort"].ToString()),
-                    Username = form["dbNestsUsername"].ToString(),
-                    Password = form["dbNestsPassword"].ToString(),
-                    Database = form["dbNestsDatabase"].ToString(),
-                },
-            };
-            config.Urls = new UrlConfig
-            {
-                ScannerMap = form["scannerMapUrl"].ToString(),
-            };
-            config.EventPokemon = new EventPokemonConfig
-            {
-                PokemonIds = form["eventPokemonIds"].ToString()
-                                                    .Split(',')
-                                                    .Select(int.Parse)
-                                                    .ToList(),
-                MinimumIV = int.Parse(form["eventPokemonMinIV"].ToString()),
-                FilterType = form["eventPokemonFilterType"].ToString() == "Include"
-                    ? Services.Alarms.Filters.FilterType.Include
-                    : Services.Alarms.Filters.FilterType.Exclude,
-            };
-            // TODO: config.IconStyles
-            /*
-            TODO config.StaticMaps = new Dictionary<StaticMapType, StaticMapConfig>
-            {
-                {
-                    StaticMapType.Pokemon, new StaticMapConfig
-                    {
-                        TemplateName = "",
-                        Url = "",
-                        IncludeNearbyGyms = false,
-                        IncludeNearbyPokestops = false,
-                    },
-                },
-            };
-            */
-            var twilioUserIds = form["twilioUserIds"].ToString();
-            var twilioRoleIds = form["twilioRoleIds"].ToString();
-            var twilioPokemonIds = form["twilioPokemonIds"].ToString();
-            config.Twilio = new TwilioConfig
-            {
-                Enabled = form["twilioEnabled"].ToString() == "on",
-                AccountSid = form["twilioAccountSid"].ToString(),
-                AuthToken = form["twilioAuthToken"].ToString(),
-                FromNumber = form["twilioFromNumber"].ToString(),
-                UserIds = string.IsNullOrEmpty(twilioUserIds)
-                    ? new List<ulong>()
-                    : twilioUserIds.Split(',')
-                                   .Select(ulong.Parse)
-                                   .ToList(),
-                RoleIds = string.IsNullOrEmpty(twilioRoleIds)
-                    ? new List<ulong>()
-                    : twilioRoleIds.Split(',')
-                                   .Select(ulong.Parse)
-                                   .ToList(),
-                PokemonIds = string.IsNullOrEmpty(twilioPokemonIds)
-                    ? new List<uint>()
-                    : twilioPokemonIds.Split(',')
-                                      .Select(uint.Parse)
-                                      .ToList(),
-                MinimumIV = int.Parse(form["twilioMinIV"].ToString()),
-            };
-            config.ReverseGeocoding = new ReverseGeocodingConfig
-            {
-                Provider = form["provider"].ToString() == "google"
-                    ? Services.Geofence.Geocoding.ReverseGeocodingProvider.GMaps
-                    : Services.Geofence.Geocoding.ReverseGeocodingProvider.Osm,
-                CacheToDisk = form["cacheToDisk"].ToString() == "on",
-                GoogleMaps = new GoogleMapsConfig
-                {
-                    Key = form["gmapsKey"].ToString(),
-                    Schema = form["gmapsSchema"].ToString(),
-                },
-                Nominatim = new NominatimConfig
-                {
-                    Endpoint = form["nominatimEndpoint"].ToString(),
-                    Schema = form["nominatimSchema"].ToString(),
-                },
-            };
-            config.DespawnTimeMinimumMinutes = ushort.Parse(form["despawnTimeMinimumMinutes"].ToString());
-            config.CheckForDuplicates = form["checkForDuplicates"] == "on";
-            config.Debug = form["debug"] == "on";
-            config.LogLevel = (LogLevel)int.Parse(form["logLevel"].ToString());
-            //config.LogLevel
-            return config;
-        }
-
-        #endregion
 
         #region Response Helpers
 
