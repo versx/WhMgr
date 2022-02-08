@@ -105,9 +105,22 @@ class EditAlarm extends React.Component<IGlobalProps> {
         console.log('handle submit state:', this.state);
 
         const id = this.props.params!.id;
+        const data = {
+            name: this.state.name,
+            alarm: {
+                enablePokemon: this.state.enablePokemon,
+                enableRaids: this.state.enableRaids,
+                enableQuests: this.state.enableQuests,
+                enablePokestops: this.state.enablePokestops,
+                enableGyms: this.state.enableGyms,
+                enableWeather: this.state.enableWeather,
+                alarms: this.state.alarms,
+            },
+        };
+        console.log('alarm submit:', id, data);
         fetch(config.apiUrl + 'admin/alarm/' + id, {
-            method: 'POST',
-            body: JSON.stringify(this.state),
+            method: 'PUT',
+            body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -115,6 +128,11 @@ class EditAlarm extends React.Component<IGlobalProps> {
         }).then(async (response) => await response.json())
           .then((data: any) => {
             console.log('response:', data);
+            if (data.status !== 'OK') {
+                alert(data.error);
+                return;
+            }
+            window.location.href = config.homepage + 'alarms';
             // TODO: Show success/error notification
         }).catch((err) => {
             console.error('error:', err);
@@ -124,7 +142,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
     }
 
     render() {
-        const handleCancel = () => window.location.href = '/configs';
+        const handleCancel = () => window.location.href = config.homepage + 'alarms';
 
         const classes: any = makeStyles({
             container: {
@@ -282,7 +300,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
                                             const handleDelete = (name: string) => {
                                                 const alarms = this.state.alarms;
                                                 const newAlarms = alarms.filter((item: any) => item.name !== name);
-                                                this.setState({ ['alarms']: newAlarms })
+                                                this.setState({ ['alarms']: newAlarms });
                                             };
                                             return (
                                                 <div key={alarm.name} style={{paddingBottom: '20px'}}>

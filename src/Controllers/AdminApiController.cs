@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Dynamic;
     using System.IO;
     using System.Linq;
     using System.Net.Mime;
@@ -113,6 +112,8 @@
             });
         }
 
+        // TODO: Create config
+
         [HttpPost("config/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> UpdateConfig(string fileName)//, Config data)
@@ -140,6 +141,8 @@
                 message = $"Config file {fileName} succuessfully updated.",
             });
         }
+
+        // TODO: Delete config
 
         #endregion
 
@@ -229,6 +232,12 @@
             });
         }
 
+        // TODO: Create discord
+
+        // TODO: Edit discord
+
+        // TODO: Delete discord
+
         #endregion
 
         #region Alarms API
@@ -288,6 +297,66 @@
                     filters = filterFiles.Select(file => Path.GetFileName(file)),
                     geofences = geofenceFiles.Select(file => Path.GetFileName(file)),
                 },
+            });
+        }
+
+        [HttpPost("alarm/new")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> CreateAlarm(string fileName)
+        {
+            // TODO: Create alarm
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Alarm '{fileName}' succuessfully created.",
+            });
+        }
+
+        [HttpPut("alarm/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> UpdateAlarm(string fileName)
+        {
+            var path = Path.Combine(Strings.AlarmsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to update alarm '{fileName}', alarm does not exist.");
+            }
+
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+
+            // Validate keys exist
+            if (!dict.ContainsKey("name") ||
+                !dict.ContainsKey("alarm"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
+            var newName = dict["name"].ToString();
+
+            var alarmJson = dict["alarm"].ToString();
+            var alarm = alarmJson.FromJson<ChannelAlarmsManifest>();
+
+            // TODO: Check if new alarm already exists or not
+            var newFileName = $"{newName}.json";
+            var newFilePath = Path.Combine(Strings.AlarmsFolder, newFileName);
+            if (!string.Equals(fileName + ".json", newFileName))
+            {
+                // Move file to new path
+                System.IO.File.Move(
+                    Path.Combine(Strings.AlarmsFolder, fileName + ".json"),
+                    newFilePath
+                );
+            }
+
+            // Save json
+            var json = alarm.ToJson();
+            await WriteDataAsync(newFilePath, json);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Alarm '{fileName}' successfully updated.",
             });
         }
 
