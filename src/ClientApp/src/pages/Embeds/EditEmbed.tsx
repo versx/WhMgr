@@ -239,17 +239,38 @@ class EditEmbed extends React.Component<IGlobalProps> {
         console.log('handle submit state:', this.state);
 
         const id = this.props.params!.id;
+        const data = {
+            name: this.state.name,
+            embed: {
+                pokemon: this.state.Pokemon,
+                pokemonMissingStats: this.state.PokemonMissingStats,
+                gyms: this.state.Gyms,
+                raids: this.state.Raids,
+                eggs: this.state.Eggs,
+                pokestops: this.state.Pokestops,
+                quests: this.state.Quests,
+                lures: this.state.Lures,
+                invasions: this.state.Invasions,
+                nests: this.state.Nests,
+                weather: this.state.Weather,
+            },
+        };
         fetch(config.apiUrl + 'admin/embed/' + id, {
-            method: 'POST',
-            body: JSON.stringify(this.state),
+            method: 'PUT',
+            body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
             },
         }).then(async (response) => await response.json())
           .then((data: any) => {
-            console.log('response:', data);
-
+            //console.log('response:', data);
+            if (data.status !== 'OK') {
+                // TODO: Show error notification
+                alert(data.error);
+                return;
+            }
+            window.location.href = config.homepage + 'embeds';
         }).catch((err) => {
             console.error('error:', err);
             event.preventDefault();
@@ -318,6 +339,18 @@ class EditEmbed extends React.Component<IGlobalProps> {
                             <i>Each new line in the content field reflects an actual new line in the message embed.</i>
                         </Typography>
                         <div style={{paddingBottom: '20px', paddingTop: '20px'}}>
+                            <TextField
+                                id="name"
+                                name="name"
+                                variant="outlined"
+                                label="Name"
+                                type="text"
+                                value={this.state.name}
+                                fullWidth
+                                required
+                                onChange={this.onInputChange}
+                                style={{paddingBottom: '20px'}}
+                            />
                             <Accordion expanded={this.state.expanded === 'panel1'} onChange={this.handlePanelExpanded('panel1')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography>Pokemon</Typography>

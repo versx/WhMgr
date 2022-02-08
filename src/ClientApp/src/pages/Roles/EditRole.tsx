@@ -166,6 +166,7 @@ class EditRole extends React.Component<IGlobalProps> {
                                         type="text"
                                         value={this.state.name}
                                         fullWidth
+                                        required
                                         onChange={this.onInputChange}
                                     />
                                 </Grid>
@@ -181,6 +182,7 @@ class EditRole extends React.Component<IGlobalProps> {
                                             readOnly: true,
                                         }}
                                         fullWidth
+                                        required
                                         onChange={this.onInputChange}
                                     />
                                 </Grid>

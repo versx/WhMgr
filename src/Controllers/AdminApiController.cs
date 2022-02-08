@@ -428,6 +428,51 @@
             });
         }
 
+        [HttpPut("embed/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> UpdateEmbed(string fileName)
+        {
+            var path = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(path))
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    error = $"Failed to update embed '{fileName}', embed does not exist.",
+                });
+            }
+
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+            var newName = dict["name"].ToString();
+
+            var embedJson = dict["embed"].ToString();
+            var embed = embedJson.FromJson<EmbedMessage>();
+            Console.WriteLine($"Embed: {embed}");
+
+            // TODO: Check if exists or not
+            var newFileName = $"{newName}.json";
+            var newFilePath = Path.Combine(Strings.EmbedsFolder, newFileName);
+            if (!string.Equals(fileName + ".json", newFileName))
+            {
+                // Move file to new path
+                System.IO.File.Move(
+                    Path.Combine(Strings.EmbedsFolder, fileName + ".json"),
+                    newFilePath
+                );
+            }
+
+            // Save json
+            var json = embed.ToJson();
+            await WriteDataAsync(newFilePath, json);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Embed '{fileName}' succuessfully updated.",
+            });
+        }
+
         [HttpDelete("embed/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]
         public IActionResult DeleteEmbed(string fileName)

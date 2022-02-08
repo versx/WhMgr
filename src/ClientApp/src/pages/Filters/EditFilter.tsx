@@ -230,6 +230,18 @@ class EditFilter extends React.Component<IGlobalProps> {
                             Webhook filter config description goes here
                         </Typography>
                         <div style={{paddingBottom: '20px', paddingTop: '20px'}}>
+                            <TextField
+                                id="name"
+                                name="name"
+                                variant="outlined"
+                                label="Name"
+                                type="text"
+                                value={this.state.name}
+                                fullWidth
+                                required
+                                onChange={this.onInputChange}
+                                style={{paddingBottom: '20px'}}
+                            />
                             <Accordion expanded={this.state.expanded === 'panel1'} onChange={this.handlePanelExpanded('panel1')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography>Pokemon</Typography>

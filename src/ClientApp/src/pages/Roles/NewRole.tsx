@@ -165,6 +165,7 @@ class NewRole extends React.Component<IGlobalProps> {
                                         type="text"
                                         defaultValue=""
                                         fullWidth
+                                        required
                                         onChange={this.onInputChange}
                                     />
                                 </Grid>
@@ -177,6 +178,7 @@ class NewRole extends React.Component<IGlobalProps> {
                                         type="text"
                                         defaultValue=""
                                         fullWidth
+                                        required
                                         onChange={this.onInputChange}
                                     />
                                 </Grid>

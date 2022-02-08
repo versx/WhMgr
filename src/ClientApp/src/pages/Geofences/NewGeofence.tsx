@@ -246,7 +246,7 @@ class NewGeofence extends React.Component<IGlobalProps> {
             href: config.homepage + 'geofences',
             selected: false,
         }, {
-            text: 'Edit ' + this.props.params!.id,
+            text: 'New',
             color: 'primary',
             href: '',
             selected: true,
@@ -270,7 +270,7 @@ class NewGeofence extends React.Component<IGlobalProps> {
                         <Grid container spacing={2}>
                             <Grid item xs={12} sm={6}>
                                 <Typography variant="h5" component="h2">
-                                    Edit Geofence {this.props.params!.id}
+                                    New Geofence
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} sm={6} style={{display: 'flex', justifyContent: 'flex-end'}}>
@@ -300,6 +300,7 @@ class NewGeofence extends React.Component<IGlobalProps> {
                                         type="text"
                                         value={this.state.name}
                                         fullWidth
+                                        required
                                         onChange={this.onInputChange}
                                     />
                                 </Grid>

@@ -361,6 +361,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                         type="text"
                                         value={this.state.name}
                                         fullWidth
+                                        required
                                         onChange={this.onInputChange}
                                     />
                                 </Grid>
