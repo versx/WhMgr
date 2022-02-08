@@ -18,7 +18,7 @@ import { ListDiscords, EditDiscord } from './pages/Discords';
 import { ListAlarms, EditAlarm } from './pages/Alarms';
 import { ListFilters, EditFilter } from './pages/Filters';
 import { ListEmbeds, EditEmbed } from './pages/Embeds';
-import { ListGeofences, EditGeofence } from './pages/Geofences';
+import { ListGeofences, NewGeofence, EditGeofence } from './pages/Geofences';
 import { ListRoles, NewRole, EditRole } from './pages/Roles';
 import ListUsers from './pages/ListUsers';
 import Settings from './pages/Settings';
@@ -61,7 +61,7 @@ function App() {
                 <Route path={config.homepage + "embed/new"} element={<ListEmbeds />} />
                 <Route path={config.homepage + "embed/:id"} element={<EditEmbed props={{}} />} />
                 <Route path={config.homepage + "geofences"} element={<ListGeofences />} />
-                <Route path={config.homepage + "geofence/new"} element={<ListGeofences />} />
+                <Route path={config.homepage + "geofence/new"} element={<NewGeofence props={{}} />} />
                 <Route path={config.homepage + "geofence/:id"} element={<EditGeofence props={{}} />} />
                 <Route path={config.homepage + "roles"} element={<ListRoles />} />
                 <Route path={config.homepage + "role/new"} element={<NewRole />} />

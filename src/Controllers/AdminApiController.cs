@@ -490,6 +490,36 @@
             });
         }
 
+        [HttpPost("geofence/new")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> CreateGeofence()
+        {
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+            // TODO: Validate keys exists
+            var name = dict["name"].ToString();
+            var saveFormat = dict["format"].ToString();
+            var geofenceData = dict["geofence"].ToString();
+
+            var fileName = name + saveFormat;
+            var path = Path.Combine(Strings.GeofencesFolder, fileName);
+            if (System.IO.File.Exists(path))
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    error = $"Failed to create geofence '{fileName}', geofence already exists.",
+                });
+            }
+
+            await SaveGeofence(name, name, geofenceData, saveFormat);
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Geofence '{name}' succuessfully created.",
+            });
+        }
+
         [HttpPut("geofence/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> UpdateGeofence(string fileName)
@@ -753,7 +783,7 @@
             var newFileName = $"{newName}{geofenceType}";
             var newFilePath = Path.Combine(Strings.GeofencesFolder, newFileName);
             // TODO: Convert geofence to ini or geojson
-            if (!string.Equals(fileName, newFileName))
+            if (!string.Equals(fileName + geofenceType, newFileName))
             {
                 // Move file to new path
                 System.IO.File.Move(
