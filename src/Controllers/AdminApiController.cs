@@ -302,13 +302,36 @@
 
         [HttpPost("alarm/new")]
         [Produces(MediaTypeNames.Application.Json)]
-        public async Task<IActionResult> CreateAlarm(string fileName)
+        public async Task<IActionResult> CreateAlarm()
         {
-            // TODO: Create alarm
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+
+            // Validate keys exist
+            if (!dict.ContainsKey("name") ||
+                !dict.ContainsKey("alarm"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
+            var name = dict["name"].ToString();
+            var alarmJson = dict["alarm"].ToString();
+            var alarm = alarmJson.FromJson<ChannelAlarmsManifest>();
+
+            // Save json
+            var json = alarm.ToJson();
+            var path = Path.Combine(Strings.AlarmsFolder, name + ".json");
+            if (System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to create alarm '{name}', alarm already exists.");
+            }
+
+            await WriteDataAsync(path, json);
+
             return new JsonResult(new
             {
                 status = "OK",
-                message = $"Alarm '{fileName}' succuessfully created.",
+                message = $"Alarm '{name}' succuessfully created.",
             });
         }
 
@@ -963,6 +986,29 @@
         }
 
         #endregion
+
+        #region Helper API
+
+        [HttpGet("alarm/data")]
+        public IActionResult GetAlarmHelper()
+        {
+            var embedFiles = Directory.GetFiles(Strings.EmbedsFolder, "*.json");
+            var filterFiles = Directory.GetFiles(Strings.FiltersFolder, "*.json");
+            var geofenceFiles = Directory.GetFiles(Strings.GeofencesFolder);
+            return new JsonResult(new
+            {
+                status = "OK",
+                data = new
+                {
+                    embeds = embedFiles.Select(file => Path.GetFileName(file)),
+                    filters = filterFiles.Select(file => Path.GetFileName(file)),
+                    geofences = geofenceFiles.Select(file => Path.GetFileName(file)),
+                },
+            });
+        }
+
+        #endregion
+
 
         #region Helpers
 

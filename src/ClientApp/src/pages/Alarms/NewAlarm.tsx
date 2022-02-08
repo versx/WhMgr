@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
     Box,
     Button,
@@ -6,12 +6,9 @@ import {
     CardContent,
     CardHeader,
     Container,
-    FormControl,
     FormControlLabel,
     Grid,
     List,
-    Select,
-    SelectChangeEvent,
     Switch,
     TextField,
     Typography,
@@ -25,15 +22,14 @@ import { BreadCrumbs } from '../../components/BreadCrumbs';
 import { withRouter } from '../../hooks';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 
-class EditAlarm extends React.Component<IGlobalProps> {
+class NewAlarm extends React.Component<IGlobalProps> {
     public state: any;
 
     constructor(props: IGlobalProps) {
         super(props);
         console.log('props:', props);
         this.state = {
-            // TODO: Set default state values
-            name: props.params!.id,
+            name: '',
             enablePokemon: false,
             enableRaids: false,
             enableQuests: false,
@@ -53,11 +49,11 @@ class EditAlarm extends React.Component<IGlobalProps> {
 
     componentDidMount() {
         console.log('componentDidMount:', this.state, this.props);
-        this.fetchData(this.props.params!.id);
+        this.fetchData();
     }
 
-    fetchData(id: any) {
-        fetch(config.apiUrl + 'admin/alarm/' + id, {
+    fetchData() {
+        fetch(config.apiUrl + 'admin/alarm/data', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -67,15 +63,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            //console.log('alarm data:', data);
-            //this.setState(data.data.alarm);
-            const keys: string[] = Object.keys(data.data.alarm);
-            for (const key of keys) {
-                //console.log('key:', key, 'data:', data.data.alarm[key]);
-                if (data.data.alarm[key]) {
-                    this.setState({ [key]: data.data.alarm[key] });
-                }
-            }
+            console.log('alarm data:', data);
             this.setState({
                 ['allEmbeds']: data.data.embeds,
                 ['allFilters']: data.data.filters,
@@ -90,10 +78,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
 
     handleChange(event: any) {
         const { name, value } = event.target;
-        //console.log('event:', event);
-        //this.setState({ [name]: value });
-        this.setState(state => ({ ...state, [name]: value }));
-        //this.setObjectByPath([name], value);
+        this.setState({ [name]: value });
         console.log('state:', this.state);
     }
 
@@ -120,8 +105,8 @@ class EditAlarm extends React.Component<IGlobalProps> {
             },
         };
         console.log('alarm submit:', id, data);
-        fetch(config.apiUrl + 'admin/alarm/' + id, {
-            method: 'PUT',
+        fetch(config.apiUrl + 'admin/alarm/new', {
+            method: 'POST',
             body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json',
@@ -214,7 +199,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
                     <Box component="form" method="POST" action="" onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
                         <BreadCrumbs crumbs={breadcrumbs} />
                         <Typography variant="h5" component="h2" >
-                            Edit Alarm {this.props.params!.id}
+                            New Alarm
                         </Typography>
                         <Typography sx={{ mt: 2 }}>
                             Channel alarms config description goes here
@@ -353,4 +338,4 @@ class EditAlarm extends React.Component<IGlobalProps> {
     }
 }
 
-export default withRouter(EditAlarm);
+export default withRouter(NewAlarm);

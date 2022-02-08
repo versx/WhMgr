@@ -15,7 +15,7 @@ import config from './config.json';
 import Dashboard from './pages/Dashboard';
 import { ListConfigs, EditConfig } from './pages/Configs';
 import { ListDiscords, EditDiscord } from './pages/Discords';
-import { ListAlarms, EditAlarm } from './pages/Alarms';
+import { ListAlarms, NewAlarm, EditAlarm } from './pages/Alarms';
 import { ListFilters, NewFilter, EditFilter } from './pages/Filters';
 import { ListEmbeds, NewEmbed, EditEmbed } from './pages/Embeds';
 import { ListGeofences, NewGeofence, EditGeofence } from './pages/Geofences';
@@ -52,7 +52,7 @@ function App() {
                 <Route path={config.homepage + "discord/new"} element={<ListDiscords />} />
                 <Route path={config.homepage + "discord/:id"} element={<EditDiscord props={{}} />} />
                 <Route path={config.homepage + "alarms"} element={<ListAlarms />} />
-                <Route path={config.homepage + "alarm/new"} element={<ListAlarms />} />
+                <Route path={config.homepage + "alarm/new"} element={<NewAlarm props={{}} />} />
                 <Route path={config.homepage + "alarm/:id"} element={<EditAlarm props={{}} />} />
                 <Route path={config.homepage + "filters"} element={<ListFilters />} />
                 <Route path={config.homepage + "filter/new"} element={<NewFilter props={{}} />} />
