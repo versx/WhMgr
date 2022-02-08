@@ -602,6 +602,31 @@
             });
         }
 
+        [HttpDelete("role/{id}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> DeleteDiscordRole(ulong id)
+        {
+            var roles = GetRoles();
+            if (!roles.ContainsKey(id))
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    error = $"Failed to delete Discord role {id}.",
+                });
+            }
+
+            roles.Remove(id);
+
+            var path = Strings.BasePath + "wwwroot/static/data/roles.json";
+            await WriteDataAsync(path, roles);
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Discord role {id} succuessfully deleted.",
+            });
+        }
+
         #endregion
 
         #region Users API

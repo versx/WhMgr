@@ -106,9 +106,27 @@ function ListRoles() {
         if (!result) {
             return;
         }
-        // TODO: Send delete request
-        console.log('delete:', roles);
-        setRoles(roles.filter((item: any) => item.id !== id));
+        // Send delete request
+        fetch(config.apiUrl + 'admin/role/' + id, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        })
+        .then(async (response) => await response.json())
+        .then(data => {
+            if (data.status !== 'OK') {
+                // TODO: error
+                alert(data.error);
+                return;
+            }
+            // Update list on successful delete via api
+            setRoles(roles.filter((item: any) => item.id !== id));
+        }).catch(err => {
+            console.error('error:', err);
+        });
     };
 
     const classes = useStyles();
