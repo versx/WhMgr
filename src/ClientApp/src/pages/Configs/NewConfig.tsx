@@ -161,8 +161,12 @@ class NewConfig extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            console.log('discords:', data.data.discords);
-            this.setState({ ['discords']: Object.values(data.data.discords) });
+            if (data.status !== 'OK') {
+                // Failed to fetch helper data
+                alert(data.error);
+                return;
+            }
+            this.setState({ ['discords']: data.data.discords });
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -335,7 +339,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                             <FormControlLabel
                                                 id="checkForDuplicates"
                                                 name="checkForDuplicates"
-                                                control={<Switch checked={this.state.checkForDuplicates} />}
+                                                control={<Switch checked={this.state.checkForDuplicates} onChange={this.onInputChange} />}
                                                 label="Check For Duplicates"
                                             />
                                         </Grid>

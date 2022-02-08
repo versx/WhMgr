@@ -161,16 +161,12 @@ class EditConfig extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            //console.log('config data:', data);
-            //const flat = flattenObject(data.data.config);
-            //console.log('flat config:', flat);
-            //this.setState(flat);
             const keys: string[] = Object.keys(data.data.config);
             for (const key of keys) {
                 //console.log('key:', key, 'data:', data.data.config[key]);
                 this.setState({ [key]: data.data.config[key] });
             }
-            this.setState({ ['discords']: Object.values(data.data.discords) });
+            this.setState({ ['discords']: data.data.discords });
         }).catch(err => {
             console.error('error:', err);
             // TODO: Show error notification
@@ -344,7 +340,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                                             <FormControlLabel
                                                 id="checkForDuplicates"
                                                 name="checkForDuplicates"
-                                                control={<Switch checked={this.state.checkForDuplicates} />}
+                                                control={<Switch checked={this.state.checkForDuplicates} onChange={this.onInputChange} />}
                                                 label="Check For Duplicates"
                                             />
                                         </Grid>
