@@ -192,7 +192,7 @@ class NewFilter extends React.Component<IGlobalProps> {
             href: config.homepage + 'filters',
             selected: false,
         }, {
-            text: 'Edit ' + this.props.params!.id,
+            text: 'New',
             color: 'primary',
             href: '',
             selected: true,
@@ -204,7 +204,7 @@ class NewFilter extends React.Component<IGlobalProps> {
                     <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
                         <BreadCrumbs crumbs={breadcrumbs} />
                         <Typography variant="h5" component="h2" >
-                            Edit Webhook Filter {this.props.params!.id}
+                            New Webhook Filter
                         </Typography>
                         <Typography sx={{ mt: 2 }}>
                             Webhook filter config description goes here
