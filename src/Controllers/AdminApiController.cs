@@ -116,7 +116,7 @@
 
         [HttpPost("config/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]
-        public async Task<IActionResult> UpdateConfig(string fileName)//, Config data)
+        public async Task<IActionResult> UpdateConfig(string fileName)
         {
             var data = await Request.GetRawBodyStringAsync();
             Console.WriteLine($"data: {data}");
@@ -142,7 +142,25 @@
             });
         }
 
-        // TODO: Delete config
+        [HttpDelete("config/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public IActionResult DeleteConfig(string fileName)
+        {
+            var path = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to delete config '{fileName}', config does not exist.");
+            }
+
+            // Delete config
+            System.IO.File.Delete(path);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Config '{fileName}' succuessfully deleted.",
+            });
+        }
 
         #endregion
 
@@ -246,7 +264,7 @@
                 return SendErrorResponse($"Failed to delete discord server '{fileName}', discord server does not exist.");
             }
 
-            // Delete geofence
+            // Delete discord server config
             System.IO.File.Delete(path);
 
             return new JsonResult(new
