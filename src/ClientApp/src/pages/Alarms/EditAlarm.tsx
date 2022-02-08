@@ -19,10 +19,10 @@ import {
 import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
-import { AddAlarmModal } from '../../components/AddAlarmModal';
+import { AddAlarmModal } from '../../components/Modals';
 import { Alarm, AlarmProps } from '../../components/Alarm';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
-import withRouter from '../../hooks/WithRouter';
+import { withRouter } from '../../hooks';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 
 class EditAlarm extends React.Component<IGlobalProps> {
