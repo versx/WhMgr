@@ -14,12 +14,12 @@ import L, { LatLngExpression, Layer } from 'leaflet';
 import {
     Box,
     Button,
+    Chip,
     Container,
     FormControl,
     FormControlLabel,
     FormLabel,
     Grid,
-    Modal,
     Radio,
     RadioGroup,
     TextField,
@@ -29,14 +29,15 @@ import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
-import { ExportGeofenceModal, ImportGeofenceModal } from '../../components/Modals';
+import { GeofenceModal } from '../../components/Modals';
 import MapButton from '../../components/MapButton';
 import { withRouter } from '../../hooks';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 import { geoJsonToIni, iniToGeoJson } from '../../utils/geofenceConverter';
 import { onNestedStateChange } from '../../utils/nestedStateHelper';
 
-// TODO: Convert geofence upon check changed and save state
+// TODO: Move geofence modal logic to modal component and pass map via props
+
 let set = false;
 let loaded = false;
 const formatGeofenceToGeoJson = (format: string, data: any): any => {
@@ -363,21 +364,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                         onChange={this.onInputChange}
                                     />
                                 </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        id="count"
-                                        name="count"
-                                        variant="outlined"
-                                        label="Geofence Count"
-                                        type="number"
-                                        value={this.state.count}
-                                        InputProps={{
-                                            readOnly: true,
-                                        }}
-                                        fullWidth
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
+                                <Grid item xs={6}>
                                     <FormControl>
                                         <FormLabel id="format-label">Save Format</FormLabel>
                                         <RadioGroup
@@ -402,6 +389,9 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                             />
                                         </RadioGroup>
                                     </FormControl>
+                                </Grid>
+                                <Grid item xs={6} style={{display: 'flex', justifyContent: 'flex-end'}}>
+                                    <Chip label={"Geofences: " + this.state.count} />
                                 </Grid>
                                 <Grid item xs={12}>
                                     <MapContainer
@@ -460,7 +450,22 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                                 });
                                             }}
                                         />
-                                        <ImportGeofenceModal
+                                        <MapButton
+                                            tooltip="Delete all layers"
+                                            icon="<img src='https://www.iconpacks.net/icons/1/free-trash-icon-347-thumb.png' width='16' height='16' />"
+                                            onClick={(btn: any, map: any) => {
+                                                const result = window.confirm('Are you sure you want to delete all shapes?');
+                                                if (!result) {
+                                                    return;
+                                                }
+                                                this._editableFG.clearLayers();
+                                                this.setState({
+                                                    ['count']: 0,
+                                                    ['geofence']: null,
+                                                });
+                                            }}
+                                        />
+                                        <GeofenceModal
                                             title="Import Geofence"
                                             body={(
                                                 <Grid container spacing={2}>
@@ -550,7 +555,7 @@ class EditGeofence extends React.Component<IGlobalProps> {
                                                 });
                                             }}
                                         />
-                                        <ExportGeofenceModal
+                                        <GeofenceModal
                                             title="Export Geofence"
                                             body={(
                                                 <Grid container spacing={2}>

@@ -1,9 +1,7 @@
 import { AddAlarmModal } from "./AddAlarmModal";
-import { ExportGeofenceModal } from "./ExportGeofenceModal";
-import { ImportGeofenceModal } from "./ImportGeofenceModal";
+import { GeofenceModal } from "./GeofenceModal";
 
 export {
     AddAlarmModal,
-    ExportGeofenceModal,
-    ImportGeofenceModal,
+    GeofenceModal,
 };

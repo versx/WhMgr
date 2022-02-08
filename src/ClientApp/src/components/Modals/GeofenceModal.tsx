@@ -6,14 +6,14 @@ import {
     Typography,
 } from '@mui/material';
 
-interface ExportGeofenceModalProps {
+interface GeofenceModalProps {
     show: boolean;
     onClose: any;
     title: string;
     body: any;
 }
 
-export function ExportGeofenceModal(props: ExportGeofenceModalProps) {
+export function GeofenceModal(props: GeofenceModalProps) {
     const style = {
         position: 'absolute' as 'absolute',
         top: '50%',
