@@ -24,11 +24,14 @@ import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
+import EmbedPreview from '../../components/EmbedPreview';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 import { onNestedStateChange } from '../../utils/nestedStateHelper';
 
 // TODO: Reusable embed components (pass onInputChange via props)
+// TODO: Use chips instead of text to auto input placeholders
+// TODO: Add Discord Embed preview
 
 class EditEmbed extends React.Component<IGlobalProps> {
     public state: any;
@@ -312,7 +315,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
                             Use <code>{"{{#if placeholder}}Show if true!{{/if}}"}</code> to handle conditional expressions that return a <code>Boolean</code> type.<br />
                             Use <code>{"{{#each rankings}}{{rank}} {{cp}} {{pokemon}}{{/each}}"}</code> to iterate and handle displaying <code>Array</code> values.<br />
                             <a href="https://handlebarsjs.com/guide" target="_blank">Handlebars Documentation</a><br /><br />
-                            <i>Each new line in the content property reflects an actual new line in the message embed.</i>
+                            <i>Each new line in the content field reflects an actual new line in the message embed.</i>
                         </Typography>
                         <div style={{paddingBottom: '20px', paddingTop: '20px'}}>
                             <Accordion expanded={this.state.expanded === 'panel1'} onChange={this.handlePanelExpanded('panel1')}>
@@ -320,6 +323,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
                                     <Typography>Pokemon</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
+                                    {/*<EmbedPreview />*/}
                                     <Grid container spacing={2}>
                                         <Grid item xs={6}>
                                             <Grid container spacing={2}>
