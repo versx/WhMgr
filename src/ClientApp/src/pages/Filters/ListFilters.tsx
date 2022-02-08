@@ -157,9 +157,9 @@ function ListFilters() {
                     <Button variant="contained" color="primary">New Filter</Button>
                 </Link>
             </div>
-            <p>
+            <Typography style={{paddingBottom: '20px'}}>
                 Webhook alarm filters are used by <a href={config.homepage + "alarms"}>Channel Alarms</a> to filter incoming webhook data based on type and other various properties.
-            </p>
+            </Typography>
             <DataGrid className={classes.table}
                 rows={filters}
                 disableSelectionOnClick

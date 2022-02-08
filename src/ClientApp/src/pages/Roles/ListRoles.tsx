@@ -138,9 +138,9 @@ function ListRoles() {
                     <Button variant="contained" color="primary">New Discord Role</Button>
                 </Link>
             </div>
-            <p>
+            <Typography style={{paddingBottom: '20px'}}>
                 Available Discord roles for subscribers and moderators.
-            </p>
+            </Typography>
             <DataGrid className={classes.table}
                 rows={roles}
                 disableSelectionOnClick

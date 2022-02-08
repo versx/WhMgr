@@ -197,7 +197,11 @@ class EditConfig extends React.Component<IGlobalProps> {
         }).then(async (response) => await response.json())
           .then((data: any) => {
             console.log('response:', data);
-
+            if (data.status !== 'OK') {
+                alert(data.error);
+                return;
+            }
+            window.location.href = config.homepage + 'configs';
         }).catch((err) => {
             console.error('error:', err);
             event.preventDefault();

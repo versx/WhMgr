@@ -181,9 +181,9 @@ function ListEmbeds() {
                     <Button variant="contained" color="primary">New Embed</Button>
                 </Link>
             </div>
-            <p>
+            <Typography style={{paddingBottom: '20px'}}>
                 Message embeds depict how the Discord message looks to your users. Place holders are replaced with actual values at runtime using the <a href="https://handlebarsjs.com/guide" target="_blank">Handlebars</a> templating engine.
-            </p>
+            </Typography>
             <DataGrid className={classes.table}
                 rows={embeds}
                 disableSelectionOnClick

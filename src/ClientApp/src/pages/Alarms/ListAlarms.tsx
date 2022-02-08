@@ -158,9 +158,9 @@ function ListAlarms() {
                     <Button variant="contained" color="primary">New Alarm</Button>
                 </Link>
             </div>
-            <p>
+            <Typography style={{paddingBottom: '20px'}}>
                 Channel alarms are pre-defined configs that specify what data to report to a Discord server's channel via webhooks.
-            </p>
+            </Typography>
             <DataGrid className={classes.table}
                 rows={alarms}
                 disableSelectionOnClick

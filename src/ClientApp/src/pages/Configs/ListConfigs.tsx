@@ -129,9 +129,9 @@ function ListConfigs() {
                     <Button variant="contained" color="primary">New Config</Button>
                 </Link>
             </div>
-            <p>
+            <Typography style={{paddingBottom: '20px'}}>
                 Configs are the heart of the program and only one is used per instance at a time.
-            </p>
+            </Typography>
             <DataGrid className={classes.table}
                 rows={configs}
                 disableSelectionOnClick

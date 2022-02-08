@@ -121,9 +121,9 @@ function ListGeofences() {
                     <Button variant="contained" color="primary">New Geofence</Button>
                 </Link>
             </div>
-            <p>
+            <Typography style={{paddingBottom: '20px'}}>
                 Geofences define a scan areas borders.
-            </p>
+            </Typography>
             <DataGrid className={classes.table}
                 rows={geofences}
                 disableSelectionOnClick

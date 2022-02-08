@@ -131,9 +131,9 @@ function ListDiscords() {
                     <Button variant="contained" color="primary">New Discord</Button>
                 </Link>
             </div>
-            <p>
+            <Typography style={{paddingBottom: '20px'}}>
                 Discord server configs are used by <a href={config.homepage + "configs"} >Configs</a> to determine what Discord server to report and respond to.
-            </p>
+            </Typography>
             <DataGrid className={classes.table}
                 rows={discords}
                 disableSelectionOnClick
