@@ -16,8 +16,8 @@ import Dashboard from './pages/Dashboard';
 import { ListConfigs, EditConfig } from './pages/Configs';
 import { ListDiscords, EditDiscord } from './pages/Discords';
 import { ListAlarms, EditAlarm } from './pages/Alarms';
-import { ListFilters, EditFilter } from './pages/Filters';
-import { ListEmbeds, EditEmbed } from './pages/Embeds';
+import { ListFilters, NewFilter, EditFilter } from './pages/Filters';
+import { ListEmbeds, NewEmbed, EditEmbed } from './pages/Embeds';
 import { ListGeofences, NewGeofence, EditGeofence } from './pages/Geofences';
 import { ListRoles, NewRole, EditRole } from './pages/Roles';
 import ListUsers from './pages/ListUsers';
@@ -55,10 +55,10 @@ function App() {
                 <Route path={config.homepage + "alarm/new"} element={<ListAlarms />} />
                 <Route path={config.homepage + "alarm/:id"} element={<EditAlarm props={{}} />} />
                 <Route path={config.homepage + "filters"} element={<ListFilters />} />
-                <Route path={config.homepage + "filter/new"} element={<ListFilters />} />
+                <Route path={config.homepage + "filter/new"} element={<NewFilter props={{}} />} />
                 <Route path={config.homepage + "filter/:id"} element={<EditFilter props={{}} />} />
                 <Route path={config.homepage + "embeds"} element={<ListEmbeds />} />
-                <Route path={config.homepage + "embed/new"} element={<ListEmbeds />} />
+                <Route path={config.homepage + "embed/new"} element={<NewEmbed props={{}} />} />
                 <Route path={config.homepage + "embed/:id"} element={<EditEmbed props={{}} />} />
                 <Route path={config.homepage + "geofences"} element={<ListGeofences />} />
                 <Route path={config.homepage + "geofence/new"} element={<NewGeofence props={{}} />} />

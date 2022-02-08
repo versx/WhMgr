@@ -480,7 +480,7 @@
             });
         }
 
-        [HttpPost("embed/{fileName}")]
+        [HttpPost("embed/new")]
         [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> CreateEmbed()
         {

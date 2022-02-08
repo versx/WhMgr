@@ -33,7 +33,7 @@ import { onNestedStateChange } from '../../utils/nestedStateHelper';
 // TODO: Use chips instead of text to auto input placeholders
 // TODO: Add Discord Embed preview
 
-class EditEmbed extends React.Component<IGlobalProps> {
+class NewEmbed extends React.Component<IGlobalProps> {
     public state: any;
 
     constructor(props: IGlobalProps) {
@@ -192,39 +192,6 @@ class EditEmbed extends React.Component<IGlobalProps> {
         this.handlePanelExpanded = this.handlePanelExpanded.bind(this);
     }
 
-    componentDidMount() {
-        console.log('componentDidMount:', this.state, this.props);
-        this.fetchData(this.props.params!.id);
-    }
-
-    fetchData(id: any) {
-        fetch(config.apiUrl + 'admin/embed/' + id, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-            },
-        })
-        .then(async (response) => await response.json())
-        .then(data => {
-            //console.log('embed data:', data);
-            //this.setState(data.data.embed);
-            const keys: string[] = Object.keys(data.data.embed);
-            for (const key of keys) {
-                //console.log('key:', key, 'data:', data.data.embed[key]);
-                if (data.data.embed[key]) {
-                    this.setState({ [key]: data.data.embed[key] });
-                }
-            }
-            this.setState({ ['placeholders']: data.data.placeholders });
-            //console.log('state:', this.state);
-        }).catch(err => {
-            console.error('error:', err);
-            // TODO: Show error notification
-        });
-    }
-
     onInputChange(event: any) {
         onNestedStateChange(event, this);
     }
@@ -238,7 +205,6 @@ class EditEmbed extends React.Component<IGlobalProps> {
 
         console.log('handle submit state:', this.state);
 
-        const id = this.props.params!.id;
         const data = {
             name: this.state.name,
             embed: {
@@ -255,8 +221,8 @@ class EditEmbed extends React.Component<IGlobalProps> {
                 weather: this.state.Weather,
             },
         };
-        fetch(config.apiUrl + 'admin/embed/' + id, {
-            method: 'PUT',
+        fetch(config.apiUrl + 'admin/embed/new', {
+            method: 'POST',
             body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json',
@@ -325,7 +291,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
             href: config.homepage + 'embeds',
             selected: false,
         }, {
-            text: 'Edit ' + this.props.params!.id,
+            text: 'New',
             color: 'primary',
             href: '',
             selected: true,
@@ -337,7 +303,7 @@ class EditEmbed extends React.Component<IGlobalProps> {
                     <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
                         <BreadCrumbs crumbs={breadcrumbs} />
                         <Typography variant="h5" component="h2" >
-                            Edit Embed Message Template {this.props.params!.id}
+                            New Embed Message Template
                         </Typography>
                         <Typography sx={{ mt: 2 }}>
                             Use <code>{"{{placeholder}}"}</code> surrounding an available placeholder value to replace it with actual data at runtime.<br />
@@ -2135,4 +2101,4 @@ class EditEmbed extends React.Component<IGlobalProps> {
     }
 }
 
-export default withRouter(EditEmbed);
+export default withRouter(NewEmbed);
