@@ -83,7 +83,7 @@ class EditFilter extends React.Component<IGlobalProps> {
             },
             quests: {
                 enabled: false,
-                rewards: '',
+                rewards: [],
                 is_shiny: false,
                 type: 'Include',
             },
@@ -92,7 +92,7 @@ class EditFilter extends React.Component<IGlobalProps> {
                 lured: false,
                 lure_types: [],
                 invasions: false,
-                invasion_types: [],
+                invasion_types: {},
             },
             gyms: {
                 enabled: false,
@@ -154,9 +154,22 @@ class EditFilter extends React.Component<IGlobalProps> {
         console.log('handle submit state:', this.state);
 
         const id = this.props.params!.id;
+        // TODO: Only send what is set
+        const data = {
+            name: this.state.name,
+            filter: {
+                pokemon: this.state.pokemon,
+                raids: this.state.raids,
+                eggs: this.state.eggs,
+                quests: this.state.quests,
+                pokestops: this.state.pokestops,
+                gyms: this.state.gyms,
+                weather: this.state.weather,
+            },
+        };
         fetch(config.apiUrl + 'admin/filter/' + id, {
-            method: 'POST',
-            body: JSON.stringify(this.state),
+            method: 'PUT',
+            body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',

@@ -347,6 +347,54 @@
             });
         }
 
+        [HttpPut("filter/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> UpdateFilter(string fileName)
+        {
+            var path = Path.Combine(Strings.FiltersFolder, fileName + ".json");
+            if (!System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to update filter '{fileName}', filter does not exist.");
+            }
+
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+
+            // Validate keys exist
+            if (!dict.ContainsKey("name") ||
+                !dict.ContainsKey("filter"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
+            var newName = dict["name"].ToString();
+
+            var filterJson = dict["filter"].ToString();
+            var filter = filterJson.FromJson<WebhookFilter>();
+
+            // TODO: Check if new filter already exists or not
+            var newFileName = $"{newName}.json";
+            var newFilePath = Path.Combine(Strings.FiltersFolder, newFileName);
+            if (!string.Equals(fileName + ".json", newFileName))
+            {
+                // Move file to new path
+                System.IO.File.Move(
+                    Path.Combine(Strings.FiltersFolder, fileName + ".json"),
+                    newFilePath
+                );
+            }
+
+            // Save json
+            var json = filter.ToJson();
+            await WriteDataAsync(newFilePath, json);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Filter '{fileName}' succuessfully updated.",
+            });
+        }
+
         [HttpDelete("filter/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]
         public IActionResult DeleteFilter(string fileName)
