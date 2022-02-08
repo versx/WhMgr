@@ -236,7 +236,25 @@
 
         // TODO: Edit discord
 
-        // TODO: Delete discord
+        [HttpDelete("discord/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public IActionResult DeleteDiscord(string fileName)
+        {
+            var path = Path.Combine(Strings.DiscordsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to delete discord server '{fileName}', discord server does not exist.");
+            }
+
+            // Delete geofence
+            System.IO.File.Delete(path);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Discord server '{fileName}' succuessfully deleted.",
+            });
+        }
 
         #endregion
 
