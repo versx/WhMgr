@@ -161,6 +161,7 @@ class NewConfig extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
+            console.log('discords:', data.data.discords);
             this.setState({ ['discords']: Object.values(data.data.discords) });
         }).catch(err => {
             console.error('error:', err);
@@ -261,7 +262,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>General</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
                                                 id="name"
@@ -331,7 +332,12 @@ class NewConfig extends React.Component<IGlobalProps> {
                                             />
                                         </Grid>
                                         <Grid item xs={6} sm={6}>
-                                            <FormControlLabel id="checkForDuplicates" name="checkForDuplicates" control={<Switch checked={this.state.checkForDuplicates} />} label="Check For Duplicates" />
+                                            <FormControlLabel
+                                                id="checkForDuplicates"
+                                                name="checkForDuplicates"
+                                                control={<Switch checked={this.state.checkForDuplicates} />}
+                                                label="Check For Duplicates"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <MultiSelect
@@ -353,7 +359,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>Databases</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <Card>
                                                 <CardHeader title="Main" subheader="Main database for saving subscriptions" />
@@ -398,7 +404,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>Short Url API</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <FormControlLabel id="shortUrlApi.enabled" name="shortUrlApi.enabled" control={<Switch checked={this.state.shortUrlApi.enabled} onChange={this.onInputChange} />} label="Enabled" />
                                         </Grid>
@@ -434,7 +440,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>Stripe API</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
                                                 id="stripeApi.apiKey"
@@ -455,7 +461,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>Urls</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
                                                 id="urls.scannerMap"
@@ -475,7 +481,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>Event Pokemon</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <TextField
                                                 id="eventPokemon.pokemonIds"
@@ -523,7 +529,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>Icon Styles</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             ...
                                         </Grid>
@@ -535,7 +541,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>Static Maps</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         {Object.keys(this.state.staticMaps).map((key: string) => {
                                             return (
                                                 <Grid key={key} item xs={12} sm={12}>
@@ -585,7 +591,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>Twilio</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <FormControlLabel id="twilio.enabled" name="twilio.enabled" control={<Switch checked={this.state.twilio.enabled} onChange={this.onInputChange} />} label="Enabled" />
                                         </Grid>
@@ -674,7 +680,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>Reverse Geocoding</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <FormControl fullWidth>
                                                 <InputLabel id="provider-label">Provider</InputLabel>
@@ -759,7 +765,7 @@ class NewConfig extends React.Component<IGlobalProps> {
                                     <Typography>Diagnostics</Typography>
                                 </AccordionSummary>
                                 <AccordionDetails>
-                                    <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+                                    <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                                         <Grid item xs={12} sm={12}>
                                             <FormControlLabel
                                                 id="debug"

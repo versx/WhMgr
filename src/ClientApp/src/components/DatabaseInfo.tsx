@@ -19,7 +19,7 @@ export function DatabaseInfo(props: DatabaseProps) {
 
     return (
         <div>
-            <Grid container spacing={2} style={{paddingTop: '20px', paddingBottom: '20px'}}>
+            <Grid container spacing={2} style={{paddingBottom: '20px'}}>
                 <Grid item xs={12} sm={6}>
                     <TextField
                         id={"database." + props.name + ".host"}
@@ -29,6 +29,7 @@ export function DatabaseInfo(props: DatabaseProps) {
                         type="text"
                         value={props.host}
                         fullWidth
+                        required
                         onChange={props.onInputChange}
                     />
                 </Grid>
@@ -41,6 +42,7 @@ export function DatabaseInfo(props: DatabaseProps) {
                         type="number"
                         value={props.port}
                         fullWidth
+                        required
                         onChange={props.onInputChange}
                     />
                 </Grid>
@@ -53,6 +55,7 @@ export function DatabaseInfo(props: DatabaseProps) {
                         type="text"
                         value={props.username}
                         fullWidth
+                        required
                         onChange={props.onInputChange}
                     />
                 </Grid>
@@ -65,6 +68,7 @@ export function DatabaseInfo(props: DatabaseProps) {
                         type="text"
                         value={props.password}
                         fullWidth
+                        required
                         onChange={props.onInputChange}
                     />
                 </Grid>
@@ -77,6 +81,7 @@ export function DatabaseInfo(props: DatabaseProps) {
                         type="text"
                         value={props.database}
                         fullWidth
+                        required
                         onChange={props.onInputChange}
                     />
                 </Grid>

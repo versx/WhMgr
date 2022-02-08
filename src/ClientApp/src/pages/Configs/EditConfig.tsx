@@ -341,7 +341,12 @@ class EditConfig extends React.Component<IGlobalProps> {
                                             />
                                         </Grid>
                                         <Grid item xs={6} sm={6}>
-                                            <FormControlLabel id="checkForDuplicates" name="checkForDuplicates" control={<Switch checked={this.state.checkForDuplicates} />} label="Check For Duplicates" />
+                                            <FormControlLabel
+                                                id="checkForDuplicates"
+                                                name="checkForDuplicates"
+                                                control={<Switch checked={this.state.checkForDuplicates} />}
+                                                label="Check For Duplicates"
+                                            />
                                         </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <MultiSelect

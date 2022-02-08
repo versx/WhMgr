@@ -1211,6 +1211,23 @@
             });
         }
 
+
+        [HttpGet("config/data")]
+        public IActionResult GetConfigHelper()
+        {
+            var discords = Directory.GetFiles(Strings.DiscordsFolder, "*.json")
+                .Select(file => Path.GetFileName(file));
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                data = new
+                {
+                    discords,
+                },
+            });
+        }
+
         #endregion
 
         #region Helpers
