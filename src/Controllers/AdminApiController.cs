@@ -291,6 +291,26 @@
             });
         }
 
+        [HttpDelete("alarm/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public IActionResult DeleteAlarm(string fileName)
+        {
+            var path = Path.Combine(Strings.AlarmsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to delete alarm '{fileName}', alarm does not exist.");
+            }
+
+            // Delete geofence
+            System.IO.File.Delete(path);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Alarm '{fileName}' succuessfully deleted.",
+            });
+        }
+
         #endregion
 
         #region Filters API
@@ -346,6 +366,8 @@
                 },
             });
         }
+
+        // TODO: Create filter
 
         [HttpPut("filter/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]
@@ -411,7 +433,7 @@
             return new JsonResult(new
             {
                 status = "OK",
-                message = $"Embed '{fileName}' succuessfully delete.",
+                message = $"Filter '{fileName}' succuessfully deleted.",
             });
         }
 
@@ -570,7 +592,7 @@
             var path = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
             if (!System.IO.File.Exists(path))
             {
-                return SendErrorResponse($"Failed to delete embed '{fileName}', file does not exist.");
+                return SendErrorResponse($"Failed to delete embed '{fileName}', embed does not exist.");
             }
 
             // Delete geofence
@@ -579,7 +601,7 @@
             return new JsonResult(new
             {
                 status = "OK",
-                message = $"Embed '{fileName}' succuessfully delete.",
+                message = $"Embed '{fileName}' succuessfully deleted.",
             });
         }
 
@@ -696,7 +718,7 @@
             return new JsonResult(new
             {
                 status = "OK",
-                message = $"Geofence '{fileName}' succuessfully delete.",
+                message = $"Geofence '{fileName}' succuessfully deleted.",
             });
         }
 
