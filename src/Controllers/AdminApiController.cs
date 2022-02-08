@@ -432,7 +432,40 @@
             });
         }
 
-        // TODO: Create embed
+        [HttpPost("embed/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> CreateEmbed()
+        {
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+
+            // Validate keys exist
+            if (!dict.ContainsKey("name") ||
+                !dict.ContainsKey("embed"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
+            var name = dict["name"].ToString();
+            var embedJson = dict["embed"].ToString();
+            var embed = embedJson.FromJson<EmbedMessage>();
+
+            // Save json
+            var json = embed.ToJson();
+            var path = Path.Combine(Strings.EmbedsFolder, name + ".json");
+            if (System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to create embed '{name}', embed already exists.");
+            }
+
+            await WriteDataAsync(path, json);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Embed '{name}' succuessfully created.",
+            });
+        }
 
         [HttpPut("embed/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]
@@ -446,6 +479,14 @@
 
             var data = await Request.GetRawBodyStringAsync();
             var dict = data.FromJson<Dictionary<string, object>>();
+
+            // Validate keys exist
+            if (!dict.ContainsKey("name") ||
+                !dict.ContainsKey("embed"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
             var newName = dict["name"].ToString();
 
             var embedJson = dict["embed"].ToString();
@@ -538,7 +579,14 @@
         {
             var data = await Request.GetRawBodyStringAsync();
             var dict = data.FromJson<Dictionary<string, object>>();
-            // TODO: Validate keys exists
+            // Validate keys exist
+            if (!dict.ContainsKey("name") ||
+                !dict.ContainsKey("format") ||
+                !dict.ContainsKey("geofence"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
             var name = dict["name"].ToString();
             var saveFormat = dict["format"].ToString();
             var geofenceData = dict["geofence"].ToString();
