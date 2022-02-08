@@ -252,7 +252,51 @@
 
         // TODO: Create discord
 
-        // TODO: Edit discord
+        [HttpPut("discord/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> UpdateDiscord(string fileName)
+        {
+            var path = Path.Combine(Strings.DiscordsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to update Discord server '{fileName}', Discord server does not exist.");
+            }
+
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+
+            // Validate keys exist
+            if (!dict.ContainsKey("name"))// ||
+                //!dict.ContainsKey("discord"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
+            var newName = dict["name"].ToString();
+            var discord = data.FromJson<DiscordServerConfig>();
+
+            // TODO: Check if new alarm already exists or not
+            var newFileName = $"{newName}.json";
+            var newFilePath = Path.Combine(Strings.DiscordsFolder, newFileName);
+            if (!string.Equals(fileName + ".json", newFileName))
+            {
+                // Move file to new path
+                System.IO.File.Move(
+                    Path.Combine(Strings.DiscordsFolder, fileName + ".json"),
+                    newFilePath
+                );
+            }
+
+            // Save json
+            var json = discord.ToJson();
+            await WriteDataAsync(newFilePath, json);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Discord server '{fileName}' successfully updated.",
+            });
+        }
 
         [HttpDelete("discord/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]

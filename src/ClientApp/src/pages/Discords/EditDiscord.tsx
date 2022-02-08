@@ -161,7 +161,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
 
         const id = this.props.params!.id;
         fetch(config.apiUrl + 'admin/discord/' + id, {
-            method: 'POST',
+            method: 'PUT',
             body: JSON.stringify(this.state),
             headers: {
                 'Accept': 'application/json',
