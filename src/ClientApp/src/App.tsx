@@ -4,17 +4,16 @@ import { makeStyles } from '@mui/styles';
 import { Grid } from '@mui/material';
 
 import './App.css';
+import config from './config.json';
 
 import {
   Navbar,
   Leftbar,
   Rightbar,
 } from './components/Nav';
-
-import config from './config.json';
 import Dashboard from './pages/Dashboard';
 import { ListConfigs, EditConfig } from './pages/Configs';
-import { ListDiscords, EditDiscord } from './pages/Discords';
+import { ListDiscords, NewDiscord, EditDiscord } from './pages/Discords';
 import { ListAlarms, NewAlarm, EditAlarm } from './pages/Alarms';
 import { ListFilters, NewFilter, EditFilter } from './pages/Filters';
 import { ListEmbeds, NewEmbed, EditEmbed } from './pages/Embeds';
@@ -49,7 +48,7 @@ function App() {
                 <Route path={config.homepage + "config/new"} element={<ListConfigs />} />
                 <Route path={config.homepage + "config/:id"} element={<EditConfig props={{}} />} />
                 <Route path={config.homepage + "discords"} element={<ListDiscords />} />
-                <Route path={config.homepage + "discord/new"} element={<ListDiscords />} />
+                <Route path={config.homepage + "discord/new"} element={<NewDiscord props={{}} />} />
                 <Route path={config.homepage + "discord/:id"} element={<EditDiscord props={{}} />} />
                 <Route path={config.homepage + "alarms"} element={<ListAlarms />} />
                 <Route path={config.homepage + "alarm/new"} element={<NewAlarm props={{}} />} />
