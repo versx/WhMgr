@@ -485,6 +485,30 @@
             });
         }
 
+        [HttpDelete("geofence/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public IActionResult DeleteGeofence(string fileName)
+        {
+            var path = Path.Combine(Strings.GeofencesFolder, fileName);
+            if (!System.IO.File.Exists(path))
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    error = $"Failed to delete geofence {fileName}, file does not exist.",
+                });
+            }
+
+            // Delete geofence
+            System.IO.File.Delete(path);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Geofence {fileName} succuessfully delete.",
+            });
+        }
+
         #endregion
 
         #region Discord Roles API
@@ -612,7 +636,7 @@
                 return new JsonResult(new
                 {
                     status = "Error",
-                    error = $"Failed to delete Discord role {id}.",
+                    error = $"Failed to delete Discord role {id}, role does not exist.",
                 });
             }
 
