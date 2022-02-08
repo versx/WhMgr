@@ -428,6 +428,30 @@
             });
         }
 
+        [HttpDelete("embed/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public IActionResult DeleteEmbed(string fileName)
+        {
+            var path = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
+            if (!System.IO.File.Exists(path))
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    error = $"Failed to delete embed '{fileName}', file does not exist.",
+                });
+            }
+
+            // Delete geofence
+            System.IO.File.Delete(path);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Embed '{fileName}' succuessfully delete.",
+            });
+        }
+
         #endregion
 
         #region Geofences API
@@ -481,7 +505,7 @@
             return new JsonResult(new
             {
                 status = "OK",
-                message = $"Geofence {name} succuessfully updated.",
+                message = $"Geofence '{name}' succuessfully updated.",
             });
         }
 
@@ -495,7 +519,7 @@
                 return new JsonResult(new
                 {
                     status = "Error",
-                    error = $"Failed to delete geofence {fileName}, file does not exist.",
+                    error = $"Failed to delete geofence '{fileName}', file does not exist.",
                 });
             }
 
@@ -505,7 +529,7 @@
             return new JsonResult(new
             {
                 status = "OK",
-                message = $"Geofence {fileName} succuessfully delete.",
+                message = $"Geofence '{fileName}' succuessfully delete.",
             });
         }
 
@@ -539,6 +563,14 @@
             var roles = GetRoles();
             var (roleId, role) = roles.FirstOrDefault(role =>
                 string.Equals(role.Value.Name, name, StringComparison.InvariantCultureIgnoreCase));
+            if (role == null)
+            {
+                return new JsonResult(new
+                {
+                    status = "Error",
+                    error = $"Failed to get Discord role '{name}', role does not exist.",
+                });
+            }
             return new JsonResult(new
             {
                 status = "OK",
@@ -585,7 +617,7 @@
             return new JsonResult(new
             {
                 status = "OK",
-                message = $"Discord role {name} succuessfully created.",
+                message = $"Discord role '{name}' succuessfully created.",
             });
         }
 
@@ -622,7 +654,7 @@
             return new JsonResult(new
             {
                 status = "OK",
-                message = $"Discord role {name} succuessfully updated.",
+                message = $"Discord role '{name}' succuessfully updated.",
             });
         }
 
@@ -636,7 +668,7 @@
                 return new JsonResult(new
                 {
                     status = "Error",
-                    error = $"Failed to delete Discord role {id}, role does not exist.",
+                    error = $"Failed to delete Discord role '{id}', role does not exist.",
                 });
             }
 
@@ -647,7 +679,7 @@
             return new JsonResult(new
             {
                 status = "OK",
-                message = $"Discord role {id} succuessfully deleted.",
+                message = $"Discord role '{id}' succuessfully deleted.",
             });
         }
 

@@ -149,9 +149,27 @@ function ListEmbeds() {
         if (!result) {
             return;
         }
-        // TODO: Send delete request
-        console.log('delete:', embeds);
-        setEmbeds(embeds.filter((item: any) => item.id !== id));
+        // Send delete request
+        fetch(config.apiUrl + 'admin/embed/' + id, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        })
+        .then(async (response) => await response.json())
+        .then(data => {
+            if (data.status !== 'OK') {
+                // TODO: error
+                alert(data.error);
+                return;
+            }
+            // Update list on successful delete via api
+            setEmbeds(embeds.filter((item: any) => item.id !== id));
+        }).catch(err => {
+            console.error('error:', err);
+        });
     };
 
     const classes = useStyles();
