@@ -87,11 +87,7 @@
             var filePath = Path.Combine(Strings.ConfigsFolder, fileName + ".json");
             if (!System.IO.File.Exists(filePath))
             {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    error = $"Config '{fileName}' does not exist",
-                });
+                return SendErrorResponse($"Config '{fileName}' does not exist.");
             }
             var config = LoadFromFile<Config>(filePath);
             var discordFiles = Directory.GetFiles(Strings.DiscordsFolder, "*.json");
@@ -186,11 +182,7 @@
             var filePath = Path.Combine(Strings.DiscordsFolder, fileName + ".json");
             if (!System.IO.File.Exists(filePath))
             {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    error = $"Discord '{fileName}' does not exist",
-                });
+                return SendErrorResponse($"Discord '{fileName}' does not exist.");
             }
             var discord = LoadFromFile<DiscordServerConfig>(filePath);
 
@@ -341,11 +333,7 @@
             var filePath = Path.Combine(Strings.FiltersFolder, fileName + ".json");
             if (!System.IO.File.Exists(filePath))
             {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    error = $"Filter '{fileName}' does not exist",
-                });
+                return SendErrorResponse($"Filter '{fileName}' does not exist.");
             }
             var filter = LoadFromFile<WebhookFilter>(filePath);
 
@@ -356,6 +344,26 @@
                 {
                     filter,
                 },
+            });
+        }
+
+        [HttpDelete("filter/{fileName}")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public IActionResult DeleteFilter(string fileName)
+        {
+            var path = Path.Combine(Strings.FiltersFolder, fileName + ".json");
+            if (!System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to delete filter '{fileName}', filter does not exist.");
+            }
+
+            // Delete geofence
+            System.IO.File.Delete(path);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Embed '{fileName}' succuessfully delete.",
             });
         }
 
@@ -406,11 +414,7 @@
             var filePath = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
             if (!System.IO.File.Exists(filePath))
             {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    error = $"Embed '{fileName}' does not exist",
-                });
+                return SendErrorResponse($"Embed '{fileName}' does not exist.");
             }
             var embed = LoadFromFile<EmbedMessage>(filePath);
 
@@ -428,6 +432,8 @@
             });
         }
 
+        // TODO: Create embed
+
         [HttpPut("embed/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> UpdateEmbed(string fileName)
@@ -435,11 +441,7 @@
             var path = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
             if (!System.IO.File.Exists(path))
             {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    error = $"Failed to update embed '{fileName}', embed does not exist.",
-                });
+                return SendErrorResponse($"Failed to update embed '{fileName}', embed does not exist.");
             }
 
             var data = await Request.GetRawBodyStringAsync();
@@ -448,9 +450,8 @@
 
             var embedJson = dict["embed"].ToString();
             var embed = embedJson.FromJson<EmbedMessage>();
-            Console.WriteLine($"Embed: {embed}");
 
-            // TODO: Check if exists or not
+            // TODO: Check if new embed already exists or not
             var newFileName = $"{newName}.json";
             var newFilePath = Path.Combine(Strings.EmbedsFolder, newFileName);
             if (!string.Equals(fileName + ".json", newFileName))
@@ -480,11 +481,7 @@
             var path = Path.Combine(Strings.EmbedsFolder, fileName + ".json");
             if (!System.IO.File.Exists(path))
             {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    error = $"Failed to delete embed '{fileName}', file does not exist.",
-                });
+                return SendErrorResponse($"Failed to delete embed '{fileName}', file does not exist.");
             }
 
             // Delete geofence
@@ -550,11 +547,7 @@
             var path = Path.Combine(Strings.GeofencesFolder, fileName);
             if (System.IO.File.Exists(path))
             {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    error = $"Failed to create geofence '{fileName}', geofence already exists.",
-                });
+                return SendErrorResponse($"Failed to create geofence '{fileName}', geofence already exists.");
             }
 
             await SaveGeofence(name, name, geofenceData, saveFormat);
@@ -571,7 +564,14 @@
         {
             var data = await Request.GetRawBodyStringAsync();
             var dict = data.FromJson<Dictionary<string, object>>();
-            // TODO: Validate keys exists
+            // Validate keys exist
+            if (!dict.ContainsKey("name") ||
+                !dict.ContainsKey("format") ||
+                !dict.ContainsKey("geofence"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
             var name = dict["name"].ToString();
             var saveFormat = dict["format"].ToString();
             var geofenceData = dict["geofence"].ToString();
@@ -591,11 +591,7 @@
             var path = Path.Combine(Strings.GeofencesFolder, fileName);
             if (!System.IO.File.Exists(path))
             {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    error = $"Failed to delete geofence '{fileName}', file does not exist.",
-                });
+                return SendErrorResponse($"Failed to delete geofence '{fileName}', geofence does not exist.");
             }
 
             // Delete geofence
@@ -640,11 +636,7 @@
                 string.Equals(role.Value.Name, name, StringComparison.InvariantCultureIgnoreCase));
             if (role == null)
             {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    error = $"Failed to get Discord role '{name}', role does not exist.",
-                });
+                return SendErrorResponse($"Failed to get Discord role '{name}', role does not exist.");
             }
             return new JsonResult(new
             {
@@ -702,8 +694,15 @@
         {
             var data = await Request.GetRawBodyStringAsync();
             var dict = data.FromJson<Dictionary<string, object>>();
-            var roles = GetRoles();
+            // Validate keys exist
+            if (!dict.ContainsKey("name") ||
+                !dict.ContainsKey("roleId") ||
+                !dict.ContainsKey("permissions"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
 
+            var roles = GetRoles();
             var newName = Convert.ToString(dict["name"]);
             var roleId = Convert.ToUInt64(dict["roleId"].ToString());
             var permissions = dict["permissions"].ToString();
@@ -740,11 +739,7 @@
             var roles = GetRoles();
             if (!roles.ContainsKey(id))
             {
-                return new JsonResult(new
-                {
-                    status = "Error",
-                    error = $"Failed to delete Discord role '{id}', role does not exist.",
-                });
+                return SendErrorResponse($"Failed to delete Discord role '{id}', role does not exist.");
             }
 
             roles.Remove(id);
@@ -1243,6 +1238,19 @@
                 });
             }
             return roles;
+        }
+
+        #endregion
+
+        #region Response Helpers
+
+        private static IActionResult SendErrorResponse(string message)
+        {
+            return new JsonResult(new
+            {
+                status = "Error",
+                error = message,
+            });
         }
 
         #endregion
