@@ -55,6 +55,10 @@ export const flattenObject = (obj: any, parent?: string) => {
     return flattened
 }
 
+// TODO: Fix discord servers (save as dict not list when submitted)
+// TODO: Add NewStaticMap component
+// TODO: Add NewIconStyle component
+
 class EditConfig extends React.Component<IGlobalProps> {
     public state: any;
 

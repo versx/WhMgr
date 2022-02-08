@@ -59,9 +59,9 @@ function Settings() {
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Settings</Typography>
             </div>
-            <p>
+            <Typography style={{paddingBottom: '20px'}}>
                 Settings configuration
-            </p>
+            </Typography>
         </div>
     );
 }

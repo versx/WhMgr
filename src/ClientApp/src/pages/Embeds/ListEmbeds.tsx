@@ -188,7 +188,7 @@ function ListEmbeds() {
                 rows={embeds}
                 disableSelectionOnClick
                 columns={columns}
-                pageSize={10}
+                pageSize={25}
                 checkboxSelection
             />
         </div>

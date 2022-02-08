@@ -165,7 +165,7 @@ function ListAlarms() {
                 rows={alarms}
                 disableSelectionOnClick
                 columns={columns}
-                pageSize={10}
+                pageSize={25}
                 checkboxSelection
             />
         </div>

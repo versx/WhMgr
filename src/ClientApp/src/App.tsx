@@ -19,6 +19,7 @@ import { ListFilters, NewFilter, EditFilter } from './pages/Filters';
 import { ListEmbeds, NewEmbed, EditEmbed } from './pages/Embeds';
 import { ListGeofences, NewGeofence, EditGeofence } from './pages/Geofences';
 import { ListRoles, NewRole, EditRole } from './pages/Roles';
+import ListSubscriptions from './pages/ListSubscriptions';
 import ListUsers from './pages/ListUsers';
 import Settings from './pages/Settings';
 
@@ -65,7 +66,7 @@ function App() {
                 <Route path={config.homepage + "roles"} element={<ListRoles />} />
                 <Route path={config.homepage + "role/new"} element={<NewRole />} />
                 <Route path={config.homepage + "role/:id"} element={<EditRole props={{}} />} />
-                <Route path={config.homepage + "subscriptions"} element={<ListConfigs />} />
+                <Route path={config.homepage + "subscriptions"} element={<ListSubscriptions />} />
                 <Route path={config.homepage + "users"} element={<ListUsers />} />
                 <Route path={config.homepage + "settings"} element={<Settings />} />
               </Routes>

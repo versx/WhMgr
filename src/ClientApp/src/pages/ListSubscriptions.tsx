@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom';
 import {
     Button,
     ButtonGroup,
@@ -9,8 +8,9 @@ import {
 import { makeStyles } from '@mui/styles';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import {
+    Add as AddIcon,
     Delete as DeleteIcon,
-    Edit as EditIcon,
+    Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 
 import config from '../config.json';
@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme: any) => ({
     },
 }));
 
-function ListUsers() {
+function ListSubscriptions() {
     const columns: GridColDef[] = [
         { field: 'id', headerName: 'Name', flex: 1 },
         {
@@ -55,8 +55,8 @@ function ListUsers() {
             renderCell: (params) => {
                 return (
                     <ButtonGroup>
-                        <IconButton color="primary" onClick={() => window.location.href = config.homepage + 'user/edit/' + params.row.id}>
-                            <EditIcon />
+                        <IconButton color="primary" onClick={() => window.location.href = config.homepage + 'subscription/' + params.row.id}>
+                            <VisibilityIcon />
                         </IconButton>
                         <IconButton color="error" onClick={() => confirmDelete(params.row.id)}>
                             <DeleteIcon />
@@ -72,7 +72,7 @@ function ListUsers() {
         refreshList();
     }, []);
     const refreshList = () => {
-        fetch(config.apiUrl + 'admin/users', {
+        fetch(config.apiUrl + 'admin/subscriptions', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -90,7 +90,7 @@ function ListUsers() {
     };
 
     const confirmDelete = (id: number): void => {
-        const result = window.confirm(`Are you sure you want to delete filter ${id}?`);
+        const result = window.confirm(`Are you sure you want to delete user subscription ${id}?`);
         if (!result) {
             return;
         }
@@ -103,13 +103,10 @@ function ListUsers() {
     return (
         <div className={classes.container} style={{ height: 500, width: '100%' }}>
             <div className={classes.titleContainer}>
-                <Typography variant="h4" component="h1" className={classes.title}>Users</Typography>
-                <Link to={config.homepage + "user/new"} className="link">
-                    <Button variant="contained" color="primary">New User</Button>
-                </Link>
+                <Typography variant="h4" component="h1" className={classes.title}>User Subscriptions</Typography>
             </div>
             <Typography style={{paddingBottom: '20px'}}>
-                Admin management
+                User subscriptions management
             </Typography>
             <DataGrid className={classes.table}
                 rows={users}
@@ -122,4 +119,4 @@ function ListUsers() {
     );
 }
 
-export default ListUsers;
+export default ListSubscriptions;
