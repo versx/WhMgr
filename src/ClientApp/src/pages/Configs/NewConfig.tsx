@@ -55,7 +55,7 @@ export const flattenObject = (obj: any, parent?: string) => {
     return flattened
 }
 
-class EditConfig extends React.Component<IGlobalProps> {
+class NewConfig extends React.Component<IGlobalProps> {
     public state: any;
 
     constructor(props: IGlobalProps) {
@@ -63,7 +63,7 @@ class EditConfig extends React.Component<IGlobalProps> {
         console.log('props:', props);
         this.state = {
             // TODO: Set default state values
-            name: props.params!.id,
+            name: '',
             host: '*',
             port: 8008,
             locale: 'en',
@@ -147,11 +147,11 @@ class EditConfig extends React.Component<IGlobalProps> {
 
     componentDidMount() {
         console.log('componentDidMount:', this.state, this.props);
-        this.fetchData(this.props.params!.id);
+        this.fetchData();
     }
 
-    fetchData(id: any) {
-        fetch(config.apiUrl + 'admin/config/' + id, {
+    fetchData() {
+        fetch(config.apiUrl + 'admin/config/data', {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -161,15 +161,6 @@ class EditConfig extends React.Component<IGlobalProps> {
         })
         .then(async (response) => await response.json())
         .then(data => {
-            //console.log('config data:', data);
-            //const flat = flattenObject(data.data.config);
-            //console.log('flat config:', flat);
-            //this.setState(flat);
-            const keys: string[] = Object.keys(data.data.config);
-            for (const key of keys) {
-                //console.log('key:', key, 'data:', data.data.config[key]);
-                this.setState({ [key]: data.data.config[key] });
-            }
             this.setState({ ['discords']: Object.values(data.data.discords) });
         }).catch(err => {
             console.error('error:', err);
@@ -190,9 +181,8 @@ class EditConfig extends React.Component<IGlobalProps> {
 
         console.log('handle submit state:', this.state);
 
-        const id = this.props.params!.id;
-        fetch(config.apiUrl + 'admin/config/' + id, {
-            method: 'PUT',
+        fetch(config.apiUrl + 'admin/config/new', {
+            method: 'POST',
             body: JSON.stringify(this.state),
             headers: {
                 'Accept': 'application/json',
@@ -248,7 +238,7 @@ class EditConfig extends React.Component<IGlobalProps> {
             href: config.homepage + 'configs',
             selected: false,
         }, {
-            text: 'Edit ' + this.props.params!.id,
+            text: 'New',
             color: 'primary',
             href: '',
             selected: true,
@@ -260,7 +250,7 @@ class EditConfig extends React.Component<IGlobalProps> {
                     <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
                         <BreadCrumbs crumbs={breadcrumbs} />
                         <Typography variant="h5" component="h2" >
-                            Edit Config {this.props.params!.id}
+                            New Config
                         </Typography>
                         <Typography sx={{ mt: 2 }}>
                             Config description goes here
@@ -828,4 +818,4 @@ class EditConfig extends React.Component<IGlobalProps> {
     }
 }
 
-export default withRouter(EditConfig);
+export default withRouter(NewConfig);

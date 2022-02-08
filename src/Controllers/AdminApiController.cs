@@ -112,7 +112,38 @@
             });
         }
 
-        // TODO: Create config
+        [HttpPost("config/new")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> CreateConfig()
+        {
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+
+            // Validate keys exist
+            if (!dict.ContainsKey("name"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
+            var name = dict["name"].ToString();
+            var config = data.FromJson<Config>();
+
+            // Save json
+            var json = config.ToJson();
+            var path = Path.Combine(Strings.ConfigsFolder, name + ".json");
+            if (System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to create config '{name}', config already exists.");
+            }
+
+            await WriteDataAsync(path, json);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Config '{name}' succuessfully created.",
+            });
+        }
 
         [HttpPost("config/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]
@@ -134,7 +165,7 @@
             }
 
             var newName = dict["name"].ToString();
-            var discord = data.FromJson<Config>();
+            var config = data.FromJson<Config>();
 
             // TODO: Check if new alarm already exists or not
             var newFileName = $"{newName}.json";
@@ -149,7 +180,7 @@
             }
 
             // Save json
-            var json = discord.ToJson();
+            var json = config.ToJson();
             await WriteDataAsync(newFilePath, json);
 
             return new JsonResult(new

@@ -12,7 +12,7 @@ import {
   Rightbar,
 } from './components/Nav';
 import Dashboard from './pages/Dashboard';
-import { ListConfigs, EditConfig } from './pages/Configs';
+import { ListConfigs, NewConfig, EditConfig } from './pages/Configs';
 import { ListDiscords, NewDiscord, EditDiscord } from './pages/Discords';
 import { ListAlarms, NewAlarm, EditAlarm } from './pages/Alarms';
 import { ListFilters, NewFilter, EditFilter } from './pages/Filters';
@@ -45,7 +45,7 @@ function App() {
               <Routes>
                 <Route path={config.homepage} element={<Dashboard />} />
                 <Route path={config.homepage + "configs"} element={<ListConfigs />} />
-                <Route path={config.homepage + "config/new"} element={<ListConfigs />} />
+                <Route path={config.homepage + "config/new"} element={<NewConfig props={{}} />} />
                 <Route path={config.homepage + "config/:id"} element={<EditConfig props={{}} />} />
                 <Route path={config.homepage + "discords"} element={<ListDiscords />} />
                 <Route path={config.homepage + "discord/new"} element={<NewDiscord props={{}} />} />
