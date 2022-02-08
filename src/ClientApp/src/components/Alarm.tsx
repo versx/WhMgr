@@ -47,6 +47,7 @@ export function Alarm(props: AlarmProps) {
                         label="Name"
                         value={state.name}
                         fullWidth
+                        required
                         onChange={onInputChange}
                     />
                 </Grid>
@@ -70,6 +71,7 @@ export function Alarm(props: AlarmProps) {
                             name="filters"
                             value={state.filters}
                             label="Filters"
+                            required
                             onChange={onInputChange}
                         >
                             {props.allFilters && props.allFilters.map((filter: string) => {
@@ -89,6 +91,7 @@ export function Alarm(props: AlarmProps) {
                             name="embeds"
                             value={state.embeds}
                             label="Embeds"
+                            required
                             onChange={onInputChange}
                         >
                             {props.allEmbeds && props.allEmbeds.map((embed: string) => {
@@ -109,6 +112,7 @@ export function Alarm(props: AlarmProps) {
                             value={state.geofences}
                             multiple
                             label="Geofences"
+                            required
                             onChange={onInputChange}
                         >
                             {props.allGeofences && props.allGeofences.map((geofence: string) => {
@@ -127,6 +131,7 @@ export function Alarm(props: AlarmProps) {
                         label="Discord Webhook"
                         value={state.webhook}
                         fullWidth
+                        required
                         onChange={onInputChange}
                     />
                 </Grid>
