@@ -1,0 +1,9 @@
+{
+    "apiUrl": "/api/v1/",
+    "homepage": "/dashboard/",
+    "map": {
+        "startLocation": [33.91, -117.71],
+        "startZoom": 10,
+        "tileserver": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    }
+}
