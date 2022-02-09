@@ -19,6 +19,10 @@ const useStyles = makeStyles((theme: any) => ({
     container: {
         //padding: theme.spacing(2),
         paddingTop: theme.spacing(10),
+        //marginRight: theme.spacing(-6),
+        //paddingLeft: theme.spacing(2),
+        height: '80%',
+        width: '100%',
     },
     table: {
     },
@@ -122,7 +126,7 @@ function ListConfigs() {
 
     const classes = useStyles();
     return (
-        <div className={classes.container} style={{ height: 500, width: '100%' }}>
+        <div className={classes.container}>
             <div className={classes.titleContainer}>
                 <Typography variant="h4" component="h1" className={classes.title}>Configs</Typography>
                 <Link to={config.homepage + "config/new"} className="link">

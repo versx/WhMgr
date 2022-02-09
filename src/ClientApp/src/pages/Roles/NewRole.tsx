@@ -144,96 +144,93 @@ class NewRole extends React.Component<IGlobalProps> {
         }];
 
         return (
-            <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
-                <Container>
-                    <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
-                        <BreadCrumbs crumbs={breadcrumbs} />
-                        <Typography variant="h5" component="h2" >
-                            New Discord Role
-                        </Typography>
-                        <Typography sx={{ mt: 2 }}>
-                            Discord role description goes here
-                        </Typography>
-                        <div style={{paddingBottom: '20px', paddingTop: '20px'}}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        id="name"
-                                        name="name"
-                                        variant="outlined"
-                                        label="Name"
-                                        type="text"
-                                        defaultValue=""
-                                        fullWidth
-                                        required
-                                        onChange={this.onInputChange}
-                                    />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        id="roleId"
-                                        name="roleId"
-                                        variant="outlined"
-                                        label="Discord ID"
-                                        type="text"
-                                        defaultValue=""
-                                        fullWidth
-                                        required
-                                        onChange={this.onInputChange}
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={12}>
-                                    <FormControl fullWidth>
-                                        <InputLabel id="permissions-label">Permissions</InputLabel>
-                                        <Select
-                                            labelId="permissions-label"
-                                            id="permissions"
-                                            name="permissions"
-                                            defaultValue={["Pokemon", "PvP", "Raids", "Quests", "Invasions", "Lures", "Gyms"]}
-                                            multiple
-                                            label="Permissions"
-                                            onChange={this.onInputChange}
-                                        >
-                                            <MenuItem value="Pokemon">Pokemon</MenuItem>
-                                            <MenuItem value="PvP">PvP</MenuItem>
-                                            <MenuItem value="Raids">Raids</MenuItem>
-                                            <MenuItem value="Quests">Quests</MenuItem>
-                                            <MenuItem value="Invasions">Invasions</MenuItem>
-                                            <MenuItem value="Lures">Lures</MenuItem>
-                                            <MenuItem value="Gyms">Gyms</MenuItem>
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={12} sm={12}>
-                                    <FormControlLabel
-                                        id="moderator"
-                                        name="moderator"
-                                        control={<Switch checked={this.state.moderator} onChange={this.onInputChange} />}
-                                        label="Is Moderator"
-                                    />
-                                </Grid>
+            <div className={classes.container} style={{paddingTop: '50px', paddingBottom: '20px', paddingLeft: '20px', paddingRight: '20px'}}>
+                <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
+                    <BreadCrumbs crumbs={breadcrumbs} />
+                    <Typography variant="h5" component="h2" >
+                        New Discord Role
+                    </Typography>
+                    <Typography sx={{ mt: 2 }}>
+                        Discord role description goes here
+                    </Typography>
+                    <div style={{paddingBottom: '20px', paddingTop: '20px'}}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    id="name"
+                                    name="name"
+                                    variant="outlined"
+                                    label="Name"
+                                    type="text"
+                                    defaultValue=""
+                                    fullWidth
+                                    required
+                                    onChange={this.onInputChange}
+                                />
                             </Grid>
-                        </div>
-                        <div className={classes.buttonContainer}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                style={{marginRight: '20px'}}
-                                type="submit"
-                            >
-                                Save
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                onClick={handleCancel}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </Box>
-                </Container>
-
+                            <Grid item xs={12}>
+                                <TextField
+                                    id="roleId"
+                                    name="roleId"
+                                    variant="outlined"
+                                    label="Discord ID"
+                                    type="text"
+                                    defaultValue=""
+                                    fullWidth
+                                    required
+                                    onChange={this.onInputChange}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={12}>
+                                <FormControl fullWidth>
+                                    <InputLabel id="permissions-label">Permissions</InputLabel>
+                                    <Select
+                                        labelId="permissions-label"
+                                        id="permissions"
+                                        name="permissions"
+                                        defaultValue={["Pokemon", "PvP", "Raids", "Quests", "Invasions", "Lures", "Gyms"]}
+                                        multiple
+                                        label="Permissions"
+                                        onChange={this.onInputChange}
+                                    >
+                                        <MenuItem value="Pokemon">Pokemon</MenuItem>
+                                        <MenuItem value="PvP">PvP</MenuItem>
+                                        <MenuItem value="Raids">Raids</MenuItem>
+                                        <MenuItem value="Quests">Quests</MenuItem>
+                                        <MenuItem value="Invasions">Invasions</MenuItem>
+                                        <MenuItem value="Lures">Lures</MenuItem>
+                                        <MenuItem value="Gyms">Gyms</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={12} sm={12}>
+                                <FormControlLabel
+                                    id="moderator"
+                                    name="moderator"
+                                    control={<Switch checked={this.state.moderator} onChange={this.onInputChange} />}
+                                    label="Is Moderator"
+                                />
+                            </Grid>
+                        </Grid>
+                    </div>
+                    <div className={classes.buttonContainer}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            style={{marginRight: '20px'}}
+                            type="submit"
+                        >
+                            Save
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={handleCancel}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </Box>
             </div>
         );
     }

@@ -324,367 +324,364 @@ class EditGeofence extends React.Component<IGlobalProps> {
         };
 
         return (
-            <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
-                <Container>
-                    <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
-                        <BreadCrumbs crumbs={breadcrumbs} />
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <Typography variant="h5" component="h2">
-                                    Edit Geofence {this.props.params!.id}
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={12} sm={6} style={{display: 'flex', justifyContent: 'flex-end'}}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    type="button"
-                                    onClick={() => this.setState({
-                                        ['exportOpen']: true,
-                                    })}
-                                >
-                                    Export
-                                </Button>
-                            </Grid>
+            <div className={classes.container} style={{paddingTop: '50px', paddingBottom: '20px', paddingLeft: '20px', paddingRight: '20px'}}>
+                <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
+                    <BreadCrumbs crumbs={breadcrumbs} />
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            <Typography variant="h5" component="h2">
+                                Edit Geofence {this.props.params!.id}
+                            </Typography>
                         </Grid>
-                        <Typography sx={{ mt: 2 }}>
-                            Geofence description goes here
-                        </Typography>
-                        <div style={{paddingBottom: '20px', paddingTop: '20px'}}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12}>
-                                    <TextField
-                                        id="name"
-                                        name="name"
-                                        variant="outlined"
-                                        label="Name"
-                                        type="text"
-                                        value={this.state.name}
-                                        fullWidth
-                                        required
-                                        onChange={this.onInputChange}
-                                    />
-                                </Grid>
-                                <Grid item xs={6}>
-                                    <FormControl>
-                                        <FormLabel id="format-label">Save Format</FormLabel>
-                                        <RadioGroup
-                                            row
-                                            aria-labelledby="format-label"
-                                            id="format"
-                                            name="format"
-                                        >
-                                            <FormControlLabel
-                                                id="format"
-                                                name="format"
-                                                value=".txt"
-                                                control={<Radio checked={this.state.format === '.txt'} onChange={handleOnFormatChange} />}
-                                                label="INI"
-                                            />
-                                            <FormControlLabel
-                                                id="format"
-                                                name="format"
-                                                value=".json"
-                                                control={<Radio checked={this.state.format === '.json'} onChange={handleOnFormatChange} />}
-                                                label="GeoJSON"
-                                            />
-                                        </RadioGroup>
-                                    </FormControl>
-                                </Grid>
-                                <Grid item xs={6} style={{display: 'flex', justifyContent: 'flex-end'}}>
-                                    <Chip label={"Geofences: " + this.state.count} />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <MapContainer
-                                        center={config.map.startLocation as LatLngExpression}
-                                        zoom={config.map.startZoom}
-                                        scrollWheelZoom={true}
-                                        style={{height: '600px'}}
-                                    >
-                                        <TileLayer url={config.map.tileserver} />
-                                        <FeatureGroup
-                                            ref={(reactFGref: any) => {
-                                                //console.log('reactFGref:', reactFGref);
-                                                this._onFeatureGroupReady(reactFGref);
-                                            }}
-                                        >
-                                            <EditControl
-                                                position="topleft"
-                                                onEdited={this._onEdited}
-                                                onCreated={this._onCreated}
-                                                onDeleted={this._onDeleted}
-                                                draw={{
-                                                    polyline: false,
-                                                    polygon: {
-                                                        allowIntersection: true,
-                                                        showArea: true,
-                                                        metric: 'km',
-                                                        precision: {
-                                                            km: 2,
-                                                        },
-                                                        shapeOptions,
-                                                    },
-                                                    rectangle: {
-                                                        showRadius: true,
-                                                        metric: true,
-                                                        shapeOptions,
-                                                    },
-                                                    circle: false,
-                                                    marker: false,
-                                                    circlemarker: false,
-                                                }}
-                                            />
-                                        </FeatureGroup>
-                                        {/*this.state.geofence && (
-                                            <GeoJSON
-                                                key="geofence"
-                                                onEachFeature={handleOnEachFeature}
-                                                data={formatGeofenceToGeoJson(this.state.format, this.state.geofence)}
-                                            />
-                                        )*/}
-                                        <MapButton
-                                            tooltip="Import geofence"
-                                            icon="<img src='https://cdn-icons-png.flaticon.com/512/151/151901.png' width='16' height='16' />"
-                                            onClick={(btn: any, map: any) => {
-                                                this.setState({
-                                                    ['open']: true,
-                                                });
-                                            }}
-                                        />
-                                        <MapButton
-                                            tooltip="Delete all layers"
-                                            icon="<img src='https://www.iconpacks.net/icons/1/free-trash-icon-347-thumb.png' width='16' height='16' />"
-                                            onClick={(btn: any, map: any) => {
-                                                const result = window.confirm('Are you sure you want to delete all shapes?');
-                                                if (!result) {
-                                                    return;
-                                                }
-                                                this._editableFG.clearLayers();
-                                                this.setState({
-                                                    ['count']: 0,
-                                                    ['geofence']: null,
-                                                });
-                                            }}
-                                        />
-                                        <GeofenceModal
-                                            title="Import Geofence"
-                                            body={(
-                                                <Grid container spacing={2}>
-                                                    <Grid item xs={12}>
-                                                        <TextField
-                                                            id="importGeofence"
-                                                            name="importGeofence"
-                                                            variant="outlined"
-                                                            label="Geofence"
-                                                            type="text"
-                                                            rows="15"
-                                                            fullWidth
-                                                            multiline
-                                                            onChange={this.onInputChange}
-                                                        />
-                                                    </Grid>
-                                                    <Grid item xs={12}>
-                                                        <FormControl>
-                                                            <FormLabel id="format-label">Format</FormLabel>
-                                                            <RadioGroup
-                                                                row
-                                                                aria-labelledby="format-label"
-                                                                id="format"
-                                                                name="format"
-                                                            >
-                                                                <FormControlLabel
-                                                                    id="format"
-                                                                    name="format"
-                                                                    value=".txt"
-                                                                    control={<Radio checked={this.state.importFormat === '.txt'} onChange={() => {
-                                                                        this.setState({
-                                                                            ['importFormat']: '.txt',
-                                                                        });
-                                                                    }} />}
-                                                                    label="INI"
-                                                                />
-                                                                <FormControlLabel
-                                                                    id="format"
-                                                                    name="format"
-                                                                    value=".json"
-                                                                    control={<Radio checked={this.state.importFormat === '.json'} onChange={() => {
-                                                                        this.setState({
-                                                                            ['importFormat']: '.json',
-                                                                        });
-                                                                    }} />}
-                                                                    label="GeoJSON"
-                                                                />
-                                                            </RadioGroup>
-                                                        </FormControl>
-                                                    </Grid>
-                                                    <Grid item xs={12}>
-                                                        <div className={classes.buttonContainer}>
-                                                            <Button
-                                                                variant="contained"
-                                                                color="primary"
-                                                                style={{marginRight: '20px'}}
-                                                                type="submit"
-                                                                onClick={() => {
-                                                                    // TODO: Convert based on format and add to map
-                                                                    const format = this.state.importFormat;
-                                                                    const data = this.state.importGeofence;
-                                                                    const geofence = formatGeofenceToGeoJson(format, data);
-                                                                    this.loadGeofence(geofence);
-                                                                }}
-                                                            >
-                                                                Save
-                                                            </Button>
-                                                            <Button
-                                                                variant="outlined"
-                                                                color="primary"
-                                                                onClick={() => {
-                                                                    this.setState({
-                                                                        ['open']: false,
-                                                                    })
-                                                                }}
-                                                            >
-                                                                Close
-                                                            </Button>
-                                                        </div>
-                                                    </Grid>
-                                                </Grid>
-                                            )}
-                                            show={this.state.open}
-                                            onClose={() => {
-                                                this.setState({
-                                                    ['open']: false,
-                                                });
-                                            }}
-                                        />
-                                        <GeofenceModal
-                                            title="Export Geofence"
-                                            body={(
-                                                <Grid container spacing={2}>
-                                                    <Grid item xs={12}>
-                                                        <TextField
-                                                            id="exportGeofence"
-                                                            name="exportGeofence"
-                                                            variant="outlined"
-                                                            label="Geofence"
-                                                            type="text"
-                                                            rows="15"
-                                                            value={this.state.exportGeofence}
-                                                            fullWidth
-                                                            multiline
-                                                            InputProps={{
-                                                                readOnly: true,
-                                                            }}
-                                                            onChange={this.onInputChange}
-                                                        />
-                                                    </Grid>
-                                                    <Grid item xs={12}>
-                                                        <FormControl>
-                                                            <FormLabel id="format-label">Export Format</FormLabel>
-                                                            <RadioGroup
-                                                                row
-                                                                aria-labelledby="format-label"
-                                                                id="format"
-                                                                name="format"
-                                                            >
-                                                                <FormControlLabel
-                                                                    id="format"
-                                                                    name="format"
-                                                                    value=".txt"
-                                                                    control={<Radio checked={this.state.exportFormat === '.txt'} onChange={() => {
-                                                                        // Convert geofence
-                                                                        //const geofence = formatGeofenceToGeoJson('.txt', this.state.geofence);
-                                                                        const iniData: any = [];
-                                                                        this._editableFG.eachLayer((layer: any) => {
-                                                                            const geojson = layer.toGeoJSON();
-                                                                            if (geojson) {
-                                                                                const ini = geoJsonToIni(geojson);
-                                                                                iniData.push(ini)
-                                                                            }
-                                                                        });
-                                                                        this.setState({
-                                                                            ['exportGeofence']: iniData.join(''),
-                                                                            ['exportFormat']: '.txt',
-                                                                        });
-                                                                    }} />}
-                                                                    label="INI"
-                                                                />
-                                                                <FormControlLabel
-                                                                    id="format"
-                                                                    name="format"
-                                                                    value=".json"
-                                                                    control={<Radio checked={this.state.exportFormat === '.json'} onChange={() => {
-                                                                        // Convert geofence
-                                                                        const geofence = iniToGeoJson(this.state.exportGeofence);
-                                                                        const json = JSON.stringify(geofence, null, 2);
-                                                                        this.setState({
-                                                                            ['exportGeofence']: json,
-                                                                            ['exportFormat']: '.json',
-                                                                        });
-                                                                    }} />}
-                                                                    label="GeoJSON"
-                                                                />
-                                                            </RadioGroup>
-                                                        </FormControl>
-                                                    </Grid>
-                                                    <Grid item xs={12}>
-                                                        <div className={classes.buttonContainer}>
-                                                            <Button
-                                                                variant="contained"
-                                                                color="primary"
-                                                                style={{marginRight: '20px'}}
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    copyToClipboard(this.state.exportGeofence);
-                                                                }}
-                                                            >
-                                                                Copy to Clipboard
-                                                            </Button>
-                                                            <Button
-                                                                variant="outlined"
-                                                                color="primary"
-                                                                onClick={() => {
-                                                                    this.setState({
-                                                                        ['exportOpen']: false,
-                                                                    })
-                                                                }}
-                                                            >
-                                                                Close
-                                                            </Button>
-                                                        </div>
-                                                    </Grid>
-                                                </Grid>
-                                            )}
-                                            show={this.state.exportOpen}
-                                            onClose={() => {
-                                                this.setState({
-                                                    ['exportOpen']: false,
-                                                });
-                                            }}
-                                        />
-                                    </MapContainer>
-                                </Grid>
-                            </Grid>
-                        </div>
-                        <div className={classes.buttonContainer}>
+                        <Grid item xs={12} sm={6} style={{display: 'flex', justifyContent: 'flex-end'}}>
                             <Button
                                 variant="contained"
                                 color="primary"
-                                style={{marginRight: '20px'}}
-                                type="submit"
+                                type="button"
+                                onClick={() => this.setState({
+                                    ['exportOpen']: true,
+                                })}
                             >
-                                Save
+                                Export
                             </Button>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                onClick={handleCancel}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </Box>
-                </Container>
-
+                        </Grid>
+                    </Grid>
+                    <Typography sx={{ mt: 2 }}>
+                        Geofence description goes here
+                    </Typography>
+                    <div style={{paddingBottom: '20px', paddingTop: '20px'}}>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <TextField
+                                    id="name"
+                                    name="name"
+                                    variant="outlined"
+                                    label="Name"
+                                    type="text"
+                                    value={this.state.name}
+                                    fullWidth
+                                    required
+                                    onChange={this.onInputChange}
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <FormControl>
+                                    <FormLabel id="format-label">Save Format</FormLabel>
+                                    <RadioGroup
+                                        row
+                                        aria-labelledby="format-label"
+                                        id="format"
+                                        name="format"
+                                    >
+                                        <FormControlLabel
+                                            id="format"
+                                            name="format"
+                                            value=".txt"
+                                            control={<Radio checked={this.state.format === '.txt'} onChange={handleOnFormatChange} />}
+                                            label="INI"
+                                        />
+                                        <FormControlLabel
+                                            id="format"
+                                            name="format"
+                                            value=".json"
+                                            control={<Radio checked={this.state.format === '.json'} onChange={handleOnFormatChange} />}
+                                            label="GeoJSON"
+                                        />
+                                    </RadioGroup>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={6} style={{display: 'flex', justifyContent: 'flex-end'}}>
+                                <Chip label={"Geofences: " + this.state.count} />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <MapContainer
+                                    center={config.map.startLocation as LatLngExpression}
+                                    zoom={config.map.startZoom}
+                                    scrollWheelZoom={true}
+                                    style={{height: '600px'}}
+                                >
+                                    <TileLayer url={config.map.tileserver} />
+                                    <FeatureGroup
+                                        ref={(reactFGref: any) => {
+                                            //console.log('reactFGref:', reactFGref);
+                                            this._onFeatureGroupReady(reactFGref);
+                                        }}
+                                    >
+                                        <EditControl
+                                            position="topleft"
+                                            onEdited={this._onEdited}
+                                            onCreated={this._onCreated}
+                                            onDeleted={this._onDeleted}
+                                            draw={{
+                                                polyline: false,
+                                                polygon: {
+                                                    allowIntersection: true,
+                                                    showArea: true,
+                                                    metric: 'km',
+                                                    precision: {
+                                                        km: 2,
+                                                    },
+                                                    shapeOptions,
+                                                },
+                                                rectangle: {
+                                                    showRadius: true,
+                                                    metric: true,
+                                                    shapeOptions,
+                                                },
+                                                circle: false,
+                                                marker: false,
+                                                circlemarker: false,
+                                            }}
+                                        />
+                                    </FeatureGroup>
+                                    {/*this.state.geofence && (
+                                        <GeoJSON
+                                            key="geofence"
+                                            onEachFeature={handleOnEachFeature}
+                                            data={formatGeofenceToGeoJson(this.state.format, this.state.geofence)}
+                                        />
+                                    )*/}
+                                    <MapButton
+                                        tooltip="Import geofence"
+                                        icon="<img src='https://cdn-icons-png.flaticon.com/512/151/151901.png' width='16' height='16' />"
+                                        onClick={(btn: any, map: any) => {
+                                            this.setState({
+                                                ['open']: true,
+                                            });
+                                        }}
+                                    />
+                                    <MapButton
+                                        tooltip="Delete all layers"
+                                        icon="<img src='https://www.iconpacks.net/icons/1/free-trash-icon-347-thumb.png' width='16' height='16' />"
+                                        onClick={(btn: any, map: any) => {
+                                            const result = window.confirm('Are you sure you want to delete all shapes?');
+                                            if (!result) {
+                                                return;
+                                            }
+                                            this._editableFG.clearLayers();
+                                            this.setState({
+                                                ['count']: 0,
+                                                ['geofence']: null,
+                                            });
+                                        }}
+                                    />
+                                    <GeofenceModal
+                                        title="Import Geofence"
+                                        body={(
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12}>
+                                                    <TextField
+                                                        id="importGeofence"
+                                                        name="importGeofence"
+                                                        variant="outlined"
+                                                        label="Geofence"
+                                                        type="text"
+                                                        rows="15"
+                                                        fullWidth
+                                                        multiline
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    <FormControl>
+                                                        <FormLabel id="format-label">Format</FormLabel>
+                                                        <RadioGroup
+                                                            row
+                                                            aria-labelledby="format-label"
+                                                            id="format"
+                                                            name="format"
+                                                        >
+                                                            <FormControlLabel
+                                                                id="format"
+                                                                name="format"
+                                                                value=".txt"
+                                                                control={<Radio checked={this.state.importFormat === '.txt'} onChange={() => {
+                                                                    this.setState({
+                                                                        ['importFormat']: '.txt',
+                                                                    });
+                                                                }} />}
+                                                                label="INI"
+                                                            />
+                                                            <FormControlLabel
+                                                                id="format"
+                                                                name="format"
+                                                                value=".json"
+                                                                control={<Radio checked={this.state.importFormat === '.json'} onChange={() => {
+                                                                    this.setState({
+                                                                        ['importFormat']: '.json',
+                                                                    });
+                                                                }} />}
+                                                                label="GeoJSON"
+                                                            />
+                                                        </RadioGroup>
+                                                    </FormControl>
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    <div className={classes.buttonContainer}>
+                                                        <Button
+                                                            variant="contained"
+                                                            color="primary"
+                                                            style={{marginRight: '20px'}}
+                                                            type="submit"
+                                                            onClick={() => {
+                                                                // TODO: Convert based on format and add to map
+                                                                const format = this.state.importFormat;
+                                                                const data = this.state.importGeofence;
+                                                                const geofence = formatGeofenceToGeoJson(format, data);
+                                                                this.loadGeofence(geofence);
+                                                            }}
+                                                        >
+                                                            Save
+                                                        </Button>
+                                                        <Button
+                                                            variant="outlined"
+                                                            color="primary"
+                                                            onClick={() => {
+                                                                this.setState({
+                                                                    ['open']: false,
+                                                                })
+                                                            }}
+                                                        >
+                                                            Close
+                                                        </Button>
+                                                    </div>
+                                                </Grid>
+                                            </Grid>
+                                        )}
+                                        show={this.state.open}
+                                        onClose={() => {
+                                            this.setState({
+                                                ['open']: false,
+                                            });
+                                        }}
+                                    />
+                                    <GeofenceModal
+                                        title="Export Geofence"
+                                        body={(
+                                            <Grid container spacing={2}>
+                                                <Grid item xs={12}>
+                                                    <TextField
+                                                        id="exportGeofence"
+                                                        name="exportGeofence"
+                                                        variant="outlined"
+                                                        label="Geofence"
+                                                        type="text"
+                                                        rows="15"
+                                                        value={this.state.exportGeofence}
+                                                        fullWidth
+                                                        multiline
+                                                        InputProps={{
+                                                            readOnly: true,
+                                                        }}
+                                                        onChange={this.onInputChange}
+                                                    />
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    <FormControl>
+                                                        <FormLabel id="format-label">Export Format</FormLabel>
+                                                        <RadioGroup
+                                                            row
+                                                            aria-labelledby="format-label"
+                                                            id="format"
+                                                            name="format"
+                                                        >
+                                                            <FormControlLabel
+                                                                id="format"
+                                                                name="format"
+                                                                value=".txt"
+                                                                control={<Radio checked={this.state.exportFormat === '.txt'} onChange={() => {
+                                                                    // Convert geofence
+                                                                    //const geofence = formatGeofenceToGeoJson('.txt', this.state.geofence);
+                                                                    const iniData: any = [];
+                                                                    this._editableFG.eachLayer((layer: any) => {
+                                                                        const geojson = layer.toGeoJSON();
+                                                                        if (geojson) {
+                                                                            const ini = geoJsonToIni(geojson);
+                                                                            iniData.push(ini)
+                                                                        }
+                                                                    });
+                                                                    this.setState({
+                                                                        ['exportGeofence']: iniData.join(''),
+                                                                        ['exportFormat']: '.txt',
+                                                                    });
+                                                                }} />}
+                                                                label="INI"
+                                                            />
+                                                            <FormControlLabel
+                                                                id="format"
+                                                                name="format"
+                                                                value=".json"
+                                                                control={<Radio checked={this.state.exportFormat === '.json'} onChange={() => {
+                                                                    // Convert geofence
+                                                                    const geofence = iniToGeoJson(this.state.exportGeofence);
+                                                                    const json = JSON.stringify(geofence, null, 2);
+                                                                    this.setState({
+                                                                        ['exportGeofence']: json,
+                                                                        ['exportFormat']: '.json',
+                                                                    });
+                                                                }} />}
+                                                                label="GeoJSON"
+                                                            />
+                                                        </RadioGroup>
+                                                    </FormControl>
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    <div className={classes.buttonContainer}>
+                                                        <Button
+                                                            variant="contained"
+                                                            color="primary"
+                                                            style={{marginRight: '20px'}}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                copyToClipboard(this.state.exportGeofence);
+                                                            }}
+                                                        >
+                                                            Copy to Clipboard
+                                                        </Button>
+                                                        <Button
+                                                            variant="outlined"
+                                                            color="primary"
+                                                            onClick={() => {
+                                                                this.setState({
+                                                                    ['exportOpen']: false,
+                                                                })
+                                                            }}
+                                                        >
+                                                            Close
+                                                        </Button>
+                                                    </div>
+                                                </Grid>
+                                            </Grid>
+                                        )}
+                                        show={this.state.exportOpen}
+                                        onClose={() => {
+                                            this.setState({
+                                                ['exportOpen']: false,
+                                            });
+                                        }}
+                                    />
+                                </MapContainer>
+                            </Grid>
+                        </Grid>
+                    </div>
+                    <div className={classes.buttonContainer}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            style={{marginRight: '20px'}}
+                            type="submit"
+                        >
+                            Save
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={handleCancel}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </Box>
             </div>
         );
     }

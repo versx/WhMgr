@@ -194,137 +194,135 @@ class NewAlarm extends React.Component<IGlobalProps> {
         };
 
         return (
-            <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
-                <Container>
-                    <Box component="form" method="POST" action="" onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
-                        <BreadCrumbs crumbs={breadcrumbs} />
-                        <Typography variant="h5" component="h2" >
-                            New Alarm
-                        </Typography>
-                        <Typography sx={{ mt: 2 }}>
-                            Channel alarms config description goes here
-                        </Typography>
-                        <div style={{paddingBottom: '10px', paddingTop: '20px'}}>
-                            <Card>
-                                <CardHeader title="General" />
-                                <CardContent>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={12}>
-                                            <TextField
-                                                id="name"
-                                                name="name"
-                                                variant="outlined"
-                                                label="Name"
-                                                value={this.state.name}
-                                                fullWidth
-                                                onChange={this.handleChange}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <FormControlLabel
-                                                id="enablePokemon"
-                                                name="enablePokemon"
-                                                control={<Switch checked={this.state.enablePokemon} onChange={handleCheckbox} />}
-                                                label="Enable Pokemon"
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <FormControlLabel
-                                                id="enableRaids"
-                                                name="enableRaids"
-                                                control={<Switch checked={this.state.enableRaids} onChange={handleCheckbox} />}
-                                                label="Enable Raids"
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <FormControlLabel
-                                                id="enableQuests"
-                                                name="enableQuests"
-                                                control={<Switch checked={this.state.enableQuests} onChange={handleCheckbox} />}
-                                                label="Enable Quests" />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <FormControlLabel
-                                                id="enablePokestops"
-                                                name="enablePokestops"
-                                                control={<Switch checked={this.state.enablePokestops} onChange={handleCheckbox} />}
-                                                label="Enable Pokestops"
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <FormControlLabel
-                                                id="enableGyms"
-                                                name="enableGyms"
-                                                control={<Switch checked={this.state.enableGyms} onChange={handleCheckbox} />}
-                                                label="Enable Gyms"
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <FormControlLabel
-                                                id="enableWeather"
-                                                name="enableWeather"
-                                                control={<Switch checked={this.state.enableWeather} onChange={handleCheckbox} />}
-                                                label="Enable Weather"
-                                            />
-                                        </Grid>
+            <div className={classes.container} style={{paddingTop: '50px', paddingBottom: '20px', paddingLeft: '20px', paddingRight: '20px'}}>
+                <Box component="form" method="POST" action="" onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
+                    <BreadCrumbs crumbs={breadcrumbs} />
+                    <Typography variant="h5" component="h2" >
+                        New Alarm
+                    </Typography>
+                    <Typography sx={{ mt: 2 }}>
+                        Channel alarms config description goes here
+                    </Typography>
+                    <div style={{paddingBottom: '10px', paddingTop: '20px'}}>
+                        <Card>
+                            <CardHeader title="General" />
+                            <CardContent>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={12}>
+                                        <TextField
+                                            id="name"
+                                            name="name"
+                                            variant="outlined"
+                                            label="Name"
+                                            value={this.state.name}
+                                            fullWidth
+                                            onChange={this.handleChange}
+                                        />
                                     </Grid>
-                                </CardContent>
-                            </Card>
-                        </div>
-                        <div style={{paddingBottom: '20px', paddingTop: '10px'}}>
-                            <Card>
-                                <CardHeader title="Channel Alarms" />
-                                <CardContent>
-                                    <Button variant="contained" color="success" onClick={toggleModal}>Add Alarm</Button>
-                                    <List style={{paddingTop: '20px', maxHeight: 800, overflow: 'auto'}}>
-                                        {this.state.alarms.map((alarm: any) => {
-                                            const props: AlarmProps = {
-                                                ...alarm,
-                                                allGeofences: this.state.allGeofences,
-                                                allFilters: this.state.allFilters,
-                                                allEmbeds: this.state.allEmbeds,
-                                            };
-                                            const handleDelete = (name: string) => {
-                                                const alarms = this.state.alarms;
-                                                const newAlarms = alarms.filter((item: any) => item.name !== name);
-                                                this.setState({ ['alarms']: newAlarms });
-                                            };
-                                            return (
-                                                <div key={alarm.name} style={{paddingBottom: '20px'}}>
-                                                    <Alarm {...props} />
-                                                    <Button
-                                                        variant="contained"
-                                                        color="error"
-                                                        onClick={() => handleDelete(alarm.name)}
-                                                    >
-                                                        Remove
-                                                    </Button>
-                                                </div>
-                                            );
-                                        })}
-                                    </List>
-                                </CardContent>
-                            </Card>
-                        </div>
-                        <div className={classes.buttonContainer}>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                style={{marginRight: '20px'}}
-                                type="submit"
-                            >
-                                Save
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                onClick={handleCancel}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </Box>
-                </Container>
+                                    <Grid item xs={12} sm={6}>
+                                        <FormControlLabel
+                                            id="enablePokemon"
+                                            name="enablePokemon"
+                                            control={<Switch checked={this.state.enablePokemon} onChange={handleCheckbox} />}
+                                            label="Enable Pokemon"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <FormControlLabel
+                                            id="enableRaids"
+                                            name="enableRaids"
+                                            control={<Switch checked={this.state.enableRaids} onChange={handleCheckbox} />}
+                                            label="Enable Raids"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <FormControlLabel
+                                            id="enableQuests"
+                                            name="enableQuests"
+                                            control={<Switch checked={this.state.enableQuests} onChange={handleCheckbox} />}
+                                            label="Enable Quests" />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <FormControlLabel
+                                            id="enablePokestops"
+                                            name="enablePokestops"
+                                            control={<Switch checked={this.state.enablePokestops} onChange={handleCheckbox} />}
+                                            label="Enable Pokestops"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <FormControlLabel
+                                            id="enableGyms"
+                                            name="enableGyms"
+                                            control={<Switch checked={this.state.enableGyms} onChange={handleCheckbox} />}
+                                            label="Enable Gyms"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <FormControlLabel
+                                            id="enableWeather"
+                                            name="enableWeather"
+                                            control={<Switch checked={this.state.enableWeather} onChange={handleCheckbox} />}
+                                            label="Enable Weather"
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </CardContent>
+                        </Card>
+                    </div>
+                    <div style={{paddingBottom: '20px', paddingTop: '10px'}}>
+                        <Card>
+                            <CardHeader title="Channel Alarms" />
+                            <CardContent>
+                                <Button variant="contained" color="success" onClick={toggleModal}>Add Alarm</Button>
+                                <List style={{paddingTop: '20px', maxHeight: 800, overflow: 'auto'}}>
+                                    {this.state.alarms.map((alarm: any) => {
+                                        const props: AlarmProps = {
+                                            ...alarm,
+                                            allGeofences: this.state.allGeofences,
+                                            allFilters: this.state.allFilters,
+                                            allEmbeds: this.state.allEmbeds,
+                                        };
+                                        const handleDelete = (name: string) => {
+                                            const alarms = this.state.alarms;
+                                            const newAlarms = alarms.filter((item: any) => item.name !== name);
+                                            this.setState({ ['alarms']: newAlarms });
+                                        };
+                                        return (
+                                            <div key={alarm.name} style={{paddingBottom: '20px'}}>
+                                                <Alarm {...props} />
+                                                <Button
+                                                    variant="contained"
+                                                    color="error"
+                                                    onClick={() => handleDelete(alarm.name)}
+                                                >
+                                                    Remove
+                                                </Button>
+                                            </div>
+                                        );
+                                    })}
+                                </List>
+                            </CardContent>
+                        </Card>
+                    </div>
+                    <div className={classes.buttonContainer}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            style={{marginRight: '20px'}}
+                            type="submit"
+                        >
+                            Save
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={handleCancel}
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </Box>
                 <AddAlarmModal key="addAlarmModal" {...{
                     geofences: this.state.allGeofences,
                     embeds: this.state.allEmbeds,

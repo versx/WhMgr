@@ -232,7 +232,7 @@ class EditFilter extends React.Component<IGlobalProps> {
         }];
 
         return (
-            <div className={classes.container} style={{ paddingTop: '50px', paddingBottom: '20px' }}>
+            <div className={classes.container} style={{paddingTop: '50px', paddingBottom: '20px', paddingLeft: '20px', paddingRight: '20px'}}>
                 <Container>
                     <Box component="form" method="POST" action=""  onSubmit={this.handleSubmit} sx={{ mt: 3 }}>
                         <BreadCrumbs crumbs={breadcrumbs} />
