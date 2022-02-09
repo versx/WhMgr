@@ -27,8 +27,10 @@ export function Alarm(props: AlarmProps) {
         name: props.name ?? '',
         description: props.description ?? '',
         geofences: props.geofences ?? [],
-        embeds: props.allEmbeds.filter(e => e === props.embeds)[0] ?? '',
-        filters: props.allFilters.filter(f => f === props.filters)[0] ?? '',
+        //embeds: props.allEmbeds.find(e => e === props.embeds) ?? '',
+        //filters: props.allFilters.find(f => f === props.filters) ?? '',
+        embeds: props.embeds ?? '',
+        filters: props.filters ?? '',
         webhook: props.webhook ?? '',
     });
 
