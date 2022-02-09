@@ -186,9 +186,18 @@ class NewConfig extends React.Component<IGlobalProps> {
 
         console.log('handle submit state:', this.state);
         
+        let servers: any = {};
+        for (const discord of this.state.servers) {
+            const id = this.state.discords[discord];
+            servers[id] = discord;
+        }
+        const data = {
+            ...this.state,
+            servers,
+        };
         fetch(config.apiUrl + 'admin/config/new', {
             method: 'POST',
-            body: JSON.stringify(this.state),
+            body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',

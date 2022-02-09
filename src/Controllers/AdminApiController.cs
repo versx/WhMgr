@@ -91,6 +91,9 @@
             }
             var config = LoadFromFile<Config>(filePath);
             var discordFiles = Directory.GetFiles(Strings.DiscordsFolder, "*.json");
+            var discords = discordFiles.ToDictionary(
+                x => Path.GetFileName(x),
+                y => System.IO.File.ReadAllText(y).FromJson<DiscordServerConfig>().Bot.GuildId.ToString());
             var locales = Directory.GetFiles(
                 Path.Combine(
                     Path.Combine(
@@ -107,7 +110,7 @@
                 data = new
                 {
                     config,
-                    discords = discordFiles.Select(file => Path.GetFileName(file)),
+                    discords,// = discordFiles.Select(file => Path.GetFileName(file)),
                     locales,
                 },
             });
@@ -146,7 +149,7 @@
             });
         }
 
-        [HttpPost("config/{fileName}")]
+        [HttpPut("config/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]
         public async Task<IActionResult> UpdateConfig(string fileName)
         {

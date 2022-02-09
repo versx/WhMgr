@@ -191,9 +191,18 @@ class EditConfig extends React.Component<IGlobalProps> {
         console.log('handle submit state:', this.state);
 
         const id = this.props.params!.id;
+        let servers: any = {};
+        for (const discord of this.state.servers) {
+            const id = this.state.discords[discord];
+            servers[id] = discord;
+        }
+        const data = {
+            ...this.state,
+            servers,
+        };
         fetch(config.apiUrl + 'admin/config/' + id, {
             method: 'PUT',
-            body: JSON.stringify(this.state),
+            body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
@@ -352,12 +361,32 @@ class EditConfig extends React.Component<IGlobalProps> {
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={12}>
+                                        {/*
                                         <MultiSelect
                                             id="discords"
                                             title="Discord Servers"
                                             allItems={this.state.discords}
                                             selectedItems={Object.values(this.state.servers ?? {})}
                                         />
+                                        */}
+                                        <FormControl fullWidth>
+                                            <InputLabel id="label-title">Discord Servers</InputLabel>
+                                            <Select
+                                                labelId="label-title"
+                                                id="servers"
+                                                name="servers"
+                                                multiple
+                                                value={this.state.servers ? Object.values(this.state.servers) : []}
+                                                label="Discord Servers"
+                                                onChange={this.onInputChange}
+                                            >
+                                                {Object.keys(this.state.discords).map((name: string) => {
+                                                    const id = this.state.discords[name];
+                                                    //console.log('discord id:', id, 'name:', name);
+                                                    return <MenuItem key={name} id={id} value={name}>{name}</MenuItem>
+                                                })}
+                                            </Select>
+                                        </FormControl>
                                     </Grid>
                                 </Grid>
                             </AccordionDetails>
