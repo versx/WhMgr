@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Net.Mime;
     using System.Text;
+    using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
     using Microsoft.AspNetCore.Http;
@@ -1302,5 +1303,33 @@
         #endregion
 
         #endregion
+    }
+
+    public class DtsPlaceholder
+    {
+        [JsonPropertyName("placeholder")]
+        public string Placeholder { get; set; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+
+        [JsonPropertyName("example")]
+        public object Example { get; set; }
+
+        // examples: String, Char, Boolean, Number, Array
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
+    }
+
+    public class RoleConfig
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("moderator")]
+        public bool IsModerator { get; set; }
+
+        [JsonPropertyName("permissions")]
+        public IEnumerable<SubscriptionAccessType> Permissions { get; set; }
     }
 }

@@ -14,7 +14,7 @@
         public const string Creator = "versx";
 
         public const string ClientBuildFolder = "ClientApp/build";
-        public const string AdminDashboardEndpoint = "/myapp";
+        public const string AdminDashboardEndpoint = "/dashboard";
 
         public const string BasePath = "../bin/";
         public const string ViewsFolder = "Views";

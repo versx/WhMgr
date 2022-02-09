@@ -5,7 +5,6 @@ namespace WhMgr
     using System.IO;
     using System.Threading.Tasks;
 
-    using HandlebarsDotNet.ViewEngine;
     using Microsoft.AspNetCore.Antiforgery;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -145,8 +144,8 @@ namespace WhMgr
                 options.AddDefaultPolicy(builder =>
                 {
                     builder.AllowAnyOrigin()
-                            .AllowAnyHeader()
-                            .AllowAnyMethod();
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
                 });
             });
 
@@ -155,13 +154,6 @@ namespace WhMgr
                 configuration.RootPath = Strings.ClientBuildFolder;
             });
 
-            services.AddMvc()
-                    .AddHandlebars(options =>
-                    {
-                        // Views/Shared/layout.hbs
-                        options.DefaultLayout = "Views/Layout/default.hbs";
-                        options.RegisterHelpers = TemplateRenderer.GetHelpers();
-                    });
             //services.AddControllers();
             services.AddControllers(options => options.Filters.Add<LogRequestTimeFilterAttribute>());
             services.AddControllersWithViews();
