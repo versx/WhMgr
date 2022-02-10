@@ -1,6 +1,17 @@
 ﻿{
-  "617923547536556043": {
-    "name": "Supporter",
+  "guild id goes here for role": {
+    "name": "Subscriber",
+    "moderator": false,
+    "permissions": [
+      "Raids",
+      "Quests",
+      "Invasions",
+      "Lures",
+      "Gyms"
+    ]
+  },
+  "guild id goes here for role": {
+    "name": "Subscriber6",
     "moderator": false,
     "permissions": [
       "Pokemon",
@@ -12,8 +23,8 @@
       "Gyms"
     ]
   },
-  "618612667438858270": {
-    "name": "Supporter6",
+  "618612745377677333": {
+    "name": "Subscriber12",
     "moderator": false,
     "permissions": [
       "Pokemon",
@@ -25,21 +36,8 @@
       "Gyms"
     ]
   },
-  "618612745377677322": {
-    "name": "Supporter12",
-    "moderator": false,
-    "permissions": [
-      "Pokemon",
-      "PvP",
-      "Raids",
-      "Quests",
-      "Invasions",
-      "Lures",
-      "Gyms"
-    ]
-  },
-  "560541321568190494": {
-    "name": "versx Mod",
+  "560541321568190484": {
+    "name": "Moderator test",
     "moderator": true,
     "permissions": [
       "Pokemon",
