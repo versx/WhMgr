@@ -230,8 +230,8 @@ namespace WhMgr
             app.UseSession();
 
             // TODO: if (config.Discord.Enabled)
-            //app.UseMiddleware<DiscordAuthMiddleware>();
-            //app.UseMiddleware<UserPassportMiddleware>();
+            // TODO: app.UseMiddleware<DiscordAuthMiddleware>();
+            // TODO: app.UseMiddleware<UserPassportMiddleware>();
 
             /*
             // Anti forgery middleware using csrf tokens

@@ -1251,14 +1251,22 @@
 
         private static Dictionary<string, List<DtsPlaceholder>> GetDtsPlaceholders()
         {
-            var path = Strings.BasePath + "wwwroot/static/data/dts_placeholders.json";
+            var path = Strings.WwwRoot + "/static/data/dts_placeholders.json";
+            if (System.IO.File.Exists(path))
+            {
+                return new Dictionary<string, List<DtsPlaceholder>>();
+            }
             var placeholders = LoadFromFile<Dictionary<string, List<DtsPlaceholder>>>(path);
             return placeholders;
         }
 
         private static Dictionary<ulong, RoleConfig> GetRoles()
         {
-            var path = Strings.BasePath + "wwwroot/static/data/roles.json";
+            var path = Strings.WwwRoot + "/static/data/roles.json";
+            if (System.IO.File.Exists(path))
+            {
+                return new Dictionary<ulong, RoleConfig>();
+            }
             var roles = LoadFromFile<Dictionary<ulong, RoleConfig>>(path);
             return roles;
         }

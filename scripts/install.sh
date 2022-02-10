@@ -29,6 +29,7 @@ echo "Building WhMgr..."
 # Copy example config
 echo "Copying example files..."
 cp examples/discord_auth.json bin/discord_auth.json
+cp examples/roles.example.json bin/wwwroot/static/data/roles.json
 cp -R examples/configs bin/configs/
 cp bin/configs/config.example.json bin/configs/config.json
 cp -R examples/alarms bin/alarms/

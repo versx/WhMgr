@@ -32,6 +32,7 @@ dotnet build
 :: Copy example config
 echo "Copying example files..."
 xcopy /s /e %prjDir%\examples\discord_auth.json %binDir%\discord_auth.json
+xcopy /s /e %prjDir%\examples\roles.example.json %binDir%\wwwroot\static\data\roles.json
 xcopy /s /e %prjDir%\examples\configs\* %binDir%\configs\
 xcopy /s /e %binDir%\configs\config.example.json %binDir%\configs\config.json
 xcopy /s /e %prjDir%\examples\alarms\* %binDir%\alarms\

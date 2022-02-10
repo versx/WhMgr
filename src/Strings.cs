@@ -16,6 +16,8 @@
         public const string ClientBuildFolder = "ClientApp/build";
         public const string AdminDashboardEndpoint = "/dashboard";
 
+        public const string WwwRoot = BasePath + "wwwroot";
+
         public const string BasePath = "../bin/";
         public const string ViewsFolder = "Views";
         public const string TemplateExt = ".hbs";
