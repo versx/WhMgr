@@ -1252,7 +1252,7 @@
         private static Dictionary<string, List<DtsPlaceholder>> GetDtsPlaceholders()
         {
             var path = Strings.WwwRoot + "/static/data/dts_placeholders.json";
-            if (System.IO.File.Exists(path))
+            if (!System.IO.File.Exists(path))
             {
                 return new Dictionary<string, List<DtsPlaceholder>>();
             }
