@@ -1263,7 +1263,7 @@
         private static Dictionary<ulong, RoleConfig> GetRoles()
         {
             var path = Strings.WwwRoot + "/static/data/roles.json";
-            if (System.IO.File.Exists(path))
+            if (!System.IO.File.Exists(path))
             {
                 return new Dictionary<ulong, RoleConfig>();
             }
