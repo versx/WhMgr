@@ -1,11 +1,14 @@
 ﻿namespace WhMgr.Test
 {
     using System.Collections.Generic;
+    using System.IO;
+    using System.Threading.Tasks;
 
     using NUnit.Framework;
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
 
     using WhMgr.Common;
+    using WhMgr.Localization;
     using WhMgr.Services.Alarms.Filters;
 
     [TestFixture]
@@ -14,6 +17,76 @@
         [SetUp]
         public void Setup()
         {
+            var localeFolder = Strings.BasePath + Strings.StaticFolder + Path.DirectorySeparatorChar + "locales";
+            Translator.Instance.LocaleDirectory = localeFolder;
+            //Translator.Instance.CreateLocaleFiles().ConfigureAwait(false).GetAwaiter().GetResult();
+            Translator.Instance.SetLocale("en");
+        }
+
+        [Test]
+        [TestCase(1)] // Unown A
+        [TestCase(33)] // Deoxys Normal
+        [TestCase(34)] // Deoxys Attack
+        [TestCase(76)] // Geodude or something Alola
+        [TestCase(121)] // Spinda 08
+        public void Test_PokemonForm_ReturnsIsTrue(int formId)
+        {
+            var forms = new List<string>
+            {
+                "A",
+                "Normal",
+                "Attack",
+                "Alola",
+                "08",
+            };
+            var form = Translator.Instance.GetFormName((uint)formId, includeNormal: true);
+            var matches = forms.Contains(form) || forms.Count == 0;
+            Assert.IsTrue(matches);
+        }
+
+        [Test]
+        [TestCase(1)] // Unown A
+        [TestCase(33)] // Deoxys Normal
+        [TestCase(34)] // Deoxys Attack
+        [TestCase(76)] // Geodude or something Alola
+        [TestCase(121)] // Spinda 08
+        public void Test_PokemonForm_ReturnsIsFalse(int formId)
+        {
+            var forms = new List<string>
+            {
+                "Holidy",
+                //"",
+                /*
+                "A",
+                "Normal",
+                "Attack",
+                "Alola",
+                "08",
+                */
+            };
+            var form = Translator.Instance.GetFormName((uint)formId, includeNormal: false);
+            var matches = forms.Contains(form) || forms.Count == 0;
+            Assert.IsFalse(matches);
+        }
+
+        [Test]
+        [TestCase(1)] // Unown A
+        public void Test_PokemonFormsEmpty_ReturnsIsTrue(int formId)
+        {
+            var forms = new List<string>();
+            var form = Translator.Instance.GetFormName((uint)formId, includeNormal: false);
+            var matches = forms.Contains(form) || forms.Count == 0;
+            Assert.IsTrue(matches);
+        }
+
+        [Test]
+        [TestCase(2)] // Unown B
+        public void Test_PokemonFormsNull_ReturnsIsTrue(int formId)
+        {
+            List<string> forms = null;
+            var form = Translator.Instance.GetFormName((uint)formId, includeNormal: false);
+            var matches = forms?.Contains(form) ?? true || forms?.Count == 0;
+            Assert.IsTrue(matches);
         }
 
         [Test]
@@ -27,6 +100,7 @@
                 ))
                 continue;
              */
+             Assert.IsTrue(true);
         }
 
         [Test]
@@ -72,6 +146,8 @@
         [TestCase("0%", 0, 0)]
         [TestCase("95.6%", 95, 100)]
         [TestCase("100", 100, 100)]
+        [TestCase("?", 0, 0)]
+        [TestCase("?", 0, 100)]
         public void Test_PokemonIV_ReturnsIsTrue(string iv, int minimumIV, int maximumIV)
         {
             var matches = Filters.MatchesIV(iv, (uint)minimumIV, (uint)maximumIV);
@@ -82,7 +158,6 @@
         [TestCase("?", 90, 100)]
         [TestCase("0%", 90, 100)]
         [TestCase("91.1%", 93, 100)]
-        [TestCase("?", 0, 0)]
         public void Test_PokemonIV_ReturnsIsFalse(string iv, int minimumIV, int maximumIV)
         {
             var matches = Filters.MatchesIV(iv, (uint)minimumIV, (uint)maximumIV);
