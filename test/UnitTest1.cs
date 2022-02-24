@@ -18,6 +18,8 @@
             // TODO: Test datetime extensions
             // TODO: Test timespan extensions
             // TODO: Test notification limiter
+            // TODO: Filter tests
+            // TODO: Test pokemon, form, and costume checks for webhooks and subscriptions
         }
 
         [Test]
