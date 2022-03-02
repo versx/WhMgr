@@ -40,14 +40,14 @@
                 var encodedUrl = HttpUtility.UrlEncode(url);
                 var sb = new StringBuilder();
                 sb.Append(Configuration.ApiUrl);
+                sb.Append("&signature=");
+                sb.Append(Configuration.Signature);
                 sb.Append("&action=");
                 sb.Append(Configuration.Action);
                 sb.Append("&url=");
                 sb.Append(encodedUrl);
                 sb.Append("&format=");
                 sb.Append(Configuration.Format);
-                sb.Append("&signature=");
-                sb.Append(Configuration.Signature);
                 var apiUrl = sb.ToString();
                 var json = await NetUtils.Get(apiUrl);
                 if (string.IsNullOrEmpty(json))
