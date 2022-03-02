@@ -136,9 +136,13 @@
                         continue;
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = user.Pokemon.Where(x => x.PokemonId.Contains(pokemon.Id)
-                        && (x.Forms?.Contains(form) ?? true || x.Forms.Count == 0)
-                    );
+                    var pokemonSubscriptions = user.Pokemon.Where(x =>
+                    {
+                        var containsPokemon = x.PokemonId.Contains(pokemon.Id);
+                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
+                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
+                        return containsPokemon && containsForm;
+                    });//.ToList();
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         matchesIV = Filters.MatchesIV(pokemon.IV, (uint)pkmnSub.MinimumIV, 100);
