@@ -46,6 +46,8 @@
                 sb.Append(encodedUrl);
                 sb.Append("&format=");
                 sb.Append(Configuration.Format);
+                sb.Append("&signature=");
+                sb.Append(Configuration.Signature);
                 var apiUrl = sb.ToString();
                 var json = await NetUtils.Get(apiUrl);
                 if (string.IsNullOrEmpty(json))
