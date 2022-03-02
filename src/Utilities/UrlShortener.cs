@@ -54,7 +54,7 @@
                     return url;
 
                 var obj = json.FromJson<UrlShortenerResponse>();
-                return obj?.ShortUrl;
+                return obj?.ShortUrl ?? url;
             }
             catch (Exception)
             {
