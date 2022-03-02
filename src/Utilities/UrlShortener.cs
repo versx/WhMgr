@@ -40,7 +40,7 @@
                 var encodedUrl = HttpUtility.UrlEncode(url);
                 var sb = new StringBuilder();
                 sb.Append(Configuration.ApiUrl);
-                sb.Append("&signature=");
+                sb.Append("?signature=");
                 sb.Append(Configuration.Signature);
                 sb.Append("&action=");
                 sb.Append(Configuration.Action);
