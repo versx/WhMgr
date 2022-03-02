@@ -142,7 +142,7 @@
                         var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
                         var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
                         return containsPokemon && containsForm;
-                    });//.ToList();
+                    });
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         matchesIV = Filters.MatchesIV(pokemon.IV, (uint)pkmnSub.MinimumIV, 100);
@@ -304,9 +304,13 @@
                         continue;
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = user.PvP.Where(x => x.PokemonId.Contains(pokemon.Id)
-                        && (x.Forms?.Contains(form) ?? true || x.Forms.Count == 0)
-                    );
+                    var pokemonSubscriptions = user.PvP.Where(x =>
+                    {
+                        var containsPokemon = x.PokemonId.Contains(pokemon.Id);
+                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
+                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
+                        return containsPokemon && containsForm;
+                    });
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x => pkmnSub.League == PvpLeague.Great &&
@@ -445,61 +449,62 @@
                         continue;
 
                     var form = Translator.Instance.GetFormName(raid.Form);
-                    var subPkmn = user.Raids.FirstOrDefault(x => x.PokemonId.Contains(raid.PokemonId)
-                        && (x.Forms?.Contains(form) ?? true || x.Forms.Count == 0)
-                    );
-                    // Not subscribed to Pokemon
-                    if (subPkmn == null)
+                    var pokemonSubscriptions = user.Raids.Where(x =>
                     {
-                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
-                        continue;
+                        var containsPokemon = x.PokemonId.Contains(raid.PokemonId);
+                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
+                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
+                        return containsPokemon && containsForm;
+                    });
+
+                    foreach (var raidSub in pokemonSubscriptions)
+                    {
+                        var geofence = GetGeofence(user.GuildId);
+                        if (geofence == null)
+                        {
+                            //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                            continue;
+                        }
+
+                        if (!raid.IsExEligible && raidSub.IsExEligible)
+                        {
+                            // Skip raids that are not ex eligible when we want ex eligible raids
+                            continue;
+                        }
+
+                        var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+                        var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, raidSub.Location, true) == 0);
+                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(raidCoord);
+                        var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(raidCoord);
+                        var geofenceMatches = raidSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
+
+                        // If set distance does not match and no geofences match, then skip Raid Pokemon...
+                        if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                            continue;
+
+                        var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
+                        {
+                            GuildId = user.GuildId,
+                            Client = client,
+                            Config = _config,
+                            Alarm = null,
+                            City = geofence.Name,
+                            MapDataCache = _mapDataCache,
+                        }).ConfigureAwait(false);
+                        //var end = DateTime.Now;
+                        //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
+                        embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
+                        {
+                            Subscription = user,
+                            Member = member,
+                            Embed = x.GenerateDiscordMessage(),
+                            Description = pokemon.Name,
+                            City = geofence.Name
+                        }));
+
+                        _statsService.TotalRaidSubscriptionsSent++;
+                        Thread.Sleep(5);
                     }
-
-                    var geofence = GetGeofence(user.GuildId);
-                    if (geofence == null)
-                    {
-                        //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        continue;
-                    }
-
-                    if (!raid.IsExEligible && subPkmn.IsExEligible)
-                    {
-                        // Skip raids that are not ex eligible when we want ex eligible raids
-                        continue;
-                    }
-
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subPkmn.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(raidCoord);
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(raidCoord);
-                    var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                    // If set distance does not match and no geofences match, then skip Raid Pokemon...
-                    if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
-                        continue;
-
-                    var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
-                    {
-                        GuildId = user.GuildId,
-                        Client = client,
-                        Config = _config,
-                        Alarm = null,
-                        City = geofence.Name,
-                        MapDataCache = _mapDataCache,
-                    }).ConfigureAwait(false);
-                    //var end = DateTime.Now;
-                    //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
-                    {
-                        Subscription = user,
-                        Member = member,
-                        Embed = x.GenerateDiscordMessage(),
-                        Description = pokemon.Name,
-                        City = geofence.Name
-                    }));
-
-                    _statsService.TotalRaidSubscriptionsSent++;
-                    Thread.Sleep(5);
                 }
                 catch (Exception ex)
                 {
