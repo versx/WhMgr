@@ -250,21 +250,28 @@
         /// </summary>
         public async Task ReloadSubscriptionsAsync(bool skipCheck = false, ushort reloadM = 5)
         {
-            // Only reload based on last_changed timestamp in metadata table
-            var lastModifiedTimestamp = GetLastModifiedTimestamp();
-            var utcNow = DateTime.UtcNow.GetUnixTimestamp();
-            var reloadMinutesMs = reloadM * 60 * 60;
-            var delta = utcNow - lastModifiedTimestamp;
-            // Check if last_modified was set within the last x minutes
-            if (!skipCheck && delta > reloadMinutesMs)
-                return;
+            try
+            {
+                // Only reload based on last_changed timestamp in metadata table
+                var lastModifiedTimestamp = GetLastModifiedTimestamp();
+                var utcNow = DateTime.UtcNow.GetUnixTimestamp();
+                var reloadMinutesMs = reloadM * 60 * 60;
+                var delta = utcNow - lastModifiedTimestamp;
+                // Check if last_modified was set within the last x minutes
+                if (!skipCheck && delta > reloadMinutesMs)
+                    return;
 
-            // Updated, reload subscriptions
-            var subs = await GetUserSubscriptionsAsync();
-            if (subs == null)
-                return;
+                // Updated, reload subscriptions
+                var subs = await GetUserSubscriptionsAsync();
+                if (subs == null)
+                    return;
 
-            _subscriptions = subs;
+                _subscriptions = subs;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to reload user subscriptions: {ex}");
+            }
         }
 
         private ulong GetLastModifiedTimestamp()
