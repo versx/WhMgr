@@ -143,6 +143,9 @@
                         var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
                         return containsPokemon && containsForm;
                     });
+                    if (pokemonSubscriptions == null)
+                        continue;
+
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         matchesIV = Filters.MatchesIV(pokemon.IV, (uint)pkmnSub.MinimumIV, 100);
@@ -311,6 +314,9 @@
                         var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
                         return containsPokemon && containsForm;
                     });
+                    if (pokemonSubscriptions == null)
+                        continue;
+
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x => pkmnSub.League == PvpLeague.Great &&
@@ -456,6 +462,8 @@
                         var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
                         return containsPokemon && containsForm;
                     });
+                    if (pokemonSubscriptions == null)
+                        continue;
 
                     foreach (var raidSub in pokemonSubscriptions)
                     {
