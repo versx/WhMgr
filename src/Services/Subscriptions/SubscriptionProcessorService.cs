@@ -311,7 +311,7 @@
                     {
                         var containsPokemon = x.PokemonId.Contains(pokemon.Id);
                         var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && x.Forms?.Count == 1);
-                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
+                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms?.Count == 0 || isEmptyForm;
                         return containsPokemon && containsForm;
                     });
                     if (pokemonSubscriptions == null)
