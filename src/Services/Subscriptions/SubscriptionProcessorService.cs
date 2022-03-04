@@ -152,8 +152,10 @@
                         //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
                         matchesLvl = Filters.MatchesLvl(pokemon.Level, (uint)pkmnSub.MinimumLevel, (uint)pkmnSub.MaximumLevel);
                         matchesGender = Filters.MatchesGender(pokemon.Gender, pkmnSub.Gender);
-                        matchesIVList = pkmnSub.IVList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
+                        //matchesIVList = pkmnSub.IVList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
+                        matchesIVList = IvListMatches(pkmnSub.IVList, pokemon);
 
+                        // If no IV list specified check whole IV value, otherwise ignore whole IV value and only check IV list.
                         if (!(
                             (!pkmnSub.HasIVStats && matchesIV && matchesLvl && matchesGender) ||
                             (pkmnSub.HasIVStats && matchesIVList)
@@ -1077,6 +1079,38 @@
             GetEvolutionIds(pkmn.Evolutions);
             list = list.Distinct().ToList();
             return list;
+        }
+
+        private static bool IvListMatches(List<string> ivList, PokemonData pokemon)
+        {
+            var matches = ivList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
+            var matchesWildcard = ivList?.Exists(iv =>
+            {
+                var split = iv.Split('/');
+
+                // Ensure user specified all IV parts required
+                if (split.Length != 3)
+                    return false;
+
+                // Validate IV list entry is a valid integer and no wild cards specified.
+                if (!ushort.TryParse(split[0], out var attack) && split[0] != "*")
+                    return false;
+
+                if (!ushort.TryParse(split[1], out var defense) && split[1] != "*")
+                    return false;
+
+                if (!ushort.TryParse(split[2], out var stamina) && split[2] != "*")
+                    return false;
+
+                // Check if individual values are the same or if wildcard is specified.
+                var matches =
+                    attack == pokemon.Attack || split[0] == "*" &&
+                    defense == pokemon.Defense || split[1] == "*" &&
+                    stamina == pokemon.Stamina || split[2] == "*";
+                return matches;
+
+            }) ?? false;
+            return matches || matchesWildcard;
         }
 
         #region Background Service
