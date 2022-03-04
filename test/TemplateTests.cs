@@ -25,7 +25,7 @@
             var templateModel = new
             {
                 name = pokemon,
-                form = form,
+                form,
                 iv = 100
             };
             var result = TemplateRenderer.Parse(template, templateModel);

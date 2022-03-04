@@ -3,16 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Linq;
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
-    using DSharpPlus.Entities;
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Common;
-    using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Localization;
@@ -431,7 +428,7 @@
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 Color = (
                     MatchesGreatLeague || MatchesUltraLeague
-                        ? GetPvPColor(GreatLeague, UltraLeague, GameMaster.Instance.DiscordEmbedColors)
+                        ? GameMaster.Instance.DiscordEmbedColors.GetPvPColor(GreatLeague, UltraLeague)
                         : IV.BuildPokemonIVColor(GameMaster.Instance.DiscordEmbedColors)
                     ).Value,
                 Footer = new Discord.Models.DiscordEmbedFooter
@@ -577,8 +574,8 @@
                 is_pvp = MatchesGreatLeague || MatchesUltraLeague,
                 great_league_emoji = greatLeagueEmoji,
                 ultra_league_emoji = ultraLeagueEmoji,
-                great_league = GetLeagueRanks(PvpLeague.Great),
-                ultra_league = GetLeagueRanks(PvpLeague.Ultra),
+                great_league = this.GetLeagueRanks(PvpLeague.Great),
+                ultra_league = this.GetLeagueRanks(PvpLeague.Ultra),
 
                 // Other properties
                 height = height ?? defaultMissingValue,
@@ -637,64 +634,5 @@
             };
             return dict;
         }
-
-        #region PvP
-
-        private List<PvpRankData> GetLeagueRanks(PvpLeague league)
-        {
-            var list = new List<PvpRankData>();
-            if (GreatLeague == null && UltraLeague == null)
-            {
-                return list;
-            }
-            var pvpRanks = league == PvpLeague.Ultra ? UltraLeague : GreatLeague;
-            var minCp = league == PvpLeague.Ultra ? Strings.Defaults.MinimumUltraLeagueCP : Strings.Defaults.MinimumGreatLeagueCP;
-            var maxCp = league == PvpLeague.Ultra ? Strings.Defaults.MaximumUltraLeagueCP : Strings.Defaults.MaximumGreatLeagueCP;
-            for (var i = 0; i < pvpRanks.Count; i++)
-            {
-                var pvp = pvpRanks[i];
-                var withinCpRange = pvp.CP >= minCp && pvp.CP <= maxCp;
-                var withinRankRange = pvp.Rank <= Strings.Defaults.MaximumRank;
-                if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))
-                    continue;
-
-                if (!GameMaster.Instance.Pokedex.ContainsKey(pvp.PokemonId))
-                {
-                    Console.WriteLine($"Pokemon database does not contain pokemon id {pvp.PokemonId}");
-                    continue;
-                }
-                if (pvp.Rank.HasValue && pvp.Rank.Value <= Strings.Defaults.MaximumRank &&
-                    pvp.Percentage.HasValue &&
-                    pvp.Level.HasValue &&
-                    pvp.CP.HasValue && pvp.CP <= maxCp)
-                {
-                    var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
-                    var form = Translator.Instance.GetFormName(pvp.FormId);
-                    var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})";
-                    pvp.Percentage = Math.Round(pvp.Percentage.Value, 2);
-                    pvp.PokemonName = pkmnName;
-                    list.Add(pvp);
-                }
-            }
-            list.Sort((a, b) => a.Rank.Value.CompareTo(b.Rank.Value));
-            return list;
-        }
-
-        private static DiscordColor GetPvPColor(List<PvpRankData> greatLeague, List<PvpRankData> ultraLeague, DiscordEmbedColorsConfig config)
-        {
-            var greatRank = greatLeague?.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.Defaults.MinimumGreatLeagueCP && x.CP <= Strings.Defaults.MaximumGreatLeagueCP);
-            var ultraRank = ultraLeague?.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.Defaults.MinimumUltraLeagueCP && x.CP <= Strings.Defaults.MaximumUltraLeagueCP);
-            var color = config.Pokemon.PvP.FirstOrDefault(x =>
-                ((greatRank?.Rank ?? 0) >= x.Minimum && (greatRank?.Rank ?? 0) <= x.Maximum)
-                || ((ultraRank?.Rank ?? 0) >= x.Minimum && (ultraRank?.Rank ?? 0) <= x.Maximum)
-            );
-            if (color == null)
-            {
-                return DiscordColor.White;
-            }
-            return new DiscordColor(color.Color);
-        }
-
-        #endregion
     }
 }

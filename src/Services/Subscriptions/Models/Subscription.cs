@@ -159,6 +159,7 @@
             JsonIgnore,
             NotMapped,
         ]
+        // TODO: Move to NotificationLimiter class
         public bool RateLimitNotificationSent { get; set; }
 
         /// <summary>

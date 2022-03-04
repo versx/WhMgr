@@ -156,6 +156,7 @@
                         !(pokemon.MatchesGreatLeague && pokemon.GreatLeague.Exists(x =>
                             Filters.Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
                             && x.CP >= Strings.Defaults.MinimumGreatLeagueCP && x.CP <= Strings.Defaults.MaximumGreatLeagueCP));
+
                     if (skipGreatLeague)
                         continue;
 
@@ -163,6 +164,7 @@
                         !(pokemon.MatchesUltraLeague && pokemon.UltraLeague.Exists(x =>
                             Filters.Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
                             && x.CP >= Strings.Defaults.MinimumUltraLeagueCP && x.CP <= Strings.Defaults.MaximumUltraLeagueCP));
+
                     if (skipUltraLeague)
                         continue;
 
