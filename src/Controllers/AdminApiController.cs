@@ -622,7 +622,40 @@
             });
         }
 
-        // TODO: Create filter
+        [HttpPost("filter/new")]
+        [Produces(MediaTypeNames.Application.Json)]
+        public async Task<IActionResult> CreateFilter()
+        {
+            var data = await Request.GetRawBodyStringAsync();
+            var dict = data.FromJson<Dictionary<string, object>>();
+
+            // Validate keys exist
+            if (!dict.ContainsKey("name") ||
+                !dict.ContainsKey("filter"))
+            {
+                return SendErrorResponse($"One or more required properties not specified.");
+            }
+
+            var name = dict["name"].ToString();
+            var filterJson = dict["filter"].ToString();
+            var filter = filterJson.FromJson<WebhookFilter>();
+
+            // Save json
+            var json = filter.ToJson();
+            var path = Path.Combine(Strings.FiltersFolder, name + ".json");
+            if (System.IO.File.Exists(path))
+            {
+                return SendErrorResponse($"Failed to create filter '{name}', filter already exists.");
+            }
+
+            await WriteDataAsync(path, json);
+
+            return new JsonResult(new
+            {
+                status = "OK",
+                message = $"Filter '{name}' succuessfully created.",
+            });
+        }
 
         [HttpPut("filter/{fileName}")]
         [Produces(MediaTypeNames.Application.Json)]

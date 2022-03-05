@@ -9,6 +9,23 @@
 
     public static class HttpRequestExtensions
     {
+        /// <summary>
+        /// Retrieve the raw body as a string and deserialize as type from the Request.Body stream
+        /// </summary>
+        /// <typeparam name="T">Serialized type</typeparam>
+        /// <param name="request">Request instance to apply to</param>
+        /// <param name="encoding">Optional - Encoding, defaults to UTF8</param>
+        /// <returns></returns>
+        public static async Task<T> GetRawBodyAsync<T>(this HttpRequest request, Encoding encoding = null)
+        {
+            var json = await GetRawBodyStringAsync(request, encoding);
+            if (string.IsNullOrEmpty(json))
+            {
+                return default;
+            }
+            var obj = json.FromJson<T>();
+            return obj;
+        }
 
         /// <summary>
         /// Retrieve the raw body as a string from the Request.Body stream
