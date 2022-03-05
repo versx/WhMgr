@@ -585,12 +585,12 @@
                     filters.Add(new
                     {
                         id = name,
-                        pokemon = filter.Pokemon != null,
-                        raids = filter.Raids != null,
-                        gyms = filter.Gyms != null,
-                        quests = filter.Quests != null,
-                        pokestops = filter.Pokestops != null,
-                        weather = filter.Weather != null,
+                        pokemon = filter.Pokemon?.Enabled ?? false,
+                        raids = filter.Raids?.Enabled ?? false,
+                        gyms = filter.Gyms?.Enabled ?? false,
+                        quests = filter.Quests?.Enabled ?? false,
+                        pokestops = filter.Pokestops?.Enabled ?? false,
+                        weather = filter.Weather?.Enabled ?? false,
                     });
                 }
                 catch (Exception ex)
