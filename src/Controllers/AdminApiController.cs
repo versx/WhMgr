@@ -678,7 +678,6 @@
             }
 
             var newName = dict["name"].ToString();
-
             var filterJson = dict["filter"].ToString();
             var filter = filterJson.FromJson<WebhookFilter>();
 
