@@ -128,6 +128,27 @@
             // Check previous page saved if we should redirect to it or the home page
             var redirect = HttpContext.Session.GetValue<string>("last_redirect");
             HttpContext.Session.Remove("last_redirect");
+
+            /*
+            var options = new CookieOptions
+            {
+                // Needed so that domain.com can access the cookie set by api.domain.com
+                Domain = "10.0.0.2:8008",
+                Expires = DateTime.UtcNow.AddHours(1),
+            };
+            var obj = new
+            {
+                is_valid = isValid,
+                user_id = user.Id,
+                email = user.Email,
+                username = $"{user.Username}#{user.Discriminator}",
+                guild_ids = guilds.Select(x => x.Id),
+                avatar_id = user.Avatar,
+            };
+            var json = obj.ToJson();
+            Response.Cookies.Append("test_cookie", json, options);
+            */
+
             return Redirect(string.IsNullOrEmpty(redirect)
                 ? "/dashboard"
                 : redirect
@@ -142,6 +163,7 @@
         {
             try
             {
+                /*
                 using var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Content-Type", "application/x-www-form-urlencoded");
                 var payload = new
@@ -156,6 +178,20 @@
                 var json = payload.ToJson();
                 var response = await client.PostAsync(TokenEndpoint, new StringContent(json));
                 var responseString = await response.Content.ReadAsStringAsync();
+                */
+                var nvc = new System.Collections.Specialized.NameValueCollection
+                {
+                    { "client_id", _clientId.ToString() },
+                    { "client_secret", _clientSecret },
+                    { "grant_type", "authorization_code" },
+                    { "code", authorizationCode },
+                    { "redirect_uri", _redirectUri },
+                    { "scope", DefaultScope },
+                };
+                using var wc = new System.Net.WebClient();
+                wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+                var responseData = wc.UploadValues(TokenEndpoint, "POST", nvc);
+                var responseString = System.Text.Encoding.UTF8.GetString(responseData);
                 return responseString.FromJson<DiscordAuthResponse>();
             }
             catch (Exception)

@@ -78,8 +78,15 @@ namespace WhMgr
             _alarms = ChannelAlarmsManifest.LoadAlarms(Config.Servers);
 
             // Create locale translation files
-            Translator.Instance.CreateLocaleFiles().ConfigureAwait(false).GetAwaiter().GetResult();
-            Translator.Instance.SetLocale(_config.Instance.Locale);
+            try
+            {
+                Translator.Instance.CreateLocaleFiles().ConfigureAwait(false).GetAwaiter().GetResult();
+                Translator.Instance.SetLocale(_config.Instance.Locale);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to generate locale files, make sure the base locales exist: {ex}");
+            }
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.

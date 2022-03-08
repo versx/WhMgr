@@ -122,8 +122,14 @@ class NewFilter extends React.Component<IGlobalProps> {
         const data = {
             name: this.state.name,
             filter: {
-                pokemon: this.state.pokemon,
-                raids: this.state.raids,
+                pokemon: {
+                    ...this.state.pokemon,
+                    pokemon: this.state.pokemon.pokemon.map(Number),
+                },
+                raids: {
+                    ...this.state.raids,
+                    pokemon: this.state.raids.pokemon.map(Number),
+                },
                 eggs: this.state.eggs,
                 quests: this.state.quests,
                 pokestops: this.state.pokestops,
@@ -131,6 +137,7 @@ class NewFilter extends React.Component<IGlobalProps> {
                 weather: this.state.weather,
             },
         };
+        console.log('submit filter data:', data);
         fetch(config.apiUrl + 'admin/filter/new', {
             method: 'POST',
             body: JSON.stringify(data),
@@ -276,7 +283,7 @@ class NewFilter extends React.Component<IGlobalProps> {
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={6}>
-                                        <TextField
+                                    <TextField
                                             id="pokemon.min_iv"
                                             name="pokemon.min_iv"
                                             variant="outlined"
@@ -354,7 +361,7 @@ class NewFilter extends React.Component<IGlobalProps> {
                                             variant="outlined"
                                             label="Maximum Level"
                                             type="number"
-                                            value={this.state.pokemon.maxLevel}
+                                            value={this.state.pokemon.max_lvl}
                                             fullWidth
                                             onChange={this.onInputChange}
                                         />

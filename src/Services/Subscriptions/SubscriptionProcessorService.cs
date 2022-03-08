@@ -248,7 +248,7 @@
             }
 
             var pkmn = GameMaster.GetPokemon(pokemon.Id, pokemon.FormId);
-            var evolutionIds = GetPokemonEvolutionIds(pkmn);
+            var evolutionIds = pkmn.GetPokemonEvolutionIds();
             // PvP subscriptions support for evolutions not just base evo
             // Get evolution ids from masterfile for incoming pokemon, check if subscriptions for evo/base
             var subscriptions = _subscriptionManager.GetSubscriptionsByPvpPokemonId(evolutionIds);
@@ -313,7 +313,7 @@
                     {
                         var containsPokemon = x.PokemonId.Contains(pokemon.Id);
                         var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && x.Forms?.Count == 1);
-                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms?.Count == 0 || isEmptyForm;
+                        var containsForm = (x.Forms?.Contains(form) ?? true) || (x.Forms?.Count ?? 0) == 0 || isEmptyForm;
                         return containsPokemon && containsForm;
                     });
                     if (pokemonSubscriptions == null)
@@ -321,16 +321,30 @@
 
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
-                        matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x => pkmnSub.League == PvpLeague.Great &&
-                                                                         (x.CP ?? 0) >= Strings.Defaults.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.Defaults.MaximumGreatLeagueCP &&
-                                                                         (x.Rank ?? 4096) <= pkmnSub.MinimumRank &&
-                                                                         (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent) ?? false);
-                        matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x => pkmnSub.League == PvpLeague.Ultra &&
-                                                                         (x.CP ?? 0) >= Strings.Defaults.MinimumUltraLeagueCP && (x.CP ?? 0) <= Strings.Defaults.MaximumUltraLeagueCP &&
-                                                                         (x.Rank ?? 4096) <= pkmnSub.MinimumRank &&
-                                                                         (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent) ?? false);
+                        var defaults = Strings.Defaults;
+                        // Check if PvP ranks match any relevant great or ultra league ranks, if not skip.
+                        matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x =>
+                        {
+                            var cp = x.CP ?? 0;
+                            var rank = x.Rank ?? 4096;
+                            var matchesLeague = pkmnSub.League == PvpLeague.Great;
+                            var matchesCP = cp >= defaults.MinimumGreatLeagueCP && cp <= defaults.MaximumGreatLeagueCP;
+                            var matchesRank = rank <= pkmnSub.MinimumRank;
+                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
+                            return matchesLeague && matchesCP && matchesRank;
+                        }) ?? false);
+                        matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x =>
+                        {
+                            var cp = x.CP ?? 0;
+                            var rank = x.Rank ?? 4096;
+                            var matchesLeague = pkmnSub.League == PvpLeague.Ultra;
+                            var matchesCP = cp >= defaults.MinimumUltraLeagueCP && cp <= defaults.MaximumUltraLeagueCP;
+                            var matchesRank = rank <= pkmnSub.MinimumRank;
+                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
+                            return matchesLeague && matchesCP && matchesRank;
+                        }) ?? false);
 
-                        // Check if Pokemon IV stats match any relevant great or ultra league ranks, if not skip.
+                        // Skip if no relevent ranks for great and ultra league.
                         if (!matchesGreat && !matchesUltra)
                             continue;
 
@@ -1049,37 +1063,6 @@
         }
 
         #endregion
-
-        /// <summary>
-        /// Build Pokemon evolution IDs list
-        /// </summary>
-        /// <param name="pkmn"></param>
-        /// <returns></returns>
-        private static List<uint> GetPokemonEvolutionIds(PokedexPokemon pkmn)
-        {
-            var list = new List<uint>
-            {
-                pkmn.PokedexId
-            };
-            void GetEvolutionIds(List<PokedexPokemonEvolution> evolutions)
-            {
-                foreach (var evolution in evolutions)
-                {
-                    list.Add(evolution.PokemonId);
-                    var pokemon = GameMaster.GetPokemon(evolution.PokemonId, evolution.FormId);
-                    if (pokemon.Evolutions?.Count > 0)
-                    {
-                        GetEvolutionIds(pokemon.Evolutions);
-                    }
-                }
-            }
-            if (pkmn?.Evolutions == null)
-                return list;
-
-            GetEvolutionIds(pkmn.Evolutions);
-            list = list.Distinct().ToList();
-            return list;
-        }
 
         private static bool IvListMatches(List<string> ivList, PokemonData pokemon)
         {

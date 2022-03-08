@@ -158,8 +158,14 @@ class EditFilter extends React.Component<IGlobalProps> {
         const data = {
             name: this.state.name,
             filter: {
-                pokemon: this.state.pokemon,
-                raids: this.state.raids,
+                pokemon: {
+                    ...this.state.pokemon,
+                    pokemon: this.state.pokemon.pokemon.map(Number),
+                },
+                raids: {
+                    ...this.state.raids,
+                    pokemon: this.state.raids.pokemon.map(Number),
+                },
                 eggs: this.state.eggs,
                 quests: this.state.quests,
                 pokestops: this.state.pokestops,
@@ -375,7 +381,7 @@ class EditFilter extends React.Component<IGlobalProps> {
                                                 variant="outlined"
                                                 label="Maximum Level"
                                                 type="number"
-                                                value={this.state.pokemon.maxLevel}
+                                                value={this.state.pokemon.max_lvl}
                                                 fullWidth
                                                 onChange={this.onInputChange}
                                             />
