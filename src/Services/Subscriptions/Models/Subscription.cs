@@ -23,21 +23,6 @@
         ]
         public NotificationStatusType Status { get; set; }
 
-        public bool IsEnabled(NotificationStatusType status)
-        {
-            return (Status & status) == status;
-        }
-
-        public void EnableNotificationType(NotificationStatusType status)
-        {
-            Status |= status;
-        }
-
-        public void DisableNotificationType(NotificationStatusType status)
-        {
-            Status &= (~status);
-        }
-
         /// <summary>
         /// Gets or sets the Pokemon subscriptions
         /// </summary>
@@ -172,5 +157,24 @@
             IconStyle = "Default";
             PhoneNumber = string.Empty;
         }
+
+        #region Notification Status Methods
+
+        public bool IsEnabled(NotificationStatusType status)
+        {
+            return (Status & status) == status;
+        }
+
+        public void EnableNotificationType(NotificationStatusType status)
+        {
+            Status |= status;
+        }
+
+        public void DisableNotificationType(NotificationStatusType status)
+        {
+            Status &= (~status);
+        }
+
+        #endregion
     }
 }

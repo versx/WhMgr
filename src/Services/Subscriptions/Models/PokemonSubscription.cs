@@ -10,10 +10,8 @@
 
     using WhMgr.Common;
 
-    // TODO: Use interface/abstract class for pokemon_id, forms, costumes between subscription objects for easiler filter checks
-
     [Table("pokemon")]
-    public class PokemonSubscription : BaseSubscription
+    public class PokemonSubscription : BasePokemonSubscription
     {
         #region Properties
 
@@ -27,27 +25,6 @@
 
         [JsonIgnore]
         public Subscription Subscription { get; set; }
-
-        [
-            JsonPropertyName("pokemon_id"),
-            Column("pokemon_id"),
-            Required,
-        ]
-        public List<uint> PokemonId { get; set; } = new();
-
-        [
-            JsonPropertyName("forms"),
-            Column("forms"),
-        ]
-        public List<string> Forms { get; set; } = new();
-
-        /*
-        [
-            JsonPropertyName("costumes"),
-            Column("costumes"),
-        ]
-        public List<string> Costumes { get; set; } = new();
-        */
 
         [
             JsonPropertyName("min_cp"),
