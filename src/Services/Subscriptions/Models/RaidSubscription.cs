@@ -3,12 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
     [Table("raids")]
-    public class RaidSubscription : BaseSubscription
+    public class RaidSubscription : BasePokemonSubscription
     {
         [
             JsonPropertyName("subscription_id"),
@@ -20,19 +19,6 @@
 
         [JsonIgnore]
         public Subscription Subscription { get; set; }
-
-        [
-            JsonPropertyName("pokemon_id"),
-            Column("pokemon_id"),
-            Required,
-        ]
-        public List<uint> PokemonId { get; set; } = new();
-
-        [
-            JsonPropertyName("forms"),
-            Column("forms"),
-        ]
-        public List<string> Forms { get; set; } = new();
 
         [
             JsonPropertyName("ex_eligible"),
