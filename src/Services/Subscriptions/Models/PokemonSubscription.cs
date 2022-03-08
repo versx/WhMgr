@@ -8,6 +8,8 @@
     using System.Linq;
     using System.Text.Json.Serialization;
 
+    using WhMgr.Common;
+
     // TODO: Use interface/abstract class for pokemon_id, forms, costumes between subscription objects for easiler filter checks
 
     [Table("pokemon")]
@@ -125,7 +127,7 @@
             MinimumLevel = 0;
             MaximumLevel = 35;
             Gender = "*";
-            Size = (uint)PokemonSize.All;
+            Size = PokemonSize.All;
             PokemonId = new List<uint>();
         }
 

@@ -113,12 +113,36 @@
             return false;
         }
 
+        /// <summary>
+        /// Check whether a Pokemon's size matches the filter size or if the filter size
+        /// value is <c>PokemonSize.All</c> return true, otherwise return false.
+        /// </summary>
+        /// <param name="pkmnSize">The calculated Pokemon size</param>
+        /// <param name="filterSize">The expected filter size</param>
+        /// <returns></returns>
         public static bool MatchesSize(PokemonSize pkmnSize, PokemonSize? filterSize)
         {
+            // Check if filter size set and if Pokemon size matches filter size
             return (filterSize.HasValue && pkmnSize == filterSize.Value) ||
+                // Otherwise check if filter size is All
                 filterSize == PokemonSize.All ||
+                // Lastly check if no filter size set, if not return true
                 !filterSize.HasValue ||
                 filterSize == null;
+        }
+
+        /// <summary>
+        /// Check whether a Pokemon's size matches the filter size or if the filter size
+        /// value is <c>PokemonSize.All</c> return true, otherwise return false.
+        /// </summary>
+        /// <param name="pkmnSize">The calculated Pokemon size</param>
+        /// <param name="filterSize">The expected filter size</param>
+        /// <returns></returns>
+        public static bool MatchesSize(PokemonSize pkmnSize, PokemonSize filterSize)
+        {
+            // Check if filter size set and if Pokemon size matches filter size, otherwise
+            // if set to All return true
+            return pkmnSize == filterSize || filterSize == PokemonSize.All;
         }
     }
 }
