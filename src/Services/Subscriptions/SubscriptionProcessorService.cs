@@ -97,13 +97,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -175,14 +170,8 @@
                             continue;
                         }
 
-                        var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                        var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, pkmnSub.Location, true) == 0);
-                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
-                        var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
-                        var geofenceMatches = pkmnSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                        // If set distance does not match and no geofences match, then skip Pokemon...
-                        if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                        // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await pokemon.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -268,13 +257,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -353,14 +337,8 @@
                             continue;
                         }
 
-                        var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                        var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, pkmnSub.Location, true) == 0);
-                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
-                        var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
-                        var geofenceMatches = pkmnSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                        // If set distance does not match and no geofences match, then skip Pokemon...
-                        if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                        // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await pokemon.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -437,13 +415,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -479,7 +452,7 @@
                     if (pokemonSubscriptions == null)
                         continue;
 
-                    foreach (var raidSub in pokemonSubscriptions)
+                    foreach (var subRaid in pokemonSubscriptions)
                     {
                         var geofence = GetGeofence(user.GuildId);
                         if (geofence == null)
@@ -488,20 +461,14 @@
                             continue;
                         }
 
-                        if (!raid.IsExEligible && raidSub.IsExEligible)
+                        if (!raid.IsExEligible && subRaid.IsExEligible)
                         {
                             // Skip raids that are not ex eligible when we want ex eligible raids
                             continue;
                         }
 
-                        var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                        var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, raidSub.Location, true) == 0);
-                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(raidCoord);
-                        var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(raidCoord);
-                        var geofenceMatches = raidSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                        // If set distance does not match and no geofences match, then skip Raid Pokemon...
-                        if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                        // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                        if (!IsNearby(user, raidCoord, true, subRaid.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -577,13 +544,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -609,9 +571,9 @@
                     if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Quests))
                         continue;
 
-                    var subQuest = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
+                    var questSub = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
                     // Not subscribed to quest
-                    if (subQuest == null)
+                    if (questSub == null)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
                         continue;
@@ -624,14 +586,10 @@
                         continue;
                     }
 
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subQuest.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(questCoord);
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(questCoord);
-                    var geofenceMatches = subQuest.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
+                    var geofenceMatches = questSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
-                    // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                    // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                    if (!IsNearby(user, questCoord, true, questSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await quest.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -715,13 +673,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -746,9 +699,9 @@
                     if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Invasions))
                         continue;
 
-                    var subInvasion = user.Invasions.FirstOrDefault(x => x.RewardPokemonId.Intersects(encounters));
+                    var invasionSub = user.Invasions.FirstOrDefault(x => x.RewardPokemonId.Intersects(encounters));
                     // Not subscribed to invasion
-                    if (subInvasion == null)
+                    if (invasionSub == null)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
                         continue;
@@ -761,14 +714,8 @@
                         continue;
                     }
 
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subInvasion.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(invasionCoord);
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(invasionCoord);
-                    var geofenceMatches = subInvasion.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                    // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                    // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                    if (!IsNearby(user, invasionCoord, true, invasionSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -838,13 +785,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -869,9 +811,9 @@
                     if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Lures))
                         continue;
 
-                    var subLure = user.Lures.FirstOrDefault(x => x.LureType?.Contains(pokestop.LureType) ?? false);
+                    var lureSub = user.Lures.FirstOrDefault(x => x.LureType?.Contains(pokestop.LureType) ?? false);
                     // Not subscribed to lure
-                    if (subLure == null)
+                    if (lureSub == null)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokestop lure {pokemon.Name}, lure is in city '{loc.Name}'.");
                         continue;
@@ -884,14 +826,8 @@
                         continue;
                     }
 
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subLure.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(lureCoord);
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(lureCoord);
-                    var geofenceMatches = subLure.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                    // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                    // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                    if (!IsNearby(user, lureCoord, true, lureSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -962,13 +898,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -1006,6 +937,7 @@
 
                     var checkLevel = gymSub.MinimumLevel > 0 && gymSub.MaximumLevel > 0;
                     var containsPokemon = gymSub.PokemonIDs?.Contains(raid.PokemonId) ?? false;
+                    // Skip if neither level or Pokemon matches raid
                     if (!checkLevel && !containsPokemon)
                         continue;
 
@@ -1015,13 +947,8 @@
                         continue;
                     }
 
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var gymLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, gymSub.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation.DistanceM > 0 && globalLocation.DistanceM > new Coordinate(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(gymCoord);
-                    var gymDistanceMatches = gymLocation.DistanceM > 0 && gymLocation.DistanceM > new Coordinate(gymLocation.Latitude, gymLocation.Longitude).DistanceTo(gymCoord);
-                    //var geofenceMatches = gymSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-                    // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !gymDistanceMatches)
+                    // Skip if not nearby or within set global location or individual subscription locations
+                    if (!IsNearby(user, gymCoord, checkGeofence: false))
                         continue;
 
                     var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -1061,6 +988,40 @@
         }
 
         #endregion
+
+        private static bool IsNearby(Subscription user, Coordinate coord, bool checkGeofence = false, List<string> areas = null, string geofenceName = null)
+        {
+            var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+            var webhookLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+            var globalDistanceMatches = globalLocation.DistanceM > 0
+                && globalLocation.DistanceM > new Coordinate(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(coord);
+            var webhookDistanceMatches = webhookLocation.DistanceM > 0
+                && webhookLocation.DistanceM > new Coordinate(webhookLocation.Latitude, webhookLocation.Longitude).DistanceTo(coord);
+
+            // Skip if set distance does not match and no geofences match...
+            var matchesLocation = globalDistanceMatches || webhookDistanceMatches;
+            if (checkGeofence)
+            {
+                var geofenceNameLower = geofenceName.ToLower();
+                var matchesGeofence = areas?.Select(x => x.ToLower()).Contains(geofenceNameLower) ?? false;
+                return matchesGeofence || matchesLocation;
+            }
+            return matchesLocation;
+        }
+
+        private static bool DiscordExists(ulong guildId, Dictionary<ulong, DiscordServerConfig> servers, IReadOnlyDictionary<ulong, DiscordClient> discordClients)
+        {
+            if (!servers.ContainsKey(guildId))
+                return false;
+
+            if (!servers[guildId].Subscriptions.Enabled)
+                return false;
+
+            if (!discordClients.ContainsKey(guildId))
+                return false;
+
+            return true;
+        }
 
         #region Background Service
 
@@ -1156,20 +1117,21 @@
 
             // Send text message notification to user if a phone number is set
             /* TODO: Twilio notifications
-            if (_config.Twilio.Enabled && !string.IsNullOrEmpty(item.Subscription.PhoneNumber))
+            if (_config.Instance.Twilio.Enabled && !string.IsNullOrEmpty(embed.Subscription.PhoneNumber))
             {
                 // Check if user is in the allowed text message list or server owner
-                if (HasRole(item.Member, _config.Instance.Twilio.RoleIds) ||
-                    _config.Instance.Twilio.UserIds.Contains(item.Member.Id) ||
-                    _config.Instance.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
+                if (HasRole(embed.Member, _config.Instance.Twilio.RoleIds) ||
+                    _config.Instance.Twilio.UserIds.Contains(embed.Member.Id) ||
+                    _config.Instance.Servers[embed.Subscription.GuildId].Bot.OwnerId == embed.Member.Id)
                 {
                     // Send text message (max 160 characters)
-                    if (item.Pokemon != null && IsUltraRare(_config.Instance.Twilio, item.Pokemon))
+                    if (embed.Pokemon != null && IsUltraRare(_config.Instance.Twilio, embed.Pokemon))
                     {
-                        var result = Utils.SendSmsMessage(StripEmbed(item), _config.Instance.Twilio, item.Subscription.PhoneNumber);
+                        // TODO: Generate SMS message string from embed
+                        var result = Utils.SendSmsMessage(StripEmbed(embed), _config.Instance.Twilio, embed.Subscription.PhoneNumber);
                         if (!result)
                         {
-                            _logger.LogError($"Failed to send text message to phone number '{item.Subscription.PhoneNumber}' for user {item.Subscription.UserId}");
+                            _logger.Error($"Failed to send text message to phone number '{embed.Subscription.PhoneNumber}' for user {embed.Subscription.UserId}");
                         }
                     }
                 }
