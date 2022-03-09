@@ -942,10 +942,10 @@
         {
             var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
             var webhookLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-            var globalDistanceMatches = globalLocation.DistanceM > 0
-                && globalLocation.DistanceM > new Coordinate(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(coord);
-            var webhookDistanceMatches = webhookLocation.DistanceM > 0
-                && webhookLocation.DistanceM > new Coordinate(webhookLocation.Latitude, webhookLocation.Longitude).DistanceTo(coord);
+            var globalDistanceMatches = globalLocation?.DistanceM > 0
+                && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(coord);
+            var webhookDistanceMatches = webhookLocation?.DistanceM > 0
+                && webhookLocation?.DistanceM > new Coordinate(webhookLocation?.Latitude ?? 0, webhookLocation?.Longitude ?? 0).DistanceTo(coord);
 
             // Skip if set distance does not match and no geofences match...
             var matchesLocation = globalDistanceMatches || webhookDistanceMatches;
