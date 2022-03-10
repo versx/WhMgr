@@ -35,7 +35,7 @@
             _timer.Elapsed += async (_, _) => await ReloadSubscriptionsAsync();
             _timer.Start();
 
-            Task.Run(async () => await ReloadSubscriptionsAsync(true));
+            Task.Run(async () => await ReloadSubscriptionsAsync(skipCheck: true));
         }
 
         #region Get Subscriptions
@@ -219,11 +219,20 @@
 
         #endregion
 
-        public async Task SetSubscriptionStatusAsync(Subscription subscription, NotificationStatusType status)
+        public async Task SetSubscriptionStatusAsync(int subscriptionId, NotificationStatusType status) //Subscription subscription, NotificationStatusType status)
         {
             using var ctx = _dbFactory.CreateDbContext();
+            var subscription = await ctx.Subscriptions.FindAsync(subscriptionId);
+            if (subscription == null)
+            {
+                // Failed to find subscription by id
+                _logger.Error($"Failed to find subscription by id in order to set subscription status to: {status}");
+                return;
+            }
             subscription.Status = status;
             await ctx.SaveChangesAsync(true);
+
+            await ReloadSubscriptionsAsync(skipCheck: true);
         }
 
         public async Task<bool> SaveAsync(Subscription subscription)

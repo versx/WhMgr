@@ -137,17 +137,6 @@
         public NotificationLimiter Limiter { get; }
 
         /// <summary>
-        /// Gets or sets a value determining whether the rate limit notification
-        /// has been sent to the user already
-        /// </summary>
-        [
-            JsonIgnore,
-            NotMapped,
-        ]
-        // TODO: Move to NotificationLimiter class
-        public bool RateLimitNotificationSent { get; set; }
-
-        /// <summary>
         /// Instantiates a new subscription object
         /// </summary>
         public Subscription()

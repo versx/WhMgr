@@ -36,6 +36,7 @@
         private readonly IMapDataCache _mapDataCache;
         private readonly IStaticsticsService _statsService;
         private readonly IBackgroundTaskQueue _taskQueue;
+        private readonly Dictionary<int, bool> _rateLimitedMessagesSent; // subscription_id -> rateLimitedMessageSent
 
         public SubscriptionProcessorService(
             Microsoft.Extensions.Logging.ILogger<ISubscriptionProcessorService> logger,
@@ -53,6 +54,7 @@
             _mapDataCache = mapDataCache;
             _statsService = statsService;
             _taskQueue = (DefaultBackgroundTaskQueue)taskQueue;
+            _rateLimitedMessagesSent = new Dictionary<int, bool>();
         }
 
         #region Subscription Processing
@@ -1126,60 +1128,72 @@
 
             var config = _config.Instance.Servers[embed.Subscription.GuildId];
             var maxNotificationsPerMinute = config.Subscriptions.MaxNotificationsPerMinute;
-            if (embed.Subscription.Limiter.IsLimited(maxNotificationsPerMinute))
+            var subscriptionId = embed.Subscription.Id;
+
+            if (!_rateLimitedMessagesSent.ContainsKey(subscriptionId))
             {
-                await SendRateLimitedMessage(embed, maxNotificationsPerMinute);
-                return stoppingToken;
+                _rateLimitedMessagesSent.Add(subscriptionId, false);
             }
 
-            // Ratelimit is up, allow for ratelimiting again
-            embed.Subscription.RateLimitNotificationSent = false;
-
-            // Send text message notification to user if a phone number is set
-            /* TODO: Twilio notifications
-            if (_config.Instance.Twilio.Enabled && !string.IsNullOrEmpty(embed.Subscription.PhoneNumber))
+            if (embed.Subscription.Limiter.IsLimited(maxNotificationsPerMinute) && !_rateLimitedMessagesSent[subscriptionId])//!subscription.RateLimitNotificationSent)
             {
-                // Check if user is in the allowed text message list or server owner
-                if (HasRole(embed.Member, _config.Instance.Twilio.RoleIds) ||
-                    _config.Instance.Twilio.UserIds.Contains(embed.Member.Id) ||
-                    _config.Instance.Servers[embed.Subscription.GuildId].Bot.OwnerId == embed.Member.Id)
+                // Disable subscription immediately
+                await _subscriptionManager.SetSubscriptionStatusAsync(subscriptionId, NotificationStatusType.None);
+
+                await SendRateLimitedMessage(embed.Subscription, embed.Member, maxNotificationsPerMinute);
+                //return stoppingToken;
+            }
+            else
+            {
+                // Ratelimit is up, allow for ratelimiting again
+                _rateLimitedMessagesSent[subscriptionId] = false;
+
+                // Send text message notification to user if a phone number is set
+                /* TODO: Twilio notifications
+                if (_config.Instance.Twilio.Enabled && !string.IsNullOrEmpty(embed.Subscription.PhoneNumber))
                 {
-                    // Send text message (max 160 characters)
-                    if (embed.Pokemon != null && IsUltraRare(_config.Instance.Twilio, embed.Pokemon))
+                    // Check if user is in the allowed text message list or server owner
+                    if (HasRole(embed.Member, _config.Instance.Twilio.RoleIds) ||
+                        _config.Instance.Twilio.UserIds.Contains(embed.Member.Id) ||
+                        _config.Instance.Servers[embed.Subscription.GuildId].Bot.OwnerId == embed.Member.Id)
                     {
-                        // TODO: Generate SMS message string from embed
-                        var result = Utils.SendSmsMessage(StripEmbed(embed), _config.Instance.Twilio, embed.Subscription.PhoneNumber);
-                        if (!result)
+                        // Send text message (max 160 characters)
+                        if (embed.Pokemon != null && IsUltraRare(_config.Instance.Twilio, embed.Pokemon))
                         {
-                            _logger.Error($"Failed to send text message to phone number '{embed.Subscription.PhoneNumber}' for user {embed.Subscription.UserId}");
+                            // TODO: Generate SMS message string from embed
+                            var result = Utils.SendSmsMessage(StripEmbed(embed), _config.Instance.Twilio, embed.Subscription.PhoneNumber);
+                            if (!result)
+                            {
+                                _logger.Error($"Failed to send text message to phone number '{embed.Subscription.PhoneNumber}' for user {embed.Subscription.UserId}");
+                            }
                         }
                     }
                 }
-            }
-            */
+                */
 
-            // Send direct message notification to user
-            await embed.Member.SendDirectMessageAsync(string.Empty, embed.Embed);
-            _logger.Information($"[WEBHOOK] Notified user {embed.Member.Username} of {embed.Description}.");
-            Thread.Sleep(1);
+                // Send direct message notification to user
+                await embed.Member.SendDirectMessageAsync(string.Empty, embed.Embed);
+                _logger.Information($"[SUBSCRIPTION] Notified user {embed.Member.Username} of {embed.Description}.");
+                Thread.Sleep(1);
+            }
 
             return stoppingToken;
         }
 
-        private async Task SendRateLimitedMessage(NotificationItem embed, uint maxNotificationsPerMinute)
+        private async Task SendRateLimitedMessage(Subscription subscription, DiscordMember member, uint maxNotificationsPerMinute)
         {
-            _logger.Warning($"{embed.Member.Username} notifications rate limited, waiting {(60 - embed.Subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", embed.Subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
+            _logger.Warning($"{member.Username} notifications rate limited, waiting {(60 - subscription.Limiter.TimeLeft.TotalSeconds)} seconds...", subscription.Limiter.TimeLeft.TotalSeconds.ToString("N0"));
             // Send ratelimited notification to user if not already sent to adjust subscription settings to more reasonable settings.
-            if (!embed.Subscription.RateLimitNotificationSent)
+            if (!_rateLimitedMessagesSent[subscription.Id])
             {
-                if (!_discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId))
+                if (!_discordService.DiscordClients.ContainsKey(subscription.GuildId))
                     return;
 
-                var client = _discordService.DiscordClients[embed.Subscription.GuildId].Guilds[embed.Subscription.GuildId];
+                var client = _discordService.DiscordClients[subscription.GuildId].Guilds[subscription.GuildId];
                 var emoji = DiscordEmoji.FromName(_discordService.DiscordClients.FirstOrDefault().Value, ":no_entry:");
-                var guildIconUrl = _discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId) ? client?.IconUrl : string.Empty;
-                // TODO: Localize rate limited messaged
-                var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0}) per minute and are now being rate limited." +
+                var guildIconUrl = _discordService.DiscordClients.ContainsKey(subscription.GuildId) ? client?.IconUrl : string.Empty;
+                // TODO: Localize rate limited message
+                var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0} per minute and are now being rate limited. " +
                                        $"Please adjust your subscriptions to receive a maximum of {maxNotificationsPerMinute:N0} notifications within a {NotificationLimiter.ThresholdTimeout} second time span.";
                 var eb = new DiscordEmbedBuilder
                 {
@@ -1193,10 +1207,8 @@
                     }
                 };
 
-                await embed.Member.SendDirectMessageAsync(eb.Build());
-                embed.Subscription.RateLimitNotificationSent = true;
-
-                await _subscriptionManager.SetSubscriptionStatusAsync(embed.Subscription, NotificationStatusType.None);
+                await member.SendDirectMessageAsync(eb.Build());
+                _rateLimitedMessagesSent[subscription.Id] = true;
             }
         }
 

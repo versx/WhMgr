@@ -6,6 +6,7 @@
     using NUnit.Framework;
 
     using WhMgr.Services;
+    using WhMgr.Services.Subscriptions.Models;
     using WhMgr.Utilities;
 
     [TestFixture]
