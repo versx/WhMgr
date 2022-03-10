@@ -150,8 +150,9 @@
                             ))
                             continue;
 
-                        if (pokemon.IsMissingStats || (pkmn.Height.HasValue && pkmn.Weight.HasValue &&
-                            Filters.MatchesSize(pokemon.Id.GetSize(pokemon.Height ?? 0, pokemon.Weight ?? 0), pkmnSub.Size)))
+                        var pokemonSize = pokemon.Id.GetSize(pokemon.Height ?? 0, pokemon.Weight ?? 0);
+                        if (!pokemon.IsMissingStats && pkmn.Height != null && pkmn.Weight != null
+                            && Filters.MatchesSize(pokemonSize, pkmnSub.Size))
                         {
                             // Pokemon doesn't match size
                             continue;
@@ -1178,7 +1179,7 @@
                 var emoji = DiscordEmoji.FromName(_discordService.DiscordClients.FirstOrDefault().Value, ":no_entry:");
                 var guildIconUrl = _discordService.DiscordClients.ContainsKey(embed.Subscription.GuildId) ? client?.IconUrl : string.Empty;
                 // TODO: Localize rate limited messaged
-                var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0}) per minute and are now being rate limited." +
+                var rateLimitMessage = $"{emoji} Your notification subscriptions have exceeded {maxNotificationsPerMinute:N0} per minute and are now being rate limited. " +
                                        $"Please adjust your subscriptions to receive a maximum of {maxNotificationsPerMinute:N0} notifications within a {NotificationLimiter.ThresholdTimeout} second time span.";
                 var eb = new DiscordEmbedBuilder
                 {
@@ -1195,7 +1196,7 @@
                 await embed.Member.SendDirectMessageAsync(eb.Build());
                 embed.Subscription.RateLimitNotificationSent = true;
 
-                await _subscriptionManager.SetSubscriptionStatusAsync(embed.Subscription, NotificationStatusType.None);
+                await _subscriptionManager.SetSubscriptionStatusAsync(embed.Subscription.Id, NotificationStatusType.None);
             }
         }
 
