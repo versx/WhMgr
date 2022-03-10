@@ -198,8 +198,15 @@
 
             // Process pokemon alarms
             _alarmsService.ProcessPokemonAlarms(pokemon);
+
+            // Process pokemon subscriptions
             await _subscriptionsService.ProcessPokemonSubscriptionAsync(pokemon).ConfigureAwait(false);
-            await _subscriptionsService.ProcessPvpSubscriptionAsync(pokemon).ConfigureAwait(false);
+
+            // Only process pvp subscriptions if great or ultra league ranks set
+            if (pokemon.GreatLeague != null || pokemon.UltraLeague != null)
+            {
+                await _subscriptionsService.ProcessPvpSubscriptionAsync(pokemon).ConfigureAwait(false);
+            }
         }
 
         private async Task ProcessRaidAsync(dynamic message)

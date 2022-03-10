@@ -216,6 +216,7 @@ class NewAlarm extends React.Component<IGlobalProps> {
                                             label="Name"
                                             value={this.state.name}
                                             fullWidth
+                                            required
                                             onChange={this.handleChange}
                                         />
                                     </Grid>

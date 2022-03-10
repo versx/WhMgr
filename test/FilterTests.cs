@@ -17,6 +17,7 @@
         [SetUp]
         public void Setup()
         {
+            // TODO: Fix locale path, copy from src/bin to test/bin/debug|release
             var localeFolder = Strings.BasePath + Strings.StaticFolder + Path.DirectorySeparatorChar + "locales";
             Translator.Instance.LocaleDirectory = localeFolder;
             //Translator.Instance.CreateLocaleFiles().ConfigureAwait(false).GetAwaiter().GetResult();
@@ -54,7 +55,7 @@
         {
             var forms = new List<string>
             {
-                "Holidy",
+                "Holiday",
                 //"",
                 /*
                 "A",

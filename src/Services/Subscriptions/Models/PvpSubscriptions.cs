@@ -5,13 +5,12 @@
     using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Linq;
     using System.Text.Json.Serialization;
 
     using WhMgr.Common;
 
     [Table("pvp")]
-    public class PvpSubscription : BaseSubscription
+    public class PvpSubscription : BasePokemonSubscription
     {
         [
             JsonPropertyName("subscription_id"),
@@ -24,26 +23,12 @@
         [JsonIgnore]
         public Subscription Subscription { get; set; }
 
-        [
-            JsonPropertyName("pokemon_id"),
-            Column("pokemon_id"),
-            Required,
-        ]
-        public List<uint> PokemonId { get; set; } = new();
-
-        [
-            JsonPropertyName("forms"),
-            Column("forms"),
-        ]
-        public List<string> Forms { get; set; } = new();
-
-        // TODO: Costume
         // TODO: Gender
 
         [
             JsonPropertyName("league"),
             Column("league"),
-            //Required,
+            Required,
         ]
         public PvpLeague League { get; set; }
 
@@ -76,8 +61,8 @@
         public PvpSubscription()
         {
             League = PvpLeague.Great;
-            MinimumRank = 25;
-            MinimumPercent = 95;
+            MinimumRank = Strings.Defaults.MinimumRank;
+            MinimumPercent = Strings.Defaults.MinimumPercent;
         }
     }
 }
