@@ -1196,7 +1196,7 @@
                 await embed.Member.SendDirectMessageAsync(eb.Build());
                 embed.Subscription.RateLimitNotificationSent = true;
 
-                await _subscriptionManager.SetSubscriptionStatusAsync(embed.Subscription.Id, NotificationStatusType.None);
+                await _subscriptionManager.SetSubscriptionStatusAsync(embed.Subscription, NotificationStatusType.None);
             }
         }
 
