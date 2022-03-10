@@ -122,13 +122,16 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
+                    /*
                     var pokemonSubscriptions = user.Pokemon.Where(x =>
                     {
                         var containsPokemon = x.PokemonId.Contains(pokemon.Id);
-                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
+                        var isEmptyForm = / TODO: Workaround for UI / (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
                         var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
                         return containsPokemon && containsForm;
                     });
+                    */
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PokemonSubscription>)user.Pokemon, pokemon.Id, form);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -138,8 +141,9 @@
                         //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
                         matchesLvl = Filters.MatchesLvl(pokemon.Level, (uint)pkmnSub.MinimumLevel, (uint)pkmnSub.MaximumLevel);
                         matchesGender = Filters.MatchesGender(pokemon.Gender, pkmnSub.Gender);
-                        matchesIVList = pkmnSub.IVList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
+                        matchesIVList = IvListMatches(pkmnSub.IVList, pokemon);
 
+                        // If no IV list specified check whole IV value, otherwise ignore whole IV value and only check IV list.
                         if (!(
                             (!pkmnSub.HasIVStats && matchesIV && matchesLvl && matchesGender) ||
                             (pkmnSub.HasIVStats && matchesIVList)
@@ -238,9 +242,6 @@
 
             Subscription user;
             DiscordMember member = null;
-            //var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
-            var matchesGreat = false;
-            var matchesUltra = false;
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
@@ -273,13 +274,7 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = user.PvP.Where(x =>
-                    {
-                        var containsPokemon = x.PokemonId.Contains(pokemon.Id);
-                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && x.Forms?.Count == 1);
-                        var containsForm = (x.Forms?.Contains(form) ?? true) || (x.Forms?.Count ?? 0) == 0 || isEmptyForm;
-                        return containsPokemon && containsForm;
-                    });
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PvpSubscription>)user.PvP, pokemon.Id, form);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -287,9 +282,9 @@
                     {
                         var defaults = Strings.Defaults;
                         // Check if PvP ranks match any relevant great or ultra league ranks, if not skip.
-                        matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x =>
+                        var matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x =>
                         {
-                            var cp = x.CP ?? 0;
+                            var cp = x.CP ?? (int)Strings.Defaults.MinimumCP;
                             var rank = x.Rank ?? 4096;
                             var matchesLeague = pkmnSub.League == PvpLeague.Great;
                             var matchesCP = cp >= defaults.MinimumGreatLeagueCP && cp <= defaults.MaximumGreatLeagueCP;
@@ -297,9 +292,9 @@
                             //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
                             return matchesLeague && matchesCP && matchesRank;
                         }) ?? false);
-                        matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x =>
+                        var matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x =>
                         {
-                            var cp = x.CP ?? 0;
+                            var cp = x.CP ?? (int)Strings.Defaults.MinimumCP;
                             var rank = x.Rank ?? 4096;
                             var matchesLeague = pkmnSub.League == PvpLeague.Ultra;
                             var matchesCP = cp >= defaults.MinimumUltraLeagueCP && cp <= defaults.MaximumUltraLeagueCP;
@@ -417,13 +412,7 @@
                     }
 
                     var form = Translator.Instance.GetFormName(raid.Form);
-                    var pokemonSubscriptions = user.Raids.Where(x =>
-                    {
-                        var containsPokemon = x.PokemonId.Contains(raid.PokemonId);
-                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
-                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
-                        return containsPokemon && containsForm;
-                    });
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.PvP, raid.PokemonId, form);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -938,6 +927,62 @@
 
         #endregion
 
+        #region Helper Methods
+
+        private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, string form)
+            where T : BasePokemonSubscription
+        {
+            var pokemonSubscriptions = subscriptions.Where(x =>
+            {
+                var containsPokemon = x.PokemonId.Contains(pokemonId);
+                var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && x.Forms?.Count == 1);
+                var containsForm = (x.Forms?.Contains(form) ?? true) || (x.Forms?.Count ?? 0) == 0 || isEmptyForm;
+                return containsPokemon && containsForm;
+            });
+            return pokemonSubscriptions;
+        }
+
+        private static bool IvListMatches(List<string> ivList, PokemonData pokemon)
+        {
+            if (ivList?.Count == 0)
+            {
+                return false;
+            }
+
+            var matches = ivList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
+            var matchesWildcard = ivList?.Exists(iv =>
+            {
+                var split = iv.Split('/');
+
+                // Ensure user specified all IV parts required
+                if (split.Length != 3)
+                    return false;
+
+                var ivAttack = split[0];
+                var ivDefense = split[1];
+                var ivStamina = split[2];
+
+                // Validate IV list entry is a valid integer and no wild cards specified.
+                if (!ushort.TryParse(ivAttack, out var attack) && ivAttack != "*")
+                    return false;
+
+                if (!ushort.TryParse(ivDefense, out var defense) && ivDefense != "*")
+                    return false;
+
+                if (!ushort.TryParse(ivStamina, out var stamina) && ivStamina != "*")
+                    return false;
+
+                // Check if individual values are the same or if wildcard is specified.
+                var matches =
+                    attack == pokemon.Attack || ivAttack == "*" &&
+                    defense == pokemon.Defense || ivDefense == "*" &&
+                    stamina == pokemon.Stamina || ivStamina == "*";
+                return matches;
+
+            }) ?? false;
+            return matches || matchesWildcard;
+        }
+
         // TODO: ISubscriptionLocation (string location, List<string> areas)
         private static bool IsNearby(Subscription user, Coordinate coord, bool checkGeofence = false, string webhookLocationName = null, List<string> areas = null, string geofenceName = null)
         {
@@ -995,6 +1040,8 @@
 
             return true;
         }
+
+        #endregion
 
         #region Background Service
 
