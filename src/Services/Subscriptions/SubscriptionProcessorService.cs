@@ -164,7 +164,7 @@
                         }
 
                         // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Areas, geofence.Name.ToLower()))
+                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Location, pkmnSub.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await pokemon.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -322,7 +322,7 @@
                         }
 
                         // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Areas, geofence.Name.ToLower()))
+                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Location, pkmnSub.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await pokemon.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -445,7 +445,7 @@
                         }
 
                         // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                        if (!IsNearby(user, raidCoord, true, subRaid.Areas, geofence.Name.ToLower()))
+                        if (!IsNearby(user, raidCoord, true, subRaid.Location, subRaid.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -558,7 +558,7 @@
                     var geofenceMatches = questSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                    if (!IsNearby(user, questCoord, true, questSub.Areas, geofence.Name.ToLower()))
+                    if (!IsNearby(user, questCoord, true, questSub.Location, questSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await quest.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -678,7 +678,7 @@
                     }
 
                     // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                    if (!IsNearby(user, invasionCoord, true, invasionSub.Areas, geofence.Name.ToLower()))
+                    if (!IsNearby(user, invasionCoord, true, invasionSub.Location, invasionSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -784,7 +784,7 @@
                     }
 
                     // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                    if (!IsNearby(user, lureCoord, true, lureSub.Areas, geofence.Name.ToLower()))
+                    if (!IsNearby(user, lureCoord, true, lureSub.Location, lureSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -972,21 +972,23 @@
             return matches || matchesWildcard;
         }
 
-        private static bool IsNearby(Subscription user, Coordinate coord, bool checkGeofence = false, List<string> areas = null, string geofenceName = null)
+        // TODO: ISubscriptionLocation (string location, List<string> areas)
+        private static bool IsNearby(Subscription user, Coordinate coord, bool checkGeofence = false, string webhookLocationName = null, List<string> areas = null, string geofenceName = null)
         {
             var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-            var webhookLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-            var globalDistanceMatches = globalLocation.DistanceM > 0
-                && globalLocation.DistanceM > new Coordinate(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(coord);
-            var webhookDistanceMatches = webhookLocation.DistanceM > 0
-                && webhookLocation.DistanceM > new Coordinate(webhookLocation.Latitude, webhookLocation.Longitude).DistanceTo(coord);
+            var webhookLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, webhookLocationName, true) == 0);
+            var globalDistanceMatches = globalLocation?.DistanceM > 0
+                && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(coord);
+            var webhookDistanceMatches = webhookLocation?.DistanceM > 0
+                && webhookLocation?.DistanceM > new Coordinate(webhookLocation?.Latitude ?? 0, webhookLocation?.Longitude ?? 0).DistanceTo(coord);
 
             // Skip if set distance does not match and no geofences match...
             var matchesLocation = globalDistanceMatches || webhookDistanceMatches;
             if (checkGeofence)
             {
                 var geofenceNameLower = geofenceName.ToLower();
-                var matchesGeofence = areas?.Select(x => x.ToLower()).Contains(geofenceNameLower) ?? false;
+                var matchesGeofence = areas?.Select(x => x.ToLower())
+                                            .Contains(geofenceNameLower) ?? false;
                 return matchesGeofence || matchesLocation;
             }
             return matchesLocation;
@@ -1013,12 +1015,13 @@
                 return false;
             }
 
+            // Check if member has donor role
             if (!member.HasSupporterRole(donorRoleIds.Keys.ToList()))
             {
                 return false;
             }
 
-            // Check donor role access for Raids
+            // Check donor role access for subscription access type
             if (!member.HasRoleAccess(donorRoleIds, accessType))
             {
                 return false;
