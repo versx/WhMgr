@@ -12,5 +12,6 @@ sed -i 's/onlyEx/only_ex/g' filters/*.json
 sed -i 's/ignoreMissing/ignore_missing/g' filters/*.json
 sed -i 's/isShiny/is_shiny/g' filters/*.json
 ```
+- Run the `migrate-v4-to-v5.sql` database migration script on your v4 database.  
 
 TODO: Expand on more (config migration, filter migration, etc)
