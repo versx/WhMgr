@@ -12,7 +12,7 @@
     {
         IReadOnlyList<Subscription> Subscriptions { get; }
 
-        Task SetSubscriptionStatusAsync(Subscription subscription, NotificationStatusType status);
+        Task SetSubscriptionStatusAsync(int subscriptionId, NotificationStatusType status);
 
         Task<List<Subscription>> GetUserSubscriptionsAsync();
 

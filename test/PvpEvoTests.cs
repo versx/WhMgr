@@ -22,9 +22,7 @@
         [SetUp]
         public void Setup()
         {
-            var curDir = Directory.GetCurrentDirectory();
             var configPath = "../../../" + Strings.ConfigsFolder + "/" + Strings.ConfigFileName;
-            var exists = File.Exists(configPath);
             var config = Config.Load(configPath);
             if (config == null)
             {
