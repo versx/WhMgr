@@ -733,7 +733,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                             id="dailyStats.iv.clearMessages"
                                                             name="dailyStats.iv.clearMessages"
                                                             control={<Switch checked={this.state.dailyStats.iv.clearMessages} onChange={this.onInputChange} />}
-                                                            label="Clear Messages"
+                                                            label="Clear Existing Messages"
                                                         />
                                                     </Grid>
                                                     <Grid item xs={12} sm={12}>
@@ -770,7 +770,7 @@ class EditDiscord extends React.Component<IGlobalProps> {
                                                             id="dailyStats.shiny.clearMessages"
                                                             name="dailyStats.shiny.clearMessages"
                                                             control={<Switch checked={this.state.dailyStats.shiny.clearMessages} onChange={this.onInputChange} />}
-                                                            label="Clear Messages"
+                                                            label="Clear Existing Messages"
                                                         />
                                                     </Grid>
                                                     <Grid item xs={12} sm={12}>

@@ -102,6 +102,9 @@
             _logger.Information($"Midnight timer hit {time} for timezone {timezone}");
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
+                if (!(guildConfig.QuestsPurge?.Enabled ?? false))
+                    continue;
+
                 if (!(guildConfig.QuestsPurge?.ChannelIds.ContainsKey(timezone) ?? false))
                     continue;
 

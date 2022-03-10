@@ -13,6 +13,12 @@
         Invasions = 0x10,
         Lures = 0x20,
         Gyms = 0x40,
-        All = Pokemon | PvP | Raids | Quests | Invasions | Lures | Gyms,
+        All = Pokemon
+            | PvP
+            | Raids
+            | Quests
+            | Invasions
+            | Lures
+            | Gyms,
     }
 }

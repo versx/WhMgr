@@ -4,7 +4,29 @@ Used to configure and manage all configuration files needed to run Webhook Manag
 
 Access the dashboard by visiting http://127.0.0.1:8008/dashboard  
 
-## Screenshots
+## Installation  
+
+From the root of the project folder run the following commands:  
+
+- Copy the Admin Dashboard folder to the `bin` folder  
+```cp -R src/ClientApp bin/```  
+- Change directories to Admin Dashboard folder  
+```cd bin/ClientApp```  
+- Install packages and dependencies  
+```npm install```  
+- Build the Admin Dashboard  
+```npm build```  
+- Copy the example config file  
+```cp src/config.example.json src/config.json```  
+- Edit the config file  
+```nano src/config.json```  
+- Change directories back to the `bin` folder  
+```cd ..```  
+- Run Webhook Manager  
+```dotnet WhMgr.dll``` (or restart via pm2)
+
+
+## Screenshots  
 
 ### Dashboard  
 ![Dashboard](https://raw.githubusercontent.com/versx/WhMgr/v5-rewrite/.github/images/dashboard/dashboard.png "Dashboard")  

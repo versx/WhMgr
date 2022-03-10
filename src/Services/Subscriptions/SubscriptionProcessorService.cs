@@ -97,13 +97,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -119,26 +114,24 @@
                         continue;
                     }
 
-                    if (member?.Roles == null)
-                        continue;
-
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
+                    // Check donor role access for Pokemon
+                    if (!IsSubscriberValid(member, _config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Pokemon))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pokemon {pkmn.Name}...");
-                        // Automatically disable users subscriptions if not supporter to prevent issues
-                        //user.Enabled = false;
-                        //user.Save(false);
                         continue;
                     }
 
-                    // Check donor role access for Pokemon
-                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Pokemon))
+                    var form = Translator.Instance.GetFormName(pokemon.FormId);
+                    var pokemonSubscriptions = user.Pokemon.Where(x =>
+                    {
+                        var containsPokemon = x.PokemonId.Contains(pokemon.Id);
+                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
+                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
+                        return containsPokemon && containsForm;
+                    });
+                    if (pokemonSubscriptions == null)
                         continue;
 
-                    var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = user.Pokemon.Where(x => x.PokemonId.Contains(pokemon.Id)
-                        && (x.Forms?.Contains(form) ?? true || x.Forms.Count == 0)
-                    );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         matchesIV = Filters.MatchesIV(pokemon.IV, (uint)pkmnSub.MinimumIV, 100);
@@ -168,14 +161,8 @@
                             continue;
                         }
 
-                        var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                        var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, pkmnSub.Location, true) == 0);
-                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
-                        var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
-                        var geofenceMatches = pkmnSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                        // If set distance does not match and no geofences match, then skip Pokemon...
-                        if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                        // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Location, pkmnSub.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await pokemon.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -239,7 +226,7 @@
             }
 
             var pkmn = GameMaster.GetPokemon(pokemon.Id, pokemon.FormId);
-            var evolutionIds = GetPokemonEvolutionIds(pkmn);
+            var evolutionIds = pkmn.GetPokemonEvolutionIds();
             // PvP subscriptions support for evolutions not just base evo
             // Get evolution ids from masterfile for incoming pokemon, check if subscriptions for evo/base
             var subscriptions = _subscriptionManager.GetSubscriptionsByPvpPokemonId(evolutionIds);
@@ -261,13 +248,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -283,38 +265,50 @@
                         continue;
                     }
 
-                    if (member?.Roles == null)
-                        continue;
-
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
+                    // Check donor role access for PvP
+                    if (!IsSubscriberValid(member, _config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.PvP))
                     {
                         _logger.Debug($"User {member?.Username} ({user.UserId}) is not a supporter, skipping pvp pokemon {pkmn.Name}...");
-                        // Automatically disable users subscriptions if not supporter to prevent issues
-                        //user.Enabled = false;
-                        //user.Save(false);
                         continue;
                     }
 
-                    // Check donor role access for PvP
-                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.PvP))
+                    var form = Translator.Instance.GetFormName(pokemon.FormId);
+                    var pokemonSubscriptions = user.PvP.Where(x =>
+                    {
+                        var containsPokemon = x.PokemonId.Contains(pokemon.Id);
+                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && x.Forms?.Count == 1);
+                        var containsForm = (x.Forms?.Contains(form) ?? true) || (x.Forms?.Count ?? 0) == 0 || isEmptyForm;
+                        return containsPokemon && containsForm;
+                    });
+                    if (pokemonSubscriptions == null)
                         continue;
 
-                    var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = user.PvP.Where(x => x.PokemonId.Contains(pokemon.Id)
-                        && (x.Forms?.Contains(form) ?? true || x.Forms.Count == 0)
-                    );
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
-                        matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x => pkmnSub.League == PvpLeague.Great &&
-                                                                         (x.CP ?? 0) >= Strings.Defaults.MinimumGreatLeagueCP && (x.CP ?? 0) <= Strings.Defaults.MaximumGreatLeagueCP &&
-                                                                         (x.Rank ?? 4096) <= pkmnSub.MinimumRank &&
-                                                                         (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent) ?? false);
-                        matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x => pkmnSub.League == PvpLeague.Ultra &&
-                                                                         (x.CP ?? 0) >= Strings.Defaults.MinimumUltraLeagueCP && (x.CP ?? 0) <= Strings.Defaults.MaximumUltraLeagueCP &&
-                                                                         (x.Rank ?? 4096) <= pkmnSub.MinimumRank &&
-                                                                         (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent) ?? false);
+                        var defaults = Strings.Defaults;
+                        // Check if PvP ranks match any relevant great or ultra league ranks, if not skip.
+                        matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x =>
+                        {
+                            var cp = x.CP ?? 0;
+                            var rank = x.Rank ?? 4096;
+                            var matchesLeague = pkmnSub.League == PvpLeague.Great;
+                            var matchesCP = cp >= defaults.MinimumGreatLeagueCP && cp <= defaults.MaximumGreatLeagueCP;
+                            var matchesRank = rank <= pkmnSub.MinimumRank;
+                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
+                            return matchesLeague && matchesCP && matchesRank;
+                        }) ?? false);
+                        matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x =>
+                        {
+                            var cp = x.CP ?? 0;
+                            var rank = x.Rank ?? 4096;
+                            var matchesLeague = pkmnSub.League == PvpLeague.Ultra;
+                            var matchesCP = cp >= defaults.MinimumUltraLeagueCP && cp <= defaults.MaximumUltraLeagueCP;
+                            var matchesRank = rank <= pkmnSub.MinimumRank;
+                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
+                            return matchesLeague && matchesCP && matchesRank;
+                        }) ?? false);
 
-                        // Check if Pokemon IV stats match any relevant great or ultra league ranks, if not skip.
+                        // Skip if no relevent ranks for great and ultra league.
                         if (!matchesGreat && !matchesUltra)
                             continue;
 
@@ -325,14 +319,8 @@
                             continue;
                         }
 
-                        var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                        var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, pkmnSub.Location, true) == 0);
-                        var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
-                        var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(pkmnCoord);
-                        var geofenceMatches = pkmnSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                        // If set distance does not match and no geofences match, then skip Pokemon...
-                        if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                        // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Location, pkmnSub.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await pokemon.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -409,13 +397,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -427,75 +410,65 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
+                    if (!IsSubscriberValid(member, _config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Raids))
                     {
                         _logger.Information($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name}...");
-                        // Automatically disable users subscriptions if not supporter to prevent issues
-                        //user.Enabled = false;
-                        //user.Save(false);
                         continue;
                     }
-
-                    // Check donor role access for Raids
-                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Raids))
-                        continue;
 
                     var form = Translator.Instance.GetFormName(raid.Form);
-                    var subPkmn = user.Raids.FirstOrDefault(x => x.PokemonId.Contains(raid.PokemonId)
-                        && (x.Forms?.Contains(form) ?? true || x.Forms.Count == 0)
-                    );
-                    // Not subscribed to Pokemon
-                    if (subPkmn == null)
+                    var pokemonSubscriptions = user.Raids.Where(x =>
                     {
-                        //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
+                        var containsPokemon = x.PokemonId.Contains(raid.PokemonId);
+                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
+                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
+                        return containsPokemon && containsForm;
+                    });
+                    if (pokemonSubscriptions == null)
                         continue;
+
+                    foreach (var subRaid in pokemonSubscriptions)
+                    {
+                        var geofence = GetGeofence(user.GuildId);
+                        if (geofence == null)
+                        {
+                            //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
+                            continue;
+                        }
+
+                        if (!raid.IsExEligible && subRaid.IsExEligible)
+                        {
+                            // Skip raids that are not ex eligible when we want ex eligible raids
+                            continue;
+                        }
+
+                        // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                        if (!IsNearby(user, raidCoord, true, subRaid.Location, subRaid.Areas, geofence.Name.ToLower()))
+                            continue;
+
+                        var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
+                        {
+                            GuildId = user.GuildId,
+                            Client = client,
+                            Config = _config,
+                            Alarm = null,
+                            City = geofence.Name,
+                            MapDataCache = _mapDataCache,
+                        }).ConfigureAwait(false);
+                        //var end = DateTime.Now;
+                        //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
+                        embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
+                        {
+                            Subscription = user,
+                            Member = member,
+                            Embed = x.GenerateDiscordMessage(),
+                            Description = pokemon.Name,
+                            City = geofence.Name
+                        }));
+
+                        _statsService.TotalRaidSubscriptionsSent++;
+                        Thread.Sleep(5);
                     }
-
-                    var geofence = GetGeofence(user.GuildId);
-                    if (geofence == null)
-                    {
-                        //_logger.Warn($"Failed to lookup city from coordinates {pkmn.Latitude},{pkmn.Longitude} {db.Pokemon[pkmn.Id].Name} {pkmn.IV}, skipping...");
-                        continue;
-                    }
-
-                    if (!raid.IsExEligible && subPkmn.IsExEligible)
-                    {
-                        // Skip raids that are not ex eligible when we want ex eligible raids
-                        continue;
-                    }
-
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subPkmn.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(raidCoord);
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(raidCoord);
-                    var geofenceMatches = subPkmn.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                    // If set distance does not match and no geofences match, then skip Raid Pokemon...
-                    if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
-                        continue;
-
-                    var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
-                    {
-                        GuildId = user.GuildId,
-                        Client = client,
-                        Config = _config,
-                        Alarm = null,
-                        City = geofence.Name,
-                        MapDataCache = _mapDataCache,
-                    }).ConfigureAwait(false);
-                    //var end = DateTime.Now;
-                    //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
-                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
-                    {
-                        Subscription = user,
-                        Member = member,
-                        Embed = x.GenerateDiscordMessage(),
-                        Description = pokemon.Name,
-                        City = geofence.Name
-                    }));
-
-                    _statsService.TotalRaidSubscriptionsSent++;
-                    Thread.Sleep(5);
                 }
                 catch (Exception ex)
                 {
@@ -537,7 +510,6 @@
                 return;
             }
 
-            bool isSupporter;
             Subscription user;
             for (var i = 0; i < subscriptions.Count; i++)
             {
@@ -546,13 +518,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -564,23 +531,16 @@
                         continue;
                     }
 
-                    isSupporter = member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList());
-                    if (!isSupporter)
+                    // Check donor role access for Quests
+                    if (!IsSubscriberValid(member, _config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Quests))
                     {
                         _logger.Information($"User {user.UserId} is not a supporter, skipping quest {questName}...");
-                        // Automatically disable users subscriptions if not supporter to prevent issues
-                        //user.Enabled = false;
-                        //user.Save(false);
                         continue;
                     }
 
-                    // Check donor role access for Quests
-                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Quests))
-                        continue;
-
-                    var subQuest = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
+                    var questSub = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
                     // Not subscribed to quest
-                    if (subQuest == null)
+                    if (questSub == null)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for quest {questName} because the quest is in city '{loc.Name}'.");
                         continue;
@@ -593,14 +553,10 @@
                         continue;
                     }
 
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subQuest.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(questCoord);
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(questCoord);
-                    var geofenceMatches = subQuest.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
+                    var geofenceMatches = questSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
-                    // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                    // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                    if (!IsNearby(user, questCoord, true, questSub.Location, questSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await quest.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -684,13 +640,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -702,22 +653,16 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
+                    // Check donor role access for Invasions
+                    if (!IsSubscriberValid(member, _config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Invasions))
                     {
                         _logger.Information($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
-                        // Automatically disable users subscriptions if not supporter to prevent issues
-                        //user.Enabled = false;
-                        //user.Save(false);
                         continue;
                     }
 
-                    // Check donor role access for Invasions
-                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Invasions))
-                        continue;
-
-                    var subInvasion = user.Invasions.FirstOrDefault(x => x.RewardPokemonId.Intersects(encounters));
+                    var invasionSub = user.Invasions.FirstOrDefault(x => x.RewardPokemonId.Intersects(encounters));
                     // Not subscribed to invasion
-                    if (subInvasion == null)
+                    if (invasionSub == null)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for raid boss {pokemon.Name}, raid is in city '{loc.Name}'.");
                         continue;
@@ -730,14 +675,8 @@
                         continue;
                     }
 
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subInvasion.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(invasionCoord);
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(invasionCoord);
-                    var geofenceMatches = subInvasion.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                    // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                    // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                    if (!IsNearby(user, invasionCoord, true, invasionSub.Location, invasionSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -807,13 +746,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -825,22 +759,16 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
+                    // Check donor role access for Lures
+                    if (!IsSubscriberValid(member, _config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Lures))
                     {
                         _logger.Information($"User {user.UserId} is not a supporter, skipping Pokestop lure {pokestop.Name}...");
-                        // Automatically disable users subscriptions if not supporter to prevent issues
-                        //user.Enabled = false;
-                        //user.Save(false);
                         continue;
                     }
 
-                    // Check donor role access for Lures
-                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Lures))
-                        continue;
-
-                    var subLure = user.Lures.FirstOrDefault(x => x.LureType?.Contains(pokestop.LureType) ?? false);
+                    var lureSub = user.Lures.FirstOrDefault(x => x.LureType?.Contains(pokestop.LureType) ?? false);
                     // Not subscribed to lure
-                    if (subLure == null)
+                    if (lureSub == null)
                     {
                         //_logger.Debug($"Skipping notification for user {member.DisplayName} ({member.Id}) for Pokestop lure {pokemon.Name}, lure is in city '{loc.Name}'.");
                         continue;
@@ -853,14 +781,8 @@
                         continue;
                     }
 
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var subscriptionLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, subLure.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation?.DistanceM > 0 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(lureCoord);
-                    var subscriptionDistanceMatches = subscriptionLocation?.DistanceM > 0 && subscriptionLocation?.DistanceM > new Coordinate(subscriptionLocation?.Latitude ?? 0, subscriptionLocation?.Longitude ?? 0).DistanceTo(lureCoord);
-                    var geofenceMatches = subLure.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-
-                    // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !subscriptionDistanceMatches && !geofenceMatches)
+                    // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
+                    if (!IsNearby(user, lureCoord, true, lureSub.Location, lureSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -931,13 +853,8 @@
                 {
                     user = subscriptions[i];
 
-                    if (!_config.Instance.Servers.ContainsKey(user.GuildId))
-                        continue;
-
-                    if (!_config.Instance.Servers[user.GuildId].Subscriptions.Enabled)
-                        continue;
-
-                    if (!_discordService.DiscordClients.ContainsKey(user.GuildId))
+                    // Skip if user's guild is not configured or connected
+                    if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
 
                     var client = _discordService.DiscordClients[user.GuildId];
@@ -949,18 +866,12 @@
                         continue;
                     }
 
-                    if (!member.HasSupporterRole(_config.Instance.Servers[user.GuildId].DonorRoleIds.Keys.ToList()))
+                    // Check donor role access for Gyms
+                    if (!IsSubscriberValid(member, _config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Gyms))
                     {
                         _logger.Information($"User {user.UserId} is not a supporter, skipping raid boss {pokemon.Name} for gym {raid.GymName}...");
-                        // Automatically disable users subscriptions if not supporter to prevent issues
-                        //user.Enabled = false;
-                        //user.Save(false);
                         continue;
                     }
-
-                    // Check donor role access for Gyms
-                    if (!member.HasRoleAccess(_config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Gyms))
-                        continue;
 
                     var geofence = GetGeofence(user.GuildId);
                     if (geofence == null)
@@ -975,6 +886,7 @@
 
                     var checkLevel = gymSub.MinimumLevel > 0 && gymSub.MaximumLevel > 0;
                     var containsPokemon = gymSub.PokemonIDs?.Contains(raid.PokemonId) ?? false;
+                    // Skip if neither level or Pokemon matches raid
                     if (!checkLevel && !containsPokemon)
                         continue;
 
@@ -984,13 +896,8 @@
                         continue;
                     }
 
-                    var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-                    var gymLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, gymSub.Location, true) == 0);
-                    var globalDistanceMatches = globalLocation.DistanceM > 0 && globalLocation.DistanceM > new Coordinate(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(gymCoord);
-                    var gymDistanceMatches = gymLocation.DistanceM > 0 && gymLocation.DistanceM > new Coordinate(gymLocation.Latitude, gymLocation.Longitude).DistanceTo(gymCoord);
-                    //var geofenceMatches = gymSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
-                    // If set distance does not match and no geofences match, then skip Pokemon...
-                    if (!globalDistanceMatches && !gymDistanceMatches)
+                    // Skip if not nearby or within set global location or individual subscription locations
+                    if (!IsNearby(user, gymCoord, checkGeofence: false))
                         continue;
 
                     var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -1031,35 +938,62 @@
 
         #endregion
 
-        /// <summary>
-        /// Build Pokemon evolution IDs list
-        /// </summary>
-        /// <param name="pkmn"></param>
-        /// <returns></returns>
-        private static List<uint> GetPokemonEvolutionIds(PokedexPokemon pkmn)
+        // TODO: ISubscriptionLocation (string location, List<string> areas)
+        private static bool IsNearby(Subscription user, Coordinate coord, bool checkGeofence = false, string webhookLocationName = null, List<string> areas = null, string geofenceName = null)
         {
-            var list = new List<uint>
-            {
-                pkmn.PokedexId
-            };
-            void GetEvolutionIds(List<PokedexPokemonEvolution> evolutions)
-            {
-                foreach (var evolution in evolutions)
-                {
-                    list.Add(evolution.PokemonId);
-                    var pokemon = GameMaster.GetPokemon(evolution.PokemonId, evolution.FormId);
-                    if (pokemon.Evolutions?.Count > 0)
-                    {
-                        GetEvolutionIds(pokemon.Evolutions);
-                    }
-                }
-            }
-            if (pkmn?.Evolutions == null)
-                return list;
+            var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
+            var webhookLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, webhookLocationName, true) == 0);
+            var globalDistanceMatches = globalLocation?.DistanceM > 0
+                && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(coord);
+            var webhookDistanceMatches = webhookLocation?.DistanceM > 0
+                && webhookLocation?.DistanceM > new Coordinate(webhookLocation?.Latitude ?? 0, webhookLocation?.Longitude ?? 0).DistanceTo(coord);
 
-            GetEvolutionIds(pkmn.Evolutions);
-            list = list.Distinct().ToList();
-            return list;
+            // Skip if set distance does not match and no geofences match...
+            var matchesLocation = globalDistanceMatches || webhookDistanceMatches;
+            if (checkGeofence)
+            {
+                var geofenceNameLower = geofenceName.ToLower();
+                var matchesGeofence = areas?.Select(x => x.ToLower())
+                                            .Contains(geofenceNameLower) ?? false;
+                return matchesGeofence || matchesLocation;
+            }
+            return matchesLocation;
+        }
+
+        private static bool DiscordExists(ulong guildId, Dictionary<ulong, DiscordServerConfig> servers, IReadOnlyDictionary<ulong, DiscordClient> discordClients)
+        {
+            if (!servers.ContainsKey(guildId))
+                return false;
+
+            if (!servers[guildId].Subscriptions.Enabled)
+                return false;
+
+            if (!discordClients.ContainsKey(guildId))
+                return false;
+
+            return true;
+        }
+
+        private static bool IsSubscriberValid(DiscordMember member, Dictionary<ulong, IEnumerable<SubscriptionAccessType>> donorRoleIds, SubscriptionAccessType accessType)
+        {
+            if (member?.Roles == null)
+            {
+                return false;
+            }
+
+            // Check if member has donor role
+            if (!member.HasSupporterRole(donorRoleIds.Keys.ToList()))
+            {
+                return false;
+            }
+
+            // Check donor role access for subscription access type
+            if (!member.HasRoleAccess(donorRoleIds, accessType))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         #region Background Service
@@ -1156,20 +1090,21 @@
 
             // Send text message notification to user if a phone number is set
             /* TODO: Twilio notifications
-            if (_config.Twilio.Enabled && !string.IsNullOrEmpty(item.Subscription.PhoneNumber))
+            if (_config.Instance.Twilio.Enabled && !string.IsNullOrEmpty(embed.Subscription.PhoneNumber))
             {
                 // Check if user is in the allowed text message list or server owner
-                if (HasRole(item.Member, _config.Instance.Twilio.RoleIds) ||
-                    _config.Instance.Twilio.UserIds.Contains(item.Member.Id) ||
-                    _config.Instance.Servers[item.Subscription.GuildId].OwnerId == item.Member.Id)
+                if (HasRole(embed.Member, _config.Instance.Twilio.RoleIds) ||
+                    _config.Instance.Twilio.UserIds.Contains(embed.Member.Id) ||
+                    _config.Instance.Servers[embed.Subscription.GuildId].Bot.OwnerId == embed.Member.Id)
                 {
                     // Send text message (max 160 characters)
-                    if (item.Pokemon != null && IsUltraRare(_config.Instance.Twilio, item.Pokemon))
+                    if (embed.Pokemon != null && IsUltraRare(_config.Instance.Twilio, embed.Pokemon))
                     {
-                        var result = Utils.SendSmsMessage(StripEmbed(item), _config.Instance.Twilio, item.Subscription.PhoneNumber);
+                        // TODO: Generate SMS message string from embed
+                        var result = Utils.SendSmsMessage(StripEmbed(embed), _config.Instance.Twilio, embed.Subscription.PhoneNumber);
                         if (!result)
                         {
-                            _logger.LogError($"Failed to send text message to phone number '{item.Subscription.PhoneNumber}' for user {item.Subscription.UserId}");
+                            _logger.Error($"Failed to send text message to phone number '{embed.Subscription.PhoneNumber}' for user {embed.Subscription.UserId}");
                         }
                     }
                 }

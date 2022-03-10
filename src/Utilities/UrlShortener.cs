@@ -40,6 +40,8 @@
                 var encodedUrl = HttpUtility.UrlEncode(url);
                 var sb = new StringBuilder();
                 sb.Append(Configuration.ApiUrl);
+                sb.Append("?signature=");
+                sb.Append(Configuration.Signature);
                 sb.Append("&action=");
                 sb.Append(Configuration.Action);
                 sb.Append("&url=");
@@ -52,7 +54,7 @@
                     return url;
 
                 var obj = json.FromJson<UrlShortenerResponse>();
-                return obj?.ShortUrl;
+                return obj?.ShortUrl ?? url;
             }
             catch (Exception)
             {

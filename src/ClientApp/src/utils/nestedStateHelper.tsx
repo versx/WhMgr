@@ -10,9 +10,12 @@ export const onNestedStateChange = (event: any, component: Component) => {
       pointer[el] = { ...pointer[el] };
       pointer = pointer[el];
     });
+    var formattedValue = value.includes(',') ? value.split(',') : value;
     pointer[finalProp] = type === 'checkbox'
         ? checked
-        : value;
+        : type === 'number'
+          ? Number(value)
+          : formattedValue;
     console.log('newState:', newState);
     component.setState(newState);
 };

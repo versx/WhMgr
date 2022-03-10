@@ -168,7 +168,7 @@
                 { 5, new PokemonGenerationRange { Generation = 5, Start = 494, End = 649 } },
                 { 6, new PokemonGenerationRange { Generation = 6, Start = 650, End = 721 } },
                 { 7, new PokemonGenerationRange { Generation = 7, Start = 722, End = 809 } },
-                { 8, new PokemonGenerationRange { Generation = 8, Start = 810, End = 890 } },
+                { 8, new PokemonGenerationRange { Generation = 8, Start = 810, End = 898 } },
             };
 
             WeatherBoosts = new Dictionary<WeatherCondition, IReadOnlyList<PokemonType>>
