@@ -641,7 +641,7 @@
                 catch (Exception ex)
                 {
                     //Console.WriteLine($"Failed to parse {IndexJson} for style {styleName}: {formsListJson}\nError: {ex}");
-                    Console.WriteLine($"Failed to parse {IndexJson} for style {styleName}\nError: {ex}");
+                    Console.WriteLine($"Failed to parse {IndexJson} for style {styleName}\nError: {ex.Message}");
                 }
             }
         }
