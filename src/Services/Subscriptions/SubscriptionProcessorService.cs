@@ -122,13 +122,16 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
+                    /*
                     var pokemonSubscriptions = user.Pokemon.Where(x =>
                     {
                         var containsPokemon = x.PokemonId.Contains(pokemon.Id);
-                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
+                        var isEmptyForm = / TODO: Workaround for UI / (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
                         var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
                         return containsPokemon && containsForm;
                     });
+                    */
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PokemonSubscription>)user.Pokemon, pokemon.Id, form);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -138,8 +141,9 @@
                         //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
                         matchesLvl = Filters.MatchesLvl(pokemon.Level, (uint)pkmnSub.MinimumLevel, (uint)pkmnSub.MaximumLevel);
                         matchesGender = Filters.MatchesGender(pokemon.Gender, pkmnSub.Gender);
-                        matchesIVList = pkmnSub.IVList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
+                        matchesIVList = IvListMatches(pkmnSub.IVList, pokemon);
 
+                        // If no IV list specified check whole IV value, otherwise ignore whole IV value and only check IV list.
                         if (!(
                             (!pkmnSub.HasIVStats && matchesIV && matchesLvl && matchesGender) ||
                             (pkmnSub.HasIVStats && matchesIVList)
@@ -161,7 +165,7 @@
                         }
 
                         // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Areas, geofence.Name.ToLower()))
+                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Location, pkmnSub.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await pokemon.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -237,9 +241,6 @@
 
             Subscription user;
             DiscordMember member = null;
-            //var pkmn = MasterFile.GetPokemon(pokemon.Id, pokemon.FormId);
-            var matchesGreat = false;
-            var matchesUltra = false;
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 //var start = DateTime.Now;
@@ -272,13 +273,7 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = user.PvP.Where(x =>
-                    {
-                        var containsPokemon = x.PokemonId.Contains(pokemon.Id);
-                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && x.Forms?.Count == 1);
-                        var containsForm = (x.Forms?.Contains(form) ?? true) || (x.Forms?.Count ?? 0) == 0 || isEmptyForm;
-                        return containsPokemon && containsForm;
-                    });
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PvpSubscription>)user.PvP, pokemon.Id, form);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -286,9 +281,9 @@
                     {
                         var defaults = Strings.Defaults;
                         // Check if PvP ranks match any relevant great or ultra league ranks, if not skip.
-                        matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x =>
+                        var matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x =>
                         {
-                            var cp = x.CP ?? 0;
+                            var cp = x.CP ?? (int)Strings.Defaults.MinimumCP;
                             var rank = x.Rank ?? 4096;
                             var matchesLeague = pkmnSub.League == PvpLeague.Great;
                             var matchesCP = cp >= defaults.MinimumGreatLeagueCP && cp <= defaults.MaximumGreatLeagueCP;
@@ -296,9 +291,9 @@
                             //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
                             return matchesLeague && matchesCP && matchesRank;
                         }) ?? false);
-                        matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x =>
+                        var matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x =>
                         {
-                            var cp = x.CP ?? 0;
+                            var cp = x.CP ?? (int)Strings.Defaults.MinimumCP;
                             var rank = x.Rank ?? 4096;
                             var matchesLeague = pkmnSub.League == PvpLeague.Ultra;
                             var matchesCP = cp >= defaults.MinimumUltraLeagueCP && cp <= defaults.MaximumUltraLeagueCP;
@@ -319,7 +314,7 @@
                         }
 
                         // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Areas, geofence.Name.ToLower()))
+                        if (!IsNearby(user, pkmnCoord, true, pkmnSub.Location, pkmnSub.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await pokemon.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -416,13 +411,7 @@
                     }
 
                     var form = Translator.Instance.GetFormName(raid.Form);
-                    var pokemonSubscriptions = user.Raids.Where(x =>
-                    {
-                        var containsPokemon = x.PokemonId.Contains(raid.PokemonId);
-                        var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
-                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
-                        return containsPokemon && containsForm;
-                    });
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.PvP, raid.PokemonId, form);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -442,7 +431,7 @@
                         }
 
                         // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                        if (!IsNearby(user, raidCoord, true, subRaid.Areas, geofence.Name.ToLower()))
+                        if (!IsNearby(user, raidCoord, true, subRaid.Location, subRaid.Areas, geofence.Name.ToLower()))
                             continue;
 
                         var embed = await raid.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -555,7 +544,7 @@
                     var geofenceMatches = questSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
 
                     // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                    if (!IsNearby(user, questCoord, true, questSub.Areas, geofence.Name.ToLower()))
+                    if (!IsNearby(user, questCoord, true, questSub.Location, questSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await quest.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -675,7 +664,7 @@
                     }
 
                     // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                    if (!IsNearby(user, invasionCoord, true, invasionSub.Areas, geofence.Name.ToLower()))
+                    if (!IsNearby(user, invasionCoord, true, invasionSub.Location, invasionSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -781,7 +770,7 @@
                     }
 
                     // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
-                    if (!IsNearby(user, lureCoord, true, lureSub.Areas, geofence.Name.ToLower()))
+                    if (!IsNearby(user, lureCoord, true, lureSub.Location, lureSub.Areas, geofence.Name.ToLower()))
                         continue;
 
                     var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
@@ -937,21 +926,79 @@
 
         #endregion
 
-        private static bool IsNearby(Subscription user, Coordinate coord, bool checkGeofence = false, List<string> areas = null, string geofenceName = null)
+        #region Helper Methods
+
+        private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, string form)
+            where T : BasePokemonSubscription
+        {
+            var pokemonSubscriptions = subscriptions.Where(x =>
+            {
+                var containsPokemon = x.PokemonId.Contains(pokemonId);
+                var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && x.Forms?.Count == 1);
+                var containsForm = (x.Forms?.Contains(form) ?? true) || (x.Forms?.Count ?? 0) == 0 || isEmptyForm;
+                return containsPokemon && containsForm;
+            });
+            return pokemonSubscriptions;
+        }
+
+        private static bool IvListMatches(List<string> ivList, PokemonData pokemon)
+        {
+            if (ivList?.Count == 0)
+            {
+                return false;
+            }
+
+            var matches = ivList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
+            var matchesWildcard = ivList?.Exists(iv =>
+            {
+                var split = iv.Split('/');
+
+                // Ensure user specified all IV parts required
+                if (split.Length != 3)
+                    return false;
+
+                var ivAttack = split[0];
+                var ivDefense = split[1];
+                var ivStamina = split[2];
+
+                // Validate IV list entry is a valid integer and no wild cards specified.
+                if (!ushort.TryParse(ivAttack, out var attack) && ivAttack != "*")
+                    return false;
+
+                if (!ushort.TryParse(ivDefense, out var defense) && ivDefense != "*")
+                    return false;
+
+                if (!ushort.TryParse(ivStamina, out var stamina) && ivStamina != "*")
+                    return false;
+
+                // Check if individual values are the same or if wildcard is specified.
+                var matches =
+                    attack == pokemon.Attack || ivAttack == "*" &&
+                    defense == pokemon.Defense || ivDefense == "*" &&
+                    stamina == pokemon.Stamina || ivStamina == "*";
+                return matches;
+
+            }) ?? false;
+            return matches || matchesWildcard;
+        }
+
+        // TODO: ISubscriptionLocation (string location, List<string> areas)
+        private static bool IsNearby(Subscription user, Coordinate coord, bool checkGeofence = false, string webhookLocationName = null, List<string> areas = null, string geofenceName = null)
         {
             var globalLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-            var webhookLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, user.Location, true) == 0);
-            var globalDistanceMatches = globalLocation.DistanceM > 0
-                && globalLocation.DistanceM > new Coordinate(globalLocation.Latitude, globalLocation.Longitude).DistanceTo(coord);
-            var webhookDistanceMatches = webhookLocation.DistanceM > 0
-                && webhookLocation.DistanceM > new Coordinate(webhookLocation.Latitude, webhookLocation.Longitude).DistanceTo(coord);
+            var webhookLocation = user.Locations?.FirstOrDefault(x => string.Compare(x.Name, webhookLocationName, true) == 0);
+            var globalDistanceMatches = globalLocation?.DistanceM > 0
+                && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(coord);
+            var webhookDistanceMatches = webhookLocation?.DistanceM > 0
+                && webhookLocation?.DistanceM > new Coordinate(webhookLocation?.Latitude ?? 0, webhookLocation?.Longitude ?? 0).DistanceTo(coord);
 
             // Skip if set distance does not match and no geofences match...
             var matchesLocation = globalDistanceMatches || webhookDistanceMatches;
             if (checkGeofence)
             {
                 var geofenceNameLower = geofenceName.ToLower();
-                var matchesGeofence = areas?.Select(x => x.ToLower()).Contains(geofenceNameLower) ?? false;
+                var matchesGeofence = areas?.Select(x => x.ToLower())
+                                            .Contains(geofenceNameLower) ?? false;
                 return matchesGeofence || matchesLocation;
             }
             return matchesLocation;
@@ -978,12 +1025,13 @@
                 return false;
             }
 
+            // Check if member has donor role
             if (!member.HasSupporterRole(donorRoleIds.Keys.ToList()))
             {
                 return false;
             }
 
-            // Check donor role access for Raids
+            // Check donor role access for subscription access type
             if (!member.HasRoleAccess(donorRoleIds, accessType))
             {
                 return false;
@@ -991,6 +1039,8 @@
 
             return true;
         }
+
+        #endregion
 
         #region Background Service
 
