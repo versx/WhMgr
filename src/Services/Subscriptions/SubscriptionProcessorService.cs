@@ -414,7 +414,7 @@
                     }
 
                     var form = Translator.Instance.GetFormName(raid.Form);
-                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.PvP, raid.PokemonId, form);
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.Raids, raid.PokemonId, form);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -429,7 +429,7 @@
 
                         if (!raid.IsExEligible && subRaid.IsExEligible)
                         {
-                            // Skip raids that are not ex eligible when we want ex eligible raids
+                            // Skip raids that are not ex eligible when we only want ex eligible raids
                             continue;
                         }
 
