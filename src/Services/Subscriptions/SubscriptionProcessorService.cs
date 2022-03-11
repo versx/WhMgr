@@ -946,7 +946,10 @@
 
         private static bool IvListMatches(List<string> ivList, PokemonData pokemon)
         {
-            if (ivList?.Count == 0)
+            if (ivList?.Count == 0 ||
+                pokemon.Attack == null ||
+                pokemon.Defense == null ||
+                pokemon.Stamina == null)
             {
                 return false;
             }
@@ -976,11 +979,10 @@
 
                 // Check if individual values are the same or if wildcard is specified.
                 var matches =
-                    attack == pokemon.Attack || ivAttack == "*" &&
-                    defense == pokemon.Defense || ivDefense == "*" &&
-                    stamina == pokemon.Stamina || ivStamina == "*";
+                    (attack == pokemon.Attack || ivAttack == "*") &&
+                    (defense == pokemon.Defense || ivDefense == "*") &&
+                    (stamina == pokemon.Stamina || ivStamina == "*");
                 return matches;
-
             }) ?? false;
             return matches || matchesWildcard;
         }
