@@ -974,7 +974,10 @@
                 return false;
             }
 
-            var matches = ivList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
+            // Check if IV matches any IV list entries verbatim
+            var matches = ivList?.Exists(iv => string.Equals(iv, $"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}")) ?? false;
+
+            // Check if IV matches any IV list range or wildcard entries
             var matchesWildcardOrRange = ivList?.Exists(iv =>
             {
                 var split = iv.Split('/');
@@ -995,6 +998,7 @@
                 var matchesRange = IvRangeMatches(ivAttack, ivDefense, ivStamina, pokemon);
                 return matches || matchesRange;
             }) ?? false;
+
             return matches || matchesWildcardOrRange;
         }
 

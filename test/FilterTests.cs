@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using NUnit.Framework;
@@ -55,7 +56,10 @@
                 return false;
             }
 
-            var matches = ivList?.Contains($"{atk}/{def}/{sta}") ?? false;
+            // Check if IV matches any IV list entries verbatim
+            var matches = ivList?.Exists(iv => string.Equals(iv, $"{atk}/{def}/{sta}")) ?? false;
+
+            // Check if IV matches any IV list range or wildcard entries
             var matchesWildcardOrRange = ivList?.Exists(iv =>
             {
                 var split = iv.Split('/');
@@ -76,6 +80,7 @@
                 var matchesRange = IvRangeMatches(ivAttack, ivDefense, ivStamina, atk, def, sta);
                 return matches || matchesRange;
             }) ?? false;
+
             return matches || matchesWildcardOrRange;
         }
 
