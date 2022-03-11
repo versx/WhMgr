@@ -35,19 +35,25 @@
                 return false;
             }
 
-            // Validate IV list entry is a valid integer and no wild cards specified.
+            // Return true if wildcard specified.
+            if (ivEntry == "*")
+            {
+                return true;
+            }
+
+            // Validate IV list entry is a valid integer.
             if (!ushort.TryParse(ivEntry, out var ivValue))
             {
                 return false;
             }
 
             // Check if individual value is the same or if wildcard is specified.
-            var matches = ivValue == pokemonIvEntry || ivEntry == "*";
-            return matches;
+            return ivValue == pokemonIvEntry;
         }
 
         private static bool IvListMatches(List<string> ivList, ushort? atk, ushort? def, ushort? sta)
         {
+            // Check if IV list is null or no entries and Pokemon has IV values, otherwise return false.
             if (ivList?.Count == 0 ||
                 atk == null ||
                 def == null ||
@@ -56,12 +62,18 @@
                 return false;
             }
 
-            // Check if IV matches any IV list entries verbatim
-            var matches = ivList?.Exists(iv => string.Equals(iv, $"{atk}/{def}/{sta}")) ?? false;
+            // Construct expected formatted IV entry string
+            var ivEntry = $"{atk}/{def}/{sta}";
 
             // Check if IV matches any IV list range or wildcard entries
-            var matchesWildcardOrRange = ivList?.Exists(iv =>
+            var matches = ivList?.Exists(iv =>
             {
+                // Check if IV list entries matches Pokemon IV string verbatim
+                if (string.Equals(iv, ivEntry))
+                {
+                    return true;
+                }
+
                 var split = iv.Split('/');
 
                 // Ensure user specified all IV parts required
@@ -72,16 +84,16 @@
                 var ivDefense = split[1];
                 var ivStamina = split[2];
 
-                var matches =
+                var matchesWildcard =
                     IvWildcardMatches(ivAttack, atk) &&
                     IvWildcardMatches(ivDefense, def) &&
                     IvWildcardMatches(ivStamina, sta);
 
                 var matchesRange = IvRangeMatches(ivAttack, ivDefense, ivStamina, atk, def, sta);
-                return matches || matchesRange;
+                return matchesWildcard || matchesRange;
             }) ?? false;
 
-            return matches || matchesWildcardOrRange;
+            return matches;
         }
 
         private static bool IvRangeMatches(string ivAttack, string ivDefense, string ivStamina, ushort? attack, ushort? defense, ushort? stamina)
@@ -252,13 +264,13 @@
         [Test]
         [TestCase(1, 15, 15)]
         [TestCase(1, 15, 14)]
-        public void Test_PokemonIVListRange2_ReturnsIsTrue(int atk, int def, int sta)
+        public void Test_PokemonIVListRange_ReturnsIsTrue(int atk, int def, int sta)
         {
             var ivList = new List<string>
             {
                 "1-2/15/14",
                 "0-15/0-15/0-15",
-                "*/15/15"
+                "*/15/14-15"
             };
             var matches = IvListMatches(ivList, (ushort)atk, (ushort)def, (ushort)sta);
             /*

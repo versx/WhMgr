@@ -953,19 +953,25 @@
                 return false;
             }
 
-            // Validate IV list entry is a valid integer and no wild cards specified.
+            // Return true if wildcard specified.
+            if (ivEntry == "*")
+            {
+                return true;
+            }
+
+            // Validate IV entry is a valid integer.
             if (!ushort.TryParse(ivEntry, out var ivValue))
             {
                 return false;
             }
 
-            // Check if individual value is the same or if wildcard is specified.
-            var matches = ivValue == pokemonIvEntry || ivEntry == "*";
-            return matches;
+            // Check if IV entry matches Pokemon IV.
+            return ivValue == pokemonIvEntry;
         }
 
         private static bool IvListMatches(List<string> ivList, PokemonData pokemon)
         {
+            // Check if IV list is null or no entries and Pokemon has IV values, otherwise return false.
             if (ivList?.Count == 0 ||
                 pokemon.Attack == null ||
                 pokemon.Defense == null ||
@@ -974,12 +980,18 @@
                 return false;
             }
 
-            // Check if IV matches any IV list entries verbatim
-            var matches = ivList?.Exists(iv => string.Equals(iv, $"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}")) ?? false;
+            // Construct expected formatted IV entry string
+            var ivEntry = $"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}";
 
             // Check if IV matches any IV list range or wildcard entries
-            var matchesWildcardOrRange = ivList?.Exists(iv =>
+            var matches = ivList?.Exists(iv =>
             {
+                // Check if IV list entries matches Pokemon IV string verbatim
+                if (string.Equals(iv, ivEntry))
+                {
+                    return true;
+                }
+
                 var split = iv.Split('/');
 
                 // Ensure user specified all IV parts required
@@ -990,16 +1002,16 @@
                 var ivDefense = split[1];
                 var ivStamina = split[2];
 
-                var matches =
+                var matchesWildcard =
                     IvWildcardMatches(ivAttack, pokemon.Attack) &&
                     IvWildcardMatches(ivDefense, pokemon.Defense) &&
                     IvWildcardMatches(ivStamina, pokemon.Stamina);
 
                 var matchesRange = IvRangeMatches(ivAttack, ivDefense, ivStamina, pokemon);
-                return matches || matchesRange;
+                return matchesWildcard || matchesRange;
             }) ?? false;
 
-            return matches || matchesWildcardOrRange;
+            return matches;
         }
 
         private static bool IvRangeMatches(string ivAttack, string ivDefense, string ivStamina, PokemonData pokemon)
