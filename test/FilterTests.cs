@@ -18,10 +18,275 @@
         public void Setup()
         {
             // TODO: Fix locale path, copy from src/bin to test/bin/debug|release
+            /*
             var localeFolder = Strings.BasePath + Strings.StaticFolder + Path.DirectorySeparatorChar + "locales";
             Translator.Instance.LocaleDirectory = localeFolder;
             //Translator.Instance.CreateLocaleFiles().ConfigureAwait(false).GetAwaiter().GetResult();
             Translator.Instance.SetLocale("en");
+            */
+        }
+
+        private static bool IvWildcardMatches(string ivEntry, ushort? pokemonIvEntry)
+        {
+            // Skip IV ranges
+            if (ivEntry.Contains("-"))
+            {
+                return false;
+            }
+
+            // Validate IV list entry is a valid integer and no wild cards specified.
+            if (!ushort.TryParse(ivEntry, out var ivValue))
+            {
+                return false;
+            }
+
+            // Check if individual value is the same or if wildcard is specified.
+            var matches = ivValue == pokemonIvEntry || ivEntry == "*";
+            return matches;
+        }
+
+        private static bool IvListMatches(List<string> ivList, ushort? atk, ushort? def, ushort? sta)
+        {
+            if (ivList?.Count == 0 ||
+                atk == null ||
+                def == null ||
+                sta == null)
+            {
+                return false;
+            }
+
+            var matches = ivList?.Contains($"{atk}/{def}/{sta}") ?? false;
+            var matchesWildcardOrRange = ivList?.Exists(iv =>
+            {
+                var split = iv.Split('/');
+
+                // Ensure user specified all IV parts required
+                if (split.Length != 3)
+                    return false;
+
+                var ivAttack = split[0];
+                var ivDefense = split[1];
+                var ivStamina = split[2];
+
+                var matches =
+                    IvWildcardMatches(ivAttack, atk) &&
+                    IvWildcardMatches(ivDefense, def) &&
+                    IvWildcardMatches(ivStamina, sta);
+
+                var matchesRange = IvRangeMatches(ivAttack, ivDefense, ivStamina, atk, def, sta);
+                return matches || matchesRange;
+            }) ?? false;
+            return matches || matchesWildcardOrRange;
+        }
+
+        private static bool IvRangeMatches(string ivAttack, string ivDefense, string ivStamina, ushort? attack, ushort? defense, ushort? stamina)
+        {
+            if (attack == null ||
+                defense == null ||
+                stamina == null)
+            {
+                return false;
+            }
+
+            // Check if none of the IV entries contain range indicator
+            if (!ivAttack.Contains("-") &&
+                !ivDefense.Contains("-") &&
+                !ivStamina.Contains("-"))
+            {
+                return false;
+            }
+
+            // Parse min/max IV values for all entries
+            var (minAttack, maxAttack) = ParseMinMaxValues(ivAttack);
+            var (minDefense, maxDefense) = ParseMinMaxValues(ivDefense);
+            var (minStamina, maxStamina) = ParseMinMaxValues(ivStamina);
+            /*
+            ushort minAttack;
+            ushort maxAttack;
+            if (ivAttack.Contains("-"))
+            {
+                // Parse min/max range values
+                var (min, max) = ParseRangeEntry(ivAttack);
+                minAttack = min;
+                maxAttack = max;
+            }
+            else
+            {
+                // Check if attack IV contains wildcard, otherwise value should be a whole value
+                if (ivAttack.Contains("*"))
+                {
+                    // Wildcard specified, set min/max to 0-15
+                    minAttack = 0;
+                    maxAttack = 15;
+                }
+                else
+                {
+                    // No range indicator found for attack IV, parse and assign whole IV value to min/max values
+                    var atk = ushort.Parse(ivAttack);
+                    minAttack = atk;
+                    maxAttack = atk;
+                }
+            }
+
+            // Check if defense contains range indicator, if so parse min/max values
+            ushort minDefense;
+            ushort maxDefense;
+            if (ivDefense.Contains("-"))
+            {
+                // Parse min/max range values
+                var (min, max) = ParseRangeEntry(ivDefense);
+                minDefense = min;
+                maxDefense = max;
+            }
+            else
+            {
+                // Check if attack IV contains wildcard, otherwise value should be a whole value
+                if (ivDefense.Contains("*"))
+                {
+                    minDefense = 0;
+                    maxDefense = 15;
+                }
+                else
+                {
+                    // No range indicator found for defense IV, parse and assign whole IV value to min/max values
+                    var def = ushort.Parse(ivDefense);
+                    minDefense = def;
+                    maxDefense = def;
+                }
+            }
+
+            // Check if stamina contains range indicator, if so parse min/max values
+            ushort minStamina;
+            ushort maxStamina;
+            if (ivStamina.Contains("-"))
+            {
+                // Parse min/max range values
+                var (min, max) = ParseRangeEntry(ivStamina);
+                minStamina = min;
+                maxStamina = max;
+            }
+            else
+            {
+                // Check if attack IV contains wildcard, otherwise value should be a whole value
+                if (ivStamina.Contains("*"))
+                {
+                    minStamina = 0;
+                    maxStamina = 15;
+                }
+                else
+                {
+                    // No range indicator found for stamina IV, parse and assign whole IV value to min/max values
+                    var sta = ushort.Parse(ivStamina);
+                    minStamina = sta;
+                    maxStamina = sta;
+                }
+            }
+            */
+
+            // Check if Pokemon IV is within min/max range
+            var matches = (attack ?? 0) >= minAttack && (attack ?? 0) <= maxAttack &&
+                          (defense ?? 0) >= minDefense && (defense ?? 0) <= maxDefense &&
+                          (stamina ?? 0) >= minStamina && (stamina ?? 0) <= maxStamina;
+
+            return matches;
+        }
+
+        private static (ushort, ushort) ParseRangeEntry(string ivEntry)
+        {
+            // Parse IV range min/max values
+            var split = ivEntry.Split('-');
+
+            // If count mismatch, skip
+            if (split.Length != 2)
+            {
+                return default;
+            }
+
+            // Parse first range value for minimum
+            if (!ushort.TryParse(split[0], out var minRange))
+            {
+                return default;
+            }
+
+            // Parse second range value for maximum
+            if (!ushort.TryParse(split[1], out var maxRange))
+            {
+                return default;
+            }
+            return (minRange, maxRange);
+        }
+
+        private static (ushort, ushort) ParseMinMaxValues(string ivEntry)
+        {
+            ushort minRange;
+            ushort maxRange;
+            if (ivEntry.Contains("-"))
+            {
+                // Parse min/max range values
+                var (min, max) = ParseRangeEntry(ivEntry);
+                minRange = min;
+                maxRange = max;
+            }
+            // Check if attack IV contains wildcard, otherwise value should be a whole value
+            else if (ivEntry.Contains("*"))
+            {
+                // Wildcard specified, set min/max to 0-15
+                minRange = 0;
+                maxRange = 15;
+            }
+            else
+            {
+                // No range indicator found for IV entry, parse and assign whole IV value to min/max values
+                var atk = ushort.Parse(ivEntry);
+                minRange = atk;
+                maxRange = atk;
+            }
+            return (minRange, maxRange);
+        }
+
+        [Test]
+        [TestCase(1, 15, 15)]
+        [TestCase(1, 15, 14)]
+        public void Test_PokemonIVListRange2_ReturnsIsTrue(int atk, int def, int sta)
+        {
+            var ivList = new List<string>
+            {
+                "1-2/15/14",
+                "0-15/0-15/0-15",
+                "*/15/15"
+            };
+            var matches = IvListMatches(ivList, (ushort)atk, (ushort)def, (ushort)sta);
+            /*
+            var matches = IvRangeMatches(
+                ivAttack, ivDefense, ivStamina,
+                (ushort)atk, (ushort)def, (ushort)sta
+            );
+            */
+            Assert.IsTrue(matches);
+        }
+
+        [Test]
+        //[TestCase("1-2", "15", "15", 1, 15, 15)]
+        //[TestCase("0-15", "0-15", "0-15", 1, 15, 15)]
+        [TestCase(1, 15, 15)]
+        [TestCase(7, 15, 14)]
+        public void Test_PokemonIVListRange_ReturnsIsFalse(int atk, int def, int sta)
+        {
+            var ivList = new List<string>
+            {
+                "3-4/12/12",
+                "0/0/0",
+                "15/15/15",
+                "*/14/14",
+            };
+            var matches = IvListMatches(ivList, (ushort)atk, (ushort)def, (ushort)sta);
+            /*
+            var matches = IvRangeMatches(
+                ivAttack, ivDefense, ivStamina,
+                (ushort)atk, (ushort)def, (ushort)sta
+            );
+            */
+            Assert.IsFalse(matches);
         }
 
         [Test]
