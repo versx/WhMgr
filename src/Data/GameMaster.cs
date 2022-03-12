@@ -87,6 +87,7 @@
             }
         }
 
+
         #endregion
 
         #endregion
@@ -100,6 +101,7 @@
             DiscordEmbedColors = LoadInit<DiscordEmbedColorsConfig>(Path.Combine(Strings.DataFolder, EmbedColorsFileName));
         }
 
+
         public static PokedexPokemon GetPokemon(uint pokemonId, uint formId = 0)
         {
             if (!Instance.Pokedex.ContainsKey(pokemonId))
@@ -110,6 +112,16 @@
             var pkmnForm = useForm ? pkmn.Forms[formId] : pkmn;
             pkmnForm.Name = pkmn.Name;
             return pkmnForm;
+        }
+
+        public static void ReloadMasterFile()
+        {
+
+            var path = Path.Combine(
+                        Strings.BasePath,
+                        Path.Combine(Strings.DataFolder, MasterFileName)
+                    );
+            _instance = LoadInit<GameMaster>(path);
         }
 
         public static T LoadInit<T>(string filePath)
