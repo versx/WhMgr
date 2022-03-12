@@ -283,27 +283,41 @@
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         var defaults = Strings.Defaults;
+
+                        // Filter PvP rankings by subscribed Pokemon ID and check ranks for filtered ranks.
+                        var filteredGreat = pokemon.GreatLeague?.Where(rank => pkmnSub.PokemonId.Contains(rank.PokemonId))
+                                                                .ToList();
+                        var filteredUltra = pokemon.UltraLeague?.Where(rank => pkmnSub.PokemonId.Contains(rank.PokemonId))
+                                                                .ToList();
+
+                        bool RankExists(PvpSubscription sub, PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP, int minRAnk)
+                        {
+                            var cp = rankData.CP ?? (int)Strings.Defaults.MinimumCP;
+                            var rank = rankData.Rank ?? 4096;
+                            var matchesLeague = pkmnSub.League == league;
+                            var matchesCP = cp >= minLeagueCP && cp <= maxLeagueCP;
+                            var matchesRank = rank <= pkmnSub.MinimumRank;
+                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
+                            return matchesLeague && matchesCP && matchesRank;
+                        }
+
                         // Check if PvP ranks match any relevant great or ultra league ranks, if not skip.
-                        var matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x =>
-                        {
-                            var cp = x.CP ?? (int)Strings.Defaults.MinimumCP;
-                            var rank = x.Rank ?? 4096;
-                            var matchesLeague = pkmnSub.League == PvpLeague.Great;
-                            var matchesCP = cp >= defaults.MinimumGreatLeagueCP && cp <= defaults.MaximumGreatLeagueCP;
-                            var matchesRank = rank <= pkmnSub.MinimumRank;
-                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
-                            return matchesLeague && matchesCP && matchesRank;
-                        }) ?? false);
-                        var matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x =>
-                        {
-                            var cp = x.CP ?? (int)Strings.Defaults.MinimumCP;
-                            var rank = x.Rank ?? 4096;
-                            var matchesLeague = pkmnSub.League == PvpLeague.Ultra;
-                            var matchesCP = cp >= defaults.MinimumUltraLeagueCP && cp <= defaults.MaximumUltraLeagueCP;
-                            var matchesRank = rank <= pkmnSub.MinimumRank;
-                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
-                            return matchesLeague && matchesCP && matchesRank;
-                        }) ?? false);
+                        var matchesGreat = filteredGreat?.Exists(rank => RankExists(
+                            pkmnSub,
+                            rank,
+                            PvpLeague.Great,
+                            defaults.MinimumGreatLeagueCP,
+                            defaults.MaximumGreatLeagueCP,
+                            defaults.MinimumRank
+                        )) ?? false;
+                        var matchesUltra = filteredUltra?.Exists(rank => RankExists(
+                            pkmnSub,
+                            rank,
+                            PvpLeague.Ultra,
+                            defaults.MinimumUltraLeagueCP,
+                            defaults.MaximumUltraLeagueCP,
+                            defaults.MinimumRank
+                        )) ?? false;
 
                         // Skip if no relevent ranks for great and ultra league.
                         if (!matchesGreat && !matchesUltra)
@@ -931,12 +945,14 @@
 
         #region Helper Methods
 
-        private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, string form)
+        private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, string form, List<uint> evolutionIds = null)
             where T : BasePokemonSubscription
         {
             var pokemonSubscriptions = subscriptions.Where(x =>
             {
-                var containsPokemon = x.PokemonId.Contains(pokemonId);
+                var containsPokemon = evolutionIds != null
+                    ? evolutionIds.Contains(pokemonId)
+                    : x.PokemonId.Contains(pokemonId);
                 var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && x.Forms?.Count == 1);
                 var containsForm = (x.Forms?.Contains(form) ?? true) || (x.Forms?.Count ?? 0) == 0 || isEmptyForm;
                 return containsPokemon && containsForm;
