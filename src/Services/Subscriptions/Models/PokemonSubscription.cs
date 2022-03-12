@@ -7,6 +7,8 @@
     using System.Linq;
     using System.Text.Json.Serialization;
 
+    using WhMgr.Common;
+
     [Table("pokemon")]
     public class PokemonSubscription : BasePokemonSubscription
     {

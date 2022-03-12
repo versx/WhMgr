@@ -152,13 +152,13 @@
                             ))
                             continue;
 
-                        /*
-                        TODO: if (!(float.TryParse(pokemon.Height, out var height) && float.TryParse(pokemon.Weight, out var weight) && Filters.MatchesSize(pokemon.Id.GetSize(height, weight), pkmnSub.Size)))
+                        var pokemonSize = pokemon.Id.GetSize(pokemon.Height ?? 0, pokemon.Weight ?? 0);
+                        if (!pokemon.IsMissingStats && pkmn.Height != null && pkmn.Weight != null
+                            && Filters.MatchesSize(pokemonSize, pkmnSub.Size))
                         {
                             // Pokemon doesn't match size
                             continue;
                         }
-                        */
 
                         var geofence = GetGeofence(user.GuildId);
                         if (geofence == null)

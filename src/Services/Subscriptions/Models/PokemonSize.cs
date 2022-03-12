@@ -1,4 +1,5 @@
-﻿namespace WhMgr.Services.Subscriptions.Models
+﻿/*
+namespace WhMgr.Services.Subscriptions.Models
 {
     /// <summary>
     /// Size of Pokemon
@@ -36,3 +37,4 @@
         Big,
     }
 }
+*/
