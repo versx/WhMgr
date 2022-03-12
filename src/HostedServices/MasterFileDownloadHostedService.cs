@@ -53,7 +53,6 @@
         {
             foreach (var (timezone, midnightTimer) in _tzMidnightTimers)
             {
-
                 midnightTimer.Stop();
                 midnightTimer.Dispose();
             }
