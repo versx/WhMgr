@@ -38,15 +38,14 @@
 
         private void OnMidnightTimerTimeReached(DateTime time, string timezone)
         {
-            
             using (WebClient wc = new WebClient())
             {
-                wc.DownloadFile(
-                    new System.Uri("https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json"), Path.Combine(Strings.DataFolder, "masterfile.json")
-                    );
+                var url = "https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json";
+                var filePath = Path.Combine(Strings.DataFolder, "masterfile.json");
+                wc.Proxy = null;
+                wc.DownloadFile(new System.Uri(url), filePath);
             }
             GameMaster.ReloadMasterFile();
-
         }
 
         Task IHostedService.StopAsync(CancellationToken cancellationToken)
