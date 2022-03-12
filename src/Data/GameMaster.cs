@@ -114,11 +114,10 @@
 
         public static void ReloadMasterFile()
         {
-
             var path = Path.Combine(
-                        Strings.BasePath,
-                        Path.Combine(Strings.DataFolder, MasterFileName)
-                    );
+                Strings.BasePath,
+                Path.Combine(Strings.DataFolder, MasterFileName)
+            );
             _instance = LoadInit<GameMaster>(path);
         }
 
