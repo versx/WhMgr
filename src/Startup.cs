@@ -16,7 +16,6 @@ namespace WhMgr
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.OpenApi.Models;
-    using Microsoft.AspNetCore.SpaServices;
 
     using WhMgr.Configuration;
     using WhMgr.Data.Contexts;
@@ -34,7 +33,6 @@ namespace WhMgr
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook;
     using WhMgr.Services.Webhook.Queue;
-    using WhMgr.Web.Extensions;
     using WhMgr.Web.Filters;
     using WhMgr.Web.Middleware;
 

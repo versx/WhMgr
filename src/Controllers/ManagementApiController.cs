@@ -26,8 +26,7 @@
         [Produces(MediaTypeNames.Application.Json)]
         public IActionResult Restart()
         {
-            // TODO: Restart application (delayed task before response?)
-            var appFilePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            _appLifetime.StopApplication();
             Program.Restart();
 
             var status = "OK";
