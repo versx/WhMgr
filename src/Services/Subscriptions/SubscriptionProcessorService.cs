@@ -123,17 +123,7 @@
                         continue;
                     }
 
-                    var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    /*
-                    var pokemonSubscriptions = user.Pokemon.Where(x =>
-                    {
-                        var containsPokemon = x.PokemonId.Contains(pokemon.Id);
-                        var isEmptyForm = / TODO: Workaround for UI / (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
-                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
-                        return containsPokemon && containsForm;
-                    });
-                    */
-                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PokemonSubscription>)user.Pokemon, pokemon.Id, form);
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PokemonSubscription>)user.Pokemon, pokemon.Id, pokemon.FormId);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -275,8 +265,7 @@
                         continue;
                     }
 
-                    var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PvpSubscription>)user.PvP, pokemon.Id, form);
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PvpSubscription>)user.PvP, pokemon.Id, pokemon.FormId);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -413,8 +402,7 @@
                         continue;
                     }
 
-                    var form = Translator.Instance.GetFormName(raid.Form);
-                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.Raids, raid.PokemonId, form);
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.Raids, raid.PokemonId, raid.Form);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -931,9 +919,10 @@
 
         #region Helper Methods
 
-        private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, string form)
+        private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, uint formId)
             where T : BasePokemonSubscription
         {
+            var form = Translator.Instance.GetFormName(formId);
             var pokemonSubscriptions = subscriptions.Where(x =>
             {
                 var containsPokemon = x.PokemonId.Contains(pokemonId);

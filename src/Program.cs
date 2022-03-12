@@ -2,6 +2,8 @@ namespace WhMgr
 {
     using System;
     using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     using CommandLine;
     using Microsoft.AspNetCore.Hosting;
@@ -22,8 +24,46 @@ namespace WhMgr
 
     public class Program
     {
-        public static void Main(string[] args) =>
-            CreateHostBuilder(args).Build().Run();
+        private static CancellationTokenSource _cts = new();
+        private static string[] _args;
+        private static bool _restartRequest;
+
+        public static void Main(string[] args)
+        {
+            _args = args;
+
+            Start();
+            while (_restartRequest)
+            {
+                _restartRequest = false;
+                Console.WriteLine("Restarting application...");
+                Start();
+            }
+            //CreateHostBuilder(args).Build().Run();
+        }
+
+        public static void Restart()
+        {
+            _restartRequest = true;
+            _cts.Cancel();
+        }
+
+        private static void Start()
+        {
+            try
+            {
+                _cts = new CancellationTokenSource();
+                CreateHostBuilder(_args).Build()
+                                        .RunAsync(_cts.Token)
+                                        .ConfigureAwait(false)
+                                        .GetAwaiter()
+                                        .GetResult();
+            }
+            catch (OperationCanceledException ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
