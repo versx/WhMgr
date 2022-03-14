@@ -112,6 +112,15 @@
             return pkmnForm;
         }
 
+        public static void ReloadMasterFile()
+        {
+            var path = Path.Combine(
+                Strings.BasePath,
+                Path.Combine(Strings.DataFolder, MasterFileName)
+            );
+            _instance = LoadInit<GameMaster>(path);
+        }
+
         public static T LoadInit<T>(string filePath)
         {
             if (!File.Exists(filePath))

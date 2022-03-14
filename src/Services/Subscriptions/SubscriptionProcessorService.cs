@@ -272,27 +272,41 @@
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         var defaults = Strings.Defaults;
+
+                        // Filter PvP rankings by subscribed Pokemon ID and check ranks for filtered ranks.
+                        var filteredGreat = pokemon.GreatLeague?.Where(rank => pkmnSub.PokemonId.Contains(rank.PokemonId))
+                                                                .ToList();
+                        var filteredUltra = pokemon.UltraLeague?.Where(rank => pkmnSub.PokemonId.Contains(rank.PokemonId))
+                                                                .ToList();
+
+                        bool RankExists(PvpSubscription sub, PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP, int minRAnk)
+                        {
+                            var cp = rankData.CP ?? (int)Strings.Defaults.MinimumCP;
+                            var rank = rankData.Rank ?? 4096;
+                            var matchesLeague = pkmnSub.League == league;
+                            var matchesCP = cp >= minLeagueCP && cp <= maxLeagueCP;
+                            var matchesRank = rank <= pkmnSub.MinimumRank;
+                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
+                            return matchesLeague && matchesCP && matchesRank;
+                        }
+
                         // Check if PvP ranks match any relevant great or ultra league ranks, if not skip.
-                        var matchesGreat = pokemon.GreatLeague != null && (pokemon.GreatLeague?.Exists(x =>
-                        {
-                            var cp = x.CP ?? (int)Strings.Defaults.MinimumCP;
-                            var rank = x.Rank ?? 4096;
-                            var matchesLeague = pkmnSub.League == PvpLeague.Great;
-                            var matchesCP = cp >= defaults.MinimumGreatLeagueCP && cp <= defaults.MaximumGreatLeagueCP;
-                            var matchesRank = rank <= pkmnSub.MinimumRank;
-                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
-                            return matchesLeague && matchesCP && matchesRank;
-                        }) ?? false);
-                        var matchesUltra = pokemon.UltraLeague != null && (pokemon.UltraLeague?.Exists(x =>
-                        {
-                            var cp = x.CP ?? (int)Strings.Defaults.MinimumCP;
-                            var rank = x.Rank ?? 4096;
-                            var matchesLeague = pkmnSub.League == PvpLeague.Ultra;
-                            var matchesCP = cp >= defaults.MinimumUltraLeagueCP && cp <= defaults.MaximumUltraLeagueCP;
-                            var matchesRank = rank <= pkmnSub.MinimumRank;
-                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
-                            return matchesLeague && matchesCP && matchesRank;
-                        }) ?? false);
+                        var matchesGreat = filteredGreat?.Exists(rank => RankExists(
+                            pkmnSub,
+                            rank,
+                            PvpLeague.Great,
+                            defaults.MinimumGreatLeagueCP,
+                            defaults.MaximumGreatLeagueCP,
+                            defaults.MinimumRank
+                        )) ?? false;
+                        var matchesUltra = filteredUltra?.Exists(rank => RankExists(
+                            pkmnSub,
+                            rank,
+                            PvpLeague.Ultra,
+                            defaults.MinimumUltraLeagueCP,
+                            defaults.MaximumUltraLeagueCP,
+                            defaults.MinimumRank
+                        )) ?? false;
 
                         // Skip if no relevent ranks for great and ultra league.
                         if (!matchesGreat && !matchesUltra)
@@ -917,15 +931,18 @@
 
         #endregion
 
+        // TODO: Move helpers to extensions class
         #region Helper Methods
 
-        private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, uint formId)
+        private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, uint formId, List<uint> evolutionIds = null)
             where T : BasePokemonSubscription
         {
             var form = Translator.Instance.GetFormName(formId);
             var pokemonSubscriptions = subscriptions.Where(x =>
             {
-                var containsPokemon = x.PokemonId.Contains(pokemonId);
+                var containsPokemon = evolutionIds != null
+                    ? evolutionIds.Contains(pokemonId)
+                    : x.PokemonId.Contains(pokemonId);
                 var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && x.Forms?.Count == 1);
                 var containsForm = (x.Forms?.Contains(form) ?? true) || (x.Forms?.Count ?? 0) == 0 || isEmptyForm;
                 return containsPokemon && containsForm;
@@ -933,8 +950,33 @@
             return pokemonSubscriptions;
         }
 
+        private static bool IvWildcardMatches(string ivEntry, ushort? pokemonIvEntry)
+        {
+            // Skip IV ranges
+            if (ivEntry.Contains("-"))
+            {
+                return false;
+            }
+
+            // Return true if wildcard specified.
+            if (ivEntry == "*")
+            {
+                return true;
+            }
+
+            // Validate IV entry is a valid integer.
+            if (!ushort.TryParse(ivEntry, out var ivValue))
+            {
+                return false;
+            }
+
+            // Check if IV entry matches Pokemon IV.
+            return ivValue == pokemonIvEntry;
+        }
+
         private static bool IvListMatches(List<string> ivList, PokemonData pokemon)
         {
+            // Check if IV list is null or no entries and Pokemon has IV values, otherwise return false.
             if (ivList?.Count == 0 ||
                 pokemon.Attack == null ||
                 pokemon.Defense == null ||
@@ -943,9 +985,18 @@
                 return false;
             }
 
-            var matches = ivList?.Contains($"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}") ?? false;
-            var matchesWildcard = ivList?.Exists(iv =>
+            // Construct expected formatted IV entry string
+            var ivEntry = $"{pokemon.Attack}/{pokemon.Defense}/{pokemon.Stamina}";
+
+            // Check if IV matches any IV list range or wildcard entries
+            var matches = ivList?.Exists(iv =>
             {
+                // Check if IV list entries matches Pokemon IV string verbatim
+                if (string.Equals(iv, ivEntry))
+                {
+                    return true;
+                }
+
                 var split = iv.Split('/');
 
                 // Ensure user specified all IV parts required
@@ -956,24 +1007,99 @@
                 var ivDefense = split[1];
                 var ivStamina = split[2];
 
-                // Validate IV list entry is a valid integer and no wild cards specified.
-                if (!ushort.TryParse(ivAttack, out var attack) && ivAttack != "*")
-                    return false;
+                var matchesWildcard =
+                    IvWildcardMatches(ivAttack, pokemon.Attack) &&
+                    IvWildcardMatches(ivDefense, pokemon.Defense) &&
+                    IvWildcardMatches(ivStamina, pokemon.Stamina);
 
-                if (!ushort.TryParse(ivDefense, out var defense) && ivDefense != "*")
-                    return false;
-
-                if (!ushort.TryParse(ivStamina, out var stamina) && ivStamina != "*")
-                    return false;
-
-                // Check if individual values are the same or if wildcard is specified.
-                var matches =
-                    (attack == pokemon.Attack || ivAttack == "*") &&
-                    (defense == pokemon.Defense || ivDefense == "*") &&
-                    (stamina == pokemon.Stamina || ivStamina == "*");
-                return matches;
+                var matchesRange = IvRangeMatches(ivAttack, ivDefense, ivStamina, pokemon);
+                return matchesWildcard || matchesRange;
             }) ?? false;
-            return matches || matchesWildcard;
+
+            return matches;
+        }
+
+        private static bool IvRangeMatches(string ivAttack, string ivDefense, string ivStamina, PokemonData pokemon)
+        {
+            if (pokemon.Attack == null ||
+                pokemon.Defense == null ||
+                pokemon.Stamina == null)
+            {
+                return false;
+            }
+
+            // Check if none of the IV entries contain range indicator
+            if (!ivAttack.Contains("-") &&
+                !ivDefense.Contains("-") &&
+                !ivStamina.Contains("-"))
+            {
+                return false;
+            }
+
+            // Parse min/max IV values for all entries
+            var (minAttack, maxAttack) = ParseMinMaxValues(ivAttack);
+            var (minDefense, maxDefense) = ParseMinMaxValues(ivDefense);
+            var (minStamina, maxStamina) = ParseMinMaxValues(ivStamina);
+
+            // Check if Pokemon IV is within min/max range
+            var matches = (pokemon.Attack ?? 0) >= minAttack && (pokemon.Attack ?? 0) <= maxAttack &&
+                          (pokemon.Defense ?? 0) >= minDefense && (pokemon.Defense ?? 0) <= maxDefense &&
+                          (pokemon.Stamina ?? 0) >= minStamina && (pokemon.Stamina ?? 0) <= maxStamina;
+
+            return matches;
+        }
+
+        private static (ushort, ushort) ParseRangeEntry(string ivEntry)
+        {
+            // Parse IV range min/max values
+            var split = ivEntry.Split('-');
+
+            // If count mismatch, skip
+            if (split.Length != 2)
+            {
+                return default;
+            }
+
+            // Parse first range value for minimum
+            if (!ushort.TryParse(split[0], out var minRange))
+            {
+                return default;
+            }
+
+            // Parse second range value for maximum
+            if (!ushort.TryParse(split[1], out var maxRange))
+            {
+                return default;
+            }
+            return (minRange, maxRange);
+        }
+
+        private static (ushort, ushort) ParseMinMaxValues(string ivEntry)
+        {
+            ushort minRange;
+            ushort maxRange;
+            if (ivEntry.Contains("-"))
+            {
+                // Parse min/max range values
+                var (min, max) = ParseRangeEntry(ivEntry);
+                minRange = min;
+                maxRange = max;
+            }
+            // Check if attack IV contains wildcard, otherwise value should be a whole value
+            else if (ivEntry.Contains("*"))
+            {
+                // Wildcard specified, set min/max to 0-15
+                minRange = 0;
+                maxRange = 15;
+            }
+            else
+            {
+                // No range indicator found for attack IV, parse and assign whole IV value to min/max values
+                var atk = ushort.Parse(ivEntry);
+                minRange = atk;
+                maxRange = atk;
+            }
+            return (minRange, maxRange);
         }
 
         // TODO: ISubscriptionLocation (string location, List<string> areas)
