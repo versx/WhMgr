@@ -26,6 +26,7 @@
         [
             JsonPropertyName("gender"),
             Column("gender"),
+            DefaultValue("*"),
             Required,
         ]
         public string Gender { get; set; }
