@@ -294,11 +294,12 @@
                         {
                             var cp = rankData.CP ?? (int)Strings.Defaults.MinimumCP;
                             var rank = rankData.Rank ?? 4096;
+                            var matchesGender = Filters.MatchesGender(rankData.Gender, sub.Gender);
                             var matchesLeague = pkmnSub.League == league;
-                            var matchesCP = cp >= minLeagueCP && cp <= maxLeagueCP;
+                            var matchesCP = Filters.MatchesCP((uint)cp, minLeagueCP, maxLeagueCP);
                             var matchesRank = rank <= pkmnSub.MinimumRank;
                             //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
-                            return matchesLeague && matchesCP && matchesRank;
+                            return matchesLeague && matchesCP && matchesRank && matchesGender;
                         }
 
                         // Check if PvP ranks match any relevant great or ultra league ranks, if not skip.

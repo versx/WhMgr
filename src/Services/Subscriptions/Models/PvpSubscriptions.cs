@@ -23,7 +23,12 @@
         [JsonIgnore]
         public Subscription Subscription { get; set; }
 
-        // TODO: Gender
+        [
+            JsonPropertyName("gender"),
+            Column("gender"),
+            Required,
+        ]
+        public string Gender { get; set; }
 
         [
             JsonPropertyName("league"),
@@ -60,6 +65,7 @@
 
         public PvpSubscription()
         {
+            Gender = "*";
             League = PvpLeague.Great;
             MinimumRank = Strings.Defaults.MinimumRank;
             MinimumPercent = Strings.Defaults.MinimumPercent;
