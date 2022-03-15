@@ -937,11 +937,11 @@
 
         private static bool RankExists(PvpSubscription sub, PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP, int minRAnk)
         {
-            var cp = rankData.CP ?? (int)Strings.Defaults.MinimumCP;
+            var cp = (uint?)rankData.CP ?? Strings.Defaults.MinimumCP;
             var rank = rankData.Rank ?? 4096;
             var matchesGender = Filters.MatchesGender(rankData.Gender, sub.Gender ?? "*");
             var matchesLeague = sub.League == league;
-            var matchesCP = Filters.MatchesCP((uint)cp, minLeagueCP, maxLeagueCP);
+            var matchesCP = Filters.MatchesCP(cp, minLeagueCP, maxLeagueCP);
             var matchesRank = rank <= sub.MinimumRank;
             //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
             return matchesLeague && matchesCP && matchesRank && matchesGender;
