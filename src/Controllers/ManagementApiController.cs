@@ -15,7 +15,7 @@
         private readonly IHostApplicationLifetime _appLifetime;
 
         public ManagementApiController(
-            ILogger<SubscriptionApiController> logger,
+            ILogger<ManagementApiController> logger,
             IHostApplicationLifetime appLifetime)
         {
             _logger = logger;
