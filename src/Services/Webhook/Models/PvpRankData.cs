@@ -3,6 +3,8 @@
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
+    using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
+
     /// <summary>
     /// PVP Pokemon rank class.
     /// </summary>
@@ -37,6 +39,12 @@
             Column("level"),
         ]
         public double? Level { get; set; }
+
+        [
+            JsonPropertyName("gender"),
+            Column("gender"),
+        ]
+        public Gender Gender { get; set; }
 
         [
             JsonPropertyName("cp"),

@@ -279,17 +279,6 @@
                         var filteredUltra = pokemon.UltraLeague?.Where(rank => pkmnSub.PokemonId.Contains(rank.PokemonId))
                                                                 .ToList();
 
-                        bool RankExists(PvpSubscription sub, PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP, int minRAnk)
-                        {
-                            var cp = rankData.CP ?? (int)Strings.Defaults.MinimumCP;
-                            var rank = rankData.Rank ?? 4096;
-                            var matchesLeague = pkmnSub.League == league;
-                            var matchesCP = cp >= minLeagueCP && cp <= maxLeagueCP;
-                            var matchesRank = rank <= pkmnSub.MinimumRank;
-                            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
-                            return matchesLeague && matchesCP && matchesRank;
-                        }
-
                         // Check if PvP ranks match any relevant great or ultra league ranks, if not skip.
                         var matchesGreat = filteredGreat?.Exists(rank => RankExists(
                             pkmnSub,
@@ -933,6 +922,18 @@
 
         // TODO: Move helpers to extensions class
         #region Helper Methods
+
+        private static bool RankExists(PvpSubscription sub, PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP, int minRAnk)
+        {
+            var cp = rankData.CP ?? (int)Strings.Defaults.MinimumCP;
+            var rank = rankData.Rank ?? 4096;
+            var matchesGender = Filters.MatchesGender(rankData.Gender, sub.Gender ?? "*");
+            var matchesLeague = sub.League == league;
+            var matchesCP = Filters.MatchesCP((uint)cp, minLeagueCP, maxLeagueCP);
+            var matchesRank = rank <= sub.MinimumRank;
+            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
+            return matchesLeague && matchesCP && matchesRank && matchesGender;
+        }
 
         private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, uint formId, List<uint> evolutionIds = null)
             where T : BasePokemonSubscription
