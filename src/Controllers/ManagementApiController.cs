@@ -11,7 +11,7 @@
     [Route("/api/v1/")]
     public class ManagementApiController : ControllerBase
     {
-        private readonly ILogger<SubscriptionApiController> _logger;
+        private readonly ILogger<ManagementApiController> _logger;
         private readonly IHostApplicationLifetime _appLifetime;
 
         public ManagementApiController(
