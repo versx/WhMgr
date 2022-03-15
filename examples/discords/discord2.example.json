@@ -67,5 +67,6 @@
       "channelId": 0
     }
   },
-  "iconStyle": "Default"
+  "iconStyle": "Default",
+  "logLevel": 4
 }

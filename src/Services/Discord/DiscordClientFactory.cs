@@ -27,10 +27,11 @@
             {
                 AutoReconnect = true,
                 AlwaysCacheMembers = true,
+                // REVIEW: Hmm maybe we should compress the whole stream instead of just payload.
                 GatewayCompressionLevel = GatewayCompressionLevel.Payload,
                 Token = config.Bot?.Token,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Error,
+                MinimumLogLevel = config.LogLevel,
                 Intents = DiscordIntents.DirectMessages
                     | DiscordIntents.DirectMessageTyping
                     | DiscordIntents.GuildEmojis
