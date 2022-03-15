@@ -7,11 +7,13 @@
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
 
+    using WhMgr.Extensions;
+
     [ApiController]
     [Route("/api/v1/")]
     public class ManagementApiController : ControllerBase
     {
-        private readonly ILogger<ManagementApiController> _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger<ManagementApiController> _logger;
         private readonly IHostApplicationLifetime _appLifetime;
 
         public ManagementApiController(
@@ -26,10 +28,19 @@
         [Produces(MediaTypeNames.Application.Json)]
         public IActionResult Restart()
         {
-            _appLifetime.StopApplication();
-            Program.Restart();
+            string status;
+            try
+            {
+                _appLifetime.StopApplication();
+                Program.Restart();
+                status = "OK";
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to restart application: {ex}");
+                status = "Error";
+            }
 
-            var status = "OK";
             return new JsonResult(new
             {
                 status,
