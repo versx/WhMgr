@@ -160,7 +160,7 @@
                                       !string.IsNullOrWhiteSpace(lure.PokestopName) &
                                       !string.IsNullOrWhiteSpace(pokestopName)
                                       && (
-                                          pokestopName.Contains(y.PokestopName)
+                                          pokestopName.Contains(lure.PokestopName)
                                           || string.Equals(pokestopName, lure.PokestopName, StringComparison.OrdinalIgnoreCase)
                                       )
                                   )
