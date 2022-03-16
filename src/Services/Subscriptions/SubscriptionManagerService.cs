@@ -66,7 +66,7 @@
 
         public Subscription GetUserSubscriptions(ulong guildId, ulong userId)
         {
-            return _subscriptions?.FirstOrDefault(x => x.GuildId == guildId && x.UserId == userId);
+            return _subscriptions?.FirstOrDefault(sub => sub.GuildId == guildId && sub.UserId == userId);
         }
 
         #region Get By Type
@@ -74,9 +74,9 @@
         public List<Subscription> GetSubscriptionsByPokemonId(uint pokemonId)
         {
             return _subscriptions?
-                .Where(x => x.IsEnabled(NotificationStatusType.Pokemon) &&
-                            x.Pokemon != null &&
-                            x.Pokemon.Any(y => y.PokemonId.Contains(pokemonId))
+                .Where(sub => sub.IsEnabled(NotificationStatusType.Pokemon) &&
+                              sub.Pokemon != null &&
+                              sub.Pokemon.Any(poke => poke.PokemonId.Contains(pokemonId))
                       )
                 .ToList();
         }
@@ -89,9 +89,9 @@
         public List<Subscription> GetSubscriptionsByPvpPokemonId(List<uint> pokemonId)
         {
             return _subscriptions?
-                .Where(x => x.IsEnabled(NotificationStatusType.PvP) &&
-                            x.PvP != null &&
-                            x.PvP.Any(y => y.PokemonId.Exists(pokeId => pokemonId.Contains(pokeId)))
+                .Where(sub => sub.IsEnabled(NotificationStatusType.PvP) &&
+                              sub.PvP != null &&
+                              sub.PvP.Any(pvp => pvp.PokemonId.Exists(pokeId => pokemonId.Contains(pokeId)))
                       )
                 .ToList();
         }
@@ -99,9 +99,9 @@
         public List<Subscription> GetSubscriptionsByRaidPokemonId(uint pokemonId)
         {
             return _subscriptions?
-                .Where(x => x.IsEnabled(NotificationStatusType.Raids) &&
-                            x.Raids != null &&
-                            x.Raids.Any(y => y.PokemonId.Contains(pokemonId))
+                .Where(sub => sub.IsEnabled(NotificationStatusType.Raids) &&
+                              sub.Raids != null &&
+                              sub.Raids.Any(raid => raid.PokemonId.Contains(pokemonId))
                       )
                 .ToList();
         }
@@ -109,12 +109,21 @@
         public List<Subscription> GetSubscriptionsByQuest(string pokestopName, string reward)
         {
             return _subscriptions?
-                .Where(x => x.IsEnabled(NotificationStatusType.Quests) &&
-                            x.Quests != null &&
-                            x.Quests.Any(y =>
-                                reward.Contains(y.RewardKeyword)
-                                || (y.PokestopName != null && (pokestopName.Contains(y.PokestopName)
-                                || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)))
+                .Where(sub => sub.IsEnabled(NotificationStatusType.Quests) &&
+                              sub.Quests != null &&
+                              sub.Quests.Any(quest =>
+                                  // Check if quest contains quest subscription reward keyword
+                                  reward.Contains(quest.RewardKeyword)
+                                  // Otherwise check if pokestop name is set and contains or matches quest
+                                  // subscriptions desired pokestop name 
+                                  || (
+                                      (
+                                          !string.IsNullOrEmpty(quest.PokestopName)
+                                          && (pokestopName.Contains(quest.PokestopName)
+                                      )
+                                      || string.Equals(pokestopName, quest.PokestopName, StringComparison.OrdinalIgnoreCase)
+                                     )
+                              )
                       )
                 ).ToList();
         }
@@ -122,16 +131,17 @@
         public List<Subscription> GetSubscriptionsByInvasion(string pokestopName, InvasionCharacter gruntType, List<uint> encounterRewards)
         {
             return _subscriptions?
-                .Where(x => x.IsEnabled(NotificationStatusType.Invasions) &&
-                            x.Invasions != null &&
-                            x.Invasions.Any(y =>
+                .Where(sub => sub.IsEnabled(NotificationStatusType.Invasions) &&
+                              sub.Invasions != null &&
+                              sub.Invasions.Any(invasion =>
                             {
-                                var rewardMatches = y.RewardPokemonId.Intersects(encounterRewards);
-                                var typeMatches = y.InvasionType.Contains(gruntType) && gruntType != InvasionCharacter.CharacterUnset;
-                                var pokestopMatches = !string.IsNullOrWhiteSpace(y.PokestopName) && !string.IsNullOrWhiteSpace(pokestopName) &&
+                                var subPokestopName = invasion.PokestopName;
+                                var rewardMatches = invasion.RewardPokemonId.Intersects(encounterRewards);
+                                var typeMatches = invasion.InvasionType.Contains(gruntType) && gruntType != InvasionCharacter.CharacterUnset;
+                                var pokestopMatches = !string.IsNullOrWhiteSpace(subPokestopName) && !string.IsNullOrWhiteSpace(pokestopName) &&
                                 (
-                                    pokestopName.Contains(y.PokestopName)
-                                    || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
+                                    pokestopName.Contains(subPokestopName)
+                                    || string.Equals(pokestopName, subPokestopName, StringComparison.OrdinalIgnoreCase)
                                 );
                                 return rewardMatches || typeMatches || pokestopMatches;
                             })
@@ -139,19 +149,22 @@
                 .ToList();
         }
 
-        public List<Subscription> GetSubscriptionsByLure(string pokestopName, PokestopLureType lure)
+        public List<Subscription> GetSubscriptionsByLure(string pokestopName, PokestopLureType lureType)
         {
             return _subscriptions?
-                .Where(x => x.IsEnabled(NotificationStatusType.Lures) &&
-                            x.Lures != null &&
-                            x.Lures.Any(y =>
-                                y.LureType?.Contains(lure) ?? false
-                                || !string.IsNullOrWhiteSpace(y.PokestopName) && !string.IsNullOrWhiteSpace(pokestopName) &&
-                                (
-                                    pokestopName.Contains(y.PokestopName)
-                                    || string.Equals(pokestopName, y.PokestopName, StringComparison.OrdinalIgnoreCase)
-                                )
-                            )
+                .Where(sub => sub.IsEnabled(NotificationStatusType.Lures) &&
+                              sub.Lures != null &&
+                              sub.Lures.Any(lure =>
+                                  lure.LureType?.Contains(lureType) ?? false
+                                  || (
+                                      !string.IsNullOrWhiteSpace(lure.PokestopName) &
+                                      !string.IsNullOrWhiteSpace(pokestopName)
+                                      && (
+                                          pokestopName.Contains(y.PokestopName)
+                                          || string.Equals(pokestopName, lure.PokestopName, StringComparison.OrdinalIgnoreCase)
+                                      )
+                                  )
+                              )
                       )
                 .ToList();
         }
@@ -159,9 +172,12 @@
         public List<Subscription> GetSubscriptionsByGymName(string name)
         {
             return _subscriptions?
-                .Where(x => x.IsEnabled(NotificationStatusType.Gyms) &&
-                            x.Gyms != null &&
-                            x.Gyms.Any(y => string.Equals(name, y.Name, StringComparison.OrdinalIgnoreCase) || y.Name.ToLower().Contains(name.ToLower()))
+                .Where(sub => sub.IsEnabled(NotificationStatusType.Gyms) &&
+                              sub.Gyms != null &&
+                              sub.Gyms.Any(gym =>
+                                  string.Equals(name, gym.Name, StringComparison.OrdinalIgnoreCase)
+                                  || gym.Name.ToLower().Contains(name.ToLower())
+                              )
                       )
                 .ToList();
         }
