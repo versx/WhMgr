@@ -65,6 +65,7 @@ Sends Discord notifications based on pre-defined filters for Pokemon, raids, rai
   o Pokemon IDs  
   o Pokemon Forms  
   o PvP League  
+  o Pokemon Gender  
   o Minimum Rank  
   o Minimum Stat Product Percentage  
   o Custom Location Distance (meters)  
