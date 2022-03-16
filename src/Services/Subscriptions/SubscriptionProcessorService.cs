@@ -154,7 +154,7 @@
 
                         var pokemonSize = pokemon.Id.GetSize(pokemon.Height ?? 0, pokemon.Weight ?? 0);
                         if (!pokemon.IsMissingStats && pkmn.Height != null && pkmn.Weight != null
-                            && Filters.MatchesSize(pokemonSize, pkmnSub.Size))
+                            && !Filters.MatchesSize(pokemonSize, pkmnSub.Size))
                         {
                             // Pokemon doesn't match size
                             continue;

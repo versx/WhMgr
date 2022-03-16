@@ -262,6 +262,33 @@
         }
 
         [Test]
+        [TestCase(PokemonSize.All)]
+        [TestCase(PokemonSize.Small)]
+        public void Test_PokemonFilterSize_ReturnsIsTrue(PokemonSize expectedSize)
+        {
+            var pokemonSize = PokemonSize.Small;
+            var isMissingStats = false;
+            var matches = !isMissingStats //&& pkmn.Height != null && pkmn.Weight != null
+                && Filters.MatchesSize(pokemonSize, expectedSize);
+
+            Assert.IsTrue(matches);
+        }
+
+        [Test]
+        [TestCase(PokemonSize.Small)]
+        [TestCase(PokemonSize.Tiny)]
+        [TestCase(PokemonSize.Normal)]
+        public void Test_PokemonFilterSize_ReturnsIsFalse(PokemonSize expectedSize)
+        {
+            var pokemonSize = PokemonSize.Big;
+            var isMissingStats = false;
+            var matches = !isMissingStats //&& pkmn.Height != null && pkmn.Weight != null
+                && Filters.MatchesSize(pokemonSize, expectedSize);
+
+            Assert.IsFalse(matches);
+        }
+
+        [Test]
         [TestCase(1, 15, 15)]
         [TestCase(1, 15, 14)]
         public void Test_PokemonIVListRange_ReturnsIsTrue(int atk, int def, int sta)
