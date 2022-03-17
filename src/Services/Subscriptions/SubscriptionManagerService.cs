@@ -235,7 +235,7 @@
 
         #endregion
 
-        public async Task SetSubscriptionStatusAsync(int subscriptionId, NotificationStatusType status) //Subscription subscription, NotificationStatusType status)
+        public async Task SetSubscriptionStatusAsync(int subscriptionId, NotificationStatusType status)
         {
             using var ctx = _dbFactory.CreateDbContext();
             var subscription = await ctx.Subscriptions.FindAsync(subscriptionId);
@@ -282,6 +282,7 @@
                 var utcNow = DateTime.UtcNow.GetUnixTimestamp();
                 var reloadMinutesMs = reloadM * 60 * 60;
                 var delta = utcNow - lastModifiedTimestamp;
+
                 // Check if last_modified was set within the last x minutes
                 if (!skipCheck && delta > reloadMinutesMs)
                     return;

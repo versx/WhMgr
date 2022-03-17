@@ -77,12 +77,13 @@
             }
             if (config.GeofenceRoles?.Enabled ?? false)
             {
+                // Add assignable Discord roles and listing command
                 commands.RegisterCommands<Feeds>();
             }
             else
             {
-                // TODO: Add basic area listing command
-                //commands.RegisterCommands<Areas>();
+                // Add basic area listing command
+                commands.RegisterCommands<Areas>();
             }
             /*
             commands.RegisterCommands<Owner>();
