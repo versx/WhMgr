@@ -25,7 +25,7 @@
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{Latitude}, {Longitude}";
+            return $"{Latitude},{Longitude}";
         }
 
         #region Operator Overrides

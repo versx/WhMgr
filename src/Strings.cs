@@ -39,6 +39,8 @@
         public const string DiscordAuthFilePath = BasePath + "discord_auth.json";
         public const string DiscordAvatarUrlFormat = "https://cdn.discordapp.com/avatars/{0}/{1}.png";
 
+        public const string GoogleMapsReverseGeocodingApiUrl = "https://maps.googleapis.com/maps/api/geocode/json";
+
         public const string ConfigFileName = "config.json";
         public const string DefaultsFileName = "defaults.json";
         public const string OsmNestFileName = "nest.json";

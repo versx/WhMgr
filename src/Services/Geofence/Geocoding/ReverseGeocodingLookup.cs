@@ -14,6 +14,7 @@
 
     public class ReverseGeocodingLookup : IReverseGeocodingLookup
     {
+        // TODO: Rename to .cache
         private const string CacheFolder = "cache";
 
         private static readonly AddressMemoryCache _cache = new();
@@ -21,9 +22,15 @@
 
         #region Properties
 
+        /// <summary>
+        /// Gets a singleton instance of <seealso cref="ReverseGeocodingLookup"/>
+        /// </summary>
         public static IReverseGeocodingLookup Instance =>
             _instance ??= new ReverseGeocodingLookup(Startup.Config.ReverseGeocoding);
 
+        /// <summary>
+        /// Gets or sets a value used for configuring reverse geocoding lookups.
+        /// </summary>
         public ReverseGeocodingConfig Config { get; set; }
 
         #endregion
@@ -35,6 +42,11 @@
 
         #region Public Methods
 
+        /// <summary>
+        /// Returns the location address from reverse geocoding lookup from geocoordinates.
+        /// </summary>
+        /// <param name="coord"></param>
+        /// <returns></returns>
         public async Task<string> GetAddressAsync(Coordinate coord)
         {
             return Config.Provider switch
@@ -46,6 +58,8 @@
         }
 
         #endregion
+
+
 
         /// <summary>
         /// Queries OpenStreetMaps Nominatim geolocation lookup endpoint
@@ -76,8 +90,13 @@
 
             if (data == null)
             {
-                var baseUrl = Config.Nominatim.Endpoint;
-                var url = $"{baseUrl}/reverse?format={format}&lat={coord.Latitude}&lon={coord.Longitude}";
+                var sb = new StringBuilder();
+                sb.Append(Config.Nominatim.Endpoint);
+                sb.Append("/reverse");
+                sb.Append($"?format={format}");
+                sb.Append($"&lat={coord.Latitude}");
+                sb.Append($"&lon={coord.Longitude}");
+                var url = sb.ToString();
                 try
                 {
                     var json = await GetData(url);
@@ -143,8 +162,12 @@
 
             if (data == null)
             {
-                var baseUrl = "https://maps.googleapis.com/maps/api/geocode/json";
-                var url = $"{baseUrl}?latlng={coord.Latitude},{coord.Longitude}&sensor=true&key={Config.GoogleMaps.Key}";
+                var sb = new StringBuilder();
+                sb.Append(Strings.GoogleMapsReverseGeocodingApiUrl);
+                sb.Append($"?latlng={coord.ToString()}");
+                sb.Append("&sensor=true");
+                sb.Append($"&key={Config.GoogleMaps.Key}");
+                var url = sb.ToString();
                 try
                 {
                     var json = await GetData(url);
@@ -219,21 +242,24 @@
                 CacheFolder,
                 GetProviderCacheFolderName(Config.Provider)
             );
+
+            // Create cache folder for provider if it does not exist
             if (!Directory.Exists(providerFolder))
             {
                 Directory.CreateDirectory(providerFolder);
             }
+
+            // Write and serialize address data to disk if cache file does not exist
             var filePath = Path.Combine(providerFolder, fileName);
             if (!File.Exists(filePath))
             {
-                // If cache file does not exist, write data to disk
-                using var sw = new StreamWriter(filePath, false, Encoding.UTF8, ushort.MaxValue);
                 var json = data.ToJson();
+                using var sw = new StreamWriter(filePath, false, Encoding.UTF8, ushort.MaxValue);
                 sw.WriteLine(json);
             }
         }
 
-        public T LoadFromDisk<T>((double, double) key)
+        private T LoadFromDisk<T>((double, double) key)
         {
             var (lat, lon) = key;
             var fileName = $"{lat},{lon}.json";
@@ -241,15 +267,15 @@
                 CacheFolder,
                 GetProviderCacheFolderName(Config.Provider)
             );
+
+            // Read and deserialize address data from disk if cache file exists
             var filePath = Path.Combine(providerFolder, fileName);
-            if (File.Exists(filePath))
-            {
-                // If cache file exists, read data from disk
-                using var sr = new StreamReader(filePath, Encoding.UTF8);
-                var json = sr.ReadToEnd();
-                return json.FromJson<T>();
-            }
-            return default;
+            if (!File.Exists(filePath))
+                return default;
+
+            using var sr = new StreamReader(filePath, Encoding.UTF8);
+            var json = sr.ReadToEnd();
+            return json.FromJson<T>();
         }
 
         #endregion
