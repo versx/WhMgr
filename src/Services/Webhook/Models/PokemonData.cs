@@ -462,18 +462,32 @@
             var weather = Weather?.ToString();
             var hasWeather = Weather.HasValue && Weather != WeatherCondition.None;
             var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherCondition.None);
-            var weatherEmoji = Weather != WeatherCondition.None ? Weather.GetEmojiIcon("weather", false) : null;
-            var move1 = FastMove != null ? Translator.Instance.GetMoveName(FastMove ?? 0) : "Unknown";
-            var move2 = ChargeMove != null ? Translator.Instance.GetMoveName(ChargeMove ?? 0) : "Unknown";
+            var weatherEmoji = Weather != WeatherCondition.None
+                ? Weather.GetEmojiIcon("weather", false)
+                : null;
+            var move1 = FastMove != null
+                ? Translator.Instance.GetMoveName(FastMove ?? 0)
+                : "Unknown";
+            var move2 = ChargeMove != null
+                ? Translator.Instance.GetMoveName(ChargeMove ?? 0)
+                : "Unknown";
             var type1 = pkmnInfo?.Types?[0];
             var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
-            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
+            var type1Emoji = type1?.GetTypeEmojiIcons();
+            var type2Emoji = pkmnInfo?.Types?.Count > 1
+                ? type2?.GetTypeEmojiIcons()
+                : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
-            var catchPokemon = IsDitto ? Translator.Instance.GetPokemonName(DisplayPokemonId ?? Id) : pkmnName;
+            var catchPokemon = IsDitto
+                ? Translator.Instance.GetPokemonName(DisplayPokemonId ?? Id)
+                : pkmnName;
             var isShiny = Shiny ?? false;
-            var height = Height != null ? Math.Round(Height ?? 0).ToString() : "";
-            var weight = Weight != null ? Math.Round(Weight ?? 0).ToString() : "";
+            var height = Height != null
+                ? Math.Round(Height ?? 0).ToString()
+                : "";
+            var weight = Weight != null
+                ? Math.Round(Weight ?? 0).ToString()
+                : "";
 
             var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);

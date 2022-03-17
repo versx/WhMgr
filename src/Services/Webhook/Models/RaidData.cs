@@ -178,7 +178,9 @@
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                Color = IsExEligible ? 0 /*ex*/ : Level.BuildRaidColor(GameMaster.Instance.DiscordEmbedColors).Value,
+                Color = IsExEligible
+                    ? 0 /* TODO: ex color */
+                    : Level.BuildRaidColor(GameMaster.Instance.DiscordEmbedColors).Value,
                 Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
@@ -213,9 +215,9 @@
             var types = pkmnInfo?.Types;
             var type1 = types?[0];
             var type2 = types?.Count > 1 ? types?[1] : PokemonType.None;
-            var type1Emoji = types?[0].GetTypeEmojiIcons();
+            var type1Emoji = type1?.GetTypeEmojiIcons();
             var type2Emoji = pkmnInfo?.Types?.Count > 1
-                ? types?[1].GetTypeEmojiIcons()
+                ? type2?.GetTypeEmojiIcons()
                 : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null

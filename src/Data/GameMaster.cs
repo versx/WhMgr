@@ -103,10 +103,13 @@
         public static PokedexPokemon GetPokemon(uint pokemonId, uint formId = 0)
         {
             if (!Instance.Pokedex.ContainsKey(pokemonId))
+            {
+                Console.WriteLine($"[Warning] Pokemon {pokemonId} does not exist in {MasterFileName}, please use an updated version.");
                 return null;
+            }
 
             var pkmn = Instance.Pokedex[pokemonId];
-            var useForm = !pkmn.Attack.HasValue && formId > 0 && pkmn.Forms.ContainsKey(formId);
+            var useForm = /*!pkmn.Attack.HasValue &&*/ formId > 0 && pkmn.Forms.ContainsKey(formId);
             var pkmnForm = useForm ? pkmn.Forms[formId] : pkmn;
             pkmnForm.Name = pkmn.Name;
             return pkmnForm;
