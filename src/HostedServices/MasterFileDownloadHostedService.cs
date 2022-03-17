@@ -1,13 +1,16 @@
 ﻿namespace WhMgr.HostedServices
 {
-    using Microsoft.Extensions.Hosting;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
+
+    using Microsoft.Extensions.Hosting;
+
     using WhMgr.Data;
+
     public class MasterFileDownloaderHostedService : IHostedService, IDisposable
     {
         private readonly Dictionary<string, MidnightTimer> _tzMidnightTimers;
@@ -16,16 +19,17 @@
         {
             _tzMidnightTimers = new Dictionary<string, MidnightTimer>();
         }
-        void IDisposable.Dispose()
+
+        public void Dispose()
         {
             _tzMidnightTimers.Clear();
 
             GC.SuppressFinalize(this);
         }
 
-        Task IHostedService.StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
         {
-            TimeZone localZone = TimeZone.CurrentTimeZone;
+            var localZone = TimeZoneInfo.Local;
             var timezone = localZone.StandardName;
 
             var midnightTimer = new MidnightTimer(0, timezone);
@@ -33,6 +37,16 @@
             midnightTimer.Start();
 
             _tzMidnightTimers.Add(timezone, midnightTimer);
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            foreach (var (timezone, midnightTimer) in _tzMidnightTimers)
+            {
+                midnightTimer.Stop();
+                midnightTimer.Dispose();
+            }
             return Task.CompletedTask;
         }
 
@@ -46,16 +60,6 @@
                 wc.DownloadFile(new System.Uri(url), filePath);
             }
             GameMaster.ReloadMasterFile();
-        }
-
-        Task IHostedService.StopAsync(CancellationToken cancellationToken)
-        {
-            foreach (var (timezone, midnightTimer) in _tzMidnightTimers)
-            {
-                midnightTimer.Stop();
-                midnightTimer.Dispose();
-            }
-            return Task.CompletedTask;
         }
     }
 }
