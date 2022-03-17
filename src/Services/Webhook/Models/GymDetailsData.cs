@@ -10,6 +10,7 @@
 
     using WhMgr.Common;
     using WhMgr.Data;
+    using WhMgr.Localization;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
@@ -223,11 +224,9 @@
                 sponsor_id = Convert.ToString(SponsorId),
                 ex_emoji = exEmoji,
                 slots_available = SlotsAvailable == 0
-                    // TODO: Localize "Full"
-                    ? "Full"
+                    ? Translator.Instance.Translate("FULL")
                     : SlotsAvailable == 6
-                        // TODO: Localize "Empty"
-                        ? "Empty"
+                        ? Translator.Instance.Translate("Empty")
                         : SlotsAvailable.ToString("N0"),
                 is_ar = IsArScanEligible ?? false,
 

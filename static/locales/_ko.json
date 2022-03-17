@@ -145,5 +145,7 @@
     "UNKNOWN_POKESTOP": "Unknown Pokestop",
     "NORMAL": "Normal",
     "UNKNOWN": "Unknown",
-    "EGG": "Egg"
+    "EGG": "Egg",
+    "FULL": "Full",
+    "EMPTY": "Empty"
 }
