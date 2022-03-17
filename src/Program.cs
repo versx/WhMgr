@@ -63,7 +63,7 @@ namespace WhMgr
                                     options.Release = Strings.BotVersion;
                                     options.AutoSessionTracking = true;
                                     options.MaxBreadcrumbs = 200;
-                                    options.TracesSampleRate = 1.0;
+                                    options.TracesSampleRate = 0.1;
                                     options.HttpProxy = null;
                                     options.DecompressionMethods = System.Net.DecompressionMethods.None;
                                     options.MaxQueueItems = 100;
