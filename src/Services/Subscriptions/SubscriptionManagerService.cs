@@ -293,6 +293,8 @@
                     return;
 
                 _subscriptions = subs;
+
+                _logger.Information("User subscriptions list reloaded.");
             }
             catch (Exception ex)
             {

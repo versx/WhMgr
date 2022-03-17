@@ -52,12 +52,11 @@
 
         private void OnMidnightTimerTimeReached(DateTime time, string timezone)
         {
-            using (WebClient wc = new WebClient())
+            using (var wc = new WebClient())
             {
-                var url = "https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json";
-                var filePath = Path.Combine(Strings.DataFolder, "masterfile.json");
+                var filePath = Path.Combine(Strings.DataFolder, GameMaster.MasterFileName);
                 wc.Proxy = null;
-                wc.DownloadFile(new System.Uri(url), filePath);
+                wc.DownloadFile(new Uri(Strings.LatestGameMasterFileUrl), filePath);
             }
             GameMaster.ReloadMasterFile();
         }

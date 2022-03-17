@@ -471,11 +471,18 @@
             var move2 = ChargeMove != null
                 ? Translator.Instance.GetMoveName(ChargeMove ?? 0)
                 : "Unknown";
-            var type1 = pkmnInfo?.Types?[0];
-            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = type1?.GetTypeEmojiIcons();
+
+            var type1 = pkmnInfo?.Types?.Count >= 1
+                ? pkmnInfo.Types[0]
+                : PokemonType.None;
+            var type2 = pkmnInfo?.Types?.Count > 1
+                ? pkmnInfo.Types[1]
+                : PokemonType.None;
+            var type1Emoji = pkmnInfo?.Types?.Count >= 1
+                ? type1.GetTypeEmojiIcons()
+                : string.Empty;
             var type2Emoji = pkmnInfo?.Types?.Count > 1
-                ? type2?.GetTypeEmojiIcons()
+                ? type2.GetTypeEmojiIcons()
                 : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var catchPokemon = IsDitto
@@ -548,8 +555,8 @@
                 move_1 = move1 ?? defaultMissingValue,
                 move_2 = move2 ?? defaultMissingValue,
                 moveset = $"{move1}/{move2}",
-                type_1 = type1?.ToString() ?? defaultMissingValue,
-                type_2 = type2?.ToString() ?? defaultMissingValue,
+                type_1 = type1.ToString() ?? defaultMissingValue,
+                type_2 = type2.ToString() ?? defaultMissingValue,
                 type_1_emoji = type1Emoji,
                 type_2_emoji = type2Emoji,
                 types = $"{type1} | {type2}",

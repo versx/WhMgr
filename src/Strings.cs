@@ -40,6 +40,7 @@
         public const string DiscordAvatarUrlFormat = "https://cdn.discordapp.com/avatars/{0}/{1}.png";
 
         public const string GoogleMapsReverseGeocodingApiUrl = "https://maps.googleapis.com/maps/api/geocode/json";
+        public const string LatestGameMasterFileUrl = "https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json";
 
         public const string ConfigFileName = "config.json";
         public const string DefaultsFileName = "defaults.json";

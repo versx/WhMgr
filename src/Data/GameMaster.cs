@@ -14,11 +14,11 @@
 
     public class GameMaster
     {
-        const string MasterFileName = "masterfile.json";
-        const string CpMultipliersFileName = "cpMultipliers.json";
-        const string EmojisFileName = "emojis.json";
-        const string RarityFileName = "rarity.json";
-        const string EmbedColorsFileName = "embedColors.json";
+        public const string MasterFileName = "masterfile.json";
+        public const string CpMultipliersFileName = "cpMultipliers.json";
+        public const string EmojisFileName = "emojis.json";
+        public const string RarityFileName = "rarity.json";
+        public const string EmbedColorsFileName = "embedColors.json";
 
         #region Properties
 
