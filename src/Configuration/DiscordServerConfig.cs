@@ -6,6 +6,8 @@
     using System.Linq;
     using System.Text.Json.Serialization;
 
+    using Microsoft.Extensions.Logging;
+
     using WhMgr.Services.Geofence;
 
     /// <summary>
@@ -95,11 +97,18 @@
         public string IconStyle { get; set; } = "Default";
 
         /// <summary>
+        /// Gets or sets the DiscordClient minimum log level to use for the DSharpPlus
+        /// internal logger (separate from the main logs)
+        /// </summary>
+        public LogLevel LogLevel { get; set; }
+
+        /// <summary>
         /// Instantiate a new <see cref="DiscordServerConfig"/> class
         /// </summary>
         public DiscordServerConfig()
         {
             //Locale = "en";
+            LogLevel = LogLevel.Error;
         }
 
         public void LoadGeofences()

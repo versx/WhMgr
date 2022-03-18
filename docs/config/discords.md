@@ -130,6 +130,8 @@ Copy your Discord specific configs to the `bin/discords` folder and reference th
     }
   },
   // Icon style for postings from Discord server.
-  "iconStyle": "Default"
+  "iconStyle": "Default",
+  // Discord client log level, only change if debugging an issue with Discord (default: 4 aka Error)
+  "logLevel": 4
 }
 ```
