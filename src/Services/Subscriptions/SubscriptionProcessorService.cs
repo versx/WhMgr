@@ -296,16 +296,14 @@
                             rank,
                             PvpLeague.Great,
                             defaults.MinimumGreatLeagueCP,
-                            defaults.MaximumGreatLeagueCP,
-                            defaults.MinimumRank
+                            defaults.MaximumGreatLeagueCP
                         )) ?? false;
                         var matchesUltra = filteredUltra?.Exists(rank => RankExists(
                             pkmnSub,
                             rank,
                             PvpLeague.Ultra,
                             defaults.MinimumUltraLeagueCP,
-                            defaults.MaximumUltraLeagueCP,
-                            defaults.MinimumRank
+                            defaults.MaximumUltraLeagueCP
                         )) ?? false;
 
                         // Skip if no relevent ranks for great and ultra league.
@@ -935,7 +933,7 @@
         // TODO: Move helpers to extensions class
         #region Helper Methods
 
-        private static bool RankExists(PvpSubscription sub, PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP, int minRAnk)
+        private static bool RankExists(PvpSubscription sub, PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP)
         {
             var cp = (uint?)rankData.CP ?? Strings.Defaults.MinimumCP;
             var rank = rankData.Rank ?? 4096;
