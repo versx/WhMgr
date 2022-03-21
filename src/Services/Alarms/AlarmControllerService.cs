@@ -152,20 +152,25 @@
                         continue;
                     }
 
-                    var skipGreatLeague = alarm.Filters.Pokemon.IsPvpGreatLeague &&
-                        !(pokemon.MatchesGreatLeague && pokemon.GreatLeague.Exists(x =>
-                            Filters.Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= Strings.Defaults.MinimumGreatLeagueCP && x.CP <= Strings.Defaults.MaximumGreatLeagueCP));
+                    var skipPvpLeagues = pokemon.HasPvpRankings && alarm.Filters.Pokemon.Pvp?.Keys.FirstOrDefault(league =>
+                    {
+                        // Check if webhook Pokemon contains Pokemon alarm PvP league filter
+                        if (!pokemon.PvpRankings.ContainsKey(league))
+                        {
+                            return false;
+                        }
+                        // Check if alarm filter contains PvP league
+                        if (!alarm.Filters.Pokemon.Pvp.ContainsKey(league))
+                        {
+                            return false;
+                        }
+                        var filterRankings = alarm.Filters.Pokemon.Pvp[league];
+                        var pokemonRankings = pokemon.PvpRankings;
+                        // TODO: Check if pvp league rank is within `Strings.Defaults.Pvp.*` specified properties
+                        return false;
+                    }) == null;
 
-                    if (skipGreatLeague)
-                        continue;
-
-                    var skipUltraLeague = alarm.Filters.Pokemon.IsPvpUltraLeague &&
-                        !(pokemon.MatchesUltraLeague && pokemon.UltraLeague.Exists(x =>
-                            Filters.Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= Strings.Defaults.MinimumUltraLeagueCP && x.CP <= Strings.Defaults.MaximumUltraLeagueCP));
-
-                    if (skipUltraLeague)
+                    if (skipPvpLeagues)
                         continue;
 
                     if (!Filters.Filters.MatchesGender(pokemon.Gender, alarm.Filters.Pokemon.Gender.ToString()))

@@ -1,7 +1,10 @@
 ﻿namespace WhMgr.Data.Contexts
 {
-    using Microsoft.EntityFrameworkCore;
     using System.Collections.Generic;
+
+    using Microsoft.EntityFrameworkCore;
+
+    using WhMgr.Common;
     using WhMgr.Data.Factories;
     using WhMgr.Data.Models;
     using WhMgr.Services.Webhook.Models;
@@ -31,11 +34,16 @@
                         .HasNoKey();
 
             modelBuilder.Entity<PokemonData>()
+                        .Property(p => p.PvpRankings)
+                        .HasConversion(DbContextFactory.CreateJsonValueConverter<Dictionary<PvpLeague, List<PvpRankData>>>());
+            /*
+            modelBuilder.Entity<PokemonData>()
                         .Property(p => p.GreatLeague)
                         .HasConversion(DbContextFactory.CreateJsonValueConverter<List<PvpRankData>>());
             modelBuilder.Entity<PokemonData>()
                         .Property(p => p.UltraLeague)
                         .HasConversion(DbContextFactory.CreateJsonValueConverter<List<PvpRankData>>());
+            */
 
             modelBuilder.Entity<PokemonStatsIV>()
                         .HasKey(p => new { p.Date, p.PokemonId });
