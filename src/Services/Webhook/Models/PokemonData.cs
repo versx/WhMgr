@@ -285,7 +285,7 @@
             JsonPropertyName("pvp"),
             Column("pvp"),
         ]
-        public Dictionary<PvpLeague, PvpRankData> PvpRankings { get; set; }
+        public Dictionary<PvpLeague, List<PvpRankData>> PvpRankings { get; set; }
 
         #endregion
 
@@ -332,7 +332,7 @@
         /// </summary>
         public PokemonData()
         {
-            PvpRankings = new Dictionary<PvpLeague, PvpRankData>();
+            PvpRankings = new Dictionary<PvpLeague, List<PvpRankData>>();
         }
 
         #endregion
@@ -569,8 +569,11 @@
                 is_pvp = HasPvpRankings,
                 great_league_emoji = greatLeagueEmoji,
                 ultra_league_emoji = ultraLeagueEmoji,
-                great_league = this.GetLeagueRanks(PvpLeague.Great),
-                ultra_league = this.GetLeagueRanks(PvpLeague.Ultra),
+                has_pvp = HasPvpRankings,
+                // TODO: Update handlebars template to parse dictionaries and print each available league + rankings
+                pvp = PvpRankings,
+                //great_league = this.GetLeagueRanks(PvpLeague.Great),
+                //ultra_league = this.GetLeagueRanks(PvpLeague.Ultra),
 
                 // Other properties
                 height = height ?? defaultMissingValue,

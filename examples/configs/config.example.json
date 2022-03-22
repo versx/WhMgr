@@ -186,5 +186,25 @@
    * Critical: 5
    * None: 6
   */
-  "logLevel": 0
+  "logLevel": 0,
+  "pvpLeagues": {
+    "little": [{
+      "minCP": 450,
+      "maxCP": 500,
+      "minRank": 1,
+      "maxRank": 100
+    }],
+    "great": [{
+      "minCP": 1400,
+      "maxCP": 1500,
+      "minRank": 1,
+      "maxRank": 100
+    }],
+    "ultra": [{
+      "minCP": 2400,
+      "maxCP": 2500,
+      "minRank": 1,
+      "maxRank": 100
+    }]
+  }
 }

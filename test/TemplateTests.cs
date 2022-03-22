@@ -5,7 +5,9 @@
 
     using NUnit.Framework;
 
+    using WhMgr.Common;
     using WhMgr.Services;
+    using WhMgr.Services.Webhook.Models;
 
     [TestFixture]
     public class TemplateTests
@@ -13,6 +15,37 @@
         [SetUp]
         public void Setup()
         {
+        }
+
+        [Test]
+        public void Test_TemplatePvpRankings_ReturnsText()
+        {
+            var embedData = @"
+{{#each pvp}}{{@key}}\n
+    {{#each this}}
+        {{rank}} {{pokemonName}} {{cp}}CP @ L{{level}} {{percentage}}%
+    {{/each}}
+{{/each}}
+";
+            var pvpRanks = new Dictionary<PvpLeague, List<PvpRankData>>
+            {
+                {
+                    PvpLeague.Great, new List<PvpRankData>
+                    {
+                        new PvpRankData
+                        {
+                            CP = 1420,
+                            FormId = 0,
+                            Level = 20,
+                            PokemonId = 43,
+                            Rank = 1,
+                            PokemonName = "Oddish",
+                        },
+                    }
+                },
+            };
+            var templateData = TemplateRenderer.Parse(embedData, new { pvp = pvpRanks });
+            Console.WriteLine($"Template data: {templateData}");
         }
 
         [Test]

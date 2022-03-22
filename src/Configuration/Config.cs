@@ -7,6 +7,7 @@
 
     using Microsoft.Extensions.Logging;
 
+    using WhMgr.Common;
     using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Services.Icons;
@@ -153,6 +154,12 @@
         public bool EnableSentry { get; set; }
 
         /// <summary>
+        /// Gets or sets the allowed PvP league rankings to show and filter by received Pokemon
+        /// </summary>
+        [JsonPropertyName("pvp")]
+        public Dictionary<PvpLeague, PvpLeagueConfig> PvpLeagues { get; set; }
+
+        /// <summary>
         /// Gets or sets the configuration file path
         /// </summary>
         [JsonIgnore]
@@ -169,6 +176,7 @@
             LogLevel = LogLevel.Trace;
             DespawnTimeMinimumMinutes = 5;
             CheckForDuplicates = true;
+            PvpLeagues = new Dictionary<PvpLeague, PvpLeagueConfig>();
         }
 
         /// <summary>

@@ -282,32 +282,36 @@
 
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
-                        var defaults = Strings.Defaults;
+                        // TODO: Combine filtered and matchesAny
 
-                        // Filter PvP rankings by subscribed Pokemon ID and check ranks for filtered ranks.
-                        var filteredGreat = pokemon.GreatLeague?.Where(rank => pkmnSub.PokemonId.Contains(rank.PokemonId))
-                                                                .ToList();
-                        var filteredUltra = pokemon.UltraLeague?.Where(rank => pkmnSub.PokemonId.Contains(rank.PokemonId))
-                                                                .ToList();
+                        // Filter Pokemon PvP rankings based on user subscription settings
+                        var filtered = pokemon.PvpRankings?.Where(pvp =>
+                        {
+                            (PvpLeague pokemonPvpLeague, List<PvpRankData> ranks) = pvp;
+
+                            // Skip if PvP subscription's league does not match set Pokemon rank league
+                            if (pokemonPvpLeague != pkmnSub.League)
+                                return false;
+
+                            // Only return PvP subscriptions that are equal to the Pokemon's rank
+                            return ranks.Exists(rank => pkmnSub.PokemonId.Contains(rank.PokemonId));
+                        });
 
                         // Check if PvP ranks match any relevant great or ultra league ranks, if not skip.
-                        var matchesGreat = filteredGreat?.Exists(rank => RankExists(
-                            pkmnSub,
-                            rank,
-                            PvpLeague.Great,
-                            defaults.MinimumGreatLeagueCP,
-                            defaults.MaximumGreatLeagueCP
-                        )) ?? false;
-                        var matchesUltra = filteredUltra?.Exists(rank => RankExists(
-                            pkmnSub,
-                            rank,
-                            PvpLeague.Ultra,
-                            defaults.MinimumUltraLeagueCP,
-                            defaults.MaximumUltraLeagueCP
-                        )) ?? false;
+                        var matchesAny = filtered.Any(pvp =>
+                        {
+                            (PvpLeague league, List<PvpRankData> ranks) = pvp;
 
-                        // Skip if no relevent ranks for great and ultra league.
-                        if (!matchesGreat && !matchesUltra)
+                            // Check if league set in config
+                            if (!Startup.Config.PvpLeagues.ContainsKey(league))
+                                return false;
+
+                            var leagueConfig = Startup.Config.PvpLeagues[league];
+                            return RankExists(pkmnSub, ranks, league, leagueConfig);
+                        });
+
+                        // Skip if no relevent ranks for set PvP leagues.
+                        if (!matchesAny)
                             continue;
 
                         var geofence = GetGeofence(user.GuildId);
@@ -933,11 +937,16 @@
         // TODO: Move helpers to extensions class
         #region Helper Methods
 
+        private static bool RankExists(PvpSubscription sub, List<PvpRankData> rankData, PvpLeague league, PvpLeagueConfig config)
+        {
+            return rankData?.Exists(x => RankExists(sub, x, league, config.MinimumCP, config.MaximumCP)) ?? false;
+        }
+
         private static bool RankExists(PvpSubscription sub, PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP)
         {
             var cp = (uint?)rankData.CP ?? Strings.Defaults.MinimumCP;
             var rank = rankData.Rank ?? 4096;
-            var matchesGender = Filters.MatchesGender(rankData.Gender, sub.Gender ?? "*");
+            var matchesGender = Filters.MatchesGender(rankData.Gender, string.IsNullOrEmpty(sub.Gender) ? "*" : sub.Gender);
             var matchesLeague = sub.League == league;
             var matchesCP = Filters.MatchesCP(cp, minLeagueCP, maxLeagueCP);
             var matchesRank = rank <= sub.MinimumRank;
