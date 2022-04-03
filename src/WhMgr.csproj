@@ -43,9 +43,9 @@
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="DSharpPlus" Version="4.1.0" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.1.0" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.1.0" />
+    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-01105" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0-nightly-01105" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.2.0-nightly-01105" />
     <PackageReference Include="GeoTimeZone" Version="4.1.0" />
     <PackageReference Include="Handlebars.Net" Version="2.1.0" />
     <PackageReference Include="Handlebars.Net.Helpers" Version="2.3.3" />
