@@ -2,7 +2,7 @@
 {
     using System.Text.Json.Serialization;
 
-    using POGOProtos.Rpc;
+    using static POGOProtos.Rpc.BelugaPokemonProto.Types;
 
     public class PokedexPokemonEvolution
     {

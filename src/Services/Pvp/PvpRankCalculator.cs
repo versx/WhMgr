@@ -6,6 +6,7 @@
     using System.Runtime.Caching;
 
     using POGOProtos.Rpc;
+    using static POGOProtos.Rpc.BelugaPokemonProto.Types;
 
     using WhMgr.Data;
 
