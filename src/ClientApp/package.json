@@ -6,9 +6,9 @@
   "dependencies": {
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
-    "@mui/icons-material": "^5.4.2",
+    "@mui/icons-material": "^5.5.1",
     "@mui/lab": "^5.0.0-alpha.66",
-    "@mui/material": "^5.4.0",
+    "@mui/material": "^5.5.1",
     "@mui/styles": "^5.5.1",
     "@mui/x-data-grid": "^5.6.1",
     "leaflet": "^1.7.1",

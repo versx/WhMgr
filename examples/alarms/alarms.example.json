@@ -9,7 +9,7 @@
 	[
 		{
 			"name": "City1-Rare",
-			"description": "\\<!@324234324\\> \\<@&12331131\\> {{iv}} L{{lvl}} {{geofence}}",
+			"description": "<!@324234324> <@&12331131> {{iv}} L{{lvl}} {{geofence}}",
 			"embeds": "default.json",
 			"filters": "all.json",
 			"geofences":["City1.txt", "City2.txt"],
