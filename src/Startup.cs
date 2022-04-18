@@ -104,9 +104,10 @@ namespace WhMgr
                 .AddProcessAllocatedMemoryHealthCheck((int)Environment.WorkingSet, "Allocated Memory")
                 .AddDiskStorageHealthCheck(setup =>
                 {
-                    DriveInfo.GetDrives().Where(drive => drive.IsReady && drive.DriveType == DriveType.Fixed)
-                                         .ToList()
-                                         .ForEach(drive => setup.AddDrive(drive.RootDirectory.FullName));
+                    DriveInfo.GetDrives()
+                             .Where(drive => drive.IsReady && drive.DriveType == DriveType.Fixed)
+                             .ToList()
+                             .ForEach(drive => setup.AddDrive(drive.RootDirectory.FullName));
                 }, "Local Disk Storage")
                 //.AddDnsResolveHealthCheck(setup => setup.ResolveHost("https://google.com"))
                 .AddPingHealthCheck(setup => setup.AddHost("discord.com", 10), "Discord Status");
