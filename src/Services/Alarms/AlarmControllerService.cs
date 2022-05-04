@@ -167,6 +167,7 @@
                         var filterRankings = alarm.Filters.Pokemon.Pvp[league];
                         var pokemonRankings = pokemon.PvpRankings;
                         // TODO: Check if pvp league rank is within `Strings.Defaults.Pvp.*` specified properties
+                        
                         return false;
                     }) == null;
 
@@ -202,6 +203,18 @@
                     }
                 }
             }
+        }
+
+        private static bool RankExists(List<Filters.Models.PvpFilter> sub, PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP)
+        {
+            var cp = (uint?)rankData.CP ?? Strings.Defaults.MinimumCP;
+            var rank = rankData.Rank ?? 4096;
+            var matchesGender = Filters.MatchesGender(rankData.Gender, string.IsNullOrEmpty(sub.Gender) ? "*" : sub.Gender);
+            var matchesLeague = sub.League == league;
+            var matchesCP = Filters.MatchesCP(cp, minLeagueCP, maxLeagueCP);
+            var matchesRank = rank <= sub.MinimumRank;
+            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
+            return matchesLeague && matchesCP && matchesRank && matchesGender;
         }
 
         public void ProcessRaidAlarms(RaidData raid)

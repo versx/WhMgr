@@ -67,9 +67,7 @@
         public PvpSubscription()
         {
             Gender = "*";
-            League = PvpLeague.Great;
-            MinimumRank = Strings.Defaults.MinimumRank;
-            MinimumPercent = Strings.Defaults.MinimumPercent;
+            League = PvpLeague.Other;
         }
     }
 }

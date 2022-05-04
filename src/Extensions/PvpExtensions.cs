@@ -103,13 +103,21 @@
             return dict;
         }
 
-        public static DiscordColor GetPvPColor(this DiscordEmbedColorsConfig config, List<PvpRankData> greatLeague, List<PvpRankData> ultraLeague)
+        public static DiscordColor GetPvPColor(this DiscordEmbedColorsConfig config, Dictionary<PvpLeague, List<PvpRankData>> rankings)
         {
-            var greatRank = greatLeague?.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.Defaults.MinimumGreatLeagueCP && x.CP <= Strings.Defaults.MaximumGreatLeagueCP);
-            var ultraRank = ultraLeague?.FirstOrDefault(x => x.Rank > 0 && x.Rank <= 25 && x.CP >= Strings.Defaults.MinimumUltraLeagueCP && x.CP <= Strings.Defaults.MaximumUltraLeagueCP);
+            const ushort maxRank = 25;
+            var matchedRank = rankings?.FirstOrDefault(x =>
+            {
+                return x.Value?.Exists(y =>
+                    y.Rank > 0 &&
+                    y.Rank <= maxRank &&
+                    y.CP >= Strings.Defaults.Pvp[x.Key].MinimumLeagueCP &&
+                    y.CP <= Strings.Defaults.Pvp[x.Key].MaximumLeagueCP
+                ) ?? false;
+            }).Value?.FirstOrDefault();
             var color = config.Pokemon.PvP.FirstOrDefault(x =>
-                ((greatRank?.Rank ?? 0) >= x.Minimum && (greatRank?.Rank ?? 0) <= x.Maximum)
-                || ((ultraRank?.Rank ?? 0) >= x.Minimum && (ultraRank?.Rank ?? 0) <= x.Maximum)
+                (matchedRank?.Rank ?? 0) >= x.Minimum &&
+                (matchedRank?.Rank ?? 0) <= x.Maximum
             );
             if (color == null)
             {

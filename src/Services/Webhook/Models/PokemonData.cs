@@ -389,23 +389,21 @@
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                Image = new Discord.Models.DiscordEmbedImage
+                Image = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Thumbnail = new Discord.Models.DiscordEmbedImage
+                Thumbnail = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 Color = (
                     HasPvpRankings
-                        // TODO: Fix PvP color logic
-                        //? GameMaster.Instance.DiscordEmbedColors.GetPvPColor(GreatLeague, UltraLeague)
-                        ? DSharpPlus.Entities.DiscordColor.Blurple
+                        ? GameMaster.Instance.DiscordEmbedColors.GetPvPColor(PvpRankings)
                         : IV.BuildPokemonIVColor(GameMaster.Instance.DiscordEmbedColors)
                     ).Value,
-                Footer = new Discord.Models.DiscordEmbedFooter
+                Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
