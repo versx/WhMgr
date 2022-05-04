@@ -42,7 +42,7 @@
         public ushort Level { get; set; }
 
         [JsonPropertyName("cp")]
-        public ushort CP { get; set; }
+        public uint CP { get; set; }
 
         [JsonPropertyName("move_1")]
         public uint FastMove { get; set; }
