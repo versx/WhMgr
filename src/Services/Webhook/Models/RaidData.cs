@@ -100,18 +100,16 @@
         {
             get
             {
-                if (GameMaster.Instance.Pokedex.ContainsKey(PokemonId) && !IsEgg)
-                {
-                    var list = new List<PokemonType>();
-                    var types = GameMaster.GetPokemon(PokemonId, Form)?.Types;
-                    if (types != null)
-                    {
-                        GameMaster.GetPokemon(PokemonId, Form)?.Types?.ForEach(x => list.AddRange(x.GetWeaknesses()));
-                    }
-                    return list;
-                }
+                if (!GameMaster.Instance.Pokedex.ContainsKey(PokemonId) || IsEgg)
+                    return null;
 
-                return null;
+                var pkmn = GameMaster.GetPokemon(PokemonId, Form);
+                if (pkmn?.Types == null)
+                    return null;
+
+                var list = new List<PokemonType>();
+                pkmn?.Types?.ForEach(x => list.AddRange(x.GetWeaknesses()));
+                return list;
             }
         }
 
