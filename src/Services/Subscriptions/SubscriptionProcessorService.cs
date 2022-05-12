@@ -307,7 +307,7 @@
                                 return false;
 
                             var leagueConfig = Startup.Config.PvpLeagues[league];
-                            return RankExists(pkmnSub, ranks, league, leagueConfig);
+                            return pkmnSub.RankExists(ranks, league, leagueConfig);
                         });
 
                         // Skip if no relevent ranks for set PvP leagues.
@@ -936,23 +936,6 @@
 
         // TODO: Move helpers to extensions class
         #region Helper Methods
-
-        private static bool RankExists(PvpSubscription sub, List<PvpRankData> rankData, PvpLeague league, PvpLeagueConfig config)
-        {
-            return rankData?.Exists(x => RankExists(sub, x, league, config.MinimumCP, config.MaximumCP)) ?? false;
-        }
-
-        private static bool RankExists(PvpSubscription sub, PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP)
-        {
-            var cp = (uint?)rankData.CP ?? Strings.Defaults.MinimumCP;
-            var rank = rankData.Rank ?? 4096;
-            var matchesGender = Filters.MatchesGender(rankData.Gender, string.IsNullOrEmpty(sub.Gender) ? "*" : sub.Gender);
-            var matchesLeague = sub.League == league;
-            var matchesCP = Filters.MatchesCP(cp, minLeagueCP, maxLeagueCP);
-            var matchesRank = rank <= sub.MinimumRank;
-            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
-            return matchesLeague && matchesCP && matchesRank && matchesGender;
-        }
 
         private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, string form, List<uint> evolutionIds = null)
             where T : BasePokemonSubscription
