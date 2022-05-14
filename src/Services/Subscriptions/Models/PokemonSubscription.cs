@@ -31,7 +31,11 @@
         ]
         public int MinimumCP { get; set; }
 
-        // TODO: Maximum CP
+        [
+            JsonPropertyName("max_cp"),
+            Column("max_cp"),
+        ]
+        public int MaximumCP { get; set; }
 
         [
             JsonPropertyName("min_iv"),
@@ -99,6 +103,7 @@
         public PokemonSubscription()
         {
             MinimumCP = 0;
+            MaximumCP = int.MaxValue;
             MinimumIV = 0;
             MinimumLevel = 0;
             MaximumLevel = 35;

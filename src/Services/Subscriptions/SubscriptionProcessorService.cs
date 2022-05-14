@@ -89,6 +89,7 @@
             DiscordMember member = null;
             var pkmn = GameMaster.GetPokemon(pokemon.Id, pokemon.FormId);
             var matchesIV = false;
+            var matchesCP = false;
             var matchesLvl = false;
             var matchesGender = false;
             var matchesIVList = false;
@@ -140,10 +141,13 @@
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         matchesIV = Filters.MatchesIV(pokemon.IV, (uint)pkmnSub.MinimumIV, 100);
-                        //var matchesCP = _whm.Filters.MatchesCpFilter(pkmn.CP, subscribedPokemon.MinimumCP);
+                        matchesCP = Filters.MatchesCP(pokemon.CP, (uint)pkmnSub.MinimumCP, (uint)pkmnSub.MaximumCP);
                         matchesLvl = Filters.MatchesLvl(pokemon.Level, (uint)pkmnSub.MinimumLevel, (uint)pkmnSub.MaximumLevel);
                         matchesGender = Filters.MatchesGender(pokemon.Gender, pkmnSub.Gender);
                         matchesIVList = IvListMatches(pkmnSub.IVList, pokemon);
+
+                        if (!matchesCP)
+                            continue;
 
                         // If no IV list specified check whole IV value, otherwise ignore whole IV value and only check IV list.
                         if (!(
