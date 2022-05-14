@@ -165,10 +165,18 @@
                             return false;
                         }
                         var filterRankings = alarm.Filters.Pokemon.Pvp[league];
-                        var pokemonRankings = pokemon.PvpRankings;
-                        // TODO: Check if pvp league rank is within `Strings.Defaults.Pvp.*` specified properties
-                        
-                        return false;
+                        var pokemonRankings = pokemon.PvpRankings[league];
+                        var result = filterRankings.Any(filter =>
+                        {
+                            return pokemonRankings.Any(rank =>
+                                filter.MinimumRank <= rank.Rank && filter.MaximumRank >= rank.Rank
+                                &&
+                                filter.MinimumCP <= rank.CP && filter.MaximumCP >= rank.CP
+                                //&&
+                                //filter.MinimumPercent <= rank.Percentage && filter.MaximumPercent >= rank.Percentage
+                            );
+                        });
+                        return result;
                     }) == null;
 
                     if (skipPvpLeagues)
