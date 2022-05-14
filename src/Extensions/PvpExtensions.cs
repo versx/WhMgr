@@ -19,30 +19,34 @@
         /// </summary>
         /// <param name="pkmn"></param>
         /// <returns></returns>
-        public static List<uint> GetPokemonEvolutionIds(this PokedexPokemon pkmn)
+        public static List<uint> GetPokemonEvolutionIds(this PokedexPokemon pkmn, bool includeBasePokemon = true)
         {
-            var list = new List<uint>
-            {
-                pkmn.PokedexId
-            };
+            var pokemonIds = includeBasePokemon
+                ? new List<uint> { includeBasePokemon ? pkmn.PokedexId : 0 }
+                : new List<uint>();
+
+            if (pkmn?.Evolutions == null)
+                return pokemonIds;
+
             void GetEvolutionIds(List<PokedexPokemonEvolution> evolutions)
             {
                 foreach (var evolution in evolutions)
                 {
-                    list.Add(evolution.PokemonId);
+                    pokemonIds.Add(evolution.PokemonId);
                     var pokemon = GameMaster.GetPokemon(evolution.PokemonId, evolution.FormId);
+                    if (pokemon == null)
+                        continue;
+
                     if (pokemon.Evolutions?.Count > 0)
                     {
                         GetEvolutionIds(pokemon.Evolutions);
                     }
                 }
             }
-            if (pkmn?.Evolutions == null)
-                return list;
 
             GetEvolutionIds(pkmn.Evolutions);
-            list = list.Distinct().ToList();
-            return list;
+            pokemonIds = pokemonIds.Distinct().ToList();
+            return pokemonIds;
         }
 
         public static Dictionary<PvpLeague, List<PvpRankData>> GetLeagueRanks(this PokemonData pokemon)
@@ -54,20 +58,16 @@
             }
 
             // Loop all available PvP leagues for Pokemon
-            var pvpRankLeagues = pokemon.PvpRankings.Keys.ToList();
-            for (var i = 0; i < pvpRankLeagues.Count; i++)
+            foreach (var (pokemonPvpLeague, pokemonPvpRanks) in pokemon.PvpRankings)
             {
                 // Skip if Pokemon's PvP ranking league is not allowed and/or not set in config
-                var pokemonPvpLeague = pvpRankLeagues[i];
                 if (!Startup.Config.PvpLeagues.ContainsKey(pokemonPvpLeague))
                     continue;
 
-                var pokemonPvpRanks = pokemon.PvpRankings[pokemonPvpLeague];
                 // Loop all PvP rankings for league
-                for (var j = 0; j < pokemonPvpRanks.Count; j++)
+                foreach (var pvp in pokemonPvpRanks)
                 {
                     var pvpConfig = Startup.Config.PvpLeagues[pokemonPvpLeague];
-                    var pvp = pokemonPvpRanks[j];
                     var withinCpRange = pvp.CP >= pvpConfig.MinimumCP && pvp.CP <= pvpConfig.MaximumCP;
                     var withinRankRange = pvp.Rank >= pvpConfig.MinimumRank && pvp.Rank <= pvpConfig.MaximumRank;
                     if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))

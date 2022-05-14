@@ -562,16 +562,11 @@
                 capture_3_emoji = CaptureRateType.UltraBall.GetEmojiIcon("capture", false),
 
                 // PvP stat properties
-                // TODO: Include specific league conditional variables
-                // TODO: Rename to `has_pvp`?
                 is_pvp = HasPvpRankings,
                 great_league_emoji = greatLeagueEmoji,
                 ultra_league_emoji = ultraLeagueEmoji,
                 has_pvp = HasPvpRankings,
-                // TODO: Update handlebars template to parse dictionaries and print each available league + rankings
                 pvp = PvpRankings,
-                //great_league = this.GetLeagueRanks(PvpLeague.Great),
-                //ultra_league = this.GetLeagueRanks(PvpLeague.Ultra),
 
                 // Other properties
                 height = height ?? defaultMissingValue,
