@@ -38,6 +38,9 @@
         private readonly IBackgroundTaskQueue _taskQueue;
         private readonly Dictionary<int, bool> _rateLimitedMessagesSent; // subscription_id -> rateLimitedMessageSent
 
+        // TODO: Use BenchmarkTimes property
+        public bool BenchmarkTimes { get; set; }
+
         public SubscriptionProcessorService(
             Microsoft.Extensions.Logging.ILogger<ISubscriptionProcessorService> logger,
             ISubscriptionManagerService subscriptionManager,
@@ -95,9 +98,9 @@
             var matchesIVList = false;
             for (var i = 0; i < subscriptions.Count; i++)
             {
-                //var start = DateTime.Now;
                 try
                 {
+                    var start = DateTime.Now;
                     user = subscriptions[i];
 
                     // Skip if user's guild is not configured or connected
@@ -125,15 +128,6 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    /*
-                    var pokemonSubscriptions = user.Pokemon.Where(x =>
-                    {
-                        var containsPokemon = x.PokemonId.Contains(pokemon.Id);
-                        var isEmptyForm = / TODO: Workaround for UI / (x.Forms.Exists(y => string.IsNullOrEmpty(y)) && x.Forms.Count == 1);
-                        var containsForm = (x.Forms?.Contains(form) ?? true) || x.Forms.Count == 0 || isEmptyForm;
-                        return containsPokemon && containsForm;
-                    });
-                    */
                     var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PokemonSubscription>)user.Pokemon, pokemon.Id, form);
                     if (pokemonSubscriptions == null)
                         continue;
@@ -185,8 +179,6 @@
                             MapDataCache = _mapDataCache,
                         }).ConfigureAwait(false);
 
-                        //var end = DateTime.Now.Subtract(start);
-                        //_logger.LogDebug($"Took {end} to process Pokemon subscription for user {user.UserId}");
                         embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                         {
                             Subscription = user,
@@ -199,6 +191,12 @@
 
                         _statsService.TotalPokemonSubscriptionsSent++;
                         Thread.Sleep(5);
+                    }
+
+                    if (BenchmarkTimes)
+                    {
+                        var end = DateTime.Now.Subtract(start);
+                        _logger.Debug($"Took {end} to process Pokemon subscription for user {user.UserId}");
                     }
                 }
                 catch (Exception ex)
@@ -250,9 +248,9 @@
             DiscordMember member = null;
             for (var i = 0; i < subscriptions.Count; i++)
             {
-                //var start = DateTime.Now;
                 try
                 {
+                    var start = DateTime.Now;
                     user = subscriptions[i];
 
                     // Skip if user's guild is not configured or connected
@@ -338,8 +336,6 @@
                             City = geofence.Name,
                             MapDataCache = _mapDataCache,
                         }).ConfigureAwait(false);
-                        //var end = DateTime.Now.Subtract(start);
-                        //_logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
                         embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                         {
                             Subscription = user,
@@ -351,6 +347,12 @@
 
                         _statsService.TotalPvpSubscriptionsSent++;
                         Thread.Sleep(5);
+                    }
+
+                    if (BenchmarkTimes)
+                    {
+                        var end = DateTime.Now.Subtract(start);
+                        _logger.Debug($"Took {end} to process PvP subscription for user {user.UserId}");
                     }
                 }
                 catch (Exception ex)
@@ -398,9 +400,9 @@
             var pokemon = GameMaster.GetPokemon(raid.PokemonId, raid.Form);
             for (var i = 0; i < subscriptions.Count; i++)
             {
-                //var start = DateTime.Now;
                 try
                 {
+                    var start = DateTime.Now;
                     user = subscriptions[i];
 
                     // Skip if user's guild is not configured or connected
@@ -455,8 +457,7 @@
                             City = geofence.Name,
                             MapDataCache = _mapDataCache,
                         }).ConfigureAwait(false);
-                        //var end = DateTime.Now;
-                        //_logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
+
                         embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                         {
                             Subscription = user,
@@ -468,6 +469,12 @@
 
                         _statsService.TotalRaidSubscriptionsSent++;
                         Thread.Sleep(5);
+                    }
+
+                    if (BenchmarkTimes)
+                    {
+                        var end = DateTime.Now.Subtract(start);
+                        _logger.Debug($"Took {end} to process raid subscription for user {user.UserId}");
                     }
                 }
                 catch (Exception ex)
@@ -513,9 +520,9 @@
             Subscription user;
             for (var i = 0; i < subscriptions.Count; i++)
             {
-                //var start = DateTime.Now;
                 try
                 {
+                    var start = DateTime.Now;
                     user = subscriptions[i];
 
                     // Skip if user's guild is not configured or connected
@@ -568,8 +575,7 @@
                         City = geofence.Name,
                         MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
-                    //var end = DateTime.Now.Subtract(start);
-                    //_logger.Debug($"Took {end} to process quest subscription for user {user.UserId}");
+
                     embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
@@ -581,6 +587,12 @@
 
                     _statsService.TotalQuestSubscriptionsSent++;
                     Thread.Sleep(5);
+
+                    if (BenchmarkTimes)
+                    {
+                        var end = DateTime.Now.Subtract(start);
+                        _logger.Debug($"Took {end} to process quest subscription for user {user.UserId}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -635,9 +647,9 @@
             Subscription user;
             for (var i = 0; i < subscriptions.Count; i++)
             {
-                //var start = DateTime.Now;
                 try
                 {
+                    var start = DateTime.Now;
                     user = subscriptions[i];
 
                     // Skip if user's guild is not configured or connected
@@ -688,8 +700,7 @@
                         City = geofence?.Name,
                         MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
-                    //var end = DateTime.Now.Subtract(start);
-                    //_logger.LogDebug($"Took {end} to process invasion subscription for user {user.UserId}");
+
                     embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
@@ -701,6 +712,12 @@
 
                     _statsService.TotalInvasionSubscriptionsSent++;
                     Thread.Sleep(5);
+
+                    if (BenchmarkTimes)
+                    {
+                        var end = DateTime.Now.Subtract(start);
+                        _logger.Debug($"Took {end} to process invasion subscription for user {user.UserId}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -741,9 +758,9 @@
             Subscription user;
             for (var i = 0; i < subscriptions.Count; i++)
             {
-                //var start = DateTime.Now;
                 try
                 {
+                    var start = DateTime.Now;
                     user = subscriptions[i];
 
                     // Skip if user's guild is not configured or connected
@@ -794,8 +811,7 @@
                         City = geofence.Name,
                         MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
-                    //var end = DateTime.Now.Subtract(start);
-                    //_logger.Debug($"Took {end} to process lure subscription for user {user.UserId}");
+
                     embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
@@ -807,6 +823,12 @@
 
                     _statsService.TotalLureSubscriptionsSent++;
                     Thread.Sleep(5);
+
+                    if (BenchmarkTimes)
+                    {
+                        var end = DateTime.Now.Subtract(start);
+                        _logger.Debug($"Took {end} to process lure subscription for user {user.UserId}");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -848,9 +870,9 @@
             var pokemon = GameMaster.GetPokemon(raid.PokemonId, raid.Form);
             for (var i = 0; i < subscriptions.Count; i++)
             {
-                //var start = DateTime.Now;
                 try
                 {
+                    var start = DateTime.Now;
                     user = subscriptions[i];
 
                     // Skip if user's guild is not configured or connected
@@ -909,8 +931,7 @@
                         City = geofence.Name,
                         MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
-                    //var end = DateTime.Now;
-                    //_logger.Debug($"Took {end} to process gym raid subscription for user {user.UserId}");
+
                     embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
@@ -922,6 +943,12 @@
 
                     _statsService.TotalGymSubscriptionsSent++;
                     Thread.Sleep(5);
+
+                    if (BenchmarkTimes)
+                    {
+                        var end = DateTime.Now;
+                        _logger.Debug($"Took {end} to process gym raid subscription for user {user.UserId}");
+                    }
                 }
                 catch (Exception ex)
                 {
