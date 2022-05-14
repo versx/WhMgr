@@ -170,10 +170,10 @@
 
         #endregion
 
-        public bool IsNearby(Coordinate coord, bool checkGeofence = false, string webhookLocationName = null, List<string> areas = null, string geofenceName = null)
+        public bool IsNearby(Coordinate coord, bool checkGeofence = false, string webhookGeofenceName = null, List<string> areas = null, string geofenceName = null)
         {
             var globalLocation = Locations?.FirstOrDefault(x => string.Compare(x.Name, Location, true) == 0);
-            var webhookLocation = Locations?.FirstOrDefault(x => string.Compare(x.Name, webhookLocationName, true) == 0);
+            var webhookLocation = Locations?.FirstOrDefault(x => string.Compare(x.Name, webhookGeofenceName, true) == 0);
             var globalDistanceMatches = globalLocation?.DistanceM > 0
                 && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(coord);
             var webhookDistanceMatches = webhookLocation?.DistanceM > 0
