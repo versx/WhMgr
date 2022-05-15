@@ -11,7 +11,7 @@
     "@mui/material": "^5.5.3",
     "@mui/styles": "^5.5.3",
     "@mui/x-data-grid": "^5.8.0",
-    "leaflet": "^1.7.1",
+    "leaflet": "^1.8.0",
     "leaflet-draw": "^1.0.4",
     "leaflet-easybutton": "^2.4.0",
     "react": "^17.0.2",
