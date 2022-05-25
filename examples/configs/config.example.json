@@ -188,23 +188,23 @@
   */
   "logLevel": 0,
   "pvpLeagues": {
-    "little": [{
+    "little": {
       "minCP": 450,
       "maxCP": 500,
       "minRank": 1,
       "maxRank": 100
-    }],
-    "great": [{
+    },
+    "great": {
       "minCP": 1400,
       "maxCP": 1500,
       "minRank": 1,
       "maxRank": 100
-    }],
-    "ultra": [{
+    },
+    "ultra": {
       "minCP": 2400,
       "maxCP": 2500,
       "minRank": 1,
       "maxRank": 100
-    }]
+    }
   }
 }
