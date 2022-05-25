@@ -1,6 +1,5 @@
 ﻿namespace WhMgr.Services.Webhook.Models
 {
-    using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
@@ -10,52 +9,37 @@
     /// </summary>
     public sealed class PvpRankData
     {
-        [
-            JsonPropertyName("rank"),
-            Column("rank"),
-        ]
+        [JsonPropertyName("rank")]
         public int? Rank { get; set; }
 
-        [
-            JsonPropertyName("percentage"),
-            Column("percentage"),
-        ]
+        [JsonPropertyName("dense_rank")]
+        public ushort DenseRank { get; set; }
+
+        [JsonPropertyName("ordinal_rank")]
+        public ushort OrdinalRank { get; set; }
+
+        [JsonPropertyName("competition_rank")]
+        public ushort CompetitionRank { get; set; }
+
+        [JsonPropertyName("percentage")]
         public double? Percentage { get; set; }
 
-        [
-            JsonPropertyName("pokemon"),
-            Column("pokemon"),
-        ]
+        [JsonPropertyName("pokemon")]
         public uint PokemonId { get; set; }
 
-        [
-            JsonPropertyName("form"),
-            Column("form"),
-        ]
+        [JsonPropertyName("form")]
         public uint FormId { get; set; }
 
-        [
-            JsonPropertyName("level"),
-            Column("level"),
-        ]
+        [JsonPropertyName("level")]
         public double? Level { get; set; }
 
-        [
-            JsonPropertyName("gender"),
-            Column("gender"),
-        ]
+        [JsonPropertyName("gender")]
         public Gender Gender { get; set; }
 
-        [
-            JsonPropertyName("cp"),
-            Column("cp"),
-        ]
+        [JsonPropertyName("cp")]
         public int? CP { get; set; }
 
-        [
-            JsonPropertyName("pokemon_name"),
-            NotMapped,
-        ]
+        [JsonPropertyName("pokemon_name")]
         public string PokemonName { get; set; }
     }
 }
