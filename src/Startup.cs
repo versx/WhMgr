@@ -9,6 +9,7 @@ namespace WhMgr
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.SpaServices;
     using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,6 @@ namespace WhMgr
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.OpenApi.Models;
-    using Microsoft.AspNetCore.SpaServices;
 
     using WhMgr.Configuration;
     using WhMgr.Data.Contexts;
