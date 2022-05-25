@@ -4,6 +4,7 @@
     using System.Linq;
 
     using NUnit.Framework;
+    using static POGOProtos.Rpc.BelugaPokemonProto.Types;
 
     using WhMgr.Services.Pvp;
 
@@ -21,7 +22,7 @@
             var pvpRankCalc = new PvpRankCalculator();
             for (uint i = 1; i < 900; i++)
             {
-                var pvpRanks = pvpRankCalc.QueryPvpRank(i, 0, 0, 15, 15, 15, 1, POGOProtos.Rpc.PokemonGender.Male);
+                var pvpRanks = pvpRankCalc.QueryPvpRank(i, 0, 0, 15, 15, 15, 1, PokemonGender.Male);
                 if (pvpRanks == null)
                     continue;
 

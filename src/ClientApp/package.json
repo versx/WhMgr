@@ -4,13 +4,13 @@
   "private": true,
   "homepage": "/dashboard/",
   "dependencies": {
-    "@emotion/react": "^11.8.1",
+    "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
-    "@mui/icons-material": "^5.4.2",
+    "@mui/icons-material": "^5.5.1",
     "@mui/lab": "^5.0.0-alpha.66",
-    "@mui/material": "^5.4.0",
-    "@mui/styles": "^5.4.2",
-    "@mui/x-data-grid": "^5.5.0",
+    "@mui/material": "^5.5.3",
+    "@mui/styles": "^5.5.3",
+    "@mui/x-data-grid": "^5.8.0",
     "leaflet": "^1.7.1",
     "leaflet-draw": "^1.0.4",
     "leaflet-easybutton": "^2.4.0",
@@ -18,10 +18,10 @@
     "react-dom": "^17.0.2",
     "react-leaflet": "^3.2.5",
     "react-leaflet-draw": "^0.19.8",
-    "react-router-dom": "^6.2.1",
+    "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.0",
     "rimraf": "^3.0.2",
-    "typescript": "^4.5.5"
+    "typescript": "^4.6.3"
   },
   "scripts": {
     "start": "react-scripts start",
