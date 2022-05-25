@@ -278,10 +278,11 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PvpSubscription>)user.PvP, pokemon.Id, form);
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PvpSubscription>)user.PvP, pokemon.Id, form, evolutionIds);
                     if (pokemonSubscriptions == null)
                         continue;
 
+                    var validPvpLeagues = Startup.Config.PvpLeagues;
                     foreach (var pkmnSub in pokemonSubscriptions)
                     {
                         // TODO: Combine filtered and matchesAny
@@ -297,7 +298,11 @@
 
                             // Only return PvP subscriptions that are equal to the Pokemon's rank
                             return ranks.Exists(rank => pkmnSub.PokemonId.Contains(rank.PokemonId));
-                        });
+                        }).ToList();
+
+                        // Skip any pvp ranks that do not match evolutions
+                        if (filtered.Count == 0)
+                            continue;
 
                         // Check if PvP ranks match any relevant great or ultra league ranks, if not skip.
                         var matchesAny = filtered.Any(pvp =>
@@ -305,11 +310,10 @@
                             (PvpLeague league, List<PvpRankData> ranks) = pvp;
 
                             // Check if league set in config
-                            if (!Startup.Config.PvpLeagues.ContainsKey(league))
+                            if (!validPvpLeagues.ContainsKey(league))
                                 return false;
 
-                            var leagueConfig = Startup.Config.PvpLeagues[league];
-                            return pkmnSub.RankExists(ranks, league, leagueConfig);
+                            return pkmnSub.RankExists(ranks, league, validPvpLeagues[league]);
                         });
 
                         // Skip if no relevent ranks for set PvP leagues.
@@ -971,13 +975,15 @@
         private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, string form, List<uint> evolutionIds = null)
             where T : BasePokemonSubscription
         {
-            var pokemonSubscriptions = subscriptions.Where(x =>
+            var pokemonSubscriptions = subscriptions.Where(sub =>
             {
                 var containsPokemon = evolutionIds != null
-                    ? evolutionIds.Contains(pokemonId)
-                    : x.PokemonId.Contains(pokemonId);
-                var isEmptyForm = /* TODO: Workaround for UI */ (x.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && x.Forms?.Count == 1);
-                var containsForm = (x.Forms?.Contains(form) ?? true) || (x.Forms?.Count ?? 0) == 0 || isEmptyForm;
+                    // If evolutionIds is set, check if subscription's pokemonId matches evolutionId
+                    ? sub.PokemonId.Any(id => evolutionIds.Contains(id))
+                    // Otherwise check if subscription's pokemonId matches webhook pokemonId (base evo)
+                    : sub.PokemonId.Contains(pokemonId);
+                var isEmptyForm = /* TODO: Workaround for UI */ (sub.Forms?.Exists(y => string.IsNullOrEmpty(y)) ?? false && sub.Forms?.Count == 1);
+                var containsForm = (sub.Forms?.Contains(form) ?? true) || (sub.Forms?.Count ?? 0) == 0 || isEmptyForm;
                 return containsPokemon && containsForm;
             });
             return pokemonSubscriptions;

@@ -173,7 +173,7 @@
                                 &&
                                 filter.MinimumCP <= rank.CP && filter.MaximumCP >= rank.CP
                                 //&&
-                                //filter.MinimumPercent <= rank.Percentage && filter.MaximumPercent >= rank.Percentage
+                                // TODO: Re-implement Pvp percentage filtering filter.MinimumPercent <= rank.Percentage && filter.MaximumPercent >= rank.Percentage
                             );
                         });
                         return result;

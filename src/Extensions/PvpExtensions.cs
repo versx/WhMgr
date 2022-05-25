@@ -87,7 +87,7 @@
                         var form = Translator.Instance.GetFormName(pvp.FormId);
                         var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})";
                         pvp.Percentage = Math.Round(pvp.Percentage.Value, 2);
-                        pvp.PokemonName = pkmnName;
+                        //pvp.PokemonName = pkmnName;
                         if (dict.ContainsKey(pokemonPvpLeague))
                         {
                             dict[pokemonPvpLeague].Add(pvp);

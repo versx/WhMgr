@@ -39,7 +39,7 @@
                             Level = 20,
                             PokemonId = 43,
                             Rank = 1,
-                            PokemonName = "Oddish",
+                            //PokemonName = "Oddish",
                         },
                     }
                 },

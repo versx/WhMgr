@@ -156,7 +156,7 @@
         /// <summary>
         /// Gets or sets the allowed PvP league rankings to show and filter by received Pokemon
         /// </summary>
-        [JsonPropertyName("pvp")]
+        [JsonPropertyName("pvpLeagues")]
         public Dictionary<PvpLeague, PvpLeagueConfig> PvpLeagues { get; set; }
 
         /// <summary>

@@ -566,6 +566,7 @@
                 great_league_emoji = greatLeagueEmoji,
                 ultra_league_emoji = ultraLeagueEmoji,
                 has_pvp = HasPvpRankings,
+                // TODO: Filter pvp rankings using Strings.Defaults.Pvp settings to remove clutter/useless ranks
                 pvp = PvpRankings,
 
                 // Other properties

@@ -12,9 +12,9 @@
             "{{/if}}{{#if has_capture_rates}}{{capture_1_emoji}} {{capture_1}}% {{capture_2_emoji}} {{capture_2}}% {{capture_3_emoji}} {{capture_3}}%",
             "{{/if}}{{#if is_event}}Go Fest Spawn",
             "{{/if}}{{#if has_pvp}}",
-            "{{#each pvp}}{{@key}}",
+            "{{#each pvp}}**{{@key}}**",
             "{{#each this}}",
-            "#{{rank}} {{pokemonName}} {{cp}}CP @ L{{level}} {{percentage}}%",
+            "#{{rank}} {{getPokemonName pokemonId}} {{getFormName formId}} {{cp}}CP @ L{{level}} {{formatPercentage percentage}}%",
             "{{/each}}{{/each}}",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],

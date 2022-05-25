@@ -38,8 +38,5 @@
 
         [JsonPropertyName("cp")]
         public int? CP { get; set; }
-
-        [JsonPropertyName("pokemon_name")]
-        public string PokemonName { get; set; }
     }
 }
