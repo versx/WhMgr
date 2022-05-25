@@ -23,7 +23,7 @@
             var embedData = @"
 {{#each pvp}}{{@key}}\n
     {{#each this}}
-        {{rank}} {{pokemonName}} {{cp}}CP @ L{{level}} {{percentage}}%
+        {{rank}} {{getPokemonName pokemonId}} {{getFormName formId}} {{cp}}CP @ L{{level}} {{formatPercentage percentage}}%
     {{/each}}
 {{/each}}
 ";
@@ -39,7 +39,10 @@
                             Level = 20,
                             PokemonId = 43,
                             Rank = 1,
-                            //PokemonName = "Oddish",
+                            Percentage = 99.05,
+                            CompetitionRank = 1,
+                            DenseRank = 1,
+                            OrdinalRank = 1,
                         },
                     }
                 },
