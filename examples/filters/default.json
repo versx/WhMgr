@@ -13,10 +13,42 @@
         "max_lvl": 35, // Maximum level of Pokemon
         "gender": "m", // Only send male (m,f,*)
         "size": "Big", // Tiny, Small, Normal, Large, Big
-        "great_league": true, // Great League
-        "ultra_league": true, // Ultra League
-        "min_rank": 1, // Minimum rank of #1 PVP stats
-        "max_rank": 5, // Maximum rank of #5 PVP stats
+        "pvp": {
+            // Little league rank filtering
+            "little": [{
+                // Minimum rank of #1 for PVP rank stats
+                "min_rank": 1,
+                // Maximum rank of #5 for PVP rank stats
+                "max_rank": 5,
+                // Minimum CP value of 400 for PVP rank stats
+                "min_cp": 400,
+                // Maximum CP value of 500 for PVP rank stats
+                "max_cp": 500,
+                // Minimum PVP product stat
+                "min_percent": 90,
+                // Maximum PVP product stat
+                "max_percent": 100
+            }],
+            // Great league rank filtering
+            "great": [{
+                "min_rank": 1,
+                "max_rank": 5,
+                "min_cp": 1400,
+                "max_cp": 1500
+            }],
+            // Ultra league rank filtering
+            "ultra": [{
+                "min_rank": 1,
+                "max_rank": 25,
+                "min_cp": 2400,
+                "max_cp": 2500
+            },{
+                "min_rank": 1,
+                "max_rank": 5,
+                "min_cp": 2300,
+                "max_cp": 2400
+            }]
+        },
         "type": "Include", // Include or Exclude the `pokemon` list
         "is_event": false, // Only send Pokemon checked with event accounts (GoFest, etc)
         "ignore_missing": true // Ignore Pokemon missing stats

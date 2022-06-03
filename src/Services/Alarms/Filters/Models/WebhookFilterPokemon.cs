@@ -3,8 +3,6 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
-    using static POGOProtos.Rpc.BelugaPokemonProto.Types;
-
     using WhMgr.Common;
 
     /// <summary>
@@ -88,7 +86,7 @@
         /// Gets or sets the Pokemon eligible PvP ranking filtering
         /// </summary>
         [JsonPropertyName("pvp")]
-        public Dictionary<PvpLeague, List<PvpFilter>> Pvp { get; set; }
+        public Dictionary<PvpLeague, List<WebhookFilterPokemonPvp>> Pvp { get; set; }
 
         /// <summary>
         /// Gets or sets a value determining if webhook Pokemon filter has PvP ranking filters
@@ -130,54 +128,9 @@
             MaximumCP = 999999;
             MinimumLevel = 0;
             MaximumLevel = 100; // Support for when they increase level cap. :wink:
-            Pvp = new Dictionary<PvpLeague, List<PvpFilter>>();
+            Pvp = new Dictionary<PvpLeague, List<WebhookFilterPokemonPvp>>();
             Gender = '*';
             Size = PokemonSize.All;
         }
-    }
-
-    public class PvpFilter
-    {
-        /// <summary>
-        /// Gets or sets the minimum PvP rank to report
-        /// </summary>
-        [JsonPropertyName("min_rank")]
-        public ushort MinimumRank { get; set; }
-
-        /// <summary>
-        /// Gets or sets the maximum PvP rank to report
-        /// </summary>
-        [JsonPropertyName("max_rank")]
-        public ushort MaximumRank { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [JsonPropertyName("min_percent")]
-        public double MinimumPercent { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [JsonPropertyName("max_percent")]
-        public double MaximumPercent { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [JsonPropertyName("min_cp")]
-        public double MinimumCP { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        [JsonPropertyName("max_cp")]
-        public double MaximumCP { get; set; }
-
-        /// <summary>
-        /// Gender requirement
-        /// </summary>
-        [JsonPropertyName("gender")]
-        public PokemonGender Gender { get; set; }
     }
 }
