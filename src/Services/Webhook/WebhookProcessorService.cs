@@ -174,6 +174,19 @@
             if (pokemon.SecondsLeft.TotalMinutes < DespawnTimerMinimumMinutes)
                 return;
 
+            // Check if Pokemon is in event Pokemon list
+            if ((_config.Instance.EventPokemon?.PokemonIds.Contains(pokemon.Id) ?? false) &&
+                (_config.Instance.EventPokemon?.PokemonIds.Count ?? 0) > 0)
+            {
+                // Skip Pokemon if no IV stats.
+                if (pokemon.IsMissingStats)
+                    return;
+
+                // Skip Pokemon if IV is greater than 0%, less than 90%, and does not match any PvP league stats.
+                if (pokemon.IVReal > 0 && pokemon.IVReal < _config.Instance.EventPokemon.MinimumIV && !pokemon.HasPvpRankings)
+                    return;
+            }
+
             if (CheckForDuplicates)
             {
                 // Lock processed pokemon, check for duplicates of incoming pokemon

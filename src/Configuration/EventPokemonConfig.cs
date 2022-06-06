@@ -12,7 +12,7 @@
         /// Gets or sets the event Pokemon IDs list
         /// </summary>
         [JsonPropertyName("pokemonIds")]
-        public List<int> PokemonIds { get; set; } = new();
+        public List<uint> PokemonIds { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the minimum IV value for an event Pokemon to be to process
