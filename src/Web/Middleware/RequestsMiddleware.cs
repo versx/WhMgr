@@ -21,7 +21,7 @@
 
         public async Task Invoke(HttpContext httpContext)
         {
-            _logger.Information($"Path: {httpContext.Request.Path}");
+            //_logger.Information($"Path: {httpContext.Request.Path}");
             await _next(httpContext).ConfigureAwait(false);
         }
     }

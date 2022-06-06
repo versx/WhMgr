@@ -66,30 +66,6 @@
             return matchesRank;
         }
 
-        public static bool MatchesIV(double? iv, int minimumIV)
-        {
-            var matchesIV = false;
-            var missing = iv == null;
-            if (!missing)
-            {
-                matchesIV |= Math.Round(iv ?? 0) >= minimumIV;
-            }
-            matchesIV |= (missing && minimumIV == 0);
-            return matchesIV;
-        }
-
-        public static bool MatchesCP(uint? cp, int minimumCP)
-        {
-            var matchesCP = false;
-            var missing = cp == null;
-            if (!missing)
-            {
-                matchesCP |= cp >= minimumCP;
-            }
-            matchesCP |= (missing && minimumCP == 0);
-            return matchesCP;
-        }
-
         public static bool MatchesGender(Gender gender, Gender desiredGender)
         {
             return gender == desiredGender ||
