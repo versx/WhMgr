@@ -161,7 +161,7 @@
                                     //var percentage = Math.Round(Convert.ToDouble(rank.Percentage) * 100.0, 2);
                                     var matches =
                                     (
-                                        Filters.Filters.MatchesPvPRank(rank.Rank ?? 0, filter.MinimumRank, filter.MaximumCP)
+                                        Filters.Filters.MatchesPvPRank(rank.Rank ?? 0, filter.MinimumRank, filter.MaximumRank)
                                         ||
                                         Filters.Filters.MatchesPvPRank(rank.CompetitionRank, filter.MinimumRank, filter.MaximumRank)
                                         ||
