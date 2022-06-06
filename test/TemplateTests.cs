@@ -18,6 +18,36 @@
         }
 
         [Test]
+        public void Test_TemplatePowerUpLevel_ReturnsText()
+        {
+            var content = new List<string>
+            {
+                "{{#if team_changed}}Gym changed from {{old_gym_team_emoji}} {{old_gym_team}} to {{gym_team_emoji}} {{gym_team}}",
+                "{{/if}}{{#if in_battle}}Gym is under attack!",
+                "{{/if}}**Slots Available:** {{slots_available}}",
+                "{{#if power_up_level}}**Power Level**",
+                "Level: {{power_up_level}} | Points: {{power_up_points}}",
+                "Time Left: {{power_up_end_time_left}}",
+                "{{/if}}{{#if is_ex}}{{ex_gym_emoji}} Gym!",
+                "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
+            };
+            var embedData = string.Join("\r\n", content);
+            var data = new
+            {
+                team_changed = true,
+                old_gym_team = "Mystic",
+                gym_team = "Valor",
+                in_battle = true,
+                slots_available = 3,
+                power_up_level = 0,
+                power_up_points = 100,
+                power_up_end_timestamp = 1234567890,
+            };
+            var templateData = TemplateRenderer.Parse(embedData, data);
+            Console.WriteLine($"Template data: {templateData}");
+        }
+
+        [Test]
         public void Test_TemplatePvpRankings_ReturnsText()
         {
             var embedData = @"

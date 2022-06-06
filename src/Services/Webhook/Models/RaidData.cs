@@ -71,6 +71,9 @@
         [JsonPropertyName("sponsor_id")]
         public uint? SponsorId { get; set; }
 
+        [JsonPropertyName("partner_id")]
+        public uint? PartnerId { get; set; }
+
         [JsonPropertyName("form")]
         public uint Form { get; set; }
 
@@ -83,6 +86,15 @@
         [JsonPropertyName("gender")]
         public Gender Gender { get; set; }
 
+        [JsonPropertyName("power_up_points")]
+        public uint PowerUpPoints { get; set; }
+
+        [JsonPropertyName("power_up_level")]
+        public ushort PowerUpLevel { get; set; }
+
+        [JsonPropertyName("power_up_end_timestamp")]
+        public ulong PowerUpEndTimestamp { get; set; }
+
         [JsonPropertyName("ar_scan_eligible")]
         public bool IsArScanEligible { get; set; }
 
@@ -91,6 +103,9 @@
 
         [JsonIgnore]
         public DateTime EndTime { get; private set; }
+
+        [JsonIgnore]
+        public DateTime PowerUpEndTime { get; private set; }
 
         [JsonIgnore]
         public bool IsEgg => PokemonId == 0;
@@ -142,6 +157,10 @@
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
 
             EndTime = End
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
+
+            PowerUpEndTime = PowerUpEndTimestamp
                 .FromUnix()
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
@@ -281,6 +300,7 @@
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
             var startTimeLeft = now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds();
             var endTimeLeft = now.GetTimeRemaining(EndTime).ToReadableStringNoSeconds();
+            var powerUpEndTimeLeft = now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
@@ -303,6 +323,8 @@
                 is_egg = IsEgg,
                 is_ex = IsExEligible,
                 is_ex_exclusive = IsExclusive,
+                sponsor_id = Convert.ToString(SponsorId),
+                partner_id = Convert.ToString(PartnerId),
                 ex_emoji = exEmoji,
                 team = Team.ToString(),
                 team_id = Convert.ToInt32(Team).ToString(),
@@ -326,6 +348,13 @@
                 worst_cp = worstRange.ToString(),
                 worst_cp_boosted = worstBoosted.ToString(),
                 is_ar = IsArScanEligible,
+
+                // Gym power up properties
+                power_up_points = PowerUpPoints,
+                power_up_level = PowerUpLevel,
+                power_up_end_time = PowerUpEndTime.ToLongTimeString(),
+                power_up_end_time_24h = PowerUpEndTime.ToString("HH:mm:ss"),
+                power_up_end_time_left = powerUpEndTimeLeft,
 
                 // Time properties
                 start_time = StartTime.ToLongTimeString(),
