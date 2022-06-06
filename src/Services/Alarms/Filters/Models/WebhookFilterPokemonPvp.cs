@@ -47,5 +47,16 @@
         /// </summary>
         [JsonPropertyName("gender")]
         public PokemonGender Gender { get; set; }
+
+        public WebhookFilterPokemonPvp()
+        {
+            MinimumCP = 0;
+            MaximumCP = 999999;
+            MinimumRank = 1;
+            MaximumRank = 100;
+            // TODO: Double check percent logic
+            MinimumPercent = 0;
+            MaximumPercent = 100;
+        }
     }
 }

@@ -134,10 +134,13 @@
                         continue;
                     }
 
-                    if (pokemon.HasPvpRankings && alarm.Filters.Pokemon.Pvp.Count > 0)
+                    var pvpPokemonFilters = alarm.Filters.Pokemon.Pvp;
+                    //if (pokemon.HasPvpRankings && alarm.Filters.Pokemon.Pvp.Count > 0)
+                    // Check alarm PVP filter only if set
+                    if ((pvpPokemonFilters?.Count ?? 0) > 0)
                     {
-                        var pvpLeagueFilters = alarm.Filters.Pokemon.Pvp?.Keys.ToList();
-                        var pvpMatches = pvpLeagueFilters?.Exists(league =>
+                        var pvpFilterLeagues = pvpPokemonFilters?.Keys.ToList();
+                        var pvpMatches = pvpFilterLeagues?.Exists(league =>
                         {
                             // Check if webhook Pokemon contains Pokemon alarm PvP league filter
                             if (!(pokemon.PvpRankings?.ContainsKey(league) ?? false))
@@ -149,10 +152,14 @@
                             {
                                 return false;
                             }
-                            var filterRankings = alarm.Filters.Pokemon.Pvp[league];
+                            var filterRankings = pvpPokemonFilters[league];
                             var pokemonRankings = pokemon.PvpRankings[league];
+                            // Check if any alarm filter matches Pokemon PVP rank for each available league
                             var result = filterRankings.Exists(filter =>
                                 pokemonRankings.Exists(rank =>
+                                {
+                                    //var percentage = Math.Round(Convert.ToDouble(rank.Percentage) * 100.0, 2);
+                                    var matches =
                                     (
                                         (filter.MinimumRank <= rank.Rank && filter.MaximumRank >= rank.Rank)
                                         ||
@@ -161,11 +168,12 @@
                                         (filter.MinimumRank <= rank.DenseRank && filter.MaximumRank >= rank.DenseRank)
                                     )
                                     &&
-                                    (filter.MinimumCP <= rank.CP && filter.MaximumCP >= rank.CP)
-                                    &&
-                                    (filter.MinimumPercent <= rank.Percentage && filter.MaximumPercent >= rank.Percentage)
+                                    (filter.MinimumCP <= rank.CP && filter.MaximumCP >= rank.CP);
+                                    //&&
+                                    // TODO: Reimplement rank product stat percentage filtering (filter.MinimumPercent <= rank.Percentage && filter.MaximumPercent >= rank.Percentage);
                                     // TODO: Gender filtering for pvp league ranking
-                                )
+                                    return matches;
+                                })
                             );
                             return result;
                         }) ?? false;
@@ -173,8 +181,6 @@
                         // Skip Pokemon if PVP filter does not match and that there are PVP filters defined
                         if (!pvpMatches)
                             continue;
-
-                        Console.WriteLine($"Pvp post");
                     }
                     else
                     {
