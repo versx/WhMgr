@@ -17,8 +17,9 @@
         {
         }
 
-        [Test]
-        public void Test_TemplatePowerUpLevel_ReturnsText()
+        [TestCase(0)]
+        [TestCase(1)]
+        public void Test_TemplatePowerUpLevel_ReturnsText(int level)
         {
             var content = new List<string>
             {
@@ -39,7 +40,7 @@
                 gym_team = "Valor",
                 in_battle = true,
                 slots_available = 3,
-                power_up_level = 0,
+                power_up_level = level,
                 power_up_points = 100,
                 power_up_end_timestamp = 1234567890,
             };
