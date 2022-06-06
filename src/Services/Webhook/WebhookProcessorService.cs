@@ -356,6 +356,7 @@
             {
                 _logger.Warning($"Failed to deserialize gym {message}, skipping...");
             }
+            gym.SetTimes();
 
             if (CheckForDuplicates)
             {
