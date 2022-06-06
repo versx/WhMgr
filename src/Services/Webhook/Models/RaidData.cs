@@ -96,6 +96,12 @@
         public bool IsEgg => PokemonId == 0;
 
         [JsonIgnore]
+        public bool IsMega => Level == 6;
+
+        [JsonIgnore]
+        public bool IsUltraBeast => Level >= 7;
+
+        [JsonIgnore]
         public List<PokemonType> Weaknesses
         {
             get

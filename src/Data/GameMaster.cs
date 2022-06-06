@@ -102,6 +102,9 @@
 
         public static PokedexPokemon GetPokemon(uint pokemonId, uint formId = 0)
         {
+            if (pokemonId == 0)
+                return null;
+
             if (!Instance.Pokedex.ContainsKey(pokemonId))
             {
                 Console.WriteLine($"[Warning] Pokemon {pokemonId} does not exist in {MasterFileName}, please use an updated version.");
