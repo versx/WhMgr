@@ -14,6 +14,8 @@
         "gender": "m", // Only send male (m,f,*)
         "size": "Big", // Tiny, Small, Normal, Large, Big
         "pvp": {
+            // Add or remove any PVP league filtering keys
+            // depending on the interested ranks
             // Little league rank filtering
             "little": [{
                 // Minimum rank of #1 for PVP rank stats
