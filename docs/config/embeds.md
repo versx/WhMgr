@@ -27,7 +27,7 @@ For a list of available dynamic text substitution/replacement options check out 
     "pokemon": {
         // Embed avatar icon url
         "avatarUrl": "{{pkmn_img_url}}",
-        // Embed content text
+        // Embed content text, each array item is treated as a new line break
         "content": [
             "{{pkmn_name}} {{form}}{{gender}} {{iv}} ({{atk_iv}}/{{def_iv}}/{{sta_iv}}) L{{lvl}}",
             "**Despawn:** {{despawn_time}} ({{time_left}} left){{despawn_time_verified}}",
@@ -38,14 +38,12 @@ For a list of available dynamic text substitution/replacement options check out 
             "{{/if}}{{#if is_ditto}}**Catch Pokemon:** {{original_pkmn_name}}",
             "{{/if}}{{#if has_capture_rates}}{{capture_1_emoji}} {{capture_1}}% {{capture_2_emoji}} {{capture_2}}% {{capture_3_emoji}} {{capture_3}}%",
             "{{/if}}{{#if is_event}}Go Fest Spawn",
-            "{{/if}}{{#if is_pvp}}",
-            "{{#if is_great}}{{great_league_emoji}}**Great League**",
-            "{{#each great_league}}#{{rank}} {{pokemon_name}} {{cp}}CP @ L{{level}} {{percentage}}%",
-            "{{/each}}",
-            "{{/if}}{{#if is_ultra}}{{ultra_league_emoji}}**Ultra League**",
-            "{{#each ultra_league}}#{{rank}} {{pokemon_name}} {{cp}}CP @ L{{level}} {{percentage}}%",
-            "{{/each}}",
-            "{{/if}}{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
+            "{{/if}}{{#if has_pvp}}",
+            "{{#each pvp}}**{{@key}}**",
+            "{{#each this}}",
+            "#{{rank}} {{getPokemonName pokemonId}} {{getFormName formId}} {{cp}}CP @ L{{level}} {{formatPercentage percentage}}%",
+            "{{/each}}{{/each}}",
+            "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         // Embed icon image url
         "iconUrl": "{{pkmn_img_url}}",
