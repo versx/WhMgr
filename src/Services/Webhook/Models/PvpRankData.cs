@@ -10,16 +10,16 @@
     public sealed class PvpRankData
     {
         [JsonPropertyName("rank")]
-        public int? Rank { get; set; }
+        public uint? Rank { get; set; }
 
         [JsonPropertyName("dense_rank")]
-        public ushort DenseRank { get; set; }
+        public uint DenseRank { get; set; }
 
         [JsonPropertyName("ordinal_rank")]
-        public ushort OrdinalRank { get; set; }
+        public uint OrdinalRank { get; set; }
 
         [JsonPropertyName("competition_rank")]
-        public ushort CompetitionRank { get; set; }
+        public uint CompetitionRank { get; set; }
 
         [JsonPropertyName("percentage")]
         public double? Percentage { get; set; }
@@ -37,6 +37,10 @@
         public Gender Gender { get; set; }
 
         [JsonPropertyName("cp")]
-        public int? CP { get; set; }
+        public uint? CP { get; set; }
+
+        // TODO: Implement PVP league rank cap
+        [JsonPropertyName("cap")]
+        public uint Cap { get; set; }
     }
 }

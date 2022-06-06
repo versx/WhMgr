@@ -52,7 +52,7 @@
             return matchesLvl;
         }
 
-        public static bool MatchesPvPRank(int rank, uint minimumRank, uint maximumRank)
+        public static bool MatchesPvPRank(uint rank, uint minimumRank, uint maximumRank)
         {
             var matchesRank = false;
             var missing = rank == 0;
@@ -97,17 +97,15 @@
                    gender == Gender.Less;
         }
 
-        public static bool MatchesGender(Gender gender, string desiredGender)
+        public static bool MatchesGender(Gender gender, char desiredGender)
         {
-            desiredGender = desiredGender.ToLower();
-
-            if (desiredGender == "*" || gender == Gender.Less || gender == Gender.Unset)
+            if (desiredGender == '*' || gender == Gender.Less || gender == Gender.Unset)
                 return true;
 
-            if (desiredGender == "m" && gender == Gender.Male)
+            if ((desiredGender == 'm' || desiredGender == 'M') && gender == Gender.Male)
                 return true;
 
-            if (desiredGender == "f" && gender == Gender.Female)
+            if ((desiredGender == 'f' || desiredGender == 'F') && gender == Gender.Female)
                 return true;
 
             return false;

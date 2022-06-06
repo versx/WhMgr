@@ -12,7 +12,8 @@
                 "min_rank": 1,
                 "max_rank": 25,
                 "min_cp": 2400,
-                "max_cp": 2500
+                "max_cp": 2500,
+                "gender": "*"
             }]
         },
 		"type": "Include",

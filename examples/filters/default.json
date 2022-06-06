@@ -29,21 +29,25 @@
                 // Minimum PVP product stat
                 "min_percent": 90,
                 // Maximum PVP product stat
-                "max_percent": 100
+                "max_percent": 100,
+                // Gender filtering requirement (*, m, or f)
+                "gender": "*"
             }],
             // Great league rank filtering
             "great": [{
                 "min_rank": 1,
                 "max_rank": 5,
                 "min_cp": 1400,
-                "max_cp": 1500
+                "max_cp": 1500,
+                "gender": "m"
             }],
             // Ultra league rank filtering
             "ultra": [{
                 "min_rank": 1,
                 "max_rank": 25,
                 "min_cp": 2400,
-                "max_cp": 2500
+                "max_cp": 2500,
+                "gender": "f"
             },{
                 "min_rank": 1,
                 "max_rank": 5,

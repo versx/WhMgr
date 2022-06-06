@@ -34,19 +34,19 @@
         /// 
         /// </summary>
         [JsonPropertyName("min_cp")]
-        public double MinimumCP { get; set; }
+        public uint MinimumCP { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
         [JsonPropertyName("max_cp")]
-        public double MaximumCP { get; set; }
+        public uint MaximumCP { get; set; }
 
         /// <summary>
-        /// Gender requirement
+        /// Gender requirement filter for PVP rank
         /// </summary>
         [JsonPropertyName("gender")]
-        public PokemonGender Gender { get; set; }
+        public char Gender { get; set; }
 
         public WebhookFilterPokemonPvp()
         {
@@ -57,6 +57,7 @@
             // TODO: Double check percent logic
             MinimumPercent = 0;
             MaximumPercent = 100;
+            Gender = '*';
         }
     }
 }

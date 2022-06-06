@@ -69,7 +69,7 @@
             JsonPropertyName("gender"),
             Column("gender"),
         ]
-        public string Gender { get; set; }
+        public char Gender { get; set; }
 
         [
             JsonPropertyName("size"),
@@ -107,7 +107,7 @@
             MinimumIV = 0;
             MinimumLevel = 0;
             MaximumLevel = 35;
-            Gender = "*";
+            Gender = '*';
             Size = PokemonSize.All;
             PokemonId = new List<uint>();
         }

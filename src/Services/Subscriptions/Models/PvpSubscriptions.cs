@@ -82,9 +82,9 @@
 
         public bool RankExists(PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP)
         {
-            var cp = (uint?)rankData.CP ?? Strings.Defaults.MinimumCP;
+            var cp = rankData.CP ?? Strings.Defaults.MinimumCP;
             var rank = rankData.Rank ?? 4096;
-            var matchesGender = Filters.MatchesGender(rankData.Gender, string.IsNullOrEmpty(Gender) ? "*" : Gender);
+            var matchesGender = Filters.MatchesGender(rankData.Gender, string.IsNullOrEmpty(Gender) ? '*' : Gender[0]);
             var matchesLeague = League == league;
             var matchesCP = Filters.MatchesCP(cp, minLeagueCP, maxLeagueCP);
             var matchesRank = rank <= MinimumRank;

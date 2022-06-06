@@ -161,17 +161,19 @@
                                     //var percentage = Math.Round(Convert.ToDouble(rank.Percentage) * 100.0, 2);
                                     var matches =
                                     (
-                                        (filter.MinimumRank <= rank.Rank && filter.MaximumRank >= rank.Rank)
+                                        Filters.Filters.MatchesPvPRank(rank.Rank ?? 0, filter.MinimumRank, filter.MaximumCP)
                                         ||
-                                        (filter.MinimumRank <= rank.CompetitionRank && filter.MaximumRank >= rank.CompetitionRank)
+                                        Filters.Filters.MatchesPvPRank(rank.CompetitionRank, filter.MinimumRank, filter.MaximumRank)
                                         ||
-                                        (filter.MinimumRank <= rank.DenseRank && filter.MaximumRank >= rank.DenseRank)
+                                        Filters.Filters.MatchesPvPRank(rank.DenseRank, filter.MinimumRank, filter.MaximumRank)
+                                        ||
+                                        Filters.Filters.MatchesPvPRank(rank.OrdinalRank, filter.MinimumRank, filter.MaximumRank)
                                     )
                                     &&
-                                    (filter.MinimumCP <= rank.CP && filter.MaximumCP >= rank.CP);
-                                    //&&
+                                    Filters.Filters.MatchesCP((uint)rank.CP, filter.MinimumCP, filter.MaximumCP)
+                                    &&
+                                    Filters.Filters.MatchesGender(rank.Gender, filter.Gender);
                                     // TODO: Reimplement rank product stat percentage filtering (filter.MinimumPercent <= rank.Percentage && filter.MaximumPercent >= rank.Percentage);
-                                    // TODO: Gender filtering for pvp league ranking
                                     return matches;
                                 })
                             );
@@ -184,6 +186,8 @@
                     }
                     else
                     {
+                        // Otherwise check based on general Pokemon filtering
+
                         if (!Filters.Filters.MatchesIV(pokemon.IV, alarm.Filters.Pokemon.MinimumIV, alarm.Filters.Pokemon.MaximumIV))
                         {
                             //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumIV={alarm.Filters.Pokemon.MinimumIV} and MaximumIV={alarm.Filters.Pokemon.MaximumIV} and IV={pkmn.IV}.");
@@ -202,7 +206,7 @@
                             continue;
                         }
 
-                        if (!Filters.Filters.MatchesGender(pokemon.Gender, alarm.Filters.Pokemon.Gender.ToString()))
+                        if (!Filters.Filters.MatchesGender(pokemon.Gender, alarm.Filters.Pokemon.Gender))
                         {
                             //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
                             continue;
