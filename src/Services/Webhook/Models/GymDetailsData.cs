@@ -82,12 +82,6 @@
         public uint? SponsorId { get; set; }
 
         [
-            JsonPropertyName("partner_id"),
-            Column("partner_id"),
-        ]
-        public uint? PartnerId { get; set; }
-
-        [
             JsonPropertyName("power_up_points"),
             NotMapped,
         ]
@@ -262,7 +256,6 @@
                 under_attack = InBattle,
                 is_ex = IsExEligible,
                 sponsor_id = Convert.ToString(SponsorId),
-                partner_id = Convert.ToString(PartnerId),
                 ex_emoji = exEmoji,
                 slots_available = SlotsAvailable == 0
                     ? Translator.Instance.Translate("FULL")

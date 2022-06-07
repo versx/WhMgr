@@ -18,10 +18,10 @@
 
         public WebhookFilterGymLevel()
         {
-            MinimumLevel = uint.MinValue;
-            MaximumLevel = uint.MaxValue;
-            MinimumPoints = uint.MinValue;
-            MaximumPoints = uint.MaxValue;
+            MinimumLevel = 1;
+            MaximumLevel = 3;
+            MinimumPoints = 10;
+            MaximumPoints = 250;
         }
     }
 }

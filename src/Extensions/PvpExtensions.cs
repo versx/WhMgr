@@ -58,17 +58,18 @@
                 return dict;
             }
 
+            var validPvpLeagues = Startup.Config.PvpLeagues;
             // Loop all available PvP leagues for Pokemon
             foreach (var (pokemonPvpLeague, pokemonPvpRanks) in pokemon.PvpRankings)
             {
                 // Skip if Pokemon's PvP ranking league is not allowed and/or not set in config
-                if (!Startup.Config.PvpLeagues.ContainsKey(pokemonPvpLeague))
+                if (!validPvpLeagues.ContainsKey(pokemonPvpLeague))
                     continue;
 
                 // Loop all PvP rankings for league
                 foreach (var pvp in pokemonPvpRanks)
                 {
-                    var pvpConfig = Startup.Config.PvpLeagues[pokemonPvpLeague];
+                    var pvpConfig = validPvpLeagues[pokemonPvpLeague];
                     var withinCpRange = pvp.CP >= pvpConfig.MinimumCP && pvp.CP <= pvpConfig.MaximumCP;
                     var withinRankRange = pvp.Rank >= pvpConfig.MinimumRank && pvp.Rank <= pvpConfig.MaximumRank;
                     if (pvp.Rank == 0 || (!withinCpRange && !withinRankRange))

@@ -71,9 +71,6 @@
         [JsonPropertyName("sponsor_id")]
         public uint? SponsorId { get; set; }
 
-        [JsonPropertyName("partner_id")]
-        public uint? PartnerId { get; set; }
-
         [JsonPropertyName("form")]
         public uint Form { get; set; }
 
@@ -324,7 +321,6 @@
                 is_ex = IsExEligible,
                 is_ex_exclusive = IsExclusive,
                 sponsor_id = Convert.ToString(SponsorId),
-                partner_id = Convert.ToString(PartnerId),
                 ex_emoji = exEmoji,
                 team = Team.ToString(),
                 team_id = Convert.ToInt32(Team).ToString(),

@@ -67,10 +67,10 @@
         "only_ex": false, // Only send ex-eligible raids.
         "team": "All", // All, Valor, Mystic, Instinct, Neutral
         "power_level": {
-            "min_level": 0,
-            "max_level": 9999999,
-            "min_points": 0,
-            "max_points": 9999999,
+            "min_level": 1,
+            "max_level": 3,
+            "min_points": 10,
+            "max_points": 250
         }
     },
     "raids":
@@ -85,10 +85,10 @@
         "only_ex": false, // Only send ex-eligible raids.
         "team": "All", // All, Valor, Mystic, Instinct, Nuetral
         "power_level": {
-            "min_level": 0,
-            "max_level": 9999999,
-            "min_points": 0,
-            "max_points": 9999999,
+            "min_level": 1,
+            "max_level": 3,
+            "min_points": 10,
+            "max_points": 250
         }
         "ignore_missing": true // Ignore raids missing stats
     },
@@ -206,10 +206,10 @@
         "under_attack": true, // Only gyms that are under attack
         "team": "All", // Team change to notify about (i.e. Neutral/Mystic/Valor/Instinct/All)
         "power_level": {
-            "min_level": 0,
-            "max_level": 9999999,
-            "min_points": 0,
-            "max_points": 9999999,
+            "min_level": 1,
+            "max_level": 3,
+            "min_points": 10,
+            "max_points": 250
         }
     },
     "weather":
