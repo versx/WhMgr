@@ -100,7 +100,7 @@
         "iconUrl": "{{pkmn_img_url}}",
         "title": "{{geofence}}: {{gym_name}}",
         "url": "{{gmaps_url}}",
-        "username": "Level <lvl> Egg",
+        "username": "Level {{lvl}} Egg",
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
