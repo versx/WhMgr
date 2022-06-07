@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
-    using POGOProtos.Rpc;
+    using static POGOProtos.Rpc.BelugaPokemonProto.Types;
 
     using WhMgr.Common;
 

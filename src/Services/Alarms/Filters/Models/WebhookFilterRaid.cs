@@ -79,7 +79,7 @@
             Forms = new List<string>();
             Costumes = new List<string>();
             MinimumLevel = 1;
-            MaximumLevel = 5;
+            MaximumLevel = 8;
             Team = PokemonTeam.All;
         }
     }

@@ -4,8 +4,12 @@
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.ComponentModel.DataAnnotations.Schema;
+    using System.Linq;
     using System.Text.Json.Serialization;
-    
+
+    using WhMgr.Extensions;
+    using WhMgr.Services.Geofence;
+
     /// <summary>
     /// User subscription class
     /// </summary>
@@ -165,5 +169,26 @@
         }
 
         #endregion
+
+        public bool IsNearby(Coordinate coord, bool checkGeofence = false, string webhookGeofenceName = null, List<string> areas = null, string geofenceName = null)
+        {
+            var globalLocation = Locations?.FirstOrDefault(x => string.Compare(x.Name, Location, true) == 0);
+            var webhookLocation = Locations?.FirstOrDefault(x => string.Compare(x.Name, webhookGeofenceName, true) == 0);
+            var globalDistanceMatches = globalLocation?.DistanceM > 0
+                && globalLocation?.DistanceM > new Coordinate(globalLocation?.Latitude ?? 0, globalLocation?.Longitude ?? 0).DistanceTo(coord);
+            var webhookDistanceMatches = webhookLocation?.DistanceM > 0
+                && webhookLocation?.DistanceM > new Coordinate(webhookLocation?.Latitude ?? 0, webhookLocation?.Longitude ?? 0).DistanceTo(coord);
+
+            // Skip if set distance does not match and no geofences match...
+            var matchesLocation = globalDistanceMatches || webhookDistanceMatches;
+            if (checkGeofence)
+            {
+                var geofenceNameLower = geofenceName.ToLower();
+                var matchesGeofence = areas?.Select(x => x.ToLower())
+                                            .Contains(geofenceNameLower) ?? false;
+                return matchesGeofence || matchesLocation;
+            }
+            return matchesLocation;
+        }
     }
 }

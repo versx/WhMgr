@@ -27,6 +27,7 @@
             {
                 _context.RegisterHelper(name, function);
             }
+            //_context.Configuration.
             HandlebarsHelpers.Register(_context);
         }
 
@@ -174,6 +175,46 @@
                         // TODO: Write default image placeholder
                         writer.Write(string.Empty);
                     }
+                }),
+                ["formatPercentage"] = new HandlebarsHelper((writer, ctx, args) =>
+                {
+                    if (!double.TryParse(args[0].ToString(), out var percentage))
+                        return;
+                    var formatted = Math.Round(percentage * 100, 2);
+                    writer.Write(formatted);
+                }),
+                ["gt"] = new HandlebarsHelper((writer, ctx, args) =>
+                {
+                    if (!int.TryParse(args[0].ToString(), out var arg1))
+                        return;
+                    if (!int.TryParse(args[1].ToString(), out var arg2))
+                        return;
+                    writer.Write(arg1 > arg2 ? "true" : "");
+                }),
+                ["lt"] = new HandlebarsHelper((writer, ctx, args) =>
+                {
+                    if (!int.TryParse(args[0].ToString(), out var arg1))
+                        return;
+                    if (!int.TryParse(args[1].ToString(), out var arg2))
+                        return;
+                    writer.Write(arg1 < arg2 ? "true" : "");
+                }),
+                ["gte"] = new HandlebarsHelper((writer, ctx, args) =>
+                {
+                    if (!int.TryParse(args[0].ToString(), out var arg1))
+                        return;
+                    if (!int.TryParse(args[1].ToString(), out var arg2))
+                        return;
+                    writer.Write(arg1 >= arg2 ? "true" : "");
+                }),
+                ["lte"] = new HandlebarsHelper((writer, ctx, args) =>
+                {
+                    if (!int.TryParse(args[0].ToString(), out var arg1))
+                        return;
+                    if (!int.TryParse(args[1].ToString(), out var arg2))
+                        return;
+                    writer.Write(arg1 <= arg2 ? "true" : "");
+                    
                 }),
             };
             // TODO: Load helpers via file

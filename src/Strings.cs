@@ -10,7 +10,7 @@
                                                .LoadFromFile<Defaults>() ?? new();
 
         public const string BotName = "Webhook Manager";
-        public const string BotVersion = "5.0.2";
+        public const string BotVersion = "5.1.0";
         public const string Creator = "versx";
 
         public const string ClientBuildFolder = "ClientApp/build";
@@ -38,6 +38,9 @@
         public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
         public const string DiscordAuthFilePath = BasePath + "discord_auth.json";
         public const string DiscordAvatarUrlFormat = "https://cdn.discordapp.com/avatars/{0}/{1}.png";
+
+        public const string GoogleMapsReverseGeocodingApiUrl = "https://maps.googleapis.com/maps/api/geocode/json";
+        public const string LatestGameMasterFileUrl = "https://raw.githubusercontent.com/WatWowMap/Masterfile-Generator/master/master-latest.json";
 
         public const string ConfigFileName = "config.json";
         public const string DefaultsFileName = "defaults.json";

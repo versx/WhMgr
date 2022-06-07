@@ -201,9 +201,12 @@
             // Create default emojis
             await CreateEmojisAsync(e.Guild.Id);
 
-            // Set custom bot status if guild is in config server list
-            var status = _config.Instance.Servers[e.Guild.Id].Bot?.Status ?? $"v{Strings.BotVersion}";
-            await client.UpdateStatusAsync(new DiscordActivity(status, ActivityType.Playing), UserStatus.Online);
+            // Set custom bot status if guild is in config server list, otherwise set to bot version by default
+            var status = _config.Instance.Servers[e.Guild.Id].Bot?.Status;
+            var botStatus = string.IsNullOrEmpty(status)
+                ? $"v{Strings.BotVersion}"
+                : status;
+            await client.UpdateStatusAsync(new DiscordActivity(botStatus, ActivityType.Playing), UserStatus.Online);
         }
 
         private async Task Client_GuildMemberUpdated(DiscordClient client, GuildMemberUpdateEventArgs e)

@@ -21,12 +21,15 @@
   <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <Version>5.0.2.0</Version>
+    <Version>5.2.0.0</Version>
     <UserSecretsId>9cf13a41-ba6b-43d0-b5a5-4938c3b1e968</UserSecretsId>
-    <AssemblyVersion>5.0.2.0</AssemblyVersion>
-    <FileVersion>5.0.2.0</FileVersion>
+    <AssemblyVersion>5.2.0.0</AssemblyVersion>
+    <FileVersion>5.2.0.0</FileVersion>
     <Company>XYZ Software Solutions</Company>
     <RepositoryUrl>https://github.com/versx/WhMgr</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/versx/WhMgr</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -39,30 +42,30 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="DSharpPlus" Version="4.1.0" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.1.0" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.1.0" />
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="DSharpPlus" Version="4.2.0" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.2.0" />
     <PackageReference Include="GeoTimeZone" Version="4.1.0" />
-    <PackageReference Include="Handlebars.Net" Version="2.1.0" />
-    <PackageReference Include="Handlebars.Net.Helpers" Version="2.3.3" />
+    <PackageReference Include="Handlebars.Net" Version="2.1.2" />
+    <PackageReference Include="Handlebars.Net.Helpers" Version="2.3.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.14" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.14">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.14.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
     <PackageReference Include="NetTopologySuite.Features" Version="2.1.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
-    <PackageReference Include="POGOProtos.Core" Version="2.56.0" />
+    <PackageReference Include="POGOProtos.Core" Version="2.56.4" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
-    <PackageReference Include="Sentry.AspNetCore" Version="3.14.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Sentry.AspNetCore" Version="3.17.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
     <PackageReference Include="TimeZoneConverter" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.22" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices" Version="3.1.23" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.15" />
   </ItemGroup>
 
   <ItemGroup>
@@ -94,6 +97,10 @@
 	</Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="ClientApp\package.json" />
     <None Include="ClientApp\public\manifest.json" />
   </ItemGroup>

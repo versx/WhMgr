@@ -203,7 +203,7 @@
             await _subscriptionsService.ProcessPokemonSubscriptionAsync(pokemon).ConfigureAwait(false);
 
             // Only process pvp subscriptions if great or ultra league ranks set
-            if (pokemon.GreatLeague != null || pokemon.UltraLeague != null)
+            if (pokemon.HasPvpRankings)
             {
                 await _subscriptionsService.ProcessPvpSubscriptionAsync(pokemon).ConfigureAwait(false);
             }

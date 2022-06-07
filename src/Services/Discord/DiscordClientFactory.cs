@@ -27,10 +27,11 @@
             {
                 AutoReconnect = true,
                 AlwaysCacheMembers = true,
+                // REVIEW: Hmm maybe we should compress the whole stream instead of just payload.
                 GatewayCompressionLevel = GatewayCompressionLevel.Payload,
                 Token = config.Bot?.Token,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = Microsoft.Extensions.Logging.LogLevel.Error,
+                MinimumLogLevel = config.LogLevel,
                 Intents = DiscordIntents.DirectMessages
                     | DiscordIntents.DirectMessageTyping
                     | DiscordIntents.GuildEmojis
@@ -77,12 +78,13 @@
             }
             if (config.GeofenceRoles?.Enabled ?? false)
             {
+                // Add assignable Discord roles and listing command
                 commands.RegisterCommands<Feeds>();
             }
             else
             {
-                // TODO: Add basic area listing command
-                //commands.RegisterCommands<Areas>();
+                // Add basic area listing command
+                commands.RegisterCommands<Areas>();
             }
             /*
             commands.RegisterCommands<Owner>();

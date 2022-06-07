@@ -42,7 +42,7 @@
         public ushort Level { get; set; }
 
         [JsonPropertyName("cp")]
-        public ushort CP { get; set; }
+        public uint CP { get; set; }
 
         [JsonPropertyName("move_1")]
         public uint FastMove { get; set; }
@@ -96,22 +96,26 @@
         public bool IsEgg => PokemonId == 0;
 
         [JsonIgnore]
+        public bool IsMega => Level == 6;
+
+        [JsonIgnore]
+        public bool IsUltraBeast => Level >= 7;
+
+        [JsonIgnore]
         public List<PokemonType> Weaknesses
         {
             get
             {
-                if (GameMaster.Instance.Pokedex.ContainsKey(PokemonId) && !IsEgg)
-                {
-                    var list = new List<PokemonType>();
-                    var types = GameMaster.GetPokemon(PokemonId, Form)?.Types;
-                    if (types != null)
-                    {
-                        GameMaster.GetPokemon(PokemonId, Form)?.Types?.ForEach(x => list.AddRange(x.GetWeaknesses()));
-                    }
-                    return list;
-                }
+                if (!GameMaster.Instance.Pokedex.ContainsKey(PokemonId) || IsEgg)
+                    return null;
 
-                return null;
+                var pkmn = GameMaster.GetPokemon(PokemonId, Form);
+                if (pkmn?.Types == null)
+                    return null;
+
+                var list = new List<PokemonType>();
+                pkmn?.Types?.ForEach(x => list.AddRange(x.GetWeaknesses()));
+                return list;
             }
         }
 
@@ -178,7 +182,9 @@
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                Color = IsExEligible ? 0 /*ex*/ : Level.BuildRaidColor(GameMaster.Instance.DiscordEmbedColors).Value,
+                Color = IsExEligible
+                    ? 0 /* TODO: ex color */
+                    : Level.BuildRaidColor(GameMaster.Instance.DiscordEmbedColors).Value,
                 Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
@@ -211,11 +217,17 @@
             var move1 = Translator.Instance.GetMoveName(FastMove);
             var move2 = Translator.Instance.GetMoveName(ChargeMove);
             var types = pkmnInfo?.Types;
-            var type1 = types?[0];
-            var type2 = types?.Count > 1 ? types?[1] : PokemonType.None;
-            var type1Emoji = types?[0].GetTypeEmojiIcons();
+            var type1 = pkmnInfo?.Types?.Count >= 1
+                ? pkmnInfo.Types[0]
+                : PokemonType.None;
+            var type2 = pkmnInfo?.Types?.Count > 1
+                ? pkmnInfo.Types[1]
+                : PokemonType.None;
+            var type1Emoji = pkmnInfo?.Types?.Count >= 1
+                ? type1.GetTypeEmojiIcons()
+                : string.Empty;
             var type2Emoji = pkmnInfo?.Types?.Count > 1
-                ? types?[1].GetTypeEmojiIcons()
+                ? type2.GetTypeEmojiIcons()
                 : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
             var weaknesses = Weaknesses == null
@@ -301,8 +313,8 @@
                 move_1 = move1 ?? defaultMissingValue,
                 move_2 = move2 ?? defaultMissingValue,
                 moveset = $"{move1}/{move2}",
-                type_1 = type1?.ToString() ?? defaultMissingValue,
-                type_2 = type2?.ToString() ?? defaultMissingValue,
+                type_1 = type1.ToString() ?? defaultMissingValue,
+                type_2 = type2.ToString() ?? defaultMissingValue,
                 type_1_emoji = type1Emoji,
                 type_2_emoji = type2Emoji,
                 types = $"{type1}/{type2}",

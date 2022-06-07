@@ -279,40 +279,13 @@
             JsonIgnore,
             NotMapped,
         ]
-        public bool MatchesGreatLeague => GreatLeague?.Exists(x =>
-            // Check if stat rank is less than or equal to the max great league rank stat desired
-            x.Rank <= Strings.Defaults.MaximumRank &&
-            // Check if stat CP is greater than or equal to min great league CP
-            x.CP >= Strings.Defaults.MinimumGreatLeagueCP &&
-            // Check if stat CP is less than or equal to max great league CP
-            x.CP <= Strings.Defaults.MaximumGreatLeagueCP
-        ) ?? false;
+        public bool HasPvpRankings => PvpRankings?.Keys.Count > 0;
 
         [
-            JsonIgnore,
-            NotMapped,
+            JsonPropertyName("pvp"),
+            Column("pvp"),
         ]
-        public bool MatchesUltraLeague => UltraLeague?.Exists(x =>
-            // Check if stat rank is less than or equal to the max ultra league rank stat desired
-            x.Rank <= Strings.Defaults.MaximumRank &&
-            // Check if stat CP is greater than or equal to min ultra league CP
-            x.CP >= Strings.Defaults.MinimumUltraLeagueCP &&
-            // Check if stat CP is less than or equal to max ultra league CP
-            x.CP <= Strings.Defaults.MaximumUltraLeagueCP
-        ) ?? false;
-
-
-        [
-            JsonPropertyName("pvp_rankings_great_league"),
-            Column("pvp_rankings_great_league"),
-        ]
-        public List<PvpRankData> GreatLeague { get; set; }
-
-        [
-            JsonPropertyName("pvp_rankings_ultra_league"),
-            Column("pvp_rankings_ultra_league"),
-        ]
-        public List<PvpRankData> UltraLeague { get; set; }
+        public Dictionary<PvpLeague, List<PvpRankData>> PvpRankings { get; set; }
 
         #endregion
 
@@ -359,8 +332,7 @@
         /// </summary>
         public PokemonData()
         {
-            GreatLeague = new List<PvpRankData>();
-            UltraLeague = new List<PvpRankData>();
+            PvpRankings = new Dictionary<PvpLeague, List<PvpRankData>>();
         }
 
         #endregion
@@ -417,21 +389,21 @@
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                Image = new Discord.Models.DiscordEmbedImage
+                Image = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Thumbnail = new Discord.Models.DiscordEmbedImage
+                Thumbnail = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 Color = (
-                    MatchesGreatLeague || MatchesUltraLeague
-                        ? GameMaster.Instance.DiscordEmbedColors.GetPvPColor(GreatLeague, UltraLeague)
+                    HasPvpRankings
+                        ? GameMaster.Instance.DiscordEmbedColors.GetPvPColor(PvpRankings)
                         : IV.BuildPokemonIVColor(GameMaster.Instance.DiscordEmbedColors)
                     ).Value,
-                Footer = new Discord.Models.DiscordEmbedFooter
+                Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
@@ -462,18 +434,39 @@
             var weather = Weather?.ToString();
             var hasWeather = Weather.HasValue && Weather != WeatherCondition.None;
             var isWeatherBoosted = pkmnInfo?.IsWeatherBoosted(Weather ?? WeatherCondition.None);
-            var weatherEmoji = Weather != WeatherCondition.None ? Weather.GetEmojiIcon("weather", false) : null;
-            var move1 = FastMove != null ? Translator.Instance.GetMoveName(FastMove ?? 0) : "Unknown";
-            var move2 = ChargeMove != null ? Translator.Instance.GetMoveName(ChargeMove ?? 0) : "Unknown";
-            var type1 = pkmnInfo?.Types?[0];
-            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
-            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
+            var weatherEmoji = Weather != WeatherCondition.None
+                ? Weather.GetEmojiIcon("weather", false)
+                : null;
+            var move1 = FastMove != null
+                ? Translator.Instance.GetMoveName(FastMove ?? 0)
+                : "Unknown";
+            var move2 = ChargeMove != null
+                ? Translator.Instance.GetMoveName(ChargeMove ?? 0)
+                : "Unknown";
+
+            var type1 = pkmnInfo?.Types?.Count >= 1
+                ? pkmnInfo.Types[0]
+                : PokemonType.None;
+            var type2 = pkmnInfo?.Types?.Count > 1
+                ? pkmnInfo.Types[1]
+                : PokemonType.None;
+            var type1Emoji = pkmnInfo?.Types?.Count >= 1
+                ? type1.GetTypeEmojiIcons()
+                : string.Empty;
+            var type2Emoji = pkmnInfo?.Types?.Count > 1
+                ? type2.GetTypeEmojiIcons()
+                : string.Empty;
             var typeEmojis = $"{type1Emoji} {type2Emoji}";
-            var catchPokemon = IsDitto ? Translator.Instance.GetPokemonName(DisplayPokemonId ?? Id) : pkmnName;
+            var catchPokemon = IsDitto
+                ? Translator.Instance.GetPokemonName(DisplayPokemonId ?? Id)
+                : pkmnName;
             var isShiny = Shiny ?? false;
-            var height = Height != null ? Math.Round(Height ?? 0).ToString() : "";
-            var weight = Weight != null ? Math.Round(Weight ?? 0).ToString() : "";
+            var height = Height != null
+                ? Math.Round(Height ?? 0).ToString()
+                : "";
+            var weight = Weight != null
+                ? Math.Round(Weight ?? 0).ToString()
+                : "";
 
             var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
@@ -534,8 +527,8 @@
                 move_1 = move1 ?? defaultMissingValue,
                 move_2 = move2 ?? defaultMissingValue,
                 moveset = $"{move1}/{move2}",
-                type_1 = type1?.ToString() ?? defaultMissingValue,
-                type_2 = type2?.ToString() ?? defaultMissingValue,
+                type_1 = type1.ToString() ?? defaultMissingValue,
+                type_2 = type2.ToString() ?? defaultMissingValue,
                 type_1_emoji = type1Emoji,
                 type_2_emoji = type2Emoji,
                 types = $"{type1} | {type2}",
@@ -569,13 +562,12 @@
                 capture_3_emoji = CaptureRateType.UltraBall.GetEmojiIcon("capture", false),
 
                 // PvP stat properties
-                is_great = MatchesGreatLeague,
-                is_ultra = MatchesUltraLeague,
-                is_pvp = MatchesGreatLeague || MatchesUltraLeague,
+                is_pvp = HasPvpRankings,
                 great_league_emoji = greatLeagueEmoji,
                 ultra_league_emoji = ultraLeagueEmoji,
-                great_league = this.GetLeagueRanks(PvpLeague.Great),
-                ultra_league = this.GetLeagueRanks(PvpLeague.Ultra),
+                has_pvp = HasPvpRankings,
+                // TODO: Filter pvp rankings using Strings.Defaults.Pvp settings to remove clutter/useless ranks
+                pvp = PvpRankings,
 
                 // Other properties
                 height = height ?? defaultMissingValue,

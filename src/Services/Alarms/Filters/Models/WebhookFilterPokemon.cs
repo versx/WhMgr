@@ -83,28 +83,16 @@
         public PokemonSize? Size { get; set; }
 
         /// <summary>
-        /// Gets or sets a value determining to filter only great league PvP eligible Pokemon
+        /// Gets or sets the Pokemon eligible PvP ranking filtering
         /// </summary>
-        [JsonPropertyName("great_league")]
-        public bool IsPvpGreatLeague { get; set; }
+        [JsonPropertyName("pvp")]
+        public Dictionary<PvpLeague, List<WebhookFilterPokemonPvp>> Pvp { get; set; }
 
         /// <summary>
-        /// Gets or sets a value determining to filter only ultra league PvP eligible Pokemon
+        /// Gets or sets a value determining if webhook Pokemon filter has PvP ranking filters
         /// </summary>
-        [JsonPropertyName("ultra_league")]
-        public bool IsPvpUltraLeague { get; set; }
-
-        /// <summary>
-        /// Gets or sets the minimum PvP rank to report
-        /// </summary>
-        [JsonPropertyName("min_rank")]
-        public uint MinimumRank { get; set; }
-
-        /// <summary>
-        /// Gets or sets the maximum PvP rank to report
-        /// </summary>
-        [JsonPropertyName("max_rank")]
-        public uint MaximumRank { get; set; }
+        [JsonPropertyName("has_pvp")]
+        public bool HasPvpRankings { get; set; }
 
         //TODO: Filter by move?
 
@@ -140,8 +128,7 @@
             MaximumCP = 999999;
             MinimumLevel = 0;
             MaximumLevel = 100; // Support for when they increase level cap. :wink:
-            MinimumRank = 0;
-            MaximumRank = 4096;
+            Pvp = new Dictionary<PvpLeague, List<WebhookFilterPokemonPvp>>();
             Gender = '*';
             Size = PokemonSize.All;
         }

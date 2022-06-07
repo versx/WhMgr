@@ -134,44 +134,83 @@
                         continue;
                     }
 
-                    if (!Filters.Filters.MatchesIV(pokemon.IV, alarm.Filters.Pokemon.MinimumIV, alarm.Filters.Pokemon.MaximumIV))
+                    var pvpPokemonFilters = alarm.Filters.Pokemon.Pvp;
+                    //if (pokemon.HasPvpRankings && alarm.Filters.Pokemon.Pvp.Count > 0)
+                    // Check alarm PVP filter only if set
+                    if ((pvpPokemonFilters?.Count ?? 0) > 0)
                     {
-                        //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumIV={alarm.Filters.Pokemon.MinimumIV} and MaximumIV={alarm.Filters.Pokemon.MaximumIV} and IV={pkmn.IV}.");
-                        continue;
+                        var pvpFilterLeagues = pvpPokemonFilters?.Keys.ToList();
+                        var pvpMatches = pvpFilterLeagues?.Exists(league =>
+                        {
+                            // Check if webhook Pokemon contains Pokemon alarm PvP league filter
+                            if (!(pokemon.PvpRankings?.ContainsKey(league) ?? false))
+                            {
+                                return false;
+                            }
+                            // Check if alarm filter contains PvP league
+                            if (!(alarm.Filters.Pokemon.Pvp?.ContainsKey(league) ?? false))
+                            {
+                                return false;
+                            }
+                            var filterRankings = pvpPokemonFilters[league];
+                            var pokemonRankings = pokemon.PvpRankings[league];
+                            // Check if any alarm filter matches Pokemon PVP rank for each available league
+                            var result = filterRankings.Exists(filter =>
+                                pokemonRankings.Exists(rank =>
+                                {
+                                    //var percentage = Math.Round(Convert.ToDouble(rank.Percentage) * 100.0, 2);
+                                    var matches =
+                                    (
+                                        Filters.Filters.MatchesPvPRank(rank.Rank ?? 0, filter.MinimumRank, filter.MaximumRank)
+                                        ||
+                                        Filters.Filters.MatchesPvPRank(rank.CompetitionRank, filter.MinimumRank, filter.MaximumRank)
+                                        ||
+                                        Filters.Filters.MatchesPvPRank(rank.DenseRank, filter.MinimumRank, filter.MaximumRank)
+                                        ||
+                                        Filters.Filters.MatchesPvPRank(rank.OrdinalRank, filter.MinimumRank, filter.MaximumRank)
+                                    )
+                                    &&
+                                    Filters.Filters.MatchesCP((uint)rank.CP, filter.MinimumCP, filter.MaximumCP)
+                                    &&
+                                    Filters.Filters.MatchesGender(rank.Gender, filter.Gender);
+                                    // TODO: Reimplement rank product stat percentage filtering (filter.MinimumPercent <= rank.Percentage && filter.MaximumPercent >= rank.Percentage);
+                                    return matches;
+                                })
+                            );
+                            return result;
+                        }) ?? false;
+
+                        // Skip Pokemon if PVP filter does not match and that there are PVP filters defined
+                        if (!pvpMatches)
+                            continue;
                     }
-
-                    if (!Filters.Filters.MatchesCP(pokemon.CP, alarm.Filters.Pokemon.MinimumCP, alarm.Filters.Pokemon.MaximumCP))
+                    else
                     {
-                        //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumCP={alarm.Filters.Pokemon.MinimumCP} and MaximumCP={alarm.Filters.Pokemon.MaximumCP} and CP={pkmn.CP}.");
-                        continue;
-                    }
+                        // Otherwise check based on general Pokemon filtering
 
-                    if (!Filters.Filters.MatchesLvl(pokemon.Level, alarm.Filters.Pokemon.MinimumLevel, alarm.Filters.Pokemon.MaximumLevel))
-                    {
-                        //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumLevel={alarm.Filters.Pokemon.MinimumLevel} and MaximumLevel={alarm.Filters.Pokemon.MaximumLevel} and Level={pkmn.Level}.");
-                        continue;
-                    }
+                        if (!Filters.Filters.MatchesIV(pokemon.IV, alarm.Filters.Pokemon.MinimumIV, alarm.Filters.Pokemon.MaximumIV))
+                        {
+                            //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumIV={alarm.Filters.Pokemon.MinimumIV} and MaximumIV={alarm.Filters.Pokemon.MaximumIV} and IV={pkmn.IV}.");
+                            continue;
+                        }
 
-                    var skipGreatLeague = alarm.Filters.Pokemon.IsPvpGreatLeague &&
-                        !(pokemon.MatchesGreatLeague && pokemon.GreatLeague.Exists(x =>
-                            Filters.Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= Strings.Defaults.MinimumGreatLeagueCP && x.CP <= Strings.Defaults.MaximumGreatLeagueCP));
+                        if (!Filters.Filters.MatchesCP(pokemon.CP, alarm.Filters.Pokemon.MinimumCP, alarm.Filters.Pokemon.MaximumCP))
+                        {
+                            //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumCP={alarm.Filters.Pokemon.MinimumCP} and MaximumCP={alarm.Filters.Pokemon.MaximumCP} and CP={pkmn.CP}.");
+                            continue;
+                        }
 
-                    if (skipGreatLeague)
-                        continue;
+                        if (!Filters.Filters.MatchesLvl(pokemon.Level, alarm.Filters.Pokemon.MinimumLevel, alarm.Filters.Pokemon.MaximumLevel))
+                        {
+                            //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: MinimumLevel={alarm.Filters.Pokemon.MinimumLevel} and MaximumLevel={alarm.Filters.Pokemon.MaximumLevel} and Level={pkmn.Level}.");
+                            continue;
+                        }
 
-                    var skipUltraLeague = alarm.Filters.Pokemon.IsPvpUltraLeague &&
-                        !(pokemon.MatchesUltraLeague && pokemon.UltraLeague.Exists(x =>
-                            Filters.Filters.MatchesPvPRank(x.Rank ?? 4096, alarm.Filters.Pokemon.MinimumRank, alarm.Filters.Pokemon.MaximumRank)
-                            && x.CP >= Strings.Defaults.MinimumUltraLeagueCP && x.CP <= Strings.Defaults.MaximumUltraLeagueCP));
-
-                    if (skipUltraLeague)
-                        continue;
-
-                    if (!Filters.Filters.MatchesGender(pokemon.Gender, alarm.Filters.Pokemon.Gender.ToString()))
-                    {
-                        //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
-                        continue;
+                        if (!Filters.Filters.MatchesGender(pokemon.Gender, alarm.Filters.Pokemon.Gender))
+                        {
+                            //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping pokemon {pkmn.Id}: DesiredGender={alarm.Filters.Pokemon.Gender} and Gender={pkmn.Gender}.");
+                            continue;
+                        }
                     }
 
                     if ((alarm.Filters?.Pokemon?.IgnoreMissing ?? false) && !(pokemon.Height != null && pokemon.Weight != null && Filters.Filters.MatchesSize(pokemon.Id.GetSize(pokemon.Height ?? 0, pokemon.Weight ?? 0), alarm.Filters?.Pokemon?.Size)))

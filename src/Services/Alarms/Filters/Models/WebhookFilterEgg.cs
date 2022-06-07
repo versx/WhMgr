@@ -45,7 +45,7 @@
         public WebhookFilterEgg()
         {
             MinimumLevel = 1;
-            MaximumLevel = 6;
+            MaximumLevel = 8;
 
             Team = PokemonTeam.All;
         }

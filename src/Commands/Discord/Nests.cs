@@ -171,7 +171,7 @@
         public DiscordEmbed GenerateEmbedMessage(ulong guildId, DiscordClient client, Nest nest)
         {
             var alertMessageType = EmbedMessageType.Nests;
-            var alertMessage = /*alarm?.Embeds[alertMessageType] ??*/ EmbedMessage.Defaults[alertMessageType]; // TODO: Add nestAlert config option
+            var alertMessage = /*alarm?.Embeds[alertMessageType] ??*/ EmbedMessage.Defaults[alertMessageType]; // TODO: Add nestEmbed config option
             var server = _config.Instance.Servers[guildId];
             var pokemonImageUrl = UIconService.Instance.GetPokemonIcon(server.IconStyle, nest.PokemonId);
             var properties = GetProperties(client.Guilds[guildId], nest, pokemonImageUrl);
