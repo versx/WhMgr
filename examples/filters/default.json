@@ -89,7 +89,7 @@
             "max_level": 3,
             "min_points": 10,
             "max_points": 250
-        }
+        },
         "ignore_missing": true // Ignore raids missing stats
     },
     "quests":
@@ -198,6 +198,12 @@
             "CharacterGhostBalloonGruntMale": true,
             "CharacterElectricBalloonGruntFemale": true,
             "CharacterElectricBalloonGruntMale": true
+        },
+        "power_level": {
+            "min_level": 1,
+            "max_level": 3,
+            "min_points": 10,
+            "max_points": 250
         }
     },
     "gyms":

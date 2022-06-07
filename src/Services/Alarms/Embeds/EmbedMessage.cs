@@ -162,7 +162,10 @@
                         "{{#each invasion_encounters}}",
                         "{{chance}} - {{pokemon}}",
                         "{{/each}}",
-                        "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**",
+                        "{{/if}}{{#if power_up_level}}**Power Level**",
+                        "Level: {{power_up_level}} | Points: {{power_up_points}}",
+                        "Time Left: {{power_up_end_time_left}}",
+                        "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
                     },
                     IconUrl = "{{pokestop_url}}",
                     Title = "{{geofence}}: {{pokestop_name}}",
