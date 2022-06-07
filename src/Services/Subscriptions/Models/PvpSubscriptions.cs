@@ -8,6 +8,9 @@
     using System.Text.Json.Serialization;
 
     using WhMgr.Common;
+    using WhMgr.Configuration;
+    using WhMgr.Services.Alarms.Filters;
+    using WhMgr.Services.Webhook.Models;
 
     [Table("pvp")]
     public class PvpSubscription : BasePokemonSubscription
@@ -67,9 +70,28 @@
         public PvpSubscription()
         {
             Gender = "*";
-            League = PvpLeague.Great;
-            MinimumRank = Strings.Defaults.MinimumRank;
-            MinimumPercent = Strings.Defaults.MinimumPercent;
+            League = PvpLeague.Other;
         }
+
+        #region Public Methods
+
+        public bool RankExists(List<PvpRankData> rankData, PvpLeague league, PvpLeagueConfig config)
+        {
+            return rankData?.Exists(rank => RankExists(rank, league, config.MinimumCP, config.MaximumCP)) ?? false;
+        }
+
+        public bool RankExists(PvpRankData rankData, PvpLeague league, ushort minLeagueCP, ushort maxLeagueCP)
+        {
+            var cp = rankData.CP ?? Strings.Defaults.MinimumCP;
+            var rank = rankData.Rank ?? 4096;
+            var matchesGender = Filters.MatchesGender(rankData.Gender, string.IsNullOrEmpty(Gender) ? '*' : Gender[0]);
+            var matchesLeague = League == league;
+            var matchesCP = Filters.MatchesCP(cp, minLeagueCP, maxLeagueCP);
+            var matchesRank = rank <= MinimumRank;
+            //var matchesPercentage = (x.Percentage ?? 0) * 100 >= pkmnSub.MinimumPercent;
+            return matchesLeague && matchesCP && matchesRank && matchesGender;
+        }
+
+        #endregion
     }
 }

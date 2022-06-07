@@ -7,10 +7,16 @@
 		"max_iv": 100,
 		"min_cp": 0,
 		"max_cp": 2500,
-		"ultra_league": true,
-		"min_rank": 1,
-		"max_rank": 1,
+		"pvp": {
+			"ultra": [{
+				"min_rank": 1,
+				"max_rank": 1,
+				"min_cp": 2400,
+				"max_cp": 2500,
+				"gender": "*"
+			}]
+		},
 		"type": "Include",
 		"ignore_missing": true
-    }
+	}
 }

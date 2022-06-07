@@ -11,12 +11,33 @@ Located at `bin/static/data/defaults.json`, it provides default values throughou
     "max_lvl": 35,
     "min_cp": 0,
     "max_cp": 99999,
-    "min_rank": 0,
-    "max_rank": 100,
-    "min_great_league_cp": 1400,
-    "max_great_league_cp": 1500,
-    "min_ultra_league_cp": 2400,
-    "max_ultra_league_cp": 2500,
+    "pvp": {
+        // Default PVP filtering values if none provided
+        "little": {
+            "min_rank": 1,
+            "max_rank": 25,
+            "min_percent": 90,
+            "max_percent": 100,
+            "min_league_cp": 450,
+            "max_league_cp": 500,
+        },
+        "great": {
+            "min_rank": 1,
+            "max_rank": 25,
+            "min_percent": 90,
+            "max_percent": 100,
+            "min_league_cp": 1400,
+            "max_league_cp": 1500,
+        },
+        "ultra": {
+            "min_rank": 1,
+            "max_rank": 25,
+            "min_percent": 90,
+            "max_percent": 100,
+            "min_league_cp": 2400,
+            "max_league_cp": 2500,
+        }
+    },
 
     // Queue options
     // Maximum queue batch size when sending outgoing messages

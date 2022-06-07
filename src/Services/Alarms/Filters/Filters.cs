@@ -52,7 +52,7 @@
             return matchesLvl;
         }
 
-        public static bool MatchesPvPRank(int rank, uint minimumRank, uint maximumRank)
+        public static bool MatchesPvPRank(uint rank, uint minimumRank, uint maximumRank)
         {
             var matchesRank = false;
             var missing = rank == 0;
@@ -66,30 +66,6 @@
             return matchesRank;
         }
 
-        public static bool MatchesIV(double? iv, int minimumIV)
-        {
-            var matchesIV = false;
-            var missing = iv == null;
-            if (!missing)
-            {
-                matchesIV |= Math.Round(iv ?? 0) >= minimumIV;
-            }
-            matchesIV |= (missing && minimumIV == 0);
-            return matchesIV;
-        }
-
-        public static bool MatchesCP(uint? cp, int minimumCP)
-        {
-            var matchesCP = false;
-            var missing = cp == null;
-            if (!missing)
-            {
-                matchesCP |= cp >= minimumCP;
-            }
-            matchesCP |= (missing && minimumCP == 0);
-            return matchesCP;
-        }
-
         public static bool MatchesGender(Gender gender, Gender desiredGender)
         {
             return gender == desiredGender ||
@@ -97,17 +73,15 @@
                    gender == Gender.Less;
         }
 
-        public static bool MatchesGender(Gender gender, string desiredGender)
+        public static bool MatchesGender(Gender gender, char desiredGender)
         {
-            desiredGender = desiredGender.ToLower();
-
-            if (desiredGender == "*" || gender == Gender.Less || gender == Gender.Unset)
+            if (desiredGender == '*' || gender == Gender.Less || gender == Gender.Unset)
                 return true;
 
-            if (desiredGender == "m" && gender == Gender.Male)
+            if ((desiredGender == 'm' || desiredGender == 'M') && gender == Gender.Male)
                 return true;
 
-            if (desiredGender == "f" && gender == Gender.Female)
+            if ((desiredGender == 'f' || desiredGender == 'F') && gender == Gender.Female)
                 return true;
 
             return false;

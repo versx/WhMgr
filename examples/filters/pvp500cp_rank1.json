@@ -6,13 +6,13 @@
 		"min_iv": 0,
 		"max_iv": 100,
 		"min_cp": 0,
-		"max_cp": 1500,
+		"max_cp": 500,
 		"pvp": {
-			"great": [{
+			"little": [{
 				"min_rank": 1,
 				"max_rank": 1,
-				"min_cp": 1400,
-				"max_cp": 1500,
+				"min_cp": 450,
+				"max_cp": 500,
 				"gender": "*"
 			}]
 		},

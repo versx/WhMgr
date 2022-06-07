@@ -279,40 +279,13 @@
             JsonIgnore,
             NotMapped,
         ]
-        public bool MatchesGreatLeague => GreatLeague?.Exists(x =>
-            // Check if stat rank is less than or equal to the max great league rank stat desired
-            x.Rank <= Strings.Defaults.MaximumRank &&
-            // Check if stat CP is greater than or equal to min great league CP
-            x.CP >= Strings.Defaults.MinimumGreatLeagueCP &&
-            // Check if stat CP is less than or equal to max great league CP
-            x.CP <= Strings.Defaults.MaximumGreatLeagueCP
-        ) ?? false;
+        public bool HasPvpRankings => PvpRankings?.Keys.Count > 0;
 
         [
-            JsonIgnore,
-            NotMapped,
+            JsonPropertyName("pvp"),
+            Column("pvp"),
         ]
-        public bool MatchesUltraLeague => UltraLeague?.Exists(x =>
-            // Check if stat rank is less than or equal to the max ultra league rank stat desired
-            x.Rank <= Strings.Defaults.MaximumRank &&
-            // Check if stat CP is greater than or equal to min ultra league CP
-            x.CP >= Strings.Defaults.MinimumUltraLeagueCP &&
-            // Check if stat CP is less than or equal to max ultra league CP
-            x.CP <= Strings.Defaults.MaximumUltraLeagueCP
-        ) ?? false;
-
-
-        [
-            JsonPropertyName("pvp_rankings_great_league"),
-            Column("pvp_rankings_great_league"),
-        ]
-        public List<PvpRankData> GreatLeague { get; set; }
-
-        [
-            JsonPropertyName("pvp_rankings_ultra_league"),
-            Column("pvp_rankings_ultra_league"),
-        ]
-        public List<PvpRankData> UltraLeague { get; set; }
+        public Dictionary<PvpLeague, List<PvpRankData>> PvpRankings { get; set; }
 
         #endregion
 
@@ -359,8 +332,7 @@
         /// </summary>
         public PokemonData()
         {
-            GreatLeague = new List<PvpRankData>();
-            UltraLeague = new List<PvpRankData>();
+            PvpRankings = new Dictionary<PvpLeague, List<PvpRankData>>();
         }
 
         #endregion
@@ -417,21 +389,21 @@
             {
                 Title = TemplateRenderer.Parse(embed.Title, properties),
                 Url = TemplateRenderer.Parse(embed.Url, properties),
-                Image = new Discord.Models.DiscordEmbedImage
+                Image = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.ImageUrl, properties),
                 },
-                Thumbnail = new Discord.Models.DiscordEmbedImage
+                Thumbnail = new DiscordEmbedImage
                 {
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
                 Color = (
-                    MatchesGreatLeague || MatchesUltraLeague
-                        ? GameMaster.Instance.DiscordEmbedColors.GetPvPColor(GreatLeague, UltraLeague)
+                    HasPvpRankings
+                        ? GameMaster.Instance.DiscordEmbedColors.GetPvPColor(PvpRankings)
                         : IV.BuildPokemonIVColor(GameMaster.Instance.DiscordEmbedColors)
                     ).Value,
-                Footer = new Discord.Models.DiscordEmbedFooter
+                Footer = new DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
                     IconUrl = TemplateRenderer.Parse(embed.Footer?.IconUrl, properties)
@@ -590,13 +562,12 @@
                 capture_3_emoji = CaptureRateType.UltraBall.GetEmojiIcon("capture", false),
 
                 // PvP stat properties
-                is_great = MatchesGreatLeague,
-                is_ultra = MatchesUltraLeague,
-                is_pvp = MatchesGreatLeague || MatchesUltraLeague,
+                is_pvp = HasPvpRankings,
                 great_league_emoji = greatLeagueEmoji,
                 ultra_league_emoji = ultraLeagueEmoji,
-                great_league = this.GetLeagueRanks(PvpLeague.Great),
-                ultra_league = this.GetLeagueRanks(PvpLeague.Ultra),
+                has_pvp = HasPvpRankings,
+                // TODO: Filter pvp rankings using Strings.Defaults.Pvp settings to remove clutter/useless ranks
+                pvp = PvpRankings,
 
                 // Other properties
                 height = height ?? defaultMissingValue,

@@ -6,6 +6,7 @@
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Common;
+    using WhMgr.Services.Webhook.Models;
 
     public class Defaults
     {
@@ -28,30 +29,8 @@
         [JsonPropertyName("max_cp")]
         public uint MaximumCP { get; set; }
 
-        [JsonPropertyName("min_rank")]
-        public sbyte MinimumRank { get; set; }
-
-        [JsonPropertyName("max_rank")]
-        public sbyte MaximumRank { get; set; }
-
-        [JsonPropertyName("min_percent")]
-        public double MinimumPercent { get; set; }
-
-        [JsonPropertyName("max_percent")]
-        public double MaximumPercent { get; set; }
-
-        [JsonPropertyName("min_great_league_cp")]
-        public ushort MinimumGreatLeagueCP { get; set; }
-
-        [JsonPropertyName("max_great_league_cp")]
-        public ushort MaximumGreatLeagueCP { get; set; }
-
-        [JsonPropertyName("min_ultra_league_cp")]
-        public ushort MinimumUltraLeagueCP { get; set; }
-
-        [JsonPropertyName("max_ultra_league_cp")]
-        public ushort MaximumUltraLeagueCP { get; set; }
-
+        [JsonPropertyName("pvp")]
+        public Dictionary<PvpLeague, PvpLeagueFilter> Pvp { get; set; }
 
         // Webhook and subscription queue settings
         [JsonPropertyName("max_queue_batch_size")]
@@ -88,14 +67,6 @@
             MaximumLevel = 35;
             MinimumCP = 0;
             MaximumCP = 99999;
-            MinimumRank = 0;
-            MaximumRank = 100;
-            MinimumPercent = 0;
-            MaximumPercent = 100;
-            MinimumGreatLeagueCP = 1400;
-            MaximumGreatLeagueCP = 1500;
-            MinimumUltraLeagueCP = 2400;
-            MaximumUltraLeagueCP = 2500;
 
             MaximumQueueBatchSize = 10;
             MaximumQueueSizeWarning = 100;
@@ -182,6 +153,39 @@
                 { WeatherCondition.Snow,         new List<PokemonType> { PokemonType.Ice,    PokemonType.Steel } },
                 { WeatherCondition.Fog,          new List<PokemonType> { PokemonType.Dark,   PokemonType.Ghost } }
             };
+
+            Pvp = new Dictionary<PvpLeague, PvpLeagueFilter>();
+        }
+    }
+
+    public class PvpLeagueFilter
+    {
+        [JsonPropertyName("min_rank")]
+        public sbyte MinimumRank { get; set; }
+
+        [JsonPropertyName("max_rank")]
+        public sbyte MaximumRank { get; set; }
+
+        [JsonPropertyName("min_percent")]
+        public double MinimumPercent { get; set; }
+
+        [JsonPropertyName("max_percent")]
+        public double MaximumPercent { get; set; }
+
+        [JsonPropertyName("min_league_cp")]
+        public ushort MinimumLeagueCP { get; set; }
+
+        [JsonPropertyName("max_league_cp")]
+        public ushort MaximumLeagueCP { get; set; }
+
+        public PvpLeagueFilter()
+        {
+            MinimumRank = 0;
+            MaximumRank = 100;
+            MinimumPercent = 0;
+            MaximumPercent = 100;
+            MinimumLeagueCP = 1400;
+            MaximumLeagueCP = 2500;
         }
     }
 }

@@ -305,7 +305,33 @@ At a minimum you'll want to make sure you have your webhook listening port set a
    * Critical: 5
    * None: 6
   */
-  "logLevel": 0
+  "logLevel": 0,
+  // Acceptable and interested PVP leagues to parse.
+  "pvpLeagues": {
+    // League name key to match webhook key for PVP ranks.
+    "little": {
+      // League minimum acceptable CP
+      "minCP": 450,
+      // League maximum acceptable CP
+      "maxCP": 500,
+      // League minimum rank to meet
+      "minRank": 1,
+      // League maximum rank to meet
+      "maxRank": 100
+    },
+    "great": {
+      "minCP": 1400,
+      "maxCP": 1500,
+      "minRank": 1,
+      "maxRank": 100
+    },
+    "ultra": {
+      "minCP": 2400,
+      "maxCP": 2500,
+      "minRank": 1,
+      "maxRank": 100
+    }
+  }
 }
 ```
 
@@ -671,6 +697,38 @@ At a minimum you'll want to make sure you have your webhook listening port set a
       "endpoint": "",
       // OSM Nominatim template schema for embeds
       "schema": "{{Address.Road}} {{Address.State}} {{Address.Postcode}} {{Address.Country}}"
+    }
+  }
+}
+```
+
+## PVP Leagues
+```json
+{
+  // Acceptable and interested PVP leagues to parse.
+  "pvpLeagues": {
+    // League name key to match webhook key for PVP ranks.
+    "little": {
+      // League minimum acceptable CP
+      "minCP": 450,
+      // League maximum acceptable CP
+      "maxCP": 500,
+      // League minimum rank to meet
+      "minRank": 1,
+      // League maximum rank to meet
+      "maxRank": 100
+    },
+    "great": {
+      "minCP": 1400,
+      "maxCP": 1500,
+      "minRank": 1,
+      "maxRank": 100
+    },
+    "ultra": {
+      "minCP": 2400,
+      "maxCP": 2500,
+      "minRank": 1,
+      "maxRank": 100
     }
   }
 }
