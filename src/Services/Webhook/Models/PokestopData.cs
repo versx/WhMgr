@@ -196,11 +196,13 @@
         public async Task<DiscordWebhookMessage> GenerateEmbedMessageAsync(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
-            var embedType = HasInvasion
-                ? EmbedMessageType.Invasions
+            var embedType = HasLure && HasInvasion
+                ? EmbedMessageType.Pokestops
                 : HasLure
                     ? EmbedMessageType.Lures
-                    : EmbedMessageType.Pokestops;
+                    : HasInvasion
+                        ? EmbedMessageType.Invasions
+                        : EmbedMessageType.Pokestops;
             var embed = settings.Alarm?.Embeds[embedType]
                     ?? server.Subscriptions?.Embeds?[embedType]
                     ?? EmbedMessage.Defaults[embedType];
@@ -266,7 +268,7 @@
                     ? StaticMapType.Invasions
                     : HasLure
                         ? StaticMapType.Lures
-                        : StaticMapType.Invasions; // TODO: Fix
+                        : StaticMapType.Invasions; // TODO: Fix StaticMapType.Pokestops
             var staticMapConfig = properties.Config.Instance.StaticMaps[staticMapConfigType];
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {

@@ -68,10 +68,17 @@
                 "Time Left: {{power_up_end_time_left}}",
                 "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
             };
+            var expireTimestamp = 1654595380ul;
             var embedData = string.Join("\r\n", content);
             var now = DateTime.Now;
-            var expireTime = now.AddMinutes(10);
-            var lureExpireTimeLeft = now.GetTimeRemaining(expireTime).ToReadableStringNoSeconds();
+            var lat = 34.01;
+            var lon = -117.01;
+            var lureExpireTime = now.AddMinutes(10);
+            var lureExpireTimeLeft = now.GetTimeRemaining(lureExpireTime).ToReadableStringNoSeconds();
+            var powerUpExpireTime = expireTimestamp
+                .FromUnix()
+                .ConvertTimeFromCoordinates(lat, lon);
+            var powerUpExpireTimeLeft = now.GetTimeRemaining(powerUpExpireTime).ToReadableStringNoSeconds();
             var data = new
             {
                 pokestop_id = "0011386f50d640c084b499d343af610b.16",
@@ -79,23 +86,29 @@
                 longitude = -117.01,
                 name = "Test Stop",
                 url = "http =//lh3.googleusercontent.com/ybUiI4LuqOw02mMiOSeXnLqVW0d1bJECu9IM5v86e5B6DlMbohrCzpBtRE8bNh5k0OENogqJUgkcBtmtKyPAIgHX_Zo",
-                lure_expiration = 1654595380,
                 last_modified = 1654568322,
                 enabled = true,
-                has_lure = true,
+                has_lure = false,
                 lure_id = 501,
                 lure_type = "Normal",
-                lure_expire_time = expireTime.ToLongTimeString(),
-                lure_expire_time_24h = expireTime.ToString("HH:mm:ss"),
+                lure_expire_time = lureExpireTime.ToLongTimeString(),
+                lure_expire_time_24h = lureExpireTime.ToString("HH:mm:ss"),
                 lure_expire_time_left = lureExpireTimeLeft,
+                lure_expire_timestamp = expireTimestamp,
                 has_invasion = false,
                 grunt_type = "Flying",
                 pokestop_display = 0,
-                incident_expire_timestamp = 1654595380,
+                incident_expire_time = lureExpireTime.ToLongTimeString(),
+                incident_expire_time_24h = lureExpireTime.ToString("HH:mm:ss"),
+                incident_expire_time_left = lureExpireTimeLeft,
+                incident_expire_timestamp = expireTimestamp,
                 ar_scan_eligible = false,
                 power_up_level = level,
                 power_up_points = 250,
-                power_up_end_timestamp = 1654595380,
+                power_up_end_time = powerUpExpireTime.ToLongTimeString(),
+                power_up_end_time_24h = powerUpExpireTime.ToString("HH:mm:ss"),
+                power_up_end_time_left = powerUpExpireTimeLeft,
+                power_up_end_timestamp = expireTimestamp,
                 updated = 1654568322,
             };
             var templateData = TemplateRenderer.Parse(embedData, data);
