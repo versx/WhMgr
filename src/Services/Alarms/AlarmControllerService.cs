@@ -517,7 +517,6 @@
                     var hasInvasionType = alarm.Filters.Pokestops.InvasionTypes.ContainsKey(pokestop.GruntType)
                         && alarm.Filters.Pokestops.InvasionTypes[pokestop.GruntType];
 
-                    // TODO: Fix pokestop alarm filter logic
                     var matchesLure = hasLure && hasLureType;
                     var matchesInvasion = hasInvasion && hasInvasionType;
                     var matchesPowerLevel = alarm.Filters.Pokestops.PowerLevel != null
@@ -525,24 +524,8 @@
                           Filters.Filters.MatchesGymPowerPoints(pokestop.PowerUpPoints, alarm.Filters.Pokestops.PowerLevel.MinimumPoints, alarm.Filters.Raids.PowerLevel.MaximumPoints)
                         : false;
 
-                    //if (/*(!(matchesLure || matchesInvasion) && !matchesPowerLevel) ||*/ (!matchesLure && !matchesInvasion && !matchesPowerLevel))
                     if (!matchesLure && !matchesInvasion && !matchesPowerLevel)
                         continue;
-
-                    /*
-                    if (matchesPowerLevel)
-                    {
-                        if (!Filters.Filters.MatchesGymPowerLevel(pokestop.PowerUpLevel, alarm.Filters.Pokestops.PowerLevel.MinimumLevel, alarm.Filters.Raids.PowerLevel.MaximumLevel))
-                        {
-                            continue;
-                        }
-
-                        if (!Filters.Filters.MatchesGymPowerPoints(pokestop.PowerUpPoints, alarm.Filters.Pokestops.PowerLevel.MinimumPoints, alarm.Filters.Raids.PowerLevel.MaximumPoints))
-                        {
-                            continue;
-                        }
-                    }
-                    */
 
                     var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokestop.Latitude, pokestop.Longitude));
                     if (geofences == null)
