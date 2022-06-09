@@ -253,9 +253,6 @@
                     var start = DateTime.Now;
                     user = subscriptions[i];
 
-                    if (user.UserId != 266771160253988875)
-                        continue;
-
                     // Skip if user's guild is not configured or connected
                     if (!DiscordExists(user.GuildId, _config.Instance.Servers, _discordService.DiscordClients))
                         continue;
