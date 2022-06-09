@@ -76,10 +76,8 @@
             {
                 if (_instance == null)
                 {
-                    var path = Path.Combine(Strings.DataFolder, MasterFileName);
-                    _instance = LoadInit<GameMaster>(path);
+                    ReloadMasterFile();
                 }
-
                 return _instance;
             }
         }

@@ -25,7 +25,7 @@
                 ? new List<uint> { includeBasePokemon ? pkmn.PokedexId : 0 }
                 : new List<uint>();
 
-            if (pkmn?.Evolutions == null)
+            if ((pkmn?.Evolutions?.Count ?? 0) == 0)
                 return pokemonIds;
 
             void GetEvolutionIds(List<PokedexPokemonEvolution> evolutions)

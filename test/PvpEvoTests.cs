@@ -44,7 +44,7 @@
         }
 
         [Test]
-        [TestCase(3, 0)] // Venusaur
+        [TestCase(2, 0)] // Ivysaur
         public void Test_PvpEvoSubs_ReturnsIsTrue(int pokemonId, int formId)
         {
             var pkmn = GameMaster.GetPokemon((uint)pokemonId, (uint)formId);
