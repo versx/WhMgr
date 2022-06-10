@@ -112,7 +112,7 @@
                         message += $"[**{nest.Name}**]({gmapsLink}): {pkmnName} (#{nest.PokemonId}) {nest.Average:N0} per hour\n";
                         if (message.Length >= Strings.DiscordMaximumMessageLength)
                         {
-                            eb.Description = message.Substring(0, Math.Min(message.Length, Strings.DiscordMaximumMessageLength));
+                            eb.Description = message[..Math.Min(message.Length, Strings.DiscordMaximumMessageLength)];
                             message = string.Empty;
                             await channel.SendMessageAsync(embed: eb);
                             eb = new DiscordEmbedBuilder
@@ -144,7 +144,7 @@
                     try
                     {
                         var eb = GenerateEmbedMessage(guildId, ctx.Client, nest);
-                        var geofence = GeofenceService.GetGeofence(server.Geofences, new Coordinate(nest.Latitude, nest.Longitude));
+                        var geofence = GeofenceService.GetGeofence(server.Geofences, new Coordinate(nest));
                         if (geofence == null)
                         {
                             //_logger.Warn($"Failed to find geofence for nest {nest.Key}.");
@@ -223,7 +223,7 @@
                 PolygonPath = polygonPath,
             });
             var staticMapLink = staticMap.GenerateLink();
-            var geofence = GeofenceService.GetGeofence(_config.Instance.Servers[guild.Id].Geofences, new Coordinate(nest.Latitude, nest.Longitude));
+            var geofence = GeofenceService.GetGeofence(_config.Instance.Servers[guild.Id].Geofences, new Coordinate(nest));
             var city = geofence?.Name ?? "Unknown";
             //var address = new Coordinate(city, nest.Latitude, nest.Longitude).GetAddress(_config.Instance);
 
@@ -279,7 +279,7 @@
             {
                 var geofence = GeofenceService.GetGeofence(
                     _config.Instance.Servers[guildId].Geofences,
-                    new Coordinate(nest.Latitude, nest.Longitude)
+                    new Coordinate(nest)
                 );
                 if (geofence == null)
                 {

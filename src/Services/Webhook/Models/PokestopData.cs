@@ -26,7 +26,7 @@
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
     /// </summary>
     [Table("pokestop")]
-    public sealed class PokestopData : IWebhookData
+    public sealed class PokestopData : IWebhookData, IWebhookPoint
     {
         #region Properties
 

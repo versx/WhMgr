@@ -5,6 +5,8 @@
     using NetTopologySuite.Geometries;
     using NetTopCoordinate = NetTopologySuite.Geometries.Coordinate;
 
+    using WhMgr.Services.Webhook.Models;
+
     public class Coordinate
     {
         [JsonPropertyName("lat")]
@@ -17,6 +19,12 @@
         {
             Latitude = lat;
             Longitude = lon;
+        }
+
+        public Coordinate(IWebhookPoint location)
+        {
+            Latitude = location.Latitude;
+            Longitude = location.Longitude;
         }
 
         /// <summary>

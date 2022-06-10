@@ -29,12 +29,14 @@
         [
             JsonPropertyName("min_level"),
             Column("min_level"),
+            DefaultValue(0),
         ]
         public ushort MinimumLevel { get; set; }
 
         [
             JsonPropertyName("max_level"),
             Column("max_level"),
+            DefaultValue(8),
         ]
         public ushort MaximumLevel { get; set; }
 
@@ -54,6 +56,7 @@
         [
             JsonPropertyName("location"),
             Column("location"),
+            DefaultValue(null),
         ]
         public string Location { get; set; }
     }

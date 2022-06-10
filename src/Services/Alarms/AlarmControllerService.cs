@@ -75,7 +75,7 @@
                 for (var i = 0; i < pokemonAlarms.Count; i++)
                 {
                     var alarm = pokemonAlarms[i];
-                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokemon.Latitude, pokemon.Longitude));
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokemon));
                     if (geofences == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping pokemon {pkmn.Id}: not in geofence.");
@@ -257,7 +257,7 @@
                 for (var i = 0; i < raidAlarms.Count; i++)
                 {
                     var alarm = raidAlarms[i];
-                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(raid.Latitude, raid.Longitude));
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(raid));
                     if (geofences == null)
                     {
                         //_logger.LogWarning($"[{alarm.Name}] Skipping raid Pokemon={raid.PokemonId}, Level={raid.Level}: not in geofence.");
@@ -410,7 +410,7 @@
                 for (var i = 0; i < questAlarms.Count; i++)
                 {
                     var alarm = questAlarms[i];
-                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(quest.Latitude, quest.Longitude));
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(quest));
                     if (geofences == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: not in geofence.");
@@ -519,7 +519,7 @@
                     }
                     */
                         
-                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokestop.Latitude, pokestop.Longitude));
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokestop));
                     if (geofences == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name} because not in geofence.");
@@ -562,7 +562,7 @@
                 for (var i = 0; i < gymAlarms.Count; i++)
                 {
                     var alarm = gymAlarms[i];
-                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(gym.Latitude, gym.Longitude));
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(gym));
                     if (geofences == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping gym details GymId={gym.GymId}, GymName={gym.GymName}: not in geofence.");
@@ -634,7 +634,7 @@
                 for (var i = 0; i < weatherAlarms.Count; i++)
                 {
                     var alarm = weatherAlarms[i];
-                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(weather.Latitude, weather.Longitude));
+                    var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(weather));
                     if (geofences == null)
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping gym details GymId={gymDetails.GymId}, GymName={gymDetails.GymName}: not in geofence.");

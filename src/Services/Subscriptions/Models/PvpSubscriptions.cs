@@ -64,6 +64,7 @@
         [
             JsonPropertyName("location"),
             Column("location"),
+            DefaultValue(null),
         ]
         public string Location { get; set; }
 

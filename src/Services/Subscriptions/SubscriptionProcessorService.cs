@@ -69,7 +69,7 @@
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
-            var pkmnCoord = new Coordinate(pokemon.Latitude, pokemon.Longitude);
+            var pkmnCoord = new Coordinate(pokemon);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
@@ -221,7 +221,7 @@
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
-            var pkmnCoord = new Coordinate(pokemon.Latitude, pokemon.Longitude);
+            var pkmnCoord = new Coordinate(pokemon);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
@@ -381,7 +381,7 @@
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
-            var raidCoord = new Coordinate(raid.Latitude, raid.Longitude);
+            var raidCoord = new Coordinate(raid);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
@@ -502,7 +502,7 @@
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
-            var questCoord = new Coordinate(quest.Latitude, quest.Longitude);
+            var questCoord = new Coordinate(quest);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
@@ -618,7 +618,7 @@
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
-            var invasionCoord = new Coordinate(pokestop.Latitude, pokestop.Longitude);
+            var invasionCoord = new Coordinate(pokestop);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
@@ -740,7 +740,7 @@
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
-            var lureCoord = new Coordinate(pokestop.Latitude, pokestop.Longitude);
+            var lureCoord = new Coordinate(pokestop);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
@@ -851,7 +851,7 @@
         {
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
-            var gymCoord = new Coordinate(raid.Latitude, raid.Longitude);
+            var gymCoord = new Coordinate(raid);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))

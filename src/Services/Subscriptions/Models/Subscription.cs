@@ -128,6 +128,7 @@
         [
             JsonPropertyName("phone_number"),
             Column("phone_number"),
+            DefaultValue(null),
         ]
         public string PhoneNumber { get; set; }
 

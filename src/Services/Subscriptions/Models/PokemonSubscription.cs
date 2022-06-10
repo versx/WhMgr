@@ -28,18 +28,22 @@
         [
             JsonPropertyName("min_cp"),
             Column("min_cp"),
+            DefaultValue(0),
         ]
         public int MinimumCP { get; set; }
 
+        // TODO: Create migration to fix default value for Pokemon max_cp subscriptions
         [
             JsonPropertyName("max_cp"),
             Column("max_cp"),
+            DefaultValue(int.MaxValue),
         ]
         public int MaximumCP { get; set; }
 
         [
             JsonPropertyName("min_iv"),
             Column("min_iv"),
+            DefaultValue(0),
         ]
         public int MinimumIV { get; set; }
 
@@ -54,12 +58,14 @@
         [
             JsonPropertyName("min_lvl"),
             Column("min_lvl"),
+            DefaultValue(0),
         ]
         public int MinimumLevel { get; set; }
 
         [
             JsonPropertyName("max_lvl"),
             Column("max_lvl"),
+            DefaultValue(35),
         ]
         public int MaximumLevel { get; set; }
 
@@ -68,6 +74,7 @@
         [
             JsonPropertyName("gender"),
             Column("gender"),
+            DefaultValue("*"),
         ]
         public char Gender { get; set; }
 
@@ -87,6 +94,7 @@
         [
             JsonPropertyName("location"),
             Column("location"),
+            DefaultValue(null),
         ]
         public string Location { get; set; }
 

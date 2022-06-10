@@ -19,7 +19,7 @@
     using WhMgr.Services.Icons;
     using WhMgr.Utilities;
 
-    public sealed class RaidData : IWebhookData
+    public sealed class RaidData : IWebhookData, IWebhookPoint
     {
         #region Properties
 

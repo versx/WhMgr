@@ -4,8 +4,10 @@
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
+    using WhMgr.Services.Webhook.Models;
+
     [Table("nests")]
-    public class Nest
+    public class Nest : IWebhookPoint
     {
         [
             Column("nest_id"),
