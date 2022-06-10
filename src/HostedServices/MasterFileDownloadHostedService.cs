@@ -42,7 +42,7 @@
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            foreach (var (timezone, midnightTimer) in _tzMidnightTimers)
+            foreach (var (_, midnightTimer) in _tzMidnightTimers)
             {
                 midnightTimer.Stop();
                 midnightTimer.Dispose();

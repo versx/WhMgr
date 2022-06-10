@@ -23,6 +23,7 @@
         [
             JsonPropertyName("name"),
             Column("name"),
+            DefaultValue(null),
         ]
         public string Name { get; set; }
 

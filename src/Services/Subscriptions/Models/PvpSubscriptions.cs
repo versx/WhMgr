@@ -29,10 +29,10 @@
         [
             JsonPropertyName("gender"),
             Column("gender"),
-            DefaultValue("*"),
+            DefaultValue('*'),
             Required,
         ]
-        public string Gender { get; set; }
+        public char Gender { get; set; }
 
         [
             JsonPropertyName("league"),
@@ -70,7 +70,7 @@
 
         public PvpSubscription()
         {
-            Gender = "*";
+            Gender = '*';
             League = PvpLeague.Other;
         }
 
@@ -85,7 +85,7 @@
         {
             var cp = rankData.CP ?? Strings.Defaults.MinimumCP;
             var rank = rankData.Rank ?? 4096;
-            var matchesGender = Filters.MatchesGender(rankData.Gender, string.IsNullOrEmpty(Gender) ? '*' : Gender[0]);
+            var matchesGender = Filters.MatchesGender(rankData.Gender, string.IsNullOrEmpty(Gender.ToString()) ? '*' : Gender);
             var matchesLeague = League == league;
             var matchesCP = Filters.MatchesCP(cp, minLeagueCP, maxLeagueCP);
             var matchesRank = rank <= MinimumRank;

@@ -27,7 +27,7 @@ namespace WhMgr.Services.Subscriptions.Models
         [
             JsonPropertyName("pokestop_name"),
             Column("pokestop_name"),
-            //DefaultValue(null),
+            DefaultValue(null),
         ]
         public string PokestopName { get; set; }
 

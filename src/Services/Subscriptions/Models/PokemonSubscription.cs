@@ -74,7 +74,7 @@
         [
             JsonPropertyName("gender"),
             Column("gender"),
-            DefaultValue("*"),
+            DefaultValue('*'),
         ]
         public char Gender { get; set; }
 
