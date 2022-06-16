@@ -974,6 +974,11 @@
 
         private bool IsValidPokedexPokemon(uint pokemonId)
         {
+            if (pokemonId == 0)
+            {
+                return false;
+            }
+
             if (!GameMaster.Instance.Pokedex.ContainsKey(pokemonId))
             {
                 _logger.Warning($"Pokemon '{pokemonId}' does not exist in 'masterfile.json', please make sure you're using an up to date version.");
