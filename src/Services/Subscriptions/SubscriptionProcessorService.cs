@@ -64,7 +64,7 @@
 
         public async Task ProcessPokemonSubscriptionAsync(PokemonData pokemon)
         {
-            if (!GameMaster.Instance.Pokedex.ContainsKey(pokemon.Id))
+            if (!IsValidPokedexPokemon(pokemon.Id))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -216,7 +216,7 @@
 
         public async Task ProcessPvpSubscriptionAsync(PokemonData pokemon)
         {
-            if (!GameMaster.Instance.Pokedex.ContainsKey(pokemon.Id))
+            if (!IsValidPokedexPokemon(pokemon.Id))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -376,7 +376,7 @@
 
         public async Task ProcessRaidSubscriptionAsync(RaidData raid)
         {
-            if (!GameMaster.Instance.Pokedex.ContainsKey(raid.PokemonId))
+            if (!IsValidPokedexPokemon(raid.PokemonId))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -971,6 +971,16 @@
 
         // TODO: Move helpers to extensions class
         #region Helper Methods
+
+        private bool IsValidPokedexPokemon(uint pokemonId)
+        {
+            if (!GameMaster.Instance.Pokedex.ContainsKey(pokemonId))
+            {
+                _logger.Warning($"Pokemon '{pokemonId}' does not exist in 'masterfile.json', please make sure you're using an up to date version.");
+                return false;
+            }
+            return true;
+        }
 
         private static IEnumerable<T> GetFilteredPokemonSubscriptions<T>(HashSet<T> subscriptions, uint pokemonId, string form, List<uint> evolutionIds = null)
             where T : BasePokemonSubscription
