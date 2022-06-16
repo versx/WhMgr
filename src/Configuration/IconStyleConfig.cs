@@ -15,8 +15,8 @@
         public string Path { get; set; }
 
         [JsonIgnore]
-        public HashSet<string> IndexList { get; set; } = new();
-        //public dynamic IndexList { get; set; }
+        //public HashSet<string> IndexList { get; set; } = new();
+        public dynamic IndexList { get; set; }
 
         [JsonIgnore]
         public BaseIndexManifest BaseIndexList { get; set; } = new();
