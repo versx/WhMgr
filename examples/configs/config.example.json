@@ -41,8 +41,13 @@
       "database": "manualdb"
     }
   },
-  "eventPokemonIds": [],
-  "eventMinimumIV": 90,
+  "eventPokemon": {
+    "enabled": false,
+    "pokemonIds": [],
+    "minimumIV": 90,
+    "type": "Include",
+    "ignoreMissingStats": true
+  },
   "urls": {
     "scannerMap": "http://map.example.com/@/{0}/{1}/15"
   },
