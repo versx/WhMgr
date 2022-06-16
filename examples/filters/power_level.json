@@ -10,21 +10,21 @@
       "max_points": 250
     }
   },
-	"raids":
-	{
-		"enabled": true,
-		"min_lvl": 1,
-		"max_lvl": 8,
-		"pokemon": [],
-		"type": "Include",
+    "raids":
+    {
+        "enabled": true,
+        "min_lvl": 1,
+        "max_lvl": 8,
+        "pokemon": [],
+        "type": "Include",
         "power_level": {
             "min_level": 1,
             "max_level": 3,
             "min_points": 10,
             "max_points": 250
         },
-		"ignore_missing": false
-	},
+        "ignore_missing": false
+    },
     "pokestops":
     {
         "enabled": true, // Filter is enabled
@@ -132,16 +132,16 @@
             "max_points": 250
         }
     },
-	"gyms":
-	{
-		"enabled": false,
-		"under_attack": true,
-		"team": "All",
+    "gyms":
+    {
+        "enabled": false,
+        "under_attack": true,
+        "team": "All",
         "power_level": {
             "min_level": 1,
             "max_level": 3,
             "min_points": 10,
             "max_points": 250
         }
-	}
+    }
 }
