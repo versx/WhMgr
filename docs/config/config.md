@@ -65,7 +65,9 @@ At a minimum you'll want to make sure you have your webhook listening port set a
     // Minimum IV value for an event Pokemon to have to meet in order to post via Discord channel alarm or direct message subscription.
     "eventMinimumIV": 90,
     // Event Pokemon filtering type
-    "type": "Include"
+    "type": "Include",
+    // Ignore event Pokemon if missing IV stats
+    "ignoreMissingStats": true
   },
   // URL config
   "urls": {
