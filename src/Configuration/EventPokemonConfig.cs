@@ -28,9 +28,9 @@
         /// Gets or sets the event pokemon filter type.
         /// 
         /// Explaination: Filtering type to use with deemed "event" Pokemon.
-        /// Set to `Exclude` if you do not want the Pokemon reported unless
+        /// Set to `Include` if you do not want the Pokemon reported unless
         /// it meets the minimumIV value set (or is 0% or has PvP ranks).
-        /// Set to `Include` if you only want the Pokemon reported if it meets
+        /// Set to `Exclude` if you only want the Pokemon reported if it meets
         /// the minimum IV value set. No other Pokemon will be reported other
         /// than those in the event list. 
         ///

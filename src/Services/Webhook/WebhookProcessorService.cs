@@ -175,21 +175,6 @@
             if (pokemon.SecondsLeft.TotalMinutes < DespawnTimerMinimumMinutes)
                 return;
 
-            /*
-            // Check if Pokemon is in event Pokemon list
-            if ((_config.Instance.EventPokemon?.PokemonIds.Contains(pokemon.Id) ?? false) &&
-                (_config.Instance.EventPokemon?.PokemonIds.Count ?? 0) > 0)
-            {
-                // Skip Pokemon if no IV stats.
-                if (pokemon.IsMissingStats)
-                    return;
-
-                // Skip Pokemon if IV is greater than 0%, less than 90%, and does not match any PvP league stats.
-                if (pokemon.IVReal > 0 && pokemon.IVReal < _config.Instance.EventPokemon.MinimumIV && !pokemon.HasPvpRankings)
-                    return;
-            }
-            */
-
             // Check if event Pokemon filtering enabled and event Pokemon list is set
             if ((_config.Instance.EventPokemon?.Enabled ?? false) &&
                 (_config.Instance.EventPokemon?.PokemonIds?.Count ?? 0) > 0)
@@ -198,18 +183,13 @@
                 var allowPokemon = pokemon.IVReal == 0
                     || pokemon.IVReal >= _config.Instance.EventPokemon.MinimumIV
                     || pokemon.HasPvpRankings;
-                /*
-                // Skip Pokemon if IV is greater than 0%, less than minimum IV set, and does not contain any PvP league rankings.
-                var shouldExclude = pokemon.IVReal > 0
-                    && pokemon.IVReal < _config.Instance.EventPokemon.MinimumIV
-                    && !pokemon.HasPvpRankings;
-                */
+
                 var filterType = _config.Instance.EventPokemon?.FilterType;
 
                 /*
-                 * Set to `Exclude` if you do not want the Pokemon reported unless
+                 * Set to `Include` if you do not want the Pokemon reported unless
                    it meets the minimum IV value set (or is 0% or has PvP ranks).
-                 * Set to `Include` if you only want the Pokemon reported if it meets
+                 * Set to `Exclude` if you only want the Pokemon reported if it meets
                    the minimum IV value set. No other Pokemon will be reported other
                    than those in the event list.
                 */
@@ -223,6 +203,13 @@
                         case FilterType.Exclude:
                             // Skip Pokemon if no IV stats.
                             if (pokemon.IsMissingStats) return;
+                            // Only allow Pokemon if meets IV/PvP criteria
+                            if (!allowPokemon) return;
+                            break;
+                        case FilterType.Include:
+                            // TODO: Make IsMissingStats configurable for EventPokemon config section
+                            if (pokemon.IsMissingStats) return;
+                            // Only allow Pokemon if meets IV/PvP criteria
                             if (!allowPokemon) return;
                             break;
                     }
@@ -232,9 +219,10 @@
                     // Pokemon not in event Pokemon list
                     switch (filterType)
                     {
-                        case FilterType.Include:
-                            if (!allowPokemon) return;
-                            break;
+                        case FilterType.Exclude:
+                            // Skip any Pokemon that is not in the event list, skip regardless
+                            // if criteria matches
+                            return;
                     }
                 }
             }
