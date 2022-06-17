@@ -183,7 +183,9 @@
             {
                 BaseUrl = staticMapConfig.Url,
                 MapType = StaticMapType.Gyms,
-                TemplateType = StaticMapTemplateType.StaticMap, // TODO: Pull from config
+                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
+                    ? StaticMapTemplateType.StaticMap
+                    : StaticMapTemplateType.MultiStaticMap,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 Team = Team,

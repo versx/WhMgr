@@ -213,11 +213,14 @@
             //pkmnImage,
             var osmNest = _osmManager.GetNest(nest.Name)?.FirstOrDefault();
             var polygonPath = OsmManager.MultiPolygonToLatLng(osmNest?.Geometry?.Coordinates, true);
+            var staticMapConfig = _config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
-                BaseUrl = _config.Instance.StaticMaps.Url,
+                BaseUrl = staticMapConfig.Url,
                 MapType = StaticMapType.Nests,
-                TemplateType = StaticMapTemplateType.StaticMap, // TODO: Pull from config
+                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
+                    ? StaticMapTemplateType.StaticMap
+                    : StaticMapTemplateType.MultiStaticMap,
                 Latitude = nest.Latitude,
                 Longitude = nest.Longitude,
                 SecondaryImageUrl = pokemonImageUrl,

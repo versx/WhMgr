@@ -209,7 +209,9 @@
             {
                 BaseUrl = staticMapConfig.Url,
                 MapType = StaticMapType.Weather,
-                TemplateType = StaticMapTemplateType.StaticMap,
+                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
+                    ? StaticMapTemplateType.StaticMap
+                    : StaticMapTemplateType.MultiStaticMap,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = properties.ImageUrl,

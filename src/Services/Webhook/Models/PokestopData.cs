@@ -251,7 +251,9 @@
                         // TODO: Add StaticMapType.Pokestops
                         : StaticMapType.Lures, //HasInvasion && HasLure
                                                //? StaticMapType.Pokestop,
-                TemplateType = StaticMapTemplateType.StaticMap, // TODO: Pull from config
+                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
+                    ? StaticMapTemplateType.StaticMap
+                    : StaticMapTemplateType.MultiStaticMap,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = imageUrl,

@@ -481,7 +481,9 @@
             {
                 BaseUrl = staticMapConfig.Url,
                 MapType = StaticMapType.Pokemon,
-                TemplateType = StaticMapTemplateType.StaticMap, // TODO: Pull from config
+                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
+                    ? StaticMapTemplateType.StaticMap
+                    : StaticMapTemplateType.MultiStaticMap,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = properties.ImageUrl,
