@@ -6,7 +6,30 @@
     "width": 300,
     "height": 175,
     "scale": 1,
-    "markers": [{
+    "markers": [
+        <% if (pokestops != null) {
+            pokestops.forEach(function(pokestop) { %>
+            {
+                "url": "<%= pokestop.marker %>",
+                "latitude": <%= pokestop.lat %>,
+                "longitude": <%= pokestop.lon %>,
+                "width": 50,
+                "height": 50
+            },
+            <% });
+        } %>
+        <% if (gyms != null) {
+            gyms.forEach(function(gym) { %>
+            {
+                "url": "<%= gym.marker %>",
+                "latitude": <%= gym.lat %>,
+                "longitude": <%= gym.lon %>,
+                "width": 50,
+                "height": 50
+            },
+            <% });
+        } %>
+    {
         "url": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/misc/grass.png",
         "latitude": <%= lat %>,
         "longitude": <%= lon %>,

@@ -6,7 +6,30 @@
     "width": 300,
     "height": 175,
     "scale": 1,
-    "markers": [{
+    "markers": [
+        #if(pokestops != nil):
+            #for(pokestop in pokestops):
+            {
+                "url": "#(pokestop.marker)",
+                "latitude": #(pokestop.lat),
+                "longitude": #(pokestop.lon),
+                "width": 50,
+                "height": 50
+            },
+            #endfor
+        #endif
+        #if(gyms != nil):
+            #for(gym in gyms):
+            {
+                "url": "#(gym.marker)",
+                "latitude": #(gym.lat),
+                "longitude": #(gym.lon),
+                "width": 50,
+                "height": 50
+            },
+            #endfor
+        #endif
+    {
         "url": "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/misc/grass.png",
         "latitude": #(lat),
         "longitude": #(lon),
@@ -14,7 +37,8 @@
         "y_offset": 0,
         "width": 48,
         "height": 48
-    },{
+    },
+    {
         "url": "#(url2)",
         "latitude": #(lat),
         "longitude": #(lon),
