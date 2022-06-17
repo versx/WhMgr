@@ -63,7 +63,7 @@
 
         [
             JsonPropertyName("slots_available"),
-            Column("availble_slots"), // TODO: Typflo
+            Column("available_slots"),
         ]
         public ushort SlotsAvailable { get; set; }
 
