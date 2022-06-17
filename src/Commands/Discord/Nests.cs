@@ -25,7 +25,7 @@
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Icons;
-    using WhMgr.Utilities;
+    using WhMgr.Services.StaticMap;
 
     public class Nests : BaseCommandModule
     {
@@ -112,7 +112,7 @@
                         message += $"[**{nest.Name}**]({gmapsLink}): {pkmnName} (#{nest.PokemonId}) {nest.Average:N0} per hour\n";
                         if (message.Length >= Strings.DiscordMaximumMessageLength)
                         {
-                            eb.Description = message.Substring(0, Math.Min(message.Length, Strings.DiscordMaximumMessageLength));
+                            eb.Description = message[..Math.Min(message.Length, Strings.DiscordMaximumMessageLength)];
                             message = string.Empty;
                             await channel.SendMessageAsync(embed: eb);
                             eb = new DiscordEmbedBuilder
@@ -189,8 +189,8 @@
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = TemplateRenderer.Parse(alertMessage.Footer?.Text, properties),
-                    IconUrl = TemplateRenderer.Parse(alertMessage.Footer?.IconUrl, properties)
-                }
+                    IconUrl = TemplateRenderer.Parse(alertMessage.Footer?.IconUrl, properties),
+                },
             };
             return eb.Build();
         }
@@ -215,12 +215,15 @@
             var polygonPath = OsmManager.MultiPolygonToLatLng(osmNest?.Geometry?.Coordinates, true);
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
-                BaseUrl = _config.Instance.StaticMaps[StaticMapType.Nests].Url,
-                TemplateName = _config.Instance.StaticMaps[StaticMapType.Nests].TemplateName,
+                BaseUrl = _config.Instance.StaticMaps.Url,
+                MapType = StaticMapType.Nests,
+                TemplateType = StaticMapTemplateType.StaticMap, // TODO: Pull from config
                 Latitude = nest.Latitude,
                 Longitude = nest.Longitude,
                 SecondaryImageUrl = pokemonImageUrl,
                 PolygonPath = polygonPath,
+                Pregenerate = true,
+                Regeneratable = true,
             });
             var staticMapLink = staticMap.GenerateLink();
             var geofence = GeofenceService.GetGeofence(_config.Instance.Servers[guild.Id].Geofences, new Coordinate(nest.Latitude, nest.Longitude));

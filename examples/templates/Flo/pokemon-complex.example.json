@@ -7,7 +7,7 @@
     "height": 175,
     "scale": 1,
     "markers": [
-        #if(pokestops != null):
+        #if(pokestops != nil):
             #for(pokestop in pokestops):
             {
                 "url": "#(pokestop.marker)",
@@ -18,7 +18,7 @@
             },
             #endfor
         #endif
-        #if(gyms != null):
+        #if(gyms != nil):
             #for(gym in gyms):
             {
                 "url": "#(gym.marker)",

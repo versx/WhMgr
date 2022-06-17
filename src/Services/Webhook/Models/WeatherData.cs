@@ -17,6 +17,7 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Geofence.Geocoding;
+    using WhMgr.Services.StaticMap;
     using WhMgr.Utilities;
 
     [Table("weather")]
@@ -202,12 +203,13 @@
             var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
-            var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Weather];
+            var staticMapConfig = properties.Config.Instance.StaticMaps;
             var polygonPath = OsmManager.MultiPolygonToLatLng(new List<MultiPolygon> { Polygon }, false);
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
                 BaseUrl = staticMapConfig.Url,
-                TemplateName = staticMapConfig.TemplateName,
+                MapType = StaticMapType.Weather,
+                TemplateType = StaticMapTemplateType.StaticMap,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = properties.ImageUrl,
@@ -220,6 +222,8 @@
                     // Fetch nearby pokestops from MapDataCache
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
                     : new(),
+                Pregenerate = true,
+                Regeneratable = true,
             });
             var staticMapLink = staticMap.GenerateLink();
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);

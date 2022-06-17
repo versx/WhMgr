@@ -20,6 +20,7 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Icons;
+    using WhMgr.Services.StaticMap;
     using WhMgr.Utilities;
 
     /// <summary>
@@ -239,11 +240,18 @@
                     : HasLure
                         ? StaticMapType.Lures
                         : StaticMapType.Invasions; // TODO: Fix
-            var staticMapConfig = properties.Config.Instance.StaticMaps[staticMapConfigType];
+            var staticMapConfig = properties.Config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
                 BaseUrl = staticMapConfig.Url,
-                TemplateName = staticMapConfig.TemplateName,
+                MapType = HasInvasion
+                    ? StaticMapType.Invasions
+                    : HasLure
+                        ? StaticMapType.Lures
+                        // TODO: Add StaticMapType.Pokestops
+                        : StaticMapType.Lures, //HasInvasion && HasLure
+                                               //? StaticMapType.Pokestop,
+                TemplateType = StaticMapTemplateType.StaticMap, // TODO: Pull from config
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = imageUrl,
@@ -255,6 +263,8 @@
                     // Fetch nearby pokestops from MapDataCache
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
                     : new List<dynamic>(),
+                Pregenerate = true,
+                Regeneratable = true,
             });
             var staticMapLink = staticMap.GenerateLink();
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);

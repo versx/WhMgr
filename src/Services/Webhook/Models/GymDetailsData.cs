@@ -17,6 +17,7 @@
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Icons;
+    using WhMgr.Services.StaticMap;
     using WhMgr.Utilities;
 
     [Table("gym")]
@@ -177,11 +178,12 @@
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
             var gymImageUrl = UIconService.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);// $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
 
-            var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Gyms];
+            var staticMapConfig = properties.Config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
                 BaseUrl = staticMapConfig.Url,
-                TemplateName = staticMapConfig.TemplateName,
+                MapType = StaticMapType.Gyms,
+                TemplateType = StaticMapTemplateType.StaticMap, // TODO: Pull from config
                 Latitude = Latitude,
                 Longitude = Longitude,
                 Team = Team,
@@ -194,6 +196,8 @@
                     // Fetch nearby pokestops from MapDataCache
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
                     : new(),
+                Pregenerate = true,
+                Regeneratable = true,
             });
             var staticMapLink = staticMap.GenerateLink();
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
