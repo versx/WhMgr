@@ -273,7 +273,7 @@
                     // Fetch nearby pokestops from MapDataCache
                     ? await properties .MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
                     : new(),
-                Pregenerate = true,
+                Pregenerate = staticMapConfig.Pregenerate,
                 Regeneratable = true,
             });
             var staticMapLink = staticMap.GenerateLink();

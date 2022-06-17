@@ -225,7 +225,7 @@
                 Longitude = nest.Longitude,
                 SecondaryImageUrl = pokemonImageUrl,
                 PolygonPath = polygonPath,
-                Pregenerate = true,
+                Pregenerate = staticMapConfig.Pregenerate,
                 Regeneratable = true,
             });
             var staticMapLink = staticMap.GenerateLink();

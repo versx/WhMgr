@@ -260,12 +260,12 @@
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
                     ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
-                    : new List<dynamic>(),
+                    : new(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby pokestops from MapDataCache
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
-                    : new List<dynamic>(),
-                Pregenerate = true,
+                    : new(),
+                Pregenerate = staticMapConfig.Pregenerate,
                 Regeneratable = true,
             });
             var staticMapLink = staticMap.GenerateLink();

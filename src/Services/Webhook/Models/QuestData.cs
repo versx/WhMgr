@@ -164,7 +164,7 @@
                     // Fetch nearby gyms from MapDataCache
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
                     : new(),
-                Pregenerate = true,
+                Pregenerate = staticMapConfig.Pregenerate,
                 Regeneratable = true,
             });
             var arEmojiId = GameMaster.Instance.Emojis.ContainsKey("ar")
