@@ -269,18 +269,14 @@
                     ? StaticMapType.Invasions
                     : HasLure
                         ? StaticMapType.Lures
-                        : StaticMapType.Invasions; // TODO: Fix
+                        // TODO: Add StaticMapType.Pokestops
+                        : StaticMapType.Lures; //HasInvasion && HasLure
+                                               //? StaticMapType.Pokestop,
             var staticMapConfig = properties.Config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
                 BaseUrl = staticMapConfig.Url,
-                MapType = HasInvasion
-                    ? StaticMapType.Invasions
-                    : HasLure
-                        ? StaticMapType.Lures
-                        // TODO: Add StaticMapType.Pokestops
-                        : StaticMapType.Lures, //HasInvasion && HasLure
-                                               //? StaticMapType.Pokestop,
+                MapType = staticMapConfigType,
                 TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
                     ? StaticMapTemplateType.StaticMap
                     : StaticMapTemplateType.MultiStaticMap,

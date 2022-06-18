@@ -95,7 +95,7 @@
         public string GetPokemonIcon(string style, uint pokemonId, uint formId = 0, uint evolutionId = 0, Gender gender = 0, uint costumeId = 0, bool shiny = false)
         {
             if (!IsStyleSelected(style, IconType.Pokemon))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Pokemon].Path);
 
             // TODO: Check if style contains icon type
 
@@ -140,7 +140,7 @@
         public string GetTypeIcon(string style, PokemonType type)
         {
             if (!IsStyleSelected(style, IconType.Type))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Type].Path);
 
             var iconStyle = _iconStyles[style][IconType.Type];
             var baseUrl = iconStyle.Path;
@@ -163,7 +163,7 @@
         public string GetPokestopIcon(string style, PokestopLureType lure, bool invasionActive = false, bool questActive = false, bool ar = false)
         {
             if (!IsStyleSelected(style, IconType.Pokestop))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Pokestop].Path);
 
             var iconStyle = _iconStyles[style][IconType.Pokestop];
             var baseUrl = iconStyle.Path;
@@ -198,7 +198,7 @@
         public string GetRewardIcon(string style, QuestRewardType rewardType, uint id = 0, uint amount = 0)
         {
             if (!IsStyleSelected(style, IconType.Reward))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Reward].Path);
 
             var category = _questRewardTypes[rewardType];
             var iconStyle = _iconStyles[style][IconType.Reward];
@@ -223,7 +223,9 @@
                     var dict = (Dictionary<string, dynamic>)iconStyle.BaseIndexList.Rewards;
                     if (dict.ContainsKey(category))
                     {
-                        if (iconStyle.BaseIndexList.Rewards[category].Contains(result))
+                        string json = Convert.ToString(dict[category]);
+                        var list = json.FromJson<List<string>>();
+                        if (list.Contains(result))
                         {
                             return $"{baseUrl}/{result}";
                         }
@@ -251,7 +253,7 @@
         public string GetRewardIcon(string style, QuestData quest)
         {
             if (!IsStyleSelected(style, IconType.Reward))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Reward].Path);
 
             var reward = quest.Rewards.FirstOrDefault();
             var category = _questRewardTypes[reward.Type];
@@ -303,7 +305,9 @@
                 sb.Append(DefaultIconFormat);
             }
             var result = sb.ToString();
-            var list = iconStyle.BaseIndexList.Rewards[category];
+            var dict = (Dictionary<string, dynamic>)iconStyle.BaseIndexList.Rewards;
+            var json = Convert.ToString(dict[category]);
+            var list = System.Text.Json.JsonSerializer.Deserialize<List<string>>(json);
             if (list.Contains(result))
             {
                 return $"{baseUrl}/{result}";
@@ -319,7 +323,7 @@
         public string GetInvasionIcon(string style, InvasionCharacter gruntType)
         {
             if (!IsStyleSelected(style, IconType.Invasion))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Invasion].Path);
 
             var iconStyle = _iconStyles[style][IconType.Invasion];
             var baseUrl = iconStyle.Path;
@@ -343,7 +347,7 @@
         public string GetGymIcon(string style, PokemonTeam team = PokemonTeam.Neutral, uint trainerCount = 0, bool inBattle = false, bool ex = false, bool ar = false)
         {
             if (!IsStyleSelected(style, IconType.Gym))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Gym].Path);
 
             var iconStyle = _iconStyles[style][IconType.Gym];
             var baseUrl = iconStyle.Path;
@@ -382,7 +386,7 @@
         public string GetEggIcon(string style, uint level, bool hatched = false, bool ex = false)
         {
             if (!IsStyleSelected(style, IconType.Egg))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Egg].Path);
 
             var iconStyle = _iconStyles[style][IconType.Egg];
             var baseUrl = iconStyle.Path;
@@ -410,7 +414,7 @@
         public string GetTeamIcon(string style, PokemonTeam team = PokemonTeam.Neutral)
         {
             if (!IsStyleSelected(style, IconType.Team))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Team].Path);
 
             var iconStyle = _iconStyles[style][IconType.Team];
             var baseUrl = iconStyle.Path;
@@ -431,7 +435,7 @@
         public string GetWeatherIcon(string style, WeatherCondition weatherCondition)
         {
             if (!IsStyleSelected(style, IconType.Weather))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Weather].Path);
 
             var iconStyle = _iconStyles[style][IconType.Weather];
             var baseUrl = iconStyle.Path;
@@ -452,7 +456,7 @@
         public string GetNestIcon(string style, PokemonType type)
         {
             if (!IsStyleSelected(style, IconType.Nest))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Nest].Path);
 
             var iconStyle = _iconStyles[style][IconType.Nest];
             var baseUrl = iconStyle.Path;
@@ -473,7 +477,7 @@
         public string GetMiscellaneousIcon(string style, string fileName)
         {
             if (!IsStyleSelected(style, IconType.Misc))
-                return GetDefaultIcon();
+                return GetDefaultIcon(_iconStyles[style][IconType.Misc].Path);
 
             var iconStyle = _iconStyles[style][IconType.Misc];
             var baseUrl = iconStyle.Path;
@@ -701,7 +705,7 @@
             };
         }
 
-        private string GetDefaultIcon(string baseUrl = null)
+        private string GetDefaultIcon(string baseUrl)
         {
             if (string.IsNullOrEmpty(baseUrl))
             {
