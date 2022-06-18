@@ -428,7 +428,7 @@
                         continue;
                     }
 
-                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.Raids, raid.PokemonId, raid.Form?.ToString());
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.Raids, raid.PokemonId, raid.Form.ToString());
                     if (pokemonSubscriptions == null)
                         continue;
 
