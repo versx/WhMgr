@@ -49,6 +49,7 @@ nav:
         - Geocoding: other/geocoding.md
         - PM2: other/pm2.md
         - Static Maps: other/staticmaps.md
+        - Health Checks: other/healthchecks.md
 #    - About:
 #        - Release Notes: about/release-notes.md
 #        - Contributing: about/contributing.md
