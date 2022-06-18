@@ -11,8 +11,11 @@ Use any of the following in your embeds file to structure how notifications will
 | quest_reward | Quest task reward | Chansey
 | quest_reward_img_url | Quest reward image url | http://map.example.com/images/quest.png
 | has_quest_conditions | Returns if the quest has conditions | true
+| title | |  
 | is_ditto | Checks if Ditto | true
 | is_shiny | Checks if reward is shiny | false
+| is_ar | | true  
+| with_ar | | false  
 | geofence | Geofence name raid boss is in | City1
 | address | Google Maps or OSM Nominatim address from geocoordinates | 123 Fake St
 | lat | Latitude coordinate of Pokemon location | 5.980921321

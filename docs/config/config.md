@@ -65,7 +65,9 @@ At a minimum you'll want to make sure you have your webhook listening port set a
     // Minimum IV value for an event Pokemon to have to meet in order to post via Discord channel alarm or direct message subscription.
     "eventMinimumIV": 90,
     // Event Pokemon filtering type
-    "type": "Include"
+    "type": "Include",
+    // Ignore event Pokemon if missing IV stats
+    "ignoreMissingStats": true
   },
   // URL config
   "urls": {
@@ -362,7 +364,33 @@ At a minimum you'll want to make sure you have your webhook listening port set a
    * Critical: 5
    * None: 6
   */
-  "logLevel": 0
+  "logLevel": 0	  "logLevel": 0,
+  // Acceptable and interested PVP leagues to parse.
+  "pvpLeagues": {
+    // League name key to match webhook key for PVP ranks.
+    "little": {
+      // League minimum acceptable CP
+      "minCP": 450,
+      // League maximum acceptable CP
+      "maxCP": 500,
+      // League minimum rank to meet
+      "minRank": 1,
+      // League maximum rank to meet
+      "maxRank": 100
+    },
+    "great": {
+      "minCP": 1400,
+      "maxCP": 1500,
+      "minRank": 1,
+      "maxRank": 100
+    },
+    "ultra": {
+      "minCP": 2400,
+      "maxCP": 2500,
+      "minRank": 1,
+      "maxRank": 100
+    }
+  }
 }
 ```
 

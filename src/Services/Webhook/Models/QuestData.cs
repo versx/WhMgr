@@ -48,6 +48,9 @@
         [JsonPropertyName("template")]
         public string Template { get; set; }
 
+        [JsonPropertyName("title")]
+        public string Title { get; set; }
+
         [JsonPropertyName("updated")]
         public long Updated { get; set; }
 
@@ -59,6 +62,9 @@
 
         [JsonPropertyName("ar_scan_eligible")]
         public bool IsArScanEligible { get; set; }
+
+        [JsonPropertyName("with_ar")]
+        public bool WithAr { get; set; }
 
         private QuestRewardMessage FirstReward => Rewards?.FirstOrDefault();
 
@@ -183,9 +189,11 @@
                 quest_reward = questReward,
                 quest_reward_img_url = properties.ImageUrl,
                 has_quest_conditions = !string.IsNullOrEmpty(questConditions),
+                title = Title,
                 is_ditto = IsDitto,
                 is_shiny = IsShiny,
                 is_ar = IsArScanEligible,
+                with_ar = WithAr,
                 ar_emoji = arEmoji,
 
                 // Location properties

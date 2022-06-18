@@ -42,31 +42,33 @@
             JsonIgnore,
             NotMapped,
         ]
-        public string IV
-        {
-            get
-            {
-                if (Attack == null || Defense == null || Stamina == null)
-                {
-                    return "?";
-                }
-                return Math.Round(((Attack ?? 0) + (Defense ?? 0) + (Stamina ?? 0)) * 100.0 / 45.0, 1) + "%";
-            }
-        }
+        public string IV => IVReal == -1 ? "?" : IVReal + "%";
 
         [
             JsonIgnore,
             NotMapped,
         ]
-        public string IVRounded
+        public string IVRounded => IVReal == -1 ? "?" : Math.Round(IVReal) + "%";
+
+        [
+
+            JsonIgnore,
+            NotMapped,
+        ]
+        public double IVReal
         {
             get
             {
                 if (Attack == null || Defense == null || Stamina == null)
                 {
-                    return "?";
+                    return -1;
                 }
-                return Math.Round((double)((Attack ?? 0) + (Defense ?? 0) + (Stamina ?? 0)) * 100 / 45) + "%";
+
+                var atk = Attack ?? 0;
+                var def = Defense ?? 0;
+                var sta = Stamina ?? 0;
+
+                return Math.Round((sta + atk + def) * 100.0 / 45.0, 1);
             }
         }
 
