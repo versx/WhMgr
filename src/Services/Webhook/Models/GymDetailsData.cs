@@ -65,7 +65,7 @@
 
         [
             JsonPropertyName("slots_available"),
-            Column("availble_slots"), // TODO: Finally break changes and fix typflo
+            Column("available_slots"),
         ]
         public ushort SlotsAvailable { get; set; }
 
