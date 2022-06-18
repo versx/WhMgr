@@ -34,7 +34,6 @@ namespace WhMgr
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Webhook;
     using WhMgr.Services.Webhook.Queue;
-    using WhMgr.Web.Extensions;
     using WhMgr.Web.Filters;
     using WhMgr.Web.Middleware;
 

@@ -428,8 +428,7 @@
                         continue;
                     }
 
-                    var form = Translator.Instance.GetFormName(raid.Form);
-                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.Raids, raid.PokemonId, form);
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.Raids, raid.PokemonId, raid.Form);
                     if (pokemonSubscriptions == null)
                         continue;
 
