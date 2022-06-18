@@ -220,7 +220,8 @@
                 }
                 else
                 {
-                    if (iconStyle.BaseIndexList.Rewards.ContainsKey(category))
+                    var dict = (Dictionary<string, dynamic>)iconStyle.BaseIndexList.Rewards;
+                    if (dict.ContainsKey(category))
                     {
                         if (iconStyle.BaseIndexList.Rewards[category].Contains(result))
                         {

@@ -20,6 +20,7 @@
         {
             var payload = new
             {
+                url = _options.BaseUrl,
                 lat = _options.Latitude,
                 lon = _options.Longitude,
                 latitude = _options.Latitude,
@@ -55,8 +56,6 @@
             sb.Append($"lat={_options.Latitude}");
             sb.Append('&');
             sb.Append($"lon={_options.Longitude}");
-            sb.Append('&');
-            sb.Append($"url2={_options.SecondaryImageUrl}");
             var url = sb.ToString();
             return url;
         }

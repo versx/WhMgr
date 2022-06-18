@@ -1,7 +1,6 @@
 ﻿namespace WhMgr.Configuration
 {
     using System;
-    using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
     using WhMgr.Services.Icons.Models;
