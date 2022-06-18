@@ -298,6 +298,19 @@
                             //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: '{raid.Team}' does not meet Team={alarm.Filters.Eggs.Team} filter.");
                             continue;
                         }
+
+                        if (alarm.Filters.Eggs.PowerLevel != null)
+                        {
+                            if (!Filters.Filters.MatchesGymPowerLevel(raid.PowerUpLevel, alarm.Filters.Eggs.PowerLevel.MinimumLevel, alarm.Filters.Eggs.PowerLevel.MaximumLevel))
+                            {
+                                continue;
+                            }
+
+                            if (!Filters.Filters.MatchesGymPowerPoints(raid.PowerUpPoints, alarm.Filters.Eggs.PowerLevel.MinimumPoints, alarm.Filters.Eggs.PowerLevel.MaximumPoints))
+                            {
+                                continue;
+                            }
+                        }
                     }
                     else
                     {
@@ -364,6 +377,19 @@
                         {
                             //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.PokemonId}: '{raid.Team}' does not meet Team={alarm.Filters.Raids.Team} filter.");
                             continue;
+                        }
+
+                        if (alarm.Filters.Raids.PowerLevel != null)
+                        {
+                            if (!Filters.Filters.MatchesGymPowerLevel(raid.PowerUpLevel, alarm.Filters.Raids.PowerLevel.MinimumLevel, alarm.Filters.Raids.PowerLevel.MaximumLevel))
+                            {
+                                continue;
+                            }
+
+                            if (!Filters.Filters.MatchesGymPowerPoints(raid.PowerUpPoints, alarm.Filters.Raids.PowerLevel.MinimumPoints, alarm.Filters.Raids.PowerLevel.MaximumPoints))
+                            {
+                                continue;
+                            }
                         }
 
                         if (alarm.Filters.Raids.IgnoreMissing && raid.IsMissingStats)
@@ -491,34 +517,16 @@
                     var hasInvasionType = alarm.Filters.Pokestops.InvasionTypes.ContainsKey(pokestop.GruntType)
                         && alarm.Filters.Pokestops.InvasionTypes[pokestop.GruntType];
 
-                    if (!((hasLure && hasLureType) || (hasInvasion && hasInvasionType)))
+                    var matchesLure = hasLure && hasLureType;
+                    var matchesInvasion = hasInvasion && hasInvasionType;
+                    var matchesPowerLevel = alarm.Filters.Pokestops.PowerLevel != null
+                        ? Filters.Filters.MatchesGymPowerLevel(pokestop.PowerUpLevel, alarm.Filters.Pokestops.PowerLevel.MinimumLevel, alarm.Filters.Raids.PowerLevel.MaximumLevel) &&
+                          Filters.Filters.MatchesGymPowerPoints(pokestop.PowerUpPoints, alarm.Filters.Pokestops.PowerLevel.MinimumPoints, alarm.Filters.Raids.PowerLevel.MaximumPoints)
+                        : false;
+
+                    if (!matchesLure && !matchesInvasion && !matchesPowerLevel)
                         continue;
 
-                    /*
-                    if (!alarm.Filters.Pokestops.Lured && pokestop.HasLure)
-                    {
-                        //_logger.LogDebug($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: lure filter not enabled.");
-                        continue;
-                    }
-
-                    if (!alarm.Filters.Pokestops.LureTypes.Select(x => x.ToLower()).Contains(pokestop.LureType.ToString().ToLower()) && alarm.Filters.Pokestops?.LureTypes?.Count > 0)
-                    {
-                        //_logger.LogDebug($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}, LureType={pokestop.LureType}: lure type not included.");
-                        continue;
-                    }
-
-                    if (!alarm.Filters.Pokestops.Invasions && pokestop.HasInvasion)
-                    {
-                        //_logger.LogDebug($"[{alarm.Name}] Skipping pokestop PokestopId={pokestop.PokestopId}, Name={pokestop.Name}: invasion filter not enabled.");
-                        continue;
-                    }
-
-                    if (pokestop.HasInvasion && alarm.Filters.Pokestops.InvasionTypes.ContainsKey(pokestop.GruntType) && !alarm.Filters.Pokestops.InvasionTypes[pokestop.GruntType])
-                    {
-                        continue;
-                    }
-                    */
-                        
                     var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokestop.Latitude, pokestop.Longitude));
                     if (geofences == null)
                     {
@@ -579,6 +587,19 @@
                     {
                         //_logger.LogDebug($"[{alarm.Name}] Skipping gym details GymId={gym.GymId}, GymName{gym.GymName}, not specified team {alarm.Filters.Gyms.Team}.");
                         continue;
+                    }
+
+                    if (alarm.Filters?.Gyms?.PowerLevel != null)
+                    {
+                        if (!Filters.Filters.MatchesGymPowerLevel(gym.PowerUpLevel, alarm.Filters.Gyms.PowerLevel.MinimumLevel, alarm.Filters.Gyms.PowerLevel.MaximumLevel))
+                        {
+                            continue;
+                        }
+
+                        if (!Filters.Filters.MatchesGymPowerPoints(gym.PowerUpPoints, alarm.Filters.Gyms.PowerLevel.MinimumPoints, alarm.Filters.Gyms.PowerLevel.MaximumPoints))
+                        {
+                            continue;
+                        }
                     }
 
                     var oldGym = _mapDataCache.GetGym(gym.GymId).ConfigureAwait(false).GetAwaiter().GetResult();

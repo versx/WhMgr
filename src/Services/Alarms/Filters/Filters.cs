@@ -118,5 +118,15 @@
             // if set to All return true
             return pkmnSize == filterSize || filterSize == PokemonSize.All;
         }
+
+        public static bool MatchesGymPowerLevel(uint level, uint minLevel, uint maxLevel)
+        {
+            return level >= minLevel && level <= maxLevel;
+        }
+
+        public static bool MatchesGymPowerPoints(uint points, uint minPoints, uint maxPoints)
+        {
+            return points >= minPoints && points <= maxPoints;
+        }
     }
 }

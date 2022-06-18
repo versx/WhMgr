@@ -117,6 +117,30 @@
         public ulong Updated { get; set; }
 
         [
+            JsonPropertyName("power_up_points"),
+            NotMapped,
+        ]
+        public uint PowerUpPoints { get; set; }
+
+        [
+            JsonPropertyName("power_up_level"),
+            NotMapped,
+        ]
+        public ushort PowerUpLevel { get; set; }
+
+        [
+            JsonPropertyName("power_up_end_timestamp"),
+            NotMapped,
+        ]
+        public ulong PowerUpEndTimestamp { get; set; }
+
+        [
+            JsonIgnore,
+            NotMapped,
+        ]
+        public DateTime PowerUpEndTime { get; private set; }
+
+        [
             JsonPropertyName("ar_scan_eligible"),
             Column("ar_scan_eligible"),
         ]
@@ -164,16 +188,22 @@
             InvasionExpireTime = IncidentExpire
                 .FromUnix()
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
+
+            PowerUpEndTime = PowerUpEndTimestamp
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
         public async Task<DiscordWebhookMessage> GenerateEmbedMessageAsync(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
-            var embedType = HasInvasion
-                ? EmbedMessageType.Invasions
+            var embedType = HasLure && HasInvasion
+                ? EmbedMessageType.Pokestops
                 : HasLure
                     ? EmbedMessageType.Lures
-                    : EmbedMessageType.Pokestops;
+                    : HasInvasion
+                        ? EmbedMessageType.Invasions
+                        : EmbedMessageType.Pokestops;
             var embed = settings.Alarm?.Embeds[embedType]
                     ?? server.Subscriptions?.Embeds?[embedType]
                     ?? EmbedMessage.Defaults[embedType];
@@ -288,6 +318,7 @@
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
             var lureExpireTimeLeft = now.GetTimeRemaining(LureExpireTime).ToReadableStringNoSeconds();
             var invasionExpireTimeLeft = now.GetTimeRemaining(InvasionExpireTime).ToReadableStringNoSeconds();
+            var powerUpEndTimeLeft = now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
@@ -308,6 +339,13 @@
                 invasion_expire_time_left = invasionExpireTimeLeft,
                 invasion_encounters = invasionEncounters,
                 is_ar = IsArScanEligible ?? false,
+
+                // Pokestop power up properties
+                power_up_points = PowerUpPoints,
+                power_up_level = PowerUpLevel,
+                power_up_end_time = PowerUpEndTime.ToLongTimeString(),
+                power_up_end_time_24h = PowerUpEndTime.ToString("HH:mm:ss"),
+                power_up_end_time_left = powerUpEndTimeLeft,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
