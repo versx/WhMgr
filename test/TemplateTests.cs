@@ -6,6 +6,7 @@
     using NUnit.Framework;
 
     using WhMgr.Common;
+    using WhMgr.Extensions;
     using WhMgr.Services;
     using WhMgr.Services.Webhook.Models;
 
@@ -15,6 +16,103 @@
         [SetUp]
         public void Setup()
         {
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        public void Test_TemplateGymPowerUpLevel_ReturnsText(int level)
+        {
+            var content = new List<string>
+            {
+                "{{#if team_changed}}Gym changed from {{old_gym_team_emoji}} {{old_gym_team}} to {{gym_team_emoji}} {{gym_team}}",
+                "{{/if}}{{#if in_battle}}Gym is under attack!",
+                "{{/if}}**Slots Available:** {{slots_available}}",
+                "{{#if power_up_level}}**Power Level**",
+                "Level: {{power_up_level}} | Points: {{power_up_points}}",
+                "Time Left: {{power_up_end_time_left}}",
+                "{{/if}}{{#if is_ex}}{{ex_gym_emoji}} Gym!",
+                "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
+            };
+            var embedData = string.Join("\r\n", content);
+            var data = new
+            {
+                team_changed = true,
+                old_gym_team = "Mystic",
+                gym_team = "Valor",
+                in_battle = true,
+                slots_available = 3,
+                power_up_level = level,
+                power_up_points = 100,
+                power_up_end_timestamp = 1234567890,
+            };
+            var templateData = TemplateRenderer.Parse(embedData, data);
+            Console.WriteLine($"Template data: {templateData}");
+        }
+
+        [TestCase(2)]
+        [TestCase(0)]
+        public void Test_TemplatePokestopPowerUpLevel_ReturnsText(int level)
+        {
+            var content = new List<string>
+            {
+                "{{#if has_lure}}**Lure Expires** {{lure_expire_time}} ({{lure_expire_time_left}} left)",
+                "**Lure Type:** {{lure_type}}",
+                "{{/if}}{{#if has_invasion}}**Expires:** {{invasion_expire_time}} ({{invasion_expire_time_left}} left)",
+                "**Type:** {{grunt_type_emoji}} | **Gender:** {{grunt_gender}}",
+                "**Encounter Reward Chance:**",
+                "{{#each invasion_encounters}}",
+                "{{chance}} - {{pokemon}}",
+                "{{/each}}",
+                "{{/if}}{{#if power_up_level}}**Power Level**",
+                "Level: {{power_up_level}} | Points: {{power_up_points}}",
+                "Time Left: {{power_up_end_time_left}}",
+                "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
+            };
+            var expireTimestamp = 1654595380ul;
+            var embedData = string.Join("\r\n", content);
+            var now = DateTime.Now;
+            var lat = 34.01;
+            var lon = -117.01;
+            var lureExpireTime = now.AddMinutes(10);
+            var lureExpireTimeLeft = now.GetTimeRemaining(lureExpireTime).ToReadableStringNoSeconds();
+            var powerUpExpireTime = expireTimestamp
+                .FromUnix()
+                .ConvertTimeFromCoordinates(lat, lon);
+            var powerUpExpireTimeLeft = now.GetTimeRemaining(powerUpExpireTime).ToReadableStringNoSeconds();
+            var data = new
+            {
+                pokestop_id = "0011386f50d640c084b499d343af610b.16",
+                latitude = 34.01,
+                longitude = -117.01,
+                name = "Test Stop",
+                url = "http =//lh3.googleusercontent.com/ybUiI4LuqOw02mMiOSeXnLqVW0d1bJECu9IM5v86e5B6DlMbohrCzpBtRE8bNh5k0OENogqJUgkcBtmtKyPAIgHX_Zo",
+                last_modified = 1654568322,
+                enabled = true,
+                has_lure = false,
+                lure_id = 501,
+                lure_type = "Normal",
+                lure_expire_time = lureExpireTime.ToLongTimeString(),
+                lure_expire_time_24h = lureExpireTime.ToString("HH:mm:ss"),
+                lure_expire_time_left = lureExpireTimeLeft,
+                lure_expire_timestamp = expireTimestamp,
+                has_invasion = false,
+                grunt_type = "Flying",
+                pokestop_display = 0,
+                incident_expire_time = lureExpireTime.ToLongTimeString(),
+                incident_expire_time_24h = lureExpireTime.ToString("HH:mm:ss"),
+                incident_expire_time_left = lureExpireTimeLeft,
+                incident_expire_timestamp = expireTimestamp,
+                ar_scan_eligible = false,
+                power_up_level = level,
+                power_up_points = 250,
+                power_up_end_time = powerUpExpireTime.ToLongTimeString(),
+                power_up_end_time_24h = powerUpExpireTime.ToString("HH:mm:ss"),
+                power_up_end_time_left = powerUpExpireTimeLeft,
+                power_up_end_timestamp = expireTimestamp,
+                updated = 1654568322,
+            };
+            var templateData = TemplateRenderer.Parse(embedData, data);
+            Console.WriteLine($"Template data: {templateData}");
         }
 
         [Test]
