@@ -97,6 +97,8 @@
             if (!IsStyleSelected(style, IconType.Pokemon))
                 return GetDefaultIcon();
 
+            // TODO: Check if style contains icon type
+
             var iconStyle = _iconStyles[style][IconType.Pokemon];
             var baseUrl = iconStyle.Path;
             var evolutionSuffixes = (evolutionId > 0 ? new[] { "_e" + evolutionId, string.Empty } : new[] { string.Empty }).ToList();
@@ -117,8 +119,10 @@
                                 var result = $"{pokemonId}{evolutionSuffix}{formSuffix}{costumeSuffix}{genderSuffix}{shinySuffix}.{IconFormat}";
                                 if (iconStyle.IndexList.Contains(result))
                                 {
-                                    var subFolder = GetSubFolder(IconType.Pokemon);
-                                    return $"{baseUrl}/{subFolder}/{result}";
+                                    // TODO: Review
+                                    //var subFolder = GetSubFolder(IconType.Pokemon);
+                                    //return $"{baseUrl}/{subFolder}/{result}";
+                                    return $"{baseUrl}/{result}";
                                 }
                             }
                         }
@@ -567,12 +571,10 @@
                                 iconStyles.Add(iconTypeBase, styleConfig);
                             }
                             var indexConfig = iconStyles[iconTypeBase];
-                            var indexBase = new HashSet<string>();
-                            //dynamic indexBase = null;
+                            dynamic indexBase = null;
                             switch (iconTypeBase)
                             {
                                 case IconType.Egg:
-                                    //indexBase = manifest.Raids?.GetProperty("egg");
                                     indexBase = manifest.Raids?.Eggs;
                                     break;
                                 case IconType.Gym:
@@ -594,11 +596,10 @@
                                     indexBase = manifest.Pokestops;
                                     break;
                                 case IconType.Raid:
-                                    //indexBase = manifest.Raids;
+                                    indexBase = manifest.Raids;
                                     break;
                                 case IconType.Reward:
-                                    //indexBase = manifest.Rewards;
-                                    // TODO: Reward types
+                                    indexBase = manifest.Rewards;
                                     break;
                                 case IconType.Team:
                                     indexBase = manifest.Teams;
@@ -625,16 +626,32 @@
                     }
                     else
                     {
-                        var formsList = formsListJson.FromJson<HashSet<string>>();
-                        // Add style and form list
-                        styleConfig.IndexList = formsList;
-                        if (!_iconStyles[styleName].ContainsKey(iconType))
+                        if (iconType == IconType.Reward)
                         {
-                            _iconStyles[styleName].Add(iconType, styleConfig);
+                            var formsList = formsListJson.FromJson<BaseIndexRewardManifest>();
+                            styleConfig.IndexList = formsList;
+                            if (!_iconStyles[styleName].ContainsKey(iconType))
+                            {
+                                _iconStyles[styleName].Add(iconType, styleConfig);
+                            }
+                            else
+                            {
+                                _iconStyles[styleName][iconType] = styleConfig;
+                            }
                         }
                         else
                         {
-                            _iconStyles[styleName][iconType] = styleConfig;
+                            var formsList = formsListJson.FromJson<HashSet<string>>();
+                            // Add style and form list
+                            styleConfig.IndexList = formsList;
+                            if (!_iconStyles[styleName].ContainsKey(iconType))
+                            {
+                                _iconStyles[styleName].Add(iconType, styleConfig);
+                            }
+                            else
+                            {
+                                _iconStyles[styleName][iconType] = styleConfig;
+                            }
                         }
                     }
                 }

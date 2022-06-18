@@ -125,7 +125,7 @@ At a minimum you'll want to make sure you have your webhook listening port set a
         // Icon type display name
         "name": "Shuffle",
         // Icon type url path
-        "path": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
+        "path": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/UICONS/"
       }
     },
     // Pokemon Go Application Icons
@@ -135,17 +135,7 @@ At a minimum you'll want to make sure you have your webhook listening port set a
         // Icon type display name
         "name": "Pokemon Go",
         // Icon type url path
-        "path": "https://raw.githubusercontent.com/whitewillem/PogoAssets/resized/icons_large-uicons"
-      }
-    },
-    // PokeDave Pokemon Shuffle Icons
-    "PokeDave Shuffle": {
-      // Base icon type object to apply to all other icon types
-      "Base": {
-        // Icon type display name
-        "name": "PokeDave Shuffle",
-        // Icon type url path
-        "path": "https://raw.githubusercontent.com/jepke/pokedave_shuffle_icons_-PMSF-/master/UICONS/"
+        "path": "https://raw.githubusercontent.com/whitewillem/PogoAssets/main/uicons/"
       }
     },
     // PMSF Icons

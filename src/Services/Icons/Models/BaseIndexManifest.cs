@@ -28,7 +28,7 @@
         public BaseIndexRaidManifest Raids { get; set; } = new();
 
         [JsonPropertyName("reward")]
-        public Dictionary<string, List<string>> Rewards { get; set; } = new();
+        public BaseIndexRewardManifest Rewards { get; set; } = new();
 
         [JsonPropertyName("team")]
         public HashSet<string> Teams { get; set; } = new();

@@ -84,19 +84,13 @@
     "Shuffle": {
       "Base": {
         "name": "Shuffle",
-        "path": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/ICONS_STANDARD/"
+        "path": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/UICONS/"
       }
     },
     "Pokemon Go": {
       "Base": {
         "name": "Pokemon Go",
-        "path": "https://raw.githubusercontent.com/whitewillem/PogoAssets/resized/icons_large-uicons"
-      }
-    },
-    "PokeDave Shuffle": {
-      "Base": {
-        "name": "PokeDave Shuffle",
-        "path": "https://raw.githubusercontent.com/jepke/pokedave_shuffle_icons_-PMSF-/master/UICONS/"
+        "path": "https://raw.githubusercontent.com/whitewillem/PogoAssets/main/uicons/"
       }
     },
     "PMSF": {
