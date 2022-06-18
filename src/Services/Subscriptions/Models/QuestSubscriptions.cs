@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
@@ -22,13 +24,14 @@
         [
             JsonPropertyName("pokestop_name"),
             Column("pokestop_name"),
+            DefaultValue(null),
         ]
         public string PokestopName { get; set; }
 
         [
             JsonPropertyName("reward"),
             Column("reward"),
-            //Required,
+            Required,
         ]
         public string RewardKeyword { get; set; }
 
@@ -41,6 +44,7 @@
         [
             JsonPropertyName("location"),
             Column("location"),
+            DefaultValue(null),
         ]
         public string Location { get; set; }
     }

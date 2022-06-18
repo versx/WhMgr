@@ -20,7 +20,7 @@
     using WhMgr.Utilities;
 
     [Table("weather")]
-    public class WeatherData : IWebhookData
+    public class WeatherData : IWebhookData, IWebhookPoint
     {
         #region Properties
 

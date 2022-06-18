@@ -20,7 +20,7 @@
     using WhMgr.Services.Webhook.Models.Quests;
     using WhMgr.Utilities;
 
-    public sealed class QuestData : IWebhookData
+    public sealed class QuestData : IWebhookData, IWebhookPoint
     {
         #region Properties
 

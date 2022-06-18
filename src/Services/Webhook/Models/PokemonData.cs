@@ -22,7 +22,7 @@
     using WhMgr.Utilities;
 
     [Table("pokemon")]
-    public sealed class PokemonData : IWebhookData
+    public sealed class PokemonData : IWebhookData, IWebhookPoint
     {
         #region Properties
 

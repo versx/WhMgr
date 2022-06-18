@@ -22,7 +22,7 @@
     using WhMgr.Utilities;
 
     [Table("gym")]
-    public sealed class GymDetailsData : IWebhookData
+    public sealed class GymDetailsData : IWebhookData, IWebhookPoint
     {
         #region Properties
 

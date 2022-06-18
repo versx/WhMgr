@@ -11,7 +11,7 @@ namespace WhMgr.Migrations
                 table: "pokemon",
                 type: "int",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: int.MaxValue);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

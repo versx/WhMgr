@@ -3,6 +3,8 @@ namespace WhMgr.Services.Subscriptions.Models
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
@@ -25,6 +27,7 @@ namespace WhMgr.Services.Subscriptions.Models
         [
             JsonPropertyName("pokestop_name"),
             Column("pokestop_name"),
+            DefaultValue(null),
         ]
         public string PokestopName { get; set; }
 
@@ -49,6 +52,7 @@ namespace WhMgr.Services.Subscriptions.Models
         [
             JsonPropertyName("location"),
             Column("location"),
+            DefaultValue(null),
         ]
         public string Location { get; set; }
     }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.ComponentModel;
+    using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
 
@@ -22,6 +23,7 @@
         [
             JsonPropertyName("name"),
             Column("name"),
+            Required,
         ]
         public string Name { get; set; }
 
