@@ -11,7 +11,7 @@
     using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Services.Icons;
-    using WhMgr.Utilities;
+    using WhMgr.Services.StaticMap;
 
     /// <summary>
     /// Configuration file class
@@ -94,7 +94,7 @@
         /// Gets or sets the static map template files to use per type
         /// </summary>
         [JsonPropertyName("staticMaps")]
-        public Dictionary<StaticMapType, StaticMapConfig> StaticMaps { get; set; } = new();
+        public StaticMapConfig StaticMaps { get; set; } = new();
 
         /// <summary>
         /// Gets or sets the reverse geocoding location lookup configuration

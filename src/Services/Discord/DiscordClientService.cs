@@ -290,7 +290,6 @@
 
         #region Discord Emojis
 
-        // TODO: Fix race condition
         private async Task CreateEmojisAsync(ulong guildId)
         {
             if (!_discordClients.ContainsKey(guildId))

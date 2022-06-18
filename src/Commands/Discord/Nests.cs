@@ -25,7 +25,7 @@
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Icons;
-    using WhMgr.Utilities;
+    using WhMgr.Services.StaticMap;
 
     public class Nests : BaseCommandModule
     {
@@ -189,8 +189,8 @@
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = TemplateRenderer.Parse(alertMessage.Footer?.Text, properties),
-                    IconUrl = TemplateRenderer.Parse(alertMessage.Footer?.IconUrl, properties)
-                }
+                    IconUrl = TemplateRenderer.Parse(alertMessage.Footer?.IconUrl, properties),
+                },
             };
             return eb.Build();
         }
@@ -213,14 +213,20 @@
             //pkmnImage,
             var osmNest = _osmManager.GetNest(nest.Name)?.FirstOrDefault();
             var polygonPath = OsmManager.MultiPolygonToLatLng(osmNest?.Geometry?.Coordinates, true);
+            var staticMapConfig = _config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
-                BaseUrl = _config.Instance.StaticMaps[StaticMapType.Nests].Url,
-                TemplateName = _config.Instance.StaticMaps[StaticMapType.Nests].TemplateName,
+                BaseUrl = staticMapConfig.Url,
+                MapType = StaticMapType.Nests,
+                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
+                    ? StaticMapTemplateType.StaticMap
+                    : StaticMapTemplateType.MultiStaticMap,
                 Latitude = nest.Latitude,
                 Longitude = nest.Longitude,
                 SecondaryImageUrl = pokemonImageUrl,
                 PolygonPath = polygonPath,
+                Pregenerate = staticMapConfig.Pregenerate,
+                Regeneratable = true,
             });
             var staticMapLink = staticMap.GenerateLink();
             var geofence = GeofenceService.GetGeofence(_config.Instance.Servers[guild.Id].Geofences, new Coordinate(nest));

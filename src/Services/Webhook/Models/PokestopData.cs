@@ -20,6 +20,7 @@
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Icons;
+    using WhMgr.Services.StaticMap;
     using WhMgr.Utilities;
 
     /// <summary>
@@ -268,23 +269,34 @@
                     ? StaticMapType.Invasions
                     : HasLure
                         ? StaticMapType.Lures
-                        : StaticMapType.Invasions; // TODO: Fix StaticMapType.Pokestops
-            var staticMapConfig = properties.Config.Instance.StaticMaps[staticMapConfigType];
+                        : StaticMapType.Invasions; // TODO: Fix
+            var staticMapConfig = properties.Config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
                 BaseUrl = staticMapConfig.Url,
-                TemplateName = staticMapConfig.TemplateName,
+                MapType = HasInvasion
+                    ? StaticMapType.Invasions
+                    : HasLure
+                        ? StaticMapType.Lures
+                        // TODO: Add StaticMapType.Pokestops
+                        : StaticMapType.Lures, //HasInvasion && HasLure
+                                               //? StaticMapType.Pokestop,
+                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
+                    ? StaticMapTemplateType.StaticMap
+                    : StaticMapTemplateType.MultiStaticMap,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = imageUrl,
                 Gyms = staticMapConfig.IncludeNearbyGyms
                     // Fetch nearby gyms from MapDataCache
                     ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
-                    : new List<dynamic>(),
+                    : new(),
                 Pokestops = staticMapConfig.IncludeNearbyPokestops
                     // Fetch nearby pokestops from MapDataCache
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
-                    : new List<dynamic>(),
+                    : new(),
+                Pregenerate = staticMapConfig.Pregenerate,
+                Regeneratable = true,
             });
             var staticMapLink = staticMap.GenerateLink();
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);

@@ -17,6 +17,7 @@
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Icons;
+    using WhMgr.Services.StaticMap;
     using WhMgr.Services.Webhook.Models.Quests;
     using WhMgr.Utilities;
 
@@ -150,11 +151,14 @@
             var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
-            var staticMapConfig = properties.Config.Instance.StaticMaps[StaticMapType.Quests];
+            var staticMapConfig = properties.Config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
                 BaseUrl = staticMapConfig.Url,
-                TemplateName = staticMapConfig.TemplateName,
+                MapType = StaticMapType.Quests,
+                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
+                    ? StaticMapTemplateType.StaticMap
+                    : StaticMapTemplateType.MultiStaticMap,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = properties.ImageUrl,
@@ -166,6 +170,8 @@
                     // Fetch nearby gyms from MapDataCache
                     ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
                     : new(),
+                Pregenerate = staticMapConfig.Pregenerate,
+                Regeneratable = true,
             });
             var arEmojiId = GameMaster.Instance.Emojis.ContainsKey("ar")
                 ? GameMaster.Instance.Emojis["ar"]
