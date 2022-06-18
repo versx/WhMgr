@@ -1,6 +1,5 @@
 ﻿namespace WhMgr.Services.Webhook.Models
 {
-    using DSharpPlus.Entities;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
@@ -8,8 +7,11 @@
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
+    using DSharpPlus.Entities;
+
     using WhMgr.Common;
     using WhMgr.Data;
+    using WhMgr.Extensions;
     using WhMgr.Localization;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
@@ -80,6 +82,24 @@
         public uint? SponsorId { get; set; }
 
         [
+            JsonPropertyName("power_up_points"),
+            NotMapped,
+        ]
+        public uint PowerUpPoints { get; set; }
+
+        [
+            JsonPropertyName("power_up_level"),
+            NotMapped,
+        ]
+        public ushort PowerUpLevel { get; set; }
+
+        [
+            JsonPropertyName("power_up_end_timestamp"),
+            NotMapped,
+        ]
+        public ulong PowerUpEndTimestamp { get; set; }
+
+        [
             JsonPropertyName("in_battle"),
             Column("in_battle"),
         ]
@@ -91,11 +111,22 @@
         ]
         public bool? IsArScanEligible { get; set; }
 
+        [
+            JsonIgnore,
+            NotMapped,
+        ]
+        public DateTime PowerUpEndTime { get; private set; }
+
         #endregion
 
+        /// <summary>
+        /// Set expire times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
+        /// </summary>
         public void SetTimes()
         {
-            // No times to change
+            PowerUpEndTime = PowerUpEndTimestamp
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
 
         public async Task<DiscordWebhookMessage> GenerateEmbedMessageAsync(AlarmMessageSettings settings)
@@ -202,6 +233,9 @@
             var wazeMapsLocationLink = await urlShortener.CreateAsync( wazeMapsLink);
             var scannerMapsLocationLink = await urlShortener.CreateAsync( scannerMapsLink);
             var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
+
+            var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+            var powerUpEndTimeLeft = now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
 
             const string defaultMissingValue = "?";
@@ -229,6 +263,13 @@
                         ? Translator.Instance.Translate("Empty")
                         : SlotsAvailable.ToString("N0"),
                 is_ar = IsArScanEligible ?? false,
+
+                // Gym power up properties
+                power_up_points = PowerUpPoints,
+                power_up_level = PowerUpLevel,
+                power_up_end_time = PowerUpEndTime.ToLongTimeString(),
+                power_up_end_time_24h = PowerUpEndTime.ToString("HH:mm:ss"),
+                power_up_end_time_left = powerUpEndTimeLeft,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,

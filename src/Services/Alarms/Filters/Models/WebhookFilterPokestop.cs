@@ -40,5 +40,11 @@
         /// </summary>
         [JsonPropertyName("invasion_types")]
         public Dictionary<InvasionCharacter, bool> InvasionTypes { get; set; } = new();
+
+        /// <summary>
+        /// Gets or sets the Gym power level filtering options
+        /// </summary>
+        [JsonPropertyName("power_level")]
+        public WebhookFilterGymLevel PowerLevel { get; set; } = new();
     }
 }

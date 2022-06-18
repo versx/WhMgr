@@ -134,13 +134,15 @@
                         await ProcessRaidAsync(payload.Message).ConfigureAwait(false);
                         break;
                     case WebhookTypes.Quest:
+                    case WebhookTypes.AlternativeQuest:
                         await ProcessQuestAsync(payload.Message).ConfigureAwait(false);
                         break;
                     case WebhookTypes.Invasion:
                     case WebhookTypes.Pokestop:
                         await ProcessPokestopAsync(payload.Message).ConfigureAwait(false);
                         break;
-                    case WebhookTypes.Gym:
+                    // TODO: Do not parse `gym` webhook type as GymDetailsData, property keys do not match
+                    //case WebhookTypes.Gym:
                     case WebhookTypes.GymDetails:
                         ProcessGym(payload.Message);
                         break;
@@ -361,6 +363,7 @@
             {
                 _logger.Warning($"Failed to deserialize gym {message}, skipping...");
             }
+            gym.SetTimes();
 
             if (CheckForDuplicates)
             {

@@ -44,8 +44,15 @@ Use any of the following in your embeds file to structure how notifications will
 | start_time_left | Time left until raid starts | 43m, 33s
 | end_time | Raid end time | 09:15:10 AM
 | end_time_24h | Raid end time (24-hour format) | 09:15:10
-| end_time_left | Time left until raid ends | 45, 11s
+| end_time_left | Time left until raid ends | 45m, 11s
 | time_left | Minutes and seconds of time left until despawn | 29m, 30s
+| sponsor_id | Some ID value I have no idea about | 33333  
+| partner_id | Some ID value I have no idea about | 44444  
+| power_up_level | Gym power level | 1  
+| power_up_points | Gym's total power level points | 100  
+| power_up_end_time | Gym's power up end time | 10:15:09 PM  
+| power_up_end_time_24h | Gym's power up end time (24-hour format) | 13:28:30  
+| power_up_end_time_left | Gym's power up time left until expires | 14m, 10s   
 | geofence | Geofence name raid boss is in | City1
 | address | Google Maps or OSM Nominatim address from geocoordinates | 123 Fake St
 | lat | Latitude coordinate of Pokemon location | 5.980921321
