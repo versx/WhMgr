@@ -301,12 +301,12 @@
 
                         if (alarm.Filters.Eggs.PowerLevel != null)
                         {
-                            if (!Filters.Filters.MatchesGymPowerLevel(raid.PowerUpLevel, alarm.Filters.Eggs.PowerLevel.MinimumLevel, alarm.Filters.Eggs.PowerLevel.MaximumLevel))
+                            if (!Filters.Filters.MatchesGymPowerLevel(raid.PowerUpLevel, alarm.Filters.Eggs.PowerLevel?.MinimumLevel ?? 0, alarm.Filters.Eggs.PowerLevel?.MaximumLevel ?? 0))
                             {
                                 continue;
                             }
 
-                            if (!Filters.Filters.MatchesGymPowerPoints(raid.PowerUpPoints, alarm.Filters.Eggs.PowerLevel.MinimumPoints, alarm.Filters.Eggs.PowerLevel.MaximumPoints))
+                            if (!Filters.Filters.MatchesGymPowerPoints(raid.PowerUpPoints, alarm.Filters.Eggs.PowerLevel?.MinimumPoints ?? 0, alarm.Filters.Eggs.PowerLevel?.MaximumPoints ?? 0))
                             {
                                 continue;
                             }
@@ -381,12 +381,12 @@
 
                         if (alarm.Filters.Raids.PowerLevel != null)
                         {
-                            if (!Filters.Filters.MatchesGymPowerLevel(raid.PowerUpLevel, alarm.Filters.Raids.PowerLevel.MinimumLevel, alarm.Filters.Raids.PowerLevel.MaximumLevel))
+                            if (!Filters.Filters.MatchesGymPowerLevel(raid.PowerUpLevel, alarm.Filters.Raids.PowerLevel?.MinimumLevel ?? 0, alarm.Filters.Raids?.PowerLevel.MaximumLevel ?? 0))
                             {
                                 continue;
                             }
 
-                            if (!Filters.Filters.MatchesGymPowerPoints(raid.PowerUpPoints, alarm.Filters.Raids.PowerLevel.MinimumPoints, alarm.Filters.Raids.PowerLevel.MaximumPoints))
+                            if (!Filters.Filters.MatchesGymPowerPoints(raid.PowerUpPoints, alarm.Filters.Raids.PowerLevel?.MinimumPoints ?? 0, alarm.Filters.Raids?.PowerLevel.MaximumPoints ?? 0))
                             {
                                 continue;
                             }
@@ -520,8 +520,8 @@
                     var matchesLure = hasLure && hasLureType;
                     var matchesInvasion = hasInvasion && hasInvasionType;
                     var matchesPowerLevel = alarm.Filters.Pokestops.PowerLevel != null
-                        ? Filters.Filters.MatchesGymPowerLevel(pokestop.PowerUpLevel, alarm.Filters.Pokestops.PowerLevel.MinimumLevel, alarm.Filters.Raids.PowerLevel.MaximumLevel) &&
-                          Filters.Filters.MatchesGymPowerPoints(pokestop.PowerUpPoints, alarm.Filters.Pokestops.PowerLevel.MinimumPoints, alarm.Filters.Raids.PowerLevel.MaximumPoints)
+                        ? Filters.Filters.MatchesGymPowerLevel(pokestop.PowerUpLevel, alarm.Filters.Pokestops.PowerLevel?.MinimumLevel ?? 0, alarm.Filters.Pokestops.PowerLevel?.MaximumLevel ?? 0) &&
+                          Filters.Filters.MatchesGymPowerPoints(pokestop.PowerUpPoints, alarm.Filters.Pokestops.PowerLevel?.MinimumPoints ?? 0, alarm.Filters.Pokestops.PowerLevel?.MaximumPoints ?? 0)
                         : false;
 
                     if (!matchesLure && !matchesInvasion && !matchesPowerLevel)
@@ -591,12 +591,12 @@
 
                     if (alarm.Filters?.Gyms?.PowerLevel != null)
                     {
-                        if (!Filters.Filters.MatchesGymPowerLevel(gym.PowerUpLevel, alarm.Filters.Gyms.PowerLevel.MinimumLevel, alarm.Filters.Gyms.PowerLevel.MaximumLevel))
+                        if (!Filters.Filters.MatchesGymPowerLevel(gym.PowerUpLevel, alarm.Filters.Gyms.PowerLevel?.MinimumLevel ?? 0, alarm.Filters.Gyms.PowerLevel?.MaximumLevel ?? 0))
                         {
                             continue;
                         }
 
-                        if (!Filters.Filters.MatchesGymPowerPoints(gym.PowerUpPoints, alarm.Filters.Gyms.PowerLevel.MinimumPoints, alarm.Filters.Gyms.PowerLevel.MaximumPoints))
+                        if (!Filters.Filters.MatchesGymPowerPoints(gym.PowerUpPoints, alarm.Filters.Gyms.PowerLevel?.MinimumPoints ?? 0, alarm.Filters.Gyms.PowerLevel?.MaximumPoints ?? 0))
                         {
                             continue;
                         }

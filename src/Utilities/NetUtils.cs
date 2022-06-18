@@ -32,6 +32,9 @@
             {
                 try
                 {
+                    var mime = "application/json";
+                    client.DefaultRequestHeaders.Add(HttpRequestHeader.Accept.ToString(), mime);
+                    client.DefaultRequestHeaders.Add(HttpRequestHeader.ContentType.ToString(), mime);
                     return await client.GetStringAsync(url);
                 }
                 catch (Exception ex)
