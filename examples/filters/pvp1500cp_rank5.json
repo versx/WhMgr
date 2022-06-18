@@ -1,22 +1,22 @@
 {
-	"pokemon":
-	{
-		"enabled": true,
-		"pokemon": [],
-		"min_iv": 0,
-		"max_iv": 100,
-		"min_cp": 0,
-		"max_cp": 1500,
-		"pvp": {
-			"great": [{
-				"min_rank": 1,
-				"max_rank": 5,
-				"min_cp": 1400,
-				"max_cp": 1500,
-				"gender": "*"
-			}]
-		},
-		"type": "Include",
-		"ignore_missing": true
-	}
+    "pokemon":
+    {
+        "enabled": true,
+        "pokemon": [],
+        "min_iv": 0,
+        "max_iv": 100,
+        "min_cp": 0,
+        "max_cp": 1500,
+        "pvp": {
+            "great": [{
+                "min_rank": 1,
+                "max_rank": 5,
+                "min_cp": 1400,
+                "max_cp": 1500,
+                "gender": "*"
+            }]
+        },
+        "type": "Include",
+        "ignore_missing": true
+    }
 }
