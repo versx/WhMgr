@@ -15,8 +15,7 @@
             "{{#each pvp}}**{{@key}}**",
             "{{#each this}}",
             "#{{rank}} {{getPokemonName pokemonId}} {{getFormName formId}} {{cp}}CP @ L{{level}} {{formatPercentage percentage}}%",
-            "{{/each}}{{/each}}",
-            "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
+            "{{/each}}{{/each}}{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{pkmn_img_url}}",
         "title": "{{geofence}}",

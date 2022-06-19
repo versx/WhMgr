@@ -21,7 +21,7 @@
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Utilities;
+    using WhMgr.Services.Yourls;
 
     /// <summary>
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
@@ -265,21 +265,19 @@
             var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
-            var staticMapConfigType = HasInvasion
-                    ? StaticMapType.Invasions
-                    : HasLure
-                        ? StaticMapType.Lures
-                        // TODO: Add StaticMapType.Pokestops
-                        : StaticMapType.Lures; //HasInvasion && HasLure
-                                               //? StaticMapType.Pokestop,
+            var staticMapConfigType = HasInvasion && HasLure
+                ? StaticMapType.Invasions
+                : HasLure
+                    ? StaticMapType.Lures
+                    : HasInvasion
+                        ? StaticMapType.Invasions
+                        : StaticMapType.Lures; // TODO: StaticMapType.Pokestops
             var staticMapConfig = properties.Config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
                 BaseUrl = staticMapConfig.Url,
                 MapType = staticMapConfigType,
-                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
-                    ? StaticMapTemplateType.StaticMap
-                    : StaticMapTemplateType.MultiStaticMap,
+                TemplateType = staticMapConfig.Type,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = imageUrl,
@@ -301,7 +299,9 @@
             var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
             var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
             var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
-            var invasion = GameMaster.Instance.GruntTypes.ContainsKey(GruntType) ? GameMaster.Instance.GruntTypes[GruntType] : null;
+            var invasion = GameMaster.Instance.GruntTypes.ContainsKey(GruntType)
+                ? GameMaster.Instance.GruntTypes[GruntType]
+                : null;
             var leaderString = Translator.Instance.GetGruntType(GruntType);
             var pokemonType = GameMaster.Instance.GruntTypes.ContainsKey(GruntType)
                 ? GetPokemonTypeFromString(invasion?.Type)
@@ -309,20 +309,24 @@
             var invasionTypeEmoji = pokemonType == PokemonType.None
                 ? leaderString
                 : pokemonType.GetTypeEmojiIcons();
-            var invasionEncounters = GruntType > 0 ? invasion.GetPossibleInvasionEncounters() : new List<dynamic>();
+            var invasionEncounters = GruntType > 0
+                ? invasion.GetPossibleInvasionEncounters()
+                : new List<dynamic>();
 
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
             var lureExpireTimeLeft = now.GetTimeRemaining(LureExpireTime).ToReadableStringNoSeconds();
             var invasionExpireTimeLeft = now.GetTimeRemaining(InvasionExpireTime).ToReadableStringNoSeconds();
             var powerUpEndTimeLeft = now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
+                ? properties.Client.Guilds[properties.GuildId]
+                : null;
 
             const string defaultMissingValue = "?";
             var dict = new
             {
                 // Main properties
                 has_lure = HasLure,
-                lure_type = LureType.ToString(),
+                lure_type = LureType,
                 lure_expire_time = LureExpireTime.ToLongTimeString(),
                 lure_expire_time_24h = LureExpireTime.ToString("HH:mm:ss"),
                 lure_expire_time_left = lureExpireTimeLeft,
@@ -345,8 +349,8 @@
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
-                lat = Latitude.ToString(),
-                lng = Longitude.ToString(),
+                lat = Latitude,
+                lng = Longitude,
                 lat_5 = Latitude.ToString("0.00000"),
                 lng_5 = Longitude.ToString("0.00000"),
 

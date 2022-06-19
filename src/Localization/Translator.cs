@@ -47,7 +47,7 @@
                 var locale = Path.GetFileName(file).Replace("_", null);
                 var localeFile = locale;
 
-                var json = await NetUtils.Get(SourceLocaleUrl + locale);
+                var json = await NetUtils.GetAsync(SourceLocaleUrl + locale);
                 if (json == null)
                 {
                     Console.WriteLine($"Failed to fetch locales from {SourceLocaleUrl + locale}, skipping...");

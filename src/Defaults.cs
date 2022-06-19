@@ -6,7 +6,6 @@
     using WeatherCondition = POGOProtos.Rpc.GameplayWeatherProto.Types.WeatherCondition;
 
     using WhMgr.Common;
-    using WhMgr.Services.Webhook.Models;
 
     public class Defaults
     {
@@ -50,14 +49,27 @@
         [JsonPropertyName("waze_maps")]
         public string WazeMaps { get; set; }
 
+
+        // Emoji formats and list
         [JsonPropertyName("emojis_list")]
         public List<string> EmojisList { get; set; }
+
+        [JsonPropertyName("emoji_schema")]
+        public string EmojiSchema { get; set; }
+
+        [JsonPropertyName("type_emoji_schema")]
+        public string TypeEmojiSchema { get; set; }
+
 
         [JsonPropertyName("pokemon_generation_ranges")]
         public IReadOnlyDictionary<int, PokemonGenerationRange> PokemonGenerationRanges { get; set; }
 
         [JsonPropertyName("weather_boosts")]
         public IReadOnlyDictionary<WeatherCondition, IReadOnlyList<PokemonType>> WeatherBoosts { get; set; }
+
+
+        [JsonPropertyName("all")]
+        public string All { get; set; }
 
         public Defaults()
         {
@@ -74,6 +86,9 @@
             GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
             AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";
             WazeMaps = "https://waze.com/ul?ll={0},{1}&navigate=yes";
+
+            EmojiSchema = "<:{0}:{1}>";
+            TypeEmojiSchema = "<:types_{0}:{1}>";
 
             EmojisList = new List<string>
             {
@@ -129,6 +144,8 @@
                 "gender_female",
                 "gender_less",
             };
+
+            All = "All";
 
             PokemonGenerationRanges = new Dictionary<int, PokemonGenerationRange>
             {

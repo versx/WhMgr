@@ -2,14 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-
-    using WhMgr.Extensions;
 
     // TODO: Convert to HostedService
     public class WebhookQueueManager : IWebhookQueueManager
@@ -48,7 +45,7 @@
         /// </summary>
         /// <param name="webhookUrl"></param>
         /// <param name="json"></param>
-        public async Task SendWebhook(string webhookUrl, string json)
+        public async Task SendWebhook(string url, string json)
         {
             try
             {
@@ -56,11 +53,11 @@
                 var requestMessage = new HttpRequestMessage
                 {
                     Method = HttpMethod.Post,
-                    RequestUri = new Uri(webhookUrl),
+                    RequestUri = new Uri(url),
                     Headers =
-                        {
-                            { HttpRequestHeader.UserAgent.ToString(), Strings.BotName },
-                        },
+                    {
+                        { HttpRequestHeader.UserAgent.ToString(), Strings.BotName },
+                    },
                     Content = new StringContent(json, Encoding.UTF8, "application/json"),
                 };
                 var response = client.SendAsync(requestMessage).Result;
@@ -69,17 +66,17 @@
             catch (WebException ex)
             {
                 var response = (HttpWebResponse)ex.Response;
-                switch ((int)(response?.StatusCode ?? 0))
+                switch (response?.StatusCode)
                 {
                     //https://discordapp.com/developers/docs/topics/rate-limits
-                    case 429:
-                        HandleRateLimitedRequest(response, webhookUrl, json);
+                    case HttpStatusCode.TooManyRequests:
+                        HandleRateLimitedRequest(response, url, json);
                         break;
-                    case 400:
-                        Console.WriteLine($"Failed to send webhook: {webhookUrl}\nJson: {json}\nError: {ex}");
+                    case HttpStatusCode.BadRequest:
+                        Console.WriteLine($"Failed to send webhook: {url}\nJson: {json}\nError: {ex}");
                         break;
                     default:
-                        Console.WriteLine($"Failed to send webhook with status: {response?.StatusCode}\nUrl: {webhookUrl}\nError: {ex}");
+                        Console.WriteLine($"Failed to send webhook with status: {response?.StatusCode}\nUrl: {url}\nError: {ex}");
                         break;
                 }
             }

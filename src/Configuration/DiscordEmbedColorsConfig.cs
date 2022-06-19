@@ -33,7 +33,7 @@
                     new DiscordEmbedColorPokemonPvP { Minimum = 1, Maximum = 3, Color = "#000080" },
                     new DiscordEmbedColorPokemonPvP { Minimum = 4, Maximum = 25, Color = "#800080" },
                     new DiscordEmbedColorPokemonPvP { Minimum = 26, Maximum = 100, Color = "#aa2299" },
-                }
+                },
             };
             Raids = new DiscordEmbedColorRaids();
             Pokestops = new DiscordEmbedColorPokestop();

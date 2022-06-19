@@ -39,7 +39,7 @@
         [JsonPropertyName("cp")]
         public uint? CP { get; set; }
 
-        // TODO: Implement PVP league rank cap
+        // TODO: Implement PVP Pokemon level cap
         [JsonPropertyName("cap")]
         public uint Cap { get; set; }
     }

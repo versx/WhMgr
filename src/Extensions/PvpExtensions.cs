@@ -49,7 +49,6 @@
             return pokemonIds;
         }
 
-        // TODO: Use for PokemonData class with embed template parsing to filter useless ranks or remove from config
         public static Dictionary<PvpLeague, List<PvpRankData>> GetLeagueRanks(this PokemonData pokemon)
         {
             var dict = new Dictionary<PvpLeague, List<PvpRankData>>();
@@ -85,11 +84,7 @@
                         pvp.Level.HasValue &&
                         pvp.CP.HasValue && pvp.CP <= pvpConfig.MaximumCP)
                     {
-                        //var name = Translator.Instance.GetPokemonName(pvp.PokemonId);
-                        //var form = Translator.Instance.GetFormName(pvp.FormId);
-                        //var pkmnName = string.IsNullOrEmpty(form) ? name : $"{name} ({form})";
                         pvp.Percentage = Math.Round(pvp.Percentage.Value, 2);
-                        //pvp.PokemonName = pkmnName;
                         if (dict.ContainsKey(pokemonPvpLeague))
                         {
                             dict[pokemonPvpLeague].Add(pvp);

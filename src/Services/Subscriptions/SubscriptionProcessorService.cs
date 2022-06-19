@@ -38,7 +38,7 @@
         private readonly IBackgroundTaskQueue _taskQueue;
         private readonly Dictionary<int, bool> _rateLimitedMessagesSent; // subscription_id -> rateLimitedMessageSent
 
-        // TODO: Use BenchmarkTimes property
+        // TODO: Add BenchmarkTimes property in config
         public bool BenchmarkTimes { get; set; }
 
         public SubscriptionProcessorService(
@@ -57,7 +57,7 @@
             _mapDataCache = mapDataCache;
             _statsService = statsService;
             _taskQueue = (DefaultBackgroundTaskQueue)taskQueue;
-            _rateLimitedMessagesSent = new Dictionary<int, bool>();
+            _rateLimitedMessagesSent = new();
         }
 
         #region Subscription Processing

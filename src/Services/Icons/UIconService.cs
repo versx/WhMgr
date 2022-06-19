@@ -97,8 +97,6 @@
             if (!IsStyleSelected(style, IconType.Pokemon))
                 return GetDefaultIcon(_iconStyles[style][IconType.Pokemon].Path);
 
-            // TODO: Check if style contains icon type
-
             var iconStyle = _iconStyles[style][IconType.Pokemon];
             var baseUrl = iconStyle.Path;
             var evolutionSuffixes = (evolutionId > 0 ? new[] { "_e" + evolutionId, string.Empty } : new[] { string.Empty }).ToList();
@@ -119,9 +117,6 @@
                                 var result = $"{pokemonId}{evolutionSuffix}{formSuffix}{costumeSuffix}{genderSuffix}{shinySuffix}.{IconFormat}";
                                 if (iconStyle.IndexList.Contains(result))
                                 {
-                                    // TODO: Review
-                                    //var subFolder = GetSubFolder(IconType.Pokemon);
-                                    //return $"{baseUrl}/{subFolder}/{result}";
                                     return $"{baseUrl}/{result}";
                                 }
                             }
@@ -542,13 +537,11 @@
                 //    continue;
 
                 // Get the remote form index file from the icon repository
-                var iconStyleSubFolder = GetSubFolder(iconType);
                 var indexPath = Path.Combine(
                     styleConfig.Path,
-                    iconStyleSubFolder,
                     IndexJson
                 );
-                var formsListJson = await NetUtils.Get(indexPath);
+                var formsListJson = await NetUtils.GetAsync(indexPath);
                 if (string.IsNullOrEmpty(formsListJson))
                 {
                     // Failed to get form list, skip...
@@ -557,8 +550,6 @@
                 }
                 try
                 {
-                    //Console.WriteLine($"IndexList: {formsListJson}");
-
                     // Deserialize json list to hash set
                     if (iconType == IconType.Base)
                     {

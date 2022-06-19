@@ -11,6 +11,20 @@ At a minimum you'll want to make sure you have your webhook listening port set a
   "port": 8008,
   // Locale language translation
   "locale": "en",
+  // Telemetry reporting
+  "sentry": true,
+  // yourls.org API
+  "shortUrlApi": {
+    // Determines whether the Short URL API is used or not
+    "enabled": false,
+    // ShortURL API (i.e. `https://domain.com/yourls-api.php`)
+    "apiUrl": "https://domain.com/u/api.php",
+    // ShortURL passwordless authentication signature
+    "signature": ""
+  },
+  "stripeApi": {
+    "apiKey": ""
+  },
   // List of Discord servers to connect and post webhook messages to.
   "servers": {
     // Discord server #1 guild ID (replace `000000000000000123` with
@@ -60,6 +74,8 @@ At a minimum you'll want to make sure you have your webhook listening port set a
     }
   },
   "eventPokemon": {
+    // Determines if filtering event Pokemon is enabled or not.
+    "enabled": false,
     // List of Pokemon IDs to treat as event and restrict postings and subscriptions to 90% IV or higher. (Filled in  automatically with `event set` command)  
     "pokemonIds": [],
     // Minimum IV value for an event Pokemon to have to meet in order to post via Discord channel alarm or direct message subscription.
@@ -151,94 +167,16 @@ At a minimum you'll want to make sure you have your webhook listening port set a
   },
   // Custom static map template files for each alarm type
   "staticMaps": {
-    // Static map template for Pokemon
-    "pokemon": {
-      // Static map url template for pokemon
-      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
-      // Static map template file name without extension
-      "template": "pokemon.example",
-      // Include nearby gyms in static map image  
-      "includeGyms": false,
-      // Include nearby pokestops in static map image
-      "includePokestops": false
-    },
-    // Static map template for Raids and Eggs
-    "raids": {
-      // Static map url template for raids
-      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team_id={{team_id}}",
-      // Static map template file name without extension
-      "template": "raids.example",
-      // Include nearby gyms in static map image  
-      "includeGyms": false,
-      // Include nearby pokestops in static map image
-      "includePokestops": false
-    },
-    // Static map template for Gym team control changes
-    "gyms": {
-      // Static map url template for gyms
-      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&team_id={{team_id}}",
-      // Static map template file name without extension
-      "template": "gyms.example",
-      // Include nearby gyms in static map image  
-      "includeGyms": false,
-      // Include nearby pokestops in static map image
-      "includePokestops": false
-    },
-    // Static map template for field research quests
-    "quests": {
-      // Static map url template for quests
-      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
-      // Static map template file name without extension
-      "template": "quests.example",
-      // Include nearby gyms in static map image  
-      "includeGyms": false,
-      // Include nearby pokestops in static map image
-      "includePokestops": false
-    },
-    // Static map template for Team Rocket invasions
-    "invasions": {
-      // Static map url template for invasions
-      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
-      // Static map template file name without extension
-      "template": "invasions.example",
-      // Include nearby gyms in static map image  
-      "includeGyms": false,
-      // Include nearby pokestops in static map image
-      "includePokestops": false
-    },
-    // Static map template for Pokestop lures
-    "lures": {
-      // Static map url template for lures
-      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}",
-      // Static map template file name without extension
-      "template": "lures.example",
-      // Include nearby gyms in static map image  
-      "includeGyms": false,
-      // Include nearby pokestops in static map image
-      "includePokestops": false
-    },
-    // Static map template for weather changes
-    "weather": {
-      // Static map url template for weather
-      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&polygon={{polygon}}",
-      // Static map template file name without extension
-      "template": "weather.example",
-      // Include nearby gyms in static map image  
-      "includeGyms": false,
-      // Include nearby pokestops in static map image
-      "includePokestops": false
-    },
-    // Static map template for nest postings
-    "nests": {
-      // Static map url template for nests
-      "url": "http://tiles.example.com/staticmap/{{template_name}}?lat={{lat}}&lon={{lon}}&url2={{url2}}&polygon={{polygon}}",
-      // Static map template file name without extension
-      "template": "nests.example",
-      // Include nearby gyms in static map image  
-      "includeGyms": false,
-      // Include nearby pokestops in static map image
-      "includePokestops": false
-    }
+    // Base url for static map service
+    "url": "http://tiles.example.com:8080",
+    // StaticMap or MultiStaticMap
+    "type": "StaticMap",
+    // Include nearby gyms with static map image  
+    "includeGyms": false,
+    // Include nearby pokestops with static map image  
+    "includePokestops": false,
+    // Including Gyms and Pokestops on the StaticMap only works if `pregenerate` is set to `true`
+    "pregenerate": true
   },
   // Get text message alerts with Twilio.com
   "twilio": {

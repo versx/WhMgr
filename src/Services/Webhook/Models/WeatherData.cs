@@ -18,7 +18,7 @@
     using WhMgr.Services.Geofence;
     using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Utilities;
+    using WhMgr.Services.Yourls;
 
     [Table("weather")]
     public class WeatherData : IWebhookData, IWebhookPoint
@@ -209,9 +209,7 @@
             {
                 BaseUrl = staticMapConfig.Url,
                 MapType = StaticMapType.Weather,
-                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
-                    ? StaticMapTemplateType.StaticMap
-                    : StaticMapTemplateType.MultiStaticMap,
+                TemplateType = staticMapConfig.Type,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = properties.ImageUrl,
@@ -234,33 +232,35 @@
             var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
             var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
             var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
+                ? properties.Client.Guilds[properties.GuildId]
+                : null;
 
             const string defaultMissingValue = "?";
             var dict = new
             {
                 // Main properties
-                id = Id.ToString(),
+                id = Id,
                 weather_condition = weather,
                 has_weather = hasWeather,
                 weather = weather ?? defaultMissingValue,
                 weather_emoji = weatherEmoji ?? defaultMissingValue,
                 weather_img_url = properties.ImageUrl,//weatherImageUrl,
 
-                wind_direction = WindDirection.ToString(),
-                wind_level = WindLevel.ToString(),
-                raid_level = RainLevel.ToString(),
-                cloud_level = CloudLevel.ToString(),
-                fog_level = FogLevel.ToString(),
-                snow_level = SnowLevel.ToString(),
+                wind_direction = WindDirection,
+                wind_level = WindLevel,
+                raid_level = RainLevel,
+                cloud_level = CloudLevel,
+                fog_level = FogLevel,
+                snow_level = SnowLevel,
                 warn_weather = WarnWeather ?? false,
-                special_effect_level = SpecialEffectLevel.ToString(),
-                severity = Severity.ToString(),
+                special_effect_level = SpecialEffectLevel,
+                severity = Severity,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
-                lat = Latitude.ToString(),
-                lng = Longitude.ToString(),
+                lat = Latitude,
+                lng = Longitude,
                 lat_5 = Latitude.ToString("0.00000"),
                 lng_5 = Longitude.ToString("0.00000"),
 

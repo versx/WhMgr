@@ -49,10 +49,5 @@
         public const string ErrorLogFileName = "error.log";
 
         public const int DiscordMaximumMessageLength = 2048;
-
-        public const string All = "All";
-
-        public const string EmojiSchema = "<:{0}:{1}>";
-        public const string TypeEmojiSchema = "<:types_{0}:{1}>";
     }
 }

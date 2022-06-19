@@ -13,8 +13,8 @@
                 "url": "#(pokestop.marker)",
                 "latitude": #(pokestop.lat),
                 "longitude": #(pokestop.lon),
-                "width": 50,
-                "height": 50
+                "width": 24,
+                "height": 24
             },
             #endfor
         #endif
@@ -24,8 +24,8 @@
                 "url": "#(gym.marker)",
                 "latitude": #(gym.lat),
                 "longitude": #(gym.lon),
-                "width": 50,
-                "height": 50
+                "width": 24,
+                "height": 24
             },
             #endfor
         #endif

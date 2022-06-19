@@ -13,7 +13,6 @@
   "stripeApi": {
     "apiKey": ""
   },
-  "maxPokemonId": 898,
   "servers": {
     "000000000000000001": "discord1.example.json",
     "000000000000000002": "discord2.example.json"
@@ -59,7 +58,7 @@
       },
       "Pokemon": {
         "name": "Default_Pokemon",
-        "path": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/UICONS/"
+        "path": "https://raw.githubusercontent.com/nileplumb/PkmnShuffleMap/master/UICONS/pokemon/"
       }
       /*
       "Raid",
@@ -102,9 +101,11 @@
   },
   "staticMaps": {
     "url": "http://tiles.example.com:8080",
+    // StaticMap or MultiStaticMap
     "type": "StaticMap",
     "includeGyms": false,
     "includePokestops": false,
+    // Including Gyms and Pokestops on the StaticMap only works if `pregenerate` is set to `true`
     "pregenerate": true
   },
   "twilio": {

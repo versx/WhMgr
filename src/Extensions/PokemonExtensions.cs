@@ -22,8 +22,8 @@
             var maxAtk = ((pkmn.Attack + statValue) * multiplier) ?? 0;
             var maxDef = ((pkmn.Defense + statValue) * multiplier) ?? 0;
             var maxSta = ((pkmn.Stamina + statValue) * multiplier) ?? 0;
-
-            return (int)Math.Max(10, Math.Floor(Math.Sqrt(maxAtk * maxAtk * maxDef * maxSta) / 10));
+            var cp = Convert.ToInt32(Math.Max(10, Math.Floor(Math.Sqrt(maxAtk * maxAtk * maxDef * maxSta) / 10)));
+            return cp;
         }
 
         public static bool IsCommonPokemon(this uint pokeId)
@@ -86,47 +86,32 @@
             return GetTypeEmojiIcons(new List<PokemonType> { pokemonType });
         }
 
-        public static string GetTypeEmojiIcons(this List<PokemonType> pokemonTypes)
+        public static string GetTypeEmojiIcons(this IEnumerable<PokemonType> pokemonTypes)
         {
             var list = new List<string>();
             foreach (var type in pokemonTypes)
             {
-                var emojiKey = $"types_{type.ToString().ToLower()}";
-                //if (!MasterFile.Instance.Emojis.ContainsKey(emojiKey))
-                //    continue;
-
-                var emojiId = GameMaster.Instance.Emojis.ContainsKey(emojiKey)
-                    ? GameMaster.Instance.Emojis[emojiKey]
-                    : 0;
-                var emojiName = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[emojiKey])
-                    ? emojiId > 0
-                        ? string.Format(Strings.TypeEmojiSchema, type.ToString().ToLower(), emojiId)
-                        : type.ToString()
-                    : GameMaster.Instance.CustomEmojis[emojiKey];
+                var emojiName = type.GetEmojiIcon("types", true);
                 if (!list.Contains(emojiName))
                 {
                     list.Add(emojiName);
                 }
             }
-
             return string.Join(" ", list);
         }
 
-        public static string GetEmojiIcon<T>(this T type, string keyPrefix, bool asString, string emojiSchema = Strings.EmojiSchema)
+        public static string GetEmojiIcon<T>(this T type, string keyPrefix, bool asString)
         {
-            var key = $"{keyPrefix}_";
-            if (asString)
-                key += type.ToString().ToLower();
-            else
-                key += Convert.ToInt32(type);
+            var value = asString ? type.ToString().ToLower() : Convert.ToInt32(type).ToString();
+            var key = string.IsNullOrEmpty(keyPrefix) ? value : $"{keyPrefix}_{value}";
             var emojiId = GameMaster.Instance.Emojis.ContainsKey(key)
                 ? GameMaster.Instance.Emojis[key]
                 : 0;
             var emojiName = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[key])
                 ? emojiId > 0
-                    ? string.Format(emojiSchema, key, emojiId)
+                    ? string.Format(Strings.Defaults.EmojiSchema, key, emojiId)
                     : type.ToString()
-                : GameMaster.Instance.CustomEmojis[key];
+                : GameMaster.Instance.CustomEmojis[key] ?? type.ToString();
             return emojiName;
         }
 
@@ -135,29 +120,13 @@
             if (pokemonTypes == null || pokemonTypes?.Count == 0)
                 return string.Empty;
 
-            var list = new List<string>();
-            foreach (var type in pokemonTypes)
+            var list = new List<PokemonType>();
+            pokemonTypes.ForEach(type =>
             {
-                var weaknesses = type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct();
-                foreach (var weakness in weaknesses)
-                {
-                    var typeKey = $"types_{weakness.ToString().ToLower()}";
-                    var emojiId = GameMaster.Instance.Emojis.ContainsKey(typeKey)
-                        ? GameMaster.Instance.Emojis[typeKey]
-                        : 0;
-                    var emojiName = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[typeKey])
-                        ? emojiId > 0
-                            ? string.Format(Strings.TypeEmojiSchema, weakness.ToString().ToLower(), emojiId)
-                            : weakness.ToString()
-                        : GameMaster.Instance.CustomEmojis[typeKey];
-                    if (!list.Contains(emojiName))
-                    {
-                        list.Add(emojiName);
-                    }
-                }
-            }
-
-            return string.Join(" ", list);
+                list.AddRange(type.ToString().StringToObject<PokemonType>().GetWeaknesses().Distinct());
+            });
+            var emojis = list.GetTypeEmojiIcons();
+            return emojis;
         }
 
         public static uint PokemonIdFromName(this string nameOrId)
@@ -278,7 +247,7 @@
                 var range = GetListFromRange(genRange.Start, genRange.End);
                 validation = range.ValidatePokemon();
             }
-            else if (string.Compare(pokemonList, Strings.All, true) == 0)
+            else if (string.Compare(pokemonList, Strings.Defaults.All, true) == 0)
             {
                 var list = GetListFromRange(1, maxPokemonId);
                 validation = list.ValidatePokemon();
