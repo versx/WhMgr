@@ -459,7 +459,7 @@
         public static DiscordColor BuildPokemonIVColor(this double iv, DiscordEmbedColorsConfig config)
         {
             var color = config.Pokemon.IV.FirstOrDefault(x => iv >= x.Minimum && iv <= x.Maximum);
-            return new DiscordColor(color.Color);
+            return color == null ? DiscordColor.White : new DiscordColor(color.Color);
         }
 
         public static DiscordColor BuildPokemonPvPColor(this int rank, DiscordEmbedColorsConfig config)
@@ -469,7 +469,7 @@
                 return DiscordColor.White;
             }
             var color = config.Pokemon.PvP.FirstOrDefault(x => rank >= x.Minimum && rank <= x.Maximum);
-            return new DiscordColor(color.Color);
+            return color == null ? DiscordColor.White : new DiscordColor(color.Color);
         }
 
         public static DiscordColor BuildRaidColor(this ushort level, DiscordEmbedColorsConfig config)
