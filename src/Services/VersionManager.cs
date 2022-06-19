@@ -54,10 +54,10 @@
                 var shaFilePath = Path.Combine(Directory.GetCurrentDirectory(), "../.gitsha");
                 sha = File.ReadAllLines(shaFilePath).FirstOrDefault().Trim(' ');
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 sha = "?";
-                Console.WriteLine($"[Error] Failed to read .gitsha");
+                Console.WriteLine($"[Error] Failed to read .gitsha: {ex}");
             }
             try
             {
@@ -69,9 +69,9 @@
                                          .Replace("/merge", null);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Console.WriteLine($"[Error] Failed to read .gitref");
+                Console.WriteLine($"[Error] Failed to read .gitref: {ex}");
             }
             if (string.IsNullOrEmpty(pullRequest))
             {
@@ -364,6 +364,12 @@
 
         [JsonPropertyName("node_id")]
         public string NodeId { get; set; }
+
+        [JsonPropertyName("zipball_url")]
+        public string ZipballUrl { get; set; }
+
+        [JsonPropertyName("tarball_url")]
+        public string TarballUrl { get; set; }
     }
 
     public class Commit

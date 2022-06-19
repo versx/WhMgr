@@ -4,6 +4,10 @@
 
     public interface IWebhookQueueManager
     {
-        Task SendWebhook(string webhookUrl, string json);
+        void Start();
+
+        void Stop();
+
+        Task SendWebhook(string url, string json);
     }
 }

@@ -38,11 +38,5 @@
 
         [JsonPropertyName("weather")]
         public HashSet<string> Weather { get; set; } = new();
-
-        [JsonPropertyName("0"), JsonIgnore]
-        public string IndexFile { get; set; } // home icons fix >.>
-
-        [JsonPropertyName("1"), JsonIgnore]
-        public string Overview { get; set; } // home/pmsf icons fix >.>
     }
 }

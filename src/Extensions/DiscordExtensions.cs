@@ -456,13 +456,9 @@
 
         #region Colors
 
-        public static DiscordColor BuildPokemonIVColor(this string iv, DiscordEmbedColorsConfig config)
+        public static DiscordColor BuildPokemonIVColor(this double iv, DiscordEmbedColorsConfig config)
         {
-            if (!double.TryParse(iv[0..^1], out var result))
-            {
-                return DiscordColor.White;
-            }
-            var color = config.Pokemon.IV.FirstOrDefault(x => result >= x.Minimum && result <= x.Maximum);
+            var color = config.Pokemon.IV.FirstOrDefault(x => iv >= x.Minimum && iv <= x.Maximum);
             return new DiscordColor(color.Color);
         }
 

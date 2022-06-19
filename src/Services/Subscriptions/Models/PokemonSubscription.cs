@@ -32,7 +32,6 @@
         ]
         public int MinimumCP { get; set; }
 
-        // TODO: Create migration to fix default value for Pokemon max_cp subscriptions
         [
             JsonPropertyName("max_cp"),
             Column("max_cp"),

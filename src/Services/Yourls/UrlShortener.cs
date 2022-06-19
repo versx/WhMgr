@@ -1,13 +1,14 @@
-﻿namespace WhMgr.Utilities
+﻿namespace WhMgr.Services.Yourls
 {
     using System;
     using System.Text;
-    using System.Text.Json.Serialization;
     using System.Threading.Tasks;
     using System.Web;
 
     using WhMgr.Configuration;
     using WhMgr.Extensions;
+    using WhMgr.Services.Yourls.Models;
+    using WhMgr.Utilities;
 
     /// <summary>
     /// Url shortener class using yourls.org
@@ -49,7 +50,7 @@
                 sb.Append("&format=");
                 sb.Append(Configuration.Format);
                 var apiUrl = sb.ToString();
-                var json = await NetUtils.Get(apiUrl);
+                var json = await NetUtils.GetAsync(apiUrl);
                 if (string.IsNullOrEmpty(json))
                     return url;
 
@@ -62,59 +63,21 @@
             }
         }
     }
+}
 
-    /*
+/*
 {
-    "url": {
-        "keyword":"1",
-        "url":"https://www.google.com/maps?q=34.01,-117.01",
-        "title":"Google Maps",
-        "date":"2019-05-25 04:48:55",
-        "ip":"172.89.225.76"
-    },
-    "status":"success",
-    "message":"https://www.google.com/maps?q=34.01,-117.01[...] added to database",
+"url": {
+    "keyword":"1",
+    "url":"https://www.google.com/maps?q=34.01,-117.01",
     "title":"Google Maps",
-    "shorturl":"https://site.com/u/1",
-    "statusCode":200
+    "date":"2019-05-25 04:48:55",
+    "ip":"172.89.225.76"
+},
+"status":"success",
+"message":"https://www.google.com/maps?q=34.01,-117.01[...] added to database",
+"title":"Google Maps",
+"shorturl":"https://site.com/u/1",
+"statusCode":200
 }
-    */
-    public class UrlShortenerResponse
-    {
-        [JsonPropertyName("status")]
-        public string Status { get; set; }
-
-        [JsonPropertyName("statusCode")]
-        public int StatusCode { get; set; }
-
-        [JsonPropertyName("message")]
-        public string Message { get; set; }
-
-        [JsonPropertyName("title")]
-        public string Title { get; set; }
-
-        [JsonPropertyName("shorturl")]
-        public string ShortUrl { get; set; }
-
-        [JsonPropertyName("url")]
-        public UrlShortenerResponseUrl Url { get; set; }
-    }
-
-    public class UrlShortenerResponseUrl
-    {
-        [JsonPropertyName("keyword")]
-        public string Keyword { get; set; }
-
-        [JsonPropertyName("url")]
-        public string Url { get; set; }
-
-        [JsonPropertyName("title")]
-        public string Title { get; set; }
-
-        [JsonPropertyName("date")]
-        public DateTime Date { get; set; }
-
-        [JsonPropertyName("ip")]
-        public string IpAddress { get; set; }
-    }
-}
+*/

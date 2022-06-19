@@ -20,7 +20,7 @@
     using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Utilities;
+    using WhMgr.Services.Yourls;
 
     [Table("pokemon")]
     public sealed class PokemonData : IWebhookData, IWebhookPoint
@@ -282,7 +282,7 @@
             JsonIgnore,
             NotMapped,
         ]
-        public bool HasPvpRankings => PvpRankings?.Keys.Count > 0;
+        public bool HasPvpRankings => (PvpRankings?.Keys.Count ?? 0) > 0;
 
         [
             JsonPropertyName("pvp"),
@@ -404,7 +404,7 @@
                 Color = (
                     HasPvpRankings
                         ? GameMaster.Instance.DiscordEmbedColors.GetPvPColor(PvpRankings)
-                        : IV.BuildPokemonIVColor(GameMaster.Instance.DiscordEmbedColors)
+                        : IVReal.BuildPokemonIVColor(GameMaster.Instance.DiscordEmbedColors)
                     ).Value,
                 Footer = new DiscordEmbedFooter
                 {
@@ -453,13 +453,7 @@
             var type2 = pkmnInfo?.Types?.Count > 1
                 ? pkmnInfo.Types[1]
                 : PokemonType.None;
-            var type1Emoji = pkmnInfo?.Types?.Count >= 1
-                ? type1.GetTypeEmojiIcons()
-                : string.Empty;
-            var type2Emoji = pkmnInfo?.Types?.Count > 1
-                ? type2.GetTypeEmojiIcons()
-                : string.Empty;
-            var typeEmojis = $"{type1Emoji} {type2Emoji}";
+            var typeEmojis = pkmnInfo?.Types?.GetTypeEmojiIcons() ?? string.Empty;
             var catchPokemon = IsDitto
                 ? Translator.Instance.GetPokemonName(DisplayPokemonId ?? Id)
                 : pkmnName;
@@ -475,15 +469,12 @@
             var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
-
             var staticMapConfig = properties.Config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
                 BaseUrl = staticMapConfig.Url,
                 MapType = StaticMapType.Pokemon,
-                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
-                    ? StaticMapTemplateType.StaticMap
-                    : StaticMapTemplateType.MultiStaticMap,
+                TemplateType = staticMapConfig.Type,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = properties.ImageUrl,
@@ -502,8 +493,8 @@
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
             var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
             var appleMapsLocationLink = await urlShortener.CreateAsync(appleMapsLink);
-            var wazeMapsLocationLink = await urlShortener .CreateAsync(wazeMapsLink);
-            var scannerMapsLocationLink = await urlShortener .CreateAsync(scannerMapsLink);
+            var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
+            var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
             var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
             var pokestop = properties.MapDataCache.GetPokestop(PokestopId).ConfigureAwait(false)
                                                   .GetAwaiter()
@@ -511,21 +502,23 @@
 
             var greatLeagueEmoji = PvpLeague.Great.GetEmojiIcon("league", true);
             var ultraLeagueEmoji = PvpLeague.Ultra.GetEmojiIcon("league", true);
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
+                ? properties.Client.Guilds[properties.GuildId]
+                : null;
 
             const string defaultMissingValue = "?";
             var dict = new
             {
                 // Main properties
-                pkmn_id = Convert.ToString(Id),
+                pkmn_id = Id,
                 pkmn_id_3 = Id.ToString("D3"),
                 pkmn_name = pkmnName,
                 pkmn_img_url = properties.ImageUrl,
                 form,
-                form_id = Convert.ToString(FormId),
+                form_id = FormId,
                 form_id_3 = FormId.ToString("D3"),
                 costume = costume ?? defaultMissingValue,
-                costume_id = Convert.ToString(Costume),
+                costume_id = Costume,
                 costume_id_3 = Costume.ToString("D3"),
                 cp = CP == null ? defaultMissingValue : Convert.ToString(CP),
                 lvl = level == null ? defaultMissingValue : Convert.ToString(level),
@@ -537,19 +530,19 @@
                 moveset = $"{move1}/{move2}",
                 type_1 = type1.ToString() ?? defaultMissingValue,
                 type_2 = type2.ToString() ?? defaultMissingValue,
-                type_1_emoji = type1Emoji,
-                type_2_emoji = type2Emoji,
+                //type_1_emoji = type1Emoji,
+                //type_2_emoji = type2Emoji,
                 types = $"{type1} | {type2}",
                 types_emoji = typeEmojis,
                 atk_iv = Attack == null
                     ? defaultMissingValue
-                    : Convert.ToString(Attack),
+                    : Attack.ToString(),
                 def_iv = Defense == null
                     ? defaultMissingValue
-                    : Convert.ToString(Defense.ToString()),
+                    : Defense.ToString(),
                 sta_iv = Stamina == null
                     ? defaultMissingValue
-                    : Convert.ToString(Stamina.ToString()),
+                    : Stamina.ToString(),
                 iv = IV ?? defaultMissingValue,
                 iv_rnd = IVRounded ?? defaultMissingValue,
                 is_shiny = isShiny,
@@ -575,7 +568,7 @@
                 ultra_league_emoji = ultraLeagueEmoji,
                 has_pvp = HasPvpRankings,
                 // TODO: Filter pvp rankings using Strings.Defaults.Pvp settings to remove clutter/useless ranks
-                pvp = PvpRankings,
+                pvp = this.GetLeagueRanks(), //PvpRankings
 
                 // Other properties
                 height = height ?? defaultMissingValue,
@@ -601,8 +594,8 @@
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
-                lat = Convert.ToString(Latitude),
-                lng = Convert.ToString(Longitude),
+                lat = Latitude,
+                lng = Longitude,
                 lat_5 = Latitude.ToString("0.00000"),
                 lng_5 = Longitude.ToString("0.00000"),
 

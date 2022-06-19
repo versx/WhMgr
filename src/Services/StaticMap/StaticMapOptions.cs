@@ -19,7 +19,7 @@
 
         public string SecondaryImageUrl { get; set; }
 
-        public PokemonTeam? Team { get; set; }
+        public PokemonTeam? Team { get; set; } = PokemonTeam.All;
 
         public string PolygonPath { get; set; }
 

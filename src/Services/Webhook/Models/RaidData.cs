@@ -18,7 +18,7 @@
     using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Utilities;
+    using WhMgr.Services.Yourls;
 
     public sealed class RaidData : IWebhookData, IWebhookPoint
     {
@@ -274,9 +274,7 @@
             {
                 BaseUrl = staticMapConfig.Url,
                 MapType = StaticMapType.Raids,
-                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
-                    ? StaticMapTemplateType.StaticMap
-                    : StaticMapTemplateType.MultiStaticMap,
+                TemplateType = staticMapConfig.Type,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = properties.ImageUrl,
@@ -304,21 +302,23 @@
             var startTimeLeft = now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds();
             var endTimeLeft = now.GetTimeRemaining(EndTime).ToReadableStringNoSeconds();
             var powerUpEndTimeLeft = now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
+                ? properties.Client.Guilds[properties.GuildId]
+                : null;
 
             const string defaultMissingValue = "?";
             var dict = new
             {
                 // Raid boss properties
-                pkmn_id = PokemonId.ToString(),
+                pkmn_id = PokemonId,
                 pkmn_id_3 = PokemonId.ToString("D3"),
                 pkmn_name = name,
                 pkmn_img_url = properties.ImageUrl,
                 evolution = evo,
-                evolution_id = Convert.ToInt32(Evolution).ToString(),
+                evolution_id = Convert.ToInt32(Evolution),
                 evolution_id_3 = Evolution.ToString("D3"),
                 form,
-                form_id = Form.ToString(),
+                form_id = Form,
                 form_id_3 = Form.ToString("D3"),
                 costume,
                 costume_id = Costume.ToString(),
@@ -326,10 +326,10 @@
                 is_egg = IsEgg,
                 is_ex = IsExEligible,
                 is_ex_exclusive = IsExclusive,
-                sponsor_id = Convert.ToString(SponsorId),
+                sponsor_id = SponsorId,
                 ex_emoji = exEmoji,
-                team = Team.ToString(),
-                team_id = Convert.ToInt32(Team).ToString(),
+                team = Team,
+                team_id = Convert.ToInt32(Team),
                 team_emoji = teamEmoji,
                 cp = CP,
                 lvl = level,
@@ -345,10 +345,10 @@
                 types_emoji = typeEmojis,
                 weaknesses,
                 weaknesses_emoji = weaknessesEmoji,
-                perfect_cp = perfectRange.ToString(),
-                perfect_cp_boosted = boostedRange.ToString(),
-                worst_cp = worstRange.ToString(),
-                worst_cp_boosted = worstBoosted.ToString(),
+                perfect_cp = perfectRange,
+                perfect_cp_boosted = boostedRange,
+                worst_cp = worstRange,
+                worst_cp_boosted = worstBoosted,
                 is_ar = IsArScanEligible,
 
                 // Gym power up properties
@@ -368,8 +368,8 @@
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
-                lat = Latitude.ToString(),
-                lng = Longitude.ToString(),
+                lat = Latitude,
+                lng = Longitude,
                 lat_5 = Latitude.ToString("0.00000"),
                 lng_5 = Longitude.ToString("0.00000"),
 

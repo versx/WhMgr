@@ -40,8 +40,8 @@
                     marker = "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/UICONS/pokestop/0.png",
                 }
             };
-            var baseUrl = "http://10.0.0.2:9000";
-            //var baseUrl = "http://10.0.0.2:43200";
+            //var baseUrl = "http://10.0.0.2:9000";
+            var baseUrl = "http://10.0.0.2:43200";
             var lat = 34.01;
             var lon = -117.01;
             var url2 = "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/UICONS/pokemon/201_f9.png";
@@ -58,6 +58,30 @@
                 Team = Common.PokemonTeam.Valor,
                 Pregenerate = true,
                 Regeneratable = true,
+            });
+            var id = staticMap.GenerateLink();
+            var url = baseUrl + "/staticmap/pregenerated/" + id;
+            Console.WriteLine($"FinalUrl: {url}");
+        }
+
+        [Test]
+        public void Test_StaticMapPokemon_NoPregenerate_ReturnsIsTrue()
+        {
+            //var baseUrl = "http://10.0.0.2:9000";
+            var baseUrl = "http://10.0.0.2:43200";
+            var lat = 34.03;
+            var lon = -117.03;
+            var url2 = "https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/master/UICONS/pokemon/201_f4.png";
+            var staticMap = new StaticMapGenerator(new StaticMapOptions
+            {
+                BaseUrl = baseUrl,
+                MapType = StaticMapType.Pokemon,
+                TemplateType = StaticMapTemplateType.StaticMap,
+                Latitude = lat,
+                Longitude = lon,
+                SecondaryImageUrl = url2,
+                Pregenerate = false,
+                Regeneratable = false,
             });
             var id = staticMap.GenerateLink();
             var url = baseUrl + "/staticmap/pregenerated/" + id;

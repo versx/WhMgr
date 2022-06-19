@@ -551,7 +551,6 @@
                             if (!allowPokemon) return false;
                             break;
                         case FilterType.Include:
-                            // TODO: Make IsMissingStats configurable for EventPokemon config section
                             if (ignoreMissingStats && pokemon.IsMissingStats) return false;
                             // Only allow Pokemon if meets IV/PvP criteria
                             if (!allowPokemon) return false;

@@ -88,7 +88,7 @@ For a list of available dynamic text substitution/replacement options check out 
             "{{#if team_changed}}Gym changed from {{old_gym_team_emoji}} {{old_gym_team}} to {{gym_team_emoji}} {{gym_team}}",
             "{{/if}}{{#if in_battle}}Gym is under attack!",
             "{{/if}}**Slots Available:** {{slots_available}}",
-            "{{#if is_ex}}{{ex_gym_emoji}} Gym!",
+            "{{#if is_ex}}{{ex_emoji}} Gym!",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{gym_url}}",

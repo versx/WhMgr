@@ -20,7 +20,7 @@
     using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Utilities;
+    using WhMgr.Services.Yourls;
 
     [Table("gym")]
     public sealed class GymDetailsData : IWebhookData, IWebhookPoint
@@ -180,43 +180,22 @@
         {
             // Get old gym from cache
             var oldGym = await properties.MapDataCache.GetGym(GymId).ConfigureAwait(false);
-            var exEmojiId = GameMaster.Instance.Emojis.ContainsKey("ex")
-                ? GameMaster.Instance.Emojis["ex"]
-                : 0;
-            var exEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis["ex"]) ? exEmojiId > 0
-                ? string.Format(Strings.EmojiSchema, "ex", exEmojiId) : "EX"
-                : GameMaster.Instance.CustomEmojis["ex"];
-            var teamEmojiId = GameMaster.Instance.Emojis.ContainsKey(Team.ToString().ToLower())
-                ? GameMaster.Instance.Emojis[Team.ToString().ToLower()]
-                : 0;
-            var teamEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[Team.ToString().ToLower()])
-                ? teamEmojiId > 0
-                    ? string.Format(Strings.EmojiSchema, Team.ToString().ToLower(), teamEmojiId)
-                    : Team.ToString()
-                : GameMaster.Instance.CustomEmojis[Team.ToString().ToLower()];
-            var oldTeamEmojiId = GameMaster.Instance.Emojis.ContainsKey(oldGym.Team.ToString().ToLower())
-                ? GameMaster.Instance.Emojis[oldGym?.Team.ToString().ToLower()]
-                : 0;
-            var oldTeamEmoji = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[oldGym?.Team.ToString().ToLower()])
-                ? oldTeamEmojiId > 0
-                    ? string.Format(Strings.EmojiSchema, oldGym?.Team.ToString().ToLower(), oldTeamEmojiId)
-                    : oldGym?.Team.ToString()
-                : GameMaster.Instance.CustomEmojis[oldGym.Team.ToString().ToLower()];
+            var exEmoji = "ex".GetEmojiIcon(null, true);
+            var teamEmoji = Team.GetEmojiIcon(null, true);
+            var oldTeamEmoji = oldGym?.Team.GetEmojiIcon(null, true);
 
             var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
-            var gymImageUrl = UIconService.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);// $"https://raw.githubusercontent.com/nileplumb/PkmnHomeIcons/ICONS/ICONS/gym/{Convert.ToInt32(Team)}.png"; // TODO: Build gym image url
+            var gymImageUrl = UIconService.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);
 
             var staticMapConfig = properties.Config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
                 BaseUrl = staticMapConfig.Url,
                 MapType = StaticMapType.Gyms,
-                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
-                    ? StaticMapTemplateType.StaticMap
-                    : StaticMapTemplateType.MultiStaticMap,
+                TemplateType = staticMapConfig.Type,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 Team = Team,
@@ -235,14 +214,16 @@
             var staticMapLink = staticMap.GenerateLink();
             var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
             var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
-            var appleMapsLocationLink = await urlShortener.CreateAsync( appleMapsLink);
-            var wazeMapsLocationLink = await urlShortener.CreateAsync( wazeMapsLink);
-            var scannerMapsLocationLink = await urlShortener.CreateAsync( scannerMapsLink);
+            var appleMapsLocationLink = await urlShortener.CreateAsync(appleMapsLink);
+            var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
+            var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
             var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
 
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
             var powerUpEndTimeLeft = now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
+                ? properties.Client.Guilds[properties.GuildId]
+                : null;
 
             const string defaultMissingValue = "?";
             var dict = new
@@ -251,17 +232,17 @@
                 gym_id = GymId,
                 gym_name = GymName,
                 gym_url = Url,
-                gym_team = Team.ToString(),
-                gym_team_id = Convert.ToInt32(Team).ToString(),
+                gym_team = Team,
+                gym_team_id = Convert.ToInt32(Team),
                 gym_team_emoji = teamEmoji,
-                old_gym_team = oldGym.Team.ToString(),
-                old_gym_team_id = Convert.ToInt32(oldGym.Team).ToString(),
+                old_gym_team = oldGym?.Team,
+                old_gym_team_id = Convert.ToInt32(oldGym?.Team ?? 0),
                 old_gym_team_emoji = oldTeamEmoji,
                 team_changed = oldGym?.Team != Team,
                 in_battle = InBattle,
                 under_attack = InBattle,
                 is_ex = IsExEligible,
-                sponsor_id = Convert.ToString(SponsorId),
+                sponsor_id = SponsorId,
                 ex_emoji = exEmoji,
                 slots_available = SlotsAvailable == 0
                     ? Translator.Instance.Translate("FULL")

@@ -19,7 +19,7 @@
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
     using WhMgr.Services.Webhook.Models.Quests;
-    using WhMgr.Utilities;
+    using WhMgr.Services.Yourls;
 
     public sealed class QuestData : IWebhookData, IWebhookPoint
     {
@@ -156,9 +156,7 @@
             {
                 BaseUrl = staticMapConfig.Url,
                 MapType = StaticMapType.Quests,
-                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
-                    ? StaticMapTemplateType.StaticMap
-                    : StaticMapTemplateType.MultiStaticMap,
+                TemplateType = staticMapConfig.Type,
                 Latitude = Latitude,
                 Longitude = Longitude,
                 SecondaryImageUrl = properties.ImageUrl,
@@ -184,7 +182,9 @@
             var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
             var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
             var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
+                ? properties.Client.Guilds[properties.GuildId]
+                : null;
 
             const string defaultMissingValue = "?";
             var dict = new
@@ -204,8 +204,8 @@
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
-                lat = Latitude.ToString(),
-                lng = Longitude.ToString(),
+                lat = Latitude,
+                lng = Longitude,
                 lat_5 = Latitude.ToString("0.00000"),
                 lng_5 = Longitude.ToString("0.00000"),
 

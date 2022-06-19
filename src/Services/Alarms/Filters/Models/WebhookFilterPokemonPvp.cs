@@ -54,7 +54,6 @@
             MaximumCP = 999999;
             MinimumRank = 1;
             MaximumRank = 100;
-            // TODO: Double check percent logic
             MinimumPercent = 0;
             MaximumPercent = 100;
             Gender = '*';

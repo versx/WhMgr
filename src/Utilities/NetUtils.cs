@@ -1,116 +1,78 @@
 ﻿namespace WhMgr.Utilities
 {
     using System;
-    using System.Collections.Generic;
     using System.Net;
     using System.Net.Http;
-    using System.Threading;
+    using System.Text;
     using System.Threading.Tasks;
-
-    using WhMgr.Services.Webhook.Queue;
 
     public static class NetUtils
     {
-        private static readonly Queue<WebhookQueueItem> _backlogQueue = new();
-        private static readonly System.Timers.Timer _timer = new();
-
-        static NetUtils()
+        public static string Get(string url)
         {
-            _timer.Elapsed += (sender, e) => HandleBacklogQueue();
-            _timer.Interval = 200;
-            _timer.Start();
+            return GetAsync(url).Result;
         }
 
         /// <summary>
-        /// 
+        /// Sends a HTTP GET request to the specified url.
         /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        public static async Task<string> Get(string url)
+        /// <param name="url">Url to send the request to.</param>
+        /// <returns>Returns the response string of the HTTP GET request.</returns>
+        public static async Task<string> GetAsync(string url)
         {
-            using (var client = new HttpClient())
+            try
             {
-                try
-                {
-                    var mime = "application/json";
-                    client.DefaultRequestHeaders.Add(HttpRequestHeader.Accept.ToString(), mime);
-                    client.DefaultRequestHeaders.Add(HttpRequestHeader.ContentType.ToString(), mime);
-                    return await client.GetStringAsync(url);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Failed to download data from {url}: {ex}");
-                }
+                using var client = new HttpClient();
+                var mime = "application/json";
+                client.DefaultRequestHeaders.Add(HttpRequestHeader.Accept.ToString(), mime);
+                client.DefaultRequestHeaders.Add(HttpRequestHeader.ContentType.ToString(), mime);
+                return await client.GetStringAsync(url);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to download data from {url}: {ex}");
             }
             return null;
         }
 
-        /// <summary>
-        /// Sends webhook data
-        /// </summary>
-        /// <param name="webhookUrl"></param>
-        /// <param name="json"></param>
-        public static void SendWebhook(string webhookUrl, string json)
+        public static string Post(string url, string payload)
         {
-            using var wc = new WebClient();
-            wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-            //wc.Headers.Add(HttpRequestHeader.Authorization, "Bot base64_auth_token");
-            wc.Headers.Add(HttpRequestHeader.UserAgent, Strings.BotName);
+            return PostAsync(url, payload).Result;
+        }
+
+        /// <summary>
+        /// Sends a HTTP POST request to the specified url with JSON payload.
+        /// </summary>
+        /// <param name="url">Url to send the request to.</param>
+        /// <param name="payload">JSON payload that will be sent in the request.</param>
+        /// <returns>Returns the response string of the HTTP POST request.</returns>
+        public static async Task<string> PostAsync(string url, string payload, string userAgent = Strings.BotName)
+        {
             try
             {
-                var resp = wc.UploadString(webhookUrl, json);
-                //Console.WriteLine($"Response: {resp}");
-                Thread.Sleep(10);
-            }
-            catch (WebException ex)
-            {
-                var resp = (HttpWebResponse)ex.Response;
-                switch ((int)(resp?.StatusCode ?? 0))
+                using var client = new HttpClient();
+                var mime = "application/json";
+                var requestMessage = new HttpRequestMessage
                 {
-                    //https://discordapp.com/developers/docs/topics/rate-limits
-                    case 429:
-                        HandleRateLimitedRequest(resp, webhookUrl, json);
-                        break;
-                    case 400:
-                        Console.WriteLine($"Failed to send webhook: {ex}");
-                        break;
-                }
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri(url),
+                    Headers =
+                    {
+                        { HttpRequestHeader.UserAgent.ToString(), userAgent },
+                        { HttpRequestHeader.Accept.ToString(), mime },
+                        { HttpRequestHeader.ContentType.ToString(), mime },
+                    },
+                    Content = new StringContent(payload, Encoding.UTF8, mime),
+                };
+                var response = await client.SendAsync(requestMessage);
+                var responseData = await response.Content.ReadAsStringAsync();
+                return responseData;
             }
-        }
-
-        private static void HandleRateLimitedRequest(HttpWebResponse response, string url, string json)
-        {
-            if (_backlogQueue.Count > 0)
+            catch (Exception ex)
             {
-                Console.WriteLine($"[Webhook] RATE LIMITED: {url} Added to backlog queue, currently {_backlogQueue.Count:N0} items long.");
+                Console.WriteLine($"Failed to post data to {url}: {ex}");
             }
-
-            var retryAfter = response.Headers["Retry-After"];
-            //var limit = resp.Headers["X-RateLimit-Limit"];
-            //var remaining = resp.Headers["X-RateLimit-Remaining"];
-            //var reset = resp.Headers["X-RateLimit-Reset"];
-            if (!int.TryParse(retryAfter, out var retry))
-                return;
-
-            //Thread.Sleep(retry);
-            //SendWebhook(webhookUrl, json);
-            _backlogQueue.Enqueue(new WebhookQueueItem
-            {
-                Url = url,
-                Json = json,
-                RetryAfter = retry,
-            });
-        }
-
-        private static void HandleBacklogQueue()
-        {
-            if (_backlogQueue.Count == 0)
-                return;
-
-            var item = _backlogQueue.Dequeue();
-            Thread.Sleep(item.RetryAfter);
-
-            SendWebhook(item.Url, item.Json);
+            return null;
         }
     }
 }

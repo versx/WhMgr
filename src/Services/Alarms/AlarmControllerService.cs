@@ -603,11 +603,14 @@
                     }
 
                     var oldGym = _mapDataCache.GetGym(gym.GymId).ConfigureAwait(false).GetAwaiter().GetResult();
-                    var changed = oldGym.Team != gym.Team
-                        || gym.InBattle
-                        || oldGym.SlotsAvailable != gym.SlotsAvailable;
-                    if (!changed)
-                        continue;
+                    if (oldGym != null)
+                    {
+                        var changed = oldGym.Team != gym.Team
+                            || gym.InBattle
+                            || oldGym.SlotsAvailable != gym.SlotsAvailable;
+                        if (!changed)
+                            continue;
+                    }
 
                     /*
                     var oldGym = _gyms[gym.GymId];

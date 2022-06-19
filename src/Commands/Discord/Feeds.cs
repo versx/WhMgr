@@ -54,7 +54,7 @@
             sb.AppendLine(Translator.Instance.Translate("FEEDS_AVAILABLE_CITY_ROLES"));
             sb.AppendLine($"- {string.Join($"{Environment.NewLine}- ", cityRoles)}");
             sb.AppendLine();
-            sb.AppendLine($"- {Strings.All}");
+            sb.AppendLine($"- {Strings.Defaults.All}");
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(Translator.Instance.Translate("FEEDS_TYPE_COMMAND_ASSIGN_ROLE").FormatText(new { prefix = server.Bot.CommandPrefix }));
@@ -96,7 +96,7 @@
                 return;
             }
 
-            if (string.Compare(cityName, Strings.All, true) == 0)
+            if (string.Compare(cityName, Strings.Defaults.All, true) == 0)
             {
                 await ctx.RespondEmbedAsync(Translator.Instance.Translate("FEEDS_PLEASE_WAIT").FormatText(new { author = ctx.User.Username }), DiscordColor.Green);
                 await AssignAllDefaultFeedRoles(ctx);
@@ -200,7 +200,7 @@
                 return;
             }
 
-            if (string.Compare(cityName, Strings.All, true) == 0)
+            if (string.Compare(cityName, Strings.Defaults.All, true) == 0)
             {
                 await ctx.RespondEmbedAsync(Translator.Instance.Translate("FEEDS_PLEASE_WAIT").FormatText(new { author = ctx.User.Username }), DiscordColor.Green);
                 await RemoveAllDefaultFeedRoles(ctx);

@@ -134,7 +134,9 @@
 
         private dynamic GetPropertiesAsync(AlarmMessageSettings properties)
         {
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId) ? properties.Client.Guilds[properties.GuildId] : null;
+            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
+                ? properties.Client.Guilds[properties.GuildId]
+                : null;
 
             var dict = new
             {
