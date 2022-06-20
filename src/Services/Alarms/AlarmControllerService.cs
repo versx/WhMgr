@@ -268,17 +268,10 @@
                             continue;
                         }
 
-                        if (alarm.Filters.Eggs.PowerLevel != null)
+                        if (!PowerLevelMatchesFilter(raid, alarm.Filters.Eggs.PowerLevel))
                         {
-                            if (!Filters.Filters.MatchesGymPowerLevel(raid.PowerUpLevel, alarm.Filters.Eggs.PowerLevel?.MinimumLevel ?? 0, alarm.Filters.Eggs.PowerLevel?.MaximumLevel ?? 0))
-                            {
-                                continue;
-                            }
-
-                            if (!Filters.Filters.MatchesGymPowerPoints(raid.PowerUpPoints, alarm.Filters.Eggs.PowerLevel?.MinimumPoints ?? 0, alarm.Filters.Eggs.PowerLevel?.MaximumPoints ?? 0))
-                            {
-                                continue;
-                            }
+                            // Power level does not match
+                            continue;
                         }
                     }
                     else
@@ -316,17 +309,10 @@
                             continue;
                         }
 
-                        if (alarm.Filters.Raids.PowerLevel != null)
+                        if (!PowerLevelMatchesFilter(raid, alarm.Filters.Raids.PowerLevel))
                         {
-                            if (!Filters.Filters.MatchesGymPowerLevel(raid.PowerUpLevel, alarm.Filters.Raids.PowerLevel?.MinimumLevel ?? 0, alarm.Filters.Raids?.PowerLevel.MaximumLevel ?? 0))
-                            {
-                                continue;
-                            }
-
-                            if (!Filters.Filters.MatchesGymPowerPoints(raid.PowerUpPoints, alarm.Filters.Raids.PowerLevel?.MinimumPoints ?? 0, alarm.Filters.Raids?.PowerLevel.MaximumPoints ?? 0))
-                            {
-                                continue;
-                            }
+                            // Power level does not match
+                            continue;
                         }
 
                         if (alarm.Filters.Raids.IgnoreMissing && raid.IsMissingStats)
@@ -448,13 +434,16 @@
                     var hasLureType = alarm.Filters.Pokestops.LureTypes.Select(lure => lure.ToLower()).Contains(pokestop.LureType.ToString().ToLower())
                         && alarm.Filters.Pokestops.LureTypes.Count > 0;
 
-                    var matchesLure = hasLure && hasLureType;
-                    var matchesPowerLevel = alarm.Filters.Pokestops.PowerLevel != null
-                          && Filters.Filters.MatchesGymPowerLevel(pokestop.PowerUpLevel, alarm.Filters.Pokestops.PowerLevel?.MinimumLevel ?? 0, alarm.Filters.Pokestops.PowerLevel?.MaximumLevel ?? 0) &&
-                          Filters.Filters.MatchesGymPowerPoints(pokestop.PowerUpPoints, alarm.Filters.Pokestops.PowerLevel?.MinimumPoints ?? 0, alarm.Filters.Pokestops.PowerLevel?.MaximumPoints ?? 0);
-
-                    if (!matchesLure && !matchesPowerLevel)
+                    if (!(hasLure && hasLureType))
+                    {
+                        // Does not meet lure filtering
                         continue;
+                    }
+                    if (!PowerLevelMatchesFilter(pokestop, alarm.Filters.Pokestops.PowerLevel))
+                    {
+                        // Power level does not match
+                        continue;
+                    }
                         
                     var geofences = GeofenceService.GetGeofences(alarm.GeofenceItems, new Coordinate(pokestop));
                     if (geofences == null)
@@ -567,17 +556,10 @@
                         continue;
                     }
 
-                    if (alarm.Filters?.Gyms?.PowerLevel != null)
+                    if (!PowerLevelMatchesFilter(gym, alarm.Filters.Gyms?.PowerLevel))
                     {
-                        if (!Filters.Filters.MatchesGymPowerLevel(gym.PowerUpLevel, alarm.Filters.Gyms.PowerLevel?.MinimumLevel ?? 0, alarm.Filters.Gyms.PowerLevel?.MaximumLevel ?? 0))
-                        {
-                            continue;
-                        }
-
-                        if (!Filters.Filters.MatchesGymPowerPoints(gym.PowerUpPoints, alarm.Filters.Gyms.PowerLevel?.MinimumPoints ?? 0, alarm.Filters.Gyms.PowerLevel?.MaximumPoints ?? 0))
-                        {
-                            continue;
-                        }
+                        // Power level does not match
+                        continue;
                     }
 
                     var oldGym = _mapDataCache.GetGym(gym.GymId).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -769,6 +751,24 @@
             {
                 //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping raid boss {raid.Id} with costume {raid.Costume} ({costumeName}): filter {alarm.Filters.Raids.FilterType}.");
                 return false;
+            }
+
+            return true;
+        }
+
+        private static bool PowerLevelMatchesFilter(IWebhookPowerLevel fort, WebhookFilterGymLevel powerLevelFilter)
+        {
+            if (powerLevelFilter != null)
+            {
+                if (!Filters.Filters.MatchesGymPowerLevel(fort.PowerUpLevel, powerLevelFilter?.MinimumLevel ?? 0, powerLevelFilter?.MaximumLevel ?? 0))
+                {
+                    return false;
+                }
+
+                if (!Filters.Filters.MatchesGymPowerPoints(fort.PowerUpPoints, powerLevelFilter?.MinimumPoints ?? 0, powerLevelFilter?.MaximumPoints ?? 0))
+                {
+                    return false;
+                }
             }
 
             return true;

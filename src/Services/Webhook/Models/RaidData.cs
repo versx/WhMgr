@@ -20,7 +20,7 @@
     using WhMgr.Services.StaticMap;
     using WhMgr.Services.Yourls;
 
-    public sealed class RaidData : IWebhookData, IWebhookPokemon, IWebhookPoint
+    public sealed class RaidData : IWebhookData, IWebhookPokemon, IWebhookPowerLevel, IWebhookPoint
     {
         #region Properties
 
