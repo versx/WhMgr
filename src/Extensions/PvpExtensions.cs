@@ -103,18 +103,18 @@
         public static DiscordColor GetPvPColor(this DiscordEmbedColorsConfig config, Dictionary<PvpLeague, List<PvpRankData>> rankings)
         {
             const ushort maxRank = 25;
-            var matchedRank = rankings?.FirstOrDefault(x =>
+            var matchedRank = rankings?.FirstOrDefault(league =>
             {
-                return x.Value?.Exists(y =>
-                    y.Rank > 0 &&
-                    y.Rank <= maxRank &&
-                    y.CP >= Strings.Defaults.Pvp[x.Key].MinimumLeagueCP &&
-                    y.CP <= Strings.Defaults.Pvp[x.Key].MaximumLeagueCP
+                return league.Value?.Exists(leagueConfig =>
+                    leagueConfig.Rank > 0 &&
+                    leagueConfig.Rank <= maxRank &&
+                    leagueConfig.CP >= Strings.Defaults.Pvp[league.Key].MinimumLeagueCP &&
+                    leagueConfig.CP <= Strings.Defaults.Pvp[league.Key].MaximumLeagueCP
                 ) ?? false;
             }).Value?.FirstOrDefault();
-            var color = config.Pokemon.PvP.FirstOrDefault(x =>
-                (matchedRank?.Rank ?? 0) >= x.Minimum &&
-                (matchedRank?.Rank ?? 0) <= x.Maximum
+            var color = config.Pokemon.PvP.FirstOrDefault(pvp =>
+                (matchedRank?.Rank ?? 0) >= pvp.Minimum &&
+                (matchedRank?.Rank ?? 0) <= pvp.Maximum
             );
             if (color == null)
             {

@@ -14,7 +14,7 @@
 
         Task ProcessQuestSubscriptionAsync(QuestData quest);
 
-        Task ProcessInvasionSubscriptionAsync(PokestopData pokestop);
+        Task ProcessInvasionSubscriptionAsync(IncidentData pokestop);
 
         Task ProcessLureSubscriptionAsync(PokestopData pokestop);
 

@@ -35,6 +35,7 @@
         private readonly Dictionary<string, ScannedRaid> _processedRaids;
         private readonly Dictionary<string, ScannedQuest> _processedQuests;
         private readonly Dictionary<string, ScannedPokestop> _processedPokestops;
+        private readonly Dictionary<string, ScannedIncident> _processedInvasions;
         private readonly Dictionary<string, ScannedGym> _processedGyms;
         private readonly Dictionary<long, ScannedWeather> _processedWeather;
         private readonly System.Timers.Timer _clearCache;
@@ -68,6 +69,7 @@
             _processedRaids = new();
             _processedQuests = new();
             _processedPokestops = new();
+            _processedInvasions = new();
             _processedGyms = new();
             _processedWeather = new();
 
@@ -138,6 +140,8 @@
                         await ProcessQuestAsync(payload.Message).ConfigureAwait(false);
                         break;
                     case WebhookTypes.Invasion:
+                        await ProcessInvasionAsync(payload.Message).ConfigureAwait(false);
+                        break;
                     case WebhookTypes.Pokestop:
                         await ProcessPokestopAsync(payload.Message).ConfigureAwait(false);
                         break;
@@ -239,8 +243,8 @@
                         // Check if raid data matches existing scanned raids with
                         // pokemon_id, form_id, costume_id, and not expired
                         if (_processedRaids[raid.GymId].PokemonId == raid.PokemonId
-                            && _processedRaids[raid.GymId].FormId == raid.Form
-                            && _processedRaids[raid.GymId].CostumeId == raid.Costume
+                            && _processedRaids[raid.GymId].FormId == raid.FormId
+                            && _processedRaids[raid.GymId].CostumeId == raid.CostumeId
                             && _processedRaids[raid.GymId].Level == raid.Level
                             && !_processedRaids[raid.GymId].IsExpired)
                         {
@@ -320,13 +324,10 @@
                     {
                         var processedLureAlready = _processedPokestops[pokestop.PokestopId].LureType == pokestop.LureType
                             && _processedPokestops[pokestop.PokestopId].LureExpireTime == pokestop.LureExpireTime;
-                        var processedInvasionAlready = _processedPokestops[pokestop.PokestopId].GruntType == pokestop.GruntType
-                            && _processedPokestops[pokestop.PokestopId].InvasionExpireTime == pokestop.InvasionExpireTime;
 
-                        if ((processedLureAlready || processedInvasionAlready) &&
-                            !(processedLureAlready && processedInvasionAlready))
+                        if (processedLureAlready)
                         {
-                            // Processed pokestop lure or invasion already and not both
+                            // Processed pokestop lure already
                             return;
                         }
 
@@ -342,17 +343,52 @@
             // Process pokestop alarms
             _alarmsService.ProcessPokestopAlarms(pokestop);
 
-            // Process invasion subscriptions
-            if (pokestop.HasInvasion)
-            {
-                await _subscriptionsService.ProcessInvasionSubscriptionAsync(pokestop).ConfigureAwait(false);
-            }
-
             // Process lure subscriptions
             if (pokestop.HasLure)
             {
                 await _subscriptionsService.ProcessLureSubscriptionAsync(pokestop).ConfigureAwait(false);
             }
+        }
+
+        private async Task ProcessInvasionAsync(dynamic message)
+        {
+            string json = Convert.ToString(message);
+            var invasion = json.FromJson<IncidentData>();
+            if (invasion == null)
+            {
+                _logger.Warning($"Failed to deserialize incident {message}, skipping...");
+                return;
+            }
+            invasion.SetTimes();
+
+            if (CheckForDuplicates)
+            {
+                // Lock processed pokestops, check for duplicates of incoming incident
+                lock (_processedInvasions)
+                {
+                    if (_processedInvasions.ContainsKey(invasion.Id))
+                    {
+                        if (_processedInvasions[invasion.Id].Character == invasion.Character &&
+                            _processedInvasions[invasion.Id].ExpireTime == invasion.ExpirationTime)
+                        {
+                            // Processed pokestop invasion already
+                            return;
+                        }
+
+                        _processedInvasions[invasion.Id] = new ScannedIncident(invasion);
+                    }
+                    else
+                    {
+                        _processedInvasions.Add(invasion.Id, new ScannedIncident(invasion));
+                    }
+                }
+            }
+
+            // Process invasion alarms
+            _alarmsService.ProcessInvasionAlarms(invasion);
+
+            // Process invasion subscriptions
+            await _subscriptionsService.ProcessInvasionSubscriptionAsync(invasion).ConfigureAwait(false);
         }
 
         private void ProcessGym(dynamic message)
@@ -498,8 +534,20 @@
                                                           .ToList();
                 foreach (var pokestopId in expiredPokestops)
                 {
-                    // Pokestop lure or invasion expired, remove from cache
+                    // Pokestop lure expired, remove from cache
                     _processedPokestops.Remove(pokestopId);
+                }
+            }
+
+            lock (_processedInvasions)
+            {
+                var expiredInvasions = _processedInvasions.Where(pair => pair.Value.IsExpired)
+                                                          .Select(pair => pair.Key)
+                                                          .ToList();
+                foreach (var invasionId in expiredInvasions)
+                {
+                    // Pokestop invasion expired, remove from cache
+                    _processedInvasions.Remove(invasionId);
                 }
             }
 
@@ -539,7 +587,7 @@
                 */
 
                 // Check if Pokemon is in event Pokemon list
-                if (_config.Instance.EventPokemon.PokemonIds.Contains(pokemon.Id))
+                if (_config.Instance.EventPokemon.PokemonIds.Contains(pokemon.PokemonId))
                 {
                     // Pokemon is in event Pokemon list
                     switch (filterType)

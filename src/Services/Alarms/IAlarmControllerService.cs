@@ -12,6 +12,8 @@
 
         void ProcessPokestopAlarms(PokestopData pokestop);
 
+        void ProcessInvasionAlarms(IncidentData incident);
+
         void ProcessGymAlarms(GymDetailsData gym);
 
         void ProcessWeatherAlarms(WeatherData weather);

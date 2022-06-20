@@ -2,22 +2,18 @@
 {
     using System;
 
+    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
+
     using WhMgr.Extensions;
     using WhMgr.Services.Webhook.Models;
 
-    internal class ScannedRaid : IScannedItem
+    internal class ScannedIncident : IScannedItem
     {
         public double Latitude { get; }
 
         public double Longitude { get; }
 
-        public ushort Level { get; }
-
-        public uint PokemonId { get; }
-
-        public uint FormId { get; }
-
-        public uint CostumeId { get; }
+        public InvasionCharacter Character { get; }
 
         public DateTime ExpireTime { get; }
 
@@ -30,15 +26,12 @@
             }
         }
 
-        public ScannedRaid(RaidData raid)
+        public ScannedIncident(IncidentData incident)
         {
-            Latitude = raid.Latitude;
-            Longitude = raid.Longitude;
-            Level = raid.Level;
-            PokemonId = raid.PokemonId;
-            FormId = raid.FormId;
-            CostumeId = raid.CostumeId;
-            ExpireTime = raid.EndTime;
+            Latitude = incident.Latitude;
+            Longitude = incident.Longitude;
+            Character = incident.Character;
+            ExpireTime = incident.ExpirationTime;
         }
     }
 }

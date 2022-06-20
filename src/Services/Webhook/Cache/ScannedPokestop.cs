@@ -2,8 +2,6 @@
 {
     using System;
 
-    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
-
     using WhMgr.Common;
     using WhMgr.Extensions;
     using WhMgr.Services.Webhook.Models;
@@ -18,16 +16,12 @@
 
         public DateTime LureExpireTime { get; }
 
-        public InvasionCharacter GruntType { get; }
-
-        public DateTime InvasionExpireTime { get; }
-
         public bool IsExpired
         {
             get
             {
                 var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
-                return now > LureExpireTime || now > InvasionExpireTime;
+                return now > LureExpireTime;
             }
         }
 
@@ -37,8 +31,6 @@
             Longitude = pokestop.Longitude;
             LureType = pokestop.LureType;
             LureExpireTime = pokestop.LureExpireTime;
-            GruntType = pokestop.GruntType;
-            InvasionExpireTime = pokestop.InvasionExpireTime;
         }
     }
 }

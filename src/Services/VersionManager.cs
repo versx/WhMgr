@@ -89,7 +89,7 @@
                             return;
                         }
                         Tags = response.FromJson<List<TagsResponse>>();
-                        var tag = Tags.FirstOrDefault(x => string.Compare(x.Commit.Sha, sha, true) == 0);
+                        var tag = Tags.FirstOrDefault(tag => string.Compare(tag.Commit.Sha, sha, true) == 0);
                         version = tag != null ? $"Version {tag.Name}" : "?";
                     }
                     catch (Exception ex)

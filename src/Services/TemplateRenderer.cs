@@ -109,7 +109,7 @@
                         bool result;
                         if (array is List<WeatherCondition> weatherList)
                         {
-                            result = weatherList.Select(x => x.ToString())
+                            result = weatherList.Select(weather => weather.ToString())
                                                 .Contains(item);
                         }
                         else if (array is Dictionary<string, string> dict)

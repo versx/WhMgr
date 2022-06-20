@@ -132,11 +132,11 @@
             // Loop all available subscriptions
             foreach (var subscription in subscriptions)
             {
-                if (!_discordClients.Any(x => x.Value.Guilds.ContainsKey(subscription.GuildId)))
+                if (!_discordClients.Any(client => client.Value.Guilds.ContainsKey(subscription.GuildId)))
                     continue;
 
                 // Check if configured Discord clients configured with subscription Discord guild
-                var discordClient = _discordClients.FirstOrDefault(x => x.Value.Guilds.ContainsKey(subscription.GuildId));
+                var discordClient = _discordClients.FirstOrDefault(client => client.Value.Guilds.ContainsKey(subscription.GuildId));
                 if (discordClient.Value == null)
                     continue;
 
@@ -159,10 +159,10 @@
                     continue;
 
                 // Get members existing role ids
-                var memberRoleIds = member.Roles.Select(x => x.Id).ToList();
+                var memberRoleIds = member.Roles.Select(role => role.Id).ToList();
 
                 // Check if member roles contains any of the valid roles for the guild
-                var isValid = validRoleIdsPerGuild.Exists(x => memberRoleIds.Contains(x));
+                var isValid = validRoleIdsPerGuild.Exists(roleId => memberRoleIds.Contains(roleId));
                 if (!isValid)
                 {
                     // Disable all subscriptions
@@ -181,7 +181,7 @@
             _logger.LogInformation($"[DISCORD] ----- Current Application");
             _logger.LogInformation($"[DISCORD] Name: {client.CurrentApplication.Name}");
             _logger.LogInformation($"[DISCORD] Description: {client.CurrentApplication.Description}");
-            var owners = string.Join(", ", client.CurrentApplication.Owners.Select(x => $"{x.Username}#{x.Discriminator}"));
+            var owners = string.Join(", ", client.CurrentApplication.Owners.Select(owner => $"{owner.Username}#{owner.Discriminator}"));
             _logger.LogInformation($"[DISCORD] Owner: {owners}");
             _logger.LogInformation($"[DISCORD] ----- Current User");
             _logger.LogInformation($"[DISCORD] Id: {client.CurrentUser.Id}");
@@ -216,18 +216,18 @@
 
             var server = _config.Instance.Servers[e.Guild.Id];
             var donorRoleIds = server.DonorRoleIds.Keys.ToList();
-            var hasBefore = e.RolesBefore.FirstOrDefault(x => donorRoleIds.Contains(x.Id)) != null;
-            var hasAfter = e.RolesAfter.FirstOrDefault(x => donorRoleIds.Contains(x.Id)) != null;
+            var hasBefore = e.RolesBefore.FirstOrDefault(role => donorRoleIds.Contains(role.Id)) != null;
+            var hasAfter = e.RolesAfter.FirstOrDefault(role => donorRoleIds.Contains(role.Id)) != null;
 
             // Check if donor role was removed
             if (hasBefore && !hasAfter)
             {
                 _logger.LogInformation($"Member {e.Member.Username} ({e.Member.Id}) donor role removed, removing any city roles...");
                 // If so, remove all city/geofence/area roles
-                var areaRoles = server.Geofences.Select(x => x.Name.ToLower());
+                var areaRoles = server.Geofences.Select(geofence => geofence.Name.ToLower());
                 foreach (var roleName in areaRoles)
                 {
-                    var role = e.Guild.Roles.FirstOrDefault(x => x.Value.Name == roleName).Value;
+                    var role = e.Guild.Roles.FirstOrDefault(role => role.Value.Name == roleName).Value;
                     if (role == null)
                     {
                         _logger.LogError($"Failed to get role by name {roleName}");
@@ -316,7 +316,7 @@
                     var emojis = await guild.GetEmojisAsync();
 
                     // Get emoji from available guild emojis by name
-                    var emojiExists = emojis.FirstOrDefault(x => string.Compare(x.Name, emoji, true) == 0);
+                    var emojiExists = emojis.FirstOrDefault(discordEmoji => string.Compare(discordEmoji.Name, emoji, true) == 0);
 
                     // Check if emoji exists, if so skip
                     if (emojiExists != null)
@@ -365,7 +365,7 @@
                 var emojis = await emojiGuild.GetEmojisAsync();
                 foreach (var name in Strings.Defaults.EmojisList)
                 {
-                    var emoji = emojis.FirstOrDefault(x => string.Compare(x.Name, name, true) == 0);
+                    var emoji = emojis.FirstOrDefault(emoji => string.Compare(emoji.Name, name, true) == 0);
                     if (emoji == null)
                         continue;
 

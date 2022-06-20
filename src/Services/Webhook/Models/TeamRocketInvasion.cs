@@ -5,6 +5,8 @@
     using System.Linq;
     using System.Text.Json.Serialization;
 
+    using PokemonGender = POGOProtos.Rpc.BelugaPokemonProto.Types.PokemonGender;
+
     using WhMgr.Data;
 
     public class TeamRocketInvasion
@@ -14,6 +16,9 @@
 
         [JsonPropertyName("grunt")]
         public string Grunt { get; set; }
+
+        [JsonPropertyName("gender")]
+        public PokemonGender Gender { get; set; }
 
         [JsonPropertyName("second_reward")]
         public bool? SecondReward { get; set; }

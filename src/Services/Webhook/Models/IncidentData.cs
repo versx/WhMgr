@@ -8,7 +8,10 @@
     using System.Threading.Tasks;
 
     using DSharpPlus.Entities;
+    using POGOProtos.Rpc;
     using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
+    using PokemonGender = POGOProtos.Rpc.BelugaPokemonProto.Types.PokemonGender;
+    using PokestopStyle = POGOProtos.Rpc.EnumWrapper.Types.PokestopStyle;
 
     using WhMgr.Common;
     using WhMgr.Data;
@@ -23,131 +26,125 @@
     using WhMgr.Services.StaticMap;
     using WhMgr.Services.Yourls;
 
-    /// <summary>
-    /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
-    /// </summary>
-    [Table("pokestop")]
-    public sealed class PokestopData : IWebhookData, IWebhookPoint
+    [Table("incident")]
+    public sealed class IncidentData : IWebhookData, IWebhookPoint
     {
         #region Properties
 
         [
             JsonPropertyName("pokestop_id"),
-            Column("id"),
-            Key,
+            Column("pokestop_id"),
+            ForeignKey("pokestop_id"),
         ]
         public string PokestopId { get; set; }
 
+        [JsonIgnore]
+        public PokestopData Pokestop { get; set; }
+
+        [
+            JsonPropertyName("id"),
+            Column("id"),
+            Key,
+        ]
+        public string Id { get; set; }
+
+        /*
+        [
+            JsonPropertyName("pokestop_id"),
+            Column("pokestop_id"),
+        ]
+        public string PokestopId { get; set; }
+        */
+
+        [
+            JsonPropertyName("pokestop_name"),
+            NotMapped,
+        ]
+        public string PokestopName { get; set; } = "Unknown";
+
+        [
+            JsonPropertyName("url"),
+            NotMapped,
+        ]
+        public string Url { get; set; }
+
         [
             JsonPropertyName("latitude"),
-            Column("lat"),
+            NotMapped,
         ]
         public double Latitude { get; set; }
 
         [
             JsonPropertyName("longitude"),
-            Column("lon"),
+            NotMapped,
         ]
         public double Longitude { get; set; }
 
         [
-            JsonPropertyName("name"),
-            Column("name"),
-        ]
-        public string Name { get; set; } = "Unknown";
-
-        [
-            JsonPropertyName("url"),
-            Column("url"),
-        ]
-        public string Url { get; set; }
-
-        [
             JsonPropertyName("enabled"),
-            Column("enabled"),
+            NotMapped,
         ]
         public bool Enabled { get; set; }
 
         [
-            JsonPropertyName("lure_expiration"),
-            NotMapped,
+            JsonPropertyName("display_type"),
+            Column("display_type"),
         ]
-        public long LureExpire { get; set; }
+        public IncidentDisplayType DisplayType { get; set; }
+
+        [
+            JsonPropertyName("style"),
+            Column("style"),
+        ]
+        public PokestopStyle Style { get; set; }
+
+        [
+            JsonPropertyName("character"),
+            Column("character"),
+        ]
+        public InvasionCharacter Character { get; set; }
+
+        [
+            JsonPropertyName("start"),
+            Column("start"),
+        ]
+        public long Start { get; set; }
 
         [
             JsonIgnore,
             NotMapped,
         ]
-        public DateTime LureExpireTime { get; set; }
+        public DateTime StartTime { get; set; }
 
         [
-            JsonPropertyName("lure_id"),
-            NotMapped,
+            JsonPropertyName("expiration"),
+            Column("expiration"),
         ]
-        public PokestopLureType LureType { get; set; }
+        public long Expiration { get; set; }
 
         [
-            JsonPropertyName("last_modified"),
+            JsonIgnore,
             NotMapped,
         ]
-        public ulong LastModified { get; set; }
+        public DateTime ExpirationTime { get; set; }
 
         [
             JsonPropertyName("updated"),
-            NotMapped,
+            Column("updated"),
         ]
         public ulong Updated { get; set; }
 
         [
-            JsonPropertyName("power_up_points"),
-            NotMapped,
-        ]
-        public uint PowerUpPoints { get; set; }
-
-        [
-            JsonPropertyName("power_up_level"),
-            NotMapped,
-        ]
-        public ushort PowerUpLevel { get; set; }
-
-        [
-            JsonPropertyName("power_up_end_timestamp"),
-            NotMapped,
-        ]
-        public ulong PowerUpEndTimestamp { get; set; }
-
-        [
             JsonIgnore,
             NotMapped,
         ]
-        public DateTime PowerUpEndTime { get; private set; }
-
-        [
-            JsonPropertyName("ar_scan_eligible"),
-            Column("ar_scan_eligible"),
-        ]
-        public bool? IsArScanEligible { get; set; }
-
-        [
-            JsonIgnore,
-            NotMapped,
-        ]
-        public bool HasLure => LureExpire > 0 && LureType != PokestopLureType.None && LureExpireTime > DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
-
-        [
-            JsonPropertyName("incidents"),
-            Column("incidents"),
-        ]
-        public ICollection<IncidentData> Incidents { get; set; }
+        public DateTime UpdatedTime { get; set; }
 
         #endregion
 
         #region Constructor
 
-        /// <summary>
-        /// Instantiate a new <see cref="PokestopData"/> class.
-        /// </summary>
-        public PokestopData()
+        public IncidentData()
         {
             SetTimes();
         }
@@ -161,11 +158,15 @@
         /// </summary>
         public void SetTimes()
         {
-            LureExpireTime = LureExpire
+            StartTime = Start
                 .FromUnix()
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
 
-            PowerUpEndTime = PowerUpEndTimestamp
+            ExpirationTime = Expiration
+                .FromUnix()
+                .ConvertTimeFromCoordinates(Latitude, Longitude);
+
+            UpdatedTime = Updated
                 .FromUnix()
                 .ConvertTimeFromCoordinates(Latitude, Longitude);
         }
@@ -173,12 +174,10 @@
         public async Task<DiscordWebhookMessage> GenerateEmbedMessageAsync(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
-            var embedType = HasLure
-                ? EmbedMessageType.Lures
-                : EmbedMessageType.Pokestops;
+            var embedType = EmbedMessageType.Invasions;
             var embed = settings.Alarm?.Embeds[embedType]
-                ?? server.Subscriptions?.Embeds?[embedType]
-                ?? EmbedMessage.Defaults[embedType];
+                    ?? server.Subscriptions?.Embeds?[embedType]
+                    ?? EmbedMessage.Defaults[embedType];
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
             {
@@ -193,11 +192,7 @@
                     Url = TemplateRenderer.Parse(embed.IconUrl, properties),
                 },
                 Description = TemplateRenderer.Parse(embed.Content, properties),
-                Color = (
-                    HasLure
-                        ? LureType.BuildLureColor(GameMaster.Instance.DiscordEmbedColors)
-                        : DiscordColor.CornflowerBlue
-                    ).Value,
+                Color = new DiscordColor(GameMaster.Instance.DiscordEmbedColors.Pokestops.Invasions).Value,
                 Footer = new Discord.Models.DiscordEmbedFooter
                 {
                     Text = TemplateRenderer.Parse(embed.Footer?.Text, properties),
@@ -223,19 +218,13 @@
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
             var server = properties.Config.Instance.Servers[properties.GuildId];
-            var lureImageUrl = UIconService.Instance.GetPokestopIcon(server.IconStyle, LureType);
-            var imageUrl = HasLure ? lureImageUrl : Url;
+            var imageUrl = UIconService.Instance.GetInvasionIcon(server.IconStyle, Character);
             var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
             var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
-            var staticMapConfigType = StaticMapType.Lures;
-            /*
-            var staticMapConfigType = HasLure
-                ? StaticMapType.Lures
-                : StaticMapType.Pokestop; // TODO: StaticMapType.Pokestops
-            */
+            var staticMapConfigType = StaticMapType.Invasions;
             var staticMapConfig = properties.Config.Instance.StaticMaps;
             var staticMap = new StaticMapGenerator(new StaticMapOptions
             {
@@ -264,9 +253,22 @@
             var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
             var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
 
+            var invasion = GameMaster.Instance.GruntTypes.ContainsKey(Character)
+                ? GameMaster.Instance.GruntTypes[Character]
+                : null;
+            var leaderString = Translator.Instance.GetGruntType(Character);
+            var pokemonType = GameMaster.Instance.GruntTypes.ContainsKey(Character)
+                ? GetPokemonTypeFromString(invasion?.Type)
+                : PokemonType.None;
+            var invasionTypeEmoji = pokemonType == PokemonType.None
+                ? leaderString
+                : pokemonType.GetTypeEmojiIcons();
+            var invasionEncounters = Character > 0
+                ? invasion.GetPossibleInvasionEncounters()
+                : new List<dynamic>();
+
             var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
-            var lureExpireTimeLeft = now.GetTimeRemaining(LureExpireTime).ToReadableStringNoSeconds();
-            var powerUpEndTimeLeft = now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
+            var invasionExpireTimeLeft = now.GetTimeRemaining(ExpirationTime).ToReadableStringNoSeconds();
             var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
                 ? properties.Client.Guilds[properties.GuildId]
                 : null;
@@ -275,19 +277,20 @@
             var dict = new
             {
                 // Main properties
-                has_lure = HasLure,
-                lure_type = LureType,
-                lure_expire_time = LureExpireTime.ToLongTimeString(),
-                lure_expire_time_24h = LureExpireTime.ToString("HH:mm:ss"),
-                lure_expire_time_left = lureExpireTimeLeft,
-                is_ar = IsArScanEligible ?? false,
-
-                // Pokestop power up properties
-                power_up_points = PowerUpPoints,
-                power_up_level = PowerUpLevel,
-                power_up_end_time = PowerUpEndTime.ToLongTimeString(),
-                power_up_end_time_24h = PowerUpEndTime.ToString("HH:mm:ss"),
-                power_up_end_time_left = powerUpEndTimeLeft,
+                has_invasion = true,
+                grunt_type = invasion?.Type,
+                character = invasion?.Type,
+                display_type = DisplayType,
+                display_type_id = Convert.ToInt32(DisplayType),
+                style = Style,
+                style_id = Convert.ToInt32(Style),
+                grunt_type_emoji = invasionTypeEmoji,
+                grunt_gender = invasion?.Gender,
+                grunt_gender_id = Convert.ToInt32(invasion?.Gender ?? PokemonGender.GenderUnset),
+                invasion_expire_time = ExpirationTime.ToLongTimeString(),
+                invasion_expire_time_24h = ExpirationTime.ToString("HH:mm:ss"),
+                invasion_expire_time_left = invasionExpireTimeLeft,
+                invasion_encounters = invasionEncounters,
 
                 // Location properties
                 geofence = properties.City ?? defaultMissingValue,
@@ -305,9 +308,9 @@
 
                 // Pokestop properties
                 pokestop_id = PokestopId ?? defaultMissingValue,
-                pokestop_name = Name ?? defaultMissingValue,
+                pokestop_name = PokestopName ?? defaultMissingValue,
                 pokestop_url = Url ?? defaultMissingValue,
-                lure_img_url = lureImageUrl,
+                invasion_img_url = imageUrl,
 
                 address = address ?? string.Empty,
 
@@ -320,6 +323,51 @@
                 br = "\n",
             };
             return dict;
+        }
+
+        private static PokemonType GetPokemonTypeFromString(string pokemonType)
+        {
+            var type = pokemonType.ToLower();
+            if (type.Contains("bug"))
+                return PokemonType.Bug;
+            else if (type.Contains("dark"))
+                return PokemonType.Dark;
+            else if (type.Contains("dragon"))
+                return PokemonType.Dragon;
+            else if (type.Contains("electric"))
+                return PokemonType.Electric;
+            else if (type.Contains("fairy"))
+                return PokemonType.Fairy;
+            else if (type.Contains("fighting") || type.Contains("fight"))
+                return PokemonType.Fighting;
+            else if (type.Contains("fire"))
+                return PokemonType.Fire;
+            else if (type.Contains("flying") || type.Contains("fly"))
+                return PokemonType.Flying;
+            else if (type.Contains("ghost"))
+                return PokemonType.Ghost;
+            else if (type.Contains("grass"))
+                return PokemonType.Grass;
+            else if (type.Contains("ground"))
+                return PokemonType.Ground;
+            else if (type.Contains("ice"))
+                return PokemonType.Ice;
+            //else if (type.Contains("tierii") || type.Contains("none") || type.Contains("tier2") || type.Contains("t2"))
+            //    return PokemonType.None;
+            else if (type.Contains("normal"))
+                return PokemonType.Normal;
+            else if (type.Contains("poison"))
+                return PokemonType.Poison;
+            else if (type.Contains("psychic"))
+                return PokemonType.Psychic;
+            else if (type.Contains("rock"))
+                return PokemonType.Rock;
+            else if (type.Contains("steel"))
+                return PokemonType.Steel;
+            else if (type.Contains("water"))
+                return PokemonType.Water;
+            else
+                return PokemonType.None;
         }
 
         #endregion

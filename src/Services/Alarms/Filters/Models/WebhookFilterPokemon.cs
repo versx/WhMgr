@@ -8,7 +8,7 @@
     /// <summary>
     /// Pokemon filters
     /// </summary>
-    public class WebhookFilterPokemon
+    public class WebhookFilterPokemon : IWebhookFilterPokemonDetails
     {
         /// <summary>
         /// Gets or sets a value determining whether to enable the pokemon filter

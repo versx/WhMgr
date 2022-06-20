@@ -151,7 +151,7 @@
             DiscordMember member = null;
             try
             {
-                member = members?.FirstOrDefault(x => x.Key == id).Value;
+                member = members?.FirstOrDefault(member => member.Key == id).Value;
             }
             catch { }
             if (member == null)
@@ -186,7 +186,7 @@
 
         internal static async Task<bool> IsDirectMessageSupportedAsync(this CommandContext ctx, Config config)
         {
-            var exists = ctx.Client.Guilds.Keys.FirstOrDefault(x => config.Servers.ContainsKey(x)) > 0;
+            var exists = ctx.Client.Guilds.Keys.FirstOrDefault(guildId => config.Servers.ContainsKey(guildId)) > 0;
             //if (message?.Channel?.Guild == null)
             if (!exists)
             {
@@ -251,7 +251,7 @@
             if (member == null)
                 return false;
 
-            var roleIds = member.Roles.Select(x => x.Id);
+            var roleIds = member.Roles.Select(role => role.Id);
             foreach (var modRoleId in moderatorRoleIds)
             {
                 if (roleIds.Contains(modRoleId))
@@ -291,7 +291,7 @@
                 return false;
 
             var guild = client.Guilds[guildId];
-            var member = guild.Members.FirstOrDefault(x => x.Key == userId).Value;
+            var member = guild.Members.FirstOrDefault(member => member.Key == userId).Value;
             if (member == null)
             {
                 Console.WriteLine($"Failed to get user with id {userId}.");
@@ -303,7 +303,7 @@
 
         public static bool HasSupporterRole(this DiscordMember member, List<ulong> supporterRoleIds)
         {
-            return supporterRoleIds.Exists(x => HasRole(member, x));
+            return supporterRoleIds.Exists(roleId => HasRole(member, roleId));
             /*
             for (var i = 0; i < supporterRoleIds.Count; i++)
             {
@@ -323,7 +323,7 @@
             foreach (var (donorRoleId, accessType) in accessConfig)
             {
                 // Check if member has donor role
-                if (member.Roles.FirstOrDefault(x => x.Id == donorRoleId) == null)
+                if (member.Roles.FirstOrDefault(role => role.Id == donorRoleId) == null)
                     continue;
 
                 var donorRoleAccess = accessConfig[donorRoleId];
@@ -357,7 +357,7 @@
         {
             try
             {
-                var role = member?.Roles.FirstOrDefault(x => x.Id == roleId);
+                var role = member?.Roles.FirstOrDefault(role => role.Id == roleId);
                 return role != null;
             }
             catch
@@ -376,7 +376,7 @@
 
         public static DiscordRole GetRoleFromName(this DiscordGuild guild, string roleName)
         {
-            return guild?.Roles.FirstOrDefault(x => string.Compare(x.Value.Name, roleName, true) == 0).Value;
+            return guild?.Roles.FirstOrDefault(role => string.Compare(role.Value.Name, roleName, true) == 0).Value;
         }
 
         #endregion
@@ -446,9 +446,9 @@
             }
 
             var m = await interactivity.WaitForMessageAsync(
-                x => x.Channel.Id == ctx.Channel.Id
-                && x.Author.Id == ctx.User.Id
-                && Regex.IsMatch(x.Content, ConfirmRegex),
+                msg => msg.Channel.Id == ctx.Channel.Id
+                && msg.Author.Id == ctx.User.Id
+                && Regex.IsMatch(msg.Content, ConfirmRegex),
                 TimeSpan.FromMinutes(2));
 
             return Regex.IsMatch(m.Result.Content, YesRegex);
@@ -458,7 +458,7 @@
 
         public static DiscordColor BuildPokemonIVColor(this double iv, DiscordEmbedColorsConfig config)
         {
-            var color = config.Pokemon.IV.FirstOrDefault(x => iv >= x.Minimum && iv <= x.Maximum);
+            var color = config.Pokemon.IV.FirstOrDefault(value => iv >= value.Minimum && iv <= value.Maximum);
             return color == null ? DiscordColor.White : new DiscordColor(color.Color);
         }
 
@@ -468,7 +468,7 @@
             {
                 return DiscordColor.White;
             }
-            var color = config.Pokemon.PvP.FirstOrDefault(x => rank >= x.Minimum && rank <= x.Maximum);
+            var color = config.Pokemon.PvP.FirstOrDefault(value => rank >= value.Minimum && rank <= value.Maximum);
             return color == null ? DiscordColor.White : new DiscordColor(color.Color);
         }
 
@@ -554,7 +554,7 @@
             if (!await ctx.IsDirectMessageSupportedAsync(config))
                 return false;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.FirstOrDefault(x => config.Servers.ContainsKey(x.Key)).Key;
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.FirstOrDefault(guild => config.Servers.ContainsKey(guild.Key)).Key;
             if (guildId == 0 || !config.Servers.ContainsKey(guildId))
                 return false;
 

@@ -38,6 +38,12 @@
         public WebhookFilterPokestop Pokestops { get; set; }
 
         /// <summary>
+        /// Invasion filters
+        /// </summary>
+        [JsonPropertyName("invasions")]
+        public WebhookFilterInvasion Invasions { get; set; }
+
+        /// <summary>
         /// Gym filters
         /// </summary>
         [JsonPropertyName("gyms")]

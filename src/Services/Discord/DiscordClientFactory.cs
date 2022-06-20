@@ -134,17 +134,15 @@
                 // The user lacks required permissions, 
                 var emoji = DiscordEmoji.FromName(e.Context.Client, ":x:");
 
-                var guildId = e.Context.Guild?.Id ?? e.Context.Client.Guilds.FirstOrDefault(x => config.Instance.Servers.ContainsKey(x.Key)).Key;
+                var guildId = e.Context.Guild?.Id ?? e.Context.Client.Guilds.FirstOrDefault(guild => config.Instance.Servers.ContainsKey(guild.Key)).Key;
                 var prefix = config.Instance.Servers.ContainsKey(guildId) ? config.Instance.Servers[guildId].Bot.CommandPrefix : "!";
-                //var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", e.Command.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
-                var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", arguments.Arguments.Select(x => x.IsOptional ? $"[{x.Name}]" : x.Name))}```\r\n*Parameters in brackets are optional.*";
+                var example = $"Command Example: ```{prefix}{e.Command.Name} {string.Join(" ", arguments.Arguments.Select(arg => arg.IsOptional ? $"[{arg.Name}]" : arg.Name))}```\r\n*Parameters in brackets are optional.*";
 
                 // let's wrap the response into an embed
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = $"{emoji} Invalid Argument(s)",
-                    //Description = $"{string.Join(Environment.NewLine, e.Command.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type.ToHumanReadableString()}.**"))}.\r\n\r\n{example}",
-                    Description = $"{string.Join(Environment.NewLine, arguments.Arguments.Select(x => $"Parameter **{x.Name}** expects type **{x.Type.ToHumanReadableString()}.**"))}.\r\n\r\n{example}",
+                    Description = $"{string.Join(Environment.NewLine, arguments.Arguments.Select(arg => $"Parameter **{arg.Name}** expects type **{arg.Type.ToHumanReadableString()}.**"))}.\r\n\r\n{example}",
                     Color = new DiscordColor(0xFF0000) // red
                 };
                 await e.Context.RespondAsync(embed: embed);

@@ -1,10 +1,7 @@
 {
-    "pokestops":
+    "invasions":
     {
         "enabled": true,
-        "lured": false,
-        "lure_types": ["Normal", "Glacial", "Magnetic", "Mossy"],
-        "invasions": true,
         "invasion_types": {
             "CharacterUnset": false,
             "CharacterBlanche": true,

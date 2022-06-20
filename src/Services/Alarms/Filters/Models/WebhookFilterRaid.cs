@@ -8,7 +8,7 @@
     /// <summary>
     /// Raid boss filters
     /// </summary>
-    public class WebhookFilterRaid
+    public class WebhookFilterRaid : IWebhookFilterPokemonDetails
     {
         /// <summary>
         /// Gets or sets a value determining whether to enable the raid boss filter

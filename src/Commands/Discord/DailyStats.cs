@@ -37,7 +37,7 @@
         ]
         public async Task GetShinyStatsAsync(CommandContext ctx)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(guildId => _config.Instance.Servers.ContainsKey(guildId));
 
             if (!_config.Instance.Servers.ContainsKey(guildId))
             {
@@ -131,7 +131,7 @@
         ]
         public async Task GetIVStatsAsync(CommandContext ctx, uint minimumIV = 100)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(guildId => _config.Instance.Servers.ContainsKey(guildId));
 
             if (!_config.Instance.Servers.ContainsKey(guildId))
             {
@@ -199,8 +199,8 @@
                 using var ctx = DbContextFactory.CreateMapContext(scannerConnectionString);
                 ctx.Database.SetCommandTimeout(TimeSpan.FromSeconds(30)); // 30 seconds timeout
                 var yesterday = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToString("yyyy/MM/dd");
-                var pokemonShiny = (await ctx.PokemonStatsShiny.ToListAsync()).Where(x => x.Date.ToString("yyyy/MM/dd") == yesterday).ToList();
-                var pokemonIV = (await ctx.PokemonStatsIV.ToListAsync()).Where(x => x.Date.ToString("yyyy/MM/dd") == yesterday)?.ToDictionary(x => x.PokemonId);
+                var pokemonShiny = (await ctx.PokemonStatsShiny.ToListAsync()).Where(stat => stat.Date.ToString("yyyy/MM/dd") == yesterday).ToList();
+                var pokemonIV = (await ctx.PokemonStatsIV.ToListAsync()).Where(stat => stat.Date.ToString("yyyy/MM/dd") == yesterday)?.ToDictionary(stat => stat.PokemonId);
                 for (var i = 0; i < pokemonShiny.Count; i++)
                 {
                     var curPkmn = pokemonShiny[i];
@@ -216,10 +216,10 @@
                         list[curPkmn.PokemonId].Total += pokemonIV.ContainsKey(curPkmn.PokemonId) ? Convert.ToInt32(pokemonIV[curPkmn.PokemonId].Count) : 0;
                     }
                 }
-                list.Values.ToList().ForEach(x =>
+                list.Values.ToList().ForEach(stat =>
                 {
-                    list[0].Shiny += x.Shiny;
-                    list[0].Total += x.Total;
+                    list[0].Shiny += stat.Shiny;
+                    list[0].Total += stat.Total;
                 });
             }
             catch (Exception ex)
@@ -241,15 +241,15 @@
                 // Checks within last 24 hours and 100% IV (or use statistics cache?)
                 var pokemon = ctx.Pokemon
                     .AsEnumerable()
-                    .Where(x => x.Attack != null && x.Defense != null && x.Stamina != null
-                        && x.DisappearTime > yesterday
-                        && GetIV(x.Attack, x.Defense, x.Stamina) >= minIV
+                    .Where(pokemon => pokemon.Attack != null && pokemon.Defense != null && pokemon.Stamina != null
+                        && pokemon.DisappearTime > yesterday
+                        && GetIV(pokemon.Attack, pokemon.Defense, pokemon.Stamina) >= minIV
                       //&& x.Attack == 15
                       //&& x.Defense == 15
                       //&& x.Stamina == 15
                       )
                     .AsEnumerable()
-                    .GroupBy(x => x.Id, y => y.IV)
+                    .GroupBy(x => x.PokemonId, y => y.IV)
                     .Select(g => new { name = g.Key, count = g.Count() })
                     .ToDictionary(x => x.name, y => y.count);
                 return pokemon;
