@@ -613,8 +613,8 @@
                 // Pokestop properties
                 near_pokestop = pokestop != null,
                 pokestop_id = PokestopId ?? defaultMissingValue,
-                pokestop_name = pokestop?.Name ?? defaultMissingValue,
-                pokestop_url = pokestop?.Url ?? defaultMissingValue,
+                pokestop_name = pokestop?.FortName ?? defaultMissingValue,
+                pokestop_url = pokestop?.FortUrl ?? defaultMissingValue,
 
                 // Discord Guild properties
                 guild_name = guild?.Name,

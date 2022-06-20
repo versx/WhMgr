@@ -753,7 +753,7 @@
                 return geofence;
             }
 
-            var subscriptions = _subscriptionManager.GetSubscriptionsByLure(pokestop.Name, pokestop.LureType);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByLure(pokestop.FortName, pokestop.LureType);
             if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
@@ -784,7 +784,7 @@
                     // Check donor role access for Lures
                     if (!IsSubscriberValid(member, _config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Lures))
                     {
-                        _logger.Information($"User {user.UserId} is not a supporter, skipping Pokestop lure {pokestop.Name}...");
+                        _logger.Information($"User {user.UserId} is not a supporter, skipping Pokestop lure {pokestop.FortName}...");
                         continue;
                     }
 
@@ -822,7 +822,7 @@
                         Subscription = user,
                         Member = member,
                         Embed = item.GenerateDiscordMessage(),
-                        Description = pokestop.Name,
+                        Description = pokestop.FortName,
                         City = geofence.Name,
                     }));
 

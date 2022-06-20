@@ -320,10 +320,10 @@
                 // Lock processed pokestops, check for duplicates of incoming pokestop
                 lock (_processedPokestops)
                 {
-                    if (_processedPokestops.ContainsKey(pokestop.PokestopId))
+                    if (_processedPokestops.ContainsKey(pokestop.FortId))
                     {
-                        var processedLureAlready = _processedPokestops[pokestop.PokestopId].LureType == pokestop.LureType
-                            && _processedPokestops[pokestop.PokestopId].LureExpireTime == pokestop.LureExpireTime;
+                        var processedLureAlready = _processedPokestops[pokestop.FortId].LureType == pokestop.LureType
+                            && _processedPokestops[pokestop.FortId].LureExpireTime == pokestop.LureExpireTime;
 
                         if (processedLureAlready)
                         {
@@ -331,11 +331,11 @@
                             return;
                         }
 
-                        _processedPokestops[pokestop.PokestopId] = new ScannedPokestop(pokestop);
+                        _processedPokestops[pokestop.FortId] = new ScannedPokestop(pokestop);
                     }
                     else
                     {
-                        _processedPokestops.Add(pokestop.PokestopId, new ScannedPokestop(pokestop));
+                        _processedPokestops.Add(pokestop.FortId, new ScannedPokestop(pokestop));
                     }
                 }
             }
@@ -406,25 +406,25 @@
                 // Lock process gyms, check for duplicates of incoming gym
                 lock (_processedGyms)
                 {
-                    if (string.IsNullOrEmpty(gym?.GymId)) {
+                    if (string.IsNullOrEmpty(gym?.FortId)) {
                         // Skip gyms with no ID set
                         return;
                     }
-                    if (_processedGyms.ContainsKey(gym.GymId))
+                    if (_processedGyms.ContainsKey(gym.FortId))
                     {
-                        if (_processedGyms[gym.GymId].Team == gym.Team
-                            && _processedGyms[gym.GymId].SlotsAvailable == gym.SlotsAvailable
-                            && _processedGyms[gym.GymId].InBattle == gym.InBattle)
+                        if (_processedGyms[gym.FortId].Team == gym.Team
+                            && _processedGyms[gym.FortId].SlotsAvailable == gym.SlotsAvailable
+                            && _processedGyms[gym.FortId].InBattle == gym.InBattle)
                         {
                             // Gym already processed
                             return;
                         }
 
-                        _processedGyms[gym.GymId] = new ScannedGym(gym);
+                        _processedGyms[gym.FortId] = new ScannedGym(gym);
                     }
                     else
                     {
-                        _processedGyms.Add(gym.GymId, new ScannedGym(gym));
+                        _processedGyms.Add(gym.FortId, new ScannedGym(gym));
                     }
                 }
             }

@@ -27,7 +27,7 @@
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
     /// </summary>
     [Table("pokestop")]
-    public sealed class PokestopData : IWebhookData, IWebhookPowerLevel, IWebhookPoint
+    public sealed class PokestopData : IWebhookData, IWebhookFort, IWebhookPowerLevel, IWebhookPoint
     {
         #region Properties
 
@@ -36,7 +36,7 @@
             Column("id"),
             Key,
         ]
-        public string PokestopId { get; set; }
+        public string FortId { get; set; }
 
         [
             JsonPropertyName("latitude"),
@@ -54,13 +54,13 @@
             JsonPropertyName("name"),
             Column("name"),
         ]
-        public string Name { get; set; } = "Unknown";
+        public string FortName { get; set; } = "Unknown";
 
         [
             JsonPropertyName("url"),
             Column("url"),
         ]
-        public string Url { get; set; }
+        public string FortUrl { get; set; }
 
         [
             JsonPropertyName("enabled"),
@@ -224,7 +224,7 @@
         {
             var server = properties.Config.Instance.Servers[properties.GuildId];
             var lureImageUrl = UIconService.Instance.GetPokestopIcon(server.IconStyle, LureType);
-            var imageUrl = HasLure ? lureImageUrl : Url;
+            var imageUrl = HasLure ? lureImageUrl : FortUrl;
             var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
             var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
             var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
@@ -304,9 +304,9 @@
                 scanmaps_url = scannerMapsLocationLink,
 
                 // Pokestop properties
-                pokestop_id = PokestopId ?? defaultMissingValue,
-                pokestop_name = Name ?? defaultMissingValue,
-                pokestop_url = Url ?? defaultMissingValue,
+                pokestop_id = FortId ?? defaultMissingValue,
+                pokestop_name = FortName ?? defaultMissingValue,
+                pokestop_url = FortUrl ?? defaultMissingValue,
                 lure_img_url = lureImageUrl,
 
                 address = address ?? string.Empty,

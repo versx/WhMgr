@@ -1,6 +1,6 @@
 # Dynamic Text Replacement  
 
-Use any of the following in your embeds file to structure how notifications will look for Raids and Eggs.  
+Use any of the following in your embeds file to structure how notifications will look for Team Rocket Invasions.  
 
 ### Team Rocket Invasions  
 
@@ -9,6 +9,11 @@ Use any of the following in your embeds file to structure how notifications will
 | grunt_type | Grunt type | Water
 | grunt_type_emoji | Emoji icon of grunt type | <:938294:types_water>
 | grunt_gender | Grunt gender | Male
+| grunt_gender_id | Grunt gender id | 2
+| display_type | Incident type i.e. Grunt, Leader, etc | InvasionGrunt
+| display_type_id | Incident type id | 2
+| style | Incident style | PokestopNormal, PokestopRocketInvasion
+| style_id | Incident style id | 0
 | invasion_expire_time | Time the invasion expires | 02:17:11 PM
 | invasion_expire_time_24h | Time the invasion expires (24-hour format) | 14:17:11
 | invasion_expire_time_left | Time left until invasion expires | 12m, 56s

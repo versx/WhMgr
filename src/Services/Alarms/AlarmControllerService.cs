@@ -463,10 +463,10 @@
                         };
                         if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
-                            _logger.Error($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.PokestopId} ({pokestop.Name}) from geofence {geofence.Name}");
+                            _logger.Error($"Failed to queue Pokestop alarm: {alarm.Name} for Pokestop {pokestop.FortId} ({pokestop.FortName}) from geofence {geofence.Name}");
                             continue;
                         }
-                        _logger.Information($"Pokestop Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, PokestopId: {pokestop.PokestopId}, Name: {pokestop.Name}, LureType: {pokestop.LureType}");
+                        _logger.Information($"Pokestop Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, PokestopId: {pokestop.FortId}, Name: {pokestop.FortName}, LureType: {pokestop.LureType}");
                     }
                 }
             }
@@ -562,7 +562,7 @@
                         continue;
                     }
 
-                    var oldGym = _mapDataCache.GetGym(gym.GymId).ConfigureAwait(false).GetAwaiter().GetResult();
+                    var oldGym = _mapDataCache.GetGym(gym.FortId).ConfigureAwait(false).GetAwaiter().GetResult();
                     if (oldGym != null)
                     {
                         var changed = oldGym.Team != gym.Team
@@ -590,10 +590,10 @@
                         };
                         if (!ThreadPool.QueueUserWorkItem(async _ => await EnqueueEmbedAsync(taskItem)))
                         {
-                            _logger.Error($"Failed to queue Gym alarm: {alarm.Name} for Gym {gym.GymId} ({gym.GymName}) from geofence {geofence.Name}");
+                            _logger.Error($"Failed to queue Gym alarm: {alarm.Name} for Gym {gym.FortId} ({gym.FortName}) from geofence {geofence.Name}");
                             continue;
                         }
-                        _logger.Information($"Gym Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, GymId: {gym.GymId}, Name: {gym.GymName}, Team: {gym.Team}, InBattle: {gym.InBattle}");
+                        _logger.Information($"Gym Found [Geofence: {geofence.Name} Alarm: {alarm.Name}, GymId: {gym.FortId}, Name: {gym.FortName}, Team: {gym.Team}, InBattle: {gym.InBattle}");
                     }
 
                     // Update map data cache with gym
