@@ -20,8 +20,8 @@ There is no limit to the amount of alarms you can add under the `alarms` propert
     "enableQuests": true,
     // Enable or disable Pokestop filters globally
     "enablePokestops": true,
-	// Enable or disable Invasion filters globally
-	"enableInvasions": true,
+    // Enable or disable Invasion filters globally
+    "enableInvasions": true,
     // Enable or disable Gym filters globally
     "enableGyms": true, 
     // Enable or disable Weather filters globally
