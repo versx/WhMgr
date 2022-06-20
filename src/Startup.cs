@@ -2,15 +2,11 @@ namespace WhMgr
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
 
-    using HealthChecks.UI.Client;
     using Microsoft.AspNetCore.Antiforgery;
     using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.SpaServices;
@@ -95,29 +91,6 @@ namespace WhMgr
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHealthChecks()
-                .AddMySql(Config.Database.Main.ToString(), "Subscriptions Database")
-                .AddMySql(Config.Database.Scanner.ToString(), "Scanner Database")
-                .AddMySql(Config.Database.Nests.ToString(), "Nests Database")
-                .AddProcessHealthCheck(Process.GetCurrentProcess().ProcessName, p => p.Length >= 1, "Process")
-                .AddProcessAllocatedMemoryHealthCheck((int)Environment.WorkingSet, "Allocated Memory")
-                .AddDiskStorageHealthCheck(setup =>
-                {
-                    DriveInfo.GetDrives()
-                             .Where(drive => drive.IsReady && drive.DriveType == DriveType.Fixed)
-                             .ToList()
-                             .ForEach(drive => setup.AddDrive(drive.RootDirectory.FullName));
-                }, "Local Disk Storage")
-                //.AddDnsResolveHealthCheck(setup => setup.ResolveHost("https://google.com"))
-                .AddPingHealthCheck(setup => setup.AddHost("discord.com", 10), "Discord Status");
-
-            services.AddHealthChecksUI(settings =>
-            {
-                settings.AddHealthCheckEndpoint("Main Health Check", "/health");
-                settings.MaximumHistoryEntriesPerEndpoint(50);
-            })
-                .AddInMemoryStorage();
-
             services.AddSingleton<IGeofenceService>(new GeofenceService());
             services.AddSingleton<IAlarmControllerService, AlarmControllerService>();
             //services.AddSingleton<ISubscriptionProcessorQueueService, SubscriptionProcessorQueueService>();
@@ -290,18 +263,6 @@ namespace WhMgr
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-
-                // Register health check backend endpoint path
-                endpoints.MapHealthChecks("/health", new HealthCheckOptions
-                {
-                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
-                });
-                // Register halth check frontend UI path
-                endpoints.MapHealthChecksUI(opt =>
-                {
-                    opt.UIPath = "/health-ui";
-                    opt.ResourcesPath = "/health";
-                });
             });
 
             // Initialize webhook processor service
