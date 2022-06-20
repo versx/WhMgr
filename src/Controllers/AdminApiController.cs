@@ -92,8 +92,8 @@
             var config = LoadFromFile<Config>(filePath);
             var discordFiles = Directory.GetFiles(Strings.DiscordsFolder, "*.json");
             var discords = discordFiles.ToDictionary(
-                x => Path.GetFileName(x),
-                y => System.IO.File.ReadAllText(y).FromJson<DiscordServerConfig>().Bot.GuildId.ToString());
+                filePath => Path.GetFileName(filePath),
+                filePath => System.IO.File.ReadAllText(filePath).FromJson<DiscordServerConfig>().Bot.GuildId.ToString());
             var locales = Directory.GetFiles(
                 Path.Combine(
                     Path.Combine(

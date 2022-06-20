@@ -88,7 +88,10 @@ For a list of available dynamic text substitution/replacement options check out 
             "{{#if team_changed}}Gym changed from {{old_gym_team_emoji}} {{old_gym_team}} to {{gym_team_emoji}} {{gym_team}}",
             "{{/if}}{{#if in_battle}}Gym is under attack!",
             "{{/if}}**Slots Available:** {{slots_available}}",
-            "{{#if is_ex}}{{ex_emoji}} Gym!",
+            "{{#if power_up_level}}**Power Level**",
+            "Level: {{power_up_level}} | Points: {{power_up_points}}",
+            "Time Left: {{power_up_end_time_left}}",
+            "{{/if}}{{#if is_ex}}{{ex_gym_emoji}} Gym!",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{gym_url}}",
@@ -111,6 +114,9 @@ For a list of available dynamic text substitution/replacement options check out 
             "**Moveset:** {{moveset}}",
             "**Weaknesses:** {{weaknesses_emoji}}",
             "{{#if is_ex}}{{ex_emoji}} Gym!",
+            "{{/if}}{{#if power_up_level}}**Power Level**",
+            "Level: {{power_up_level}} | Points: {{power_up_points}}",
+            "Time Left: {{power_up_end_time_left}}",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{pkmn_img_url}}",
@@ -130,12 +136,15 @@ For a list of available dynamic text substitution/replacement options check out 
             "**Ends:** {{end_time}} ({{end_time_left}} left)",
             "**Team:** {{team_emoji}}",
             "{{#if is_ex}}{{ex_emoji}} Gym!",
+            "{{/if}}{{#if power_up_level}}**Power Level**",
+            "Level: {{power_up_level}} | Points: {{power_up_points}}",
+            "Time Left: {{power_up_end_time_left}}",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{pkmn_img_url}}",
         "title": "{{geofence}}: {{gym_name}}",
         "url": "{{gmaps_url}}",
-        "username": "Level <lvl> Egg",
+        "username": "Level {{lvl}} Egg",
         "imageUrl": "{{tilemaps_url}}",
         "footer": {
             "text": "{{guild_name}} {{date_time}}",
@@ -147,12 +156,9 @@ For a list of available dynamic text substitution/replacement options check out 
         "content": [
             "{{#if has_lure}}**Lure Expires** {{lure_expire_time}} ({{lure_expire_time_left}} left)",
             "**Lure Type:** {{lure_type}}",
-            "{{/if}}{{#if has_invasion}}**Expires:** {{invasion_expire_time}} ({{invasion_expire_time_left}} left)",
-            "**Type:** {{grunt_type_emoji}} | **Gender:** {{grunt_gender}}",
-            "**Encounter Reward Chance:**",
-            "{{#each invasion_encounters}}",
-            "{{chance}} - {{pokemon}}",
-            "{{/each}}",
+            "{{/if}}{{#if power_up_level}}**Power Level**",
+            "Level: {{power_up_level}} | Points: {{power_up_points}}",
+            "Time Left: {{power_up_end_time_left}}",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{pokestop_url}}",
@@ -188,8 +194,11 @@ For a list of available dynamic text substitution/replacement options check out 
     "lures": {
         "avatarUrl": "{{lure_img_url}}",
         "content": [
-            "{{#if has_lure}}**Lure Expires:** {{lure_expire_time}} ({{lure_expire_time_left}} left)",
+            "{{#if has_lure}}**Lure Expires** {{lure_expire_time}} ({{lure_expire_time_left}} left)",
             "**Lure Type:** {{lure_type}}",
+            "{{/if}}{{#if power_up_level}}**Power Level**",
+            "Level: {{power_up_level}} | Points: {{power_up_points}}",
+            "Time Left: {{power_up_end_time_left}}",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{pokestop_url}}",

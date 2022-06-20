@@ -120,12 +120,6 @@
         "content": [
             "{{#if has_lure}}**Lure Expires** {{lure_expire_time}} ({{lure_expire_time_left}} left)",
             "**Lure Type:** {{lure_type}}",
-            "{{/if}}{{#if has_invasion}}**Expires:** {{invasion_expire_time}} ({{invasion_expire_time_left}} left)",
-            "**Type:** {{grunt_type_emoji}} | **Gender:** {{grunt_gender}}",
-            "**Encounter Reward Chance:**",
-            "{{#each invasion_encounters}}",
-            "{{chance}} - {{pokemon}}",
-            "{{/each}}",
             "{{/if}}{{#if power_up_level}}**Power Level**",
             "Level: {{power_up_level}} | Points: {{power_up_points}}",
             "Time Left: {{power_up_end_time_left}}",
@@ -164,8 +158,11 @@
     "lures": {
         "avatarUrl": "{{lure_img_url}}",
         "content": [
-            "{{#if has_lure}}**Lure Expires:** {{lure_expire_time}} ({{lure_expire_time_left}} left)",
+            "{{#if has_lure}}**Lure Expires** {{lure_expire_time}} ({{lure_expire_time_left}} left)",
             "**Lure Type:** {{lure_type}}",
+            "{{/if}}{{#if power_up_level}}**Power Level**",
+            "Level: {{power_up_level}} | Points: {{power_up_points}}",
+            "Time Left: {{power_up_end_time_left}}",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{pokestop_url}}",
@@ -181,13 +178,12 @@
     "invasions": {
         "avatarUrl": "{{invasion_img_url}}",
         "content": [
-            "{{#if has_invasion}}**Expires:** {{invasion_expire_time}} ({{invasion_expire_time_left}} left)",
+            "**Expires:** {{invasion_expire_time}} ({{invasion_expire_time_left}} left)",
             "**Type:** {{grunt_type_emoji}} | **Gender:** {{grunt_gender}}",
             "**Encounter Reward Chance:**",
             "{{#each invasion_encounters}}",
             "{{chance}} - {{pokemon}}",
-            "{{/each}}",
-            "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
+            "{{/each}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{pokestop_url}}",
         "title": "{{geofence}}: {{pokestop_name}}",

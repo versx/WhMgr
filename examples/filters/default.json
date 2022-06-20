@@ -104,7 +104,16 @@
         "enabled": true, // Filter is enabled
         "lured": false, // Only send lured pokestops
         "lure_types": ["Normal", "Glacial", "Mossy", "Magnetic"], // All lure types
-        "invasions": false, // Only send Team Rocket invasion pokestops
+        "power_level": {
+            "min_level": 1,
+            "max_level": 3,
+            "min_points": 10,
+            "max_points": 250
+        }
+    },
+    "invasions":
+    {
+        "enabled": true, // Filter is enabled
         // Determines which invasion types to send
         "invasionTypes": {
             "CharacterUnset": false,
@@ -198,12 +207,6 @@
             "CharacterGhostBalloonGruntMale": true,
             "CharacterElectricBalloonGruntFemale": true,
             "CharacterElectricBalloonGruntMale": true
-        },
-        "power_level": {
-            "min_level": 1,
-            "max_level": 3,
-            "min_points": 10,
-            "max_points": 250
         }
     },
     "gyms":

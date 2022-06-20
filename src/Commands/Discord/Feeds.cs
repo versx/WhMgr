@@ -41,12 +41,12 @@
             if (!await ctx.IsDirectMessageSupportedAsync(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(guildId => _config.Instance.Servers.ContainsKey(guildId));
             if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 
             var server = _config.Instance.Servers[guildId];
-            var cityRoles = server.Geofences.Select(x => x.Name)
+            var cityRoles = server.Geofences.Select(geofence => geofence.Name)
                                             .Distinct()
                                             .ToList();
             cityRoles.Sort();
@@ -83,7 +83,7 @@
             if (!await ctx.IsDirectMessageSupportedAsync(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(guildId => _config.Instance.Servers.ContainsKey(guildId));
             if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 
@@ -109,7 +109,7 @@
             try
             {
                 var cityNames = cityName.RemoveSpaces();
-                var cityRoles = server.Geofences.Select(x => x.Name.ToLower());
+                var cityRoles = server.Geofences.Select(geofence => geofence.Name.ToLower());
                 foreach (var city in cityNames)
                 {
                     if (!isFreeRole && !cityRoles.Contains(city.ToLower()))
@@ -187,7 +187,7 @@
             if (!await ctx.IsDirectMessageSupportedAsync(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(guildId => _config.Instance.Servers.ContainsKey(guildId));
             if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 
@@ -213,10 +213,10 @@
             try
             {
                 var cityNames = cityName.RemoveSpaces();
-                var areas = server.Geofences.Select(x => x.Name).ToList();
+                var areas = server.Geofences.Select(geofence => geofence.Name).ToList();
                 foreach (var city in cityNames)
                 {
-                    if (!isFreeRole && !areas.Exists(x => string.Compare(city, x, true) == 0))
+                    if (!isFreeRole && !areas.Exists(area => string.Compare(city, area, true) == 0))
                     {
                         await ctx.RespondEmbedAsync(Translator.Instance.Translate("FEEDS_INVALID_CITY_NAME_TYPE_COMMAND").FormatText(new
                         {
@@ -276,7 +276,7 @@
 
         private async Task AssignAllDefaultFeedRoles(CommandContext ctx)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(guildId => _config.Instance.Servers.ContainsKey(guildId));
 
             if (_config.Instance.Servers[guildId].Geofences == null)
             {
@@ -287,7 +287,7 @@
             try
             {
                 var server = _config.Instance.Servers[guildId];
-                var areas = server.Geofences.Select(x => x.Name).Distinct().ToList();
+                var areas = server.Geofences.Select(geofence => geofence.Name).Distinct().ToList();
                 for (var i = 0; i < areas.Count; i++)
                 {
                     var city = areas[i];
@@ -322,7 +322,7 @@
 
         private async Task RemoveAllDefaultFeedRoles(CommandContext ctx)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(guildId => _config.Instance.Servers.ContainsKey(guildId));
 
             if (_config.Instance.Servers[guildId].Geofences == null)
             {
@@ -333,7 +333,7 @@
             try
             {
                 var server = _config.Instance.Servers[guildId];
-                var areas = server.Geofences.Select(x => x.Name).Distinct().ToList();
+                var areas = server.Geofences.Select(geofence => geofence.Name).Distinct().ToList();
                 for (var i = 0; i < areas.Count; i++)
                 {
                     var city = areas[i];

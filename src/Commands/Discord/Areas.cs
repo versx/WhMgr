@@ -38,7 +38,7 @@
             if (!await ctx.IsDirectMessageSupportedAsync(_config.Instance))
                 return;
 
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(guildId => _config.Instance.Servers.ContainsKey(guildId));
             if (!_config.Instance.Servers.ContainsKey(guildId))
                 return;
 

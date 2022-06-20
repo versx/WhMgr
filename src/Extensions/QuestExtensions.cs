@@ -74,9 +74,9 @@
             switch (condition.Type)
             {
                 case QuestConditionType.WithPokemonCategory:
-                    return string.Join(", ", condition.Info.PokemonIds?.Select(x => Translator.Instance.GetPokemonName(x)).ToList());
+                    return string.Join(", ", condition.Info.PokemonIds?.Select(pokemonId => Translator.Instance.GetPokemonName(pokemonId)).ToList());
                 case QuestConditionType.WithPokemonType:
-                    return string.Join(", ", condition.Info.PokemonTypeIds?.Select(x => Convert.ToString((PokemonType)x))) + "-type";
+                    return string.Join(", ", condition.Info.PokemonTypeIds?.Select(typeId => Convert.ToString((PokemonType)typeId))) + "-type";
                 case QuestConditionType.WithQuestContext:
                     break;
                 case QuestConditionType.WithRaidLevel:
@@ -86,11 +86,11 @@
                 case QuestConditionType.WithThrowTypeInARow:
                     return Translator.Instance.Translate(conditionKey, Translator.Instance.GetThrowName(condition.Info.ThrowTypeId));
                 case QuestConditionType.WithPokemonAlignment:
-                    return string.Join(", ", condition.Info.AlignmentIds?.Select(x => Translator.Instance.GetAlignmentName((AlignmentId)x)));
+                    return string.Join(", ", condition.Info.AlignmentIds?.Select(alignmentId => Translator.Instance.GetAlignmentName((AlignmentId)alignmentId)));
                 case QuestConditionType.WithInvasionCharacter:
-                    return string.Join(", ", condition.Info.CharacterCategoryIds?.Select(x => Translator.Instance.GetCharacterCategoryName((CharacterCategory)x)));
+                    return string.Join(", ", condition.Info.CharacterCategoryIds?.Select(characterId => Translator.Instance.GetCharacterCategoryName((CharacterCategory)characterId)));
                 case QuestConditionType.WithTempEvoPokemon: // Mega evo
-                    return string.Join(", ", condition.Info.RaidPokemonEvolutions?.Select(x => Translator.Instance.GetEvolutionName((TemporaryEvolutionId)x)));
+                    return string.Join(", ", condition.Info.RaidPokemonEvolutions?.Select(evolutionId => Translator.Instance.GetEvolutionName((TemporaryEvolutionId)evolutionId)));
                 case QuestConditionType.WithBadgeType:
                 case QuestConditionType.WithCurveBall:
                 case QuestConditionType.WithDailyCaptureBonus:

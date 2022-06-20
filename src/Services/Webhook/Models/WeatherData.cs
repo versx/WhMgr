@@ -290,7 +290,7 @@
             if (multiPolygon.Count == 0 || multiPolygon == null)
                 return newMultiPolygon;
 
-            multiPolygon.ForEach(x => newMultiPolygon.Add(new Polygon { x[1], x[0] }));
+            multiPolygon.ForEach(polygon => newMultiPolygon.Add(new Polygon { polygon[1], polygon[0] }));
             newMultiPolygon.Add(newMultiPolygon[^1]);
             return newMultiPolygon;
         }

@@ -10,7 +10,6 @@
     using DSharpPlus.Entities;
 
     using WhMgr.Common;
-    using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Localization;
     using WhMgr.Services.Alarms;
@@ -23,7 +22,7 @@
     using WhMgr.Services.Yourls;
 
     [Table("gym")]
-    public sealed class GymDetailsData : IWebhookData, IWebhookPoint
+    public sealed class GymDetailsData : IWebhookData, IWebhookFort, IWebhookPowerLevel, IWebhookPoint
     {
         #region Properties
 
@@ -32,19 +31,19 @@
             Column("id"),
             Key,
         ]
-        public string GymId { get; set; }
+        public string FortId { get; set; }
 
         [
             JsonPropertyName("name"),
             Column("name"),
         ]
-        public string GymName { get; set; } = "Unknown";
+        public string FortName { get; set; } = "Unknown";
 
         [
             JsonPropertyName("url"),
             Column("url"),
         ]
-        public string Url { get; set; }
+        public string FortUrl { get; set; }
 
         [
             JsonPropertyName("latitude"),
@@ -179,7 +178,7 @@
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
             // Get old gym from cache
-            var oldGym = await properties.MapDataCache.GetGym(GymId).ConfigureAwait(false);
+            var oldGym = await properties.MapDataCache.GetGym(FortId).ConfigureAwait(false);
             var exEmoji = "ex".GetEmojiIcon(null, true);
             var teamEmoji = Team.GetEmojiIcon(null, true);
             var oldTeamEmoji = oldGym?.Team.GetEmojiIcon(null, true);
@@ -229,9 +228,9 @@
             var dict = new
             {
                 // Main properties
-                gym_id = GymId,
-                gym_name = GymName,
-                gym_url = Url,
+                gym_id = FortId,
+                gym_name = FortName,
+                gym_url = FortUrl,
                 gym_team = Team,
                 gym_team_id = Convert.ToInt32(Team),
                 gym_team_emoji = teamEmoji,

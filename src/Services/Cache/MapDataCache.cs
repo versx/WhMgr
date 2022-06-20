@@ -61,13 +61,13 @@
 
         public void UpdatePokestop(PokestopData pokestop)
         {
-            if (ContainsPokestop(pokestop.PokestopId))
+            if (ContainsPokestop(pokestop.FortId))
             {
-                _pokestops[pokestop.PokestopId] = pokestop;
+                _pokestops[pokestop.FortId] = pokestop;
             }
             else
             {
-                _pokestops.Add(pokestop.PokestopId, pokestop);
+                _pokestops.Add(pokestop.FortId, pokestop);
             }
         }
 
@@ -103,13 +103,13 @@
 
         public void UpdateGym(GymDetailsData gym)
         {
-            if (ContainsGym(gym.GymId))
+            if (ContainsGym(gym.FortId))
             {
-                _gyms[gym.GymId] = gym;
+                _gyms[gym.FortId] = gym;
             }
             else
             {
-                _gyms.Add(gym.GymId, gym);
+                _gyms.Add(gym.FortId, gym);
             }
         }
 
@@ -171,8 +171,9 @@
             }
 
             using var ctx = _dbFactory.CreateDbContext();
-            _pokestops = await ctx.Pokestops.ToDictionaryAsync(key => key.PokestopId, value => value);
-            _gyms = await ctx.Gyms.ToDictionaryAsync(key => key.GymId, value => value);
+            //_pokestops = await ctx.Pokestops.Include(pokestop => pokestop.Incidents).ToDictionaryAsync(key => key.PokestopId, value => value);
+            _pokestops = await ctx.Pokestops.ToDictionaryAsync(key => key.FortId, value => value);
+            _gyms = await ctx.Gyms.ToDictionaryAsync(key => key.FortId, value => value);
             _weather = await ctx.Weather.ToDictionaryAsync(key => key.Id, value => value);
         }
 
@@ -184,16 +185,16 @@
             }
 
             var nearby = _pokestops.Values.Where(stop => IsWithinRadius(stop.Latitude, stop.Longitude, latitude, longitude, radiusM))
-                                          .Select(x => new
+                                          .Select(stop => new
             {
-                id = x.PokestopId,
-                lat = x.Latitude,
-                lon = x.Longitude,
-                lure_id = Convert.ToInt32(x.LureType),
-                lure = x.LureType,
-                marker = x.HasInvasion
-                    ? UIconService.Instance.GetInvasionIcon("Default", x.GruntType)
-                    : UIconService.Instance.GetPokestopIcon("Default", x.LureType), // TODO: Get icon style
+                id = stop.FortId,
+                lat = stop.Latitude,
+                lon = stop.Longitude,
+                lure_id = Convert.ToInt32(stop.LureType),
+                lure = stop.LureType,
+                marker = //x.HasInvasion
+                         //? UIconService.Instance.GetInvasionIcon("Default", stop.GruntType)
+                    UIconService.Instance.GetPokestopIcon("Default", stop.LureType), // TODO: Get icon style
             }).ToList<dynamic>();
             return nearby;
         }
@@ -206,14 +207,14 @@
             }
 
             var nearby = _gyms.Values.Where(gym => IsWithinRadius(gym.Latitude, gym.Longitude, latitude, longitude, radiusM))
-                                     .Select(x => new
+                                     .Select(gym => new
             {
-                id = x.GymId,
-                lat = x.Latitude,
-                lon = x.Longitude,
-                team_id = Convert.ToInt32(x.Team),
-                team = x.Team,
-                marker = UIconService.Instance.GetGymIcon("Default", x.Team), // TODO: Get icon style
+                id = gym.FortId,
+                lat = gym.Latitude,
+                lon = gym.Longitude,
+                team_id = Convert.ToInt32(gym.Team),
+                team = gym.Team,
+                marker = UIconService.Instance.GetGymIcon("Default", gym.Team), // TODO: Get icon style
             }).ToList<dynamic>();
             return nearby;
         }

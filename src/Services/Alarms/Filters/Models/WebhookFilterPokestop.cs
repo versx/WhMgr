@@ -4,8 +4,6 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
-    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
-
     /// <summary>
     /// Pokemon filters
     /// </summary>
@@ -30,21 +28,9 @@
         public List<string> LureTypes { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets a value determining whether to only report Team Rocket invasion Pokestops
-        /// </summary>
-        [JsonPropertyName("invasions")]
-        public bool Invasions { get; set; }
-
-        /// <summary>
-        /// Gets or sets the Invasion types to report
-        /// </summary>
-        [JsonPropertyName("invasion_types")]
-        public Dictionary<InvasionCharacter, bool> InvasionTypes { get; set; } = new();
-
-        /// <summary>
-        /// Gets or sets the Gym power level filtering options
+        /// Gets or sets the Pokestop power level filtering options
         /// </summary>
         [JsonPropertyName("power_level")]
-        public WebhookFilterGymLevel PowerLevel { get; set; } = new();
+        public WebhookFilterGymLevel PowerLevel { get; set; }
     }
 }

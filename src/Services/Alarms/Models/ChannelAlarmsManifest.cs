@@ -29,6 +29,9 @@
         [JsonPropertyName("enablePokestops")]
         public bool EnablePokestops { get; set; }
 
+        [JsonPropertyName("enableInvasions")]
+        public bool EnableInvasions { get; set; }
+
         [JsonPropertyName("enableGyms")]
         public bool EnableGyms { get; set; }
 

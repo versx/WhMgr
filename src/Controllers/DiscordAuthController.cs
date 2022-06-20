@@ -123,7 +123,7 @@
             HttpContext.Session.SetValue("user_id", user.Id);
             HttpContext.Session.SetValue("email", user.Email);
             HttpContext.Session.SetValue("username", $"{user.Username}#{user.Discriminator}");
-            HttpContext.Session.SetValue("guild_ids", guilds.Select(x => x.Id));
+            HttpContext.Session.SetValue("guild_ids", guilds.Select(guild => guild.Id));
             HttpContext.Session.SetValue("avatar_id", user.Avatar);
             // Check previous page saved if we should redirect to it or the home page
             var redirect = HttpContext.Session.GetValue<string>("last_redirect");
@@ -142,7 +142,7 @@
                 user_id = user.Id,
                 email = user.Email,
                 username = $"{user.Username}#{user.Discriminator}",
-                guild_ids = guilds.Select(x => x.Id),
+                guild_ids = guilds.Select(guild => guild.Id),
                 avatar_id = user.Avatar,
             };
             var json = obj.ToJson();

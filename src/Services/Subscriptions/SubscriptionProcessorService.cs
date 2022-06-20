@@ -64,7 +64,7 @@
 
         public async Task ProcessPokemonSubscriptionAsync(PokemonData pokemon)
         {
-            if (!IsValidPokedexPokemon(pokemon.Id))
+            if (!IsValidPokedexPokemon(pokemon.PokemonId))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -81,7 +81,7 @@
                 return geofence;
             }
 
-            var subscriptions = _subscriptionManager.GetSubscriptionsByPokemonId(pokemon.Id);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByPokemonId(pokemon.PokemonId);
             if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
@@ -90,7 +90,7 @@
 
             Subscription user;
             DiscordMember member = null;
-            var pkmn = GameMaster.GetPokemon(pokemon.Id, pokemon.FormId);
+            var pkmn = GameMaster.GetPokemon(pokemon.PokemonId, pokemon.FormId);
             var matchesIV = false;
             var matchesCP = false;
             var matchesLvl = false;
@@ -128,7 +128,7 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PokemonSubscription>)user.Pokemon, pokemon.Id, form);
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PokemonSubscription>)user.Pokemon, pokemon.PokemonId, form);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -150,7 +150,7 @@
                             ))
                             continue;
 
-                        var pokemonSize = pokemon.Id.GetSize(pokemon.Height ?? 0, pokemon.Weight ?? 0);
+                        var pokemonSize = pokemon.PokemonId.GetSize(pokemon.Height ?? 0, pokemon.Weight ?? 0);
                         if (!pokemon.IsMissingStats && pkmn.Height != null && pkmn.Weight != null
                             && !Filters.MatchesSize(pokemonSize, pkmnSub.Size))
                         {
@@ -179,11 +179,11 @@
                             MapDataCache = _mapDataCache,
                         }).ConfigureAwait(false);
 
-                        embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
+                        embed.Embeds.ForEach(async item => await EnqueueEmbedAsync(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
-                            Embed = x.GenerateDiscordMessage(),
+                            Embed = item.GenerateDiscordMessage(),
                             Description = pkmn.Name,
                             City = geofence.Name,
                             Pokemon = pokemon,
@@ -216,7 +216,7 @@
 
         public async Task ProcessPvpSubscriptionAsync(PokemonData pokemon)
         {
-            if (!IsValidPokedexPokemon(pokemon.Id))
+            if (!IsValidPokedexPokemon(pokemon.PokemonId))
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
@@ -233,7 +233,7 @@
                 return geofence;
             }
 
-            var pkmn = GameMaster.GetPokemon(pokemon.Id, pokemon.FormId);
+            var pkmn = GameMaster.GetPokemon(pokemon.PokemonId, pokemon.FormId);
             var evolutionIds = pkmn.GetPokemonEvolutionIds();
             // PvP subscriptions support for evolutions not just base evo
             // Get evolution ids from masterfile for incoming pokemon, check if subscriptions for evo/base
@@ -278,7 +278,7 @@
                     }
 
                     var form = Translator.Instance.GetFormName(pokemon.FormId);
-                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PvpSubscription>)user.PvP, pokemon.Id, form, evolutionIds);
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<PvpSubscription>)user.PvP, pokemon.PokemonId, form, evolutionIds);
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -340,11 +340,11 @@
                             City = geofence.Name,
                             MapDataCache = _mapDataCache,
                         }).ConfigureAwait(false);
-                        embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
+                        embed.Embeds.ForEach(async item => await EnqueueEmbedAsync(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
-                            Embed = x.GenerateDiscordMessage(),
+                            Embed = item.GenerateDiscordMessage(),
                             Description = pkmn.Name,
                             City = geofence.Name,
                         }));
@@ -401,7 +401,7 @@
             }
 
             Subscription user;
-            var pokemon = GameMaster.GetPokemon(raid.PokemonId, raid.Form);
+            var pokemon = GameMaster.GetPokemon(raid.PokemonId, raid.FormId);
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -428,7 +428,7 @@
                         continue;
                     }
 
-                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.Raids, raid.PokemonId, raid.Form.ToString());
+                    var pokemonSubscriptions = GetFilteredPokemonSubscriptions((HashSet<RaidSubscription>)user.Raids, raid.PokemonId, raid.FormId.ToString());
                     if (pokemonSubscriptions == null)
                         continue;
 
@@ -461,11 +461,11 @@
                             MapDataCache = _mapDataCache,
                         }).ConfigureAwait(false);
 
-                        embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
+                        embed.Embeds.ForEach(async item => await EnqueueEmbedAsync(new NotificationItem
                         {
                             Subscription = user,
                             Member = member,
-                            Embed = x.GenerateDiscordMessage(),
+                            Embed = item.GenerateDiscordMessage(),
                             Description = pokemon.Name,
                             City = geofence.Name
                         }));
@@ -548,7 +548,7 @@
                         continue;
                     }
 
-                    var questSub = user.Quests.FirstOrDefault(x => rewardKeyword.ToLower().Contains(x.RewardKeyword.ToLower()));
+                    var questSub = user.Quests.FirstOrDefault(keyword => rewardKeyword.ToLower().Contains(keyword.RewardKeyword.ToLower()));
                     // Not subscribed to quest
                     if (questSub == null)
                     {
@@ -563,7 +563,7 @@
                         continue;
                     }
 
-                    var geofenceMatches = questSub.Areas.Select(x => x.ToLower()).Contains(geofence.Name.ToLower());
+                    var geofenceMatches = questSub.Areas.Select(area => area.ToLower()).Contains(geofence.Name.ToLower());
 
                     // Skip if not nearby or within set global location, individual subscription locations, or geofence does not match
                     if (!user.IsNearby(questCoord, true, questSub.Location, questSub.Areas, geofence.Name.ToLower()))
@@ -579,11 +579,11 @@
                         MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
 
-                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
+                    embed.Embeds.ForEach(async item => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
-                        Embed = x.GenerateDiscordMessage(),
+                        Embed = item.GenerateDiscordMessage(),
                         Description = questName,
                         City = geofence.Name,
                     }));
@@ -610,14 +610,14 @@
             await Task.CompletedTask;
         }
 
-        public async Task ProcessInvasionSubscriptionAsync(PokestopData pokestop)
+        public async Task ProcessInvasionSubscriptionAsync(IncidentData incident)
         {
-            if (pokestop.GruntType == InvasionCharacter.CharacterUnset)
+            if (incident.Character == InvasionCharacter.CharacterUnset)
                 return;
 
             // Cache the result per-guild so that geospatial stuff isn't queried for every single subscription below
             var locationCache = new Dictionary<ulong, Geofence>();
-            var invasionCoord = new Coordinate(pokestop);
+            var invasionCoord = new Coordinate(incident);
             Geofence GetGeofence(ulong guildId)
             {
                 if (!locationCache.TryGetValue(guildId, out var geofence))
@@ -629,19 +629,21 @@
                 return geofence;
             }
 
-            var invasion = GameMaster.Instance.GruntTypes?.ContainsKey(pokestop.GruntType) ?? false ? GameMaster.Instance.GruntTypes[pokestop.GruntType] : null;
+            var invasion = GameMaster.Instance.GruntTypes?.ContainsKey(incident.Character) ?? false
+                ? GameMaster.Instance.GruntTypes[incident.Character]
+                : null;
             var encounters = invasion?.GetEncounterRewards();
             if (encounters == null)
                 return;
 
-            var subscriptions = _subscriptionManager.GetSubscriptionsByInvasion(pokestop?.Name, pokestop?.GruntType ?? InvasionCharacter.CharacterUnset, encounters);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByInvasion(incident?.PokestopName, incident?.Character ?? InvasionCharacter.CharacterUnset, encounters);
             if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
                 return;
             }
 
-            if (!GameMaster.Instance.GruntTypes.ContainsKey(pokestop.GruntType))
+            if (!GameMaster.Instance.GruntTypes.ContainsKey(incident.Character))
             {
                 //_logger.Error($"Failed to parse grunt type {pokestop.GruntType}, not in `grunttype.json` list.");
                 return;
@@ -671,11 +673,11 @@
                     // Check donor role access for Invasions
                     if (!IsSubscriberValid(member, _config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Invasions))
                     {
-                        _logger.Information($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {pokestop.Name}...");
+                        _logger.Information($"User {user.UserId} is not a supporter, skipping Team Rocket invasion {incident.PokestopName}...");
                         continue;
                     }
 
-                    var invasionSub = user.Invasions.FirstOrDefault(x => x.RewardPokemonId.Intersects(encounters));
+                    var invasionSub = user.Invasions.FirstOrDefault(invasion => invasion.RewardPokemonId.Intersects(encounters));
                     // Not subscribed to invasion
                     if (invasionSub == null)
                     {
@@ -694,7 +696,7 @@
                     if (!user.IsNearby(invasionCoord, true, invasionSub.Location, invasionSub.Areas, geofence.Name.ToLower()))
                         continue;
 
-                    var embed = await pokestop.GenerateEmbedMessageAsync(new AlarmMessageSettings
+                    var embed = await incident.GenerateEmbedMessageAsync(new AlarmMessageSettings
                     {
                         GuildId = user.GuildId,
                         Client = client,
@@ -704,12 +706,12 @@
                         MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
 
-                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
+                    embed.Embeds.ForEach(async item => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
-                        Embed = x.GenerateDiscordMessage(),
-                        Description = pokestop.Name,
+                        Embed = item.GenerateDiscordMessage(),
+                        Description = incident.PokestopName,
                         City = geofence.Name,
                     }));
 
@@ -751,7 +753,7 @@
                 return geofence;
             }
 
-            var subscriptions = _subscriptionManager.GetSubscriptionsByLure(pokestop.Name, pokestop.LureType);
+            var subscriptions = _subscriptionManager.GetSubscriptionsByLure(pokestop.FortName, pokestop.LureType);
             if (subscriptions == null || subscriptions?.Count == 0)
             {
                 //_logger.Warning($"Failed to get subscriptions from database table.");
@@ -782,11 +784,11 @@
                     // Check donor role access for Lures
                     if (!IsSubscriberValid(member, _config.Instance.Servers[user.GuildId].DonorRoleIds, SubscriptionAccessType.Lures))
                     {
-                        _logger.Information($"User {user.UserId} is not a supporter, skipping Pokestop lure {pokestop.Name}...");
+                        _logger.Information($"User {user.UserId} is not a supporter, skipping Pokestop lure {pokestop.FortName}...");
                         continue;
                     }
 
-                    var lureSub = user.Lures.FirstOrDefault(x => x.LureType?.Contains(pokestop.LureType) ?? false);
+                    var lureSub = user.Lures.FirstOrDefault(lure => lure.LureType?.Contains(pokestop.LureType) ?? false);
                     // Not subscribed to lure
                     if (lureSub == null)
                     {
@@ -815,12 +817,12 @@
                         MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
 
-                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
+                    embed.Embeds.ForEach(async item => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
-                        Embed = x.GenerateDiscordMessage(),
-                        Description = pokestop.Name,
+                        Embed = item.GenerateDiscordMessage(),
+                        Description = pokestop.FortName,
                         City = geofence.Name,
                     }));
 
@@ -870,7 +872,7 @@
             }
 
             Subscription user;
-            var pokemon = GameMaster.GetPokemon(raid.PokemonId, raid.Form);
+            var pokemon = GameMaster.GetPokemon(raid.PokemonId, raid.FormId);
             for (var i = 0; i < subscriptions.Count; i++)
             {
                 try
@@ -905,7 +907,7 @@
                         continue;
                     }
 
-                    var gymSub = user.Gyms.FirstOrDefault(x => string.Compare(x.Name, raid.GymName, true) == 0);
+                    var gymSub = user.Gyms.FirstOrDefault(gym => string.Compare(gym.Name, raid.GymName, true) == 0);
                     if (gymSub == null)
                         continue;
 
@@ -935,11 +937,11 @@
                         MapDataCache = _mapDataCache,
                     }).ConfigureAwait(false);
 
-                    embed.Embeds.ForEach(async x => await EnqueueEmbedAsync(new NotificationItem
+                    embed.Embeds.ForEach(async item => await EnqueueEmbedAsync(new NotificationItem
                     {
                         Subscription = user,
                         Member = member,
-                        Embed = x.GenerateDiscordMessage(),
+                        Embed = item.GenerateDiscordMessage(),
                         Description = pokemon.Name,
                         City = geofence.Name,
                     }));

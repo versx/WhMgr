@@ -20,7 +20,7 @@
     using WhMgr.Services.StaticMap;
     using WhMgr.Services.Yourls;
 
-    public sealed class RaidData : IWebhookData, IWebhookPoint
+    public sealed class RaidData : IWebhookData, IWebhookPokemon, IWebhookPowerLevel, IWebhookPoint
     {
         #region Properties
 
@@ -73,10 +73,10 @@
         public uint? SponsorId { get; set; }
 
         [JsonPropertyName("form")]
-        public uint Form { get; set; }
+        public uint FormId { get; set; }
 
         [JsonPropertyName("costume")]
-        public uint Costume { get; set; }
+        public uint CostumeId { get; set; }
 
         [JsonPropertyName("evolution")]
         public uint Evolution { get; set; }
@@ -122,12 +122,12 @@
                 if (!GameMaster.Instance.Pokedex.ContainsKey(PokemonId) || IsEgg)
                     return null;
 
-                var pkmn = GameMaster.GetPokemon(PokemonId, Form);
+                var pkmn = GameMaster.GetPokemon(PokemonId, FormId);
                 if (pkmn?.Types == null)
                     return null;
 
                 var list = new List<PokemonType>();
-                pkmn?.Types?.ForEach(x => list.AddRange(x.GetWeaknesses()));
+                pkmn?.Types?.ForEach(type => list.AddRange(type.GetWeaknesses()));
                 return list;
             }
         }
@@ -183,7 +183,7 @@
                 ?? EmbedMessage.Defaults[embedType];
             var raidImageUrl = IsEgg
                 ? UIconService.Instance.GetEggIcon(server.IconStyle, Level, false, IsExEligible)
-                : UIconService.Instance.GetPokemonIcon(server.IconStyle, PokemonId, Form, Evolution, Gender, Costume, false);
+                : UIconService.Instance.GetPokemonIcon(server.IconStyle, PokemonId, FormId, Evolution, Gender, CostumeId, false);
             settings.ImageUrl = raidImageUrl;
             var properties = await GetPropertiesAsync(settings);
             var eb = new DiscordEmbedMessage
@@ -222,12 +222,12 @@
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
-            var pkmnInfo = GameMaster.GetPokemon(PokemonId, Form);
+            var pkmnInfo = GameMaster.GetPokemon(PokemonId, FormId);
             var name = IsEgg
                 ? Translator.Instance.Translate("EGG")
                 : Translator.Instance.GetPokemonName(PokemonId);
-            var form = Translator.Instance.GetFormName(Form);
-            var costume = Translator.Instance.GetCostumeName(Costume);
+            var form = Translator.Instance.GetFormName(FormId);
+            var costume = Translator.Instance.GetCostumeName(CostumeId);
             var evo = Translator.Instance.GetEvolutionName(Evolution);
             var gender = Gender.GetPokemonGenderIcon();
             var level = Level;
@@ -318,11 +318,11 @@
                 evolution_id = Convert.ToInt32(Evolution),
                 evolution_id_3 = Evolution.ToString("D3"),
                 form,
-                form_id = Form,
-                form_id_3 = Form.ToString("D3"),
+                form_id = FormId,
+                form_id_3 = FormId.ToString("D3"),
                 costume,
-                costume_id = Costume.ToString(),
-                costume_id_3 = Costume.ToString("D3"),
+                costume_id = CostumeId.ToString(),
+                costume_id_3 = CostumeId.ToString("D3"),
                 is_egg = IsEgg,
                 is_ex = IsExEligible,
                 is_ex_exclusive = IsExclusive,

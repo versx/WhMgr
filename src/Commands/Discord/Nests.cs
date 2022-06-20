@@ -48,7 +48,7 @@
         public async Task PostNestsAsync(CommandContext ctx,
             [Description("")] string args = null)
         {
-            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(x => _config.Instance.Servers.ContainsKey(x));
+            var guildId = ctx.Guild?.Id ?? ctx.Client.Guilds.Keys.FirstOrDefault(guildId => _config.Instance.Servers.ContainsKey(guildId));
             if (!_config.Instance.Servers.ContainsKey(guildId))
             {
                 await ctx.RespondEmbedAsync(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
@@ -134,7 +134,7 @@
             }
             else
             {
-                var cities = server.Geofences.Select(x => x.Name.ToLower()).ToList();
+                var cities = server.Geofences.Select(geofence => geofence.Name.ToLower()).ToList();
                 for (var i = 0; i < nests.Count; i++)
                 {
                     var nest = nests[i];
@@ -294,7 +294,7 @@
                 }
                 var geofenceName = geofence.Name;
                 var server = _config.Instance.Servers[guildId];
-                var cities = server.Geofences.Select(x => x.Name.ToLower()).ToList();
+                var cities = server.Geofences.Select(geofence => geofence.Name.ToLower()).ToList();
                 if (!cities.Contains(geofenceName.ToLower()))
                     continue;
 

@@ -135,8 +135,8 @@
                 return 0;
 
             var pkmn = uint.TryParse(nameOrId, out var id)
-                ? GameMaster.Instance.Pokedex.FirstOrDefault(x => x.Key == id)
-                : GameMaster.Instance.Pokedex.FirstOrDefault(x => string.Compare(x.Value.Name, nameOrId, true) == 0);
+                ? GameMaster.Instance.Pokedex.FirstOrDefault(pokemon => pokemon.Key == id)
+                : GameMaster.Instance.Pokedex.FirstOrDefault(pokemon => string.Compare(pokemon.Value.Name, nameOrId, true) == 0);
 
             if (pkmn.Key > 0)
                 return pkmn.Key;
@@ -200,7 +200,7 @@
         {
             var types = pkmn?.Types;
             var boosts = Strings.Defaults.WeatherBoosts[weather];
-            var isBoosted = types?.Exists(x => boosts.Contains(x)) ?? false;
+            var isBoosted = types?.Exists(type => boosts.Contains(type)) ?? false;
             return isBoosted;
         }
     }
@@ -232,7 +232,7 @@
                 var range = GetListFromRange(startRange, endRange);
                 validation = range.ValidatePokemon();
             }
-            else if (generations.Select(x => "gen" + x.Key).ToList().Contains(pokemonList))
+            else if (generations.Select(gen => "gen" + gen.Key).ToList().Contains(pokemonList))
             {
                 // If `poke` is pokemon generation
                 if (!int.TryParse(pokemonList.Replace("gen", ""), out var gen) || !generations.ContainsKey(gen))

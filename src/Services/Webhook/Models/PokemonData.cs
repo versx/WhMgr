@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
@@ -23,7 +24,7 @@
     using WhMgr.Services.Yourls;
 
     [Table("pokemon")]
-    public sealed class PokemonData : IWebhookData, IWebhookPoint
+    public sealed class PokemonData : IWebhookData, IWebhookPokemon, IWebhookPoint
     {
         #region Properties
 
@@ -31,7 +32,7 @@
             JsonPropertyName("pokemon_id"),
             Column("pokemon_id"),
         ]
-        public uint Id { get; set; }
+        public uint PokemonId { get; set; }
 
         [
             JsonPropertyName("cp"),
@@ -101,7 +102,7 @@
             JsonPropertyName("costume"),
             Column("costume"),
         ]
-        public uint Costume { get; set; }
+        public uint CostumeId { get; set; }
 
         [
             JsonPropertyName("pokemon_level"),
@@ -148,6 +149,7 @@
         [
             JsonPropertyName("encounter_id"),
             Column("id"),
+            Key,
         ]
         public string EncounterId { get; set; }
 
@@ -260,7 +262,7 @@
                 {
                     return null;
                 }
-                return Id.GetSize(Height ?? 0, Weight ?? 0);
+                return PokemonId.GetSize(Height ?? 0, Weight ?? 0);
             }
         }
 
@@ -268,7 +270,7 @@
             JsonIgnore,
             NotMapped,
         ]
-        public bool IsDitto => Id == 132;
+        public bool IsDitto => PokemonId == 132;
 
         [
             JsonPropertyName("display_pokemon_id"),
@@ -386,7 +388,7 @@
             var embed = settings.Alarm?.Embeds[embedType]
                 ?? server.Subscriptions?.Embeds?[embedType]
                 ?? EmbedMessage.Defaults[embedType];
-            settings.ImageUrl = UIconService.Instance.GetPokemonIcon(server.IconStyle, Id, FormId, 0, Gender, Costume, false);
+            settings.ImageUrl = UIconService.Instance.GetPokemonIcon(server.IconStyle, PokemonId, FormId, 0, Gender, CostumeId, false);
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
             {
@@ -426,10 +428,10 @@
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
-            var pkmnInfo = GameMaster.GetPokemon(Id, FormId);
-            var pkmnName = Translator.Instance.GetPokemonName(Id);
+            var pkmnInfo = GameMaster.GetPokemon(PokemonId, FormId);
+            var pkmnName = Translator.Instance.GetPokemonName(PokemonId);
             var form = Translator.Instance.GetFormName(FormId);
-            var costume = Translator.Instance.GetCostumeName(Costume);
+            var costume = Translator.Instance.GetCostumeName(CostumeId);
             var gender = Gender.GetPokemonGenderIcon();
             var genderEmoji = Gender.GetEmojiIcon("gender", true);
             var level = Level;
@@ -455,7 +457,7 @@
                 : PokemonType.None;
             var typeEmojis = pkmnInfo?.Types?.GetTypeEmojiIcons() ?? string.Empty;
             var catchPokemon = IsDitto
-                ? Translator.Instance.GetPokemonName(DisplayPokemonId ?? Id)
+                ? Translator.Instance.GetPokemonName(DisplayPokemonId ?? PokemonId)
                 : pkmnName;
             var isShiny = Shiny ?? false;
             var height = Height != null
@@ -510,16 +512,16 @@
             var dict = new
             {
                 // Main properties
-                pkmn_id = Id,
-                pkmn_id_3 = Id.ToString("D3"),
+                pkmn_id = PokemonId,
+                pkmn_id_3 = PokemonId.ToString("D3"),
                 pkmn_name = pkmnName,
                 pkmn_img_url = properties.ImageUrl,
                 form,
                 form_id = FormId,
                 form_id_3 = FormId.ToString("D3"),
                 costume = costume ?? defaultMissingValue,
-                costume_id = Costume,
-                costume_id_3 = Costume.ToString("D3"),
+                costume_id = CostumeId,
+                costume_id_3 = CostumeId.ToString("D3"),
                 cp = CP == null ? defaultMissingValue : Convert.ToString(CP),
                 lvl = level == null ? defaultMissingValue : Convert.ToString(level),
                 gender,
@@ -611,8 +613,8 @@
                 // Pokestop properties
                 near_pokestop = pokestop != null,
                 pokestop_id = PokestopId ?? defaultMissingValue,
-                pokestop_name = pokestop?.Name ?? defaultMissingValue,
-                pokestop_url = pokestop?.Url ?? defaultMissingValue,
+                pokestop_name = pokestop?.FortName ?? defaultMissingValue,
+                pokestop_url = pokestop?.FortUrl ?? defaultMissingValue,
 
                 // Discord Guild properties
                 guild_name = guild?.Name,

@@ -3,7 +3,6 @@
 	{
 		"enabled": true,
 		"lured": true,
-		"lure_types": ["Normal", "Glacial", "Mossy", "Magnetic", "Rainy"],
-		"invasions": false
+		"lure_types": ["Normal", "Glacial", "Mossy", "Magnetic", "Rainy"]
 	}
 }

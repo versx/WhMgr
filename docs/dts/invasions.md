@@ -1,21 +1,23 @@
 # Dynamic Text Replacement  
 
-Use any of the following in your embeds file to structure how notifications will look for Pokestop Lures.  
+Use any of the following in your embeds file to structure how notifications will look for Team Rocket Invasions.  
 
-### Pokestops (Lures)  
+### Team Rocket Invasions  
 
 | Place Holder | Description  | Example
 |---|---|---|  
-| has_lure | Returns if Pokestop has active lure module deployed | true
-| lure_type | Pokestop lure module type | Glacial
-| lure_expire_time | Time lure module will expire | 07:33:19 PM
-| lure_expire_time_24h | Time lure module will expire (24-hour format) | 19:33:19
-| lure_expire_time_left | Time left until lure module expires | 13m, 2s
-| power_up_level | Pokestop power level | 1  
-| power_up_points | Pokestop's total power level points | 100  
-| power_up_end_time | Pokestop's power up end time | 10:15:09 PM  
-| power_up_end_time_24h | Pokestop's power up end time (24-hour format) | 13:28:30  
-| power_up_end_time_left | Pokestop's power up time left until expires | 14m, 10s   
+| grunt_type | Grunt type | Water
+| grunt_type_emoji | Emoji icon of grunt type | <:938294:types_water>
+| grunt_gender | Grunt gender | Male
+| grunt_gender_id | Grunt gender id | 2
+| display_type | Incident type i.e. Grunt, Leader, etc | InvasionGrunt
+| display_type_id | Incident type id | 2
+| style | Incident style | PokestopNormal, PokestopRocketInvasion
+| style_id | Incident style id | 0
+| invasion_expire_time | Time the invasion expires | 02:17:11 PM
+| invasion_expire_time_24h | Time the invasion expires (24-hour format) | 14:17:11
+| invasion_expire_time_left | Time left until invasion expires | 12m, 56s
+| invasion_encounters | Possible invasions reward encounters | 80% Bulbasaur
 | geofence | Geofence name raid boss is in | City1
 | address | Google Maps or OSM Nominatim address from geocoordinates | 123 Fake St
 | lat | Latitude coordinate of Pokemon location | 5.980921321
@@ -29,7 +31,7 @@ Use any of the following in your embeds file to structure how notifications will
 | pokestop_id | Pokestop ID | 9382498723849792348798234.16
 | pokestop_name | Name of Pokestop | The Amazing Pokestop
 | pokestop_url | Image url of Gym | https://google.com/imgs/gym.png
-| lure_img_url | Image url of lure icon | https://google.com/imgs/lure_501.png
+| invasion_img_url | Image url of grunt type icon | https://google.com/imgs/grunt_50.png
 | guild_name | Name of Guild | Test Guild
 | guild_img_url | Icon image url of Guild | https://discordapp.com/image1.png
 | date_time | Current date and time | 12/12/2020 12:12:12 PM

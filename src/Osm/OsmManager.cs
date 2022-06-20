@@ -43,7 +43,7 @@
 
             return Nests
                 .Features?
-                .Where(x => string.Compare(name, x?.Properties?.Name, true) == 0)?
+                .Where(nest => string.Compare(name, nest?.Properties?.Name, true) == 0)?
                 .ToList();
         }
 
