@@ -74,6 +74,12 @@ Filters allow you to narrow down what is reported. All filters are optional and 
 		"max_lvl": 8, // Maximum egg level to send
 		"only_ex": false, // Only send ex-eligible raids.
 		"team": "All", // All, Valor, Mystic, Instinct, Neutral
+        "power_level": {
+            "min_level": 1,
+            "max_level": 3,
+            "min_points": 10,
+            "max_points": 250
+        }
 	},
 	"raids":
 	{
@@ -86,6 +92,12 @@ Filters allow you to narrow down what is reported. All filters are optional and 
 		"type": "Include", // Include or Exclude the `pokemon` list
 		"only_ex": false, // Only send ex-eligible raids.
 		"team": "All", // All, Valor, Mystic, Instinct, Nuetral
+        "power_level": {
+            "min_level": 1,
+            "max_level": 3,
+            "min_points": 10,
+            "max_points": 250
+        },
 		"ignore_missing": true // Ignore raids missing stats
 	},
 	"quests":
@@ -100,7 +112,15 @@ Filters allow you to narrow down what is reported. All filters are optional and 
 		"enabled": true, // Filter is enabled
 		"lured": true, // Only send lured pokestops
 		"lure_types": ["Normal", "Glacial", "Mossy", "Magnetic"], // Only send lures in type list  
-		"invasions": false, // Only send Team Rocket invasion pokestops
+        "power_level": {
+            "min_level": 1,
+            "max_level": 3,
+            "min_points": 10,
+            "max_points": 250
+        }
+	},
+    "invasions": {
+        "enabled": true, // Filter is enabled
 		// Determines which invasion types to send
 		"invasionTypes": {
             "CharacterUnset": false,
@@ -195,12 +215,18 @@ Filters allow you to narrow down what is reported. All filters are optional and 
             "CharacterElectricBalloonGruntFemale": true,
             "CharacterElectricBalloonGruntMale": true
 		}
-	},
+    },
 	"gyms":
 	{
 		"enabled": true, // Filter is enabled
 		"under_attack": true, // Only gyms that are under attack
-		"team": "All" // Team change to notify about (i.e. Neutral/Mystic/Valor/Instinct/All)
+		"team": "All", // Team change to notify about (i.e. Neutral/Mystic/Valor/Instinct/All)
+        "power_level": {
+            "min_level": 1,
+            "max_level": 3,
+            "min_points": 10,
+            "max_points": 250
+        }
 	},
 	"weather":
 	{

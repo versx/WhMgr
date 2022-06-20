@@ -1,11 +1,11 @@
 {
-	"enablePokemon": true, //Enable or disable Pokemon alarms globally
-	"enableRaids": true, //Enable or disable Raid alarms globally
-	"enableQuests": true, //Enable or disable Quest alarms globally
-	"enablePokestops": true, //Enable or disable Pokestop alarms globally
-    "enableInvasions": true, //Enable or disable Invasion alarms globally
-	"enableGyms": true, //Enable or disable Gym alarms globally
-	"enableWeather": true, //Enable or disable Weather alarms globally
+	"enablePokemon": true, //Enable or disable Pokemon alarm filters globally
+	"enableRaids": true, //Enable or disable Raid alarm filters globally
+	"enableQuests": true, //Enable or disable Quest alarm filters globally
+	"enablePokestops": true, //Enable or disable Pokestop alarm filters globally
+    "enableInvasions": true, //Enable or disable Invasion alarm filters globally
+	"enableGyms": true, //Enable or disable Gym alarm filters globally
+	"enableWeather": true, //Enable or disable Weather alarm filters globally
 	"alarms": 
 	[
 		{

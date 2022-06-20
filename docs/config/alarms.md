@@ -12,17 +12,19 @@ There is no limit to the amount of alarms you can add under the `alarms` propert
 ## Example
 ```json
 {
-    // Enable or disable Pokemon alarms globally
+    // Enable or disable Pokemon filters globally
     "enablePokemon": true,
-    // Enable or disable Raid alarms globally
+    // Enable or disable Raid filters globally
     "enableRaids": true,
-    // Enable or disable Quest alarms globally
+    // Enable or disable Quest filters globally
     "enableQuests": true,
-    // Enable or disable Pokestop alarms globally
+    // Enable or disable Pokestop filters globally
     "enablePokestops": true,
-    // Enable or disable Gym alarms globally
+	// Enable or disable Invasion filters globally
+	"enableInvasions": true,
+    // Enable or disable Gym filters globally
     "enableGyms": true, 
-    // Enable or disable Weather alarms globally
+    // Enable or disable Weather filters globally
     "enableWeather": true,
     // List of alarms
 	"alarms":
