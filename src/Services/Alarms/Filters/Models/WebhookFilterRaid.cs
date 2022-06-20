@@ -68,7 +68,7 @@
         /// Gets or sets the Gym power level filtering options
         /// </summary>
         [JsonPropertyName("power_level")]
-        public WebhookFilterGymLevel PowerLevel { get; set; } = new();
+        public WebhookFilterGymLevel PowerLevel { get; set; }
 
         /// <summary>
         /// Gets or sets a value determining whether to ignore raids missing stats

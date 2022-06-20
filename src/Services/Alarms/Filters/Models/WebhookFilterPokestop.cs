@@ -28,9 +28,9 @@
         public List<string> LureTypes { get; set; } = new();
 
         /// <summary>
-        /// Gets or sets the Gym power level filtering options
+        /// Gets or sets the Pokestop power level filtering options
         /// </summary>
         [JsonPropertyName("power_level")]
-        public WebhookFilterGymLevel PowerLevel { get; set; } = new();
+        public WebhookFilterGymLevel PowerLevel { get; set; }
     }
 }
