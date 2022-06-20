@@ -3,7 +3,7 @@
 	"enableRaids": true, //Enable or disable Raid alarms globally
 	"enableQuests": true, //Enable or disable Quest alarms globally
 	"enablePokestops": true, //Enable or disable Pokestop alarms globally
-    "enableInvasions": true, //Enable or disable Invasion alarms globally
+	"enableInvasions": true, //Enable or disable Invasion alarms globally
 	"enableGyms": true, //Enable or disable Gym alarms globally
 	"enableWeather": true, //Enable or disable Weather alarms globally
 	"alarms": 
