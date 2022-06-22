@@ -77,6 +77,12 @@ function ListAlarms() {
             renderCell: (params) => params.row.enable_pokestops ? 'Yes' : 'No',
         },
         {
+            field: 'enable_invasions',
+            headerName: 'Enable Invasions',
+            flex: 1,
+            renderCell: (params) => params.row.enable_invasions ? 'Yes' : 'No',
+        },
+        {
             field: 'enable_weather',
             headerName: 'Enable Weather',
             flex: 1,

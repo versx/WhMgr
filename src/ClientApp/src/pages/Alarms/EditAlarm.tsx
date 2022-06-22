@@ -38,6 +38,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
             enableRaids: false,
             enableQuests: false,
             enablePokestops: false,
+            enableInvasions: false,
             enableGyms: false,
             enableWeather: false,
             alarms: [],
@@ -114,6 +115,7 @@ class EditAlarm extends React.Component<IGlobalProps> {
                 enableRaids: this.state.enableRaids,
                 enableQuests: this.state.enableQuests,
                 enablePokestops: this.state.enablePokestops,
+                enableInvasions: this.state.enableInvasions,
                 enableGyms: this.state.enableGyms,
                 enableWeather: this.state.enableWeather,
                 alarms: this.state.alarms,
@@ -264,6 +266,14 @@ class EditAlarm extends React.Component<IGlobalProps> {
                                             name="enablePokestops"
                                             control={<Switch checked={this.state.enablePokestops} onChange={handleCheckbox} />}
                                             label="Enable Pokestops"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <FormControlLabel
+                                            id="enableInvasions"
+                                            name="enableInvasions"
+                                            control={<Switch checked={this.state.enableInvasions} onChange={handleCheckbox} />}
+                                            label="Enable Invasions"
                                         />
                                     </Grid>
                                     <Grid item xs={12} sm={6}>
