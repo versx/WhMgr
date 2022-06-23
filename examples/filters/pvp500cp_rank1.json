@@ -8,13 +8,13 @@
         "min_cp": 0,
         "max_cp": 500,
         "pvp": {
-            "little": [{
+            "little": {
                 "min_rank": 1,
                 "max_rank": 1,
                 "min_cp": 450,
                 "max_cp": 500,
                 "gender": "*"
-            }]
+            }
         },
         "type": "Include",
         "ignore_missing": true

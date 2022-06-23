@@ -8,13 +8,13 @@
         "min_cp": 0,
         "max_cp": 2500,
         "pvp": {
-            "ultra": [{
+            "ultra": {
                 "min_rank": 1,
                 "max_rank": 1,
                 "min_cp": 2400,
                 "max_cp": 2500,
                 "gender": "*"
-            }]
+            }
         },
         "type": "Include",
         "ignore_missing": true
