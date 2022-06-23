@@ -77,10 +77,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Web\Api\Requests\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Remove="ClientApp\package.json" />
     <Content Remove="ClientApp\package-lock.json" />
     <Content Remove="ClientApp\public\manifest.json" />
@@ -95,6 +91,13 @@
 	<Content Include="Views\**\*.*">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Web\Api\Requests\**" />
+    <Content Remove="Web\Api\Requests\**" />
+    <EmbeddedResource Remove="Web\Api\Requests\**" />
+    <None Remove="Web\Api\Requests\**" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md">

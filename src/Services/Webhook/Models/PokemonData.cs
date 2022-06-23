@@ -342,6 +342,8 @@
 
         #endregion
 
+        #region Public Methods
+
         /// <summary>
         /// Set despawn times because .NET doesn't support Unix timestamp
         /// deserialization to <seealso cref="DateTime"/> class by default.
@@ -425,6 +427,10 @@
                 Embeds = new List<DiscordEmbedMessage> { eb },
             };
         }
+
+        #endregion
+
+        #region Private Methods
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
@@ -629,5 +635,7 @@
             };
             return dict;
         }
+
+        #endregion
     }
 }

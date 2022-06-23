@@ -110,6 +110,10 @@
             var useForm = /*!pkmn.Attack.HasValue &&*/ formId > 0 && pkmn.Forms.ContainsKey(formId);
             var pkmnForm = useForm ? pkmn.Forms[formId] : pkmn;
             pkmnForm.Name = pkmn.Name;
+            // Check if Pokemon is form and Pokemon types provided, if not use normal Pokemon types as fallback
+            pkmnForm.Types = useForm && (pkmn.Forms[formId].Types?.Count ?? 0) > 0
+                ? pkmn.Forms[formId].Types
+                : pkmn.Types;
             return pkmnForm;
         }
 
