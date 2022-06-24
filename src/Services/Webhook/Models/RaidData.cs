@@ -5,9 +5,11 @@
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
+    using DiscordGuild = DSharpPlus.Entities.DiscordGuild;
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
 
     using WhMgr.Common;
+    using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Localization;
@@ -152,15 +154,15 @@
         {
             StartTime = Start
                 .FromUnix()
-                .ConvertTimeFromCoordinates(Latitude, Longitude);
+                .ConvertTimeFromCoordinates(this);
 
             EndTime = End
                 .FromUnix()
-                .ConvertTimeFromCoordinates(Latitude, Longitude);
+                .ConvertTimeFromCoordinates(this);
 
             PowerUpEndTime = PowerUpEndTimestamp
                 .FromUnix()
-                .ConvertTimeFromCoordinates(Latitude, Longitude);
+                .ConvertTimeFromCoordinates(this);
         }
 
         /// <summary>
@@ -222,6 +224,7 @@
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
+            var config = properties.Config.Instance;
             var pkmnInfo = GameMaster.GetPokemon(PokemonId, FormId);
             var name = IsEgg
                 ? Translator.Instance.Translate("EGG")
@@ -234,19 +237,13 @@
             var move1 = Translator.Instance.GetMoveName(FastMove);
             var move2 = Translator.Instance.GetMoveName(ChargeMove);
             var types = pkmnInfo?.Types;
-            var type1 = pkmnInfo?.Types?.Count >= 1
-                ? pkmnInfo.Types[0]
+            var type1 = types?.Count >= 1
+                ? types[0]
                 : PokemonType.None;
-            var type2 = pkmnInfo?.Types?.Count > 1
-                ? pkmnInfo.Types[1]
+            var type2 = types?.Count > 1
+                ? types[1]
                 : PokemonType.None;
-            var type1Emoji = pkmnInfo?.Types?.Count >= 1
-                ? type1.GetTypeEmojiIcons()
-                : string.Empty;
-            var type2Emoji = pkmnInfo?.Types?.Count > 1
-                ? type2.GetTypeEmojiIcons()
-                : string.Empty;
-            var typeEmojis = $"{type1Emoji} {type2Emoji}";
+            var typeEmojis = types?.GetTypeEmojiIcons() ?? string.Empty;
             var weaknesses = Weaknesses == null
                 ? string.Empty
                 : string.Join(", ", Weaknesses);
@@ -255,56 +252,21 @@
             var boostedRange = PokemonId.GetCpAtLevel(25, 15);
             var worstRange = PokemonId.GetCpAtLevel(20, 10);
             var worstBoosted = PokemonId.GetCpAtLevel(25, 10);
-            var exEmojiId = GameMaster.Instance.Emojis.ContainsKey("ex")
-                ? GameMaster.Instance.Emojis["ex"]
-                : 0;
-            var exEmoji = exEmojiId > 0 ? $"<:ex:{exEmojiId}>" : "EX";
-            var teamEmojiId = GameMaster.Instance.Emojis.ContainsKey(Team.ToString().ToLower())
-                ? GameMaster.Instance.Emojis[Team.ToString().ToLower()]
-                : 0;
-            var teamEmoji = teamEmojiId > 0 ? $"<:{Team.ToString().ToLower()}:{teamEmojiId}>" : Team.ToString();
+            var exEmoji = Strings.EX.GetEmojiIcon(null, true);
+            var teamEmoji = Team.GetEmojiIcon(null, true);
 
-            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
-            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
-            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
-            var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
+            var locProperties = await GenericEmbedProperties.GenerateAsync(config, properties.Client.Guilds, properties.GuildId, this);
+            var staticMapLink = await config.StaticMaps?.GenerateStaticMapAsync(
+                StaticMapType.Raids,
+                this,
+                properties.ImageUrl,
+                properties.MapDataCache,
+                Team
+            );
 
-            var staticMapConfig = properties.Config.Instance.StaticMaps;
-            var staticMap = new StaticMapGenerator(new StaticMapOptions
-            {
-                BaseUrl = staticMapConfig.Url,
-                MapType = StaticMapType.Raids,
-                TemplateType = staticMapConfig.Type,
-                Latitude = Latitude,
-                Longitude = Longitude,
-                SecondaryImageUrl = properties.ImageUrl,
-                Team = Team,
-                Gyms = staticMapConfig.IncludeNearbyGyms
-                    // Fetch nearby gyms from MapDataCache
-                    ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
-                    : new(),
-                Pokestops = staticMapConfig.IncludeNearbyPokestops
-                    // Fetch nearby pokestops from MapDataCache
-                    ? await properties .MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
-                    : new(),
-                Pregenerate = staticMapConfig.Pregenerate,
-                Regeneratable = true,
-            });
-            var staticMapLink = staticMap.GenerateLink();
-            var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
-            var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
-            var appleMapsLocationLink = await urlShortener.CreateAsync(appleMapsLink);
-            var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
-            var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
-            var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
-
-            var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
-            var startTimeLeft = now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds();
-            var endTimeLeft = now.GetTimeRemaining(EndTime).ToReadableStringNoSeconds();
-            var powerUpEndTimeLeft = now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
-                ? properties.Client.Guilds[properties.GuildId]
-                : null;
+            var startTimeLeft = locProperties.Now.GetTimeRemaining(StartTime).ToReadableStringNoSeconds();
+            var endTimeLeft = locProperties.Now.GetTimeRemaining(EndTime).ToReadableStringNoSeconds();
+            var powerUpEndTimeLeft = locProperties.Now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
 
             const string defaultMissingValue = "?";
             var dict = new
@@ -339,8 +301,6 @@
                 moveset = $"{move1}/{move2}",
                 type_1 = type1.ToString() ?? defaultMissingValue,
                 type_2 = type2.ToString() ?? defaultMissingValue,
-                type_1_emoji = type1Emoji,
-                type_2_emoji = type2Emoji,
                 types = $"{type1}/{type2}",
                 types_emoji = typeEmojis,
                 weaknesses,
@@ -375,12 +335,12 @@
 
                 // Location links
                 tilemaps_url = staticMapLink,
-                gmaps_url = gmapsLocationLink,
-                applemaps_url = appleMapsLocationLink,
-                wazemaps_url = wazeMapsLocationLink,
-                scanmaps_url = scannerMapsLocationLink,
+                gmaps_url = locProperties.GoogleMapsLocationLink,
+                applemaps_url = locProperties.AppleMapsLocationLink,
+                wazemaps_url = locProperties.WazeMapsLocationLink,
+                scanmaps_url = locProperties.ScannerMapsLocationLink,
 
-                address = address ?? string.Empty,
+                address = locProperties.Address,
 
                 // Gym properties
                 gym_id = GymId,
@@ -388,8 +348,8 @@
                 gym_url = GymUrl,
 
                 // Discord Guild properties
-                guild_name = guild?.Name,
-                guild_img_url = guild?.IconUrl,
+                guild_name = locProperties.Guild?.Name,
+                guild_img_url = locProperties.Guild?.IconUrl,
 
                 // Misc properties
                 date_time = DateTime.Now.ToString(),

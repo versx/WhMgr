@@ -126,14 +126,16 @@
         {
             PowerUpEndTime = PowerUpEndTimestamp
                 .FromUnix()
-                .ConvertTimeFromCoordinates(Latitude, Longitude);
+                .ConvertTimeFromCoordinates(this);
         }
 
         public async Task<DiscordWebhookMessage> GenerateEmbedMessageAsync(AlarmMessageSettings settings)
         {
             var server = settings.Config.Instance.Servers[settings.GuildId];
             var embedType = EmbedMessageType.Gyms;
-            var embed = settings.Alarm?.Embeds[embedType] ?? server.Subscriptions?.Embeds?[embedType] ?? EmbedMessage.Defaults[embedType];
+            var embed = settings.Alarm?.Embeds[embedType]
+                ?? server.Subscriptions?.Embeds?[embedType]
+                ?? EmbedMessage.Defaults[embedType];
             var properties = await GetPropertiesAsync(settings).ConfigureAwait(false);
             var eb = new DiscordEmbedMessage
             {
@@ -177,52 +179,23 @@
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
+            var config = properties.Config.Instance;
             // Get old gym from cache
             var oldGym = await properties.MapDataCache.GetGym(FortId).ConfigureAwait(false);
-            var exEmoji = "ex".GetEmojiIcon(null, true);
+            var exEmoji = Strings.EX.GetEmojiIcon(null, true);
             var teamEmoji = Team.GetEmojiIcon(null, true);
             var oldTeamEmoji = oldGym?.Team.GetEmojiIcon(null, true);
+            var gymImageUrl = UIconService.Instance.GetGymIcon(config.Servers[properties.GuildId].IconStyle, Team);
 
-            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
-            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
-            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
-            var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
-            var gymImageUrl = UIconService.Instance.GetGymIcon(properties.Config.Instance.Servers[properties.GuildId].IconStyle, Team);
-
-            var staticMapConfig = properties.Config.Instance.StaticMaps;
-            var staticMap = new StaticMapGenerator(new StaticMapOptions
-            {
-                BaseUrl = staticMapConfig.Url,
-                MapType = StaticMapType.Gyms,
-                TemplateType = staticMapConfig.Type,
-                Latitude = Latitude,
-                Longitude = Longitude,
-                Team = Team,
-                SecondaryImageUrl = gymImageUrl,
-                Gyms = staticMapConfig.IncludeNearbyGyms
-                    // Fetch nearby gyms from MapDataCache
-                    ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
-                    : new(),
-                Pokestops = staticMapConfig.IncludeNearbyPokestops
-                    // Fetch nearby pokestops from MapDataCache
-                    ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
-                    : new(),
-                Pregenerate = staticMapConfig.Pregenerate,
-                Regeneratable = true,
-            });
-            var staticMapLink = staticMap.GenerateLink();
-            var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
-            var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
-            var appleMapsLocationLink = await urlShortener.CreateAsync(appleMapsLink);
-            var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
-            var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
-            var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
-
-            var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
-            var powerUpEndTimeLeft = now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
-                ? properties.Client.Guilds[properties.GuildId]
-                : null;
+            var locProperties = await GenericEmbedProperties.GenerateAsync(config, properties.Client.Guilds, properties.GuildId, this);
+            var staticMapLink = await config.StaticMaps?.GenerateStaticMapAsync(
+                StaticMapType.Gyms,
+                this,
+                gymImageUrl,
+                properties.MapDataCache,
+                Team
+            );
+            var powerUpEndTimeLeft = locProperties.Now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
 
             const string defaultMissingValue = "?";
             var dict = new
@@ -266,16 +239,16 @@
 
                 // Location links
                 tilemaps_url = staticMapLink,
-                gmaps_url = gmapsLocationLink,
-                applemaps_url = appleMapsLocationLink,
-                wazemaps_url = wazeMapsLocationLink,
-                scanmaps_url = scannerMapsLocationLink,
+                gmaps_url = locProperties.GoogleMapsLocationLink,
+                applemaps_url = locProperties.AppleMapsLocationLink,
+                wazemaps_url = locProperties.WazeMapsLocationLink,
+                scanmaps_url = locProperties.ScannerMapsLocationLink,
 
-                address = address ?? string.Empty,
+                address = locProperties.Address,
 
                 // Discord Guild properties
-                guild_name = guild?.Name,
-                guild_img_url = guild?.IconUrl,
+                guild_name = locProperties.Guild?.Name,
+                guild_img_url = locProperties.Guild?.IconUrl,
 
                 // Misc properties
                 date_time = DateTime.Now.ToString(),

@@ -333,7 +333,7 @@
                     }
 
                     // Create steam of emoji file data
-                    var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
+                    using var fs = new FileStream(emojiPath, FileMode.Open, FileAccess.Read);
 
                     // Create emoji for Discord guild
                     await guild.CreateEmojiAsync(emoji, fs, null, $"Missing `{emoji}` emoji.");

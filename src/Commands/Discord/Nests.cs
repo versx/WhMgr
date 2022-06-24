@@ -24,6 +24,7 @@
     using WhMgr.Services;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Geofence;
+    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
 
@@ -197,41 +198,36 @@
 
         public dynamic GetProperties(DiscordGuild guild, Nest nest, string pokemonImageUrl)
         {
+            var config = _config.Instance;
             var pkmnInfo = GameMaster.GetPokemon(nest.PokemonId);
             var pkmnImage = pokemonImageUrl;
             var nestName = nest.Name ?? "Unknown";
-            var type1 = pkmnInfo?.Types?[0];
-            var type2 = pkmnInfo?.Types?.Count > 1 ? pkmnInfo.Types?[1] : PokemonType.None;
-            var type1Emoji = pkmnInfo?.Types?[0].GetTypeEmojiIcons();
-            var type2Emoji = pkmnInfo?.Types?.Count > 1 ? pkmnInfo?.Types?[1].GetTypeEmojiIcons() : string.Empty;
-            var typeEmojis = $"{type1Emoji} {type2Emoji}";
+            var types = pkmnInfo?.Types;
+            var type1 = types?.Count >= 1
+                ? types[0]
+                : PokemonType.None;
+            var type2 = types?.Count > 1
+                ? types[1]
+                : PokemonType.None;
+            var typeEmojis = types?.GetTypeEmojiIcons() ?? string.Empty;
             var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, nest.Latitude, nest.Longitude);
             var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, nest.Latitude, nest.Longitude);
             var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, nest.Latitude, nest.Longitude);
-            var scannerMapsLink = string.Format(_config.Instance.Urls.ScannerMap, nest.Latitude, nest.Longitude);
+            var scannerMapsLink = string.Format(config.Urls.ScannerMap, nest.Latitude, nest.Longitude);
+            var address = ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(nest)).Result;
 
-            //pkmnImage,
             var osmNest = _osmManager.GetNest(nest.Name)?.FirstOrDefault();
             var polygonPath = OsmManager.MultiPolygonToLatLng(osmNest?.Geometry?.Coordinates, true);
-            var staticMapConfig = _config.Instance.StaticMaps;
-            var staticMap = new StaticMapGenerator(new StaticMapOptions
-            {
-                BaseUrl = staticMapConfig.Url,
-                MapType = StaticMapType.Nests,
-                TemplateType = staticMapConfig.Type == StaticMapTemplateType.StaticMap
-                    ? StaticMapTemplateType.StaticMap
-                    : StaticMapTemplateType.MultiStaticMap,
-                Latitude = nest.Latitude,
-                Longitude = nest.Longitude,
-                SecondaryImageUrl = pokemonImageUrl,
-                PolygonPath = polygonPath,
-                Pregenerate = staticMapConfig.Pregenerate,
-                Regeneratable = true,
-            });
-            var staticMapLink = staticMap.GenerateLink();
-            var geofence = GeofenceService.GetGeofence(_config.Instance.Servers[guild.Id].Geofences, new Coordinate(nest));
+            var staticMapLink = config.StaticMaps?.GenerateStaticMap(
+                StaticMapType.Nests,
+                nest,
+                pokemonImageUrl,
+                null,
+                null,
+                polygonPath
+            );
+            var geofence = GeofenceService.GetGeofence(config.Servers[guild.Id].Geofences, new Coordinate(nest));
             var city = geofence?.Name ?? "Unknown";
-            //var address = new Coordinate(city, nest.Latitude, nest.Longitude).GetAddress(_config.Instance);
 
             var dict = new
             {
@@ -244,8 +240,6 @@
                 nest_name = nestName,
                 type_1 = Convert.ToString(type1),
                 type_2 = Convert.ToString(type2),
-                type_1_emoji = type1Emoji,
-                type_2_emoji = type2Emoji,
                 types = $"{type1} | {type2}",
                 types_emojis = typeEmojis,
 
@@ -265,7 +259,7 @@
                 wazemaps_url = wazeMapsLink,
                 scanmaps_url = scannerMapsLink,
 
-                //address = address?.Address,
+                address = address ?? string.Empty,
 
                 // Discord Guild properties
                 guild_name = guild?.Name,

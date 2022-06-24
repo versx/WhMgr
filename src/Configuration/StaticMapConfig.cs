@@ -6,6 +6,9 @@
 
     public class StaticMapConfig
     {
+        [JsonPropertyName("enabled")]
+        public bool Enabled { get; set; } = true;
+
         [JsonPropertyName("url")]
         public string Url { get; set; }
 

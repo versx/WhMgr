@@ -11,7 +11,6 @@
     using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Services.Icons;
-    using WhMgr.Services.StaticMap;
 
     /// <summary>
     /// Configuration file class
