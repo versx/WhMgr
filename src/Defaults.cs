@@ -115,6 +115,9 @@
                 // Ex gym emoji
                 "ex",
 
+                // AR fort emoji
+                "ar",
+
                 // Type emojis
                 "types_fire",
                 "types_grass",

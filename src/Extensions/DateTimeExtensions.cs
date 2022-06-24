@@ -5,12 +5,19 @@
     using GeoTimeZone;
     using TimeZoneConverter;
 
+    using WhMgr.Services.Webhook.Models;
+
     public static class DateTimeExtensions
     {
         public static TimeSpan GetTimeRemaining(this DateTime startTime, DateTime endTime)
         {
             var remaining = TimeSpan.FromTicks(endTime.Ticks - startTime.Ticks);
             return remaining;
+        }
+
+        public static DateTime ConvertTimeFromCoordinates(this DateTime date, IWebhookPoint coord)
+        {
+            return ConvertTimeFromCoordinates(date, coord.Latitude, coord.Longitude);
         }
 
         public static DateTime ConvertTimeFromCoordinates(this DateTime date, double lat, double lon)

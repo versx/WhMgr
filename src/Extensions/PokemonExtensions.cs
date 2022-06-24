@@ -100,19 +100,33 @@
             return string.Join(" ", list);
         }
 
-        public static string GetEmojiIcon<T>(this T type, string keyPrefix, bool asString)
+        public static string GetEmojiIcon<T>(this T type, string keyPrefix, bool asString, string defaultValue = null)
         {
             var value = asString ? type.ToString().ToLower() : Convert.ToInt32(type).ToString();
             var key = string.IsNullOrEmpty(keyPrefix) ? value : $"{keyPrefix}_{value}";
             var emojiId = GameMaster.Instance.Emojis.ContainsKey(key)
                 ? GameMaster.Instance.Emojis[key]
                 : 0;
-            var emojiName = string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[key])
+
+            if (emojiId == 0)
+            {
+                Console.WriteLine($"Emoji '{key}' does not exist! Using fallback text.");
+            }
+
+            // Check if custom emoji list contains specified emoji string or if custom emoji is not overwritten.
+            var emojiName = !GameMaster.Instance.CustomEmojis.ContainsKey(key) || string.IsNullOrEmpty(GameMaster.Instance.CustomEmojis[key])
+                // Check if we retrieved Discord emoji successfully
                 ? emojiId > 0
+                    // Construct Discord emoji string
                     ? string.Format(Strings.Defaults.EmojiSchema, key, emojiId)
+                    // Fallback to text instead of emoji
                     : type.ToString()
+                // Custom emoji is set which overwrites Discord emojis
                 : GameMaster.Instance.CustomEmojis[key] ?? type.ToString();
-            return emojiName;
+            var result = !string.IsNullOrEmpty(emojiName)
+                ? emojiName
+                : defaultValue;
+            return result;
         }
 
         public static string GetWeaknessEmojiIcons(this List<PokemonType> pokemonTypes)
