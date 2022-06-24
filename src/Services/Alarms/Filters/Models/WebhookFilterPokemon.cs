@@ -86,7 +86,7 @@
         /// Gets or sets the Pokemon eligible PvP ranking filtering
         /// </summary>
         [JsonPropertyName("pvp")]
-        public Dictionary<PvpLeague, List<WebhookFilterPokemonPvp>> Pvp { get; set; }
+        public Dictionary<PvpLeague, WebhookFilterPokemonPvp> Pvp { get; set; }
 
         /// <summary>
         /// Gets or sets a value determining if webhook Pokemon filter has PvP ranking filters
@@ -128,7 +128,7 @@
             MaximumCP = 999999;
             MinimumLevel = 0;
             MaximumLevel = 100; // Support for when they increase level cap. :wink:
-            Pvp = new Dictionary<PvpLeague, List<WebhookFilterPokemonPvp>>();
+            Pvp = new Dictionary<PvpLeague, WebhookFilterPokemonPvp>();
             Gender = '*';
             Size = PokemonSize.All;
         }

@@ -25,7 +25,7 @@ Filters allow you to narrow down what is reported. All filters are optional and 
 		// depending on the interested ranks.
 		"pvp": {
 			// Little league rank filtering
-			"little": [{
+			"little": {
 				// Minimum rank of #1 for PVP rank stats
 				"min_rank": 1,
 				// Maximum rank of #5 for PVP rank stats
@@ -40,28 +40,23 @@ Filters allow you to narrow down what is reported. All filters are optional and 
 				"max_percent": 100,
 				// Gender filtering requirement (*, m, or f)
 				"gender": "*"
-			}],
+			},
 			// Great league rank filtering
-			"great": [{
+			"great": {
 				"min_rank": 1,
 				"max_rank": 5,
 				"min_cp": 1400,
 				"max_cp": 1500,
 				"gender": "m"
-			}],
+			},
 			// Ultra league rank filtering
-			"ultra": [{
+			"ultra": {
 				"min_rank": 1,
 				"max_rank": 25,
 				"min_cp": 2400,
 				"max_cp": 2500,
 				"gender": "f"
-			},{
-				"min_rank": 1,
-				"max_rank": 5,
-				"min_cp": 2300,
-				"max_cp": 2400
-			}]
+			}
 		},
 		"type": "Include", // Include or Exclude the `pokemon` list
 		"is_event": false, // Only send Pokemon checked with event accounts (GoFest, etc)
