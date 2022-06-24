@@ -5,5 +5,14 @@
         "startLocation": [33.91, -117.71],
         "startZoom": 10,
         "tileserver": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    },
+    "permissions": {
+        "configs": true,
+        "discords": true,
+        "alarms": true,
+        "filters": true,
+        "embeds": true,
+        "geofences": true,
+        "roles": true
     }
 }

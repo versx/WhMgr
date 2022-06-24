@@ -45,27 +45,27 @@ function App() {
           <Grid item sm={10} xs={10}> {/* 7 */}
             <Routes>
               <Route path={config.homepage} element={<Dashboard />} />
-              <Route path={config.homepage + "configs"} element={<ListConfigs />} />
-              <Route path={config.homepage + "config/new"} element={<NewConfig props={{}} />} />
-              <Route path={config.homepage + "config/:id"} element={<EditConfig props={{}} />} />
-              <Route path={config.homepage + "discords"} element={<ListDiscords />} />
-              <Route path={config.homepage + "discord/new"} element={<NewDiscord props={{}} />} />
-              <Route path={config.homepage + "discord/:id"} element={<EditDiscord props={{}} />} />
-              <Route path={config.homepage + "alarms"} element={<ListAlarms />} />
-              <Route path={config.homepage + "alarm/new"} element={<NewAlarm props={{}} />} />
-              <Route path={config.homepage + "alarm/:id"} element={<EditAlarm props={{}} />} />
-              <Route path={config.homepage + "filters"} element={<ListFilters />} />
-              <Route path={config.homepage + "filter/new"} element={<NewFilter props={{}} />} />
-              <Route path={config.homepage + "filter/:id"} element={<EditFilter props={{}} />} />
-              <Route path={config.homepage + "embeds"} element={<ListEmbeds />} />
-              <Route path={config.homepage + "embed/new"} element={<NewEmbed props={{}} />} />
-              <Route path={config.homepage + "embed/:id"} element={<EditEmbed props={{}} />} />
-              <Route path={config.homepage + "geofences"} element={<ListGeofences />} />
-              <Route path={config.homepage + "geofence/new"} element={<NewGeofence props={{}} />} />
-              <Route path={config.homepage + "geofence/:id"} element={<EditGeofence props={{}} />} />
-              <Route path={config.homepage + "roles"} element={<ListRoles />} />
-              <Route path={config.homepage + "role/new"} element={<NewRole />} />
-              <Route path={config.homepage + "role/:id"} element={<EditRole props={{}} />} />
+              {config.permissions.configs ? <Route path={config.homepage + "configs"} element={<ListConfigs />} /> : ''}
+              {config.permissions.configs ? <Route path={config.homepage + "config/new"} element={<NewConfig props={{}} />} /> : ''}
+              {config.permissions.configs ? <Route path={config.homepage + "config/:id"} element={<EditConfig props={{}} />} /> : ''}
+              {config.permissions.discords ? <Route path={config.homepage + "discords"} element={<ListDiscords />} /> : ''}
+              {config.permissions.discords ? <Route path={config.homepage + "discord/new"} element={<NewDiscord props={{}} />} /> : ''}
+              {config.permissions.discords ? <Route path={config.homepage + "discord/:id"} element={<EditDiscord props={{}} />} /> : ''}
+              {config.permissions.alarms ? <Route path={config.homepage + "alarms"} element={<ListAlarms />} /> : ''}
+              {config.permissions.alarms ? <Route path={config.homepage + "alarm/new"} element={<NewAlarm props={{}} />} /> : ''}
+              {config.permissions.alarms ? <Route path={config.homepage + "alarm/:id"} element={<EditAlarm props={{}} />} /> : ''}
+              {config.permissions.filters ? <Route path={config.homepage + "filters"} element={<ListFilters />} /> : ''}
+              {config.permissions.filters ? <Route path={config.homepage + "filter/new"} element={<NewFilter props={{}} />} /> : ''}
+              {config.permissions.filters ? <Route path={config.homepage + "filter/:id"} element={<EditFilter props={{}} />} /> : ''}
+              {config.permissions.embeds ? <Route path={config.homepage + "embeds"} element={<ListEmbeds />} /> : ''}
+              {config.permissions.embeds ? <Route path={config.homepage + "embed/new"} element={<NewEmbed props={{}} />} /> : ''}
+              {config.permissions.embeds ? <Route path={config.homepage + "embed/:id"} element={<EditEmbed props={{}} />} /> : ''}
+              {config.permissions.geofences ? <Route path={config.homepage + "geofences"} element={<ListGeofences />} /> : ''}
+              {config.permissions.geofences ? <Route path={config.homepage + "geofence/new"} element={<NewGeofence props={{}} />} /> : ''}
+              {config.permissions.geofences ? <Route path={config.homepage + "geofence/:id"} element={<EditGeofence props={{}} />} /> : ''}
+              {config.permissions.roles ? <Route path={config.homepage + "roles"} element={<ListRoles />} /> : ''}
+              {config.permissions.roles ? <Route path={config.homepage + "role/new"} element={<NewRole />} /> : ''}
+              {config.permissions.roles ? <Route path={config.homepage + "role/:id"} element={<EditRole props={{}} />} /> : ''}
               <Route path={config.homepage + "subscriptions"} element={<ListSubscriptions />} />
               <Route path={config.homepage + "users"} element={<ListUsers />} />
               <Route path={config.homepage + "settings"} element={<Settings />} />
