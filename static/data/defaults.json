@@ -33,6 +33,7 @@
     },
     "max_queue_batch_size": 10,
     "max_queue_size_warning": 50,
+    "max_queue_capacity": 4096,
     "all": "All",
     "emoji_schema": "<:{0}:{1}>",
     "type_emoji_schema": "<:types_{0}:{1}>",
