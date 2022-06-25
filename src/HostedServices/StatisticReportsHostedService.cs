@@ -105,20 +105,22 @@
             if (!config.Servers.ContainsKey(guildId))
             {
                 // Guild not configured
-                //await ctx.RespondEmbedAsync(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
+                Console.WriteLine(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"));
                 return;
             }
 
             var server = config.Servers[guildId];
             if (!(server.DailyStats?.ShinyStats?.Enabled ?? false))
             {
-                // Shiny stats not enabled
+                // Shiny statistics reporting not enabled
+                Console.WriteLine($"Skipping shiny stats posting for guild '{guildId}', reporting not enabled.");
                 return;
             }
 
             if (!client.Guilds.ContainsKey(guildId))
             {
                 // Discord client not in specified guild
+                Console.WriteLine($"Discord client is not in guild '{guildId}'");
                 return;
             }
 
@@ -126,20 +128,21 @@
             var channelId = server.DailyStats.ShinyStats.ChannelId;
             if (!guild.Channels.ContainsKey(channelId))
             {
-                // Discord channel does not exist
+                // Discord channel does not exist in guild
+                Console.WriteLine($"Channel with ID '{channelId}' does not exist in guild '{guild.Name}' ({guildId})");
                 return;
             }
 
             var statsChannel = await client.GetChannelAsync(channelId);
             if (statsChannel == null)
             {
-                Console.WriteLine($"Failed to get channel id {channelId} to post shiny stats.");
-                //await ctx.RespondEmbedAsync(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(new { author = ctx.User.Username }), DiscordColor.Yellow);
+                Console.WriteLine($"Failed to get channel id {channelId} to post shiny stats, are you sure it exists?");
                 return;
             }
 
             if (server.DailyStats.ShinyStats.ClearMessages)
             {
+                Console.WriteLine($"Starting shiny statistics channel message clearing for channel '{channelId}' in guild '{guildId}'...");
                 await client.DeleteMessagesAsync(channelId);
             }
 
@@ -148,7 +151,8 @@
             sorted.Sort();
             if (sorted.Count > 0)
             {
-                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(new { date = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString() }));
+                var date = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString();
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(new { date }));
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
             }
 
@@ -163,32 +167,22 @@
                 var pkmn = GameMaster.Instance.Pokedex[pokemon];
                 var pkmnStats = stats[pokemon];
                 var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
-                if (chance == 0)
+                var message = chance == 0 ? "SHINY_STATS_MESSAGE" : "SHINY_STATS_MESSAGE_WITH_RATIO";
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate(message).FormatText(new
                 {
-                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(new
-                    {
-                        pokemon = pkmn.Name,
-                        id = pokemon,
-                        shiny = pkmnStats.Shiny.ToString("N0"),
-                        total = pkmnStats.Total.ToString("N0"),
-                    }));
-                }
-                else
-                {
-                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(new
-                    {
-                        pokemon = pkmn.Name,
-                        id = pokemon,
-                        shiny = pkmnStats.Shiny.ToString("N0"),
-                        total = pkmnStats.Total.ToString("N0"),
-                        chance,
-                    }));
-                }
+                    pokemon = pkmn.Name,
+                    id = pokemon,
+                    shiny = pkmnStats.Shiny.ToString("N0"),
+                    total = pkmnStats.Total.ToString("N0"),
+                    chance,
+                }));
                 Thread.Sleep(500);
             }
 
             var total = stats[0];
-            var totalRatio = total.Shiny == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Shiny);
+            var totalRatio = total.Shiny == 0 || total.Total == 0
+                ? 0
+                : Convert.ToInt32(total.Total / total.Shiny);
 
             await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(new
             {
@@ -203,20 +197,22 @@
             if (!config.Servers.ContainsKey(guildId))
             {
                 // Guild not configured
-                //await ctx.RespondEmbedAsync(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"), DiscordColor.Red);
+                Console.WriteLine(Translator.Instance.Translate("ERROR_NOT_IN_DISCORD_SERVER"));
                 return;
             }
 
             var server = config.Servers[guildId];
             if (!(server.DailyStats?.IVStats?.Enabled ?? false))
             {
-                // Shiny stats not enabled
+                // Hundo statistics reporting not enabled
+                Console.WriteLine($"Skipping shiny stats posting for guild '{guildId}', reporting not enabled.");
                 return;
             }
 
             if (!client.Guilds.ContainsKey(guildId))
             {
                 // Discord client not in specified guild
+                Console.WriteLine($"Discord client is not in guild '{guildId}'");
                 return;
             }
 
@@ -224,20 +220,21 @@
             var channelId = server.DailyStats.IVStats.ChannelId;
             if (!guild.Channels.ContainsKey(channelId))
             {
-                // Discord channel does not exist
+                // Discord channel does not exist in guild
+                Console.WriteLine($"Channel with ID '{channelId}' does not exist in guild '{guild.Name}' ({guildId})");
                 return;
             }
 
             var statsChannel = await client.GetChannelAsync(channelId);
             if (statsChannel == null)
             {
-                Console.WriteLine($"Failed to get channel id {channelId} to post hundo stats.");
-                //await ctx.RespondEmbedAsync(Translator.Instance.Translate("SHINY_STATS_INVALID_CHANNEL").FormatText(new { author = ctx.User.Username }), DiscordColor.Yellow);
+                Console.WriteLine($"Failed to get channel id {channelId} to post hundo stats, are you sure it exists?");
                 return;
             }
 
             if (server.DailyStats.IVStats.ClearMessages)
             {
+                Console.WriteLine($"Starting hundo statistics channel message clearing for channel '{channelId}' in guild '{guildId}'...");
                 await client.DeleteMessagesAsync(channelId);
             }
 
@@ -246,11 +243,9 @@
             sorted.Sort();
             if (sorted.Count > 0)
             {
-                //await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(new { date = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString() }));
-                //await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
                 var date = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString();
-                await statsChannel.SendMessageAsync($"[**Hundo Pokemon stats for {date}**]");
-                await statsChannel.SendMessageAsync($"----------------------------------------------");
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("HUNDO_STATS_TITLE").FormatText(new { date }));
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate("HUNDO_STATS_NEWLINE"));
             }
 
             foreach (var pokemon in sorted)
@@ -264,48 +259,29 @@
                 var pkmn = GameMaster.Instance.Pokedex[pokemon];
                 var pkmnStats = stats[pokemon];
                 var chance = pkmnStats.Count == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Count);
-                if (chance == 0)
+                var message = chance == 0 ? "HUNDO_STATS_MESSAGE" : "HUNDO_STATS_MESSAGE_WITH_RATIO";
+                await statsChannel.SendMessageAsync(Translator.Instance.Translate(message).FormatText(new
                 {
-                    /*
-                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE").FormatText(new
-                    {
-                        pokemon = pkmn.Name,
-                        id = pokemon,
-                        shiny = pkmnStats.Count.ToString("N0"),
-                        total = pkmnStats.Total.ToString("N0"),
-                    }));
-                    */
-                    await statsChannel.SendMessageAsync($"**{pkmn.Name} (#{pokemon})**    |    **{pkmnStats.Count:N0}** 100% IV out of **{pkmnStats.Total:N0}** total seen in the last 24 hours.");
-                }
-                else
-                {
-                    /*
-                    await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_MESSAGE_WITH_RATIO").FormatText(new
-                    {
-                        pokemon = pkmn.Name,
-                        id = pokemon,
-                        shiny = pkmnStats.Count.ToString("N0"),
-                        total = pkmnStats.Total.ToString("N0"),
-                        chance,
-                    }));
-                    */
-                    await statsChannel.SendMessageAsync($"**{pkmn.Name} (#{pokemon})**    |    **{pkmnStats.Count:N0}** 100% IV out of **{pkmnStats.Total:N0}** total seen in the last 24 hours with a **1/{chance}** ratio.");
-                }
+                    pokemon = pkmn.Name,
+                    id = pokemon,
+                    shiny = pkmnStats.Count.ToString("N0"),
+                    total = pkmnStats.Total.ToString("N0"),
+                    chance,
+                }));
                 Thread.Sleep(500);
             }
 
             var total = stats[0];
-            var totalRatio = total.Count == 0 || total.Total == 0 ? 0 : Convert.ToInt32(total.Total / total.Count);
+            var totalRatio = total.Count == 0 || total.Total == 0
+                ? 0
+                : Convert.ToInt32(total.Total / total.Count);
 
-            /*
-            await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(new
+            await statsChannel.SendMessageAsync(Translator.Instance.Translate("HUNDO_STATS_TOTAL_MESSAGE_WITH_RATIO").FormatText(new
             {
                 count = total.Count.ToString("N0"),
                 total = total.Total.ToString("N0"),
                 chance = totalRatio,
             }));
-            */
-            await statsChannel.SendMessageAsync($"Found **{total.Count:N0}** total hundos out of **{total.Total:N0}** possiblities with a **1/{totalRatio}** ratio in total.");
         }
 
         internal static async Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStatsAsync(string scannerConnectionString)
