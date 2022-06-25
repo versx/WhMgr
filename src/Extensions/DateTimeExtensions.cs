@@ -1,6 +1,7 @@
 ﻿namespace WhMgr.Extensions
 {
     using System;
+    using System.Linq;
 
     using GeoTimeZone;
     using TimeZoneConverter;
@@ -35,11 +36,17 @@
 
         public static DateTime ConvertTimeFromTimeZone(this DateTime date, string tzIana)
         {
+            var result = tzIana;
 #if Windows
-            // Convert to Windows acceptable TimeZone
-            tzIana = TZConvert.IanaToWindows(tzIana);
+            // Check if timezone is Iana to prevent error when converting if already
+            // in the expected timezone format on Windows.
+            if (TZConvert.KnownIanaTimeZoneNames.Contains(tzIana))
+            {
+                // Convert to Windows acceptable TimeZone
+                result = TZConvert.IanaToWindows(tzIana);
+            }
 #endif
-            var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(tzIana);
+            var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(result);
             var dt = DateTime.SpecifyKind(date, DateTimeKind.Utc);
             var convertedTime = TimeZoneInfo.ConvertTimeFromUtc(dt, tzInfo);
             return convertedTime;
