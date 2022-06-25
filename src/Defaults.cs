@@ -83,7 +83,7 @@
             MinimumCP = 0;
             MaximumCP = 99999;
 
-            MaximumQueueBatchSize = 10;
+            MaximumQueueBatchSize = 25;
             MaximumQueueSizeWarning = 100;
             MaximumQueueCapacity = 4096;
 
