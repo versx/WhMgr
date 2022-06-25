@@ -9,6 +9,7 @@
     using DSharpPlus;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
 
     using WhMgr.Configuration;
     using WhMgr.Data;
@@ -19,15 +20,17 @@
 
     public class StatisticReportsHostedService : IHostedService, IDisposable
     {
+        private readonly ILogger<QuestPurgeHostedService> _logger;
         private readonly Dictionary<string, MidnightTimer> _tzMidnightTimers;
         private readonly ConfigHolder _config;
         private readonly IDiscordClientService _discordService;
 
         public StatisticReportsHostedService(
-            Microsoft.Extensions.Logging.ILogger<QuestPurgeHostedService> logger,
+            ILogger<QuestPurgeHostedService> logger,
             ConfigHolder config,
             IDiscordClientService discordService)
         {
+            _logger = logger;
             _tzMidnightTimers = new Dictionary<string, MidnightTimer>();
             _config = config;
             _discordService = discordService;
@@ -42,6 +45,8 @@
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            _logger.Debug($"Starting daily statistic reporting hosted service...");
+
             var localZone = TimeZoneInfo.Local;
             var timezone = localZone.StandardName;
 
@@ -55,6 +60,8 @@
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            _logger.Debug($"Stopping daily statistic reporting hosted service...");
+
             foreach (var (_, midnightTimer) in _tzMidnightTimers)
             {
                 midnightTimer.Stop();
@@ -75,14 +82,22 @@
                 var client = _discordService.DiscordClients[guildId];
                 if (guildConfig.DailyStats?.ShinyStats?.Enabled ?? false)
                 {
+                    _logger.Information($"Starting daily shiny stats posting for guild '{guildId}'...");
                     await PostShinyStatsAsync(guildId, _config.Instance, client);
+                    _logger.Information($"Finished daily shiny stats posting for guild '{guildId}'.");
                 }
 
                 if (guildConfig.DailyStats?.IVStats?.Enabled ?? false)
                 {
+                    _logger.Information($"Starting daily hundo stats posting for guild '{guildId}'...");
                     await PostHundoStatsAsync(guildId, _config.Instance, client);
+                    _logger.Information($"Finished daily hundo stats posting for guild '{guildId}'.");
                 }
+
+                _logger.Information($"Finished daily stats posting for guild '{guildId}'...");
             }
+
+            _logger.Information($"Finished daily stats reporting for all guilds.");
         }
 
         public static async Task PostShinyStatsAsync(ulong guildId, Config config, DiscordClient client)
