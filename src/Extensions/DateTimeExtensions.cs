@@ -45,6 +45,11 @@
                 // Convert to Windows acceptable TimeZone
                 result = TZConvert.IanaToWindows(tzIana);
             }
+#elif Linux || macOS
+            if (TZConvert.KnownWindowsTimeZoneIds.Contains(tzIana))
+            {
+                result = TZConvert.WindowsToIana(tzIana);
+            }
 #endif
             var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(result);
             var dt = DateTime.SpecifyKind(date, DateTimeKind.Utc);
