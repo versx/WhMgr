@@ -28,6 +28,8 @@
 
         public DbSet<PokemonStatsShiny> PokemonStatsShiny { get; set; }
 
+        public DbSet<PokemonStatsHundo> PokemonStatsHundo { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PvpRankData>()
@@ -36,19 +38,14 @@
             modelBuilder.Entity<PokemonData>()
                         .Property(p => p.PvpRankings)
                         .HasConversion(DbContextFactory.CreateJsonValueConverter<Dictionary<PvpLeague, List<PvpRankData>>>());
-            /*
-            modelBuilder.Entity<PokemonData>()
-                        .Property(p => p.GreatLeague)
-                        .HasConversion(DbContextFactory.CreateJsonValueConverter<List<PvpRankData>>());
-            modelBuilder.Entity<PokemonData>()
-                        .Property(p => p.UltraLeague)
-                        .HasConversion(DbContextFactory.CreateJsonValueConverter<List<PvpRankData>>());
-            */
 
             modelBuilder.Entity<PokemonStatsIV>()
                         .HasKey(p => new { p.Date, p.PokemonId });
 
             modelBuilder.Entity<PokemonStatsShiny>()
+                        .HasKey(p => new { p.Date, p.PokemonId });
+
+            modelBuilder.Entity<PokemonStatsHundo>()
                         .HasKey(p => new { p.Date, p.PokemonId });
 
             base.OnModelCreating(modelBuilder);

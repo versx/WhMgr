@@ -42,7 +42,7 @@
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.Information($"Hosted service started...");
+            _logger.Information($"Starting quest purge Hosted service...");
 
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
@@ -60,6 +60,7 @@
                         continue;
                     }
 
+                    _logger.Information($"Starting midnight timer for timezone {timezone}");
                     // Create and start midnight timer for timezone
                     var midnightTimer = new MidnightTimer(0, timezone);
                     midnightTimer.TimeReached += OnMidnightTimerTimeReached;
@@ -74,7 +75,7 @@
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.Information($"Hosted service stopped...");
+            _logger.Information($"Stopping quest purge hosted service...");
             foreach (var (timezone, midnightTimer) in _tzMidnightTimers)
             {
                 _logger.Information($"Stopping midnight timer for timezone {timezone}");
@@ -99,7 +100,7 @@
 
         private async void OnMidnightTimerTimeReached(DateTime time, string timezone)
         {
-            _logger.Information($"Midnight timer hit {time} for timezone {timezone}");
+            _logger.Information($"Quest purge midnight timer reached {time} for timezone {timezone}");
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
                 if (!(guildConfig.QuestsPurge?.Enabled ?? false))

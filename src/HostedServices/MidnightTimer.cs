@@ -167,7 +167,7 @@ namespace WhMgr.HostedServices
         /// </summary>
         /// <param name="MinutesAfterMidnight">How many minuets after midnight to add?</param>
         /// <returns></returns>
-        private DateTime GetMidnight(int minutesAfterMidnight)
+        private static DateTime GetMidnight(int minutesAfterMidnight)
         {
             // Lets work out the next occuring midnight
             // Add 1 day and use hours 0, min 0 and second 0 (remember this is 24 hour time)
@@ -179,7 +179,7 @@ namespace WhMgr.HostedServices
             return new DateTime(tomorrow.Year, tomorrow.Month, tomorrow.Day, 0, minutesAfterMidnight, 0);
         }
 
-        private DateTime GetMidnight(int minutesAfterMidnight, string timezone)
+        private static DateTime GetMidnight(int minutesAfterMidnight, string timezone)
         {
             return GetMidnight(minutesAfterMidnight).ConvertTimeFromTimeZone(timezone);
         }

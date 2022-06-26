@@ -116,6 +116,8 @@ namespace WhMgr
             });
 
             services.AddHostedService<QuestPurgeHostedService>();
+            services.AddHostedService<MasterFileDownloaderHostedService>();
+            services.AddHostedService<StatisticReportsHostedService>();
 
             var mainConnectionString = _config.Instance.Database.Main.ToString();
             var scannerConnectionString = _config.Instance.Database.Scanner.ToString();

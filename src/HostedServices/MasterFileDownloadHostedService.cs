@@ -3,21 +3,26 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Net;
     using System.Threading;
     using System.Threading.Tasks;
 
     using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
 
     using WhMgr.Data;
+    using WhMgr.Extensions;
+    using WhMgr.Utilities;
 
     public class MasterFileDownloaderHostedService : IHostedService, IDisposable
     {
+        private readonly ILogger<QuestPurgeHostedService> _logger;
         private readonly Dictionary<string, MidnightTimer> _tzMidnightTimers;
 
-        public MasterFileDownloaderHostedService()
+        public MasterFileDownloaderHostedService(
+            ILogger<QuestPurgeHostedService> logger)
         {
             _tzMidnightTimers = new Dictionary<string, MidnightTimer>();
+            _logger = logger;
         }
 
         public void Dispose()
@@ -29,6 +34,8 @@
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            _logger.Debug($"Starting masterfile.json downloader hosted service...");
+
             var localZone = TimeZoneInfo.Local;
             var timezone = localZone.StandardName;
 
@@ -42,6 +49,8 @@
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
+            _logger.Debug($"Stopping masterfile.json downloader hosted service...");
+
             foreach (var (_, midnightTimer) in _tzMidnightTimers)
             {
                 midnightTimer.Stop();
@@ -52,12 +61,19 @@
 
         private void OnMidnightTimerTimeReached(DateTime time, string timezone)
         {
-            using (var wc = new WebClient())
+            _logger.Debug($"Downloading latest masterfile.json...");
+
+            var data = NetUtils.Get(Strings.LatestGameMasterFileUrl);
+            if (string.IsNullOrEmpty(data))
             {
-                var filePath = Path.Combine(Strings.DataFolder, GameMaster.MasterFileName);
-                wc.Proxy = null;
-                wc.DownloadFile(new Uri(Strings.LatestGameMasterFileUrl), filePath);
+                _logger.Error($"Latest masterfile.json downloaded but contents were empty...");
+                return;
             }
+
+            var filePath = Path.Combine(Strings.DataFolder, GameMaster.MasterFileName);
+            File.WriteAllText(filePath, data);
+            _logger.Information($"Latest masterfile.json downloaded to '{filePath}', reloading masterfile.json with latest version...");
+
             GameMaster.ReloadMasterFile();
         }
     }
