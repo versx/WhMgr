@@ -205,7 +205,7 @@
             if (!(server.DailyStats?.IVStats?.Enabled ?? false))
             {
                 // Hundo statistics reporting not enabled
-                Console.WriteLine($"Skipping shiny stats posting for guild '{guildId}', reporting not enabled.");
+                Console.WriteLine($"Skipping hundo stats posting for guild '{guildId}', reporting not enabled.");
                 return;
             }
 
@@ -264,7 +264,7 @@
                 {
                     pokemon = pkmn.Name,
                     id = pokemon,
-                    shiny = pkmnStats.Count.ToString("N0"),
+                    count = pkmnStats.Count.ToString("N0"),
                     total = pkmnStats.Total.ToString("N0"),
                     chance,
                 }));
