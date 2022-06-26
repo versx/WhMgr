@@ -38,6 +38,9 @@
         [JsonPropertyName("max_queue_size_warning")]
         public ushort MaximumQueueSizeWarning { get; set; }
 
+        [JsonPropertyName("max_queue_capacity")]
+        public ushort MaximumQueueCapacity { get; set; }
+
 
         // Location map format strings
         [JsonPropertyName("google_maps")]
@@ -80,8 +83,9 @@
             MinimumCP = 0;
             MaximumCP = 99999;
 
-            MaximumQueueBatchSize = 10;
+            MaximumQueueBatchSize = 25;
             MaximumQueueSizeWarning = 100;
+            MaximumQueueCapacity = 4096;
 
             GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
             AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";

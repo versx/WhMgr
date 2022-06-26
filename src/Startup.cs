@@ -110,8 +110,8 @@ namespace WhMgr
             // TODO: Use scoped background services
             services.AddSingleton<IBackgroundTaskQueue>(_ =>
             {
-                // TODO: Get max subscription queue capacity config value
-                var maxQueueCapacity = 2048;
+                // Get max subscription queue capacity config value
+                var maxQueueCapacity = Strings.Defaults.MaximumQueueCapacity;
                 return new DefaultBackgroundTaskQueue(maxQueueCapacity);
             });
 
