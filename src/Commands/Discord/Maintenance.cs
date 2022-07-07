@@ -13,7 +13,7 @@
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Subscriptions.Models;
 
-    public class Maintenance
+    public class Maintenance : BaseCommandModule
     {
         private readonly ConfigHolder _config;
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
