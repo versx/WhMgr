@@ -235,6 +235,38 @@
 
         #endregion
 
+        // TODO: Return amount deleted
+        public async Task RemoveAllUserSubscriptionsAsync(int subscriptionId)
+        {
+            using (var ctx = _dbFactory.CreateDbContext())
+            {
+                var subscription = await ctx.Subscriptions.FindAsync(subscriptionId);
+                if (subscription == null)
+                {
+                    _logger.Error($"Failed to get user subscription in order to disable or remove all subscriptions for '{subscriptionId}'");
+                    return;
+                }
+
+                try
+                {
+                    ctx.RemoveRange(subscription.Pokemon);
+                    ctx.RemoveRange(subscription.PvP);
+                    ctx.RemoveRange(subscription.Raids);
+                    ctx.RemoveRange(subscription.Quests);
+                    ctx.RemoveRange(subscription.Lures);
+                    ctx.RemoveRange(subscription.Invasions);
+                    ctx.RemoveRange(subscription.Gyms);
+                    ctx.RemoveRange(subscription.Locations);
+                    ctx.Remove(subscription);
+                    await ctx.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error($"Failed to delete user subscriptions for '{subscriptionId}': {ex}");
+                }
+            }
+        }
+
         public async Task SetSubscriptionStatusAsync(int subscriptionId, NotificationStatusType status)
         {
             using var ctx = _dbFactory.CreateDbContext();

@@ -48,6 +48,8 @@
 
         List<Subscription> GetSubscriptionsByGymName(string name);
 
+        Task RemoveAllUserSubscriptionsAsync(int subscriptionId);
+
         Task ReloadSubscriptionsAsync(bool skipCheck = false, ushort reloadM = 5);
 
         Task<bool> SaveAsync(Subscription subscription);
