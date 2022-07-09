@@ -72,6 +72,7 @@
             commands.RegisterCommands<Nests>();
             commands.RegisterCommands<DailyStats>();
             commands.RegisterCommands<Quests>();
+            commands.RegisterCommands<Maintenance>();
             if (config.Subscriptions?.Enabled ?? false)
             {
                 commands.RegisterCommands<Notifications>();
