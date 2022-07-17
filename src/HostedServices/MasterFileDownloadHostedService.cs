@@ -59,7 +59,7 @@
             return Task.CompletedTask;
         }
 
-        private void OnMidnightTimerTimeReached(DateTime time, string timezone)
+        private void OnMidnightTimerTimeReached(object sender, TimeReachedEventArgs e)
         {
             _logger.Debug($"Downloading latest masterfile.json...");
 
