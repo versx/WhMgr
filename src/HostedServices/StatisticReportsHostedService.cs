@@ -70,7 +70,7 @@
             return Task.CompletedTask;
         }
 
-        private async void OnMidnightTimerTimeReached(DateTime time, string timezone)
+        private async void OnMidnightTimerTimeReached(object sender, TimeReachedEventArgs e)
         {
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {

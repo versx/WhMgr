@@ -5,10 +5,10 @@
   "homepage": "/dashboard/",
   "dependencies": {
     "@emotion/react": "^11.9.0",
-    "@emotion/styled": "^11.8.1",
+    "@emotion/styled": "^11.9.3",
     "@mui/icons-material": "^5.8.4",
     "@mui/lab": "^5.0.0-alpha.66",
-    "@mui/material": "^5.8.3",
+    "@mui/material": "^5.8.4",
     "@mui/styles": "^5.8.3",
     "@mui/x-data-grid": "^5.12.1",
     "leaflet": "^1.7.1",
