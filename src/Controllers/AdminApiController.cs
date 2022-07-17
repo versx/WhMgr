@@ -425,6 +425,7 @@
                         enable_gyms = alarm.EnableGyms,
                         enable_quests = alarm.EnableQuests,
                         enable_pokestops = alarm.EnablePokestops,
+                        enable_invasions = alarm.EnableInvasions,
                         enable_weather = alarm.EnableWeather,
                         count = alarm.Alarms.Count,
                     });
@@ -590,6 +591,7 @@
                         gyms = filter.Gyms?.Enabled ?? false,
                         quests = filter.Quests?.Enabled ?? false,
                         pokestops = filter.Pokestops?.Enabled ?? false,
+                        invasions = filter.Invasions?.Enabled ?? false,
                         weather = filter.Weather?.Enabled ?? false,
                     });
                 }
@@ -618,6 +620,7 @@
                 data = new
                 {
                     filter,
+                    allLeagues = Startup.Config.PvpLeagues.Select(league => league.Key),
                 },
             });
         }
