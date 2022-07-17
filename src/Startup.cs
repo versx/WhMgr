@@ -79,7 +79,7 @@ namespace WhMgr
             // Create locale translation files
             try
             {
-                Translator.Instance.CreateLocaleFiles().ConfigureAwait(false).GetAwaiter().GetResult();
+                Translator.CreateLocaleFilesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 Translator.Instance.SetLocale(_config.Instance.Locale);
             }
             catch (Exception ex)

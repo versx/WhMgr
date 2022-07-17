@@ -53,7 +53,6 @@
         public string IVRounded => IVReal == -1 ? "?" : Math.Round(IVReal) + "%";
 
         [
-
             JsonIgnore,
             NotMapped,
         ]

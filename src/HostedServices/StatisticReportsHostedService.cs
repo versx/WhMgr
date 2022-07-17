@@ -20,13 +20,13 @@
 
     public class StatisticReportsHostedService : IHostedService, IDisposable
     {
-        private readonly ILogger<QuestPurgeHostedService> _logger;
+        private readonly ILogger<StatisticReportsHostedService> _logger;
         private readonly Dictionary<string, MidnightTimer> _tzMidnightTimers;
         private readonly ConfigHolder _config;
         private readonly IDiscordClientService _discordService;
 
         public StatisticReportsHostedService(
-            ILogger<QuestPurgeHostedService> logger,
+            ILogger<StatisticReportsHostedService> logger,
             ConfigHolder config,
             IDiscordClientService discordService)
         {
