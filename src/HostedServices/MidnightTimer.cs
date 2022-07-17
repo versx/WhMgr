@@ -1,76 +1,97 @@
 ﻿//namespace DandTSoftware.Timers
 namespace WhMgr.HostedServices
 {
-    using Microsoft.Win32;
     using System;
     using System.Timers;
 
     using WhMgr.Extensions;
 
     /// <summary>
-    /// Midnight Timer Delegate for the event
+    /// Midnight timer event arguments
     /// </summary>
-    /// <param name="time"></param>
-    public delegate void TimeReachedEventHandler(DateTime time, string timezone);
+    public class TimeReachedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// Gets the current midnight time
+        /// </summary>
+        public DateTime Time { get; }
+
+        /// <summary>
+        /// Gets the time zone <seealso cref="Time"/> is in
+        /// </summary>
+        public string TimeZone { get; }
+
+        public TimeReachedEventArgs(DateTime time, string timeZone)
+        {
+            Time = time;
+            TimeZone = timeZone;
+        }
+    }
 
     /// <summary>
     /// Provides the means to detect when midnight is reached.
     /// </summary>
     public class MidnightTimer : IDisposable
     {
-        #region Static Variables
+        #region Variables
 
         private bool _disposed;
-
-        /// <summary>
-        /// Internal Timer
-        /// </summary>
         private static Timer _timer;
 
-        /// <summary>
-        /// How many Minutes after midnight are added to the timer
-        /// </summary>
-        private static int _minutesAfterMidnight;
+        #endregion
+
+        #region Properties
 
         /// <summary>
-        /// 
+        /// Gets how many minutes after midnight are added to delay the timer
         /// </summary>
-        private static string _timezone;
+        public int MinutesAfterMidnight { get; }
+
+        /// <summary>
+        /// Gets the time zone used to check if midnight
+        /// </summary>
+        public string TimeZone { get; }
+
+        #endregion
+
+        #region Events
 
         /// <summary>
         /// Occurs whens midnight occurs, subscribe to this
         /// </summary>
-        public event TimeReachedEventHandler TimeReached;
+        public event EventHandler<TimeReachedEventArgs> TimeReached;
+
+        /// <summary>
+        /// Standard Event/Delegate handler, if its not null, fire the event
+        /// </summary>
+        /// <param name="timeZone"></param>
+        private void OnTimeReached(string timeZone)
+        {
+            var midnight = GetMidnight(MinutesAfterMidnight, timeZone);
+            TimeReached?.Invoke(this, new TimeReachedEventArgs(midnight, timeZone));
+        }
 
         #endregion
 
         #region Constructors
 
-        /*
-        /// <summary>
-        /// Creates an instance of the Midnight Timer
-        /// </summary>
-        public MidnightTimer()
-        {
-        }
-        */
-
         /// <summary>
         /// Creates an instance of the Midnight Timer, which will fire after a set number of minutes after midnight
         /// </summary>
-        /// <param name="MinutesAfterMidnight">How many Minutes after midnight do we start the timer? between 0 and 59</param>
-        public MidnightTimer(int minutesAfterMidnight, string timezone)// : this()
+        /// <param name="minutesAfterMidnight">How many Minutes after midnight do we start the timer? between 0 and 59</param>
+        /// <param name="timeZone">Time zone to use when checking if midnight</param>
+        public MidnightTimer(int minutesAfterMidnight, string timeZone)
         {
-            // Check if the supplied m is between 0 and 59 mins after midnight
+            // Check if the supplied minutes is between 0 and 59 mins after midnight
             if (minutesAfterMidnight < 0 || minutesAfterMidnight > 59)
             {
-                // if it is outside of this range, throw a exception
+                // If it is outside of this range, throw an exception
                 throw new ArgumentException("Minutes after midnight is less than 0 or more than 60!");
             }
 
-            // Set the internal value
-            _minutesAfterMidnight = minutesAfterMidnight;
-            _timezone = timezone;
+            // Set the properties value
+            MinutesAfterMidnight = minutesAfterMidnight;
+            TimeZone = timeZone;
         }
 
         #endregion
@@ -82,11 +103,12 @@ namespace WhMgr.HostedServices
         /// </summary>
         public void Start()
         {
-            var now = DateTime.Now.ConvertTimeFromTimeZone(_timezone);
+            var now = DateTime.Now.ConvertTimeFromTimeZone(TimeZone);
 
             // Subtract the current time, from midnigh (tomorrow).
             // This will return a value, which will be used to set the Timer interval
-            var ts = GetMidnight(_minutesAfterMidnight, _timezone).Subtract(now);
+            var midnight = GetMidnight(MinutesAfterMidnight, TimeZone);
+            var ts = midnight.Subtract(now);
 
             // We only want the Hours, Minuters and Seconds until midnight
             var tsMidnight = new TimeSpan(ts.Hours, ts.Minutes, ts.Seconds);
@@ -109,7 +131,7 @@ namespace WhMgr.HostedServices
         /// </summary>
         public void Stop()
         {
-            // sanity checking
+            // Sanity checking
             if (_timer != null)
             {
                 // Stop the orginal timer
@@ -127,34 +149,7 @@ namespace WhMgr.HostedServices
             // Stop the timer
             Stop();
 
-            // (Re)Start
-            Start();
-        }
-
-        #endregion
-
-        #region Handlers
-
-        /// <summary>
-        /// Standard Event/Delegate handler, if its not null, fire the event
-        /// </summary>
-        private void OnTimeReached(string timezone) =>
-            TimeReached?.Invoke(GetMidnight(_minutesAfterMidnight, timezone), timezone);
-
-        /// <summary>
-        /// Executes when the timer has elasped
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnTimerElapsed(object sender, ElapsedEventArgs e)
-        {
-            // Stop the orginal timer
-            Stop();
-
-            // now raise a event that the timer has elapsed
-            OnTimeReached(_timezone); // swapped order thanks to Jeremy
-
-            // reset the timer
+            // (Re)Start the timer
             Start();
         }
 
@@ -163,10 +158,10 @@ namespace WhMgr.HostedServices
         #region Private Methods
 
         /// <summary>
-        /// Obtains a DateTime of Midngiht
+        /// Obtains a <seealso cref="DateTime"/> of midnight in the local time zone
         /// </summary>
-        /// <param name="MinutesAfterMidnight">How many minuets after midnight to add?</param>
-        /// <returns></returns>
+        /// <param name="minutesAfterMidnight">Number of minutes after midnight to delay the timer by</param>
+        /// <returns>Returns the midnight date and time in the local time zone</returns>
         private static DateTime GetMidnight(int minutesAfterMidnight)
         {
             // Lets work out the next occuring midnight
@@ -179,9 +174,36 @@ namespace WhMgr.HostedServices
             return new DateTime(tomorrow.Year, tomorrow.Month, tomorrow.Day, 0, minutesAfterMidnight, 0);
         }
 
-        private static DateTime GetMidnight(int minutesAfterMidnight, string timezone)
+        /// <summary>
+        /// Obtains a <seealso cref="DateTime"/> of midnight in the specified time zone
+        /// </summary>
+        /// <param name="minutesAfterMidnight">Number of minutes after midnight to delay the timer by</param>
+        /// <param name="timeZone">The time zone to convert the time to in order to check if it's midnight</param>
+        /// <returns>Returns the midnight date and time in the specified time zone</returns>
+        private static DateTime GetMidnight(int minutesAfterMidnight, string timeZone)
         {
-            return GetMidnight(minutesAfterMidnight).ConvertTimeFromTimeZone(timezone);
+            return GetMidnight(minutesAfterMidnight).ConvertTimeFromTimeZone(timeZone);
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        /// <summary>
+        /// Executes when the timer has elasped
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            // Stop the orginal timer
+            Stop();
+
+            // now raise an event that the timer has elapsed
+            OnTimeReached(TimeZone); // swapped order thanks to Jeremy
+
+            // reset the timer
+            Start();
         }
 
         #endregion
