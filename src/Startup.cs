@@ -119,13 +119,10 @@ namespace WhMgr
             services.AddHostedService<MasterFileDownloaderHostedService>();
             services.AddHostedService<StatisticReportsHostedService>();
 
-            var mainConnectionString = _config.Instance.Database.Main.ToString();
-            var scannerConnectionString = _config.Instance.Database.Scanner.ToString();
-            var nestsConnectionString = _config.Instance.Database.Nests.ToString();
-
-            services.AddDatabase<AppDbContext>(mainConnectionString);
-            services.AddDatabase<MapDbContext>(scannerConnectionString);
-            services.AddDatabase<ManualDbContext>(nestsConnectionString);
+            var dbConfig = _config.Instance.Database;
+            services.AddDatabase<AppDbContext>(dbConfig.Main);
+            services.AddDatabase<MapDbContext>(dbConfig.Scanner);
+            services.AddDatabase<ManualDbContext>(dbConfig.Nests);
 
             services.AddHealthChecks();
 

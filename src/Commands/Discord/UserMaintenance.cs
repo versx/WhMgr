@@ -13,19 +13,20 @@
     using WhMgr.Services.Subscriptions;
     using WhMgr.Services.Subscriptions.Models;
 
-    public class Maintenance : BaseCommandModule
+    public class UserMaintenance : BaseCommandModule
     {
         private readonly ConfigHolder _config;
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private readonly ISubscriptionManagerService _subManager;
 
-        public Maintenance(
+        public UserMaintenance(
             ConfigHolder config,
             Microsoft.Extensions.Logging.ILoggerFactory loggerFactory,
             ISubscriptionManagerService subManager)
         {
             _config = config;
-            _logger = loggerFactory.CreateLogger(typeof(Maintenance).FullName);
+            _logger = loggerFactory.CreateLogger(typeof(UserMaintenance).FullName);
+            _logger.Information($"Test");
             _subManager = subManager;
         }
 
@@ -70,7 +71,7 @@
                 if (discordMember == null)
                 {
                     // No longer in the guild, completely remove subscriptions
-                    _logger.Debug($"User is no longer in guild '{guildId}', removing all user subscriptions...");
+                    //_logger.Debug($"User is no longer in guild '{guildId}', removing all user subscriptions...");
                     await _subManager.RemoveAllUserSubscriptionsAsync(user.Id);
                     _logger.Information($"Removed all {user.UserId} subscriptions for guild '{guildId}'.");
 
@@ -138,6 +139,6 @@
                 removed = removed.ToString("N0"),
                 users = users.Count.ToString("N0"),
             }));
-        }
+         }
     }
 }

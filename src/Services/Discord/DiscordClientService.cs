@@ -56,11 +56,14 @@
         {
             _logger.LogTrace($"Initializing Discord clients...");
 
+            var subManager = _serviceProvider.GetService<ISubscriptionManagerService>();
+
             // Build the dependency collection which will contain our objects that can be globally used within each command module
             var servicesCol = new ServiceCollection()
                 .AddSingleton(typeof(ConfigHolder), _config)
                 .AddSingleton(typeof(OsmManager), new OsmManager())
                 .AddSingleton(typeof(IServiceProvider), _serviceProvider)
+                .AddSingleton<ISubscriptionManagerService>(subManager)
                 .AddSingleton(LoggerFactory.Create(configure => configure.AddConsole()));
             var services = servicesCol.BuildServiceProvider();
             await InitializeDiscordClients(services);
