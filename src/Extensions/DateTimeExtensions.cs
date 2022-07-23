@@ -25,7 +25,7 @@
         {
             var tzIana = TimeZoneLookup.GetTimeZone(lat, lon).Result;
 #if Windows
-            // Convert to Windows acceptable TimeZone
+            // Convert to Windows standard time zone i.e. America/Los_Angeles -> Pacific Standard Time
             tzIana = TZConvert.IanaToWindows(tzIana);
 #endif
             var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(tzIana);
@@ -42,12 +42,13 @@
             // in the expected timezone format on Windows.
             if (TZConvert.KnownIanaTimeZoneNames.Contains(tzIana))
             {
-                // Convert to Windows acceptable TimeZone
+                // Convert to Windows standard time zone i.e. America/Los_Angeles -> Pacific Standard Time
                 result = TZConvert.IanaToWindows(tzIana);
             }
 #elif Linux || macOS
             if (TZConvert.KnownWindowsTimeZoneIds.Contains(tzIana))
             {
+                // Converts to Iana standard time zone i.e. Pacific Standard Time -> America/Los_Angeles
                 result = TZConvert.WindowsToIana(tzIana);
             }
 #endif

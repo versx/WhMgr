@@ -35,6 +35,14 @@
             return data;
         }
 
+        /// <summary>
+        /// Generate generic properties all embeds use/share to reduce code redundancies.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <param name="guilds"></param>
+        /// <param name="guildId"></param>
+        /// <param name="coord"></param>
+        /// <returns></returns>
         public static async Task<GenericEmbedProperties> GenerateAsync(Config config, IReadOnlyDictionary<ulong, DiscordGuild> guilds, ulong guildId, IWebhookPoint coord)
         {
             var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, coord.Latitude, coord.Longitude);

@@ -4,11 +4,10 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
+    // TODO: Add more Google entity models?
+    // https://github.com/Necrobot-Private/NecroBot/tree/master/PoGo.NecroBot.Logic/Model/Google/GoogleObjects
     public class GoogleReverseLookup
     {
-        [JsonPropertyName("plus_code")]
-        public dynamic PlusCode { get; set; }
-
         [JsonPropertyName("results")]
         public List<GoogleAddressResult> Results { get; set; }
 
