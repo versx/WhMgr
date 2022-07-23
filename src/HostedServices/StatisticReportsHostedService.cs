@@ -12,7 +12,6 @@
     using Microsoft.Extensions.Logging;
 
     using WhMgr.Configuration;
-    using WhMgr.Data;
     using WhMgr.Data.Factories;
     using WhMgr.Extensions;
     using WhMgr.Localization;
@@ -20,10 +19,21 @@
 
     public class StatisticReportsHostedService : IHostedService, IDisposable
     {
+        // TODO: Make 'StatisticDataFormat' and 'StatHours' configurable
+        private const string StatisticDateFormat = "yyyy/MM/dd";
+        private const uint StatHours = 24; // Number of hours to check back and find data for statistics
+        private const ushort MaxDatabaseTimeoutS = 30;
+
+        #region Variables
+
         private readonly ILogger<StatisticReportsHostedService> _logger;
         private readonly Dictionary<string, MidnightTimer> _tzMidnightTimers;
         private readonly ConfigHolder _config;
         private readonly IDiscordClientService _discordService;
+
+        #endregion
+
+        #region Constructor
 
         public StatisticReportsHostedService(
             ILogger<StatisticReportsHostedService> logger,
@@ -36,12 +46,9 @@
             _discordService = discordService;
         }
 
-        public void Dispose()
-        {
-            _tzMidnightTimers.Clear();
+        #endregion
 
-            GC.SuppressFinalize(this);
-        }
+        #region Public Methods
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
@@ -70,8 +77,19 @@
             return Task.CompletedTask;
         }
 
+        public void Dispose()
+        {
+            _tzMidnightTimers.Clear();
+
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
+
         private async void OnMidnightTimerTimeReached(object sender, TimeReachedEventArgs e)
         {
+            _logger.LogInformation($"Midnight timer triggered, starting statistics reporting...");
+
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
                 if (!_discordService.DiscordClients.ContainsKey(guildId))
@@ -80,19 +98,22 @@
                 }
 
                 var client = _discordService.DiscordClients[guildId];
-                if (guildConfig.DailyStats?.ShinyStats?.Enabled ?? false)
+                var dailyStatsConfig = guildConfig.DailyStats;
+                if (dailyStatsConfig?.ShinyStats?.Enabled ?? false)
                 {
                     _logger.Information($"Starting daily shiny stats posting for guild '{guildId}'...");
                     await PostShinyStatsAsync(guildId, _config.Instance, client);
                     _logger.Information($"Finished daily shiny stats posting for guild '{guildId}'.");
                 }
 
-                if (guildConfig.DailyStats?.IVStats?.Enabled ?? false)
+                if (dailyStatsConfig?.IVStats?.Enabled ?? false) // TODO: Rename to HundoStats
                 {
                     _logger.Information($"Starting daily hundo stats posting for guild '{guildId}'...");
                     await PostHundoStatsAsync(guildId, _config.Instance, client);
                     _logger.Information($"Finished daily hundo stats posting for guild '{guildId}'.");
                 }
+
+                // TODO: Implement custom IV statistics reporting
 
                 _logger.Information($"Finished daily stats posting for guild '{guildId}'...");
             }
@@ -110,7 +131,8 @@
             }
 
             var server = config.Servers[guildId];
-            if (!(server.DailyStats?.ShinyStats?.Enabled ?? false))
+            var statsConfig = server.DailyStats?.ShinyStats;
+            if (!(statsConfig?.Enabled ?? false))
             {
                 // Shiny statistics reporting not enabled
                 Console.WriteLine($"Skipping shiny stats posting for guild '{guildId}', reporting not enabled.");
@@ -125,8 +147,8 @@
             }
 
             var guild = client.Guilds[guildId];
-            var channelId = server.DailyStats.ShinyStats.ChannelId;
-            if (!guild.Channels.ContainsKey(channelId))
+            var channelId = statsConfig?.ChannelId ?? 0;
+            if (!guild.Channels.ContainsKey(channelId) || channelId == 0)
             {
                 // Discord channel does not exist in guild
                 Console.WriteLine($"Channel with ID '{channelId}' does not exist in guild '{guild.Name}' ({guildId})");
@@ -140,38 +162,45 @@
                 return;
             }
 
-            if (server.DailyStats.ShinyStats.ClearMessages)
+            if (statsConfig?.ClearMessages ?? false)
             {
                 Console.WriteLine($"Starting shiny statistics channel message clearing for channel '{channelId}' in guild '{guildId}'...");
                 await client.DeleteMessagesAsync(channelId);
             }
 
             var stats = await GetShinyStatsAsync(config.Database.Scanner.ToString());
+            if ((stats?.Count ?? 0) == 0)
+            {
+                Console.WriteLine($"Failed to get shiny stats from database, returned 0 entries.");
+                return;
+            }
+
             var sorted = stats.Keys.ToList();
             sorted.Sort();
             if (sorted.Count > 0)
             {
-                var date = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString();
+                var date = DateTime.Now.Subtract(TimeSpan.FromHours(StatHours)).ToLongDateString();
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_TITLE").FormatText(new { date }));
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("SHINY_STATS_NEWLINE"));
             }
 
-            foreach (var pokemon in sorted)
+            foreach (var pokemonId in sorted)
             {
-                if (pokemon == 0)
+                if (pokemonId == 0)
                     continue;
 
-                if (!GameMaster.Instance.Pokedex.ContainsKey(pokemon))
-                    continue;
-
-                var pkmn = GameMaster.Instance.Pokedex[pokemon];
-                var pkmnStats = stats[pokemon];
-                var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
-                var message = chance == 0 ? "SHINY_STATS_MESSAGE" : "SHINY_STATS_MESSAGE_WITH_RATIO";
+                var pkmnName = Translator.Instance.GetPokemonName(pokemonId);
+                var pkmnStats = stats[pokemonId];
+                var chance = pkmnStats.Shiny == 0 || pkmnStats.Total == 0
+                    ? 0
+                    : Convert.ToInt32(pkmnStats.Total / pkmnStats.Shiny);
+                var message = chance == 0
+                    ? "SHINY_STATS_MESSAGE"
+                    : "SHINY_STATS_MESSAGE_WITH_RATIO";
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate(message).FormatText(new
                 {
-                    pokemon = pkmn.Name,
-                    id = pokemon,
+                    pokemon = pkmnName,
+                    id = pokemonId,
                     shiny = pkmnStats.Shiny.ToString("N0"),
                     total = pkmnStats.Total.ToString("N0"),
                     chance,
@@ -202,7 +231,8 @@
             }
 
             var server = config.Servers[guildId];
-            if (!(server.DailyStats?.IVStats?.Enabled ?? false))
+            var statsConfig = server.DailyStats?.IVStats; // TODO: Rename IVStats to HundoStats
+            if (!(statsConfig?.Enabled ?? false))
             {
                 // Hundo statistics reporting not enabled
                 Console.WriteLine($"Skipping hundo stats posting for guild '{guildId}', reporting not enabled.");
@@ -217,7 +247,7 @@
             }
 
             var guild = client.Guilds[guildId];
-            var channelId = server.DailyStats.IVStats.ChannelId;
+            var channelId = statsConfig.ChannelId;
             if (!guild.Channels.ContainsKey(channelId))
             {
                 // Discord channel does not exist in guild
@@ -232,38 +262,46 @@
                 return;
             }
 
-            if (server.DailyStats.IVStats.ClearMessages)
+            if (statsConfig?.ClearMessages ?? false)
             {
                 Console.WriteLine($"Starting hundo statistics channel message clearing for channel '{channelId}' in guild '{guildId}'...");
                 await client.DeleteMessagesAsync(channelId);
             }
 
             var stats = await GetHundoStatsAsync(config.Database.Scanner.ToString());
+            if ((stats?.Count ?? 0) == 0)
+            {
+                Console.WriteLine($"Failed to get hundo stats from database, returned 0 entries.");
+                return;
+            }
+
             var sorted = stats.Keys.ToList();
             sorted.Sort();
             if (sorted.Count > 0)
             {
-                var date = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToLongDateString();
+                var date = DateTime.Now.Subtract(TimeSpan.FromHours(StatHours)).ToLongDateString();
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("HUNDO_STATS_TITLE").FormatText(new { date }));
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate("HUNDO_STATS_NEWLINE"));
             }
 
-            foreach (var pokemon in sorted)
+            foreach (var pokemonId in sorted)
             {
-                if (pokemon == 0)
+                if (pokemonId == 0)
                     continue;
 
-                if (!GameMaster.Instance.Pokedex.ContainsKey(pokemon))
-                    continue;
-
-                var pkmn = GameMaster.Instance.Pokedex[pokemon];
-                var pkmnStats = stats[pokemon];
-                var chance = pkmnStats.Count == 0 || pkmnStats.Total == 0 ? 0 : Convert.ToInt32(pkmnStats.Total / pkmnStats.Count);
-                var message = chance == 0 ? "HUNDO_STATS_MESSAGE" : "HUNDO_STATS_MESSAGE_WITH_RATIO";
+                //var pkmn = GameMaster.Instance.Pokedex[pokemon];
+                var pkmnName = Translator.Instance.GetPokemonName(pokemonId);
+                var pkmnStats = stats[pokemonId];
+                var chance = pkmnStats.Count == 0 || pkmnStats.Total == 0
+                    ? 0
+                    : Convert.ToInt32(pkmnStats.Total / pkmnStats.Count);
+                var message = chance == 0
+                    ? "HUNDO_STATS_MESSAGE"
+                    : "HUNDO_STATS_MESSAGE_WITH_RATIO";
                 await statsChannel.SendMessageAsync(Translator.Instance.Translate(message).FormatText(new
                 {
-                    pokemon = pkmn.Name,
-                    id = pokemon,
+                    pokemon = pkmnName,
+                    id = pokemonId,
                     count = pkmnStats.Count.ToString("N0"),
                     total = pkmnStats.Total.ToString("N0"),
                     chance,
@@ -284,19 +322,25 @@
             }));
         }
 
-        internal static async Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStatsAsync(string scannerConnectionString)
+        internal static async Task<Dictionary<uint, ShinyPokemonStats>> GetShinyStatsAsync(string connectionString)
         {
             var list = new Dictionary<uint, ShinyPokemonStats>
             {
+                // Index 0 will hold our overall shiny statistics for the day
                 { 0, new ShinyPokemonStats { PokemonId = 0 } }
             };
             try
             {
-                using var ctx = DbContextFactory.CreateMapContext(scannerConnectionString);
-                ctx.Database.SetCommandTimeout(TimeSpan.FromSeconds(30)); // 30 seconds timeout
-                var yesterday = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToString("yyyy/MM/dd");
-                var pokemonShiny = (await ctx.PokemonStatsShiny.ToListAsync()).Where(stat => stat.Date.ToString("yyyy/MM/dd") == yesterday).ToList();
-                var pokemonIV = (await ctx.PokemonStatsIV.ToListAsync()).Where(stat => stat.Date.ToString("yyyy/MM/dd") == yesterday)?.ToDictionary(stat => stat.PokemonId);
+                using var ctx = DbContextFactory.CreateMapContext(connectionString);
+                ctx.Database.SetCommandTimeout(MaxDatabaseTimeoutS); // 30 seconds timeout
+                var yesterday = DateTime.Now.Subtract(TimeSpan.FromHours(StatHours)).ToString(StatisticDateFormat);
+                var pokemonShiny = (await ctx.PokemonStatsShiny.ToListAsync())
+                    .Where(stat => stat.Date.ToString(StatisticDateFormat) == yesterday)
+                    .ToList();
+                var pokemonIV = (await ctx.PokemonStatsIV.ToListAsync())
+                    .Where(stat => stat.Date.ToString(StatisticDateFormat) == yesterday)?
+                    .ToDictionary(stat => stat.PokemonId);
+
                 for (var i = 0; i < pokemonShiny.Count; i++)
                 {
                     var curPkmn = pokemonShiny[i];
@@ -327,19 +371,25 @@
             return list;
         }
 
-        internal static async Task<Dictionary<uint, HundoPokemonStats>> GetHundoStatsAsync(string scannerConnectionString)
+        internal static async Task<Dictionary<uint, HundoPokemonStats>> GetHundoStatsAsync(string connectionString)
         {
             var list = new Dictionary<uint, HundoPokemonStats>
             {
+                // Index 0 will hold our overall statistics for the day
                 { 0, new HundoPokemonStats { PokemonId = 0 } }
             };
             try
             {
-                using var ctx = DbContextFactory.CreateMapContext(scannerConnectionString);
-                ctx.Database.SetCommandTimeout(TimeSpan.FromSeconds(30)); // 30 seconds timeout
-                var yesterday = DateTime.Now.Subtract(TimeSpan.FromHours(24)).ToString("yyyy/MM/dd");
-                var pokemonHundo = (await ctx.PokemonStatsHundo.ToListAsync()).Where(stat => stat.Date.ToString("yyyy/MM/dd") == yesterday).ToList();
-                var pokemonIV = (await ctx.PokemonStatsIV.ToListAsync()).Where(stat => stat.Date.ToString("yyyy/MM/dd") == yesterday)?.ToDictionary(stat => stat.PokemonId);
+                using var ctx = DbContextFactory.CreateMapContext(connectionString);
+                ctx.Database.SetCommandTimeout(MaxDatabaseTimeoutS);
+                var yesterday = DateTime.Now.Subtract(TimeSpan.FromHours(StatHours)).ToString(StatisticDateFormat);
+                var pokemonHundo = (await ctx.PokemonStatsHundo.ToListAsync())
+                    .Where(stat => stat.Date.ToString(StatisticDateFormat) == yesterday)
+                    .ToList();
+                var pokemonIV = (await ctx.PokemonStatsIV.ToListAsync())
+                    .Where(stat => stat.Date.ToString(StatisticDateFormat) == yesterday)?
+                    .ToDictionary(stat => stat.PokemonId);
+
                 for (var i = 0; i < pokemonHundo.Count; i++)
                 {
                     var curPkmn = pokemonHundo[i];
