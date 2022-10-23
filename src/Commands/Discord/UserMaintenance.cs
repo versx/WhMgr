@@ -26,7 +26,6 @@
         {
             _config = config;
             _logger = loggerFactory.CreateLogger(typeof(UserMaintenance).FullName);
-            _logger.Information($"Test");
             _subManager = subManager;
         }
 
