@@ -37,21 +37,13 @@
         public static DateTime ConvertTimeFromTimeZone(this DateTime date, string tzIana)
         {
             var result = tzIana;
-#if Windows
-            // Check if timezone is Iana to prevent error when converting if already
-            // in the expected timezone format on Windows.
-            if (TZConvert.KnownIanaTimeZoneNames.Contains(tzIana))
-            {
-                // Convert to Windows standard time zone i.e. America/Los_Angeles -> Pacific Standard Time
-                result = TZConvert.IanaToWindows(tzIana);
-            }
-#elif Linux || macOS
+            // Check if we were passed a Windows standard time zone, if so convert it to Iana
+            // standard. Below will trigger with the MasterFileDownloaderHostedService class
             if (TZConvert.KnownWindowsTimeZoneIds.Contains(tzIana))
             {
                 // Converts to Iana standard time zone i.e. Pacific Standard Time -> America/Los_Angeles
                 result = TZConvert.WindowsToIana(tzIana);
             }
-#endif
             var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(result);
             var dt = DateTime.SpecifyKind(date, DateTimeKind.Utc);
             var convertedTime = TimeZoneInfo.ConvertTimeFromUtc(dt, tzInfo);
