@@ -15,11 +15,11 @@
 
     public class MasterFileDownloaderHostedService : IHostedService, IDisposable
     {
-        private readonly ILogger<QuestPurgeHostedService> _logger;
+        private readonly ILogger<MasterFileDownloaderHostedService> _logger;
         private readonly Dictionary<string, MidnightTimer> _tzMidnightTimers;
 
         public MasterFileDownloaderHostedService(
-            ILogger<QuestPurgeHostedService> logger)
+            ILogger<MasterFileDownloaderHostedService> logger)
         {
             _tzMidnightTimers = new Dictionary<string, MidnightTimer>();
             _logger = logger;
