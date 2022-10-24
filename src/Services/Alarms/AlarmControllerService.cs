@@ -879,6 +879,11 @@
             {
                 _logger.Warning($"Alarm controller queue is {_taskQueue.Count:N0} items long.");
             }
+            else if (_taskQueue.Count >= Strings.Defaults.MaximumQueueCapacity)
+            {
+                _logger.Error($"Queue has filled to maximum capacity '{Strings.Defaults.MaximumQueueCapacity}', oldest queued items will start to drop off to make room.");
+                _taskQueue.ClearQueue();
+            }
         }
 
         #endregion

@@ -10,18 +10,15 @@
 
     public class DefaultBackgroundTaskQueue : IBackgroundTaskQueue
     {
-        private readonly Channel<Func<CancellationToken, ValueTask>> _queue;
+        private readonly int _capacity;
+        private Channel<Func<CancellationToken, ValueTask>> _queue;
 
         public uint Count => Convert.ToUInt32(_queue?.Reader?.Count ?? 0);
 
         public DefaultBackgroundTaskQueue(int capacity = 4096)
         {
-            var options = new BoundedChannelOptions(capacity)
-            {
-                FullMode = BoundedChannelFullMode.Wait,
-                Capacity = capacity,
-            };
-            _queue = Channel.CreateBounded<Func<CancellationToken, ValueTask>>(options);
+            _capacity = capacity;
+            _queue = CreateQueue(_capacity);
         }
 
         public async ValueTask EnqueueAsync(Func<CancellationToken, ValueTask> workItem)
@@ -46,6 +43,23 @@
         {
             var workItems = await _queue.Reader.ReadMultipleAsync(maxBatchSize, cancellationToken);
             return workItems;
+        }
+
+        public void ClearQueue()
+        {
+            // Clear queue items
+            _queue = CreateQueue(_capacity);
+        }
+
+        private static Channel<Func<CancellationToken, ValueTask>> CreateQueue(int capacity)
+        {
+            var options = new BoundedChannelOptions(capacity)
+            {
+                FullMode = BoundedChannelFullMode.DropOldest,
+                Capacity = capacity,
+            };
+            var queue = Channel.CreateBounded<Func<CancellationToken, ValueTask>>(options);
+            return queue;
         }
     }
 }

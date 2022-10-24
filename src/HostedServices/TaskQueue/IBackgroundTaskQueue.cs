@@ -36,5 +36,10 @@
         Task<List<Func<CancellationToken, ValueTask>>> DequeueMultipleAsync(
                     int maxBatchSize,
                     CancellationToken cancellationToken);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        void ClearQueue();
     }
 }

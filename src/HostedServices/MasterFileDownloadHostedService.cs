@@ -37,7 +37,7 @@
             _logger.Debug($"Starting masterfile.json downloader hosted service...");
 
             var localZone = TimeZoneInfo.Local;
-            var timezone = localZone.StandardName;
+            var timezone = localZone.StandardName.ConvertTimeZone();
 
             var midnightTimer = new MidnightTimer(0, timezone);
             midnightTimer.TimeReached += OnMidnightTimerTimeReached;

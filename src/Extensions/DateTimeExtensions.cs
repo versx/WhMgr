@@ -36,18 +36,24 @@
 
         public static DateTime ConvertTimeFromTimeZone(this DateTime date, string tzIana)
         {
-            var result = tzIana;
-            // Check if we were passed a Windows standard time zone, if so convert it to Iana
-            // standard. Below will trigger with the MasterFileDownloaderHostedService class
-            if (TZConvert.KnownWindowsTimeZoneIds.Contains(tzIana))
-            {
-                // Converts to Iana standard time zone i.e. Pacific Standard Time -> America/Los_Angeles
-                result = TZConvert.WindowsToIana(tzIana);
-            }
+            var result = ConvertTimeZone(tzIana);
             var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(result);
             var dt = DateTime.SpecifyKind(date, DateTimeKind.Utc);
             var convertedTime = TimeZoneInfo.ConvertTimeFromUtc(dt, tzInfo);
             return convertedTime;
+        }
+
+        public static string ConvertTimeZone(this string tzIana)
+        {
+            var result = tzIana;
+            // Check if we were passed a Windows standard time zone, if so convert it to Iana
+            // standard. Below will trigger with the MasterFileDownloaderHostedService class
+            if (TZConvert.KnownWindowsTimeZoneIds.Contains(result))
+            {
+                // Converts to Iana standard time zone i.e. Pacific Standard Time -> America/Los_Angeles
+                result = TZConvert.WindowsToIana(result);
+            }
+            return result;
         }
 
         /// <summary>
