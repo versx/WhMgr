@@ -16,15 +16,12 @@
     using WhMgr.Common;
     using WhMgr.Data;
     using WhMgr.Extensions;
-    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Localization;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
-    using WhMgr.Services.Geofence;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Services.Yourls;
 
     [Table("incident")]
     public sealed class IncidentData : IWebhookData, IWebhookPoint

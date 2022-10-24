@@ -8,20 +8,15 @@
     using System.Threading.Tasks;
 
     using DSharpPlus.Entities;
-    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Common;
     using WhMgr.Data;
     using WhMgr.Extensions;
-    using WhMgr.Services.Geofence.Geocoding;
-    using WhMgr.Localization;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
-    using WhMgr.Services.Geofence;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Services.Yourls;
 
     /// <summary>
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.

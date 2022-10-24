@@ -15,11 +15,8 @@
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
-    using WhMgr.Services.Geofence;
-    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Services.Yourls;
 
     [Table("gym")]
     public sealed class GymDetailsData : IWebhookData, IWebhookFort, IWebhookPowerLevel, IWebhookPoint

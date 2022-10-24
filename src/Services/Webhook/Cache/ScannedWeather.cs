@@ -21,9 +21,10 @@
             get
             {
                 var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+                // TODO: Review if last updated keeps being converted everytime it's accessed
                 var lastUpdated = LastUpdated.ConvertTimeFromCoordinates(Latitude, Longitude);
                 // Check if lastUpdated within the last 60 minutes, otherwise it's expired
-                return now > lastUpdated.Subtract(new TimeSpan(0, 60, 0));
+                return now >= lastUpdated.Subtract(new TimeSpan(0, 60, 0));
             }
         }
 

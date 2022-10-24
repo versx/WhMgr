@@ -20,7 +20,7 @@
             get
             {
                 var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
-                return now > DespawnTime;
+                return now >= DespawnTime;
             }
         }
 

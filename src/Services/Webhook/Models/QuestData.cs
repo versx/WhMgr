@@ -14,12 +14,9 @@
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
-    using WhMgr.Services.Geofence;
-    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
     using WhMgr.Services.Webhook.Models.Quests;
-    using WhMgr.Services.Yourls;
 
     public sealed class QuestData : IWebhookData, IWebhookPoint
     {
@@ -77,6 +74,8 @@
 
         #endregion
 
+        #region Constructor
+
         /// <summary>
         /// Instantiate a new <see cref="QuestData"/> class.
         /// </summary>
@@ -85,6 +84,10 @@
             Rewards = new List<QuestRewardMessage>();
             Conditions = new List<QuestConditionMessage>();
         }
+
+        #endregion
+
+        #region Public Methods
 
         public void SetTimes()
         {
@@ -140,6 +143,10 @@
                 Embeds = new List<DiscordEmbedMessage> { eb },
             };
         }
+
+        #endregion
+
+        #region Private Methods
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
@@ -204,5 +211,7 @@
             };
             return dict;
         }
+
+        #endregion
     }
 }

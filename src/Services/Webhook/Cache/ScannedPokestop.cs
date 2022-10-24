@@ -21,7 +21,7 @@
             get
             {
                 var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
-                return now > LureExpireTime;
+                return now >= LureExpireTime;
             }
         }
 

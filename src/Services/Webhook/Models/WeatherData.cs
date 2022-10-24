@@ -16,9 +16,7 @@
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
     using WhMgr.Services.Geofence;
-    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Services.Yourls;
 
     [Table("weather")]
     public class WeatherData : IWebhookData, IWebhookPoint

@@ -1,6 +1,5 @@
 ﻿namespace WhMgr.Controllers
 {
-    using System;
     using System.Collections.Generic;
     using System.Threading;
 
@@ -26,7 +25,6 @@
         [HttpGet("/")]
         public IActionResult Index()
         {
-            _logger.LogDebug($"Endpoint GET / hit");
             return Content($"{Strings.BotName} {Strings.BotVersion} is running...");
         }
 

@@ -5,22 +5,17 @@
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;
 
-    using DiscordGuild = DSharpPlus.Entities.DiscordGuild;
     using Gender = POGOProtos.Rpc.PokemonDisplayProto.Types.Gender;
 
     using WhMgr.Common;
-    using WhMgr.Configuration;
     using WhMgr.Data;
     using WhMgr.Extensions;
     using WhMgr.Localization;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
-    using WhMgr.Services.Geofence;
-    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Services.Yourls;
 
     public sealed class RaidData : IWebhookData, IWebhookPokemon, IWebhookPowerLevel, IWebhookPoint
     {
@@ -139,6 +134,8 @@
 
         #endregion
 
+        #region Constructor
+
         /// <summary>
         /// Instantiate a new <see cref="RaidData"/> class.
         /// </summary>
@@ -146,6 +143,10 @@
         {
             SetTimes();
         }
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Set expire times because .NET doesn't support Unix timestamp deserialization to <seealso cref="DateTime"/> class by default.
@@ -221,6 +222,10 @@
                 Embeds = new List<DiscordEmbedMessage> { eb },
             };
         }
+
+        #endregion
+
+        #region Private Methods
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
@@ -357,5 +362,7 @@
             };
             return dict;
         }
+
+        #endregion
     }
 }

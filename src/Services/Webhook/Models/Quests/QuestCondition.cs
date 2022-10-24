@@ -34,6 +34,24 @@
         [JsonPropertyName("raid_pokemon_evolutions")]
         public List<int> RaidPokemonEvolutions { get; set; }
 
+        [JsonPropertyName("must_be_max_level")]
+        public ushort MaxLevel { get; set; }
+
+        [JsonPropertyName("with_max_cp")]
+        public uint MaxCp { get; set; }
+
+        [JsonPropertyName("with_league_rank")]
+        public uint GblRank { get; set; }
+
+        [JsonPropertyName("encounter_type")]
+        public List<int> EncounterType { get; set; }
+
+        [JsonPropertyName("combat_type")]
+        public List<int> CombatType { get; set; }
+
+        [JsonPropertyName("level_cap")]
+        public uint LevelCap { get; set; }
+
         public QuestCondition()
         {
             ThrowTypeId = ActivityType.ActivityUnknown;
