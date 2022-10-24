@@ -10,7 +10,7 @@
     "@mui/lab": "^5.0.0-alpha.66",
     "@mui/material": "^5.8.6",
     "@mui/styles": "^5.8.6",
-    "@mui/x-data-grid": "^5.13.0",
+    "@mui/x-data-grid": "^5.17.5",
     "leaflet": "^1.7.1",
     "leaflet-draw": "^1.0.4",
     "leaflet-easybutton": "^2.4.0",
