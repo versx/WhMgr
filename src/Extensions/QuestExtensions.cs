@@ -70,27 +70,120 @@
 
         public static string GetCondition(this QuestConditionMessage condition)
         {
+            var throwTypes = new[]
+            {
+                HoloActivityType.ActivityCatchFirstThrow,
+                HoloActivityType.ActivityCatchNiceThrow,
+                HoloActivityType.ActivityCatchGreatThrow,
+                HoloActivityType.ActivityCatchExcellentThrow,
+            };
             var conditionKey = "quest_condition_" + Convert.ToInt32(condition.Type);
             switch (condition.Type)
             {
                 case QuestConditionType.WithPokemonCategory:
-                    return string.Join(", ", condition.Info.PokemonIds?.Select(pokemonId => Translator.Instance.GetPokemonName(pokemonId)).ToList());
+                    if (condition.Info.PokemonIds?.Any() ?? false)
+                    {
+                        var pokemon = condition.Info.PokemonIds.Select(Translator.Instance.GetPokemonName);
+                        return Translator.Instance.Translate(conditionKey + "_formatted").FormatText(new
+                        {
+                            pokemon = string.Join(", ", pokemon),
+                        });
+                    }
+                    return Translator.Instance.Translate(conditionKey);
                 case QuestConditionType.WithPokemonType:
-                    return string.Join(", ", condition.Info.PokemonTypeIds?.Select(typeId => Convert.ToString((PokemonType)typeId))) + "-type";
-                case QuestConditionType.WithQuestContext:
-                    break;
+                    if (condition.Info.PokemonTypeIds?.Any() ?? false)
+                    {
+                        var types = condition.Info.PokemonTypeIds.Select(typeId => Convert.ToString((PokemonType)typeId));
+                        return Translator.Instance.Translate(conditionKey + "_formatted").FormatText(new
+                        {
+                            types = string.Join(", ", types),
+                        });
+                    }
+                    return Translator.Instance.Translate(conditionKey);
                 case QuestConditionType.WithRaidLevel:
-                    return Translator.Instance.Translate(conditionKey, string.Join(", ", condition.Info.RaidLevels));
+                    if (condition.Info.RaidLevels?.Any() ?? false)
+                    {
+                        return Translator.Instance.Translate(conditionKey + "_formatted").FormatText(new
+                        {
+                            levels = string.Join(", ", condition.Info.RaidLevels),
+                        });
+                    }
+                    return Translator.Instance.Translate(conditionKey);
                 case QuestConditionType.WithThrowType:
-                    return Translator.Instance.GetThrowName(condition.Info.ThrowTypeId);
                 case QuestConditionType.WithThrowTypeInARow:
-                    return Translator.Instance.Translate(conditionKey, Translator.Instance.GetThrowName(condition.Info.ThrowTypeId));
+                    if (throwTypes.Contains(condition.Info.ThrowTypeId))
+                    {
+                        return Translator.Instance.Translate(conditionKey + "_formatted").FormatText(new
+                        {
+                            throw_type = Translator.Instance.GetThrowName(condition.Info.ThrowTypeId),
+                        });
+                    }
+                    return Translator.Instance.Translate(conditionKey);
                 case QuestConditionType.WithPokemonAlignment:
-                    return string.Join(", ", condition.Info.AlignmentIds?.Select(alignmentId => Translator.Instance.GetAlignmentName((AlignmentId)alignmentId)));
+                    if (condition.Info.AlignmentIds?.Any() ?? false)
+                    {
+                        var alignments = condition.Info.AlignmentIds.Select(alignmentId => Translator.Instance.GetAlignmentName((AlignmentId)alignmentId));
+                        return Translator.Instance.Translate(conditionKey + "_formatted").FormatText(new
+                        {
+                            alignments = string.Join(", ", alignments),
+                        });
+                    }
+                    return Translator.Instance.Translate(conditionKey);
                 case QuestConditionType.WithInvasionCharacter:
-                    return string.Join(", ", condition.Info.CharacterCategoryIds?.Select(characterId => Translator.Instance.GetCharacterCategoryName((CharacterCategory)characterId)));
+                    if (condition.Info.CharacterCategoryIds?.Any() ?? false)
+                    {
+                        var categories = condition.Info.CharacterCategoryIds.Select(categoryId => Translator.Instance.GetCharacterCategoryName((CharacterCategory)categoryId));
+                        return Translator.Instance.Translate(conditionKey + "_formatted").FormatText(new
+                        {
+                            categories = string.Join(", ", categories),
+                        });
+                    }
+                    return Translator.Instance.Translate(conditionKey);
                 case QuestConditionType.WithTempEvoPokemon: // Mega evo
-                    return string.Join(", ", condition.Info.RaidPokemonEvolutions?.Select(evolutionId => Translator.Instance.GetEvolutionName((TemporaryEvolutionId)evolutionId)));
+                    if (condition.Info.RaidPokemonEvolutions?.Any() ?? false)
+                    {
+                        var evolutions = condition.Info.RaidPokemonEvolutions.Select(evolutionId => Translator.Instance.GetEvolutionName((TemporaryEvolutionId)evolutionId));
+                        return Translator.Instance.Translate(conditionKey + "_formatted").FormatText(new
+                        {
+                            evolutions = string.Join(", ", evolutions),
+                        });
+                    }
+                    return Translator.Instance.Translate(conditionKey);
+                case QuestConditionType.WithPokemonLevel:
+                    if (condition.Info.MaxLevel > 0)
+                    {
+                        return Translator.Instance.Translate(conditionKey + "_formatted").FormatText(new
+                        {
+                            must_be_max_level = condition.Info.MaxLevel,
+                        });
+                    }
+                    return Translator.Instance.Translate(conditionKey);
+                case QuestConditionType.WithMaxCp:
+                    if (condition.Info.MaxCp > 0)
+                    {
+                        return Translator.Instance.Translate(conditionKey + "_formatted").FormatText(new
+                        {
+                            max_cp = condition.Info.MaxCp,
+                        });
+                    }
+                    return Translator.Instance.Translate(conditionKey);
+                case QuestConditionType.WithGblRank:
+                    if (condition.Info.GblRank > 0)
+                    {
+                        return Translator.Instance.Translate(conditionKey + "_formatted").FormatText(new
+                        {
+                            rank = condition.Info.GblRank,
+                        });
+                    }
+                    return Translator.Instance.Translate(conditionKey);
+                case QuestConditionType.WithEncounterType:
+                    //if (condition.Info.EncounterType?.Any() ?? false)
+                    //{
+                    //    return Translator.Instance.Translate(conditionKey + "_formatted", new { encounter_type = string.Join(", ", condition.Info.EncounterType) });
+                    //}
+                    //return Translator.Instance.Translate(conditionKey);
+                case QuestConditionType.WithLuckyPokemon:
+                case QuestConditionType.WithQuestContext:
                 case QuestConditionType.WithBadgeType:
                 case QuestConditionType.WithCurveBall:
                 case QuestConditionType.WithDailyCaptureBonus:
@@ -108,14 +201,20 @@
                 case QuestConditionType.WithUniquePokemon:
                 case QuestConditionType.WithNpcCombat:
                 case QuestConditionType.WithPvpCombat:
+                case QuestConditionType.WithCombatType:
                 case QuestConditionType.WithLocation:
                 case QuestConditionType.WithDistance:
                 case QuestConditionType.WithBuddy:
+                case QuestConditionType.WithSingleDay:
+                case QuestConditionType.WithUniquePokemonTeam:
+                case QuestConditionType.WithLegendaryPokemon:
+                case QuestConditionType.WithGeotargetedPoi:
+                case QuestConditionType.WithFriendLevel:
+                case QuestConditionType.WithSticker:
+                case QuestConditionType.WithBuddyInterestingPoi:
                 default:
                     return Translator.Instance.Translate(conditionKey);
             }
-
-            return null;
         }
 
         #endregion
