@@ -26,7 +26,7 @@
             var tzIana = TimeZoneLookup.GetTimeZone(lat, lon).Result;
 #if Windows
             // Convert to Windows standard time zone i.e. America/Los_Angeles -> Pacific Standard Time
-            tzIana = TZConvert.IanaToWindows(tzIana);
+            tzIana = ConvertTimeZone(tzIana);
 #endif
             var tzInfo = TimeZoneInfo.FindSystemTimeZoneById(tzIana);
             var dt = DateTime.SpecifyKind(date, DateTimeKind.Utc);

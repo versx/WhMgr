@@ -130,8 +130,10 @@
         public bool HasLure => LureExpire > 0 && LureType != PokestopLureType.None && LureExpireTime > DateTime.UtcNow.ConvertTimeFromCoordinates(this);
 
         [
-            JsonPropertyName("incidents"),
-            Column("incidents"),
+            //JsonPropertyName("incidents"),
+            //Column("incidents"),
+            JsonIgnore,
+            NotMapped,
         ]
         public ICollection<IncidentData> Incidents { get; set; }
 
