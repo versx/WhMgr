@@ -145,8 +145,8 @@
                     case WebhookTypes.Pokestop:
                         await ProcessPokestopAsync(payload.Message).ConfigureAwait(false);
                         break;
-                    // TODO: Do not parse `gym` webhook type as GymDetailsData, property keys do not match
-                    //case WebhookTypes.Gym:
+                    // NOTE: Do not parse `gym` webhook type as GymDetailsData, property keys do not match
+                    case WebhookTypes.Gym:
                     case WebhookTypes.GymDetails:
                         ProcessGym(payload.Message);
                         break;
@@ -489,6 +489,8 @@
 
         #endregion
 
+        #region Private Methods
+
         private void OnClearCache()
         {
             lock (_processedPokemon)
@@ -619,5 +621,7 @@
             }
             return true;
         }
+
+        #endregion
     }
 }

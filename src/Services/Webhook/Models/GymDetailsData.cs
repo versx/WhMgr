@@ -55,7 +55,7 @@
         public double Longitude { get; set; }
 
         [
-            JsonPropertyName("team"),
+            JsonPropertyName("team_id"),
             Column("team_id"),
         ]
         public PokemonTeam Team { get; set; } = PokemonTeam.Neutral;
@@ -65,6 +65,18 @@
             Column("available_slots"),
         ]
         public ushort SlotsAvailable { get; set; }
+
+        [
+            JsonPropertyName("guard_pokemon_id"),
+            Column("guarding_pokemon_id"),
+        ]
+        public uint GuardingPokemonId { get; set; }
+
+        [
+            JsonPropertyName("total_cp"),
+            Column("total_cp"),
+        ]
+        public uint TotalCp { get; set; }
 
         [
             JsonPropertyName("ex_raid_eligible"),
@@ -109,10 +121,22 @@
         public bool? IsArScanEligible { get; set; }
 
         [
+            JsonPropertyName("last_modified"),
+            Column("last_modified_timestamp"),
+        ]
+        public ulong LastModified { get; set; }
+
+        [
             JsonIgnore,
             NotMapped,
         ]
         public DateTime PowerUpEndTime { get; private set; }
+
+        [
+            JsonIgnore,
+            NotMapped,
+        ]
+        public DateTime LastModifiedTime { get; private set; }
 
         #endregion
 
@@ -122,6 +146,10 @@
         public void SetTimes()
         {
             PowerUpEndTime = PowerUpEndTimestamp
+                .FromUnix()
+                .ConvertTimeFromCoordinates(this);
+
+            LastModifiedTime = LastModified
                 .FromUnix()
                 .ConvertTimeFromCoordinates(this);
         }
@@ -219,6 +247,10 @@
                         ? Translator.Instance.Translate("Empty")
                         : SlotsAvailable.ToString("N0"),
                 is_ar = IsArScanEligible ?? false,
+                guarding_pokemon_id = GuardingPokemonId,
+                guarding_pokemon_name = Translator.Instance.GetPokemonName(GuardingPokemonId),
+                last_modified = LastModifiedTime,
+                total_cp = TotalCp,
 
                 // Gym power up properties
                 power_up_points = PowerUpPoints,
