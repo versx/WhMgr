@@ -55,7 +55,7 @@
             _logger.Debug($"Starting daily statistic reporting hosted service...");
 
             var localZone = TimeZoneInfo.Local;
-            var timezone = localZone.StandardName.ConvertTimeZone();
+            var timezone = localZone.StandardName.ConvertIanaToWindowsTimeZone();
 
             var midnightTimer = new MidnightTimer(0, timezone);
             midnightTimer.TimeReached += OnMidnightTimerTimeReached;
