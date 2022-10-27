@@ -70,8 +70,7 @@
             : this(default)
         {
             CurrentCulture = new CultureInfo(DefaultLanguage);
-            LocaleDirectory = Strings.LocaleFolder;
-
+            LocaleDirectory = Path.Combine(Strings.BasePath, Strings.LocaleFolder);
             //_map = LoadCountry(CurrentCulture.TwoLetterISOLanguageName);
         }
 

@@ -19,22 +19,17 @@
         public const string WwwRoot = BasePath + "wwwroot";
 
         public const string BasePath = "../bin/";
-        public const string ViewsFolder = "Views";
-        public const string TemplateExt = ".hbs";
         public const string ConfigsFolder = BasePath + "configs";
         public const string GeofencesFolder = BasePath + "geofences";
         public const string AlarmsFolder = BasePath + "alarms";
         public const string EmbedsFolder = BasePath + "embeds";
         public const string DiscordsFolder = BasePath + "discords";
         public const string FiltersFolder = BasePath + "filters";
-        public const string LibrariesFolder = "libs";
         public const string StaticFolder = "static";
         public const string TemplatesFolder = BasePath + "templates";
-        public const string MigrationsFolder = "migrations";
-        public static readonly string AppFolder = StaticFolder + Path.DirectorySeparatorChar + "app";
         public static readonly string DataFolder = BasePath + StaticFolder + Path.DirectorySeparatorChar + "data";
         public static readonly string LocaleFolder = StaticFolder + Path.DirectorySeparatorChar + "locales";
-        public static readonly string EmojisFolder = StaticFolder + Path.DirectorySeparatorChar + "emojis";
+        public static readonly string EmojisFolder = BasePath + StaticFolder + Path.DirectorySeparatorChar + "emojis";
         public static readonly string OsmNestFilePath = StaticFolder + Path.DirectorySeparatorChar + OsmNestFileName;
         public const string DiscordAuthFilePath = BasePath + "discord_auth.json";
         public const string DiscordAvatarUrlFormat = "https://cdn.discordapp.com/avatars/{0}/{1}.png";
@@ -49,5 +44,8 @@
         public const string ErrorLogFileName = "error.log";
 
         public const int DiscordMaximumMessageLength = 2048;
+
+        public const string EX = "ex";
+        public const string AR = "ar";
     }
 }

@@ -20,8 +20,6 @@
         [JsonPropertyName("place_id")]
         public string PlaceId { get; set; }
 
-        // plus_code { compond_code, global_code }
-
         [JsonPropertyName("types")]
         public List<string> Types { get; set; }
     }

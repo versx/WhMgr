@@ -54,7 +54,7 @@
             "{{#if power_up_level}}**Power Level**",
             "Level: {{power_up_level}} | Points: {{power_up_points}}",
             "Time Left: {{power_up_end_time_left}}",
-            "{{/if}}{{#if is_ex}}{{ex_gym_emoji}} Gym!",
+            "{{/if}}{{#if is_ex}}{{ex_emoji}} Gym!",
             "{{/if}}**[Google]({{gmaps_url}}) | [Apple]({{applemaps_url}}) | [Waze]({{wazemaps_url}}) | [Scanner]({{scanmaps_url}})**"
         ],
         "iconUrl": "{{gym_url}}",

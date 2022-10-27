@@ -17,11 +17,8 @@
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
-    using WhMgr.Services.Geofence;
-    using WhMgr.Services.Geofence.Geocoding;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Services.Yourls;
 
     [Table("pokemon")]
     public sealed class PokemonData : IWebhookData, IWebhookPokemon, IWebhookPoint
@@ -53,7 +50,6 @@
         public string IVRounded => IVReal == -1 ? "?" : Math.Round(IVReal) + "%";
 
         [
-
             JsonIgnore,
             NotMapped,
         ]
@@ -352,23 +348,23 @@
         {
             DespawnTime = DisappearTime
                 .FromUnix()
-                .ConvertTimeFromCoordinates(Latitude, Longitude);
+                .ConvertTimeFromCoordinates(this);
 
             SecondsLeft = DespawnTime
                 .Subtract(DateTime.UtcNow
-                    .ConvertTimeFromCoordinates(Latitude, Longitude));
+                    .ConvertTimeFromCoordinates(this));
 
             FirstSeenTime = FirstSeen
                 .FromUnix()
-                .ConvertTimeFromCoordinates(Latitude, Longitude);
+                .ConvertTimeFromCoordinates(this);
 
             LastModifiedTime = LastModified
                 .FromUnix()
-                .ConvertTimeFromCoordinates(Latitude, Longitude);
+                .ConvertTimeFromCoordinates(this);
 
             UpdatedTime = Updated
                 .FromUnix()
-                .ConvertTimeFromCoordinates(Latitude, Longitude);
+                .ConvertTimeFromCoordinates(this);
         }
 
         /// <summary>
@@ -434,6 +430,7 @@
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
+            var config = properties.Config.Instance;
             var pkmnInfo = GameMaster.GetPokemon(PokemonId, FormId);
             var pkmnName = Translator.Instance.GetPokemonName(PokemonId);
             var form = Translator.Instance.GetFormName(FormId);
@@ -473,46 +470,20 @@
                 ? Math.Round(Weight ?? 0).ToString()
                 : "";
 
-            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
-            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
-            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
-            var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
-            var staticMapConfig = properties.Config.Instance.StaticMaps;
-            var staticMap = new StaticMapGenerator(new StaticMapOptions
-            {
-                BaseUrl = staticMapConfig.Url,
-                MapType = StaticMapType.Pokemon,
-                TemplateType = staticMapConfig.Type,
-                Latitude = Latitude,
-                Longitude = Longitude,
-                SecondaryImageUrl = properties.ImageUrl,
-                Gyms = staticMapConfig.IncludeNearbyGyms
-                    // Fetch nearby gyms from MapDataCache
-                    ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
-                    : new(),
-                Pokestops = staticMapConfig.IncludeNearbyPokestops
-                    // Fetch nearby pokestops from MapDataCache
-                    ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
-                    : new(),
-                Pregenerate = staticMapConfig.Pregenerate,
-                Regeneratable = true,
-            });
-            var staticMapLink = staticMap.GenerateLink();
-            var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
-            var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
-            var appleMapsLocationLink = await urlShortener.CreateAsync(appleMapsLink);
-            var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
-            var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
-            var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
+            var locProperties = await GenericEmbedProperties.GenerateAsync(config, properties.Client.Guilds, properties.GuildId, this);
+            var staticMapLink = await config.StaticMaps?.GenerateStaticMapAsync(
+                StaticMapType.Pokemon,
+                this,
+                properties.ImageUrl,
+                properties.MapDataCache
+            );
             var pokestop = properties.MapDataCache.GetPokestop(PokestopId).ConfigureAwait(false)
                                                   .GetAwaiter()
                                                   .GetResult();
 
+            // TODO: Make configurable for user to add individual league icons
             var greatLeagueEmoji = PvpLeague.Great.GetEmojiIcon("league", true);
             var ultraLeagueEmoji = PvpLeague.Ultra.GetEmojiIcon("league", true);
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
-                ? properties.Client.Guilds[properties.GuildId]
-                : null;
 
             const string defaultMissingValue = "?";
             var dict = new
@@ -609,12 +580,12 @@
 
                 // Location links
                 tilemaps_url = staticMapLink,
-                gmaps_url = gmapsLocationLink,
-                applemaps_url = appleMapsLocationLink,
-                wazemaps_url = wazeMapsLocationLink,
-                scanmaps_url = scannerMapsLocationLink,
+                gmaps_url = locProperties.GoogleMapsLocationLink,
+                applemaps_url = locProperties.AppleMapsLocationLink,
+                wazemaps_url = locProperties.WazeMapsLocationLink,
+                scanmaps_url = locProperties.ScannerMapsLocationLink,
 
-                address = address ?? string.Empty,
+                address = locProperties.Address,
 
                 // Pokestop properties
                 near_pokestop = pokestop != null,
@@ -623,8 +594,8 @@
                 pokestop_url = pokestop?.FortUrl ?? defaultMissingValue,
 
                 // Discord Guild properties
-                guild_name = guild?.Name,
-                guild_img_url = guild?.IconUrl,
+                guild_name = locProperties.Guild?.Name,
+                guild_img_url = locProperties.Guild?.IconUrl,
 
                 // Event properties
                 is_event = IsEvent.HasValue && IsEvent.Value,

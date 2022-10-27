@@ -79,7 +79,7 @@ namespace WhMgr
             // Create locale translation files
             try
             {
-                Translator.Instance.CreateLocaleFiles().ConfigureAwait(false).GetAwaiter().GetResult();
+                Translator.CreateLocaleFilesAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 Translator.Instance.SetLocale(_config.Instance.Locale);
             }
             catch (Exception ex)
@@ -110,20 +110,19 @@ namespace WhMgr
             // TODO: Use scoped background services
             services.AddSingleton<IBackgroundTaskQueue>(_ =>
             {
-                // TODO: Get max subscription queue capacity config value
-                var maxQueueCapacity = 2048;
+                // Get max subscription queue capacity config value
+                var maxQueueCapacity = Strings.Defaults.MaximumQueueCapacity;
                 return new DefaultBackgroundTaskQueue(maxQueueCapacity);
             });
 
             services.AddHostedService<QuestPurgeHostedService>();
+            services.AddHostedService<MasterFileDownloaderHostedService>();
+            services.AddHostedService<StatisticReportsHostedService>();
 
-            var mainConnectionString = _config.Instance.Database.Main.ToString();
-            var scannerConnectionString = _config.Instance.Database.Scanner.ToString();
-            var nestsConnectionString = _config.Instance.Database.Nests.ToString();
-
-            services.AddDatabase<AppDbContext>(mainConnectionString);
-            services.AddDatabase<MapDbContext>(scannerConnectionString);
-            services.AddDatabase<ManualDbContext>(nestsConnectionString);
+            var dbConfig = _config.Instance.Database;
+            services.AddDatabase<AppDbContext>(dbConfig.Main);
+            services.AddDatabase<MapDbContext>(dbConfig.Scanner);
+            services.AddDatabase<ManualDbContext>(dbConfig.Nests);
 
             services.AddHealthChecks();
 

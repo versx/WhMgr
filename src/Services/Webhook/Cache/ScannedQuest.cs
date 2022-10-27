@@ -1,13 +1,11 @@
 ﻿namespace WhMgr.Services.Webhook.Cache
 {
     using System;
-    using System.Collections.Generic;
 
     using POGOProtos.Rpc;
 
     using WhMgr.Extensions;
     using WhMgr.Services.Webhook.Models;
-    using WhMgr.Services.Webhook.Models.Quests;
 
     internal class ScannedQuest : IScannedItem
     {

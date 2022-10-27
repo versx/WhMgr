@@ -29,9 +29,7 @@ Use any of the following in your embeds file to structure how notifications will
 | moveset | Fast & Charge move names | Quick Attack/Thunder
 | type_1 | Pokemon type | Dark
 | type_2 | Pokemon type | Water
-| type_1_emoji | Pokemon type emoji | <:00000:types_water>
-| type_2_emoji | Pokemon type emoji | <:00000:types_rock>
-| types | Both types (if 2nd exists) | Dark/Fire
+| types | Both Pokemon types (if 2nd exists) | Dark/Fire
 | types_emoji | Type Discord emoji | <:00000:types_fire> <00001:types_dark>
 | weaknesses | Raid boss weaknesses | Rock, Ground, Dark
 | weaknesses_emoji | Emoji(s) of raid boss weaknesses | Rock Ground Dark

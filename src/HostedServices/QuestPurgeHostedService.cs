@@ -42,7 +42,7 @@
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.Information($"Hosted service started...");
+            _logger.Information($"Starting quest purge Hosted service...");
 
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
@@ -60,6 +60,7 @@
                         continue;
                     }
 
+                    _logger.Information($"Starting midnight timer for timezone {timezone}");
                     // Create and start midnight timer for timezone
                     var midnightTimer = new MidnightTimer(0, timezone);
                     midnightTimer.TimeReached += OnMidnightTimerTimeReached;
@@ -74,7 +75,7 @@
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.Information($"Hosted service stopped...");
+            _logger.Information($"Stopping quest purge hosted service...");
             foreach (var (timezone, midnightTimer) in _tzMidnightTimers)
             {
                 _logger.Information($"Stopping midnight timer for timezone {timezone}");
@@ -97,18 +98,18 @@
 
         #region Private Methods
 
-        private async void OnMidnightTimerTimeReached(DateTime time, string timezone)
+        private async void OnMidnightTimerTimeReached(object sender, TimeReachedEventArgs e)
         {
-            _logger.Information($"Midnight timer hit {time} for timezone {timezone}");
+            _logger.Information($"Quest purge midnight timer reached {e.Time} for timezone {e.TimeZone}");
             foreach (var (guildId, guildConfig) in _config.Instance.Servers)
             {
                 if (!(guildConfig.QuestsPurge?.Enabled ?? false))
                     continue;
 
-                if (!(guildConfig.QuestsPurge?.ChannelIds.ContainsKey(timezone) ?? false))
+                if (!(guildConfig.QuestsPurge?.ChannelIds.ContainsKey(e.TimeZone) ?? false))
                     continue;
 
-                var channelIds = guildConfig.QuestsPurge.ChannelIds[timezone];
+                var channelIds = guildConfig.QuestsPurge.ChannelIds[e.TimeZone];
                 _logger.Information($"Clearing quest channels {string.Join(", ", channelIds)} for guild {guildId}");
                 await ClearQuestChannels(channelIds);
             }

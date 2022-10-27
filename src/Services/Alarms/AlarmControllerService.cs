@@ -121,31 +121,29 @@
                             {
                                 return false;
                             }
-                            var filterRankings = pvpPokemonFilters[league];
+                            var filterRanking = pvpPokemonFilters[league];
                             var pokemonRankings = pokemon.PvpRankings[league];
                             // Check if any alarm filter matches Pokemon PVP rank for each available league
-                            var result = filterRankings.Exists(filter =>
-                                pokemonRankings.Exists(rank =>
-                                {
-                                    //var percentage = Math.Round(Convert.ToDouble(rank.Percentage) * 100.0, 2);
-                                    var matches =
-                                    (
-                                        Filters.Filters.MatchesPvPRank(rank.Rank ?? 0, filter.MinimumRank, filter.MaximumRank)
-                                        ||
-                                        Filters.Filters.MatchesPvPRank(rank.CompetitionRank, filter.MinimumRank, filter.MaximumRank)
-                                        ||
-                                        Filters.Filters.MatchesPvPRank(rank.DenseRank, filter.MinimumRank, filter.MaximumRank)
-                                        ||
-                                        Filters.Filters.MatchesPvPRank(rank.OrdinalRank, filter.MinimumRank, filter.MaximumRank)
-                                    )
-                                    &&
-                                    Filters.Filters.MatchesCP((uint)rank.CP, filter.MinimumCP, filter.MaximumCP)
-                                    &&
-                                    Filters.Filters.MatchesGender(rank.Gender, filter.Gender);
-                                    // TODO: Reimplement rank product stat percentage filtering (filter.MinimumPercent <= rank.Percentage && filter.MaximumPercent >= rank.Percentage);
-                                    return matches;
-                                })
-                            );
+                            var result = pokemonRankings.Exists(rank =>
+                            {
+                                //var percentage = Math.Round(Convert.ToDouble(rank.Percentage) * 100.0, 2);
+                                var matches =
+                                (
+                                    Filters.Filters.MatchesPvPRank(rank.Rank ?? 0, filterRanking.MinimumRank, filterRanking.MaximumRank)
+                                    ||
+                                    Filters.Filters.MatchesPvPRank(rank.CompetitionRank, filterRanking.MinimumRank, filterRanking.MaximumRank)
+                                    ||
+                                    Filters.Filters.MatchesPvPRank(rank.DenseRank, filterRanking.MinimumRank, filterRanking.MaximumRank)
+                                    ||
+                                    Filters.Filters.MatchesPvPRank(rank.OrdinalRank, filterRanking.MinimumRank, filterRanking.MaximumRank)
+                                )
+                                &&
+                                Filters.Filters.MatchesCP((uint)rank.CP, filterRanking.MinimumCP, filterRanking.MaximumCP)
+                                &&
+                                Filters.Filters.MatchesGender(rank.Gender, filterRanking.Gender);
+                                // TODO: Reimplement rank product stat percentage filtering (filter.MinimumPercent <= rank.Percentage && filter.MaximumPercent >= rank.Percentage);
+                                return matches;
+                            });
                             return result;
                         }) ?? false;
 
@@ -880,6 +878,11 @@
             if (_taskQueue.Count > Strings.Defaults.MaximumQueueSizeWarning)
             {
                 _logger.Warning($"Alarm controller queue is {_taskQueue.Count:N0} items long.");
+            }
+            else if (_taskQueue.Count >= Strings.Defaults.MaximumQueueCapacity)
+            {
+                _logger.Error($"Queue has filled to maximum capacity '{Strings.Defaults.MaximumQueueCapacity}', oldest queued items will start to drop off to make room.");
+                _taskQueue.ClearQueue();
             }
         }
 

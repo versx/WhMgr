@@ -8,20 +8,15 @@
     using System.Threading.Tasks;
 
     using DSharpPlus.Entities;
-    using InvasionCharacter = POGOProtos.Rpc.EnumWrapper.Types.InvasionCharacter;
 
     using WhMgr.Common;
     using WhMgr.Data;
     using WhMgr.Extensions;
-    using WhMgr.Services.Geofence.Geocoding;
-    using WhMgr.Localization;
     using WhMgr.Services.Alarms;
     using WhMgr.Services.Alarms.Embeds;
     using WhMgr.Services.Discord.Models;
-    using WhMgr.Services.Geofence;
     using WhMgr.Services.Icons;
     using WhMgr.Services.StaticMap;
-    using WhMgr.Services.Yourls;
 
     /// <summary>
     /// RealDeviceMap Pokestop (lure/invasion) webhook model class.
@@ -132,11 +127,13 @@
             JsonIgnore,
             NotMapped,
         ]
-        public bool HasLure => LureExpire > 0 && LureType != PokestopLureType.None && LureExpireTime > DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
+        public bool HasLure => LureExpire > 0 && LureType != PokestopLureType.None && LureExpireTime > DateTime.UtcNow.ConvertTimeFromCoordinates(this);
 
         [
-            JsonPropertyName("incidents"),
-            Column("incidents"),
+            //JsonPropertyName("incidents"),
+            //Column("incidents"),
+            JsonIgnore,
+            NotMapped,
         ]
         public ICollection<IncidentData> Incidents { get; set; }
 
@@ -163,11 +160,11 @@
         {
             LureExpireTime = LureExpire
                 .FromUnix()
-                .ConvertTimeFromCoordinates(Latitude, Longitude);
+                .ConvertTimeFromCoordinates(this);
 
             PowerUpEndTime = PowerUpEndTimestamp
                 .FromUnix()
-                .ConvertTimeFromCoordinates(Latitude, Longitude);
+                .ConvertTimeFromCoordinates(this);
         }
 
         public async Task<DiscordWebhookMessage> GenerateEmbedMessageAsync(AlarmMessageSettings settings)
@@ -222,54 +219,22 @@
 
         private async Task<dynamic> GetPropertiesAsync(AlarmMessageSettings properties)
         {
-            var server = properties.Config.Instance.Servers[properties.GuildId];
+            var config = properties.Config.Instance;
+            var server = config.Servers[properties.GuildId];
             var lureImageUrl = UIconService.Instance.GetPokestopIcon(server.IconStyle, LureType);
             var imageUrl = HasLure ? lureImageUrl : FortUrl;
-            var gmapsLink = string.Format(Strings.Defaults.GoogleMaps, Latitude, Longitude);
-            var appleMapsLink = string.Format(Strings.Defaults.AppleMaps, Latitude, Longitude);
-            var wazeMapsLink = string.Format(Strings.Defaults.WazeMaps, Latitude, Longitude);
-            var scannerMapsLink = string.Format(properties.Config.Instance.Urls.ScannerMap, Latitude, Longitude);
 
-            var staticMapConfigType = StaticMapType.Lures;
-            /*
-            var staticMapConfigType = HasLure
-                ? StaticMapType.Lures
-                : StaticMapType.Pokestop; // TODO: StaticMapType.Pokestops
-            */
-            var staticMapConfig = properties.Config.Instance.StaticMaps;
-            var staticMap = new StaticMapGenerator(new StaticMapOptions
-            {
-                BaseUrl = staticMapConfig.Url,
-                MapType = staticMapConfigType,
-                TemplateType = staticMapConfig.Type,
-                Latitude = Latitude,
-                Longitude = Longitude,
-                SecondaryImageUrl = imageUrl,
-                Gyms = staticMapConfig.IncludeNearbyGyms
-                    // Fetch nearby gyms from MapDataCache
-                    ? await properties.MapDataCache?.GetGymsNearby(Latitude, Longitude)
-                    : new(),
-                Pokestops = staticMapConfig.IncludeNearbyPokestops
-                    // Fetch nearby pokestops from MapDataCache
-                    ? await properties.MapDataCache?.GetPokestopsNearby(Latitude, Longitude)
-                    : new(),
-                Pregenerate = staticMapConfig.Pregenerate,
-                Regeneratable = true,
-            });
-            var staticMapLink = staticMap.GenerateLink();
-            var urlShortener = new UrlShortener(properties.Config.Instance.ShortUrlApi);
-            var gmapsLocationLink = await urlShortener.CreateAsync(gmapsLink);
-            var appleMapsLocationLink = await urlShortener.CreateAsync(appleMapsLink);
-            var wazeMapsLocationLink = await urlShortener.CreateAsync(wazeMapsLink);
-            var scannerMapsLocationLink = await urlShortener.CreateAsync(scannerMapsLink);
-            var address = await ReverseGeocodingLookup.Instance.GetAddressAsync(new Coordinate(Latitude, Longitude));
+            var locProperties = await GenericEmbedProperties.GenerateAsync(config, properties.Client.Guilds, properties.GuildId, this);
+            var staticMapLink = await config.StaticMaps?.GenerateStaticMapAsync(
+                // TODO: HasLure ? StaticMapType.Lures : StaticMapType.Pokestops,
+                StaticMapType.Lures,
+                this,
+                imageUrl,
+                properties.MapDataCache
+            );
 
-            var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
-            var lureExpireTimeLeft = now.GetTimeRemaining(LureExpireTime).ToReadableStringNoSeconds();
-            var powerUpEndTimeLeft = now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
-            var guild = properties.Client.Guilds.ContainsKey(properties.GuildId)
-                ? properties.Client.Guilds[properties.GuildId]
-                : null;
+            var lureExpireTimeLeft = locProperties.Now.GetTimeRemaining(LureExpireTime).ToReadableStringNoSeconds();
+            var powerUpEndTimeLeft = locProperties.Now.GetTimeRemaining(PowerUpEndTime).ToReadableStringNoSeconds();
 
             const string defaultMissingValue = "?";
             var dict = new
@@ -298,10 +263,10 @@
 
                 // Location links
                 tilemaps_url = staticMapLink,
-                gmaps_url = gmapsLocationLink,
-                applemaps_url = appleMapsLocationLink,
-                wazemaps_url = wazeMapsLocationLink,
-                scanmaps_url = scannerMapsLocationLink,
+                gmaps_url = locProperties.GoogleMapsLocationLink,
+                applemaps_url = locProperties.AppleMapsLocationLink,
+                wazemaps_url = locProperties.WazeMapsLocationLink,
+                scanmaps_url = locProperties.ScannerMapsLocationLink,
 
                 // Pokestop properties
                 pokestop_id = FortId ?? defaultMissingValue,
@@ -309,11 +274,11 @@
                 pokestop_url = FortUrl ?? defaultMissingValue,
                 lure_img_url = lureImageUrl,
 
-                address = address ?? string.Empty,
+                address = locProperties.Address,
 
                 // Discord Guild properties
-                guild_name = guild?.Name,
-                guild_img_url = guild?.IconUrl,
+                guild_name = locProperties.Guild?.Name,
+                guild_img_url = locProperties.Guild?.IconUrl,
 
                 // Misc properties
                 date_time = DateTime.Now.ToString(),

@@ -640,14 +640,14 @@
             var filterJson = dict["filter"].ToString();
             var filter = filterJson.FromJson<WebhookFilter>();
 
-            // Save json
-            var json = filter.ToJson();
             var path = Path.Combine(Strings.FiltersFolder, name + ".json");
             if (System.IO.File.Exists(path))
             {
                 return SendErrorResponse($"Failed to create filter '{name}', filter already exists.");
             }
 
+            // Save json
+            var json = filter.ToJson();
             await WriteDataAsync(path, json);
 
             return new JsonResult(new

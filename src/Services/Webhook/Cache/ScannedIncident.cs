@@ -22,7 +22,7 @@
             get
             {
                 var now = DateTime.UtcNow.ConvertTimeFromCoordinates(Latitude, Longitude);
-                return now > ExpireTime;
+                return now >= ExpireTime;
             }
         }
 
