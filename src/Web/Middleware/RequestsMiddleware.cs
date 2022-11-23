@@ -1,12 +1,9 @@
 ﻿namespace WhMgr.Web.Middleware
 {
-    using System;
     using System.Threading.Tasks;
 
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Logging;
-
-    using WhMgr.Extensions;
 
     public class RequestsMiddleware
     {

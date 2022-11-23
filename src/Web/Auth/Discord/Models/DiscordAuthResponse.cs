@@ -2,7 +2,7 @@
 {
     using System.Text.Json.Serialization;
 
-    internal class DiscordAuthResponse
+    public class DiscordAuthResponse
     {
         [JsonPropertyName("access_token")]
         public string AccessToken { get; set; }

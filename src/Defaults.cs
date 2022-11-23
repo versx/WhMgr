@@ -29,7 +29,7 @@
         public uint MaximumCP { get; set; }
 
         [JsonPropertyName("pvp")]
-        public Dictionary<PvpLeague, PvpLeagueFilter> Pvp { get; set; }
+        public IReadOnlyDictionary<PvpLeague, PvpLeagueFilter> Pvp { get; set; }
 
         // Webhook and subscription queue settings
         [JsonPropertyName("max_queue_batch_size")]
@@ -55,7 +55,7 @@
 
         // Emoji formats and list
         [JsonPropertyName("emojis_list")]
-        public List<string> EmojisList { get; set; }
+        public IReadOnlyList<string> EmojisList { get; set; }
 
         [JsonPropertyName("emoji_schema")]
         public string EmojiSchema { get; set; }
@@ -86,6 +86,43 @@
             MaximumQueueBatchSize = 25;
             MaximumQueueSizeWarning = 100;
             MaximumQueueCapacity = 4096;
+
+            Pvp = new Dictionary<PvpLeague, PvpLeagueFilter>
+            {
+                {
+                    PvpLeague.Little, new PvpLeagueFilter
+                    {
+                        MinimumLeagueCP = 400,
+                        MaximumLeagueCP = 500,
+                        MinimumRank = 1,
+                        MaximumRank = 25,
+                        MinimumPercent = 90,
+                        MaximumPercent = 100,
+                    }
+                },
+                {
+                    PvpLeague.Great, new PvpLeagueFilter
+                    {
+                        MinimumLeagueCP = 1400,
+                        MaximumLeagueCP = 1500,
+                        MinimumRank = 1,
+                        MaximumRank = 25,
+                        MinimumPercent = 90,
+                        MaximumPercent = 100,
+                    }
+                },
+                {
+                    PvpLeague.Ultra, new PvpLeagueFilter
+                    {
+                        MinimumLeagueCP = 2400,
+                        MaximumLeagueCP = 2500,
+                        MinimumRank = 1,
+                        MaximumRank = 25,
+                        MinimumPercent = 90,
+                        MaximumPercent = 100,
+                    }
+                },
+            };
 
             GoogleMaps = "https://maps.google.com/maps?q={0},{1}";
             AppleMaps = "https://maps.apple.com/maps?daddr={0},{1}";

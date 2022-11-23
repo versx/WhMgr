@@ -19,7 +19,7 @@
             };
         }
 
-        public void Request(string url, long elapsedMilliseconds)
+        public void Request(string url, double elapsedMilliseconds)
         {
             WriteEvent(1, url, elapsedMilliseconds);
             Console.WriteLine($"Request {url} time elapsed: {elapsedMilliseconds} ms");

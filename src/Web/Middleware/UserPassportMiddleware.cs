@@ -1,6 +1,5 @@
 ﻿namespace WhMgr.Web.Middleware
 {
-    using System;
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
     using System.Threading.Tasks;

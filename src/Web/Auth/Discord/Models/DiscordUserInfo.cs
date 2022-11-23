@@ -2,7 +2,7 @@
 {
     using System.Text.Json.Serialization;
 
-    internal class DiscordUserInfo
+    public class DiscordUserInfo
     {
         [JsonPropertyName("id")]
         public string Id { get; set; } // Need to specify string instead of ulong >.>
