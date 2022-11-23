@@ -2,13 +2,13 @@
 	"eggs":
 	{
 		"enabled": true,
-        "levels": [7, 8],
+		"levels": [7, 8],
 		"only_ex": false
 	},
 	"raids":
 	{
 		"enabled": true,
-        "levels": [7, 8],
+		"levels": [7, 8],
 		"pokemon": [],
 		"type": "Include",
 		"only_ex": false,
