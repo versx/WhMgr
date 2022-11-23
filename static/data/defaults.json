@@ -31,6 +31,8 @@
             "max_league_cp": 2500,
         }
     },
+    "min_raid_level": 1,
+    "max_raid_level": 8,
     "max_queue_batch_size": 25,
     "max_queue_size_warning": 50,
     "max_queue_capacity": 4096,

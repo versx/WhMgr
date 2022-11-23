@@ -1,5 +1,8 @@
 ﻿namespace WhMgr.Services.Alarms.Filters.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Text.Json.Serialization;
 
     using WhMgr.Common;
@@ -16,16 +19,10 @@
         public bool Enabled { get; set; }
 
         /// <summary>
-        /// Minimum raid egg level
+        /// List of raid egg levels
         /// </summary>
-        [JsonPropertyName("min_lvl")]
-        public uint MinimumLevel { get; set; }
-
-        /// <summary>
-        /// Maximum raid egg level
-        /// </summary>
-        [JsonPropertyName("max_lvl")]
-        public uint MaximumLevel { get; set; }
+        [JsonPropertyName("levels")]
+        public IReadOnlyList<ushort> Levels { get; set; }
 
         /// <summary>
         /// Only ex-eligible raids
@@ -50,9 +47,9 @@
         /// </summary>
         public WebhookFilterEgg()
         {
-            MinimumLevel = 1;
-            MaximumLevel = 8;
-
+            Levels = Enumerable.Range(Strings.Defaults.MinimumRaidLevel, Strings.Defaults.MaximumRaidLevel)
+                .Select(Convert.ToUInt16)
+                .ToList();
             Team = PokemonTeam.All;
         }
     }

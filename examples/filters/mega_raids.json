@@ -2,14 +2,12 @@
 	"eggs":
 	{
 		"enabled": true,
-		"min_lvl": 6,
-		"max_lvl": 6
+        "levels": [6]
 	},
 	"raids":
 	{
 		"enabled": true,
-		"min_lvl": 6,
-		"max_lvl": 6,
+        "levels": [6],
 		"pokemon": [],
 		"type": "Include",
 		"ignore_missing": false
