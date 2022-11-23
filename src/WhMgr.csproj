@@ -21,10 +21,10 @@
   <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <Version>5.5.4.0</Version>
+    <Version>5.5.5.0</Version>
     <UserSecretsId>9cf13a41-ba6b-43d0-b5a5-4938c3b1e968</UserSecretsId>
-    <AssemblyVersion>5.5.4.0</AssemblyVersion>
-    <FileVersion>5.5.4.0</FileVersion>
+    <AssemblyVersion>5.5.5.0</AssemblyVersion>
+    <FileVersion>5.5.5.0</FileVersion>
     <Company>XYZ Software Solutions</Company>
     <RepositoryUrl>https://github.com/versx/WhMgr</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
