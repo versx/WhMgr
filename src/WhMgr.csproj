@@ -21,10 +21,10 @@
   <PropertyGroup>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <Version>5.5.4.0</Version>
+    <Version>5.5.5.0</Version>
     <UserSecretsId>9cf13a41-ba6b-43d0-b5a5-4938c3b1e968</UserSecretsId>
-    <AssemblyVersion>5.5.4.0</AssemblyVersion>
-    <FileVersion>5.5.4.0</FileVersion>
+    <AssemblyVersion>5.5.5.0</AssemblyVersion>
+    <FileVersion>5.5.5.0</FileVersion>
     <Company>XYZ Software Solutions</Company>
     <RepositoryUrl>https://github.com/versx/WhMgr</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -58,7 +58,7 @@
     <PackageReference Include="NetTopologySuite" Version="2.4.0" />
     <PackageReference Include="NetTopologySuite.Features" Version="2.1.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
-    <PackageReference Include="POGOProtos.Core" Version="2.56.4" />
+    <PackageReference Include="POGOProtos.Core" Version="2.57.5" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.4" />
     <PackageReference Include="Sentry.AspNetCore" Version="3.17.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />

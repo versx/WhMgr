@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Text.Json.Serialization;
 
-    internal class DiscordGuildInfo
+    public class DiscordGuildInfo
     {
         [JsonPropertyName("id")]
         public string Id { get; set; } // Need to specify string instead of ulong >.>

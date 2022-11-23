@@ -4,7 +4,7 @@
 
     using WhMgr.Web.Middleware;
 
-    public static class RequestCultureMiddlewareExtensions
+    public static class CsrfTokenExtensions
     {
         public static IApplicationBuilder UseCsrfTokens(
             this IApplicationBuilder builder)
