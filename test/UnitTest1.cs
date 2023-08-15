@@ -2,11 +2,10 @@
 {
     using System;
     using System.IO;
-
+    using System.Linq;
     using NUnit.Framework;
 
     using WhMgr.Services;
-    using WhMgr.Services.Subscriptions.Models;
     using WhMgr.Utilities;
 
     [TestFixture]
@@ -23,9 +22,10 @@
         }
 
         [Test]
-        public void Test1()
+        public void Test_RaidLevel_Generate()
         {
-            Assert.Pass();
+            var levels = Enumerable.Range(1, 8).Select(Convert.ToUInt16).ToList();
+            Assert.IsTrue(levels.Count == 8);
         }
 
         [TestCase]

@@ -31,6 +31,15 @@
         [JsonPropertyName("pvp")]
         public IReadOnlyDictionary<PvpLeague, PvpLeagueFilter> Pvp { get; set; }
 
+
+        // Default raid/egg settings
+        [JsonPropertyName("min_raid_level")]
+        public ushort MinimumRaidLevel { get; set; }
+
+        [JsonPropertyName("max_raid_level")]
+        public ushort MaximumRaidLevel { get; set; }
+
+
         // Webhook and subscription queue settings
         [JsonPropertyName("max_queue_batch_size")]
         public ushort MaximumQueueBatchSize { get; set; }

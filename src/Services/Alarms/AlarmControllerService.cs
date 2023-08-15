@@ -248,7 +248,7 @@
                             continue;
                         }
 
-                        if (!(raid.Level >= alarm.Filters.Eggs.MinimumLevel && raid.Level <= alarm.Filters.Eggs.MaximumLevel))
+                        if (!alarm.Filters.Eggs.Levels.Contains(raid.Level))
                         {
                             //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid egg: '{raid.Level}' does not meet the MinimumLevel={alarm.Filters.Eggs.MinimumLevel} and MaximumLevel={alarm.Filters.Eggs.MaximumLevel} filters.");
                             continue;
@@ -283,7 +283,7 @@
                             continue;
                         }
 
-                        if (!(raid.Level >= alarm.Filters.Raids.MinimumLevel && raid.Level <= alarm.Filters.Raids.MaximumLevel))
+                        if (!alarm.Filters.Raids.Levels.Contains(raid.Level))
                         {
                             //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping level {raid.Level} raid {raid.PokemonId}: '{raid.Level}' does not meet the MinimumLevel={alarm.Filters.Raids.MinimumLevel} and MaximumLevel={alarm.Filters.Raids.MaximumLevel} filters.");
                             continue;

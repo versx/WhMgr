@@ -20,19 +20,19 @@
         /// Gets or sets the list of pokemon pokedex IDs to filter against
         /// </summary>
         [JsonPropertyName("pokemon")]
-        public List<uint> Pokemon { get; set; }
+        public IReadOnlyList<uint> Pokemon { get; set; }
 
         /// <summary>
         /// Gets or sets the list of pokemon Form strings to filter against
         /// </summary>
         [JsonPropertyName("forms")]
-        public List<string> Forms { get; set; }
+        public IReadOnlyList<string> Forms { get; set; }
 
         /// <summary>
         /// Gets or sets the list of Pokemon costume strings to filter against
         /// </summary>
         [JsonPropertyName("costumes")]
-        public List<string> Costumes { get; set; }
+        public IReadOnlyList<string> Costumes { get; set; }
 
         /// <summary>
         /// Gets or sets the minimum IV value to report
@@ -86,7 +86,7 @@
         /// Gets or sets the Pokemon eligible PvP ranking filtering
         /// </summary>
         [JsonPropertyName("pvp")]
-        public Dictionary<PvpLeague, WebhookFilterPokemonPvp> Pvp { get; set; }
+        public IReadOnlyDictionary<PvpLeague, WebhookFilterPokemonPvp> Pvp { get; set; }
 
         /// <summary>
         /// Gets or sets a value determining if webhook Pokemon filter has PvP ranking filters

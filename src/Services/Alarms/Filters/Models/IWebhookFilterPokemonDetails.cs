@@ -4,11 +4,11 @@
 
     public interface IWebhookFilterPokemonDetails
     {
-        List<uint> Pokemon { get; }
+        IReadOnlyList<uint> Pokemon { get; }
 
-        List<string> Forms { get; }
+        IReadOnlyList<string> Forms { get; }
 
-        List<string> Costumes { get; }
+        IReadOnlyList<string> Costumes { get; }
 
         FilterType FilterType { get; }
     }
