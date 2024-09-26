@@ -388,6 +388,18 @@
                         //_logger.LogDebug($"[{alarm.Name}] [{geofence.Name}] Skipping quest PokestopId={quest.PokestopId}, Type={quest.Type}: filter IsShiny={alarm.Filters.Quests.IsShiny} Quest={quest.IsShiny}.");
                         continue;
                     }
+                    //quest.Type == POGOProtos.Rpc.QuestType
+                    //quest.Target
+                    //POGOProtos.Rpc.QuestType.
+                    var reward = quest.Rewards[0];
+                    //reward.Type == POGOProtos.Rpc.QuestRewardProto.Types.Type.PokemonEncounter
+                    //reward.Info.PokemonId
+                    //reward.Info.FormId
+                    //reward.Info.CostumeId
+                    //reward.Info.GenderId
+                    //reward.Info.Amount
+                    //reward.Info.Item
+                    //reward.Info.MegaResource
 
                     foreach (var geofence in geofences)
                     {

@@ -13,6 +13,7 @@ import {
     FormControlLabel,
     Grid,
     InputLabel,
+    List,
     MenuItem,
     Select,
     SelectChangeEvent,
@@ -28,6 +29,7 @@ import { makeStyles } from '@mui/styles';
 
 import config from '../../config.json';
 import { BreadCrumbs } from '../../components/BreadCrumbs';
+import { PvpFilter, PvpFilterProps } from '../../components/PvpFilter';
 import withRouter from '../../hooks/WithRouter';
 import { IGlobalProps } from '../../interfaces/IGlobalProps';
 import { onNestedStateChange } from '../../utils/nestedStateHelper';
@@ -54,10 +56,11 @@ class EditFilter extends React.Component<IGlobalProps> {
                 max_lvl: 35,
                 gender: '*',
                 size: 'All',
-                great_league: false,
-                ultra_league: false,
-                min_rank: 0,
-                max_rank: 100,
+                pvp: {
+                    little: [],
+                    great: [],
+                    ultra: [],
+                },
                 is_event: false,
                 type: 'Include',
                 ignore_missing: false,
@@ -91,7 +94,9 @@ class EditFilter extends React.Component<IGlobalProps> {
                 enabled: false,
                 lured: false,
                 lure_types: [],
-                invasions: false,
+            },
+            invasions: {
+                enabled: false,
                 invasion_types: {},
             },
             gyms: {
@@ -103,6 +108,8 @@ class EditFilter extends React.Component<IGlobalProps> {
                 enabled: false,
                 types: [],
             },
+            open: false,
+            allLeagues: [],
         };
         this.onInputChange = this.onInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -127,6 +134,7 @@ class EditFilter extends React.Component<IGlobalProps> {
         .then(data => {
             console.log('filter data:', data);
             //this.setState(data.data.filter);
+            this.setState({ ['allLeagues']: data.data.allLeagues });
             const keys: string[] = Object.keys(data.data.filter);
             for (const key of keys) {
                 //console.log('key:', key, 'data:', data.data.filter[key]);
@@ -169,6 +177,7 @@ class EditFilter extends React.Component<IGlobalProps> {
                 eggs: this.state.eggs,
                 quests: this.state.quests,
                 pokestops: this.state.pokestops,
+                invasions: this.state.invasions,
                 gyms: this.state.gyms,
                 weather: this.state.weather,
             },
@@ -237,6 +246,13 @@ class EditFilter extends React.Component<IGlobalProps> {
             selected: true,
         }];
 
+        const toggleModal = () => {
+            this.setState({ ['open']: !this.state.open });
+            if (!this.state.open) {
+                console.log('this.state:', this.state);
+            }
+        };
+
         return (
             <div className={classes.container} style={{paddingTop: '50px', paddingBottom: '20px', paddingLeft: '20px', paddingRight: '20px'}}>
                 <Container>
@@ -261,7 +277,7 @@ class EditFilter extends React.Component<IGlobalProps> {
                                 onChange={this.onInputChange}
                                 style={{paddingBottom: '20px'}}
                             />
-                            <Accordion expanded={this.state.expanded === 'panel1'} onChange={this.handlePanelExpanded('panel1')}>
+                            <Accordion expanded={this.state.expanded === 'panel-pokemon'} onChange={this.handlePanelExpanded('panel-pokemon')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography>Pokemon</Typography>
                                 </AccordionSummary>
@@ -386,46 +402,6 @@ class EditFilter extends React.Component<IGlobalProps> {
                                                 onChange={this.onInputChange}
                                             />
                                         </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <FormControlLabel
-                                                id="pokemon.great_league"
-                                                name="pokemon.great_league"
-                                                control={<Switch checked={this.state.pokemon.great_league} onChange={this.onInputChange} />}
-                                                label="Is Great League"
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <FormControlLabel
-                                                id="pokemon.ultra_league"
-                                                name="pokemon.ultra_league"
-                                                control={<Switch checked={this.state.pokemon.ultra_league} onChange={this.onInputChange} />}
-                                                label="Is Ultra League"
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                id="pokemon.min_rank"
-                                                name="pokemon.min_rank"
-                                                variant="outlined"
-                                                label="Minimum Rank"
-                                                type="number"
-                                                value={this.state.pokemon.min_rank}
-                                                fullWidth
-                                                onChange={this.onInputChange}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <TextField
-                                                id="pokemon.max_rank"
-                                                name="pokemon.max_rank"
-                                                variant="outlined"
-                                                label="Maximum Rank"
-                                                type="number"
-                                                value={this.state.pokemon.max_rank}
-                                                fullWidth
-                                                onChange={this.onInputChange}
-                                            />
-                                        </Grid>
                                         <Grid item xs={12} sm={12}>
                                             <FormControlLabel
                                                 id="pokemon.is_event"
@@ -458,10 +434,42 @@ class EditFilter extends React.Component<IGlobalProps> {
                                                 label="Ignore Pokemon Missing Stats"
                                             />
                                         </Grid>
+                                        <Grid item xs={12} sm={12}>
+                                            <InputLabel id="type-label">PVP Filtering</InputLabel>
+                                            <Button variant="contained" color="success" onClick={toggleModal}>Add PVP Filter</Button>
+                                            <List style={{paddingTop: '20px', maxHeight: 800, overflow: 'auto'}}>
+                                            {Object.keys(this.state.pokemon.pvp).map((league: any) => {
+                                                const pvp = this.state.pokemon.pvp[league][0];
+                                                console.log('pvp:', pvp);
+                                                const props: PvpFilterProps = {
+                                                    ...pvp,
+                                                    league: league.toString().toLowerCase(),
+                                                    allLeagues: this.state.allLeagues,
+                                                };
+                                                const handleDelete = (name: string) => {
+                                                    const pvp = this.state.pokemon.pvp;
+                                                    const newPvp = pvp.filter((item: any) => item.name !== name);
+                                                    this.setState({ ['pokemon.pvp']: newPvp });
+                                                };
+                                                return (
+                                                    <div key={league} style={{paddingBottom: '20px'}}>
+                                                        <PvpFilter {...props} />
+                                                        <Button
+                                                            variant="contained"
+                                                            color="error"
+                                                            onClick={() => handleDelete(pvp.name)}
+                                                        >
+                                                            Remove
+                                                        </Button>
+                                                    </div>
+                                                );
+                                            })}
+                                            </List>
+                                        </Grid>
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion expanded={this.state.expanded === 'panel2'} onChange={this.handlePanelExpanded('panel2')}>
+                            <Accordion expanded={this.state.expanded === 'panel-raids'} onChange={this.handlePanelExpanded('panel-raids')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography>Raids</Typography>
                                 </AccordionSummary>
@@ -592,7 +600,7 @@ class EditFilter extends React.Component<IGlobalProps> {
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion expanded={this.state.expanded === 'panel3'} onChange={this.handlePanelExpanded('panel3')}>
+                            <Accordion expanded={this.state.expanded === 'panel-eggs'} onChange={this.handlePanelExpanded('panel-eggs')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography>Eggs</Typography>
                                 </AccordionSummary>
@@ -660,7 +668,7 @@ class EditFilter extends React.Component<IGlobalProps> {
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion expanded={this.state.expanded === 'panel4'} onChange={this.handlePanelExpanded('panel4')}>
+                            <Accordion expanded={this.state.expanded === 'panel-quests'} onChange={this.handlePanelExpanded('panel-quests')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography>Quests</Typography>
                                 </AccordionSummary>
@@ -714,7 +722,7 @@ class EditFilter extends React.Component<IGlobalProps> {
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion expanded={this.state.expanded === 'panel5'} onChange={this.handlePanelExpanded('panel5')}>
+                            <Accordion expanded={this.state.expanded === 'panel-pokestops'} onChange={this.handlePanelExpanded('panel-pokestops')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography>Pokestops</Typography>
                                 </AccordionSummary>
@@ -783,7 +791,40 @@ class EditFilter extends React.Component<IGlobalProps> {
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion expanded={this.state.expanded === 'panel6'} onChange={this.handlePanelExpanded('panel6')}>
+                            <Accordion expanded={this.state.expanded === 'panel-invasions'} onChange={this.handlePanelExpanded('panel-invasions')}>
+                                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                                    <Typography>Team Rocket Invasions</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={12}>
+                                            <FormControlLabel
+                                                id="invasions.enabled"
+                                                name="invasions.enabled"
+                                                control={<Switch checked={this.state.invasions.enabled} onChange={this.onInputChange} />}
+                                                label="Enabled"
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={12}>
+                                            <FormControl fullWidth>
+                                                <InputLabel id="invasionTypes-label">Invasion Types</InputLabel>
+                                                <Select
+                                                    labelId="invasionTypes-label"
+                                                    id="invasions.invasion_types"
+                                                    name="invasions.invasion_types"
+                                                    value={this.state.invasions.invasion_types}
+                                                    //multiple
+                                                    label="Invasion Types"
+                                                    onChange={this.onInputChange}
+                                                >
+                                                    <MenuItem value="">All</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+                                    </Grid>
+                                </AccordionDetails>
+                            </Accordion>
+                            <Accordion expanded={this.state.expanded === 'panel-gyms'} onChange={this.handlePanelExpanded('panel-gyms')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography>Gyms</Typography>
                                 </AccordionSummary>
@@ -827,7 +868,7 @@ class EditFilter extends React.Component<IGlobalProps> {
                                     </Grid>
                                 </AccordionDetails>
                             </Accordion>
-                            <Accordion expanded={this.state.expanded === 'panel7'} onChange={this.handlePanelExpanded('panel7')}>
+                            <Accordion expanded={this.state.expanded === 'panel-weather'} onChange={this.handlePanelExpanded('panel-weather')}>
                                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                                     <Typography>Weather</Typography>
                                 </AccordionSummary>
